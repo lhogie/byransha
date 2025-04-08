@@ -9,8 +9,6 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Person extends BNode {
-
-
 	public EtatCivil etatCivil = new EtatCivil(graph);
 	public ListNode<Position> positions = new ListNode<>(graph);
 	public ImageNode pics = new ImageNode(graph);

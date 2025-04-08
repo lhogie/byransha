@@ -8,13 +8,12 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 
-import java.util.ArrayList;
-
-public class Nodes extends NodeEndpoint<BNode> {
+public class Nodes extends NodeEndpoint<BNode> implements View{
 
 	@Override
 	public String getDescription() {
@@ -33,6 +32,7 @@ public class Nodes extends NodeEndpoint<BNode> {
 			for (var n : graph.nodes) {
 				var nn = new ObjectNode(null);
 				nn.set("id", new TextNode("" + n.id()));
+				nn.set("description", new TextNode(n.getDescription()));
 				nn.set("class", new TextNode(n.getClass().getName()));
 				nn.set("to_string", new TextNode(n.toString()));
 				a.add(nn);

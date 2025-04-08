@@ -48,6 +48,7 @@ import byransha.OSNode;
 import byransha.StringNode;
 import byransha.User;
 import byransha.graph.AnyGraph;
+import byransha.labmodel.I3S;
 import byransha.labmodel.model.v0.EtatCivil;
 import byransha.labmodel.model.v0.Person;
 import byransha.labmodel.model.v0.Picture;
@@ -55,13 +56,13 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.CurrentNode;
+import byransha.web.endpoint.Edit;
 import byransha.web.endpoint.Endpoints;
+import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.NodeEndpoints;
-import byransha.web.endpoint.NodeIDs;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
-import byransha.web.endpoint.Edit;
 import byransha.web.view.AllViews;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
@@ -77,9 +78,10 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
-	public static File defaultDBDirectory = new File(System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
+	public static File defaultDBDirectory = new File(
+			System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
-  public static void main(String[] args) throws Exception {
+	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
@@ -104,12 +106,15 @@ public class WebServer extends BNode {
 		} else if (argMap.containsKey("--createDB")) {
 			return new BBGraph(defaultDBDirectory);
 		} else {
-			var g =  new BBGraph(null);
+			var g = new BBGraph(null);
 			var p = new Person(g);
 			p.etatCivil = new EtatCivil(g);
 			p.etatCivil.name = new StringNode(g, "Caro");
 			p.etatCivil.firstName = new StringNode(g, "George");
 			p.etatCivil.nationality = new StringNode(g, "FR");
+			var lab = new I3S(g);
+			lab.members.add(p);
+			lab.director = p;
 			return g;
 		}
 	}
@@ -136,7 +141,6 @@ public class WebServer extends BNode {
 		new Endpoints(g);
 		new JVMNode.Kill(g);
 		new Authenticate(g);
-		new NodeIDs(g);
 		new Nodes(g);
 		new EndpointCallDistributionView(g);
 		new Info(g);
@@ -163,6 +167,7 @@ public class WebServer extends BNode {
 		new SetValue(g);
 		new AnyGraph.Classes(g);
 		new Edit(g);
+		new IntrospectingEndpoint(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -195,6 +200,7 @@ public class WebServer extends BNode {
 		httpsServer.setExecutor(Executors.newCachedThreadPool());
 		httpsServer.start();
 	}
+
 	@Override
 	public String getDescription() {
 		return "serves HTTP requests from the frontend";
@@ -252,8 +258,9 @@ public class WebServer extends BNode {
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
 				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
 
-				//response.set("compliant_endpoints",
-				//		graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this, https).toJson());
+				// response.set("compliant_endpoints",
+				// graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this,
+				// https).toJson());
 
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
@@ -353,7 +360,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return endpointsUsableFrom(currentNode).stream().filter(e -> !e.isChanger()).toList();
+			return endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
@@ -504,6 +511,7 @@ public class WebServer extends BNode {
 		public String getDescription() {
 			return "Provides a distribution view of endpoint calls for the WebServer node.";
 		}
+
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
 		}

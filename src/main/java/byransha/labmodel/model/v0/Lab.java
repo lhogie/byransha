@@ -7,13 +7,12 @@ import byransha.BBGraph;
 import byransha.ListNode;
 
 public class Lab extends Structure {
+	public Person HFDS; // haut fonctionnaire defense securité
+
 
 	public Lab(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
 	}
-
-	public Person HFDS; // haut fonctionnaire defense securité
 
 	enum HFDSAvisE {
 		YES, NO, INBETWEEN

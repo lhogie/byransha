@@ -38,6 +38,9 @@ public class BBGraph extends BNode {
 	private Int2ObjectMap<BNode> byID;// = new Int2ObjectOpenHashMap<>();
 	int idCount = 1;
 
+	StringNode testString;
+	BooleanNode testBoolean;
+
 	@Override
 	public String getDescription() {
 		return "BBGraph: A graph representation for BNodes.";
@@ -51,6 +54,10 @@ public class BBGraph extends BNode {
 		new User(this, "admin", "test");
 
 		accept(this);
+		
+		
+		testString  = new StringNode(this, "cocou");
+		testBoolean = new BooleanNode(this);;
 	}
 
 	public static class Ref {
