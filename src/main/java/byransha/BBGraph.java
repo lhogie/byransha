@@ -47,17 +47,21 @@ public class BBGraph extends BNode {
 	}
 
 	public BBGraph(File directory) {
-		super(null, 0);
+		super(null, 0); // The graph has automatically ID 0
 		this.directory = directory;
 		nodes = new ArrayList<BNode>();
-		new User(this, "user", "test");
-		new User(this, "admin", "test");
 
-		accept(this);
-		
-		
-		testString  = new StringNode(this, "cocou");
-		testBoolean = new BooleanNode(this);;
+		loadBiggestId();
+//		System.out.println(this.idCount + " ++++++++++++++++++++++++++++++");
+
+//		new User(this, "user", "test");
+//		new User(this, "admin", "test");
+//		testString  = new StringNode(this, "cocou");
+//		testBoolean = new BooleanNode(this);
+
+		accept(this); //self accept
+
+
 	}
 
 	public static class Ref {
@@ -76,8 +80,9 @@ public class BBGraph extends BNode {
 	}
 
 	public synchronized int nextID() {
-		for (int i = 1;; ++i) {
+		for (int i = idCount;; ++i) {
 			if (findByID(i) == null) {
+				idCount = i+1;
 				return i;
 			}
 		}
@@ -102,6 +107,24 @@ public class BBGraph extends BNode {
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
+	private void loadBiggestId(){
+		int biggest = 0;
+		File[] files = directory.listFiles();
+		if (files == null)
+			return;
+		else {
+			for (File classDir : files) {
+				for (File nodeDir : classDir.listFiles()) {
+					int id = Integer.valueOf(nodeDir.getName().substring(1));
+					if (id > biggest) {
+						biggest = id;
+					}
+				}
+			}
+			this.idCount = biggest + 1;
+		}
+	}
+
 	/*
 	 * Loads all nodes from all class directories from the disk
 	 */
@@ -113,6 +136,10 @@ public class BBGraph extends BNode {
 			for (File classDir : files) {
 				String className = classDir.getName();
 				var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(className);
+				if(nodeClass.equals(WebServer.class)) {
+					System.err.println("Skipping WebServer class " + nodeClass.getName());
+					continue;
+				}
 
 				for (File nodeDir : classDir.listFiles()) {
 					int id = Integer.valueOf(nodeDir.getName().substring(1));
@@ -124,8 +151,11 @@ public class BBGraph extends BNode {
 							BNode node = constructor.newInstance(graph, id);
 							newNodeInstantiated.accept(node);
 						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
-								| InvocationTargetException | NoSuchMethodException | SecurityException err) {
+								| InvocationTargetException | SecurityException err) {
 							throw new RuntimeException(err);
+						}
+						catch (NoSuchMethodException e ){
+							System.out.println("Warning: No constructor found for class " + nodeClass.getName() + ": " + e.getMessage());
 						}
 					}
 				}
@@ -152,14 +182,14 @@ public class BBGraph extends BNode {
 				var fn = targetFile.getFileName().toString();
 
 				// Check if the filename contains the expected format
-				int atIndex = fn.indexOf("@");
-				if (atIndex == -1) {
-					System.err.println("Warning: Invalid filename format for symlink: " + fn);
-					continue;
-				}
+//				int atIndex = fn.indexOf("@");
+//				if (atIndex == -1) {
+//					System.err.println("Warning: Invalid filename format for symlink: " + fn);
+//					continue;
+//				}
 
 				try {
-					int id = Integer.valueOf(fn.substring(atIndex + 1));
+					int id = Integer.valueOf(fn.substring( 1));//atIndex + 1
 					BNode targetNode = findByID(id);
 
 					if (targetNode == null) {
@@ -168,14 +198,12 @@ public class BBGraph extends BNode {
 					}
 
 					try {
-						node.getClass().getField(relationName).set(node, targetNode);
+						if(node instanceof ListNode<?>){
+							((ListNode<BNode>) node).add(targetNode);
+						}
 						setRelation.accept(node, relationName);
-					} catch (NoSuchFieldException e) {
-						System.err.println("Error: Field '" + relationName + "' not found in class "
-								+ node.getClass().getName() + ": " + e.getMessage());
-					} catch (IllegalAccessException e) {
-						System.err.println("Error: Cannot access field '" + relationName + "' in class "
-								+ node.getClass().getName() + ": " + e.getMessage());
+					} catch (Exception e) {
+						System.err.println("Error setting relation " + relationName + " for node " + node + ": " + e.getMessage());
 					}
 				} catch (NumberFormatException e) {
 					System.err.println("Error: Invalid node ID in filename: " + fn + ": " + e.getMessage());
@@ -438,6 +466,10 @@ public class BBGraph extends BNode {
 
 		public GraphNivoView(BBGraph db) {
 			super(db);
+		}
+
+		public GraphNivoView(BBGraph db, int id) {
+			super(db, id);
 		}
 
 		@Override

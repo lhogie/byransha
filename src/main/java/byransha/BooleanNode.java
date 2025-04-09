@@ -6,6 +6,10 @@ public class BooleanNode extends ValuedNode<Boolean> {
 		super(db);
 	}
 
+	public BooleanNode(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public void fromString(String s) {
 		set(Boolean.valueOf(s));

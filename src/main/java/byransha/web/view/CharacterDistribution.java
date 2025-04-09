@@ -24,6 +24,10 @@ public class CharacterDistribution extends NodeEndpoint<BNode> implements View {
 		super(g);
 	}
 
+	public CharacterDistribution(BBGraph g, int id) {
+		super(g, id);
+	}
+
 
 	@Override
 	public boolean sendContentByDefault() {

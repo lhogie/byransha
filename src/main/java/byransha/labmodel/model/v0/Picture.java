@@ -28,6 +28,10 @@ public class Picture extends ValuedNode<byte[]> {
 			super(db);
 		}
 
+		public V(BBGraph db, int id) {
+			super(db, id);
+		}
+
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				Picture node) {

@@ -26,6 +26,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
+import byransha.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -84,8 +85,8 @@ public class WebServer extends BNode {
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
+		//argMap.put("--createDB", "true");
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
-
 		BBGraph g = instantiateGraph(argMap);
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
@@ -98,7 +99,8 @@ public class WebServer extends BNode {
 		if (defaultDBDirectory.exists()) {
 			var g = (BBGraph) Class.forName(Files.readString(new File(defaultDBDirectory, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(defaultDBDirectory);
-			System.out.println("loading DB from " + g.directory);
+			System.out.println("loading DB from " + defaultDBDirectory);
+//			var g = new BBGraph(defaultDBDirectory);
 
 			g.loadFromDisk(n -> System.out.println("loading node " + n),
 					(n, s) -> System.out.println("loading arc " + n + ", " + s));
@@ -131,43 +133,80 @@ public class WebServer extends BNode {
 	public final List<Log> logs = new ArrayList<>();
 
 	public WebServer(BBGraph g, int port) throws Exception {
-		super(g);
-		jvm = new JVMNode(g);
-		byransha = new Byransha(g);
-		operatingSystem = new OSNode(g);
-		new CurrentNode(g);
-		new Views(g);
-		new Jump(g);
-		new Endpoints(g);
-		new JVMNode.Kill(g);
-		new Authenticate(g);
-		new Nodes(g);
-		new EndpointCallDistributionView(g);
-		new Info(g);
-		new LogsView(g);
-		new BasicView(g);
-		new CharacterDistribution(g);
-		new CharExampleXY(g);
-		new User.UserView(g);
-		new BBGraph.GraphNivoView(g);
-		new OSNode.View(g);
-		new JVMNode.View(g);
-		new BNode.InOutsNivoView(g);
-		new ModelGraphivzSVGView(g);
-		new Nav2(g);
-		new OutNodeDistribution(g);
-		new Picture.V(g);
-		new AllViews(g);
-		new LabView(g);
-		new ModelDOTView(g);
-		new SourceView(g);
-		new ToStringView(g);
-		new StructureView(g);
-		new NodeEndpoints(g);
-		new SetValue(g);
-		new AnyGraph.Classes(g);
-		new Edit(g);
-		new IntrospectingEndpoint(g);
+
+        super(g);
+		JVMNode jvm1 = null;
+		Byransha byransha1 = null;
+		OSNode operatingSystem1 = null;
+		System.out.println("creating web server on port " + port);
+		var initJVM = false;
+		var initByransha = false;
+		var initOS = false;
+		for(var n : g.nodes) {
+			if(initJVM && initByransha && initOS) {
+				break;
+			}
+			else if(n instanceof JVMNode jvmNode && !initJVM) {
+				jvm1 = jvmNode;
+				initJVM = true;
+			}
+			else if (n instanceof OSNode osNode && !initOS) {
+				operatingSystem1 = osNode;
+				initOS = true;
+			}
+			else if(n instanceof Byransha byranshaNode) {
+				byransha1 = byranshaNode;
+				initByransha = true;
+			}
+		}
+		if(!initJVM) {
+			jvm1 = new JVMNode(g);
+		}
+		if(!initByransha) {
+			byransha1 = new Byransha(g);
+		}
+		if (!initOS) {
+			operatingSystem1 = new OSNode(g);
+		}
+
+		jvm = jvm1;
+		byransha = byransha1;
+		operatingSystem = operatingSystem1;
+		if(!initByransha && !initJVM && !initOS) {
+			new CurrentNode(g);
+			new Views(g);
+			new Jump(g);
+			new Endpoints(g);
+			new JVMNode.Kill(g);
+			new Authenticate(g);
+			new Nodes(g);
+			new EndpointCallDistributionView(g);
+			new Info(g);
+			new LogsView(g);
+			new BasicView(g);
+			new CharacterDistribution(g);
+			new CharExampleXY(g);
+			new User.UserView(g);
+			new BBGraph.GraphNivoView(g);
+			new OSNode.View(g);
+			new JVMNode.View(g);
+			new BNode.InOutsNivoView(g);
+			new ModelGraphivzSVGView(g);
+			new Nav2(g);
+			new OutNodeDistribution(g);
+			new Picture.V(g);
+			new AllViews(g);
+			new LabView(g);
+			new ModelDOTView(g);
+			new SourceView(g);
+			new ToStringView(g);
+			new StructureView(g);
+			new NodeEndpoints(g);
+			new SetValue(g);
+			new AnyGraph.Classes(g);
+			new Edit(g);
+			new IntrospectingEndpoint(g);
+		}
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -465,6 +504,10 @@ public class WebServer extends BNode {
 			super(db);
 		}
 
+		public Info(BBGraph db, int id) {
+			super(db, id);
+		}
+
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer n) {
@@ -492,6 +535,10 @@ public class WebServer extends BNode {
 			super(db);
 		}
 
+		public LogsView(BBGraph db, int id) {
+			super(db, id);
+		}
+
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer n) {
@@ -514,6 +561,10 @@ public class WebServer extends BNode {
 
 		public EndpointCallDistributionView(BBGraph db) {
 			super(db);
+		}
+
+		public EndpointCallDistributionView(BBGraph db, int id) {
+			super(db, id);
 		}
 
 		@Override

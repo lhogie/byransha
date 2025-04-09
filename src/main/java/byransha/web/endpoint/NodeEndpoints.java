@@ -22,6 +22,10 @@ public class NodeEndpoints extends NodeEndpoint<WebServer> {
 		super(db);
 	}
 
+	public NodeEndpoints(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, WebServer ws) {
 		var currentNode = user.currentNode();

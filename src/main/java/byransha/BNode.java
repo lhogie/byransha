@@ -171,7 +171,7 @@ public abstract class BNode {
 		return getClass().getSimpleName() + "@" + id();
 	}
 
-	public void saveOuts(Consumer<File> writingFiles) {
+	public void saveOuts(Consumer<File> writingFiles, String id){
 		var outD = outsDirectory();
 
 		if (!outD.exists()) {
@@ -181,12 +181,21 @@ public abstract class BNode {
 
 		forEachOut((name, outNode) -> {
 			try {
-				var symlink = new File(outD, name);// + "@" + outNode.id());
-				writingFiles.accept(symlink);
+				var symlink = new File(outD, name + id);// + "@" + outNode.id());
+
+				for(var e : outD.listFiles()) {
+					if (e.getName().equals(symlink.getName())) {
+//						System.err.println("Symlink with same name already exists outs: " + symlink.getName());
+						return;
+					}
+				}
 
 				if (symlink.exists()) {
 					symlink.delete();
 				}
+				writingFiles.accept(symlink);
+
+
 
 				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
 			} catch (IOException e) {
@@ -195,7 +204,11 @@ public abstract class BNode {
 		});
 	}
 
-	public void saveIns(Consumer<File> writingFiles) {
+	public void saveOuts(Consumer<File> writingFiles) {
+		saveOuts(writingFiles, "");
+	}
+
+	public void saveIns(Consumer<File> writingFiles, String id){
 		var inD = new File(directory(), "ins");
 
 		if (!inD.exists()) {
@@ -203,9 +216,18 @@ public abstract class BNode {
 			inD.mkdirs();
 		}
 
+
+
 		forEachIn((name, inNode) -> {
 			try {
-				var symlink = new File(inD, name);
+				var symlink = new File(inD, name + id);
+
+				for(var e : inD.listFiles()) {
+					if (e.getName().equals(symlink.getName())) {
+//						System.err.println("Symlink with same name already exists ins: " + symlink.getName());
+						return;
+					}
+				}
 				writingFiles.accept(symlink);
 				System.err.println(symlink.toPath());
 				System.err.println(inNode.directory().toPath());
@@ -214,6 +236,10 @@ public abstract class BNode {
 				throw new RuntimeException(e);
 			}
 		});
+	}
+
+	public void saveIns(Consumer<File> writingFiles) {
+		saveIns(writingFiles, "");
 	}
 
 	public File directory() {
@@ -253,6 +279,10 @@ public abstract class BNode {
 
 		public BasicView(BBGraph g) {
 			super(g);
+		}
+
+		public BasicView(BBGraph g, int id) {
+			super(g, id);
 		}
 
 		@Override
@@ -297,6 +327,10 @@ public abstract class BNode {
 			super(g);
 		}
 
+		public Nav2(BBGraph g, int id) {
+			super(g, id);
+		}
+
 		@Override
 		public boolean sendContentByDefault() {
 			return true;
@@ -330,6 +364,10 @@ public abstract class BNode {
 
 		public InOutsNivoView(BBGraph db) {
 			super(db);
+		}
+
+		public InOutsNivoView(BBGraph db, int id) {
+			super(db, id);
 		}
 
 		@Override
@@ -366,6 +404,10 @@ public abstract class BNode {
 
 		public OutNodeDistribution(BBGraph db) {
 			super(db);
+		}
+
+		public OutNodeDistribution(BBGraph db, int id) {
+			super(db, id);
 		}
 
 		@Override

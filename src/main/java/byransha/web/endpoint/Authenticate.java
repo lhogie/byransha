@@ -21,6 +21,10 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		super(db);
 	}
 
+	public Authenticate(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange https, BBGraph g)
 			throws Throwable {

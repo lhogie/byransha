@@ -3,7 +3,6 @@ package byransha.web.endpoint;
 import byransha.*;
 import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 public class SetValue extends NodeEndpoint<BNode> {
@@ -15,6 +14,10 @@ public class SetValue extends NodeEndpoint<BNode> {
 
     public SetValue(BBGraph g) {
         super(g);
+    }
+
+    public SetValue(BBGraph g, int id) {
+        super(g, id);
     }
 
     @Override

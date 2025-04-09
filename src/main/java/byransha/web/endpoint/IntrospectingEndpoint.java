@@ -17,6 +17,10 @@ public class IntrospectingEndpoint extends NodeEndpoint<BNode> implements View {
 		super(g);
 	}
 
+	public IntrospectingEndpoint(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String getDescription() {
 		return "introspect the current node and generates the HTML describing it";

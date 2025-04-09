@@ -35,6 +35,14 @@ public class User extends BNode {
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 	}
+
+	public User(BBGraph g, int id){
+		super(g, id);
+		name = new StringNode(g, null);
+		name.setAsLabelFor(this);
+		passwordNode = new StringNode(g, null);
+		passwordNode.set(null);
+	}
 	
 
 
@@ -59,6 +67,10 @@ public class User extends BNode {
 	public static class UserView extends NodeEndpoint<User> implements TechnicalView {
 		public UserView(BBGraph g) {
 			super(g);
+		}
+
+		public UserView(BBGraph g, int id) {
+			super(g, id);
 		}
 
 		@Override

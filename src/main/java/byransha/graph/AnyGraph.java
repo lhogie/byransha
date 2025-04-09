@@ -84,6 +84,10 @@ public class AnyGraph {
 			super(db);
 		}
 
+		public Classes(BBGraph db, int id) {
+			super(db, id);
+		}
+
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BNode node) throws Throwable {

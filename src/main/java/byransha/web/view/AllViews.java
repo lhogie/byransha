@@ -27,6 +27,10 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 		super(db);
 	}
 
+	public AllViews(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	static List<String> imgFormats = List.of("svg", "png", "jpeg", "jpg");
 
 	@Override

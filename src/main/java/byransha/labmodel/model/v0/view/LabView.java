@@ -22,6 +22,10 @@ final public class LabView extends NodeEndpoint<Lab> {
 		super(db);
 	}
 
+	public LabView(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, Lab lab)
 			throws Throwable {
