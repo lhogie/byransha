@@ -201,6 +201,14 @@ public class BBGraph extends BNode {
 						if(node instanceof ListNode<?>){
 							((ListNode<BNode>) node).add(targetNode);
 						}
+						if(node instanceof User && targetNode instanceof StringNode){
+                            if (symlink.getName().contains("name")) {
+                                ((User) node).name = ((StringNode) targetNode);
+                            }
+							else{
+								((User) node).passwordNode = ((StringNode) targetNode);
+							}
+                        }
 						setRelation.accept(node, relationName);
 					} catch (Exception e) {
 						System.err.println("Error setting relation " + relationName + " for node " + node + ": " + e.getMessage());
