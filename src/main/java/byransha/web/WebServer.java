@@ -135,78 +135,45 @@ public class WebServer extends BNode {
 	public WebServer(BBGraph g, int port) throws Exception {
 
         super(g);
-		JVMNode jvm1 = null;
-		Byransha byransha1 = null;
-		OSNode operatingSystem1 = null;
-		System.out.println("creating web server on port " + port);
-		var initJVM = false;
-		var initByransha = false;
-		var initOS = false;
-		for(var n : g.nodes) {
-			if(initJVM && initByransha && initOS) {
-				break;
-			}
-			else if(n instanceof JVMNode jvmNode && !initJVM) {
-				jvm1 = jvmNode;
-				initJVM = true;
-			}
-			else if (n instanceof OSNode osNode && !initOS) {
-				operatingSystem1 = osNode;
-				initOS = true;
-			}
-			else if(n instanceof Byransha byranshaNode) {
-				byransha1 = byranshaNode;
-				initByransha = true;
-			}
-		}
-		if(!initJVM) {
-			jvm1 = new JVMNode(g);
-		}
-		if(!initByransha) {
-			byransha1 = new Byransha(g);
-		}
-		if (!initOS) {
-			operatingSystem1 = new OSNode(g);
-		}
-
-		jvm = jvm1;
-		byransha = byransha1;
-		operatingSystem = operatingSystem1;
-		if(!initByransha && !initJVM && !initOS) {
-			new CurrentNode(g);
-			new Views(g);
-			new Jump(g);
-			new Endpoints(g);
-			new JVMNode.Kill(g);
-			new Authenticate(g);
-			new Nodes(g);
-			new EndpointCallDistributionView(g);
-			new Info(g);
-			new LogsView(g);
-			new BasicView(g);
-			new CharacterDistribution(g);
-			new CharExampleXY(g);
-			new User.UserView(g);
-			new BBGraph.GraphNivoView(g);
-			new OSNode.View(g);
-			new JVMNode.View(g);
-			new BNode.InOutsNivoView(g);
-			new ModelGraphivzSVGView(g);
-			new Nav2(g);
-			new OutNodeDistribution(g);
-			new Picture.V(g);
-			new AllViews(g);
-			new LabView(g);
-			new ModelDOTView(g);
-			new SourceView(g);
-			new ToStringView(g);
-			new StructureView(g);
-			new NodeEndpoints(g);
-			new SetValue(g);
-			new AnyGraph.Classes(g);
-			new Edit(g);
-			new IntrospectingEndpoint(g);
-		}
+		jvm = g.nodes.stream().filter(JVMNode.class::isInstance).map(JVMNode.class::cast).findFirst()
+				.orElseGet(() -> new JVMNode(g));
+		byransha = g.nodes.stream().filter(Byransha.class::isInstance).map(Byransha.class::cast).findFirst()
+				.orElseGet(() -> new Byransha(g));
+		operatingSystem = g.nodes.stream().filter(OSNode.class::isInstance).map(OSNode.class::cast).findFirst()
+				.orElseGet(() -> new OSNode(g));
+		new CurrentNode(g);
+		new Views(g);
+		new Jump(g);
+		new Endpoints(g);
+		new JVMNode.Kill(g);
+		new Authenticate(g);
+		new Nodes(g);
+		new EndpointCallDistributionView(g);
+		new Info(g);
+		new LogsView(g);
+		new BasicView(g);
+		new CharacterDistribution(g);
+		new CharExampleXY(g);
+		new User.UserView(g);
+		new BBGraph.GraphNivoView(g);
+		new OSNode.View(g);
+		new JVMNode.View(g);
+		new BNode.InOutsNivoView(g);
+		new ModelGraphivzSVGView(g);
+		new Nav2(g);
+		new OutNodeDistribution(g);
+		new Picture.V(g);
+		new AllViews(g);
+		new LabView(g);
+		new ModelDOTView(g);
+		new SourceView(g);
+		new ToStringView(g);
+		new StructureView(g);
+		new NodeEndpoints(g);
+		new SetValue(g);
+		new AnyGraph.Classes(g);
+		new Edit(g);
+		new IntrospectingEndpoint(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -257,6 +224,7 @@ public class WebServer extends BNode {
 		graph.forEachNode(n -> {
 			if (n instanceof User u && u.session != null && u.session.isValid()) {
 				activeUsers.add(u);
+				System.out.println("active user: " + u.name.get());
 			}
 		});
 
