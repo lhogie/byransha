@@ -119,7 +119,7 @@ const GridView = () => {
                                         fontWeight: '600',
                                     }}
                                 >
-                                    {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
+                                    {view.pretty_name.replaceAll('_', ' ').replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
                                 </Typography>
                                 <Typography
                                     variant="subtitle1"
