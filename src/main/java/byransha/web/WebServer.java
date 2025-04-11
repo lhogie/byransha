@@ -240,6 +240,7 @@ public class WebServer extends BNode {
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
+				System.out.println("creating new user " + user);
 				user.session = https.getSSLSession();
 				user.stack.push(graph.root());
 			} else {
