@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -42,7 +43,7 @@ public class BBGraph extends BNode {
 	BooleanNode testBoolean;
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "BBGraph: A graph representation for BNodes.";
 	}
 
@@ -75,6 +76,19 @@ public class BBGraph extends BNode {
 		}
 	}
 
+	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
+		List<NodeEndpoint> r = new ArrayList<>();
+
+		for (var v : findAll(NodeEndpoint.class, e -> true)) {
+			if (v.getTargetNodeType().isAssignableFrom(n.getClass())) {
+				r.add(v);
+			}
+		}
+
+		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		return r;
+	}
+	
 	public synchronized int nextID() {
 		for (int i = 1;; ++i) {
 			if (findByID(i) == null) {
@@ -397,7 +411,7 @@ public class BBGraph extends BNode {
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "DBView: A technical view for BBGraph.";
 		}
 
@@ -432,7 +446,7 @@ public class BBGraph extends BNode {
 	public static class GraphNivoView extends NodeEndpoint<BBGraph> {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "gives a NIVO text representing the graph";
 		}
 
@@ -455,6 +469,11 @@ public class BBGraph extends BNode {
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
+	}
+
+	@Override
+	protected String prettyName() {
+		return "graph";
 	}
 
 }

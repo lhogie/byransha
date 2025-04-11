@@ -35,12 +35,18 @@ public class Person extends BNode {
 		return etatCivil.name.get();
 	}
 	
+	@Override
+	public String prettyName() {
+		return etatCivil.name.get();
+	}
+	
+	
 	public Person(BBGraph g) {
 		super(g);
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "a physical person working in the lab";
 	}
 }

@@ -4,7 +4,11 @@ public class IntNode extends ValuedNode<Integer> {
 
 	public IntNode(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	protected String prettyName() {
+		return "an integer";
 	}
 
 	@Override
@@ -13,7 +17,7 @@ public class IntNode extends ValuedNode<Integer> {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "IntNode with value: " + get();
 	}
 }

@@ -1,19 +1,25 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.StringNode;
 
 public class Device extends BNode {
+	public StringNode serialNumber;
+	public StringNode brand;
+	public StringNode modelName;
+
 	public Device(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
 	}
 
-	public StringNode serialNumber;
+	@Override
+	public String whatIsThis() {
+		return "a computer/phone or any physical device";
+	}
 
 	@Override
-	public String getDescription() {
-		return "Device with serial number: " + (serialNumber != null ? serialNumber.toString() : "unknown");
+	protected String prettyName() {
+		return brand.get() + " " + modelName.get() + "(S/N: " + serialNumber.get() + ")";
 	}
 }

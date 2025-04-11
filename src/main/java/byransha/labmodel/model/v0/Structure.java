@@ -20,7 +20,7 @@ public class Structure extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "a physical structure having members, offices, sub-structures";
 	}
 
@@ -36,7 +36,9 @@ public class Structure extends BNode {
 		return offices.l.stream().mapToDouble(o -> o.surface.get()).sum();
 	}
 
-	protected String label() {
+
+	@Override
+	public String prettyName() {
 		return name.get();
 	}
 }

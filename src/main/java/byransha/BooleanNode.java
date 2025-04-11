@@ -5,7 +5,10 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	public BooleanNode(BBGraph db) {
 		super(db);
 	}
-
+	@Override
+	protected String prettyName() {
+		return "a boolean: " + get();
+	}
 	@Override
 	public void fromString(String s) {
 		set(Boolean.valueOf(s));
@@ -25,7 +28,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "BooleanNode: " + get();
 	}
 }

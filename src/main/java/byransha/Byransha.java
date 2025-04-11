@@ -14,7 +14,12 @@ public class Byransha extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	protected String prettyName() {
+		return "Byransha";
+	}
+
+	@Override
+	public String whatIsThis() {
 		return "Byransha Node Description";
 	}
 

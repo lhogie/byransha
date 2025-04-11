@@ -1,5 +1,6 @@
 package byransha;
 
+import java.lang.management.ManagementFactory;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -7,13 +8,16 @@ import java.util.function.BiConsumer;
 public class SetNode<N extends BNode> extends BNode {
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "SetNode containing " + l.size() + " elements.";
 	}
 	public SetNode(BBGraph db) {
 		super(db);
 	}
-
+	@Override
+	protected String prettyName() {
+		return "a set";
+	}
 	private final Set<N> l = new HashSet<>();
 
 	@Override

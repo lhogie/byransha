@@ -7,11 +7,16 @@ public class Building extends BNode {
 
 	public Building(BBGraph g) {
 		super(g);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public String getDescription() {
+	protected String prettyName() {
+		return "building";
+	}
+
+	
+	@Override
+	public String whatIsThis() {
 		return "Building description";
 	}
 }

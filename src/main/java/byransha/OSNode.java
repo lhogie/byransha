@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class OSNode extends BNode {
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "OSNode description";
 	}
 
@@ -24,10 +24,15 @@ public class OSNode extends BNode {
 		super(db);
 	}
 
+	
+	@Override
+	protected String prettyName() {
+		return ManagementFactory.getOperatingSystemMXBean().getName();
+	}
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "OSNode.View description";
 		}
 

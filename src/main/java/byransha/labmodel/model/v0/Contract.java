@@ -8,21 +8,24 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Contract extends BNode {
-	public Contract(BBGraph g) {
-		super(g);
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public String getDescription() {
-		return "Contract Node";
-	}
-
 	StringNode name;
 	Person holder;
 	List<Person> subHolders;
 	ListNode<Person> coordinators;
 	ListNode<Person> partners;
 	ListNode<Person> misc;
+
+	public Contract(BBGraph g) {
+		super(g);
+	}
+	@Override
+	protected String prettyName() {
+		return name.get() + "("+ holder.prettyName() + ")";
+	}
+	@Override
+	public String whatIsThis() {
+		return "a contract";
+	}
+
 
 }

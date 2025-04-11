@@ -144,7 +144,7 @@ public class WebServer extends BNode {
 		new Nodes(g);
 		new EndpointCallDistributionView(g);
 		new Info(g);
-		new LogsView(g);
+		new Logs(g);
 		new BasicView(g);
 		new CharacterDistribution(g);
 		new CharExampleXY(g);
@@ -202,7 +202,7 @@ public class WebServer extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "serves HTTP requests from the frontend";
 	}
 
@@ -240,7 +240,7 @@ public class WebServer extends BNode {
 				user.session = https.getSSLSession();
 				user.stack.push(graph.root());
 			} else {
-				System.out.println("found user from session : " + user);
+//				System.out.println("found user from session : " + user);
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -326,7 +326,7 @@ public class WebServer extends BNode {
 					file = new File(frontendDir, "index.html");
 				}
 
-				System.out.println("serving " + file);
+//				System.out.println("serving " + file);
 				return new HTTPResponse(200, mimeType(file.getName()), Files.readAllBytes(file.toPath()));
 			}
 		} catch (Throwable err) {
@@ -360,7 +360,7 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName == null || endpointName.isEmpty()) {
-			return endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
+			return graph.endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
@@ -370,19 +370,6 @@ public class WebServer extends BNode {
 
 			return List.of(e);
 		}
-	}
-
-	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
-		List<NodeEndpoint> r = new ArrayList<>();
-
-		for (var v : graph.findAll(NodeEndpoint.class, e -> true)) {
-			if (v.getTargetNodeType().isAssignableFrom(n.getClass())) {
-				r.add(v);
-			}
-		}
-
-		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
-		return r;
 	}
 
 	static String mimeType(String url) {
@@ -457,7 +444,7 @@ public class WebServer extends BNode {
 	public static class Info extends NodeEndpoint<WebServer> {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Provides information about the WebServer node.";
 		}
 
@@ -482,13 +469,13 @@ public class WebServer extends BNode {
 		}
 	}
 
-	public static class LogsView extends NodeEndpoint<WebServer> {
+	public static class Logs extends NodeEndpoint<WebServer> {
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Provides a view of the logs for the WebServer node.";
 		}
 
-		public LogsView(BBGraph db) {
+		public Logs(BBGraph db) {
 			super(db);
 		}
 
@@ -508,7 +495,7 @@ public class WebServer extends BNode {
 
 	public static class EndpointCallDistributionView extends NodeEndpoint<WebServer> {
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Provides a distribution view of endpoint calls for the WebServer node.";
 		}
 
@@ -524,4 +511,10 @@ public class WebServer extends BNode {
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}
+
+	@Override
+	protected String prettyName() {
+		return "HTTP server";
+	}
+
 }

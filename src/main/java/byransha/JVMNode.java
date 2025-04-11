@@ -19,7 +19,12 @@ public class JVMNode extends BNode implements VirtualNode {
 	}
 
 	@Override
-	public String getDescription() {
+	protected String prettyName() {
+		return "Java Virtual Machine";
+	}
+
+	@Override
+	public String whatIsThis() {
 		return "represents the server's JVM";
 	}
 
@@ -30,7 +35,7 @@ public class JVMNode extends BNode implements VirtualNode {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "describes the server's JVM";
 		}
 
@@ -63,7 +68,7 @@ public class JVMNode extends BNode implements VirtualNode {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Kill endpoint for JVMNode";
 		}
 

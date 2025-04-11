@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class Endpoints extends NodeEndpoint<BNode> {
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Endpoints for managing BNode operations.";
 	}
 
@@ -33,7 +33,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 			nn.set("implementation_class", new TextNode(e.getClass().getName()));
 			nn.set("endpoint_target_type", new TextNode(e.getTargetNodeType().getName()));
 			nn.set("applicable_to_current_node", BooleanNode.valueOf(n.matches(e)));
-			nn.set("description", new TextNode(e.getDescription()));
+			nn.set("description", new TextNode(e.whatIsThis()));
 			data.add(nn);
 		});
 

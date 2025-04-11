@@ -14,7 +14,13 @@ public class Campus extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	protected String prettyName() {
+		return "campus";
+	}
+
+	
+	@Override
+	public String whatIsThis() {
 		return "Campus: " + name.get();
 	}
 

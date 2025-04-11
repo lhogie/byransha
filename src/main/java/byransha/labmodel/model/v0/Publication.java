@@ -16,12 +16,17 @@ public class Publication extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Publication: " + title.get();
 	}
 
 	@Override
 	public String toString() {
 		return title.get();
+	}
+
+	@Override
+	protected String prettyName() {
+		return "publication " + title.get();
 	}
 }

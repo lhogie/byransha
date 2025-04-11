@@ -15,8 +15,8 @@ import byransha.web.WebServer;
 public class CurrentNode extends NodeEndpoint<BNode> {
 
 	@Override
-	public String getDescription() {
-		return "CurrentNode description";
+	public String whatIsThis() {
+		return "info about the current node";
 	}
 
 	public CurrentNode(BBGraph db) {
@@ -34,7 +34,7 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 		r.set("can write", new TextNode("" + currentNode.canSee(user)));
 		var a = new ArrayNode(null);
 
-		for (var e : webServer.endpointsUsableFrom(currentNode)) {
+		for (var e : graph.endpointsUsableFrom(currentNode)) {
 			a.add(new TextNode(e.name()));
 		}
 

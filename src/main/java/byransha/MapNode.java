@@ -7,11 +7,13 @@ import java.util.function.BiConsumer;
 public class MapNode<N extends BNode> extends BNode {
 	public MapNode(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
 	}
-
 	@Override
-	public String getDescription() {
+	protected String prettyName() {
+		return "a map";
+	}
+	@Override
+	public String whatIsThis() {
 		return "MapNode with " + l.size() + " entries";
 	}
 

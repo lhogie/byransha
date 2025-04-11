@@ -14,7 +14,13 @@ public class Country extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Country: " + (name != null ? name.toString() : "Unnamed");
+	}
+	
+
+	@Override
+	protected String prettyName() {
+		return name.get();
 	}
 }

@@ -1,26 +1,30 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.IntNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
 public class Office extends BNode {
-	public Office(BBGraph g) {
-		super(g);
-		// TODO Auto-generated constructor stub
-	}
-
-	@Override
-	public String getDescription() {
-		return "Office: " + (name != null ? name.get() : "Unnamed");
-	}
-
 	StringNode name;
 	ListNode<Person> users;
 	IntNode surface;
 	IntNode capacity;
+
+	public Office(BBGraph g) {
+		super(g);
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "an office";
+	}
+
+	@Override
+	public String prettyName() {
+		return "Office: " + (name != null ? name.get() : "Unnamed");
+	}
 
 	public double occupationRatio() {
 		return ((double) capacity.get()) / users.size();

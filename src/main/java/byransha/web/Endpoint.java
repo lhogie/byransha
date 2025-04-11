@@ -57,10 +57,12 @@ public abstract class Endpoint extends BNode {
 
 		return TextUtilities.camelToSnake(name);
 	}
-
-	public String label() {
+	
+	@Override
+	protected String prettyName() {
 		return name().replace('_', ' ');
 	}
+
 
 	protected final JsonNode requireParm(ObjectNode in, String s) {
 		var node = in.remove(s);
@@ -71,6 +73,8 @@ public abstract class Endpoint extends BNode {
 			return node;
 		}
 	}
+	
+
 
 	public boolean isDevelopmentView() {
 		return DevelopmentView.class.isAssignableFrom(getClass());
@@ -90,27 +94,28 @@ public abstract class Endpoint extends BNode {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Description of Endpoint.V";
 		}
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				Endpoint node) throws Throwable {
+				Endpoint endpoint) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
-				pw.println("<li>name: " + node.name());
-				pw.println("<li>label: " + node.label());
-				pw.println("<li>target: " + node.getTargetNodeType().getName());
+				pw.println("<li>name: " + endpoint.name());
+				pw.println("<li>label: " + endpoint.prettyName());
+				pw.println("<li>target: " + endpoint.getTargetNodeType().getName());
 
-				if (node instanceof View v) {
+				if (endpoint instanceof View v) {
 					pw.println("<li>development" + isDevelopmentView());
-					pw.println("<li>technical" + node.isTechnicalView());
+					pw.println("<li>technical" + endpoint.isTechnicalView());
 					pw.println("<li>content by default" + v.sendContentByDefault());
 				}
 				pw.println("</ul>");
 			});
 		}
 
+		
 	}
 }

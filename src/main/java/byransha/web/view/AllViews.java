@@ -19,7 +19,7 @@ import byransha.web.WebServer;
 final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentView {
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Description for AllViews";
 	}
 
@@ -40,7 +40,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
 
-			for (var v : webServer.endpointsUsableFrom(n)) {
+			for (var v : graph.endpointsUsableFrom(n)) {
 				if (v == this)
 					continue;
 
@@ -61,8 +61,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 					} else {
 						pw.println("Raw data: " + new String((byte[]) r.data));
 					}
-				}
-				catch (Throwable err) {
+				} catch (Throwable err) {
 					pw.println("Error: " + err.getMessage());
 				}
 

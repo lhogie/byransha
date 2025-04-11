@@ -18,7 +18,7 @@ public class IntrospectingEndpoint extends NodeEndpoint<BNode> implements View {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "introspect the current node and generates the HTML describing it";
 	}
 

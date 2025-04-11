@@ -4,9 +4,16 @@ import java.util.Base64;
 
 public class ImageNode extends ValuedNode<byte[]> {
 
+	StringNode title;
+
 	public ImageNode(BBGraph db) {
 		super(db);
-		// TODO Auto-generated constructor stub
+		title = new StringNode(db, null);
+	}
+
+	@Override
+	protected String prettyName() {
+		return title.get();
 	}
 
 	@Override
@@ -15,7 +22,7 @@ public class ImageNode extends ValuedNode<byte[]> {
 	}
 
 	@Override
-	public String getDescription() {
-		return "ImageNode containing Base64-encoded image data";
+	public String whatIsThis() {
+		return "an image";
 	}
 }

@@ -15,6 +15,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -53,7 +54,7 @@ public abstract class BNode {
 		}
 	}
 
-	public abstract String getDescription();
+	public abstract String whatIsThis();
 
 	public List<Ref> ins() {
 		return refs == null ? graph.findRefsTO(this) : refs;
@@ -247,7 +248,7 @@ public abstract class BNode {
 
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "BasicView for BNode";
 		}
 
@@ -289,7 +290,7 @@ public abstract class BNode {
 	public static class Nav2 extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Nav2 view for BNode";
 		}
 
@@ -324,7 +325,7 @@ public abstract class BNode {
 	public static class InOutsNivoView extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "generate a NIVO description of the graph";
 		}
 
@@ -360,7 +361,7 @@ public abstract class BNode {
 	public static class OutNodeDistribution extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "OutNodeDistribution view for BNode";
 		}
 
@@ -382,6 +383,15 @@ public abstract class BNode {
 		}
 
 	}
+
+	public JsonNode toJSONNode() {
+		var n = new ObjectNode(null);
+		n.put("id", id());
+		n.put("pretty_name", prettyName());
+		return n;
+	}
+
+	protected abstract String prettyName();
 
 	/*
 	 * public static class BFS extends JSONView<BNode> {

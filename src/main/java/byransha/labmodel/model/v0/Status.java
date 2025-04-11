@@ -12,7 +12,12 @@ public class Status extends BNode {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Status node";
+	}
+
+	@Override
+	protected String prettyName() {
+		return name.get();
 	}
 }

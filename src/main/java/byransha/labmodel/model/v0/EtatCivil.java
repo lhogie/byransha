@@ -14,7 +14,6 @@ public class EtatCivil extends BNode {
 	public StringNode countryOfBirth = new StringNode(graph, null);
 	public StringNode address = new StringNode(graph, null);
 
-
 	public EtatCivil(BBGraph g) {
 		super(g);
 	}
@@ -22,10 +21,14 @@ public class EtatCivil extends BNode {
 	public EtatCivil(BBGraph g, int id) {
 		super(g, id);
 	}
-  
-  
+
 	@Override
-	public String getDescription() {
-		return "EtatCivil Node";
+	public String whatIsThis() {
+		return "civil information";
+	}
+
+	@Override
+	protected String prettyName() {
+		return firstName.get() + " " + name.get();
 	}
 }

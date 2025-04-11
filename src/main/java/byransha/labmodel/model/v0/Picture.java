@@ -6,17 +6,12 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.User;
 import byransha.ValuedNode;
-import byransha.web.NodeEndpoint;
 import byransha.web.EndpointBinaryResponse;
 import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
 public class Picture extends ValuedNode<byte[]> {
-
-	@Override
-	public String getDescription() {
-		return "Picture node containing image data";
-	}
 
 	public Picture(BBGraph db) {
 		super(db);
@@ -35,12 +30,22 @@ public class Picture extends ValuedNode<byte[]> {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "Endpoint for Picture nodes";
 		}
 	}
 
 	@Override
 	public void fromString(String s) {
+	}
+
+	@Override
+	protected String prettyName() {
+		return "picture";
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "a picture";
 	}
 }

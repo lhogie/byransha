@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class Edit extends NodeEndpoint<BNode> {
 
     @Override
-    public String getDescription() {
+    public String whatIsThis() {
         return "Edit endpoint for BNode";
     }
 

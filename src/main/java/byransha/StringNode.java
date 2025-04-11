@@ -18,6 +18,11 @@ public class StringNode extends ValuedNode<String> {
 	}
 
 	@Override
+	protected String prettyName() {
+		return "a string: " + get();
+	}
+
+	@Override
 	public void fromString(String s) {
 		set(s);
 	}
@@ -30,7 +35,7 @@ public class StringNode extends ValuedNode<String> {
 		{
 			File target = labelFor.directory();
 			String oldValue = null;
-			File oldLink = oldValue  == null ? null : new File(target.getParentFile(), oldValue);
+			File oldLink = oldValue == null ? null : new File(target.getParentFile(), oldValue);
 			File newLink = newValue == null ? null : new File(target.getParentFile(), newValue);
 
 			if (newLink != null && oldLink != null) {
@@ -47,11 +52,11 @@ public class StringNode extends ValuedNode<String> {
 
 	}
 
-
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "StringNode: " + get();
 	}
+
 	public void setAsLabelFor(BNode n) {
 		labelFor = n;
 	}

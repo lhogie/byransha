@@ -13,11 +13,6 @@ import toools.extern.Proces;
 
 public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
-	@Override
-	public String getDescription() {
-		return "ModelGraphivzSVGView provides a graphical representation of the model in SVG format.";
-	}
-
 	public ModelGraphivzSVGView(BBGraph db) {
 		super(db);
 	}
@@ -28,11 +23,27 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 	}
 
 	@Override
+	public String whatIsThis() {
+		return "graphical (graphviz-based) representations of the model in the graph";
+	}
+
+	@Override
 	public EndpointBinaryResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BBGraph db)
 			throws Throwable {
-		var dot = graph.findEndpoint(ModelDOTView.class).exec(in, u, webServer, exchange, db);
-		var stdout = Proces.exec("dot", dot.data.getBytes(), "-Tsvg");
-		return new EndpointBinaryResponse("image/svg", stdout);
-//		return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");
+		var dot = graph.findEndpoint(ModelDOTView.class).exec(in, u, webServer, exchange, db).data;
+		var generatorNode = in.remove("generator");
+		var generator = generatorNode == null ? null : generatorNode.asText();
+		var svg = gen(dot, generator);
+		return new EndpointBinaryResponse("image/svg+xml", svg);
+	}
+
+	public static byte[] gen(String dot, String generator ) {
+		if (generator == null || generator.equals("dot")) {
+			return Proces.exec("dot", dot.getBytes(), "-Tsvg");
+		} else if (generator.equals("fdp")) {
+			return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");
+		} else {
+			throw new IllegalArgumentException("unknown generator: " + generator);
+		}
 	}
 }

@@ -17,12 +17,17 @@ public class ACMClassifier extends BNode {
 	}
 
 	@Override
+	protected String prettyName() {
+		return "ACM classification";
+	}
+	
+	@Override
 	public String toString() {
 		return code + ": " + descr;
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return descr;
 	}
 

@@ -4,9 +4,11 @@ import java.util.Stack;
 
 import javax.net.ssl.SSLSession;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
+import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
@@ -17,8 +19,8 @@ import toools.text.TextUtilities;
 public class User extends BNode {
 
 	@Override
-	public String getDescription() {
-		return "User: " + name.get();
+	public String whatIsThis() {
+		return "a user of the system";
 	}
 
 	public StringNode name;
@@ -35,8 +37,6 @@ public class User extends BNode {
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 	}
-	
-
 
 	public BNode currentNode() {
 		return stack.isEmpty() ? null : stack.peek();
@@ -62,7 +62,7 @@ public class User extends BNode {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "UserView for managing user-related operations.";
 		}
 
@@ -84,6 +84,38 @@ public class User extends BNode {
 				pw.println("</ul>");
 			});
 		}
+	}
 
+	public static class History extends NodeEndpoint<User> implements TechnicalView {
+		public History(BBGraph g) {
+			super(g);
+		}
+
+		@Override
+		public String whatIsThis() {
+			return "the navigation history";
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return true;
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				User node) throws Throwable {
+			var a = new ArrayNode(null);
+
+			for (var e : node.stack) {
+				a.add(e.toJSONNode());
+			}
+
+			return new EndpointJsonResponse(a, this);
+		}
+	}
+
+	@Override
+	protected String prettyName() {
+		return name.get();
 	}
 }

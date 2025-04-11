@@ -19,7 +19,7 @@ public class Views extends NodeEndpoint<BNode> implements View {
 	}
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "Description of Views";
 	}
 
@@ -28,9 +28,9 @@ public class Views extends NodeEndpoint<BNode> implements View {
 			BNode currentNode) {
 		ArrayNode viewsNode = new ArrayNode(null);
 
-		for (var e : webServer.endpointsUsableFrom(currentNode)) {
+		for (var e : graph.endpointsUsableFrom(currentNode)) {
 			var ev = new ObjectNode(null);
-			ev.set("label", new TextNode(e.label()));
+			ev.set("pretty_name", new TextNode(e.prettyName()));
 			ev.set("id", new TextNode("" + e.id()));
 			ev.set("target", new TextNode(e.getTargetNodeType().getName()));
 			ev.set("can read", new TextNode("" + e.canSee(user)));

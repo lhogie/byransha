@@ -95,7 +95,7 @@ public class AnyGraph {
 		}
 
 		@Override
-		public String getDescription() {
+		public String whatIsThis() {
 			return "list all classes in the graph";
 		}
 

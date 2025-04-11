@@ -9,7 +9,7 @@ import com.sun.net.httpserver.HttpsExchange;
 public class SetValue extends NodeEndpoint<BNode> {
 
     @Override
-    public String getDescription() {
+    public String whatIsThis() {
         return "SetValue endpoint for modifying node values.";
     }
 

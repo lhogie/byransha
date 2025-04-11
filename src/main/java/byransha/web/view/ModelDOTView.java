@@ -24,7 +24,7 @@ import byransha.web.WebServer;
 public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
 
 	@Override
-	public String getDescription() {
+	public String whatIsThis() {
 		return "ModelDOTView provides a DOT representation of the graph.";
 	}
 	public ModelDOTView(BBGraph db) {
@@ -56,7 +56,6 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	@Override
 	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			BBGraph node) throws Throwable {
-		// TODO Auto-generated method stub
 		return new EndpointTextResponse("text/dot", pw -> {
 			synchronized (graph.nodes) {
 				System.out.println(graph.nodes.size());
