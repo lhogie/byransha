@@ -28,12 +28,13 @@ public class Edit extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
 
         if (currentNode instanceof ValuedNode<?>) {
-            System.out.println("current Node (id="+ currentNode.id()+") is editable");
+            System.out.println("current Node (id="+ currentNode.id()+") is editable, type="+ currentNode.getClass());
         }else{
             //System.out.println("valeur non editable");
             for (BNode node : currentNode.outs().values()) {
                 if(node instanceof ValuedNode<?>){
-                    System.out.println("Node with id:"+node.id()+" is Editable from current node(id="+ currentNode.id()+")");
+
+                    System.out.println("Node with id:"+node.id()+" is Editable,type="+node.getClass()+" from current node(id="+ currentNode.id()+")");
                 }
                 //System.out.println("Node descrip : " + node.getDescription());
 
@@ -47,6 +48,6 @@ public class Edit extends NodeEndpoint<BNode> {
         var b = new ObjectNode(null);
         b.set("Test",new IntNode(currentNode.id()));
         a.add(b);
-        return new EndpointJsonResponse(a, this);
+        return new EndpointJsonResponse(a,"response for edit");
     }
 }
