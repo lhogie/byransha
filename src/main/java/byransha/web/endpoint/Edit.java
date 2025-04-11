@@ -17,28 +17,31 @@ public class Edit extends NodeEndpoint<BNode> {
 
     @Override
     public String whatIsThis() {
-        return "Edit endpoint for BNode";
+        return "Endpoint to edit every value accessible via the current node";
     }
 
     public Edit(BBGraph g) {
         super(g);
     }
 
-    public Edit(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
 
         if (currentNode instanceof ValuedNode<?>) {
-            System.out.println("valeur editable");
+            System.out.println("current Node (id="+ currentNode.id()+") is editable");
         }else{
-            System.out.println("valeur non editable");
+            //System.out.println("valeur non editable");
+            for (BNode node : currentNode.outs().values()) {
+                if(node instanceof ValuedNode<?>){
+                    System.out.println("Node with id:"+node.id()+" is Editable from current node(id="+ currentNode.id()+")");
+                }
+                //System.out.println("Node descrip : " + node.getDescription());
+
+            }
         }
 
 
-        System.out.println("Valeur de currentNode:"+ currentNode.outDegree());
+        //System.out.println("id de currentNode:"+ currentNode.id());
 
         var a = new ArrayNode(null);
         var b = new ObjectNode(null);

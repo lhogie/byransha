@@ -136,7 +136,7 @@ const GridView = () => {
                                         fontWeight: '600',
                                     }}
                                 >
-                                    {view.endpoint}
+                                    {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
                                 </Typography>
                                 <Typography
                                     variant="body2"
