@@ -9,12 +9,12 @@ import {ResponsiveNetwork} from "@nivo/network";
 import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
+import {Box, Button} from "@mui/material";
 
 export const View = ({viewId}) => {
     const { data, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
     const queryClient = useQueryClient()
-
 
     const jumpMutation = useApiMutation('jump', {
         onSuccess: async () => {
@@ -23,7 +23,7 @@ export const View = ({viewId}) => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`target=${nodeId}`);
+        jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
 
     useEffect(() => {
@@ -230,6 +230,47 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 );
+            } else if (viewId === 'bnode_nav2') {
+                return <>
+                    <Box sx={{ mb: 2 }}>
+                        {
+                            Object.keys(content.ins).map((inNode) => (
+                                <Button
+                                    key={inNode}
+                                    onClick={() => jumpToNode(content.ins[inNode])}
+                                    variant="contained"
+                                    sx={{
+                                        bgcolor: '#3949ab',
+                                        color: '#fff',
+                                        mr: 1,
+                                        mb: 1,
+                                        '&:hover': { bgcolor: '#5c6bc0' },
+                                    }}
+                                >
+                                    {inNode} ({content.ins[inNode]})
+                                </Button>
+                            ))}
+                    </Box>
+                    <Box sx={{ paddingY: '10px' }}>
+                        {
+                            Object.keys(content.outs).map((outNode) => (
+                                <Button
+                                    key={outNode}
+                                    onClick={() => jumpToNode(content.outs[outNode])}
+                                    variant="contained"
+                                    sx={{
+                                        bgcolor: '#00897b',
+                                        color: '#fff',
+                                        mr: 1,
+                                        mb: 1,
+                                        '&:hover': { bgcolor: '#26a69a' },
+                                    }}
+                                >
+                                    {outNode} ({content.outs[outNode]})
+                                </Button>
+                            ))}
+                    </Box>
+                </>
             } else {
                 return (
                     <div className="content-container">

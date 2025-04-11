@@ -10,7 +10,6 @@ const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
     const { data, isLoading, error, refetch } = useApiData(''); // Adjust endpoint as needed
-    const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('bnode_nav2');
     const queryClient = useQueryClient()
 
     const jumpMutation = useApiMutation('jump', {
@@ -20,7 +19,7 @@ const GridView = () => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`target=${nodeId}`);
+        jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
 
     if (isLoading) {
@@ -81,7 +80,6 @@ const GridView = () => {
                 minHeight: '100vh',
             }}
         >
-            {navIsLoading && <CircularProgress sx={{ color: '#1e88e5', display: 'block', mx: 'auto' }} />}
             <Typography
                 variant="h4"
                 gutterBottom
