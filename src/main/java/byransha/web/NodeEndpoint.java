@@ -11,6 +11,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
+import toools.reflect.Clazz;
 
 public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 
@@ -35,7 +36,13 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 		}
 
 		var s = node.asText();
-		return (N) node(node.asInt());
+		
+		try {
+			return (N) node(Integer.valueOf(s));
+		} catch (NumberFormatException err) {
+			Clazz.findClassOrFail(s);
+			return null;
+		}
 	}
 
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,

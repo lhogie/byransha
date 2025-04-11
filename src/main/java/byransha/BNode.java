@@ -172,7 +172,7 @@ public abstract class BNode {
 		return getClass().getSimpleName() + "@" + id();
 	}
 
-	public void saveOuts(Consumer<File> writingFiles, String id){
+	public void saveOuts(Consumer<File> writingFiles, String id) {
 		var outD = outsDirectory();
 
 		if (!outD.exists()) {
@@ -184,7 +184,7 @@ public abstract class BNode {
 			try {
 				var symlink = new File(outD, name + id);// + "@" + outNode.id());
 
-				for(var e : outD.listFiles()) {
+				for (var e : outD.listFiles()) {
 					if (e.getName().equals(symlink.getName())) {
 //						System.err.println("Symlink with same name already exists outs: " + symlink.getName());
 						return;
@@ -195,8 +195,6 @@ public abstract class BNode {
 					symlink.delete();
 				}
 				writingFiles.accept(symlink);
-
-
 
 				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
 			} catch (IOException e) {
@@ -209,7 +207,7 @@ public abstract class BNode {
 		saveOuts(writingFiles, "");
 	}
 
-	public void saveIns(Consumer<File> writingFiles, String id){
+	public void saveIns(Consumer<File> writingFiles, String id) {
 		var inD = new File(directory(), "ins");
 
 		if (!inD.exists()) {
@@ -217,13 +215,11 @@ public abstract class BNode {
 			inD.mkdirs();
 		}
 
-
-
 		forEachIn((name, inNode) -> {
 			try {
 				var symlink = new File(inD, name + id);
 
-				for(var e : inD.listFiles()) {
+				for (var e : inD.listFiles()) {
 					if (e.getName().equals(symlink.getName())) {
 //						System.err.println("Symlink with same name already exists ins: " + symlink.getName());
 						return;
@@ -428,8 +424,8 @@ public abstract class BNode {
 
 	public JsonNode toJSONNode() {
 		var n = new ObjectNode(null);
-		n.put("id", id());
-		n.put("pretty_name", prettyName());
+		n.put("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
+		n.put("pretty_name", new TextNode(prettyName()));
 		return n;
 	}
 
