@@ -2,6 +2,7 @@ package byransha.web.endpoint;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
@@ -27,13 +28,25 @@ public class Edit extends NodeEndpoint<BNode> {
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
 
+        var a = new ArrayNode(null);
+
+
         if (currentNode instanceof ValuedNode<?>) {
-            System.out.println("current Node (id="+ currentNode.id()+") is editable");
+            System.out.println("current Node (id="+ currentNode.id()+") is editable, type="+ currentNode.getClass());
+            var b = new ObjectNode(null);
+            b.set("Id_editable", new IntNode( currentNode.id()));
+
+            b.set("type",new TextNode(currentNode.getClass().getSimpleName()));
+            a.add(b);
         }else{
             //System.out.println("valeur non editable");
             for (BNode node : currentNode.outs().values()) {
                 if(node instanceof ValuedNode<?>){
-                    System.out.println("Node with id:"+node.id()+" is Editable from current node(id="+ currentNode.id()+")");
+                    var b = new ObjectNode(null);
+                    System.out.println("Node with id:"+node.id()+" is Editable,type="+node.getClass()+" from current node(id="+ currentNode.id()+")");
+                    b.set("Id_linked_Node_Editable_id", new IntNode(node.id()));
+                    b.set("list_linked_Node_Editable_type", new TextNode(node.getClass().getSimpleName()));
+                    a.add(b);
                 }
                 //System.out.println("Node descrip : " + node.getDescription());
 
@@ -42,11 +55,6 @@ public class Edit extends NodeEndpoint<BNode> {
 
 
         //System.out.println("id de currentNode:"+ currentNode.id());
-
-        var a = new ArrayNode(null);
-        var b = new ObjectNode(null);
-        b.set("Test",new IntNode(currentNode.id()));
-        a.add(b);
-        return new EndpointJsonResponse(a, this);
+        return new EndpointJsonResponse(a,"response for edit");
     }
 }
