@@ -1,7 +1,5 @@
 package byransha.web.endpoint;
 
-import java.util.Objects;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
@@ -28,12 +26,9 @@ public class Jump extends NodeEndpoint<BNode> {
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-			BNode currentNode) throws Throwable {
-		var targetID = requireParm(in, "target").asInt();
-		var target = node(targetID);
-		Objects.requireNonNull(target, "no such node: " + targetID);
-		//user.stack.push(target); //not effective jump because we go through CurrentNode
-		return graph.findEndpoint(CurrentNode.class).exec(in, user, webServer, exchange, target);
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+			throws Throwable {
+		user.stack.push(node);
+		return graph.findEndpoint(NodeInfo.class).exec(in, user, webServer, exchange, node);
 	}
 }

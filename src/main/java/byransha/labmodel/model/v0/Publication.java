@@ -26,7 +26,7 @@ public class Publication extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "publication " + title.get();
 	}
 }

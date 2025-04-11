@@ -28,7 +28,7 @@ public class EtatCivil extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return firstName.get() + " " + name.get();
 	}
 }

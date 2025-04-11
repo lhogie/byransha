@@ -19,7 +19,7 @@ public class Device extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return brand.get() + " " + modelName.get() + "(S/N: " + serialNumber.get() + ")";
 	}
 }

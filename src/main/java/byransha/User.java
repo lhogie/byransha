@@ -18,11 +18,6 @@ import toools.text.TextUtilities;
 
 public class User extends BNode {
 
-	@Override
-	public String whatIsThis() {
-		return "a user of the system";
-	}
-
 	public StringNode name;
 	public StringNode passwordNode;
 	public Stack<BNode> stack = new Stack<BNode>();
@@ -36,17 +31,21 @@ public class User extends BNode {
 
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
-/*
-  		this.saveOuts(f -> {});
- 
-		this.saveIns(f -> {});
-		forEachOut((n, node) -> node.saveIns(f -> {}));
-		forEachIn((n, node) -> node.saveOuts(f -> {}));
-		*/
+		/*
+		 * this.saveOuts(f -> {});
+		 * 
+		 * this.saveIns(f -> {}); forEachOut((n, node) -> node.saveIns(f -> {}));
+		 * forEachIn((n, node) -> node.saveOuts(f -> {}));
+		 */
 	}
 
-	public User(BBGraph g, int id){
+	public User(BBGraph g, int id) {
 		super(g, id);
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "a user of the system";
 	}
 
 	public BNode currentNode() {
@@ -130,7 +129,7 @@ public class User extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return name.get();
 	}
 }

@@ -40,6 +40,6 @@ public class SetValue extends NodeEndpoint<BNode> {
             ((DateNode) target).set(value);
         }
 
-        return new CurrentNode(graph).exec(in, user, webServer, exchange, target);
+        return new NodeInfo(graph).exec(in, user, webServer, exchange, target);
     }
 }

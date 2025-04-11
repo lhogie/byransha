@@ -11,7 +11,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "a boolean: " + get();
 	}
 
