@@ -46,6 +46,7 @@ import byransha.ListNode;
 import byransha.Log;
 import byransha.OSNode;
 import byransha.StringNode;
+import byransha.UI;
 import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
@@ -172,6 +173,7 @@ public class WebServer extends BNode {
 		if (g.find(Edit.class, endpoint -> true) == null) new Edit(g);
 		if (g.find(IntrospectingEndpoint.class, endpoint -> true) == null) new IntrospectingEndpoint(g);
 		if (g.find(History.class, endpoint -> true) == null) new History(g);
+		new UI(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();

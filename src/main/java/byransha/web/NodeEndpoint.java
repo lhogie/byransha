@@ -34,6 +34,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 			return (N) user.currentNode();
 		}
 
+		var s = node.asText();
 		return (N) node(node.asInt());
 	}
 

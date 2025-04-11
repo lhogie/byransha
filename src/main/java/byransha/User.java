@@ -100,7 +100,7 @@ public class User extends BNode {
 		}
 	}
 
-	public static class History extends NodeEndpoint<User> implements TechnicalView {
+	public static class History extends NodeEndpoint<BNode> implements TechnicalView {
 		public History(BBGraph g) {
 			super(g);
 		}
@@ -117,9 +117,9 @@ public class User extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				User node) throws Throwable {
+				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
-			node.stack.forEach(e -> a.add(e.toJSONNode()));
+			user.stack.forEach(e -> a.add(e.toJSONNode()));
 			return new EndpointJsonResponse(a, this);
 		}
 	}

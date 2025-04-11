@@ -1,23 +1,26 @@
 package byransha;
 
-public class UI extends ValuedNode<Integer> {
+import java.awt.Color;
+
+public class UI extends BNode {
+	ColorNode backgroundColor;
+	ColorNode textColor;
 
 	public UI(BBGraph db) {
 		super(db);
+		backgroundColor = new ColorNode(db);
+		backgroundColor.set(Color.darkGray);
+		textColor = new ColorNode(db);
+		textColor.set(Color.black);
 	}
 
 	@Override
 	public String prettyName() {
-		return "an integer";
-	}
-
-	@Override
-	public void fromString(String s) {
-		set(Integer.valueOf(s));
+		return "UI preferences";
 	}
 
 	@Override
 	public String whatIsThis() {
-		return "IntNode with value: " + get();
+		return "UI preferences";
 	}
 }
