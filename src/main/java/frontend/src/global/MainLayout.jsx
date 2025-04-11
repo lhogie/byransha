@@ -76,8 +76,8 @@ const MainLayout = () => {
                                 separator={<ChevronRightIcon sx={{ color: '#b0bec5', fontSize: '18px' }} />}
                                 aria-label="navigation history"
                                 sx={{
-                                    bgcolor: 'transparent', // No visible card borders
-                                    p: '4px 0', // Minimal padding, no horizontal padding
+                                    bgcolor: 'transparent',
+                                    p: '4px 0',
                                     '& .MuiBreadcrumbs-ol': { alignItems: 'center' },
                                 }}
                             >
@@ -168,39 +168,79 @@ const MainLayout = () => {
                         </Stack>
                     ),
                     toolbarActions: () => (
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Select
-                                value={viewMode}
-                                onChange={handleViewChange}
-                                sx={{
-                                    '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                    '& .MuiSelect-select': {
-                                        padding: '6px 12px',
+                        <Stack direction="row" alignItems="center" spacing={2}>
+                            {/* User Info Before Select */}
+                            {isLoading ? (
+                                <Typography sx={{ color: '#90a4ae', fontSize: '14px' }}>Loading...</Typography>
+                            ) : error ? (
+                                <Typography sx={{ color: '#ef5350', fontSize: '14px' }}>Error</Typography>
+                            ) : (
+                                <Box
+                                    sx={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        p: '6px 12px',
+                                        bgcolor: '#f5f7ff',
                                         borderRadius: '4px',
-                                        '&:hover': { bgcolor: '#f5f5f5' },
-                                    },
-                                    '& .MuiSelect-icon': { color: '#90a4ae' },
-                                    minWidth: 120,
-                                }}
-                                MenuProps={{
-                                    PaperProps: {
-                                        sx: {
+                                        transition: 'background-color 0.2s ease',
+                                        '&:hover': { bgcolor: '#e8eaf6' },
+                                    }}
+                                >
+                                    <Typography
+                                        sx={{
+                                            color: '#306DAD',
+                                            fontSize: '14px',
+                                            fontWeight: '500',
+                                        }}
+                                    >
+                                        {data?.data?.username || "Unknown User"}
+                                    </Typography>
+                                    <Typography sx={{ color: '#546e7a', fontSize: '14px' }}>
+                                        ({data?.data?.user_id || "N/A"})
+                                    </Typography>
+                                    <Typography sx={{ color: '#90a4ae', fontSize: '12px' }}>
+                                        v{data?.data["session ID"] || "N/A"}
+                                    </Typography>
+                                    <Typography sx={{ color: '#90a4ae', fontSize: '12px' }}>
+                                        v{data?.data["backend version"] || "N/A"}
+                                    </Typography>
+                                </Box>
+                            )}
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Select
+                                    value={viewMode}
+                                    onChange={handleViewChange}
+                                    sx={{
+                                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                                        '& .MuiSelect-select': {
+                                            padding: '6px 12px',
                                             borderRadius: '4px',
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                            '& .MuiMenuItem-root': {
-                                                fontSize: '14px',
-                                                color: '#546e7a',
-                                                '&:hover': { bgcolor: '#e8eaf6' },
-                                                '&.Mui-selected': { bgcolor: '#f5f7ff', color: '#306DAD' },
-                                            },
-                                        }
+                                            '&:hover': { bgcolor: '#f5f5f5' },
+                                        },
+                                        '& .MuiSelect-icon': { color: '#90a4ae' },
+                                        minWidth: 120,
+                                    }}
+                                    MenuProps={{
+                                        PaperProps: {
+                                            sx: {
+                                                borderRadius: '4px',
+                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                                '& .MuiMenuItem-root': {
+                                                    fontSize: '14px',
+                                                    color: '#546e7a',
+                                                    '&:hover': { bgcolor: '#e8eaf6' },
+                                                    '&.Mui-selected': { bgcolor: '#f5f7ff', color: '#306DAD' },
+                                                },
+                                            }
+                                        }}
                                     }
-                                }}
-                            >
-                                <MenuItem value="default">Default Layout</MenuItem>
-                                <MenuItem value="grid">Grid Layout</MenuItem>
-                            </Select>
-                        </Box>
+                                >
+                                    <MenuItem value="default">Default Layout</MenuItem>
+                                    <MenuItem value="grid">Grid Layout</MenuItem>
+                                </Select>
+                            </Box>
+                        </Stack>
                     )
                 }}
             >
