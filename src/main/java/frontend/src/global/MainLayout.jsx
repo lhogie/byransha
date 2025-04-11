@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router";
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";

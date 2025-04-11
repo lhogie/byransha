@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import './LoginForm.css';
 import {FaEye, FaEyeSlash, FaUser} from "react-icons/fa";
 import logo from '../Assets/i3S_RVB_Couleur.png';
-import {useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router';
 import {useTitle} from "../../global/useTitle";
 
 const LoginForm = () => {

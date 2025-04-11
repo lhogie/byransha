@@ -1,6 +1,6 @@
 import React from "react";
 import {AppProvider} from "@toolpad/core";
-import {Outlet} from "react-router-dom";
+import {Outlet} from "react-router";
 import {createTheme} from "@mui/material";
 import {router} from "./router";
 

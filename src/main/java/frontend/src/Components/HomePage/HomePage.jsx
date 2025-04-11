@@ -1,6 +1,6 @@
 import React from 'react';
 import './HomePage.css';
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useTitle } from "../../global/useTitle";
 import {useApiData} from '../../hooks/useApiData';
