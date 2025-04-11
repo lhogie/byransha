@@ -9,7 +9,7 @@ public class MapNode<N extends BNode> extends BNode {
 		super(db);
 	}
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "a map";
 	}
 	@Override

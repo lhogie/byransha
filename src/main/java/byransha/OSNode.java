@@ -29,7 +29,7 @@ public class OSNode extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
 	}
 

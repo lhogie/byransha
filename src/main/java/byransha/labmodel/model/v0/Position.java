@@ -15,7 +15,7 @@ public class Position extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "position";
 	}
 

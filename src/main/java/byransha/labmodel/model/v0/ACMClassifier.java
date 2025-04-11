@@ -1,7 +1,7 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
+import byransha.BNode;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html
@@ -17,10 +17,10 @@ public class ACMClassifier extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "ACM classification";
 	}
-	
+
 	@Override
 	public String toString() {
 		return code + ": " + descr;

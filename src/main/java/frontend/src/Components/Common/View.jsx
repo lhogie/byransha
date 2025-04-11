@@ -7,11 +7,24 @@ import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
 import {ResponsiveNetwork} from "@nivo/network";
 import './View.css'
-import {useApiData} from "../../hooks/useApiData.js";
+import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
+import {useQueryClient} from "@tanstack/react-query";
 
 export const View = ({viewId}) => {
-    const { data, isLoading: loading, error } = useApiData(viewId);
+    const { data, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
+    const queryClient = useQueryClient()
+
+
+    const jumpMutation = useApiMutation('jump', {
+        onSuccess: async () => {
+            await queryClient.invalidateQueries()
+        },
+    });
+
+    const jumpToNode = useCallback((nodeId) => {
+        jumpMutation.mutate(`target=${nodeId}`);
+    }, []);
 
     useEffect(() => {
         if (!data) return;
@@ -165,7 +178,13 @@ export const View = ({viewId}) => {
                 )
             } else if (viewId.endsWith('nivo_view')) {
                 return (
-                    <div className="graph">
+                    <div
+                        className="graph"
+                        onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                        }}
+                    >
                         <ResponsiveNetwork
                             data={{
                                 nodes: content.nodes.map((node) => ({
@@ -182,6 +201,11 @@ export const View = ({viewId}) => {
                                     target: link.target.label,
                                     source: link.source.label
                                 }))
+                            }}
+                            onClick={(node, event) => {
+                                event.preventDefault()
+                                event.stopPropagation()
+                                jumpToNode(node.id.split('@')[1])
                             }}
                             margin={{top: 0, right: 0, bottom: 0, left: 0}}
                             linkDistance={e => e.distance}
@@ -229,6 +253,12 @@ export const View = ({viewId}) => {
             return (
                 <div className="content-container">
                     <div dangerouslySetInnerHTML={{__html: content}}/>
+                </div>
+            );
+        } else if (contentType === 'image/svg+xml') {
+            return (
+                <div className="content-container">
+                    <img src={`data:image/svg+xml;base64,${content}`} alt="Graphviz" />
                 </div>
             );
         } else if (contentType === 'text/plain') {

@@ -63,7 +63,7 @@ public abstract class Endpoint extends BNode {
 	}
 	
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return name().replace('_', ' ');
 	}
 
