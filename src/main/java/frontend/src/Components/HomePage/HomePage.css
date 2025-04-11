@@ -1,11 +1,13 @@
 .home-page {
-    font-family: 'IBM Plex Sans', sans-serif;
-    /*padding: 20px;*/
-  }
-  
-  h1 {
-    color: #306da9;
-  }
+  font-family: 'IBM Plex Sans', sans-serif;
+}
+
+h1 {
+  color: #306da9;
+  font-size: 2rem;
+  margin-bottom: 0;
+  text-align: left;
+}
   
   ul {
     list-style-type: none;

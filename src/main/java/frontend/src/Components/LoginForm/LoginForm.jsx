@@ -39,7 +39,7 @@ const LoginForm = () => {
              */
 
             localStorage.setItem("sessionData", JSON.stringify({"session ID": "1234"}));
-            navigate('/grid'); // Redirect to HomePage but gridview
+            navigate('/home'); // Redirect to HomePage but gridview
         } catch (err) {
             console.error(err);
             setError("Failed to connect to the server");
