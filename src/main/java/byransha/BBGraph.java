@@ -52,7 +52,7 @@ public class BBGraph extends BNode {
 		this.directory = directory;
 		nodes = new ArrayList<BNode>();
 
-		loadBiggestId();
+//		loadBiggestId();
 //		System.out.println(this.idCount + " ++++++++++++++++++++++++++++++");
 
 //		new User(this, "user", "test");

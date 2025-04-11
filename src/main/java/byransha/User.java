@@ -36,10 +36,13 @@ public class User extends BNode {
 
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
-		this.saveOuts(f -> {});
+/*
+  		this.saveOuts(f -> {});
+ 
 		this.saveIns(f -> {});
 		forEachOut((n, node) -> node.saveIns(f -> {}));
 		forEachIn((n, node) -> node.saveOuts(f -> {}));
+		*/
 	}
 
 	public User(BBGraph g, int id){
