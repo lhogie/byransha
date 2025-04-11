@@ -82,44 +82,6 @@ const GridView = () => {
             }}
         >
             {navIsLoading && <CircularProgress sx={{ color: '#1e88e5', display: 'block', mx: 'auto' }} />}
-            <Box sx={{ mb: 2 }}>
-                {navData &&
-                    Object.keys(navData.data.results[0].result.data.ins).map((inNode) => (
-                        <Button
-                            key={inNode}
-                            onClick={() => jumpToNode(navData.data.results[0].result.data.ins[inNode])}
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#3949ab',
-                                color: '#fff',
-                                mr: 1,
-                                mb: 1,
-                                '&:hover': { bgcolor: '#5c6bc0' },
-                            }}
-                        >
-                            {inNode} ({navData.data.results[0].result.data.ins[inNode]})
-                        </Button>
-                    ))}
-            </Box>
-            <Box sx={{ paddingY: '10px' }}>
-                {navData &&
-                    Object.keys(navData.data.results[0].result.data.outs).map((outNode) => (
-                        <Button
-                            key={outNode}
-                            onClick={() => jumpToNode(navData.data.results[0].result.data.outs[outNode])}
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#00897b',
-                                color: '#fff',
-                                mr: 1,
-                                mb: 1,
-                                '&:hover': { bgcolor: '#26a69a' },
-                            }}
-                        >
-                            {outNode} ({navData.data.results[0].result.data.outs[outNode]})
-                        </Button>
-                    ))}
-            </Box>
             <Typography
                 variant="h4"
                 gutterBottom
