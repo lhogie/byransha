@@ -4,21 +4,30 @@ import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack } from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { useApiData } from '../hooks/useApiData';
+import {useApiData, useApiMutation} from '../hooks/useApiData';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
-import { useState, useEffect } from "react";
+import {useState, useEffect, useCallback} from "react";
+import {useQueryClient} from "@tanstack/react-query";
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const [viewMode, setViewMode] = useState(pathname.startsWith("/grid") ? "grid" : "default");
     const hideSidebar = pathname.startsWith("/grid");
-    const [history, setHistory] = useState(
-        pathname === "/home" || pathname === "/grid" ? [] : [pathname]
-    );
     const [menuAnchor, setMenuAnchor] = useState(null);
     const { data, isLoading, error } = useApiData('');
+    const { data: historyData, isLoading: isHistoryLoading } = useApiData('user_history');
+    const queryClient = useQueryClient()
+    const jumpMutation = useApiMutation('jump', {
+        onSuccess: async () => {
+            await queryClient.invalidateQueries()
+        },
+    });
+
+    const jumpToNode = useCallback((nodeId) => {
+        jumpMutation.mutate(`node_id=${nodeId}`);
+    }, []);
 
     const NAVIGATION = isLoading || error || !data?.data?.results
         ? [{ kind: 'link', title: 'Loading...', segment: 'home', icon: <MenuOutlinedIcon /> }]
@@ -29,28 +38,20 @@ const MainLayout = () => {
             icon: <MenuOutlinedIcon />
         }));
 
-    useEffect(() => {
-        setHistory((prev) => {
-            if (pathname === "/home" || pathname === "/grid") return [];
-            const newPath = pathname.startsWith("/information/") ? pathname : `/information/${pathname.split("/information/")[1] || pathname}`;
-            return prev.includes(newPath) ? prev : [...prev, newPath].slice(-5);
-        });
-    }, [pathname]);
-
     const handleViewChange = (event) => {
         const selectedView = event.target.value;
         setViewMode(selectedView);
         navigate(selectedView === "grid" ? "/grid" : "/home");
     };
 
-    const handleHistoryClick = (path) => {
-        setHistory((prev) => prev.slice(0, prev.indexOf(path) + 1));
-        navigate(path);
+    const handleHistoryClick = (hist) => {
+        jumpToNode(hist.id.toString())
     };
 
     const handleMoreClick = (event) => setMenuAnchor(event.currentTarget);
     const handleMenuClose = () => setMenuAnchor(null);
 
+    const history = historyData?.data?.results?.[0].result.data ?? [];
     const visibleHistory = history.length > 3 ? history.slice(-2) : history;
     const currentNode = history[history.length - 1];
 
@@ -111,19 +112,19 @@ const MainLayout = () => {
                                         <MoreHorizIcon fontSize="small" />
                                     </IconButton>
                                 )}
-                                {visibleHistory.map((path) => (
+                                {visibleHistory.map((hist) => (
                                     <Link
-                                        key={path}
+                                        key={hist.id}
                                         component="button"
-                                        onClick={() => handleHistoryClick(path)}
+                                        onClick={() => handleHistoryClick(hist)}
                                         sx={{
-                                            color: path === currentNode ? '#306DAD' : '#546e7a',
+                                            color: hist === currentNode ? '#306DAD' : '#546e7a',
                                             fontSize: '14px',
-                                            fontWeight: path === currentNode ? '500' : '400',
+                                            fontWeight: hist === currentNode ? '500' : '400',
                                             textDecoration: 'none',
                                             p: '4px 8px',
                                             borderRadius: '2px',
-                                            bgcolor: path === currentNode ? '#e8eaf6' : 'transparent',
+                                            bgcolor: hist === currentNode ? '#e8eaf6' : 'transparent',
                                             transition: 'all 0.2s ease',
                                             '&:hover': {
                                                 color: '#306DAD',
@@ -131,7 +132,7 @@ const MainLayout = () => {
                                             },
                                         }}
                                     >
-                                        {path.replace('/information/', '')}
+                                        {hist.pretty_name}
                                     </Link>
                                 ))}
                             </Breadcrumbs>
@@ -154,21 +155,21 @@ const MainLayout = () => {
                                     }
                                 }}
                             >
-                                {history.map((path) => (
+                                {history.map((hist) => (
                                     <MenuItem
-                                        key={path}
-                                        onClick={() => { handleHistoryClick(path); handleMenuClose(); }}
+                                        key={hist.id}
+                                        onClick={() => { handleHistoryClick(hist); handleMenuClose(); }}
                                         sx={{
                                             fontSize: '14px',
-                                            color: path === currentNode ? '#306DAD' : '#546e7a',
-                                            bgcolor: path === currentNode ? '#f5f7ff' : 'transparent',
+                                            color: hist === currentNode ? '#306DAD' : '#546e7a',
+                                            bgcolor: hist === currentNode ? '#f5f7ff' : 'transparent',
                                             '&:hover': {
                                                 bgcolor: '#e8eaf6',
                                                 color: '#306DAD',
                                             },
                                         }}
                                     >
-                                        {path.replace('/information/', '')}
+                                        {hist.pretty_name}
                                     </MenuItem>
                                 ))}
                             </Menu>

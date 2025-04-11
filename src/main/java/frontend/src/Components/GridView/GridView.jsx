@@ -19,7 +19,7 @@ const GridView = () => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`target=${nodeId}`);
+        jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
 
     if (isLoading) {
