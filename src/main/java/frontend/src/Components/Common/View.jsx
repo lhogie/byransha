@@ -48,8 +48,6 @@ export const View = ({viewId}) => {
             if (viewId === 'char_example_xy') {
                 const parsedChartData = parseNivoChartData(content);
 
-                console.log(parsedChartData)
-
                 return (
                     <div className="graph">
                         <ResponsiveLine
@@ -355,7 +353,7 @@ export const View = ({viewId}) => {
             };
             result.push(cosLine)
         }
-        console.log(result)
+
         return result;
     };
 

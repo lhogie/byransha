@@ -9,8 +9,6 @@ const HomePage = () => {
     const { data, isLoading } = useApiData('');
     useTitle("Home");
 
-    console.log(data)
-
     if (isLoading) {
         return (
             <div
