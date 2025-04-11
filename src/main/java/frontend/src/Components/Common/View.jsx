@@ -1,20 +1,20 @@
 import axios from "axios";
 import React, {useCallback, useEffect, useRef} from "react";
-import {ResponsiveLine} from "@nivo/line";
-import {ResponsiveBar} from "@nivo/bar";
+import {ResponsiveLine, ResponsiveLineCanvas} from "@nivo/line";
+import {ResponsiveBar, ResponsiveBarCanvas} from "@nivo/bar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
-import {ResponsiveNetwork} from "@nivo/network";
+import {ResponsiveNetwork, ResponsiveNetworkCanvas} from "@nivo/network";
 import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
+import {Box, Button} from "@mui/material";
 
 export const View = ({viewId}) => {
     const { data, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
     const queryClient = useQueryClient()
-
 
     const jumpMutation = useApiMutation('jump', {
         onSuccess: async () => {
@@ -23,7 +23,7 @@ export const View = ({viewId}) => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`target=${nodeId}`);
+        jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
 
     useEffect(() => {
@@ -48,11 +48,9 @@ export const View = ({viewId}) => {
             if (viewId === 'char_example_xy') {
                 const parsedChartData = parseNivoChartData(content);
 
-                console.log(parsedChartData)
-
                 return (
                     <div className="graph">
-                        <ResponsiveLine
+                        <ResponsiveLineCanvas
                             data={parsedChartData}
                             margin={{top: 50, right: 110, bottom: 50, left: 60}}
                             xScale={{type: 'linear'}}
@@ -96,7 +94,7 @@ export const View = ({viewId}) => {
                 const keys = Object.values(content).length > 0 ? Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b)), []).sort() : [];
                 return (
                     <div className="graph">
-                        <ResponsiveBar
+                        <ResponsiveBarCanvas
                             data={barChartData}
                             keys={keys}
                             indexBy={"group"}
@@ -185,7 +183,7 @@ export const View = ({viewId}) => {
                             e.preventDefault()
                         }}
                     >
-                        <ResponsiveNetwork
+                        <ResponsiveNetworkCanvas
                             data={{
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
@@ -230,6 +228,54 @@ export const View = ({viewId}) => {
                         />
                     </div>
                 );
+            } else if (viewId === 'bnode_nav2') {
+                return <>
+                    <Box sx={{ mb: 2 }}>
+                        {
+                            Object.keys(content.ins).map((inNode) => (
+                                <Button
+                                    key={inNode}
+                                    onClick={(event) => {
+                                        event.stopPropagation()
+                                        event.preventDefault()
+                                        jumpToNode(content.ins[inNode])
+                                    }}
+                                    variant="contained"
+                                    sx={{
+                                        bgcolor: '#3949ab',
+                                        color: '#fff',
+                                        mr: 1,
+                                        mb: 1,
+                                        '&:hover': { bgcolor: '#5c6bc0' },
+                                    }}
+                                >
+                                    {inNode} ({content.ins[inNode]})
+                                </Button>
+                            ))}
+                    </Box>
+                    <Box sx={{ paddingY: '10px' }}>
+                        {
+                            Object.keys(content.outs).map((outNode) => (
+                                <Button
+                                    key={outNode}
+                                    onClick={(event) => {
+                                        event.stopPropagation()
+                                        event.preventDefault()
+                                        jumpToNode(content.outs[outNode])
+                                    }}                                    variant="contained"
+                                    sx={{
+                                        bgcolor: '#00897b',
+                                        color: '#fff',
+                                        mr: 1,
+                                        mb: 1,
+                                        '&:hover': { bgcolor: '#26a69a' },
+                                    }}
+                                >
+                                    {outNode} ({content.outs[outNode]})
+                                </Button>
+                            ))}
+                    </Box>
+                </>
             } else {
                 return (
                     <div className="content-container">
@@ -253,6 +299,12 @@ export const View = ({viewId}) => {
             return (
                 <div className="content-container">
                     <div dangerouslySetInnerHTML={{__html: content}}/>
+                </div>
+            );
+        } else if (contentType === 'image/svg+xml') {
+            return (
+                <div className="content-container">
+                    <img src={`data:image/svg+xml;base64,${content}`} alt="Graphviz" />
                 </div>
             );
         } else if (contentType === 'text/plain') {
@@ -301,7 +353,7 @@ export const View = ({viewId}) => {
             };
             result.push(cosLine)
         }
-        console.log(result)
+
         return result;
     };
 

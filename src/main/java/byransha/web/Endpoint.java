@@ -63,8 +63,8 @@ public abstract class Endpoint extends BNode {
 	}
 	
 	@Override
-	protected String prettyName() {
-		return name().replace('_', ' ');
+	public String prettyName() {
+		return TextUtilities.camelToSnake(getClass().getSimpleName().replace('_', ' '));
 	}
 
 

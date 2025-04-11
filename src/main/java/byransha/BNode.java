@@ -317,18 +317,18 @@ public abstract class BNode {
 
 	}
 
-	public static class Nav2 extends NodeEndpoint<BNode> implements View {
+	public static class Navigator extends NodeEndpoint<BNode> implements View {
 
 		@Override
 		public String whatIsThis() {
-			return "Nav2 view for BNode";
+			return "navigate the graph";
 		}
 
-		public Nav2(BBGraph g) {
+		public Navigator(BBGraph g) {
 			super(g);
 		}
 
-		public Nav2(BBGraph g, int id) {
+		public Navigator(BBGraph g, int id) {
 			super(g, id);
 		}
 
@@ -346,7 +346,7 @@ public abstract class BNode {
 			var ins = new ObjectNode(null);
 			n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o.id())));
 			r.set("ins", ins);
-			return new EndpointJsonResponse(r, this);
+			return new EndpointJsonResponse(r, "bnode_nav2");
 		}
 	}
 
@@ -433,7 +433,7 @@ public abstract class BNode {
 		return n;
 	}
 
-	protected abstract String prettyName();
+	public abstract String prettyName();
 
 	/*
 	 * public static class BFS extends JSONView<BNode> {

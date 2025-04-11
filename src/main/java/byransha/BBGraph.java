@@ -512,7 +512,7 @@ public class BBGraph extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "graph";
 	}
 

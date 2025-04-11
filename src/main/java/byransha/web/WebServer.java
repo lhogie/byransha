@@ -26,7 +26,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
-import byransha.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -56,15 +55,14 @@ import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.CurrentNode;
 import byransha.web.endpoint.Edit;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.NodeEndpoints;
+import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
-import byransha.web.view.AllViews;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
 import byransha.web.view.ModelDOTView;
@@ -139,7 +137,7 @@ public class WebServer extends BNode {
 		jvm = g.find(JVMNode.class, e -> true) == null ? new JVMNode(g) : g.find(JVMNode.class, e-> true);
 		byransha = g.find(Byransha.class, e -> true) == null ? new Byransha(g) : g.find(Byransha.class, e-> true);
 		operatingSystem = g.find(OSNode.class, e -> true) == null ? new OSNode(g) : g.find(OSNode.class, e-> true);
-		if (g.find(CurrentNode.class, endpoint -> true) == null) new CurrentNode(g);
+		if (g.find(NodeInfo.class, endpoint -> true) == null) new NodeInfo(g);
 		if (g.find(Views.class, endpoint -> true) == null) new Views(g);
 		if (g.find(Jump.class, endpoint -> true) == null) new Jump(g);
 		if (g.find(Endpoints.class, endpoint -> true) == null) new Endpoints(g);
@@ -158,10 +156,10 @@ public class WebServer extends BNode {
 		if (g.find(JVMNode.View.class, endpoint -> true) == null) new JVMNode.View(g);
 		if (g.find(BNode.InOutsNivoView.class, endpoint -> true) == null) new BNode.InOutsNivoView(g);
 		if (g.find(ModelGraphivzSVGView.class, endpoint -> true) == null) new ModelGraphivzSVGView(g);
-		if (g.find(Nav2.class, endpoint -> true) == null) new Nav2(g);
+		if (g.find(Navigator.class, endpoint -> true) == null) new Navigator(g);
 		if (g.find(OutNodeDistribution.class, endpoint -> true) == null) new OutNodeDistribution(g);
 		if (g.find(Picture.V.class, endpoint -> true) == null) new Picture.V(g);
-		if (g.find(AllViews.class, endpoint -> true) == null) new AllViews(g);
+//		if (g.find(AllViews.class, endpoint -> true) == null) new AllViews(g);
 		if (g.find(LabView.class, endpoint -> true) == null) new LabView(g);
 		if (g.find(ModelDOTView.class, endpoint -> true) == null) new ModelDOTView(g);
 		if (g.find(SourceView.class, endpoint -> true) == null) new SourceView(g);
@@ -238,10 +236,13 @@ public class WebServer extends BNode {
 			ObjectNode inputJson = grabInputFromURLandPOST(https);
 			final var inputJson2sendBack = inputJson.deepCopy();
 
-			user = graph.findUser(https.getSSLSession());
+			var session = https.getSSLSession();
+			session.getSessionContext().setSessionTimeout(0);
+			user = graph.findUser(session);
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
+				System.out.println("creating new user " + user);
 				user.session = https.getSSLSession();
 				user.stack.push(graph.root());
 			} else {
@@ -272,6 +273,7 @@ public class WebServer extends BNode {
 
 				if (user != null) {
 					response.set("username", new TextNode(user.name.get()));
+					response.set("user_id", new IntNode(user.id()));
 				}
 
 				var endpoints = endpoints(path.substring(5), user.currentNode());
@@ -297,6 +299,7 @@ public class WebServer extends BNode {
 						er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
 						er.set("response_type", new TextNode(endpoint.type().name()));
 						er.set("pretty_name", new TextNode(endpoint.prettyName()));
+						er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
 						long startTimeNs2 = System.nanoTime();
 
 						try {
@@ -529,9 +532,10 @@ public class WebServer extends BNode {
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}
+	
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "HTTP server";
 	}
 

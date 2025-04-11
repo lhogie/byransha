@@ -9,7 +9,7 @@ import {useQueryClient} from "@tanstack/react-query";
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error, refetch } = useApiData(''); // Assuming endpoint is still correct
+    const { data, isLoading, error, refetch } = useApiData(''); // Adjust endpoint as needed
     const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('bnode_nav2');
     const queryClient = useQueryClient()
 
@@ -82,58 +82,7 @@ const GridView = () => {
             }}
         >
             {navIsLoading && <CircularProgress sx={{ color: '#1e88e5', display: 'block', mx: 'auto' }} />}
-            <Box sx={{ mb: 2 }}>
-                {navData &&
-                    Object.keys(navData.data.results[0].result.data.ins).map((inNode) => (
-                        <Button
-                            key={inNode}
-                            onClick={() => jumpToNode(navData.data.results[0].result.data.ins[inNode])}
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#3949ab',
-                                color: '#fff',
-                                mr: 1,
-                                mb: 1,
-                                '&:hover': { bgcolor: '#5c6bc0' },
-                            }}
-                        >
-                            {inNode} ({navData.data.results[0].result.data.ins[inNode]})
-                        </Button>
-                    ))}
-            </Box>
-            <Box sx={{ paddingY: '10px' }}>
-                {navData &&
-                    Object.keys(navData.data.results[0].result.data.outs).map((outNode) => (
-                        <Button
-                            key={outNode}
-                            onClick={() => jumpToNode(navData.data.results[0].result.data.outs[outNode])}
-                            variant="contained"
-                            sx={{
-                                bgcolor: '#00897b',
-                                color: '#fff',
-                                mr: 1,
-                                mb: 1,
-                                '&:hover': { bgcolor: '#26a69a' },
-                            }}
-                        >
-                            {outNode} ({navData.data.results[0].result.data.outs[outNode]})
-                        </Button>
-                    ))}
-            </Box>
-            <Typography
-                variant="h4"
-                gutterBottom
-                sx={{
-                    marginBottom: '32px',
-                    color: '#1a237e',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    borderBottom: '2px solid #3f51b5',
-                    pb: 1,
-                }}
-            >
-                Views
-            </Typography>
+
             <Grid2 container spacing={4}>
                 {views.map((view, index) => (
                     <Grid2 size={{ xs: 12, sm: 6 }} key={index}>
@@ -142,7 +91,6 @@ const GridView = () => {
                                 cursor: 'pointer',
                                 aspectRatio: '1',
                                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                // No bgcolor, keeping card transparent
                                 border: '1px solid #e0e0e0',
                                 borderRadius: 2,
                                 '&:hover': {
@@ -162,7 +110,7 @@ const GridView = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     overflow: 'hidden',
-                                    bgcolor: getCardContentBackgroundColor(view), // Color based on response_type
+                                    bgcolor: getCardContentBackgroundColor(view),
                                 }}
                             >
                                 <Typography
@@ -175,6 +123,17 @@ const GridView = () => {
                                     }}
                                 >
                                     {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
+                                </Typography>
+                                <Typography
+                                    variant="subtitle1"
+                                    sx={{
+                                        marginBottom: '16px',
+                                        color: '#424242',
+                                        fontWeight: '500',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    {view.what_is_this}
                                 </Typography>
                                 <Typography
                                     variant="body2"
@@ -191,10 +150,13 @@ const GridView = () => {
                                             borderRadius: '3px',
                                         },
                                         '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
+                                        wordBreak: 'break-word', // Break long words
+                                        overflowWrap: 'break-word', // Ensure wrapping
+                                        whiteSpace: 'pre-wrap', // Preserve whitespace and wrap
+                                        maxWidth: '100%', // Constrain to card width
                                     }}
                                 >
-                                    Content:
-                                    <View viewId={view.endpoint.replaceAll(' ', '_')} />
+                                    {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
                                 </Typography>
                             </CardContent>
                         </Card>

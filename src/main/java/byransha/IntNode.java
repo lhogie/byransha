@@ -7,7 +7,7 @@ public class IntNode extends ValuedNode<Integer> {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "an integer";
 	}
 
