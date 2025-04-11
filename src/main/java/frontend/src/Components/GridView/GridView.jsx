@@ -125,6 +125,17 @@ const GridView = () => {
                                     {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
                                 </Typography>
                                 <Typography
+                                    variant="subtitle1"
+                                    sx={{
+                                        marginBottom: '16px',
+                                        color: '#424242',
+                                        fontWeight: '500',
+                                        flexShrink: 0,
+                                    }}
+                                >
+                                    {view.what_is_this}
+                                </Typography>
+                                <Typography
                                     variant="body2"
                                     sx={{
                                         flex: 1,
