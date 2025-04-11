@@ -10,7 +10,6 @@ const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
     const { data, isLoading, error, refetch } = useApiData(''); // Adjust endpoint as needed
-    const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('bnode_nav2');
     const queryClient = useQueryClient()
 
     const jumpMutation = useApiMutation('jump', {
@@ -81,8 +80,6 @@ const GridView = () => {
                 minHeight: '100vh',
             }}
         >
-            {navIsLoading && <CircularProgress sx={{ color: '#1e88e5', display: 'block', mx: 'auto' }} />}
-
             <Grid2 container spacing={4}>
                 {views.map((view, index) => (
                     <Grid2 size={{ xs: 12, sm: 6 }} key={index}>
