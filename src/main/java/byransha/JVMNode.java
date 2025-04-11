@@ -18,6 +18,10 @@ public class JVMNode extends BNode implements VirtualNode {
 		super(db);
 	}
 
+	public JVMNode(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	protected String prettyName() {
 		return "Java Virtual Machine";
@@ -32,6 +36,10 @@ public class JVMNode extends BNode implements VirtualNode {
 
 		public View(BBGraph g) {
 			super(g);
+		}
+
+		public View(BBGraph g, int id) {
+			super(g, id);
 		}
 
 		@Override
@@ -65,6 +73,10 @@ public class JVMNode extends BNode implements VirtualNode {
 	public static class Kill extends NodeEndpoint<JVMNode> implements Changer {
 		public Kill(BBGraph db) {
 			super(db);
+		}
+
+		public Kill(BBGraph db, int id) {
+			super(db, id);
 		}
 
 		@Override

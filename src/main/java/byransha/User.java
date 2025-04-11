@@ -36,6 +36,14 @@ public class User extends BNode {
 
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
+		this.saveOuts(f -> {});
+		this.saveIns(f -> {});
+		forEachOut((n, node) -> node.saveIns(f -> {}));
+		forEachIn((n, node) -> node.saveOuts(f -> {}));
+	}
+
+	public User(BBGraph g, int id){
+		super(g, id);
 	}
 
 	public BNode currentNode() {
@@ -59,6 +67,10 @@ public class User extends BNode {
 	public static class UserView extends NodeEndpoint<User> implements TechnicalView {
 		public UserView(BBGraph g) {
 			super(g);
+		}
+
+		public UserView(BBGraph g, int id) {
+			super(g, id);
 		}
 
 		@Override

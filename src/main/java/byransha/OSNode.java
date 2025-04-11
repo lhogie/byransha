@@ -24,11 +24,18 @@ public class OSNode extends BNode {
 		super(db);
 	}
 
+<<<<<<< HEAD
 	
 	@Override
 	protected String prettyName() {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
 	}
+=======
+	public OSNode(BBGraph db, int id) {
+		super(db, id);
+	}
+
+>>>>>>> eeef6b4a16cce56123991c13cd45538cd7d7f491
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		@Override
@@ -38,6 +45,10 @@ public class OSNode extends BNode {
 
 		public View(BBGraph g) {
 			super(g);
+		}
+
+		public View(BBGraph g, int id) {
+			super(g, id);
 		}
 
 		@Override

@@ -31,6 +31,10 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 		super(db);
 	}
 
+	public ModelDOTView(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public boolean sendContentByDefault() {
 		return false;

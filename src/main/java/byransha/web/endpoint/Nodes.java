@@ -24,6 +24,10 @@ public class Nodes extends NodeEndpoint<BNode> implements View {
 		super(db);
 	}
 
+	public Nodes(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
 			BNode g) {

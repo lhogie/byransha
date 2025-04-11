@@ -18,6 +18,10 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 		super(db);
 	}
 
+	public NodeEndpoint(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable {

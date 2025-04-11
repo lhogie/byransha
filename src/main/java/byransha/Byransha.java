@@ -13,6 +13,10 @@ public class Byransha extends BNode {
 		super(db);
 	}
 
+	public Byransha(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	protected String prettyName() {
 		return "Byransha";

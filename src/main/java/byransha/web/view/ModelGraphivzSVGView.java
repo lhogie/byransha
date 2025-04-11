@@ -17,6 +17,10 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 		super(db);
 	}
 
+	public ModelGraphivzSVGView(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public boolean sendContentByDefault() {
 		return false;

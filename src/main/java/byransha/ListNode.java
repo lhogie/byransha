@@ -1,15 +1,21 @@
 package byransha;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ListNode<N extends BNode> extends BNode {
 	public final List<N> l = new ArrayList<>();
 
 	public ListNode(BBGraph db) {
 		super(db);
+	}
+
+	public ListNode(BBGraph db, int id) {
+		super(db, id);
 	}
 
 	@Override
@@ -26,8 +32,10 @@ public class ListNode<N extends BNode> extends BNode {
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		int i = 0;
 
-		for (var e : l) {
-			consumer.accept(i++ + ". " + e.id(), e);
+		if (l != null) {
+			for (var e : l) {
+				consumer.accept(i++ + ". " + e.id(), e);
+			}
 		}
 	}
 
@@ -53,6 +61,13 @@ public class ListNode<N extends BNode> extends BNode {
 
 	public BNode random() {
 		return l.get(new Random().nextInt(l.size()));
+	}
+
+	public void saveAll(Consumer<File> consumer) {
+		saveOuts(consumer);
+		forEachOut((n, node ) -> node.saveIns(consumer, " ." + this.id()));
+		saveIns(consumer);
+		forEachIn((n, node ) -> node.saveOuts(consumer));
 	}
 
 }

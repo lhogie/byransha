@@ -30,6 +30,10 @@ public abstract class Endpoint extends BNode {
 		super(db);
 	}
 
+	protected Endpoint(BBGraph db, int id) {
+		super(db, id);
+	}
+
 
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable;

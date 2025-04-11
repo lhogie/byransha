@@ -18,6 +18,10 @@ public class Views extends NodeEndpoint<BNode> implements View {
 		super(db);
 	}
 
+	public Views(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public String whatIsThis() {
 		return "Description of Views";
