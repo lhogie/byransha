@@ -255,6 +255,12 @@ export const View = ({viewId}) => {
                     <div dangerouslySetInnerHTML={{__html: content}}/>
                 </div>
             );
+        } else if (contentType === 'image/svg+xml') {
+            return (
+                <div className="content-container">
+                    <img src={`data:image/svg+xml;base64,${content}`} alt="Graphviz" />
+                </div>
+            );
         } else if (contentType === 'text/plain') {
             return (
                 <div className="content-container">
