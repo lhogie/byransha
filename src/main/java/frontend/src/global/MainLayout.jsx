@@ -251,5 +251,4 @@ const MainLayout = () => {
         </Box>
     );
 };
-
 export default MainLayout;
