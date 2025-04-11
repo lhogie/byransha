@@ -82,20 +82,7 @@ const GridView = () => {
             }}
         >
             {navIsLoading && <CircularProgress sx={{ color: '#1e88e5', display: 'block', mx: 'auto' }} />}
-            <Typography
-                variant="h4"
-                gutterBottom
-                sx={{
-                    marginBottom: '32px',
-                    color: '#1a237e',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    borderBottom: '2px solid #3f51b5',
-                    pb: 1,
-                }}
-            >
 
-            </Typography>
             <Grid2 container spacing={4}>
                 {views.map((view, index) => (
                     <Grid2 size={{ xs: 12, sm: 6 }} key={index}>
