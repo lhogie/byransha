@@ -156,7 +156,7 @@ public class WebServer extends BNode {
 		if (g.find(JVMNode.View.class, endpoint -> true) == null) new JVMNode.View(g);
 		if (g.find(BNode.InOutsNivoView.class, endpoint -> true) == null) new BNode.InOutsNivoView(g);
 		if (g.find(ModelGraphivzSVGView.class, endpoint -> true) == null) new ModelGraphivzSVGView(g);
-		if (g.find(Nav2.class, endpoint -> true) == null) new Nav2(g);
+		if (g.find(Navigator.class, endpoint -> true) == null) new Navigator(g);
 		if (g.find(OutNodeDistribution.class, endpoint -> true) == null) new OutNodeDistribution(g);
 		if (g.find(Picture.V.class, endpoint -> true) == null) new Picture.V(g);
 //		if (g.find(AllViews.class, endpoint -> true) == null) new AllViews(g);
@@ -236,7 +236,9 @@ public class WebServer extends BNode {
 			ObjectNode inputJson = grabInputFromURLandPOST(https);
 			final var inputJson2sendBack = inputJson.deepCopy();
 
-			user = graph.findUser(https.getSSLSession());
+			var session = https.getSSLSession();
+			session.getSessionContext().setSessionTimeout(0);
+			user = graph.findUser(session);
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
