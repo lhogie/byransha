@@ -8,7 +8,7 @@ import { useApiData, useApiMutation } from '../../hooks/useApiData';
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
-    const { data, isLoading, error, refetch } = useApiData(''); // Assuming endpoint is still correct
+    const { data, isLoading, error, refetch } = useApiData(''); // Adjust endpoint as needed
     const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('bnode_nav2');
     const jumpMutation = useApiMutation('jump', {
         onSuccess: () => {
@@ -130,7 +130,7 @@ const GridView = () => {
                     pb: 1,
                 }}
             >
-                Views
+
             </Typography>
             <Grid2 container spacing={4}>
                 {views.map((view, index) => (
@@ -140,7 +140,6 @@ const GridView = () => {
                                 cursor: 'pointer',
                                 aspectRatio: '1',
                                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                // No bgcolor, keeping card transparent
                                 border: '1px solid #e0e0e0',
                                 borderRadius: 2,
                                 '&:hover': {
@@ -160,7 +159,7 @@ const GridView = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     overflow: 'hidden',
-                                    bgcolor: getCardContentBackgroundColor(view), // Color based on response_type
+                                    bgcolor: getCardContentBackgroundColor(view),
                                 }}
                             >
                                 <Typography
@@ -189,10 +188,13 @@ const GridView = () => {
                                             borderRadius: '3px',
                                         },
                                         '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
+                                        wordBreak: 'break-word', // Break long words
+                                        overflowWrap: 'break-word', // Ensure wrapping
+                                        whiteSpace: 'pre-wrap', // Preserve whitespace and wrap
+                                        maxWidth: '100%', // Constrain to card width
                                     }}
                                 >
-                                    Content:
-                                    <View viewId={view.endpoint.replaceAll(' ', '_')} />
+                                    {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
                                 </Typography>
                             </CardContent>
                         </Card>
