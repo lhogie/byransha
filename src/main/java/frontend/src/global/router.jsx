@@ -1,4 +1,4 @@
-import {createBrowserRouter} from "react-router";
+import {createBrowserRouter} from "react-router-dom";
 import App from "./App";
 import LoginForm from "../Components/LoginForm/LoginForm";
 import MainLayout from "./MainLayout";

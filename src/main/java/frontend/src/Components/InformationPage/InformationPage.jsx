@@ -1,4 +1,4 @@
-import {useParams} from 'react-router';
+import {useParams} from 'react-router-dom';
 import './InformationPage.css';
 import React, {useEffect, useState} from 'react';
 import {useTitle} from "../../global/useTitle";
