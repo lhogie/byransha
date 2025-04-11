@@ -168,5 +168,4 @@ const GridView = () => {
         </Box>
     );
 };
-
 export default GridView;
