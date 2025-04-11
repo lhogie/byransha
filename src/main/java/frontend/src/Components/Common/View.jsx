@@ -1,11 +1,11 @@
 import axios from "axios";
 import React, {useCallback, useEffect, useRef} from "react";
-import {ResponsiveLine} from "@nivo/line";
-import {ResponsiveBar} from "@nivo/bar";
+import {ResponsiveLine, ResponsiveLineCanvas} from "@nivo/line";
+import {ResponsiveBar, ResponsiveBarCanvas} from "@nivo/bar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
-import {ResponsiveNetwork} from "@nivo/network";
+import {ResponsiveNetwork, ResponsiveNetworkCanvas} from "@nivo/network";
 import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
@@ -50,7 +50,7 @@ export const View = ({viewId}) => {
 
                 return (
                     <div className="graph">
-                        <ResponsiveLine
+                        <ResponsiveLineCanvas
                             data={parsedChartData}
                             margin={{top: 50, right: 110, bottom: 50, left: 60}}
                             xScale={{type: 'linear'}}
@@ -94,7 +94,7 @@ export const View = ({viewId}) => {
                 const keys = Object.values(content).length > 0 ? Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b)), []).sort() : [];
                 return (
                     <div className="graph">
-                        <ResponsiveBar
+                        <ResponsiveBarCanvas
                             data={barChartData}
                             keys={keys}
                             indexBy={"group"}
@@ -183,7 +183,7 @@ export const View = ({viewId}) => {
                             e.preventDefault()
                         }}
                     >
-                        <ResponsiveNetwork
+                        <ResponsiveNetworkCanvas
                             data={{
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
