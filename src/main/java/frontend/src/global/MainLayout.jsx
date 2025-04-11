@@ -139,11 +139,18 @@ const MainLayout = () => {
                                 anchorEl={menuAnchor}
                                 open={Boolean(menuAnchor)}
                                 onClose={handleMenuClose}
+                                anchorOrigin={
+                                    { vertical: 'center', horizontal: 'center' }
+                                }
+                                transformOrigin={
+                                    { vertical: 'top', horizontal: 'center' }
+                                }
                                 PaperProps={{
                                     sx: {
                                         borderRadius: '4px',
                                         boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                        mt: 1,
+                                        mt: '5vh',
+                                        ml: '18vw',
                                     }
                                 }}
                             >

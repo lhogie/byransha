@@ -9,7 +9,7 @@ const LoginForm = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [passwordVisible, setPasswordVisible] = useState(false);
-    const [error, setError] = useState(""); // Error handling
+    const [error, setError] = useState("");
 
     const navigate = useNavigate();
 

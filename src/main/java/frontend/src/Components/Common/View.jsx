@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, {useCallback, useEffect, useRef} from "react";
+import React, {useCallback, useEffect, useRef, useState} from "react";
 import {ResponsiveLine, ResponsiveLineCanvas} from "@nivo/line";
 import {ResponsiveBar, ResponsiveBarCanvas} from "@nivo/bar";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -9,12 +9,51 @@ import {ResponsiveNetwork, ResponsiveNetworkCanvas} from "@nivo/network";
 import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
-import {Box, Button} from "@mui/material";
+import { Box, Button, Modal, Typography, IconButton, Tooltip } from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import CodeIcon from '@mui/icons-material/Code';
+
+const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '80%',
+    maxWidth: '800px',
+    maxHeight: '80vh',
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    p: 4,
+    display: 'flex',
+    flexDirection: 'column',
+};
+
+const modalHeaderStyle = {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    mb: 2,
+};
+
+const modalContentStyle = {
+    overflowY: 'auto',
+};
+
 
 export const View = ({viewId}) => {
-    const { data, isLoading: loading, error, refetch } = useApiData(viewId);
+    const { data: rawApiData, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
     const queryClient = useQueryClient()
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const handleOpenModal = (event) => {
+        event.stopPropagation()
+        setIsModalOpen(true)
+    };
+    const handleCloseModal = (event) => {
+        event.stopPropagation()
+        setIsModalOpen(false)
+    };
 
     const jumpMutation = useApiMutation('jump', {
         onSuccess: async () => {
@@ -24,20 +63,18 @@ export const View = ({viewId}) => {
 
     const jumpToNode = useCallback((nodeId) => {
         jumpMutation.mutate(`node_id=${nodeId}`);
-    }, []);
+    }, [jumpMutation]);
 
     useEffect(() => {
-        if (!data) return;
-        const {data: content, headers} = data;
-
-        if (!content.results[0].result) return;
-
+        if (!rawApiData) return;
+        const {data: content} = rawApiData;
+        if (!content?.results?.[0]?.result) return;
         const contentType = content.results[0].result.contentType;
 
         if (contentType === 'text/dot' && graphvizRef.current) {
             graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
         }
-    }, [data]);
+    }, [rawApiData]);
 
     const displayContent = useCallback((content, contentType) => {
         if (!content) {
@@ -334,7 +371,7 @@ export const View = ({viewId}) => {
                 </div>
             );
         }
-    }, [data, viewId]);
+    }, [viewId, jumpToNode, graphvizRef]);
 
     const parseNivoChartData = (content) => {
         const result = [];
@@ -370,31 +407,121 @@ export const View = ({viewId}) => {
         return result;
     };
 
+    const renderJsonViewer = (dataForModal) => (
+        <>
+            <Tooltip title="Show Raw Backend Response">
+                <IconButton
+                    onClick={handleOpenModal}
+                    size="small"
+                    sx={{
+                        position: 'absolute',
+                        top: (theme) => theme.spacing(1),
+                        right: (theme) => theme.spacing(1),
+                        zIndex: 10,
+                        color: 'primary.main'
+                    }}
+                    aria-label="Show raw JSON"
+                    disabled={!dataForModal}
+                >
+                    <CodeIcon />
+                </IconButton>
+            </Tooltip>
+            <Modal
+                open={isModalOpen}
+                onClose={handleCloseModal}
+                aria-labelledby="raw-json-modal-title"
+                aria-describedby="raw-json-modal-description"
+            >
+                <Box sx={modalStyle}>
+                    <Box sx={modalHeaderStyle}>
+                        <Typography id="raw-json-modal-title" variant="h6" component="h2">
+                            Raw Backend Response
+                        </Typography>
+                        <IconButton onClick={handleCloseModal} aria-label="close">
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                    <Box sx={modalContentStyle}>
+                        {dataForModal ? (
+                            <CustomCodeBlock
+                                language="json"
+                                code={JSON.stringify(dataForModal, null, 2)}
+                            />
+                        ) : (
+                            <Typography>No raw data available to display.</Typography>
+                        )}
+                    </Box>
+                </Box>
+            </Modal>
+        </>
+    );
+
     if (loading) {
         return (
-            <div className="loading-container">
+            <Box sx={{ position: 'relative', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                {renderJsonViewer(rawApiData)}
                 <CircularProgress/>
-            </div>
+            </Box>
         );
     }
 
     if (error) {
         return (
-            <div className="information-page">
-                <div className="error-message">Error: {error.message}</div>
-            </div>
+            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+                {renderJsonViewer(rawApiData)}
+                <div className="error-message" style={{ marginTop: '40px' }}>
+                    Error fetching data: {error.message}
+                </div>
+            </Box>
         );
     }
 
-    if (!data) {
-        return <div className="error-message">No data available.</div>;
+    if (!rawApiData) {
+        return (
+            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+                {renderJsonViewer(null)}
+                <div className="error-message" style={{ marginTop: '40px' }}>
+                    No data available.
+                </div>
+            </Box>
+        );
     }
 
-    const {data: dataContent, headers} = data;
+    const {data: dataContent, headers} = rawApiData;
 
-    if (dataContent.results[0].error !== undefined) {
-        return <div className="error-message">Error: {dataContent.results[0].error}</div>;
+    if (dataContent?.results?.[0]?.error !== undefined) {
+        return (
+            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+                {renderJsonViewer(rawApiData)}
+                <div className="error-message" style={{ marginTop: '40px' }}>
+                    Backend Error: {dataContent.results[0].error}
+                </div>
+            </Box>
+        );
     }
 
-    return displayContent(dataContent.results[0].result.data, dataContent.results[0].result.contentType);
+    const resultData = dataContent?.results?.[0]?.result?.data;
+    const resultContentType = dataContent?.results?.[0]?.result?.contentType;
+
+    if (!resultData || !resultContentType) {
+        return (
+            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+                {renderJsonViewer(rawApiData)}
+                <div className="error-message" style={{ marginTop: '40px' }}>
+                    Result data or content type missing in the response.
+                </div>
+            </Box>
+        );
+    }
+
+    return (
+        <Box>
+            {renderJsonViewer(rawApiData)}
+            <Box sx={{ position: 'relative', padding: 2 }}>
+                <Box sx={{ mt: 4}}>
+                    {displayContent(resultData, resultContentType)}
+                </Box>
+            </Box>
+        </Box>
+    );
 }
