@@ -237,7 +237,11 @@ export const View = ({viewId}) => {
                             Object.keys(content.ins).map((inNode) => (
                                 <Button
                                     key={inNode}
-                                    onClick={() => jumpToNode(content.ins[inNode])}
+                                    onClick={(event) => {
+                                        event.stopPropagation()
+                                        event.preventDefault()
+                                        jumpToNode(content.ins[inNode])
+                                    }}
                                     variant="contained"
                                     sx={{
                                         bgcolor: '#3949ab',
@@ -256,8 +260,11 @@ export const View = ({viewId}) => {
                             Object.keys(content.outs).map((outNode) => (
                                 <Button
                                     key={outNode}
-                                    onClick={() => jumpToNode(content.outs[outNode])}
-                                    variant="contained"
+                                    onClick={(event) => {
+                                        event.stopPropagation()
+                                        event.preventDefault()
+                                        jumpToNode(content.outs[outNode])
+                                    }}                                    variant="contained"
                                     sx={{
                                         bgcolor: '#00897b',
                                         color: '#fff',
