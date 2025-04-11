@@ -4,16 +4,18 @@ import React, { useCallback } from 'react';
 import { View } from "../Common/View.jsx";
 import { useTitle } from "../../global/useTitle.jsx";
 import { useApiData, useApiMutation } from '../../hooks/useApiData';
+import {useQueryClient} from "@tanstack/react-query";
 
 const GridView = () => {
     const navigate = useNavigate();
     useTitle("Views");
     const { data, isLoading, error, refetch } = useApiData(''); // Assuming endpoint is still correct
     const { data: navData, isLoading: navIsLoading, error: navIsError, refetch: refetchNav } = useApiData('bnode_nav2');
+    const queryClient = useQueryClient()
+
     const jumpMutation = useApiMutation('jump', {
-        onSuccess: () => {
-            refetch();
-            refetchNav();
+        onSuccess: async () => {
+            await queryClient.invalidateQueries()
         },
     });
 
