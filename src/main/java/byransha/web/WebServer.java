@@ -296,6 +296,7 @@ public class WebServer extends BNode {
 						er.set("endpoint", new TextNode(endpoint.name()));
 						er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
 						er.set("response_type", new TextNode(endpoint.type().name()));
+						er.set("pretty_name", new TextNode(endpoint.prettyName()));
 						long startTimeNs2 = System.nanoTime();
 
 						try {
