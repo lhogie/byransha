@@ -20,7 +20,7 @@ public class Country extends BNode {
 	
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return name.get();
 	}
 }

@@ -18,7 +18,7 @@ public class Byransha extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "Byransha";
 	}
 

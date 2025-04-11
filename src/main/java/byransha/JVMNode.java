@@ -23,7 +23,7 @@ public class JVMNode extends BNode implements VirtualNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "Java Virtual Machine";
 	}
 

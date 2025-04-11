@@ -18,7 +18,7 @@ public class StringNode extends ValuedNode<String> {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "a string: " + get();
 	}
 

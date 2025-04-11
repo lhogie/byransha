@@ -14,7 +14,7 @@ public class Campus extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "campus";
 	}
 

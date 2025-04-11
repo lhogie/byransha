@@ -10,7 +10,7 @@ public class Building extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "building";
 	}
 

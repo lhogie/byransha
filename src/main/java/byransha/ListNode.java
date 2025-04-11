@@ -24,7 +24,7 @@ public class ListNode<N extends BNode> extends BNode {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return "a list";
 	}
 

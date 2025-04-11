@@ -12,45 +12,42 @@ import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class CurrentNode extends NodeEndpoint<BNode> {
+public class NodeInfo extends NodeEndpoint<BNode> {
 
-	@Override
-	public String whatIsThis() {
-		return "info about the current node";
-	}
-
-	public CurrentNode(BBGraph db) {
+	public NodeInfo(BBGraph db) {
 		super(db);
 	}
 
-	public CurrentNode(BBGraph db, int id) {
+	public NodeInfo(BBGraph db, int id) {
 		super(db, id);
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
-			BNode currentNode) {
+	public String whatIsThis() {
+		return "info about a node";
+	}
 
-		if(user.stack.lastElement() != currentNode){
-			user.stack.push(currentNode);
-		}
+	@Override
+	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
+			BNode node) {
 
 		var r = new ObjectNode(null);
-		r.set("id", new TextNode("" + currentNode.id()));
-		r.set("class", new TextNode(currentNode.getClass().getName()));
-		r.set("to_string", new TextNode(currentNode.toString()));
-		r.set("can read", new TextNode("" + currentNode.canSee(user)));
-		r.set("can write", new TextNode("" + currentNode.canSee(user)));
+		r.set("id", new TextNode("" + node.id()));
+		r.set("pretty_name", new TextNode(node.prettyName()));
+		r.set("class", new TextNode(node.getClass().getName()));
+		r.set("to_string", new TextNode(node.toString()));
+		r.set("can read", new TextNode("" + node.canSee(user)));
+		r.set("can write", new TextNode("" + node.canSee(user)));
 
 		var outs = new ArrayNode(null);
-		currentNode.forEachOut((name, outNode) -> {
+		node.forEachOut((name, outNode) -> {
 			var out = new ObjectNode(null);
 			out.set(name, new TextNode("" + outNode.id()));
 			outs.add(out);
 		});
 		r.set("out", outs);
 		var ins = new ArrayNode(null);
-		currentNode.forEachIn((name, inNode) -> {
+		node.forEachIn((name, inNode) -> {
 			var in = new ObjectNode(null);
 			in.set(name, new TextNode("" + inNode.id()));
 			ins.add(in);
@@ -59,7 +56,7 @@ public class CurrentNode extends NodeEndpoint<BNode> {
 
 		var a = new ArrayNode(null);
 
-		for (var e : graph.endpointsUsableFrom(currentNode)) {
+		for (var e : graph.endpointsUsableFrom(node)) {
 			a.add(new TextNode(e.name()));
 		}
 

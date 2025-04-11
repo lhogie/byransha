@@ -433,7 +433,7 @@ public abstract class BNode {
 		return n;
 	}
 
-	protected abstract String prettyName();
+	public abstract String prettyName();
 
 	/*
 	 * public static class BFS extends JSONView<BNode> {

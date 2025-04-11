@@ -12,7 +12,7 @@ public class ImageNode extends ValuedNode<byte[]> {
 	}
 
 	@Override
-	protected String prettyName() {
+	public String prettyName() {
 		return title.get();
 	}
 
