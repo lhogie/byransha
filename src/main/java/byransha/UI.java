@@ -10,6 +10,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import toools.gui.Utilities;
 
 public class UI extends BNode {
 	ColorNode backgroundColor;
@@ -53,8 +54,9 @@ public class UI extends BNode {
 				BNode node) {
 			var r = new ObjectNode(null);
 			UI ui = graph.find(UI.class, e -> true);
-			r.set("bg_color", new TextNode(ui.backgroundColor.get().toString()));
-			r.set("text_color", new TextNode(ui.backgroundColor.get().toString()));
+			r.set("bg_color", new TextNode(Utilities.toRGBHex(ui.backgroundColor.get())));
+			
+			r.set("text_color", new TextNode(Utilities.toRGBHex(ui.backgroundColor.get())));
 			return new EndpointJsonResponse(r, this);
 		}
 	}
