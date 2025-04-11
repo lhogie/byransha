@@ -119,11 +119,7 @@ public class User extends BNode {
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				User node) throws Throwable {
 			var a = new ArrayNode(null);
-
-			for (var e : node.stack) {
-				a.add(e.toJSONNode());
-			}
-
+			node.stack.forEach(e -> a.add(e.toJSONNode()));
 			return new EndpointJsonResponse(a, this);
 		}
 	}
