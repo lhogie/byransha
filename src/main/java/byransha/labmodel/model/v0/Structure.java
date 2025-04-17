@@ -8,15 +8,24 @@ import byransha.StringNode;
 
 public class Structure extends BNode {
 
-	public StringNode name = new StringNode(graph, null);
-	public SetNode<Structure> subStructures = new SetNode<>(graph);
-	public ListNode<Person> members = new ListNode<>(graph);
+	public StringNode name;
+	public SetNode<Structure> subStructures;
+	public ListNode<Person> members;
 	public Person director;
-	public ListNode<Status> status = new ListNode<>(graph);
-	public ListNode<Office> offices = new ListNode<>(graph);
+	public ListNode<Status> status;
+	public ListNode<Office> offices;
 
 	public Structure(BBGraph g) {
 		super(g);
+		name = new StringNode(g, null);
+		subStructures = new SetNode<>(g);
+		members = new ListNode<>(g);
+		status = new ListNode<>(g);
+		offices = new ListNode<>(g);
+	}
+
+	public Structure(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	@Override

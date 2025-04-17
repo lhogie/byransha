@@ -15,6 +15,10 @@ public class SetNode<N extends BNode> extends BNode {
 		super(db);
 	}
 
+	public SetNode(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public String prettyName() {
 		return "a set";
@@ -24,6 +28,9 @@ public class SetNode<N extends BNode> extends BNode {
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
+		if(l == null) {
+			return;
+		}
 		for (var e : l) {
 			consumer.accept("" + e.id(), e);
 		}

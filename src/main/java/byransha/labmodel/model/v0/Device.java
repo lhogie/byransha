@@ -13,6 +13,10 @@ public class Device extends BNode {
 		super(g);
 	}
 
+	public Device(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String whatIsThis() {
 		return "a computer/phone or any physical device";

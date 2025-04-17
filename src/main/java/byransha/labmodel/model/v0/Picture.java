@@ -17,6 +17,10 @@ public class Picture extends ValuedNode<byte[]> {
 		super(db);
 	}
 
+	public Picture(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	public static class V extends NodeEndpoint<Picture> {
 
 		public V(BBGraph db) {

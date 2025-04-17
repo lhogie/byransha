@@ -14,6 +14,10 @@ public class Position extends BNode {
 		super(g);
 	}
 
+	public Position(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String prettyName() {
 		return "position";

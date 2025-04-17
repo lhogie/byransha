@@ -5,10 +5,15 @@ import byransha.BNode;
 import byransha.StringNode;
 
 public class Status extends BNode {
-	StringNode name = new StringNode(graph, null);
+	StringNode name;
 
 	public Status(BBGraph g) {
 		super(g);
+		name = new StringNode(g, null);
+	}
+
+	public Status(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	@Override

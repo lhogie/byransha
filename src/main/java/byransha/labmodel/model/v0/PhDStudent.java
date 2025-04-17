@@ -9,6 +9,10 @@ public class PhDStudent extends Position {
 		super(g);
 	}
 
+	public PhDStudent(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	List<Person> directors;
 	Structure team;
 }

@@ -5,7 +5,10 @@ import byransha.BBGraph;
 public class IR extends Status {
 	public IR(BBGraph g) {
 		super(g);
-
 		name.set("Ingénieur de Recherche");
+	}
+
+	public IR(BBGraph g, int id) {
+		super(g, id);
 	}
 }

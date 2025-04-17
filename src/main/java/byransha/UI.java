@@ -24,6 +24,10 @@ public class UI extends BNode {
 		textColor.set(Color.black);
 	}
 
+	public UI(BBGraph db, int id) {
+		super(db, id);
+	}
+
 	@Override
 	public String prettyName() {
 		return "UI preferences";

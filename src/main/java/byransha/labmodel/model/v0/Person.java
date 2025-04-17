@@ -9,20 +9,20 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Person extends BNode {
-	public EtatCivil etatCivil = new EtatCivil(graph);
-	public ListNode<Position> positions = new ListNode<>(graph);
-	public ImageNode pics = new ImageNode(graph);
-	public BooleanNode hdr = new BooleanNode(graph);
+	public EtatCivil etatCivil;
+	public ListNode<Position> positions;
+	public ImageNode pics;
+	public BooleanNode hdr;
 
-	public StringNode badgeNumber = new StringNode(graph, null);
-	public StringNode website = new StringNode(graph, null);
-	public StringNode faxNumber = new StringNode(graph, null);
+	public StringNode badgeNumber;
+	public StringNode website;
+	public StringNode faxNumber;
 	public ResearchGroup researchGroup;
-	public StringNode phdDate = new StringNode(graph, null);
+	public StringNode phdDate;
 
-	public ListNode<StringNode> phoneNumbers = new ListNode<>(graph);
-	protected ListNode<EmailNode> emailAddresses  = new ListNode<>(graph);
-	public ListNode<Office> offices = new ListNode<>(graph);
+	public ListNode<StringNode> phoneNumbers;
+	protected ListNode<EmailNode> emailAddresses;
+	public ListNode<Office> offices;
 	protected ListNode<ACMClassifier> topics;
 	public StringNode quotite;
 
@@ -32,6 +32,9 @@ public class Person extends BNode {
 
 	@Override
 	public String toString() {
+		if (etatCivil == null) {
+			return "null";
+		}
 		return etatCivil.name.get();
 	}
 	
@@ -43,6 +46,24 @@ public class Person extends BNode {
 	
 	public Person(BBGraph g) {
 		super(g);
+
+		etatCivil = new EtatCivil(g);
+		positions = new ListNode<>(g);
+		pics = new ImageNode(g);
+		hdr = new BooleanNode(g);
+
+		badgeNumber = new StringNode(g, null);
+		website = new StringNode(g, null);
+		faxNumber = new StringNode(g, null);
+		phdDate = new StringNode(g, null);
+
+		phoneNumbers = new ListNode<>(g);
+		emailAddresses  = new ListNode<>(g);
+		offices = new ListNode<>(g);
+	}
+
+	public Person(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	@Override

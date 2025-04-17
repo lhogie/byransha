@@ -8,17 +8,24 @@ import byransha.ListNode;
 
 public class Lab extends Structure {
 	public Person HFDS; // haut fonctionnaire defense securité
+	Map<Person, HFDSAvisE> HFDSAvisfds;
+	ListNode<Structure> tutelles;
 
 
 	public Lab(BBGraph g) {
 		super(g);
+		HFDSAvisfds = new HashMap<>();
+		tutelles  = new ListNode<>(graph);
+	}
+
+	public Lab(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	enum HFDSAvisE {
 		YES, NO, INBETWEEN
 	}
 
-	Map<Person, HFDSAvisE> HFDSAvisfds = new HashMap<>();
-	ListNode<Structure> tutelles = new ListNode<>(graph);
+
 
 }

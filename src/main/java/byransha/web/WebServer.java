@@ -173,8 +173,8 @@ public class WebServer extends BNode {
 		if (g.find(Edit.class, endpoint -> true) == null) new Edit(g);
 		if (g.find(IntrospectingEndpoint.class, endpoint -> true) == null) new IntrospectingEndpoint(g);
 		if (g.find(History.class, endpoint -> true) == null) new History(g);
-		new UI(g);
-		new UI.getProperties(g);
+		if (g.find(UI.class, endpoint -> true) == null) new UI(g);
+		if (g.find(UI.getProperties.class, endpoint -> true) == null) new UI.getProperties(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
