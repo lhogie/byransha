@@ -1,3 +1,7 @@
+body{
+    background: #ffffff !important;
+}
+
 .container {
     display: flex;
     align-items: center;
@@ -19,7 +23,7 @@
 
 .wrapper{
     width: 400px;
-    background:  transparent;
+    background: transparent;
     backdrop-filter: blur(30px);
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     background-color: #fff;

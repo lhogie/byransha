@@ -5,7 +5,6 @@ import MainLayout from "./MainLayout";
 import HomePage from "../Components/HomePage/HomePage";
 import InformationPage from "../Components/InformationPage/InformationPage";
 import React from "react";
-import GridViewer from '../Components/GridView/GridView'
 
 export const router = createBrowserRouter([
     {
@@ -25,10 +24,6 @@ export const router = createBrowserRouter([
                     {
                         path: '/information/:viewId',
                         element: <InformationPage/>,
-                    },
-                    {
-                        path: '/grid',
-                        element: <GridViewer/>
                     }
                 ]
             }]

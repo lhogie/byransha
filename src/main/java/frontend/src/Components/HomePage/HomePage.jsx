@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import './HomePage.css';
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Card, CardContent, CircularProgress, Grid2, Typography, Select, MenuItem, Menu } from '@mui/material';
+import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem, Select } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
 import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
@@ -14,17 +16,23 @@ const HomePage = () => {
 
     const [views, setViews] = useState([]);
     const [columns, setColumns] = useState(2);
-    const [menuAnchor, setMenuAnchor] = useState(null);
+    const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
+    const [selectedViews, setSelectedViews] = useState([]);
+    const [viewFilter, setViewFilter] = useState('all');
 
     React.useEffect(() => {
         if (data?.data?.results) {
-            setViews(data.data.results);
+            const filteredViews = viewFilter === 'technical'
+                ? data.data.results.filter(view => view.response_type === 'technical')
+                : data.data.results.filter(view => view.response_type !== 'technical');
+            setViews(filteredViews);
+            setSelectedViews(filteredViews.map(view => view.endpoint));
         }
-    }, [data]);
+    }, [data, viewFilter]);
 
     if (isLoading) {
         return (
-            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", bgcolor: '#ffffff' }}>
+            <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", bgcolor: '#2e3b55' }}>
                 <CircularProgress sx={{ color: '#1e88e5' }} />
             </Box>
         );
@@ -38,12 +46,15 @@ const HomePage = () => {
         );
     }
 
-    const handleMenuOpen = (event) => setMenuAnchor(event.currentTarget);
-    const handleMenuClose = () => setMenuAnchor(null);
+    const handleSelectMenuOpen = (event) => setSelectMenuAnchor(event.currentTarget);
+    const handleSelectMenuClose = () => setSelectMenuAnchor(null);
 
-    const handleDeleteView = (endpoint) => {
-        setViews(views.filter((view) => view.endpoint !== endpoint));
-        handleMenuClose();
+    const handleViewToggle = (endpoint) => {
+        setSelectedViews((prev) =>
+            prev.includes(endpoint)
+                ? prev.filter((id) => id !== endpoint)
+                : [...prev, endpoint]
+        );
     };
 
     const onDragEnd = (result) => {
@@ -54,183 +65,277 @@ const HomePage = () => {
         setViews(reorderedViews);
     };
 
-    const getCardContentBackgroundColor = (view) => {
-        switch (view.response_type) {
-            case "business": return '#d1e3f6';
-            case "development": return '#e0f2e9';
-            case "technical": return '#f9e1cc';
-            default: return '#ffffff';
-        }
+    const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, 20));
+    const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
+
+    const isSpecialView = (view) => {
+        const specialViewIds = ['char_example_xy', 'nivo_view'];
+        const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot'];
+        return (
+            specialViewIds.includes(view.endpoint) ||
+            view.endpoint.endsWith('_distribution') ||
+            specialContentTypes.some(type => view.endpoint.includes(type.replace('/', '_')))
+        );
     };
 
     return (
         <Box
             sx={{
-                padding: { xs: '10px', md: '40px' },
+                padding: { xs: '8px', sm: '16px', md: '40px' },
                 maxWidth: '100%',
                 margin: '0 auto',
-                bgcolor: '#ffffff',
+                bgcolor: '#2e3b55',
                 minHeight: '100vh',
+                zIndex: 1,
             }}
             className="home-page"
         >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-                <Box sx={{ display: 'flex', gap: 2 }}>
+            <Box
+                sx={{
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    justifyContent: 'space-between',
+                    alignItems: { xs: 'flex-start', sm: 'center' },
+                    mb: { xs: 2, sm: 4 },
+                    gap: { xs: 2, sm: 0 },
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexDirection: { xs: 'column', sm: 'row' },
+                        gap: { xs: 1, sm: 2 },
+                        alignItems: { xs: 'flex-start', sm: 'center' },
+                        width: { xs: '100%', sm: 'auto' },
+                    }}
+                >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Button
                             variant="outlined"
-                            onClick={handleMenuOpen}
-                            sx={{ borderColor: '#306DAD', color: '#306DAD', '&:hover': { borderColor: '#255a8c', bgcolor: '#f5f7ff' } }}
+                            onClick={handleSelectMenuOpen}
+                            sx={{
+                                borderWidth: '2px',
+                                borderColor: '#90caf9',
+                                color: '#90caf9',
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                padding: { xs: '4px 8px', sm: '6px 12px' },
+                                '&:hover': {
+                                    borderColor: '#42a5f5',
+                                    bgcolor: '#37474f',
+                                },
+                            }}
                         >
-                            Delete Grid
+                            Select Views
                         </Button>
                         <Menu
-                            anchorEl={menuAnchor}
-                            open={Boolean(menuAnchor)}
-                            onClose={handleMenuClose}
-                            PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto' } }}
+                            anchorEl={selectMenuAnchor}
+                            open={Boolean(selectMenuAnchor)}
+                            onClose={handleSelectMenuClose}
+                            PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto', width: { xs: 200, sm: 250 } } }}
                         >
-                            {views.map((view) => (
-                                <MenuItem
-                                    key={view.endpoint}
-                                    onClick={() => handleDeleteView(view.endpoint)}
-                                    sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
-                                >
-                                    {view.pretty_name}
-                                </MenuItem>
-                            ))}
+                            {data.data.results
+                                .filter(view => viewFilter === 'technical' ? view.response_type === 'technical' : view.response_type !== 'technical')
+                                .map((view) => (
+                                    <MenuItem
+                                        key={view.endpoint}
+                                        onClick={() => handleViewToggle(view.endpoint)}
+                                        sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
+                                    >
+                                        <Checkbox
+                                            checked={selectedViews.includes(view.endpoint)}
+                                            sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' } }}
+                                        />
+                                        <ListItemText primary={view.pretty_name} />
+                                    </MenuItem>
+                                ))}
                         </Menu>
                     </Box>
-                    <Select
-                        value={columns}
-                        onChange={(e) => setColumns(e.target.value)}
-                        sx={{
-                            minWidth: 80,
-                            '& .MuiSelect-select': { padding: '6px 12px' },
-                            '& .MuiOutlinedInput-notchedOutline': { borderColor: '#306DAD' },
-                        }}
-                    >
-                        <MenuItem value={1}>1</MenuItem>
-                        <MenuItem value={2}>2</MenuItem>
-                        <MenuItem value={3}>3</MenuItem>
-                        <MenuItem value={4}>4</MenuItem>
-                    </Select>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Select
+                            value={viewFilter}
+                            onChange={(e) => setViewFilter(e.target.value)}
+                            sx={{
+                                borderWidth: '2px',
+                                borderColor: '#90caf9',
+                                color: '#90caf9',
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                padding: { xs: '4px 8px', sm: '6px 12px' },
+                                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#90caf9' },
+                                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#42a5f5' },
+                                '& .MuiSelect-select': { padding: { xs: '4px 8px', sm: '6px 12px' } },
+                                '& .MuiSvgIcon-root': { color: '#90caf9' },
+                            }}
+                        >
+                            <MenuItem value="all">All Views</MenuItem>
+                            <MenuItem value="technical">Technical Views</MenuItem>
+                        </Select>
+                    </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Button
+                            variant="outlined"
+                            onClick={decrementColumns}
+                            disabled={columns === 1}
+                            sx={{
+                                minWidth: { xs: 36, sm: 40 },
+                                borderWidth: '2px',
+                                borderColor: '#90caf9',
+                                color: '#90caf9',
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                padding: { xs: '4px', sm: '6px' },
+                                '&:hover': {
+                                    borderColor: '#42a5f5',
+                                    bgcolor: '#37474f',
+                                },
+                            }}
+                        >
+                            <RemoveIcon fontSize="small" />
+                        </Button>
+                        <Typography sx={{ color: '#ffffff', fontWeight: 'bold', fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                            {columns}
+                        </Typography>
+                        <Button
+                            variant="outlined"
+                            onClick={incrementColumns}
+                            disabled={columns === 20}
+                            sx={{
+                                minWidth: { xs: 36, sm: 40 },
+                                borderWidth: '2px',
+                                borderColor: '#90caf9',
+                                color: '#90caf9',
+                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                padding: { xs: '4px', sm: '6px' },
+                                '&:hover': {
+                                    borderColor: '#42a5f5',
+                                    bgcolor: '#37474f',
+                                },
+                            }}
+                        >
+                            <AddIcon fontSize="small" />
+                        </Button>
+                    </Box>
                 </Box>
             </Box>
             <DragDropContext onDragEnd={onDragEnd}>
-                <Droppable droppableId="views" direction="horizontal">
+                <Droppable droppableId="views">
                     {(provided, snapshot) => (
-                        <Grid2
-                            container
-                            spacing={4}
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
+                        <Box
                             sx={{
                                 display: 'flex',
                                 flexWrap: 'wrap',
-                                bgcolor: snapshot.isDraggingOver ? '#e8eaf6' : '#ffffff',
+                                gap: { xs: 2, sm: 4 },
+                                bgcolor: snapshot.isDraggingOver ? '#37474f' : '#2e3b55',
                             }}
+                            {...provided.droppableProps}
+                            ref={provided.innerRef}
                         >
-                            {views.map((view, index) => (
-                                <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
-                                    {(provided, snapshot) => (
-                                        <Grid2
-                                            size={{ xs: 12, sm: 12 / columns }}
-                                            ref={provided.innerRef}
-                                            {...provided.draggableProps}
-                                            {...provided.dragHandleProps}
-                                            sx={{
-                                                opacity: snapshot.isDragging ? 0.8 : 1,
-                                            }}
-                                        >
-                                            <Card
+                            {views
+                                .filter((view) => selectedViews.includes(view.endpoint))
+                                .map((view, index) => (
+                                    <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
+                                        {(provided, snapshot) => (
+                                            <Box
                                                 sx={{
-                                                    cursor: 'grab',
-                                                    aspectRatio: '1',
-                                                    transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-                                                    border: '1px solid #e0e0e0',
-                                                    borderRadius: 2,
-                                                    '&:hover': {
-                                                        transform: 'translateY(-6px)',
-                                                        boxShadow: '0 8px 24px rgba(63, 81, 181, 0.2)',
-                                                        borderColor: '#3f51b5',
+                                                    width: {
+                                                        xs: '100%',
+                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / Math.min(columns, 2)}% - 16px)`,
+                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / columns}% - 32px)`,
                                                     },
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    bgcolor: snapshot.isDragging ? '#f5f7ff' : '#ffffff',
+                                                    flexBasis: {
+                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
+                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
+                                                    },
+                                                    opacity: snapshot.isDragging ? 0.8 : 1,
                                                 }}
-                                                onClick={(e) => {
-                                                    if (e.defaultPrevented) return;
-                                                    navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
-                                                }}
+                                                ref={provided.innerRef}
+                                                {...provided.draggableProps}
+                                                {...provided.dragHandleProps}
                                             >
-                                                <CardContent
+                                                <Card
                                                     sx={{
-                                                        padding: '24px',
-                                                        height: '100%',
+                                                        cursor: 'grab',
+                                                        aspectRatio: isSpecialView(view) ? '4 / 3' : '1',
+                                                        border: '1px solid #e0e0e0',
+                                                        borderRadius: 2,
                                                         display: 'flex',
                                                         flexDirection: 'column',
-                                                        overflow: 'hidden',
-                                                        bgcolor: getCardContentBackgroundColor(view),
+                                                        bgcolor: '#ffffff',
+                                                    }}
+                                                    onClick={(e) => {
+                                                        if (e.defaultPrevented) return;
+                                                        navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
                                                     }}
                                                 >
-                                                    <Typography
-                                                        variant="h6"
+                                                    <CardContent
                                                         sx={{
-                                                            marginBottom: '16px',
-                                                            flexShrink: 0,
-                                                            color: '#283593',
-                                                            fontWeight: '600',
+                                                            padding: { xs: '12px', sm: '16px' },
+                                                            height: '100%',
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            overflow: 'hidden',
+                                                            bgcolor: '#ffffff',
                                                         }}
                                                     >
-                                                        {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="subtitle1"
-                                                        sx={{
-                                                            marginBottom: '16px',
-                                                            color: '#424242',
-                                                            fontWeight: '500',
-                                                            flexShrink: 0,
-                                                        }}
-                                                    >
-                                                        {view.what_is_this}
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="body2"
-                                                        sx={{
-                                                            flex: 1,
-                                                            overflow: 'auto',
-                                                            color: '#424242',
-                                                            msOverflowStyle: 'none',
-                                                            scrollbarWidth: 'thin',
-                                                            scrollbarColor: '#3f51b5 #e8eaf6',
-                                                            '&::-webkit-scrollbar': { width: '6px' },
-                                                            '&::-webkit-scrollbar-thumb': {
-                                                                bgcolor: '#3f51b5',
-                                                                borderRadius: '3px',
-                                                            },
-                                                            '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
-                                                            wordBreak: 'break-word',
-                                                            overflowWrap: 'break-word',
-                                                            whiteSpace: 'pre-wrap',
-                                                            maxWidth: '100%',
-                                                        }}
-                                                    >
-                                                        {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
-                                                    </Typography>
-                                                </CardContent>
-                                            </Card>
-                                        </Grid2>
-                                    )}
-                                </Draggable>
-                            ))}
+                                                        <Typography
+                                                            variant="h6"
+                                                            sx={{
+                                                                marginBottom: '8px',
+                                                                flexShrink: 0,
+                                                                color: '#283593',
+                                                                fontWeight: '600',
+                                                                fontSize: { xs: '0.9rem', sm: '1rem' },
+                                                            }}
+                                                        >
+                                                            {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="subtitle1"
+                                                            sx={{
+                                                                marginBottom: '8px',
+                                                                color: '#424242',
+                                                                fontWeight: '500',
+                                                                flexShrink: 0,
+                                                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                                                            }}
+                                                        >
+                                                            {view.what_is_this}
+                                                        </Typography>
+                                                        <Typography
+                                                            variant="body2"
+                                                            sx={{
+                                                                flex: 1,
+                                                                overflow: 'auto',
+                                                                color: '#424242',
+                                                                msOverflowStyle: 'none',
+                                                                scrollbarWidth: 'thin',
+                                                                scrollbarColor: '#3f51b5 #e8eaf6',
+                                                                '&::-webkit-scrollbar': { width: '6px' },
+                                                                '&::-webkit-scrollbar-thumb': {
+                                                                    bgcolor: '#3f51b5',
+                                                                    borderRadius: '3px',
+                                                                },
+                                                                '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
+                                                                wordBreak: 'break-word',
+                                                                overflowWrap: 'break-word',
+                                                                whiteSpace: 'pre-wrap',
+                                                                maxWidth: '100%',
+                                                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                                                            }}
+                                                        >
+                                                            {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
+                                                        </Typography>
+                                                    </CardContent>
+                                                </Card>
+                                            </Box>
+                                        )}
+                                    </Draggable>
+                                ))}
                             {provided.placeholder}
-                        </Grid2>
+                        </Box>
                     )}
                 </Droppable>
             </DragDropContext>
         </Box>
     );
 };
+
 export default HomePage;

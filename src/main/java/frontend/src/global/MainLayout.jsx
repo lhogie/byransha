@@ -215,39 +215,7 @@ const MainLayout = () => {
                                     </Typography>
                                 </Box>
                             )}
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Select
-                                    value={viewMode}
-                                    onChange={handleViewChange}
-                                    sx={{
-                                        '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
-                                        '& .MuiSelect-select': {
-                                            padding: '6px 12px',
-                                            borderRadius: '4px',
-                                            '&:hover': { bgcolor: '#f5f5f5' },
-                                        },
-                                        '& .MuiSelect-icon': { color: '#90a4ae' },
-                                        minWidth: 120,
-                                    }}
-                                    MenuProps={{
-                                        PaperProps: {
-                                            sx: {
-                                                borderRadius: '4px',
-                                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                                '& .MuiMenuItem-root': {
-                                                    fontSize: '14px',
-                                                    color: '#546e7a',
-                                                    '&:hover': { bgcolor: '#e8eaf6' },
-                                                    '&.Mui-selected': { bgcolor: '#f5f7ff', color: '#306DAD' },
-                                                },
-                                            }
-                                        }}
-                                    }
-                                >
-                                    <MenuItem value="default">Default Layout</MenuItem>
-                                    <MenuItem value="grid">Grid Layout</MenuItem>
-                                </Select>
-                            </Box>
+
                         </Stack>
                     )
                 }}
