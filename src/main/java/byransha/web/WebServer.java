@@ -65,6 +65,7 @@ import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
+import byransha.web.endpoint.Summarizer;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
 import byransha.web.view.ModelDOTView;
@@ -85,7 +86,7 @@ public class WebServer extends BNode {
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
-		//argMap.put("--createDB", "true");
+		// argMap.put("--createDB", "true");
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
@@ -134,47 +135,46 @@ public class WebServer extends BNode {
 
 	public WebServer(BBGraph g, int port) throws Exception {
 
-
-        super(g);
-		jvm = g.find(JVMNode.class, e -> true) == null ? new JVMNode(g) : g.find(JVMNode.class, e-> true);
-		byransha = g.find(Byransha.class, e -> true) == null ? new Byransha(g) : g.find(Byransha.class, e-> true);
-		operatingSystem = g.find(OSNode.class, e -> true) == null ? new OSNode(g) : g.find(OSNode.class, e-> true);
-		if (g.find(NodeInfo.class, endpoint -> true) == null) new NodeInfo(g);
-		if (g.find(Views.class, endpoint -> true) == null) new Views(g);
-		if (g.find(Jump.class, endpoint -> true) == null) new Jump(g);
-		if (g.find(Endpoints.class, endpoint -> true) == null) new Endpoints(g);
-		if (g.find(JVMNode.Kill.class, endpoint -> true) == null) new JVMNode.Kill(g);
-		if (g.find(Authenticate.class, endpoint -> true) == null) new Authenticate(g);
-		if (g.find(Nodes.class, endpoint -> true) == null) new Nodes(g);
-		if (g.find(EndpointCallDistributionView.class, endpoint -> true) == null) new EndpointCallDistributionView(g);
-		if (g.find(Info.class, endpoint -> true) == null) new Info(g);
-		if (g.find(Logs.class, endpoint -> true) == null) new Logs(g);
-		if (g.find(BasicView.class, endpoint -> true) == null) new BasicView(g);
-		if (g.find(CharacterDistribution.class, endpoint -> true) == null) new CharacterDistribution(g);
-		if (g.find(CharExampleXY.class, endpoint -> true) == null) new CharExampleXY(g);
-		if (g.find(User.UserView.class, endpoint -> true) == null) new User.UserView(g);
-		if (g.find(BBGraph.GraphNivoView.class, endpoint -> true) == null) new BBGraph.GraphNivoView(g);
-		if (g.find(OSNode.View.class, endpoint -> true) == null) new OSNode.View(g);
-		if (g.find(JVMNode.View.class, endpoint -> true) == null) new JVMNode.View(g);
-		if (g.find(BNode.InOutsNivoView.class, endpoint -> true) == null) new BNode.InOutsNivoView(g);
-		if (g.find(ModelGraphivzSVGView.class, endpoint -> true) == null) new ModelGraphivzSVGView(g);
-		if (g.find(Navigator.class, endpoint -> true) == null) new Navigator(g);
-		if (g.find(OutNodeDistribution.class, endpoint -> true) == null) new OutNodeDistribution(g);
-		if (g.find(Picture.V.class, endpoint -> true) == null) new Picture.V(g);
-//		if (g.find(AllViews.class, endpoint -> true) == null) new AllViews(g);
-		if (g.find(LabView.class, endpoint -> true) == null) new LabView(g);
-		if (g.find(ModelDOTView.class, endpoint -> true) == null) new ModelDOTView(g);
-		if (g.find(SourceView.class, endpoint -> true) == null) new SourceView(g);
-		if (g.find(ToStringView.class, endpoint -> true) == null) new ToStringView(g);
-		if (g.find(StructureView.class, endpoint -> true) == null) new StructureView(g);
-		if (g.find(NodeEndpoints.class, endpoint -> true) == null) new NodeEndpoints(g);
-		if (g.find(SetValue.class, endpoint -> true) == null) new SetValue(g);
-		if (g.find(AnyGraph.Classes.class, endpoint -> true) == null) new AnyGraph.Classes(g);
-		if (g.find(Edit.class, endpoint -> true) == null) new Edit(g);
-		if (g.find(IntrospectingEndpoint.class, endpoint -> true) == null) new IntrospectingEndpoint(g);
-		if (g.find(History.class, endpoint -> true) == null) new History(g);
-		if (g.find(UI.class, endpoint -> true) == null) new UI(g);
-		if (g.find(UI.getProperties.class, endpoint -> true) == null) new UI.getProperties(g);
+		super(g);
+		jvm = g.find(JVMNode.class, e -> true) == null ? new JVMNode(g) : g.find(JVMNode.class, e -> true);
+		byransha = g.find(Byransha.class, e -> true) == null ? new Byransha(g) : g.find(Byransha.class, e -> true);
+		operatingSystem = g.find(OSNode.class, e -> true) == null ? new OSNode(g) : g.find(OSNode.class, e -> true);
+		new NodeInfo(g);
+		new Views(g);
+		new Jump(g);
+		new Endpoints(g);
+		new JVMNode.Kill(g);
+		new Authenticate(g);
+		new Nodes(g);
+		new EndpointCallDistributionView(g);
+		new Info(g);
+		new Logs(g);
+		new BasicView(g);
+		new CharacterDistribution(g);
+		new CharExampleXY(g);
+		new User.UserView(g);
+		new BBGraph.GraphNivoView(g);
+		new OSNode.View(g);
+		new JVMNode.View(g);
+		new BNode.InOutsNivoView(g);
+		new ModelGraphivzSVGView(g);
+		new Navigator(g);
+		new OutNodeDistribution(g);
+		new Picture.V(g);
+		new LabView(g);
+		new ModelDOTView(g);
+		new SourceView(g);
+		new ToStringView(g);
+		new StructureView(g);
+		new NodeEndpoints(g);
+		new SetValue(g);
+		new AnyGraph.Classes(g);
+		new Edit(g);
+		new IntrospectingEndpoint(g);
+		new History(g);
+		new UI(g);
+		new UI.getProperties(g);
+		new Summarizer(g);
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -537,7 +537,6 @@ public class WebServer extends BNode {
 			return new EndpointJsonResponse(d.toJson(), "logs");
 		}
 	}
-	
 
 	@Override
 	public String prettyName() {
