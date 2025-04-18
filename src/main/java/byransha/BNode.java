@@ -271,6 +271,39 @@ public abstract class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
+	protected boolean hasField(String name) {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0)
+					continue;
+
+				if (f.getName().equals(name)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	protected void setField(String name, BNode targetNode) {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0)
+					continue;
+
+				if (f.getName().equals(name)) {
+					try {
+						f.setAccessible(true);
+						f.set(this, targetNode);
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		}
+	}
+
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		@Override
 		public String whatIsThis() {
