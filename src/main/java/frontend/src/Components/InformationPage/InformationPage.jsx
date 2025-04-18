@@ -16,5 +16,4 @@ const InformationPage = () => {
         </div>
     );
 };
-
 export default InformationPage;

@@ -513,7 +513,6 @@ export const View = ({viewId}) => {
             </Box>
         );
     }
-
     return (
         <Box>
             {renderJsonViewer(rawApiData)}
