@@ -12,8 +12,6 @@ const theme = createTheme({
     }
 })
 
-
-
 export default function App() {
     const { data, isLoading, error } = useApiData('');
 
