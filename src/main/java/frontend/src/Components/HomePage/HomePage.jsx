@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import './HomePage.css';
-import { useNavigate } from "react-router-dom";
-import { Box, Button, Card, CardContent, CircularProgress, Grid2, Typography, Select, MenuItem, Menu } from '@mui/material';
+import { useNavigate } from "react-router";
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    CircularProgress,
+    Typography,
+    Select,
+    MenuItem,
+    Menu,
+    Grid
+} from '@mui/material';
 import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
@@ -120,7 +131,7 @@ const HomePage = () => {
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="views" direction="horizontal">
                     {(provided, snapshot) => (
-                        <Grid2
+                        <Grid
                             container
                             spacing={4}
                             {...provided.droppableProps}
@@ -134,7 +145,7 @@ const HomePage = () => {
                             {views.map((view, index) => (
                                 <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
                                     {(provided, snapshot) => (
-                                        <Grid2
+                                        <Grid
                                             size={{ xs: 12, sm: 12 / columns }}
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
@@ -221,12 +232,12 @@ const HomePage = () => {
                                                     </Typography>
                                                 </CardContent>
                                             </Card>
-                                        </Grid2>
+                                        </Grid>
                                     )}
                                 </Draggable>
                             ))}
                             {provided.placeholder}
-                        </Grid2>
+                        </Grid>
                     )}
                 </Droppable>
             </DragDropContext>

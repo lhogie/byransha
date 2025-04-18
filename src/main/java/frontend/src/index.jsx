@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { StyledEngineProvider } from "@mui/material";
-import { RouterProvider } from "react-router-dom";
+import { RouterProvider } from "react-router";
 import { router } from "./global/router";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'

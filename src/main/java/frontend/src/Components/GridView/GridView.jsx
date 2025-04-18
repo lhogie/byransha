@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router-dom';
-import { Box, Button, Card, CardContent, CircularProgress, Grid2, Typography } from '@mui/material';
+import { useNavigate } from 'react-router';
+import { Box, Button, Card, CardContent, CircularProgress, Grid, Typography } from '@mui/material';
 import React, { useCallback } from 'react';
 import { View } from "../Common/View.jsx";
 import { useTitle } from "../../global/useTitle.jsx";
@@ -80,9 +80,9 @@ const GridView = () => {
                 minHeight: '100vh',
             }}
         >
-            <Grid2 container spacing={4}>
+            <Grid container spacing={4}>
                 {views.map((view, index) => (
-                    <Grid2 size={{ xs: 12, sm: 6 }} key={index}>
+                    <Grid size={{ xs: 12, sm: 6 }} key={index}>
                         <Card
                             sx={{
                                 cursor: 'pointer',
@@ -157,9 +157,9 @@ const GridView = () => {
                                 </Typography>
                             </CardContent>
                         </Card>
-                    </Grid2>
+                    </Grid>
                 ))}
-            </Grid2>
+            </Grid>
         </Box>
     );
 };

@@ -1,4 +1,4 @@
-import {createBrowserRouter} from "react-router-dom";
+import {createBrowserRouter} from "react-router";
 import App from "./App";
 import LoginForm from "../Components/LoginForm/LoginForm";
 import MainLayout from "./MainLayout";
@@ -13,22 +13,22 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: '/',
-                element: <LoginForm/>,
+                Component: LoginForm,
             },
             {
-                element: <MainLayout/>,
+                Component: MainLayout,
                 children: [
                     {
                         path: '/home',
-                        element: <HomePage/>,
+                        Component: HomePage,
                     },
                     {
                         path: '/information/:viewId',
-                        element: <InformationPage/>,
+                        Component: InformationPage,
                     },
                     {
                         path: '/grid',
-                        element: <GridViewer/>
+                        Component: GridViewer
                     }
                 ]
             }]
