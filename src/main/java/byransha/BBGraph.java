@@ -112,24 +112,6 @@ public class BBGraph extends BNode {
 		forEachNode(n -> loadOuts(n, setRelation));
 	}
 
-	private void loadBiggestId(){
-		int biggest = 0;
-		File[] files = directory.listFiles();
-		if (files == null)
-			return;
-		else {
-			for (File classDir : files) {
-				for (File nodeDir : classDir.listFiles()) {
-					int id = Integer.valueOf(nodeDir.getName().substring(1));
-					if (id > biggest) {
-						biggest = id;
-					}
-				}
-			}
-			this.idCount = biggest + 1;
-		}
-	}
-
 	/*
 	 * Loads all nodes from all class directories from the disk
 	 */
@@ -153,7 +135,6 @@ public class BBGraph extends BNode {
 					if (id != 0) {
 						try {
 							var constructor = nodeClass.getConstructor(BBGraph.class, int.class);
-							//System.err.println("Instantiating " + nodeClass.getName() + " with ID " + id);
 							BNode node = constructor.newInstance(graph, id);
 							newNodeInstantiated.accept(node);
 						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
@@ -207,14 +188,15 @@ public class BBGraph extends BNode {
 						if(node instanceof ListNode<?>){
 							((ListNode<BNode>) node).add(targetNode);
 						}
-						if(node instanceof User && targetNode instanceof StringNode){
-                            if (symlink.getName().contains("name")) {
-                                ((User) node).name = ((StringNode) targetNode);
-                            }
-							else{
-								((User) node).passwordNode = ((StringNode) targetNode);
+						else{
+							try{
+								if (node.hasField(symlink.getName())) {
+									node.setField(symlink.getName(), targetNode);
+								}
+							} catch (Exception e) {
+								System.err.println("Error setting field " + symlink.getName() + " for node " + node + ": " + e.getMessage());
 							}
-                        }
+						}
 						setRelation.accept(node, relationName);
 					} catch (Exception e) {
 						System.err.println("Error setting relation " + relationName + " for node " + node + ": " + e.getMessage());
