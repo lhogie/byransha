@@ -271,6 +271,39 @@ public abstract class BNode {
 		return this.hashCode() == ((BNode) obj).hashCode();
 	}
 
+	protected boolean hasField(String name) {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0)
+					continue;
+
+				if (f.getName().equals(name)) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	protected void setField(String name, BNode targetNode) {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0)
+					continue;
+
+				if (f.getName().equals(name)) {
+					try {
+						f.setAccessible(true);
+						f.set(this, targetNode);
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						throw new IllegalStateException(e);
+					}
+				}
+			}
+		}
+	}
+
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		@Override
 		public String whatIsThis() {
@@ -433,27 +466,46 @@ public abstract class BNode {
 	}
 
 	public abstract String prettyName();
+/*
+	public static class BFS extends NodeEndpoint<BNode> {
 
-	/*
-	 * public static class BFS extends JSONView<BNode> {
-	 * 
-	 * @Override protected JsonNode jsonData(BNode n, User u) { ObjectNode r = null;
-	 * 
-	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new
-	 * Int2ObjectOpenHashMap<ObjectNode>();
-	 * 
-	 * while (!q.isEmpty()) { c = q.remove(0); var nn = visited.put(c.id(), new
-	 * ObjectNode(null)); r.add(nn);
-	 * 
-	 * c.forEachOut((f, out) -> { if (!visited.containsKey(out)) { visited.add(new
-	 * ObjectNode(null)); q.add(out); } }); }
-	 * 
-	 * 
-	 * 
-	 * 
-	 * var outs = new ObjectNode(null); n.forEachOut((name, o) -> outs.set(name, new
-	 * TextNode("" + o))); r.set("outs", outs); var ins = new ObjectNode(null);
-	 * n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o))); r.set("ins",
-	 * ins); return r; } }
-	 */
+		@Override
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+				ObjectNode r = null;
+
+		List<BNode> q = new ArrayList<>();
+		BNode c = n;
+		q.add(c);
+		var visited = new Int2ObjectOpenHashMap<ObjectNode>();
+
+		while (!q.isEmpty()) {
+			c = q.remove(0);
+			var nn = visited.put(c.id(), new ObjectNode(null));
+			r.add(nn);
+
+			c.forEachOut((f, out) -> {
+				if (!visited.containsKey(out)) {
+					visited.add(new ObjectNode(null));
+					q.add(out);
+				}
+			});
+		}
+
+		var outs = new ObjectNode(null);
+		n.forEachOut((name, o) -> outs.set(name, new TextNode("" + o)));
+		r.set("outs", outs);
+		var ins = new ObjectNode(null);
+		n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o)));
+		r.set("ins", ins);
+		return r;
+		}
+
+		@Override
+		public String whatIsThis() {
+			return "generates a JSON describing the local node and its out-nodes, up to a given depth";
+		}
+
+	}
+	*/
+
 }

@@ -1,4 +1,4 @@
-import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-router";
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -29,15 +29,6 @@ const MainLayout = () => {
         jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
 
-    const NAVIGATION = isLoading || error || !data?.data?.results
-        ? [{ kind: 'link', title: 'Loading...', segment: 'home', icon: <MenuOutlinedIcon /> }]
-        : data.data.results.map((view) => ({
-            kind: 'link',
-            title: view.endpoint,
-            segment: `information/${view.endpoint.replaceAll(' ', '_')}`,
-            icon: <MenuOutlinedIcon />
-        }));
-
     const handleViewChange = (event) => {
         const selectedView = event.target.value;
         setViewMode(selectedView);
@@ -64,7 +55,6 @@ const MainLayout = () => {
             }
         }}>
             <DashboardLayout
-                navigation={NAVIGATION}
                 hideNavigation={hideSidebar}
                 disableCollapsibleSidebar={hideSidebar}
                 slots={{
