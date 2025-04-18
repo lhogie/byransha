@@ -6,11 +6,17 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Campus extends BNode {
-	StringNode name = new StringNode(graph, null);
-	ListNode<Office> offices = new ListNode<>(graph);
+	StringNode name;
+	ListNode<Office> offices;
 
 	public Campus(BBGraph g) {
 		super(g);
+		name = new StringNode(g, null);
+		offices = new ListNode<>(g);
+	}
+
+	public Campus(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	@Override

@@ -10,4 +10,8 @@ public class EPST extends Structure {
 		status.add(new CR(g));
 		status.add(new DR(g));
 	}
+
+	EPST(BBGraph g, int id) {
+		super(g, id);
+	}
 }

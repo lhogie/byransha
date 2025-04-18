@@ -16,4 +16,8 @@ public class I3S extends Lab {
 		name = new StringNode(g, "I3S");
 	}
 
+	public I3S(BBGraph g, int id) {
+		super(g, id);
+	}
+
 }

@@ -6,9 +6,15 @@ import byransha.BBGraph;
 public class Software extends Publication {
 	public Software(BBGraph g) {
 		super(g);
+		openSource = new BooleanNode(g);
 		// TODO Auto-generated constructor stub
 	}
 
-	BooleanNode openSource = new BooleanNode(graph);
+	public Software(BBGraph g, int id) {
+		super(g, id);
+		// TODO Auto-generated constructor stub
+	}
+
+	BooleanNode openSource;
 
 }

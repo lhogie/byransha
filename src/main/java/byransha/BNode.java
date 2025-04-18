@@ -190,12 +190,10 @@ public abstract class BNode {
 						return;
 					}
 				}
-
 				if (symlink.exists()) {
 					symlink.delete();
 				}
 				writingFiles.accept(symlink);
-
 				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -207,7 +205,7 @@ public abstract class BNode {
 		saveOuts(writingFiles, "");
 	}
 
-	public void saveIns(Consumer<File> writingFiles, String id) {
+	public void saveIns(Consumer<File> writingFiles){
 		var inD = new File(directory(), "ins");
 
 		if (!inD.exists()) {
@@ -217,7 +215,7 @@ public abstract class BNode {
 
 		forEachIn((name, inNode) -> {
 			try {
-				var symlink = new File(inD, name + id);
+				var symlink = new File(inD, inNode+"."+name);
 
 				for (var e : inD.listFiles()) {
 					if (e.getName().equals(symlink.getName())) {
@@ -225,6 +223,7 @@ public abstract class BNode {
 						return;
 					}
 				}
+
 				writingFiles.accept(symlink);
 				System.err.println(symlink.toPath());
 				System.err.println(inNode.directory().toPath());
@@ -235,8 +234,12 @@ public abstract class BNode {
 		});
 	}
 
-	public void saveIns(Consumer<File> writingFiles) {
-		saveIns(writingFiles, "");
+	public void save(Consumer<File> writingFiles) {
+		saveOuts(writingFiles);
+		saveIns(writingFiles);
+		forEachOut((name, outNode) -> {
+			if(!name.contains("graph")) outNode.save(writingFiles);
+		});
 	}
 
 	public File directory() {

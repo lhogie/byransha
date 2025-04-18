@@ -6,11 +6,16 @@ import byransha.ImageNode;
 import byransha.StringNode;
 
 public class Country extends BNode {
-	StringNode name = new StringNode(graph, null);
+	StringNode name ;
 	ImageNode flag;
 
 	public Country(BBGraph g) {
 		super(g);
+		name = new StringNode(g, null);
+	}
+
+	public Country(BBGraph g, int id) {
+		super(g, id);
 	}
 
 	@Override

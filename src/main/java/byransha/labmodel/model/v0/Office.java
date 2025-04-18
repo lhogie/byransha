@@ -16,6 +16,10 @@ public class Office extends BNode {
 		super(g);
 	}
 
+	public Office(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String whatIsThis() {
 		return "an office";

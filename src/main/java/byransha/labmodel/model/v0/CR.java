@@ -7,4 +7,8 @@ public class CR extends Status {
 		super(g);
 		name.set("Chargé de Recherche");
 	}
+
+	public CR(BBGraph g, int id) {
+		super(g, id);
+	}
 }

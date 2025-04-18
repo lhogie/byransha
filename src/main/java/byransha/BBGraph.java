@@ -51,15 +51,6 @@ public class BBGraph extends BNode {
 		super(null, 0); // The graph has automatically ID 0
 		this.directory = directory;
 		nodes = new ArrayList<BNode>();
-
-//		loadBiggestId();
-//		System.out.println(this.idCount + " ++++++++++++++++++++++++++++++");
-
-//		new User(this, "user", "test");
-//		new User(this, "admin", "test");
-//		testString  = new StringNode(this, "cocou");
-//		testBoolean = new BooleanNode(this);
-
 		accept(this); //self accept
 
 
@@ -162,6 +153,7 @@ public class BBGraph extends BNode {
 					if (id != 0) {
 						try {
 							var constructor = nodeClass.getConstructor(BBGraph.class, int.class);
+							//System.err.println("Instantiating " + nodeClass.getName() + " with ID " + id);
 							BNode node = constructor.newInstance(graph, id);
 							newNodeInstantiated.accept(node);
 						} catch (InstantiationException | IllegalAccessException | IllegalArgumentException

@@ -16,6 +16,10 @@ public class ACMClassifier extends BNode {
 		this.descr = descr;
 	}
 
+	public ACMClassifier(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String prettyName() {
 		return "ACM classification";

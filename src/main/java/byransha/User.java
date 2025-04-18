@@ -105,6 +105,10 @@ public class User extends BNode {
 			super(g);
 		}
 
+		public History(BBGraph g, int id) {
+			super(g, id);
+		}
+
 		@Override
 		public String whatIsThis() {
 			return "the navigation history";

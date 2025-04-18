@@ -7,4 +7,8 @@ public class DR extends Status {
 		super(g);
 		name.set("Directeur de Recherche");
 	}
+
+	public DR(BBGraph g, int id) {
+		super(g, id);
+	}
 }

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 public class ListNode<N extends BNode> extends BNode {
 	public final List<N> l = new ArrayList<>();
 
+
 	public ListNode(BBGraph db) {
 		super(db);
 	}
@@ -39,9 +40,7 @@ public class ListNode<N extends BNode> extends BNode {
 		}
 	}
 
-	public void add(N n) {
-		l.add(n);
-	}
+	public void add(N n) {l.add(n);}
 
 	public void remove(N p) {
 		l.remove(p);
@@ -65,9 +64,11 @@ public class ListNode<N extends BNode> extends BNode {
 
 	public void saveAll(Consumer<File> consumer) {
 		saveOuts(consumer);
-		forEachOut((n, node ) -> node.saveIns(consumer, " ." + this.id()));
 		saveIns(consumer);
-		forEachIn((n, node ) -> node.saveOuts(consumer));
+		for(var n: l){n.saveIns(f -> {});}
 	}
 
+	public void saveAllListNode(Consumer<File> consumer) {
+		for(var n: l){n.saveIns(f -> {});}
+	}
 }

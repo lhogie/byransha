@@ -6,8 +6,14 @@ import byransha.ListNode;
 public class ResearchGroup extends Structure {
 	public ResearchGroup(BBGraph g) {
 		super(g);
+		keywords = new ListNode<>(g);
 		// TODO Auto-generated constructor stub
 	}
 
-	ListNode<ACMClassifier> keywords = new ListNode<>(graph);
+	public ResearchGroup(BBGraph g, int id) {
+		super(g, id);
+		// TODO Auto-generated constructor stub
+	}
+
+	ListNode<ACMClassifier> keywords ;
 }

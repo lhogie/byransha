@@ -19,6 +19,10 @@ public class Contract extends BNode {
 		super(g);
 	}
 
+	public Contract(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	@Override
 	public String prettyName() {
 		return name.get() + "(" + holder.prettyName() + ")";
