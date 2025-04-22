@@ -6,7 +6,7 @@ import byransha.IntNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Office extends BNode {
+public class Office extends BusinessNode {
 	StringNode name;
 	ListNode<Person> users;
 	IntNode surface;

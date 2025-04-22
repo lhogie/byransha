@@ -6,7 +6,7 @@ import byransha.ListNode;
 import byransha.SetNode;
 import byransha.StringNode;
 
-public class Structure extends BNode {
+public class Structure extends BusinessNode {
 
 	public StringNode name;
 	public SetNode<Structure> subStructures;

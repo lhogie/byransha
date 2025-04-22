@@ -6,7 +6,7 @@ import java.nio.file.Files;
 
 public class StringNode extends ValuedNode<String> {
 
-	private BNode labelFor;
+	private PersistingNode labelFor;
 
 	public StringNode(BBGraph g, String init) {
 		super(g);
@@ -57,7 +57,7 @@ public class StringNode extends ValuedNode<String> {
 		return "StringNode: " + get();
 	}
 
-	public void setAsLabelFor(BNode n) {
+	public void setAsLabelFor(PersistingNode n) {
 		labelFor = n;
 	}
 }

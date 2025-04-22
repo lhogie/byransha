@@ -1,10 +1,7 @@
 package byransha;
 
-import java.io.File;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -20,7 +17,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph.Ref;
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
 import byransha.web.EndpointJsonResponse;
@@ -33,7 +29,7 @@ import toools.reflect.Clazz;
 
 public abstract class BNode {
 	public String comment;
-	private List<Ref> refs;
+	private List<InLink> ins;
 	public final BBGraph graph;
 	private final int id;
 
@@ -56,8 +52,23 @@ public abstract class BNode {
 
 	public abstract String whatIsThis();
 
-	public List<Ref> ins() {
-		return refs == null ? graph.findRefsTO(this) : refs;
+	public static class InLink {
+		final String role;
+		final BNode source;
+
+		public InLink(String role, BNode c) {
+			this.role = role;
+			this.source = c;
+		}
+
+		@Override
+		public String toString() {
+			return source + "." + role;
+		}
+	}
+
+	public List<InLink> ins() {
+		return ins == null ? graph.findRefsTO(this) : ins;
 	}
 
 	public void forEachOutNodeField(Consumer<Field> consumer) {
@@ -172,91 +183,6 @@ public abstract class BNode {
 		return getClass().getSimpleName() + "@" + id();
 	}
 
-	public void saveOuts(Consumer<File> writingFiles, String id) {
-		var outD = outsDirectory();
-
-		if (!outD.exists()) {
-			writingFiles.accept(outD);
-			outD.mkdirs();
-		}
-
-		forEachOut((name, outNode) -> {
-			try {
-				var symlink = new File(outD, name + id);// + "@" + outNode.id());
-
-				for (var e : outD.listFiles()) {
-					if (e.getName().equals(symlink.getName())) {
-//						System.err.println("Symlink with same name already exists outs: " + symlink.getName());
-						return;
-					}
-				}
-				if (symlink.exists()) {
-					symlink.delete();
-				}
-				writingFiles.accept(symlink);
-				Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	public void saveOuts(Consumer<File> writingFiles) {
-		saveOuts(writingFiles, "");
-	}
-
-	public void saveIns(Consumer<File> writingFiles){
-		var inD = new File(directory(), "ins");
-
-		if (!inD.exists()) {
-			writingFiles.accept(inD);
-			inD.mkdirs();
-		}
-
-		forEachIn((name, inNode) -> {
-			try {
-				var symlink = new File(inD, inNode+"."+name);
-
-				for (var e : inD.listFiles()) {
-					if (e.getName().equals(symlink.getName())) {
-//						System.err.println("Symlink with same name already exists ins: " + symlink.getName());
-						return;
-					}
-				}
-
-				writingFiles.accept(symlink);
-				System.err.println(symlink.toPath());
-				System.err.println(inNode.directory().toPath());
-				Files.createSymbolicLink(symlink.toPath(), inNode.directory().toPath());
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	public void save(Consumer<File> writingFiles) {
-		saveOuts(writingFiles);
-		saveIns(writingFiles);
-		forEachOut((name, outNode) -> {
-			if(!name.contains("graph")) outNode.save(writingFiles);
-		});
-	}
-
-	public File directory() {
-		if (graph == null)
-			return null;
-
-		if (graph.directory == null)
-			return null;
-
-		return new File(graph.directory, getClass().getName() + "/." + id());
-	}
-
-	public File outsDirectory() {
-		var d = directory();
-		return d == null ? null : new File(directory(), "outs");
-	}
-
 	public final int id() {
 		return id;
 	}
@@ -326,10 +252,12 @@ public abstract class BNode {
 			n.set("id", new TextNode("" + node.id()));
 			n.set("comment", new TextNode(node.comment));
 
-			var d = node.directory();
+			if (node instanceof PersistingNode p) {
+				var d = p.directory();
 
-			if (d != null) {
-				n.set("directory", new TextNode(d.getAbsolutePath()));
+				if (d != null) {
+					n.set("directory", new TextNode(d.getAbsolutePath()));
+				}
 			}
 
 			n.set("out-degree", new TextNode("" + node.outDegree()));
@@ -466,46 +394,31 @@ public abstract class BNode {
 	}
 
 	public abstract String prettyName();
-/*
-	public static class BFS extends NodeEndpoint<BNode> {
-
-		@Override
-		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				ObjectNode r = null;
-
-		List<BNode> q = new ArrayList<>();
-		BNode c = n;
-		q.add(c);
-		var visited = new Int2ObjectOpenHashMap<ObjectNode>();
-
-		while (!q.isEmpty()) {
-			c = q.remove(0);
-			var nn = visited.put(c.id(), new ObjectNode(null));
-			r.add(nn);
-
-			c.forEachOut((f, out) -> {
-				if (!visited.containsKey(out)) {
-					visited.add(new ObjectNode(null));
-					q.add(out);
-				}
-			});
-		}
-
-		var outs = new ObjectNode(null);
-		n.forEachOut((name, o) -> outs.set(name, new TextNode("" + o)));
-		r.set("outs", outs);
-		var ins = new ObjectNode(null);
-		n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o)));
-		r.set("ins", ins);
-		return r;
-		}
-
-		@Override
-		public String whatIsThis() {
-			return "generates a JSON describing the local node and its out-nodes, up to a given depth";
-		}
-
-	}
-	*/
+	/*
+	 * public static class BFS extends NodeEndpoint<BNode> {
+	 * 
+	 * @Override public EndpointResponse exec(ObjectNode input, User user, WebServer
+	 * webServer, HttpsExchange exchange, ObjectNode r = null;
+	 * 
+	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new
+	 * Int2ObjectOpenHashMap<ObjectNode>();
+	 * 
+	 * while (!q.isEmpty()) { c = q.remove(0); var nn = visited.put(c.id(), new
+	 * ObjectNode(null)); r.add(nn);
+	 * 
+	 * c.forEachOut((f, out) -> { if (!visited.containsKey(out)) { visited.add(new
+	 * ObjectNode(null)); q.add(out); } }); }
+	 * 
+	 * var outs = new ObjectNode(null); n.forEachOut((name, o) -> outs.set(name, new
+	 * TextNode("" + o))); r.set("outs", outs); var ins = new ObjectNode(null);
+	 * n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o))); r.set("ins",
+	 * ins); return r; }
+	 * 
+	 * @Override public String whatIsThis() { return
+	 * "generates a JSON describing the local node and its out-nodes, up to a given depth"
+	 * ; }
+	 * 
+	 * }
+	 */
 
 }

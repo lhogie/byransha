@@ -5,7 +5,7 @@ import byransha.BBGraph;
 import byransha.ImageNode;
 import byransha.StringNode;
 
-public class Country extends BNode {
+public class Country extends BusinessNode {
 	StringNode name ;
 	ImageNode flag;
 

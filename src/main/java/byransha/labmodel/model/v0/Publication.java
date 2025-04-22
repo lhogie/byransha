@@ -1,24 +1,26 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Publication extends BNode {
+public class Publication extends BusinessNode {
 	public StringNode title;
 
 	private ListNode<Person> authors;
 
-  
-  	public Publication(BBGraph g) {
+	public Publication(BBGraph g, StringNode title, ListNode<Person> authors) {
 		super(g);
-		title = new StringNode(g, null);
-		authors = new ListNode<>(g);
+		this.title = title;
+		this.authors = authors;
 	}
 
 	public Publication(BBGraph g, int id) {
 		super(g, id);
+	}
+
+	public Publication(BBGraph g) {
+		super(g);
 	}
 
 	@Override

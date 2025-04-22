@@ -16,7 +16,7 @@ import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import toools.text.TextUtilities;
 
-public class User extends BNode {
+public class User extends PersistingNode {
 
 	public StringNode name;
 	public StringNode passwordNode;

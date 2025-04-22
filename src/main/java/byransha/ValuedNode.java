@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 import toools.text.TextUtilities;
 
-public abstract class ValuedNode<V> extends BNode {
+public abstract class ValuedNode<V> extends PersistingNode {
 	V value;
 
 	public ValuedNode(BBGraph db) {

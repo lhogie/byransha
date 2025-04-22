@@ -5,7 +5,7 @@ import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Campus extends BNode {
+public class Campus extends BusinessNode {
 	StringNode name;
 	ListNode<Office> offices;
 
