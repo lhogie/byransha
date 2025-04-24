@@ -51,8 +51,15 @@ public abstract class PersistingNode extends BNode {
 				if (symlink.exists()) {
 					symlink.delete();
 				}
-				writingFiles.accept(symlink);
-				Files.createSymbolicLink(symlink.toPath(), directory().toPath());
+				if(outNode instanceof PersistingNode) {
+					writingFiles.accept(symlink);
+					Files.createSymbolicLink(symlink.toPath(), ((PersistingNode) outNode).directory().toPath());
+
+				}
+				else{
+					writingFiles.accept(symlink);
+					Files.createSymbolicLink(symlink.toPath(), directory().toPath());
+				}
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -97,12 +104,6 @@ public abstract class PersistingNode extends BNode {
 	public void save(Consumer<File> writingFiles) {
 		createOutSymLinks(writingFiles);
 		createInSymLinks(writingFiles);
-
-		forEachOut((name, outNode) -> {
-			if (outNode != graph) {
-				// outNode.save(writingFiles);
-			}
-		});
 	}
 
 }

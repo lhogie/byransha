@@ -31,7 +31,6 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		int i = 0;
-
 		if (l != null) {
 			for (var e : l) {
 				consumer.accept(i++ + ". " + e.id(), e);
@@ -61,10 +60,5 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	public BNode random() {
 		return l.get(new Random().nextInt(l.size()));
-	}
-
-	public void saveAll(Consumer<File> consumer) {
-		createOutSymLinks(consumer);
-		createInSymLinks(consumer);
 	}
 }
