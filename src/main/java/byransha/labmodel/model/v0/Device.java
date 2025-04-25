@@ -4,7 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.StringNode;
 
-public class Device extends BNode {
+public class Device extends BusinessNode {
 	public StringNode serialNumber;
 	public StringNode brand;
 	public StringNode modelName;

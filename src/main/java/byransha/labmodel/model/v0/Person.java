@@ -1,14 +1,13 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.BooleanNode;
 import byransha.BBGraph;
+import byransha.BooleanNode;
 import byransha.EmailNode;
 import byransha.ImageNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Person extends BNode {
+public class Person extends BusinessNode {
 	public EtatCivil etatCivil;
 	public ListNode<Position> positions;
 	public ImageNode pics;
@@ -37,13 +36,12 @@ public class Person extends BNode {
 		}
 		return etatCivil.name.get();
 	}
-	
+
 	@Override
 	public String prettyName() {
 		return etatCivil.name.get();
 	}
-	
-	
+
 	public Person(BBGraph g) {
 		super(g);
 
@@ -58,7 +56,7 @@ public class Person extends BNode {
 		phdDate = new StringNode(g, null);
 
 		phoneNumbers = new ListNode<>(g);
-		emailAddresses  = new ListNode<>(g);
+		emailAddresses = new ListNode<>(g);
 		offices = new ListNode<>(g);
 	}
 

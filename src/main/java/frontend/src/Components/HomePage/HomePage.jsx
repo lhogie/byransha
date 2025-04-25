@@ -69,7 +69,7 @@ const HomePage = () => {
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
 
     const isSpecialView = (view) => {
-        const specialViewIds = ['char_example_xy', 'nivo_view'];
+        const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view'];
         const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot'];
         return (
             specialViewIds.includes(view.endpoint) ||
@@ -337,4 +337,5 @@ const HomePage = () => {
         </Box>
     );
 };
+
 export default HomePage;

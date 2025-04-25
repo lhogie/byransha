@@ -12,7 +12,7 @@ import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 import toools.text.TextUtilities;
 
-public class JVMNode extends BNode implements VirtualNode {
+public class JVMNode extends BNode implements NoLoad {
 
 	public JVMNode(BBGraph db) {
 		super(db);

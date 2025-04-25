@@ -7,9 +7,8 @@ import java.util.Random;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public class ListNode<N extends BNode> extends BNode {
+public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new ArrayList<>();
-
 
 	public ListNode(BBGraph db) {
 		super(db);
@@ -32,7 +31,6 @@ public class ListNode<N extends BNode> extends BNode {
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		int i = 0;
-
 		if (l != null) {
 			for (var e : l) {
 				consumer.accept(i++ + ". " + e.id(), e);
@@ -40,7 +38,9 @@ public class ListNode<N extends BNode> extends BNode {
 		}
 	}
 
-	public void add(N n) {l.add(n);}
+	public void add(N n) {
+		l.add(n);
+	}
 
 	public void remove(N p) {
 		l.remove(p);
@@ -60,15 +60,5 @@ public class ListNode<N extends BNode> extends BNode {
 
 	public BNode random() {
 		return l.get(new Random().nextInt(l.size()));
-	}
-
-	public void saveAll(Consumer<File> consumer) {
-		saveOuts(consumer);
-		saveIns(consumer);
-		for(var n: l){n.saveIns(f -> {});}
-	}
-
-	public void saveAllListNode(Consumer<File> consumer) {
-		for(var n: l){n.saveIns(f -> {});}
 	}
 }

@@ -4,7 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.StringNode;
 
-public class EtatCivil extends BNode {
+public class EtatCivil extends BusinessNode {
 	public StringNode firstName;
 	public StringNode name;
 	public StringNode familyNameBeforeMariage;

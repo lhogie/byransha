@@ -7,7 +7,7 @@ import byransha.BNode;
  * https://cran.r-project.org/web/classifications/ACM.html
  */
 
-public class ACMClassifier extends BNode {
+public class ACMClassifier extends BusinessNode {
 	public String code, descr;
 
 	public ACMClassifier(BBGraph g, String code, String descr) {

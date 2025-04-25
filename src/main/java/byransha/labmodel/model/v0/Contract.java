@@ -3,11 +3,10 @@ package byransha.labmodel.model.v0;
 import java.util.List;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
-public class Contract extends BNode {
+public class Contract extends BusinessNode {
 	StringNode name;
 	Person holder;
 	List<Person> subHolders;

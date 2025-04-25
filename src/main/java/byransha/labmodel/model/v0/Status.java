@@ -1,10 +1,9 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.StringNode;
 
-public class Status extends BNode {
+public class Status extends BusinessNode {
 	StringNode name;
 
 	public Status(BBGraph g) {
