@@ -11,8 +11,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import javax.net.ssl.SSLSession;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
@@ -430,8 +428,9 @@ public class BBGraph extends BNode {
 		}
 	}
 
-	public User findUser(SSLSession s) {
-		return find(User.class, u -> u.session != null && Arrays.equals(u.session.getId(), s.getId()));
+
+	public User findUserByToken(String token) {
+		return find(User.class, u -> u.token != null && u.token.equals(token));
 	}
 
 	public <N extends BNode, NE extends NodeEndpoint<N>> NE findEndpoint(Class<NE> c) {

@@ -26,6 +26,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
+import byransha.*;
+import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -210,6 +212,8 @@ public class WebServer extends BNode {
 		new UI(g);
 		new UI.getProperties(g);
 		new Summarizer(g);
+		new LoadImage(g);
+
 	}
 
 	@Override
@@ -227,7 +231,7 @@ public class WebServer extends BNode {
 		ListNode<User> activeUsers = new ListNode<>(graph);
 
 		graph.forEachNode(n -> {
-			if (n instanceof User u && u.session != null && u.session.isValid()) {
+			if (n instanceof User u) {
 				activeUsers.add(u);
 				System.out.println("active user: " + u.name.get());
 			}
@@ -238,24 +242,49 @@ public class WebServer extends BNode {
 
 	static final File frontendDir = new File("build/frontend");
 
+	private void setCookie(HttpsExchange https, String name, String value) {
+		String cookie = name + "=" + value + "; Path=/; Max-Age=31536000; SameSite=None; Secure; HttpOnly";
+		https.getResponseHeaders().add("Set-Cookie", cookie);
+	}
+
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
+		boolean needsTokenCookie = false;
+
 		try {
 			long startTimeNs = System.nanoTime();
 			ObjectNode inputJson = grabInputFromURLandPOST(https);
 			final var inputJson2sendBack = inputJson.deepCopy();
 
-			var session = https.getSSLSession();
-			session.getSessionContext().setSessionTimeout(0);
-			user = graph.findUser(session);
+			String userToken = null;
+			String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
+
+
+			if (cookieHeader != null) {
+				for (String cookie : cookieHeader.split(";")) {
+					cookie = cookie.trim();
+					if (cookie.startsWith("user_token=")) {
+						userToken = cookie.substring("user_token=".length());
+						break;
+					}
+				}
+			}
+
+			if (userToken != null) {
+				user = graph.findUserByToken(userToken);
+			}
 
 			if (user == null) {
 				user = new User(graph, "user", "test");
-				System.out.println("creating new user " + user);
-				user.session = https.getSSLSession();
+				System.out.println("creating new user " + user + " with token " + user.token);
 				user.stack.push(graph.root());
+				needsTokenCookie = true;
 			} else {
-//				System.out.println("found user from session : " + user);
+//				System.out.println("found user from token : " + user);
+			}
+
+			if (needsTokenCookie) {
+				setCookie(https, "user_token", user.token);
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -268,7 +297,6 @@ public class WebServer extends BNode {
 				nbRequestsInProgress.add(user);
 
 				var response = new ObjectNode(null);
-				response.set("session ID", new TextNode(Long.toHexString(Math.abs(https.getSSLSession().hashCode()))));
 				response.set("backend version", new TextNode(Byransha.VERSION));
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
 				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
@@ -283,6 +311,7 @@ public class WebServer extends BNode {
 				if (user != null) {
 					response.set("username", new TextNode(user.name.get()));
 					response.set("user_id", new IntNode(user.id()));
+					response.set("user_token", new TextNode(user.token));
 				}
 
 				var endpoints = endpoints(path.substring(5), user.currentNode());
@@ -333,7 +362,7 @@ public class WebServer extends BNode {
 
 				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
 
-				if (inputJson.size() > 0)
+				if (!inputJson.isEmpty())
 					throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
 				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());

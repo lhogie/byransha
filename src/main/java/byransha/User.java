@@ -1,8 +1,7 @@
 package byransha;
 
 import java.util.Stack;
-
-import javax.net.ssl.SSLSession;
+import java.util.UUID;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -14,14 +13,13 @@ import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
-import toools.text.TextUtilities;
 
 public class User extends PersistingNode {
 
 	public StringNode name;
 	public StringNode passwordNode;
 	public Stack<BNode> stack = new Stack<BNode>();
-	public SSLSession session;
+	public String token;
 
 	public User(BBGraph g, String u, String password) {
 		super(g);
@@ -31,6 +29,8 @@ public class User extends PersistingNode {
 
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
+
+		this.token = UUID.randomUUID().toString();
 		/*
 		 * this.saveOuts(f -> {});
 		 * 
@@ -41,6 +41,10 @@ public class User extends PersistingNode {
 
 	public User(BBGraph g, int id) {
 		super(g, id);
+
+		if (this.token == null) {
+			this.token = UUID.randomUUID().toString();
+		}
 	}
 
 	@Override
@@ -93,8 +97,7 @@ public class User extends PersistingNode {
 				pw.print("<li>Navigation history: ");
 //				user.stack.forEach(n -> pw.print(linkTo(n, "X")));
 				pw.println("<li>admin? " + false);
-				pw.println("<li>Session ID: "
-						+ (user.session.isValid() ? TextUtilities.toHex(user.session.getId()) : "no active session"));
+				pw.println("<li>User Token: " + user.token);
 				pw.println("</ul>");
 			});
 		}

@@ -9,7 +9,9 @@ export const useApiData = (endpoints, params = {}) => {
 
     return useQuery({
         queryKey: ['apiData', endpoints, params], // Unique key for caching
-        queryFn: () => axios.get(url),
+        queryFn: () => axios.get(url, {
+            withCredentials: true,
+        }),
         retry: 2,
         staleTime: 60000,
         onError: (error) => {
@@ -21,7 +23,9 @@ export const useApiData = (endpoints, params = {}) => {
 export const useApiMutation = (endpoints, options = {}) => {
     return useMutation({
         mutationFn: (data) => {
-            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${data}`)
+            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${data}`, {
+                withCredentials: true,
+            })
         },
         ...options
     });

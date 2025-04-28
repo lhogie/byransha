@@ -10,6 +10,8 @@ import byransha.web.NodeEndpoint;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.WebServer;
 
+import java.util.UUID;
+
 public class Authenticate extends NodeEndpoint<BBGraph> {
 
 	@Override
@@ -33,7 +35,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		if (user == null) {
 			return null;
 		} else {
-			user.session = https.getSSLSession();
+			user.token = UUID.randomUUID().toString();
 			return new EndpointJsonResponse(new TextNode("" + user.id()), this);
 		}
 
