@@ -32,11 +32,12 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		https.getResponseHeaders().add("Set-Cookie", cookie);
 	}
 
-	public static void setDefaultUser(BBGraph g, User user, HttpsExchange https) {
-		user = new User(g, "user", "test");
+	public static User setDefaultUser(BBGraph g, HttpsExchange https) {
+		User user = new User(g, "user", "test");
 		System.out.println("creating new user " + user + " with token " + user.token);
 		user.stack.push(g.root());
 		setCookie(https, "user_token", user.token);
+		return user;
 	}
 
 	@Override

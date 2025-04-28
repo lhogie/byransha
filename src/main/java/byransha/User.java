@@ -21,7 +21,7 @@ public class User extends PersistingNode {
 	public Stack<BNode> stack = new Stack<BNode>();
 	public String token;
 
-	public User(BBGraph g, String u, String password) {
+		public User(BBGraph g, String u, String password) {
 		super(g);
 		name = new StringNode(g, null);
 		name.setAsLabelFor(this);
