@@ -155,12 +155,15 @@ public class WebServer extends BNode {
 			public void configure(HttpsParameters params) {
 				try {
 					SSLContext context = getSSLContext();
-					SSLEngine engine = context.createSSLEngine();
 					params.setNeedClientAuth(false);
-					params.setCipherSuites(engine.getEnabledCipherSuites());
-					params.setProtocols(engine.getEnabledProtocols());
-					SSLParameters sslParameters = context.getSupportedSSLParameters();
-					params.setSSLParameters(sslParameters);
+
+					String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+					params.setProtocols(enabledProtocols);
+
+					SSLParameters defaultSSLParameters = context.getDefaultSSLParameters();
+					List<String> strongCipherSuites = new ArrayList<>(List.of(defaultSSLParameters.getCipherSuites()));
+					params.setCipherSuites(strongCipherSuites.toArray(new String[0]));
+					params.setSSLParameters(context.getSupportedSSLParameters());
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -217,6 +220,9 @@ public class WebServer extends BNode {
 		new UI.getProperties(g);
 		new Summarizer(g);
 		new LoadImage(g);
+
+		User user = new User(g, "user", "test");
+		user.stack.push(g.root());
 	}
 
 	public SessionStore getSessionStore() {
