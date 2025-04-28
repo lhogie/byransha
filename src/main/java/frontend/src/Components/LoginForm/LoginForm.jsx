@@ -4,6 +4,8 @@ import {FaEye, FaEyeSlash, FaUser} from "react-icons/fa";
 import logo from '../Assets/i3S_RVB_Couleur.png';
 import {useNavigate} from 'react-router';
 import {useTitle} from "../../global/useTitle";
+import {useApiMutation} from "../../hooks/useApiData.js";
+import {useQueryClient} from "@tanstack/react-query";
 
 const LoginForm = () => {
     const [username, setUsername] = useState("");
@@ -12,6 +14,14 @@ const LoginForm = () => {
     const [error, setError] = useState("");
 
     const navigate = useNavigate();
+    const queryClient = useQueryClient()
+
+    // TODO: switch to authenticate
+    const jumpMutation = useApiMutation('/', {
+        onSuccess: async () => {
+            await queryClient.invalidateQueries()
+        },
+    });
 
     useTitle("Login");
 
@@ -22,24 +32,19 @@ const LoginForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // TODO: Add back the login request
-            /*
-            // Send the login request to the backend
-            const response = await axios.get('https://dronic.i3s.unice.fr:8080/api', {
-                params: { username, password },
-            });
-
-            if (response.data && response.data['session ID']) {
-                // Save the session details in local storage or state
-                localStorage.setItem("sessionData", JSON.stringify(response.data));
-                navigate('/home'); // Redirect to HomePage
-            } else {
-                setError("Invalid username or password");
-            }
-             */
-
-            localStorage.setItem("sessionData", JSON.stringify({"session ID": "1234"}));
-            navigate('/home'); // Redirect to HomePage but gridview
+            // TODO: switch to authenticate
+            jumpMutation.mutate({
+                //username: username,
+                //password: password
+            }, {
+                onSuccess: (data) => {
+                    navigate('/home'); // Redirect to HomePage
+                },
+                onError: (error) => {
+                    console.error(error);
+                    setError("Failed to connect to the server");
+                }
+            })
         } catch (err) {
             console.error(err);
             setError("Failed to connect to the server");
