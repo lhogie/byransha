@@ -38,7 +38,6 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 			user.token = UUID.randomUUID().toString();
 			return new EndpointJsonResponse(new TextNode("" + user.id()), this);
 		}
-
 	}
 
 	private User auth(String username, String password) {

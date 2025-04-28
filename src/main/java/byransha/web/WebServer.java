@@ -259,7 +259,6 @@ public class WebServer extends BNode {
 			String userToken = null;
 			String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
 
-
 			if (cookieHeader != null) {
 				for (String cookie : cookieHeader.split(";")) {
 					cookie = cookie.trim();
@@ -278,14 +277,11 @@ public class WebServer extends BNode {
 				user = new User(graph, "user", "test");
 				System.out.println("creating new user " + user + " with token " + user.token);
 				user.stack.push(graph.root());
-				needsTokenCookie = true;
+				setCookie(https, "user_token", user.token);
 			} else {
 //				System.out.println("found user from token : " + user);
 			}
 
-			if (needsTokenCookie) {
-				setCookie(https, "user_token", user.token);
-			}
 
 			var path = https.getRequestURI().getPath();
 
