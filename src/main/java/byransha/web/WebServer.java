@@ -285,28 +285,18 @@ public class WebServer extends BNode {
 					sessionData = sessionOpt.get();
 					user = (User) graph.findByID(sessionData.userId());
 					if (user == null) {
-						System.err.printf(
-								"[ERROR] User ID %d from valid session token prefix %s not found in graph. Invalidating session.%n",
-								sessionData.userId(), sessionToken.substring(0, Math.min(8, sessionToken.length())));
 						sessionStore.removeSession(sessionToken);
 						Authenticate.deleteSessionCookie(https, "session_token");
 
 						defaultsUser = true;
-					} else {
-						System.out.printf("[AUTH] Valid session found for user ID %d (Token prefix: %s)%n", user.id(),
-								sessionToken.substring(0, Math.min(8, sessionToken.length())));
 					}
 				} else {
-					System.out.printf(
-							"[AUTH] Invalid or expired session token detected (Prefix: %s). Deleting cookie.%n",
-							sessionToken.substring(0, Math.min(8, sessionToken.length())));
 					Authenticate.deleteSessionCookie(https, "session_token");
 
 					defaultsUser = true;
 				}
 			} else {
 				defaultsUser = true;
-				System.out.println("[AUTH] No session token cookie found in request.");
 			}
 
 			if (defaultsUser) {
