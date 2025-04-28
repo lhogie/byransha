@@ -55,8 +55,8 @@ const MainLayout = () => {
             }
         }}>
             <DashboardLayout
-                hideNavigation={hideSidebar}
-                disableCollapsibleSidebar={hideSidebar}
+                hideNavigation={true}
+                disableCollapsibleSidebar={true}
                 slots={{
                     appTitle: () => (
                         <Stack direction="row" alignItems="center" spacing={2}>
@@ -198,14 +198,10 @@ const MainLayout = () => {
                                         ({data?.data?.user_id || "N/A"})
                                     </Typography>
                                     <Typography sx={{ color: '#90a4ae', fontSize: '12px' }}>
-                                        v{data?.data["session ID"] || "N/A"}
-                                    </Typography>
-                                    <Typography sx={{ color: '#90a4ae', fontSize: '12px' }}>
                                         v{data?.data["backend version"] || "N/A"}
                                     </Typography>
                                 </Box>
                             )}
-
                         </Stack>
                     )
                 }}

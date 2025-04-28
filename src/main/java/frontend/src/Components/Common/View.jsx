@@ -414,14 +414,14 @@ export const View = ({viewId}) => {
                     onClick={handleOpenModal}
                     size="small"
                     sx={{
-                        position: 'absolute',
-                        top: (theme) => theme.spacing(1),
-                        right: (theme) => theme.spacing(1),
+                        position: 'relative',
+                        bottom: 95,
+                        left: 1050,
                         zIndex: 10,
                         color: 'primary.main'
                     }}
                     aria-label="Show raw JSON"
-                    disabled={!dataForModal}
+                    disabled={dataForModal === null || dataForModal === undefined}
                 >
                     <CodeIcon />
                 </IconButton>
