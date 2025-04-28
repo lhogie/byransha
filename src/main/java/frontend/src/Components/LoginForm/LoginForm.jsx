@@ -16,8 +16,7 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient()
 
-    // TODO: switch to authenticate
-    const jumpMutation = useApiMutation('/', {
+    const jumpMutation = useApiMutation('authenticate', {
         onSuccess: async () => {
             await queryClient.invalidateQueries()
         },
@@ -32,10 +31,9 @@ const LoginForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            // TODO: switch to authenticate
             jumpMutation.mutate({
-                //username: username,
-                //password: password
+                username: username,
+                password: password
             }, {
                 onSuccess: (data) => {
                     navigate('/home'); // Redirect to HomePage

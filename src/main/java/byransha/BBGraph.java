@@ -428,11 +428,6 @@ public class BBGraph extends BNode {
 		}
 	}
 
-
-	public User findUserByToken(String token) {
-		return find(User.class, u -> u.token != null && u.token.equals(token));
-	}
-
 	public <N extends BNode, NE extends NodeEndpoint<N>> NE findEndpoint(Class<NE> c) {
 		return find(c, e -> true);
 	}

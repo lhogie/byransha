@@ -19,9 +19,8 @@ public class User extends PersistingNode {
 	public StringNode name;
 	public StringNode passwordNode;
 	public Stack<BNode> stack = new Stack<BNode>();
-	public String token;
 
-		public User(BBGraph g, String u, String password) {
+	public User(BBGraph g, String u, String password) {
 		super(g);
 		name = new StringNode(g, null);
 		name.setAsLabelFor(this);
@@ -30,10 +29,9 @@ public class User extends PersistingNode {
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 
-		this.token = UUID.randomUUID().toString();
 		/*
 		 * this.saveOuts(f -> {});
-		 * 
+		 *
 		 * this.saveIns(f -> {}); forEachOut((n, node) -> node.saveIns(f -> {}));
 		 * forEachIn((n, node) -> node.saveOuts(f -> {}));
 		 */
@@ -41,10 +39,6 @@ public class User extends PersistingNode {
 
 	public User(BBGraph g, int id) {
 		super(g, id);
-
-		if (this.token == null) {
-			this.token = UUID.randomUUID().toString();
-		}
 	}
 
 	@Override
@@ -91,13 +85,12 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				User node) throws Throwable {
+									 User node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				pw.print("<li>Navigation history: ");
 //				user.stack.forEach(n -> pw.print(linkTo(n, "X")));
 				pw.println("<li>admin? " + false);
-				pw.println("<li>User Token: " + user.token);
 				pw.println("</ul>");
 			});
 		}
@@ -124,7 +117,7 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				BNode node) throws Throwable {
+									 BNode node) throws Throwable {
 			var a = new ArrayNode(null);
 			user.stack.forEach(e -> a.add(e.toJSONNode()));
 			return new EndpointJsonResponse(a, this);

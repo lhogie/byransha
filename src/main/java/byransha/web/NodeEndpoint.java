@@ -33,7 +33,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 	private N node(JsonNode node, User user) {
 		if (node == null) {
 			return (N) user.currentNode();
-		}
+        }
 
 		var s = node.asText();
 		

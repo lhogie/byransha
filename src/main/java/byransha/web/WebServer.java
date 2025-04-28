@@ -12,12 +12,7 @@ import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
@@ -135,9 +130,12 @@ public class WebServer extends BNode {
 	private HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
 
-	public WebServer(BBGraph g, int port) throws Exception {
+	private final SessionStore sessionStore;
 
+	public WebServer(BBGraph g, int port) throws Exception {
 		super(g);
+		this.sessionStore = new SessionStore();
+
 		jvm = g.find(JVMNode.class, e -> true) == null ? new JVMNode(g) : g.find(JVMNode.class, e -> true);
 		byransha = g.find(Byransha.class, e -> true) == null ? new Byransha(g) : g.find(Byransha.class, e -> true);
 		operatingSystem = g.find(OSNode.class, e -> true) == null ? new OSNode(g) : g.find(OSNode.class, e -> true);
@@ -146,7 +144,8 @@ public class WebServer extends BNode {
 		new Jump(g);
 		new Endpoints(g);
 		new JVMNode.Kill(g);
-		new Authenticate(g);
+		new Authenticate(g, this.sessionStore);
+		new Logout(g, this.sessionStore);
 		new Nodes(g);
 		new EndpointCallDistributionView(g);
 		new Info(g);
@@ -179,6 +178,9 @@ public class WebServer extends BNode {
 		new Summarizer(g);
 		new LoadImage(g);
 
+		User user = new User(g, "user", "test");
+		user.stack.push(g.root());
+
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
 			System.out.println("writing " + classPathFile);
@@ -196,10 +198,14 @@ public class WebServer extends BNode {
 					SSLContext context = getSSLContext();
 					SSLEngine engine = context.createSSLEngine();
 					params.setNeedClientAuth(false);
-					params.setCipherSuites(engine.getEnabledCipherSuites());
-					params.setProtocols(engine.getEnabledProtocols());
-					SSLParameters sslParameters = context.getSupportedSSLParameters();
-					params.setSSLParameters(sslParameters);
+
+					String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+					params.setProtocols(enabledProtocols);
+
+					SSLParameters defaultSSLParameters = context.getDefaultSSLParameters();
+					List<String> strongCipherSuites = new ArrayList<>(List.of(defaultSSLParameters.getCipherSuites()));
+					params.setCipherSuites(strongCipherSuites.toArray(new String[0]));
+					params.setSSLParameters(context.getSupportedSSLParameters());
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -209,6 +215,22 @@ public class WebServer extends BNode {
 		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
 		httpsServer.setExecutor(Executors.newCachedThreadPool());
 		httpsServer.start();
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			System.out.println("WebServer shutdown hook triggered.");
+			if (sessionStore != null) {
+				sessionStore.shutdown();
+			}
+			if (httpsServer != null) {
+				System.out.println("Stopping HTTPS server...");
+				httpsServer.stop(1);
+				System.out.println("HTTPS server stopped.");
+			}
+		}));
+	}
+
+	public SessionStore getSessionStore() {
+		return sessionStore;
 	}
 
 	@Override
@@ -240,34 +262,58 @@ public class WebServer extends BNode {
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
-		boolean needsTokenCookie = false;
+		SessionStore.SessionData sessionData = null;
+		long startTimeNs = System.nanoTime();
+		ObjectNode inputJson = null;
+		boolean defaultsUser = false;
 
 		try {
-			long startTimeNs = System.nanoTime();
-			ObjectNode inputJson = grabInputFromURLandPOST(https);
-			final var inputJson2sendBack = inputJson.deepCopy();
+			inputJson = grabInputFromURLandPOST(https);
+			final var inputJson2sendBack = (inputJson != null) ? inputJson.deepCopy() : new ObjectNode(null);
 
-			String userToken = null;
+			String sessionToken = null;
 			String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
 
 			if (cookieHeader != null) {
 				for (String cookie : cookieHeader.split(";")) {
 					cookie = cookie.trim();
-					if (cookie.startsWith("user_token=")) {
-						userToken = cookie.substring("user_token=".length());
+					if (cookie.startsWith("session_token=")) {
+						sessionToken = cookie.substring("session_token=".length());
 						break;
 					}
 				}
 			}
 
-			if (userToken != null) {
-				user = graph.findUserByToken(userToken);
+			if (sessionToken != null) {
+				Optional<SessionStore.SessionData> sessionOpt = sessionStore.getValidSession(sessionToken);
+				if (sessionOpt.isPresent()) {
+					sessionData = sessionOpt.get();
+					user = (User) graph.findByID(sessionData.userId());
+					if (user == null) {
+						System.err.printf("[ERROR] User ID %d from valid session token prefix %s not found in graph. Invalidating session.%n",
+								sessionData.userId(), sessionToken.substring(0, Math.min(8, sessionToken.length())));
+						sessionStore.removeSession(sessionToken);
+						Authenticate.deleteSessionCookie(https, "session_token");
+
+						defaultsUser = true;
+					} else {
+						System.out.printf("[AUTH] Valid session found for user ID %d (Token prefix: %s)%n",
+								user.id(), sessionToken.substring(0, Math.min(8, sessionToken.length())));
+					}
+				} else {
+					System.out.printf("[AUTH] Invalid or expired session token detected (Prefix: %s). Deleting cookie.%n",
+							sessionToken.substring(0, Math.min(8, sessionToken.length())));
+					Authenticate.deleteSessionCookie(https, "session_token");
+
+					defaultsUser = true;
+				}
+			} else {
+				defaultsUser = true;
+				System.out.println("[AUTH] No session token cookie found in request.");
 			}
 
-			if (user == null) {
-				user = Authenticate.setDefaultUser(graph, https);
-			} else {
-//				System.out.println("found user from token : " + user);
+			if (defaultsUser) {
+				user = Authenticate.setDefaultUser(graph, sessionStore, https);
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -294,10 +340,11 @@ public class WebServer extends BNode {
 				if (user != null) {
 					response.set("username", new TextNode(user.name.get()));
 					response.set("user_id", new IntNode(user.id()));
-					response.set("user_token", new TextNode(user.token));
 				}
 
-				var endpoints = endpoints(path.substring(5), user.currentNode());
+				BNode contextNode = user.currentNode();
+
+				var endpoints = endpoints(path.substring(5), contextNode);
 //				System.err.println(endpoints);
 
 				if (inputJson.remove("raw") != null) {
