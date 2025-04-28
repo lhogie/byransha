@@ -237,10 +237,6 @@ public class WebServer extends BNode {
 
 	static final File frontendDir = new File("build/frontend");
 
-	private void setCookie(HttpsExchange https, String name, String value) {
-		String cookie = name + "=" + value + "; Path=/; Max-Age=31536000; SameSite=None; Secure; HttpOnly";
-		https.getResponseHeaders().add("Set-Cookie", cookie);
-	}
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
@@ -270,16 +266,9 @@ public class WebServer extends BNode {
 			}
 
 			if (user == null) {
-				user = new User(graph, "user", "test");
-				System.out.println("creating new user " + user + " with token " + user.token);
-				user.stack.push(graph.root());
-				needsTokenCookie = true;
+				Authenticate.setDefaultUser(graph, user, https);
 			} else {
 //				System.out.println("found user from token : " + user);
-			}
-
-			if (needsTokenCookie) {
-				setCookie(https, "user_token", user.token);
 			}
 
 			var path = https.getRequestURI().getPath();
