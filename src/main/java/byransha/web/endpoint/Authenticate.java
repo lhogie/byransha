@@ -27,6 +27,18 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		super(db, id);
 	}
 
+	private static void setCookie(HttpsExchange https, String name, String value) {
+		String cookie = name + "=" + value + "; Path=/; Max-Age=31536000; SameSite=None; Secure; HttpOnly";
+		https.getResponseHeaders().add("Set-Cookie", cookie);
+	}
+
+	public static void setDefaultUser(BBGraph g, User user, HttpsExchange https) {
+		user = new User(g, "user", "test");
+		System.out.println("creating new user " + user + " with token " + user.token);
+		user.stack.push(g.root());
+		setCookie(https, "user_token", user.token);
+	}
+
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange https, BBGraph g)
 			throws Throwable {
@@ -36,6 +48,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 			return null;
 		} else {
 			user.token = UUID.randomUUID().toString();
+			setCookie(https, "user_token", user.token);
 			return new EndpointJsonResponse(new TextNode("" + user.id()), this);
 		}
 
