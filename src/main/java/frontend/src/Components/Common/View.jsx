@@ -12,6 +12,7 @@ import {useQueryClient} from "@tanstack/react-query";
 import { Box, Button, Modal, Typography, IconButton, Tooltip } from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
+import ExportButton from './ExportButton.jsx';
 
 const modalStyle = {
     position: 'absolute',
@@ -414,14 +415,14 @@ export const View = ({viewId}) => {
                     onClick={handleOpenModal}
                     size="small"
                     sx={{
-                        position: 'absolute',
-                        top: (theme) => theme.spacing(1),
-                        right: (theme) => theme.spacing(1),
+                        position: 'relative',
+                        bottom: 95,
+                        left: 1050,
                         zIndex: 10,
                         color: 'primary.main'
                     }}
                     aria-label="Show raw JSON"
-                    disabled={!dataForModal}
+                    disabled={dataForModal === null || dataForModal === undefined}
                 >
                     <CodeIcon />
                 </IconButton>
@@ -489,6 +490,8 @@ export const View = ({viewId}) => {
 
     const {data: dataContent, headers} = rawApiData;
 
+
+
     if (dataContent?.results?.[0]?.error !== undefined) {
         return (
             <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
@@ -513,6 +516,9 @@ export const View = ({viewId}) => {
             </Box>
         );
     }
+
+    const exportData = rawApiData.data.results[0].result.data;
+
     return (
         <Box>
             {renderJsonViewer(rawApiData)}
@@ -520,6 +526,11 @@ export const View = ({viewId}) => {
                 <Box sx={{ mt: 4}}>
                     {displayContent(resultData, resultContentType)}
                 </Box>
+            </Box>
+            <Box>
+                <ExportButton data={exportData}
+                              fileName={`view_${viewId}_data.csv`}
+                />
             </Box>
         </Box>
     );

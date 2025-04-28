@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
@@ -26,8 +27,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
-import byransha.*;
-import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -63,6 +62,8 @@ import byransha.web.endpoint.Edit;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
+import byransha.web.endpoint.LoadImage;
+import byransha.web.endpoint.Logout;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
@@ -131,9 +132,11 @@ public class WebServer extends BNode {
 	private HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
 
-	public WebServer(BBGraph g, int port) throws Exception {
+	private final SessionStore sessionStore;
 
+	public WebServer(BBGraph g, int port) throws Exception {
 		super(g);
+		this.sessionStore = new SessionStore();
 		createSpecialNodes(g);
 		createEndpoints(g);
 
@@ -181,7 +184,8 @@ public class WebServer extends BNode {
 		new Jump(g);
 		new Endpoints(g);
 		new JVMNode.Kill(g);
-		new Authenticate(g);
+		new Authenticate(g, this.sessionStore);
+		new Logout(g, this.sessionStore);
 		new Nodes(g);
 		new EndpointCallDistributionView(g);
 		new Info(g);
@@ -213,7 +217,10 @@ public class WebServer extends BNode {
 		new UI.getProperties(g);
 		new Summarizer(g);
 		new LoadImage(g);
+	}
 
+	public SessionStore getSessionStore() {
+		return sessionStore;
 	}
 
 	@Override
@@ -242,46 +249,63 @@ public class WebServer extends BNode {
 
 	static final File frontendDir = new File("build/frontend");
 
-	private void setCookie(HttpsExchange https, String name, String value) {
-		String cookie = name + "=" + value + "; Path=/; Max-Age=31536000; SameSite=None; Secure; HttpOnly";
-		https.getResponseHeaders().add("Set-Cookie", cookie);
-	}
-
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
-		boolean needsTokenCookie = false;
+		SessionStore.SessionData sessionData = null;
+		long startTimeNs = System.nanoTime();
+		ObjectNode inputJson = null;
+		boolean defaultsUser = false;
 
 		try {
-			long startTimeNs = System.nanoTime();
-			ObjectNode inputJson = grabInputFromURLandPOST(https);
-			final var inputJson2sendBack = inputJson.deepCopy();
+			inputJson = grabInputFromURLandPOST(https);
+			final var inputJson2sendBack = (inputJson != null) ? inputJson.deepCopy() : new ObjectNode(null);
 
-			String userToken = null;
+			String sessionToken = null;
 			String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
 
 			if (cookieHeader != null) {
 				for (String cookie : cookieHeader.split(";")) {
 					cookie = cookie.trim();
-					if (cookie.startsWith("user_token=")) {
-						userToken = cookie.substring("user_token=".length());
+					if (cookie.startsWith("session_token=")) {
+						sessionToken = cookie.substring("session_token=".length());
 						break;
 					}
 				}
 			}
 
-			if (userToken != null) {
-				user = graph.findUserByToken(userToken);
-			}
+			if (sessionToken != null) {
+				Optional<SessionStore.SessionData> sessionOpt = sessionStore.getValidSession(sessionToken);
+				if (sessionOpt.isPresent()) {
+					sessionData = sessionOpt.get();
+					user = (User) graph.findByID(sessionData.userId());
+					if (user == null) {
+						System.err.printf(
+								"[ERROR] User ID %d from valid session token prefix %s not found in graph. Invalidating session.%n",
+								sessionData.userId(), sessionToken.substring(0, Math.min(8, sessionToken.length())));
+						sessionStore.removeSession(sessionToken);
+						Authenticate.deleteSessionCookie(https, "session_token");
 
-			if (user == null) {
-				user = new User(graph, "user", "test");
-				System.out.println("creating new user " + user + " with token " + user.token);
-				user.stack.push(graph.root());
-				setCookie(https, "user_token", user.token);
+						defaultsUser = true;
+					} else {
+						System.out.printf("[AUTH] Valid session found for user ID %d (Token prefix: %s)%n", user.id(),
+								sessionToken.substring(0, Math.min(8, sessionToken.length())));
+					}
+				} else {
+					System.out.printf(
+							"[AUTH] Invalid or expired session token detected (Prefix: %s). Deleting cookie.%n",
+							sessionToken.substring(0, Math.min(8, sessionToken.length())));
+					Authenticate.deleteSessionCookie(https, "session_token");
+
+					defaultsUser = true;
+				}
 			} else {
-//				System.out.println("found user from token : " + user);
+				defaultsUser = true;
+				System.out.println("[AUTH] No session token cookie found in request.");
 			}
 
+			if (defaultsUser) {
+				user = Authenticate.setDefaultUser(graph, sessionStore, https);
+			}
 
 			var path = https.getRequestURI().getPath();
 
@@ -307,10 +331,11 @@ public class WebServer extends BNode {
 				if (user != null) {
 					response.set("username", new TextNode(user.name.get()));
 					response.set("user_id", new IntNode(user.id()));
-					response.set("user_token", new TextNode(user.token));
 				}
 
-				var endpoints = endpoints(path.substring(5), user.currentNode());
+				BNode contextNode = user.currentNode();
+
+				var endpoints = endpoints(path.substring(5), contextNode);
 //				System.err.println(endpoints);
 
 				if (inputJson.remove("raw") != null) {
