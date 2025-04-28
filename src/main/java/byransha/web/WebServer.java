@@ -124,10 +124,6 @@ public class WebServer extends BNode {
 
 	static ObjectMapper mapper = new ObjectMapper();
 
-	final JVMNode jvm;
-	final Byransha byransha;
-	final OSNode operatingSystem;
-
 	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
 	private HttpsServer httpsServer;
@@ -136,9 +132,48 @@ public class WebServer extends BNode {
 	public WebServer(BBGraph g, int port) throws Exception {
 
 		super(g);
-		jvm = g.find(JVMNode.class, e -> true) == null ? new JVMNode(g) : g.find(JVMNode.class, e -> true);
-		byransha = g.find(Byransha.class, e -> true) == null ? new Byransha(g) : g.find(Byransha.class, e -> true);
-		operatingSystem = g.find(OSNode.class, e -> true) == null ? new OSNode(g) : g.find(OSNode.class, e -> true);
+		createSpecialNodes(g);
+		createEndpoints(g);
+
+		try {
+			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
+			System.out.println("writing " + classPathFile);
+			Files.write(classPathFile, ClassPath.retrieveSystemClassPath().toString().getBytes());
+		} catch (IOException err) {
+			err.printStackTrace();
+		}
+
+		System.out.println("starting HTTP server on port " + port);
+		httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
+		httpsServer.setHttpsConfigurator(new HttpsConfigurator(getSslContext()) {
+			@Override
+			public void configure(HttpsParameters params) {
+				try {
+					SSLContext context = getSSLContext();
+					SSLEngine engine = context.createSSLEngine();
+					params.setNeedClientAuth(false);
+					params.setCipherSuites(engine.getEnabledCipherSuites());
+					params.setProtocols(engine.getEnabledProtocols());
+					SSLParameters sslParameters = context.getSupportedSSLParameters();
+					params.setSSLParameters(sslParameters);
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+
+		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
+		httpsServer.setExecutor(Executors.newCachedThreadPool());
+		httpsServer.start();
+	}
+
+	private void createSpecialNodes(BBGraph g) {
+		new JVMNode(g);
+		new Byransha(g);
+		new OSNode(g);
+	}
+
+	private void createEndpoints(BBGraph g) {
 		new NodeInfo(g);
 		new Views(g);
 		new Jump(g);
@@ -175,37 +210,6 @@ public class WebServer extends BNode {
 		new UI(g);
 		new UI.getProperties(g);
 		new Summarizer(g);
-
-		try {
-			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
-			System.out.println("writing " + classPathFile);
-			Files.write(classPathFile, ClassPath.retrieveSystemClassPath().toString().getBytes());
-		} catch (IOException err) {
-			err.printStackTrace();
-		}
-
-		System.out.println("starting HTTP server on port " + port);
-		httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
-		httpsServer.setHttpsConfigurator(new HttpsConfigurator(getSslContext()) {
-			@Override
-			public void configure(HttpsParameters params) {
-				try {
-					SSLContext context = getSSLContext();
-					SSLEngine engine = context.createSSLEngine();
-					params.setNeedClientAuth(false);
-					params.setCipherSuites(engine.getEnabledCipherSuites());
-					params.setProtocols(engine.getEnabledProtocols());
-					SSLParameters sslParameters = context.getSupportedSSLParameters();
-					params.setSSLParameters(sslParameters);
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
-			}
-		});
-
-		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
-		httpsServer.setExecutor(Executors.newCachedThreadPool());
-		httpsServer.start();
 	}
 
 	@Override
