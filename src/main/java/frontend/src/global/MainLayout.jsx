@@ -55,8 +55,8 @@ const MainLayout = () => {
             }
         }}>
             <DashboardLayout
-                hideNavigation={hideSidebar}
-                disableCollapsibleSidebar={hideSidebar}
+                hideNavigation={true}
+                disableCollapsibleSidebar={true}
                 slots={{
                     appTitle: () => (
                         <Stack direction="row" alignItems="center" spacing={2}>
@@ -202,7 +202,6 @@ const MainLayout = () => {
                                     </Typography>
                                 </Box>
                             )}
-
                         </Stack>
                     )
                 }}
