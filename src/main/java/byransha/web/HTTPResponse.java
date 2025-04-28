@@ -19,7 +19,24 @@ class HTTPResponse {
 	void send(HttpExchange e) throws IOException {
         try (var output = e.getResponseBody()) {
             try {
-                e.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+                String origin = e.getRequestHeaders().getFirst("Origin");
+                if (origin == null || origin.isEmpty()) {
+                    origin = "http://localhost:5173";
+                }
+                e.getResponseHeaders().add("Access-Control-Allow-Origin", origin);
+                e.getResponseHeaders().add("Access-Control-Allow-Credentials", "true");
+                e.getResponseHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+                e.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                e.getResponseHeaders().add("Access-Control-Max-Age", "3600");
+
+                // Handle preflight OPTIONS request
+                if (e.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
+                    e.getResponseHeaders().set("Content-Type", "text/plain");
+                    e.sendResponseHeaders(204, -1); // No content
+                    return;
+                }
+
+                // Set content type and send response
                 e.getResponseHeaders().set("Content-type", contentType);
                 e.sendResponseHeaders(code, content.length);
                 output.write(content);
