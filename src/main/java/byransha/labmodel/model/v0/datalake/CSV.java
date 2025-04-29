@@ -20,7 +20,7 @@ public class CSV extends ArrayList<List<String>> {
 
 		s = String.join("", a);
 		var lines = new ArrayList<>(List.of(s.split("\n")));
-		headers = List.of(lines.removeFirst().split(sep));
+		headers = List.of(lines.remove(0).split(sep));
 		lines.forEach(line -> add(new ArrayList<>(List.of(line.split(sep, -1)))));
 
 		check();

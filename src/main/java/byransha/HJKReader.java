@@ -24,15 +24,15 @@ public class HJKReader {
 		var events = new ArrayList<Event<?>>();
 
 		for (var line : matrix) {
-			var className = line.getFirst();
+			var className = line.get(0);
 			var eventClass = Clazz.findClass(className);
 
 			if (eventClass == null)
 				throw new IllegalStateException("dunno event type: " + className);
 
 			var node = nme_node.get(1);
-			var event = (Event<?>) eventClass.getConstructor(BNode.class).newInstance(node);
-			event.date = dateFormat.parse(line.removeFirst()).toInstant();
+			var event = (Event) eventClass.getConstructor(BNode.class).newInstance(node);
+			event.date = dateFormat.parse(line.remove(0)).toInstant();
 		//	event.initFromCSV(line.stream().map(e -> e.trim()).toList(), node);
 			events.add(event);
 		}

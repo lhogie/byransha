@@ -54,7 +54,7 @@ public class OSNode extends BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");

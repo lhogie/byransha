@@ -41,11 +41,11 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	}
 
 	static class Relation {
-		final Class<?> a, b;
+		final Class a, b;
 		final Map<String, String> attrs;
 		final boolean inheritance;
 
-		Relation(Class<BNode> a, Class<?> b, Map<String, String> attrs, boolean inheritance) {
+		Relation(Class<BNode> a, Class b, Map<String, String> attrs, boolean inheritance) {
 			this.a = a;
 			this.b = b;
 			this.attrs = attrs;
@@ -53,7 +53,7 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 		}
 	}
 
-	public static int id(Class<?> n) {
+	public static int id(Class n) {
 		return Math.abs(n.hashCode());
 	}
 
@@ -69,7 +69,7 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 			graph.forEachNode(n -> {
 				List<Class<BNode>> stack = new ArrayList<>();
 
-				for (Class<?> c = n.getClass(); c != null && c.getPackage() != BNode.class.getPackage()
+				for (Class c = n.getClass(); c != null && c.getPackage() != BNode.class.getPackage()
 						&& !ValuedNode.class.isAssignableFrom(c); c = c.getSuperclass()) {
 
 					if (class_attrs.containsKey(c)) // already visited
@@ -91,7 +91,7 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 							continue;
 
 						boolean list = ListNode.class.isAssignableFrom(f.getType());
-						var target = list ? (Class<?>) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0]
+						var target = list ? (Class) ((ParameterizedType) f.getGenericType()).getActualTypeArguments()[0]
 								: f.getType();
 
 						if (ValuedNode.class.isAssignableFrom(target)) {

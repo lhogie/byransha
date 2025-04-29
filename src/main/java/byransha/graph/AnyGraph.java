@@ -89,10 +89,10 @@ public class AnyGraph {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
-			var classes = new HashSet<Class<?>>();
+			var classes = new HashSet<Class>();
 			graph.forEachNode(n -> classes.add(n.getClass()));
 			classes.forEach(c -> a.add(new TextNode(c.getName())));
 			return new EndpointJsonResponse(a, this);

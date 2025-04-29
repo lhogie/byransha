@@ -83,7 +83,7 @@ public class User extends PersistingNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 									 User node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
@@ -115,7 +115,7 @@ public class User extends PersistingNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 									 BNode node) throws Throwable {
 			var a = new ArrayNode(null);
 			user.stack.forEach(e -> a.add(e.toJSONNode()));

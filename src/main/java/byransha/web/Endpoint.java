@@ -35,7 +35,7 @@ public abstract class Endpoint extends BNode {
 	}
 
 
-	public abstract EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
+	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable;
 
 	public <N extends BNode> Class<N> getTargetNodeType() {
@@ -103,7 +103,7 @@ public abstract class Endpoint extends BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				Endpoint endpoint) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");

@@ -112,11 +112,11 @@ public abstract class BNode {
 	}
 
 	public void bfs(Consumer<BNode> consumer) {
-		search(consumer, List::removeFirst);
+		search(consumer, q -> q.remove(0));
 	}
 
 	public void dfs(Consumer<BNode> consumer) {
-		search(consumer, List::removeLast);
+		search(consumer, q -> q.remove(q.size() - 1));
 	}
 
 	private void search(Consumer<BNode> consumer, Function<List<BNode>, BNode> producer) {
@@ -256,7 +256,7 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode node)
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode node)
 				throws Throwable {
 			var n = new ObjectNode(null);
 			n.set("class", new TextNode(node.getClass().getName()));
@@ -309,7 +309,7 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var r = new ObjectNode(null);
 			var outs = new ObjectNode(null);
 			n.forEachOut((name, o) -> outs.set(name, new TextNode("" + o.id())));
@@ -348,7 +348,7 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
+		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
 			g.addVertex(n.toVertex());
 
@@ -383,7 +383,7 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 				throws Throwable {
 			var d = new Byransha.Distribution<String>();
 			forEachOut((n, o) -> d.addOccurence(o.getClass().getName()));
@@ -408,7 +408,7 @@ public abstract class BNode {
 	/*
 	 * public static class BFS extends NodeEndpoint<BNode> {
 	 * 
-	 * @Override public EndpointResponse<?> exec(ObjectNode input, User user, WebServer
+	 * @Override public EndpointResponse exec(ObjectNode input, User user, WebServer
 	 * webServer, HttpsExchange exchange, ObjectNode r = null;
 	 * 
 	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new

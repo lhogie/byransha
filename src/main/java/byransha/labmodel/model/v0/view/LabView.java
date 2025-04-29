@@ -27,7 +27,7 @@ final public class LabView extends NodeEndpoint<Lab> {
 	}
 
 	@Override
-	public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, Lab lab)
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, Lab lab)
 			throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
