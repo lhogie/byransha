@@ -341,6 +341,7 @@ const HomePage = () => {
                 </Droppable>
             </DragDropContext>
         </Box>
+
     );
 };
 
