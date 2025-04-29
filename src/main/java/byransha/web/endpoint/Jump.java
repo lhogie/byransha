@@ -28,9 +28,7 @@ public class Jump extends NodeEndpoint<BNode> {
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
-		var n = requireParm(in, "target").asInt();
-		var target = graph.findByID(n);
-		user.stack.push(target);
-		return graph.findEndpoint(NodeInfo.class).exec(in, user, webServer, exchange, target);
+		user.stack.push(node);
+		return graph.findEndpoint(NodeInfo.class).exec(in, user, webServer, exchange, node);
 	}
 }
