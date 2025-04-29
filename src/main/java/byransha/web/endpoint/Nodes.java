@@ -33,18 +33,17 @@ public class Nodes extends NodeEndpoint<BNode> implements View {
 			BNode g) {
 		var a = new ArrayNode(null);
 
-		synchronized (graph.nodes) {
-			for (var n : graph.nodes) {
-				if (n.canSee(user)) {
-					var nn = new ObjectNode(null);
-					nn.set("id", new TextNode("" + n.id()));
-					nn.set("description", new TextNode(n.whatIsThis()));
-					nn.set("class", new TextNode(n.getClass().getName()));
-					nn.set("to_string", new TextNode(n.toString()));
-					a.add(nn);
-				}
+		graph.forEachNode(n -> {
+			if (n.canSee(user)) {
+				var nn = new ObjectNode(null);
+				nn.set("id", new TextNode("" + n.id()));
+				nn.set("description", new TextNode(n.whatIsThis()));
+				nn.set("class", new TextNode(n.getClass().getName()));
+				nn.set("to_string", new TextNode(n.toString()));
+				nn.set("pretty_name", new TextNode(n.prettyName()));
+				a.add(nn);
 			}
-		}
+		});
 
 		return new EndpointJsonResponse(a, this);
 	}

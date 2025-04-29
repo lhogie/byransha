@@ -2,6 +2,8 @@ package byransha.web;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,8 +25,8 @@ public abstract class Endpoint extends BNode {
 		}
 	}
 
-	public int nbCalls = 0;
-	public long timeSpentNs = 0;
+	public final AtomicInteger nbCalls = new AtomicInteger(0);
+	public final AtomicLong timeSpentNs = new AtomicLong(0);
 
 	protected Endpoint(BBGraph db) {
 		super(db);
@@ -124,6 +126,9 @@ public abstract class Endpoint extends BNode {
 				pw.println("<li>name: " + endpoint.name());
 				pw.println("<li>label: " + endpoint.prettyName());
 				pw.println("<li>target: " + endpoint.getTargetNodeType().getName());
+
+				pw.println("<li>calls: " + endpoint.nbCalls.get());
+				pw.println("<li>time (ms): " + endpoint.timeSpentNs.get() / 1_000_000.0);
 
 				if (endpoint instanceof View v) {
 					pw.println("<li>development" + isDevelopmentView());

@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
@@ -26,7 +27,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-import byransha.labmodel.model.v0.*;
 import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -141,7 +141,7 @@ public class WebServer extends BNode {
 	final List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
 	private final HttpsServer httpsServer;
-	public final List<Log> logs = new ArrayList<>();
+	public final List<Log> logs = new CopyOnWriteArrayList<>();
 
 	private final SessionStore sessionStore;
 
@@ -458,12 +458,10 @@ public class WebServer extends BNode {
 						}
 					}
 
-					double duration = System.nanoTime() - startTimeNs2;
-					synchronized (endpoint) {
-						endpoint.nbCalls++;
-						endpoint.timeSpentNs += (long) duration;
-					}
-					er.set("durationNs", new DoubleNode(duration));
+					long durationNs = System.nanoTime() - startTimeNs2;
+					endpoint.nbCalls.incrementAndGet();
+					endpoint.timeSpentNs.addAndGet(durationNs);
+					er.set("durationNs", new DoubleNode(durationNs));
 
 					resultsNode.add(er);
 				}

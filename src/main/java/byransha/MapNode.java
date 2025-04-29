@@ -2,6 +2,8 @@ package byransha;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
 public class MapNode<N extends BNode> extends BNode {
@@ -17,12 +19,14 @@ public class MapNode<N extends BNode> extends BNode {
 		return "MapNode with " + l.size() + " entries";
 	}
 
-	private final Map<String, N> l = new HashMap<>();
+	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
-		for (var e : l.entrySet()) {
-			consumer.accept(e.getKey(), e.getValue());
+		for (Map.Entry<String, N> e : l.entrySet()) {
+			if (e.getValue() != null) {
+				consumer.accept(e.getKey(), e.getValue());
+			}
 		}
 	}
 
