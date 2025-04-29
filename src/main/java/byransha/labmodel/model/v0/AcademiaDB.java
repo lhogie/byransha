@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 
 import byransha.BBGraph;
 import byransha.DateNode;
@@ -140,8 +141,8 @@ public class AcademiaDB extends BBGraph {
 			comment = l.set(32, null);
 			p.researchActivity = new StringNode(this, l.set(33, null));
 
-			if (l.stream().filter(e -> e != null).findAny().isPresent())
-				throw new IllegalStateException("unused columns: " + l.toString());
+			if (l.stream().anyMatch(Objects::nonNull))
+				throw new IllegalStateException("unused columns: " + l);
 		}
 	}
 

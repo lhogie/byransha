@@ -24,7 +24,6 @@ import java.util.function.BiConsumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -83,7 +82,7 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
-	public static File defaultDBDirectory = new File(
+	public static final File defaultDBDirectory = new File(
 			System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
 	public static void main(String[] args) throws Exception {
@@ -95,7 +94,7 @@ public class WebServer extends BNode {
 
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
-		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
+		int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
 	}
 
@@ -131,11 +130,11 @@ public class WebServer extends BNode {
 		}
 	}
 
-	static ObjectMapper mapper = new ObjectMapper();
+	static final ObjectMapper mapper = new ObjectMapper();
 
-	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
+	final List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
-	private HttpsServer httpsServer;
+	private final HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
 
 	private final SessionStore sessionStore;
@@ -263,9 +262,9 @@ public class WebServer extends BNode {
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
-		SessionStore.SessionData sessionData = null;
+		SessionStore.SessionData sessionData;
 		long startTimeNs = System.nanoTime();
-		ObjectNode inputJson = null;
+		ObjectNode inputJson;
 		boolean defaultsUser = false;
 
 		try {
@@ -340,11 +339,12 @@ public class WebServer extends BNode {
 				var endpoints = endpoints(path.substring(5), contextNode);
 //				System.err.println(endpoints);
 
-				if (inputJson.remove("raw") != null) {
+                assert inputJson != null;
+                if (inputJson.remove("raw") != null) {
 					if (endpoints.size() != 1)
 						throw new IllegalArgumentException("only 1 endpoint allowed");
 
-					if (inputJson.size() > 0)
+					if (!inputJson.isEmpty())
 						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
 					var endpoint = endpoints.get(0);
@@ -429,7 +429,7 @@ public class WebServer extends BNode {
 			endpointName = endpointName.substring(0, endpointName.length() - 1);
 		}
 
-		if (endpointName == null || endpointName.isEmpty()) {
+		if (endpointName.isEmpty()) {
 			return graph.endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
@@ -467,7 +467,7 @@ public class WebServer extends BNode {
 
 		// adds the URL parameters from the query string to the JSON
 		var query = query(http.getRequestURI().getQuery());
-		query.entrySet().forEach(e -> inputJson.set(e.getKey(), new TextNode(e.getValue())));
+		query.forEach((key, value) -> inputJson.set(key, new TextNode(value)));
 
 		return inputJson;
 	}
@@ -538,7 +538,7 @@ public class WebServer extends BNode {
 			r.set("cache size", new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext()
 					.getClientSessionContext().getSessionCacheSize()));
 			r.set("SSL protocol",
-					new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
+					new TextNode(n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
 			return new EndpointJsonResponse(r, "nodeinfo");
 		}
 	}
@@ -563,7 +563,7 @@ public class WebServer extends BNode {
 			var r = new ArrayNode(null);
 			n.logs.forEach(l -> {
 				var lr = new ObjectNode(null);
-				lr.set("date", new TextNode(l.date.toLocaleString()));
+				lr.set("date", new TextNode(l.date.toString()));
 				lr.set("message", new TextNode(l.msg));
 				r.add(lr);
 			});

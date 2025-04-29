@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.ListNode;
 import byransha.SetNode;
 import byransha.StringNode;
@@ -34,11 +33,11 @@ public class Structure extends BusinessNode {
 	}
 
 	public double occupationRatio() {
-		return offices.l.stream().mapToDouble(o -> o.occupationRatio()).average().getAsDouble();
+		return offices.l.stream().mapToDouble(Office::occupationRatio).average().getAsDouble();
 	}
 
 	public double avgSurfacePerUser() {
-		return offices.l.stream().mapToDouble(o -> o.surfacePerUser()).average().getAsDouble();
+		return offices.l.stream().mapToDouble(Office::surfacePerUser).average().getAsDouble();
 	}
 
 	public double totalSurface() {

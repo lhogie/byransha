@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html

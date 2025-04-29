@@ -18,7 +18,7 @@ public abstract class ModelJSONDOTView extends NodeEndpoint<BBGraph> implements 
 		super(db);
 	}
 
-	protected static ObjectMapper mapper = new ObjectMapper();
+	protected static final ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph n)

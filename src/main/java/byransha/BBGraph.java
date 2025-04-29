@@ -26,7 +26,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
-	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
+	public static final Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
 	public final File directory;
 	public final List<BNode> nodes;
 	private Map<Class<? extends BNode>, List<BNode>> byClass;
@@ -44,7 +44,7 @@ public class BBGraph extends BNode {
 	public BBGraph(File directory) {
 		super(null, 0); // The graph has automatically ID 0
 		this.directory = directory;
-		nodes = new ArrayList<BNode>();
+		nodes = new ArrayList<>();
 		accept(this); // self accept
 
 	}
@@ -58,7 +58,7 @@ public class BBGraph extends BNode {
 			}
 		}
 
-		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		r.sort((a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
 		return r;
 	}
 
@@ -109,8 +109,8 @@ public class BBGraph extends BNode {
 					continue;
 				}
 
-				for (File nodeDir : classDir.listFiles()) {
-					int id = Integer.valueOf(nodeDir.getName().substring(1));
+				for (File nodeDir : Objects.requireNonNull(classDir.listFiles())) {
+					int id = Integer.parseInt(nodeDir.getName().substring(1));
 
 					// don't create the graph node twice!
 					if (id != 0) {
@@ -157,7 +157,7 @@ public class BBGraph extends BNode {
 //				}
 
 				try {
-					int id = Integer.valueOf(fn.substring(1));// atIndex + 1
+					int id = Integer.parseInt(fn.substring(1));// atIndex + 1
 					BNode targetNode = findByID(id);
 
 					if (targetNode == null) {
@@ -280,7 +280,7 @@ public class BBGraph extends BNode {
 					s = byClass.put(n.getClass(), new ArrayList<>());
 				}
 
-				synchronized (s) {
+				synchronized (Objects.requireNonNull(s)) {
 					s.add(n);
 				}
 			}
@@ -322,7 +322,7 @@ public class BBGraph extends BNode {
 				System.err.println("  File does not exist");
 			} else if (!d.canWrite()) {
 				System.err.println("  File is not writable");
-			} else if (d.isDirectory() && d.list() != null && d.list().length > 0) {
+			} else if (d.isDirectory() && d.list() != null && Objects.requireNonNull(d.list()).length > 0) {
 				System.err.println("  Directory is not empty");
 			}
 		}

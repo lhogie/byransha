@@ -39,7 +39,7 @@ public abstract class Endpoint extends BNode {
 			throws Throwable;
 
 	public <N extends BNode> Class<N> getTargetNodeType() {
-		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
+		for (Class<? extends Endpoint> c = getClass(); c != null; c = (Class<? extends Endpoint>) c.getSuperclass()) {
 			var t = c.getGenericSuperclass();
 
 			if (t instanceof ParameterizedType pt) {

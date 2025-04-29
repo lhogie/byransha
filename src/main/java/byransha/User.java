@@ -1,7 +1,6 @@
 package byransha;
 
 import java.util.Stack;
-import java.util.UUID;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,7 +17,7 @@ public class User extends PersistingNode {
 
 	public StringNode name;
 	public StringNode passwordNode;
-	public Stack<BNode> stack = new Stack<BNode>();
+	public final Stack<BNode> stack = new Stack<>();
 
 	public User(BBGraph g, String u, String password) {
 		super(g);

@@ -10,8 +10,4 @@ public class DateNode extends StringNode {
 		super(g, id);
 	}
 
-	@Override
-	public void fromString(String s) {
-		set(s);
-	}
 }

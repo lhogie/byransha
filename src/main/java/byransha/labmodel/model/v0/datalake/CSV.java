@@ -36,7 +36,7 @@ public class CSV extends ArrayList<List<String>> {
 	}
 
 	public CSV(File f, String sep) throws IOException {
-		this(new String(Files.readAllBytes(f.toPath()), StandardCharsets.ISO_8859_1), ";");
+		this(Files.readString(f.toPath(), StandardCharsets.ISO_8859_1), ";");
 	}
 
 	public String get(int line, String col) {

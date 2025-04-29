@@ -1,5 +1,6 @@
 package byransha.web.view;
 
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 
@@ -31,7 +32,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 		super(db, id);
 	}
 
-	static List<String> imgFormats = List.of("svg", "png", "jpeg", "jpg");
+	static final List<String> imgFormats = List.of("svg", "png", "jpeg", "jpg");
 
 	@Override
 	public boolean sendContentByDefault() {
@@ -57,7 +58,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 					if (r instanceof EndpointTextResponse) {
 						pw.println((String) r.data);
 					} else if (imgFormats.contains(r.contentType)) {
-						pw.println("<img src=\"data:image/png;base64," + Base64.getEncoder().encode((byte[]) r.data)
+						pw.println("<img src=\"data:image/png;base64," + Arrays.toString(Base64.getEncoder().encode((byte[]) r.data))
 								+ "\" />");
 					} else if (r instanceof EndpointJsonResponse) {
 						pw.println("<script>obj = " + r.data()

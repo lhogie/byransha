@@ -43,10 +43,10 @@ public class Byransha extends BNode {
 
 			e.y = e.y + 1;
 		}
-	};
+	}
 
 	public static class Function extends XY<Double, Double> {
-	};
+	}
 
 	public static class XY<X, Y> implements JSONable {
 		static class Entry<X, Y> implements JSONable {
@@ -66,7 +66,7 @@ public class Byransha extends BNode {
 			}
 		}
 
-		List<Entry<X, Y>> entries = new ArrayList<>();
+		final List<Entry<X, Y>> entries = new ArrayList<>();
 
 		@Override
 		public JsonNode toJson() {
@@ -86,7 +86,7 @@ public class Byransha extends BNode {
 		}
 
 		public Entry<X, Y> addXY(X x, Y y) {
-			var e = new Entry<X, Y>(x, y);
+			var e = new Entry<>(x, y);
 			entries.add(e);
 			return e;
 		}

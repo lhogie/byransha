@@ -1,11 +1,9 @@
 package byransha;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new ArrayList<>();

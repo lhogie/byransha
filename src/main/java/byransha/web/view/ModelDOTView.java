@@ -41,9 +41,9 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	}
 
 	static class Relation {
-		Class a, b;
-		Map<String, String> attrs;
-		boolean inheritance;
+		final Class a, b;
+		final Map<String, String> attrs;
+		final boolean inheritance;
 
 		Relation(Class<BNode> a, Class b, Map<String, String> attrs, boolean inheritance) {
 			this.a = a;
@@ -114,23 +114,21 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 
 			pw.println("digraph G {");
 
-			class_attrs.entrySet().forEach(n -> {
-				var clazz = n.getKey();
-				var attrs = n.getValue();
+			class_attrs.forEach((clazz, attrs) -> {
 
-				pw.print("\t " + id(clazz) + " [shape=record, label=\"{" + clazz.getSimpleName());
+                pw.print("\t " + id(clazz) + " [shape=record, label=\"{" + clazz.getSimpleName());
 
-				if (!attrs.isEmpty()) {
-					pw.print("|");
-					attrs.forEach(a -> pw.print(a + "\\l"));
-				}
+                if (!attrs.isEmpty()) {
+                    pw.print("|");
+                    attrs.forEach(a -> pw.print(a + "\\l"));
+                }
 
-				pw.println("}\"];");
-			});
+                pw.println("}\"];");
+            });
 
 			for (var r : relations) {
 				pw.print("\t " + id(r.a) + " -> " + id(r.b) + "[");
-				r.attrs.entrySet().forEach(e -> pw.print(e.getKey() + "=" + '"' + e.getValue() + '"' + ','));
+				r.attrs.forEach((key, value) -> pw.print(key + "=" + '"' + value + '"' + ','));
 				pw.println("arrowhead=" + (r.inheritance ? "empty" : "vee") + "];");
 			}
 

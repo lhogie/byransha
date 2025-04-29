@@ -5,9 +5,9 @@ import java.io.IOException;
 import com.sun.net.httpserver.HttpExchange;
 
 class HTTPResponse {
-	int code;
-	byte[] content;
-	String contentType;
+	final int code;
+	final byte[] content;
+	final String contentType;
 
 	public HTTPResponse(int i, String contentType, byte[] content) {
 		this.code = i;
