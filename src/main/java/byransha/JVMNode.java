@@ -79,6 +79,10 @@ public class JVMNode extends BNode implements NoLoad {
 			super(db, id);
 		}
 
+		@Override
+		public boolean canExec(User user) {
+			return user.name.value.equals("admin");
+		}
 
 		@Override
 		public String whatIsThis() {
