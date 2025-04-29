@@ -1,5 +1,6 @@
 package byransha;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import byransha.graph.BGElement;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -350,12 +352,15 @@ public abstract class BNode {
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
-			g.addVertex(n.toVertex());
-
+			var current = n.toVertex();
+			g.addVertex(current);
+			current.color = BGElement.color(Color.blue);
+			current.size = 20;
 			n.forEachOut((s, o) -> {
 				if (o.canSee(user)) {
 					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
 					a.label = s;
+					a.color = "red";
 				}
 			});
 
