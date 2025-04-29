@@ -4,6 +4,7 @@ import LoginForm from "../Components/LoginForm/LoginForm";
 import MainLayout from "./MainLayout";
 import HomePage from "../Components/HomePage/HomePage";
 import InformationPage from "../Components/InformationPage/InformationPage";
+import EditPage from "../Components/EditPage/EditPage";
 import React from "react";
 
 export const router = createBrowserRouter([
@@ -24,7 +25,11 @@ export const router = createBrowserRouter([
                     {
                         path: '/information/:viewId',
                         element: <InformationPage/>,
-                    }
+                    },
+                    {
+                        path: '/edit',
+                        element: <EditPage />,
+                    },
                 ]
             }]
     }

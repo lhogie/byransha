@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './HomePage.css';
 import { useNavigate } from "react-router";
-import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem, Select } from '@mui/material';
+import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { useTitle } from "../../global/useTitle";
@@ -18,17 +18,27 @@ const HomePage = () => {
     const [columns, setColumns] = useState(2);
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
     const [selectedViews, setSelectedViews] = useState([]);
-    const [viewFilter, setViewFilter] = useState('all');
+    const [showTechnicalViews, setShowTechnicalViews] = useState(false);
 
     React.useEffect(() => {
         if (data?.data?.results) {
-            const filteredViews = viewFilter === 'technical'
-                ? data.data.results.filter(view => view.response_type === 'technical')
+            const filteredViews = showTechnicalViews
+                ? data.data.results
                 : data.data.results.filter(view => view.response_type !== 'technical');
             setViews(filteredViews);
-            setSelectedViews(filteredViews.map(view => view.endpoint));
+            setSelectedViews(prev => {
+                const newSelected = prev.filter(endpoint =>
+                    filteredViews.some(view => view.endpoint === endpoint)
+                );
+                filteredViews.forEach(view => {
+                    if (!newSelected.includes(view.endpoint)) {
+                        newSelected.push(view.endpoint);
+                    }
+                });
+                return newSelected;
+            });
         }
-    }, [data, viewFilter]);
+    }, [data, showTechnicalViews]);
 
     if (isLoading) {
         return (
@@ -55,6 +65,10 @@ const HomePage = () => {
                 ? prev.filter((id) => id !== endpoint)
                 : [...prev, endpoint]
         );
+    };
+
+    const handleTechnicalViewsToggle = () => {
+        setShowTechnicalViews(prev => !prev);
     };
 
     const onDragEnd = (result) => {
@@ -133,42 +147,34 @@ const HomePage = () => {
                             onClose={handleSelectMenuClose}
                             PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto', width: { xs: 200, sm: 250 } } }}
                         >
-                            {data.data.results
-                                .filter(view => viewFilter === 'technical' ? view.response_type === 'technical' : view.response_type !== 'technical')
-                                .map((view) => (
-                                    <MenuItem
-                                        key={view.endpoint}
-                                        onClick={() => handleViewToggle(view.endpoint)}
-                                        sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
-                                    >
-                                        <Checkbox
-                                            checked={selectedViews.includes(view.endpoint)}
-                                            sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' } }}
-                                        />
-                                        <ListItemText primary={view.pretty_name} />
-                                    </MenuItem>
-                                ))}
+                            {data.data.results.map((view) => (
+                                <MenuItem
+                                    key={view.endpoint}
+                                    onClick={() => handleViewToggle(view.endpoint)}
+                                    sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
+                                >
+                                    <Checkbox
+                                        checked={selectedViews.includes(view.endpoint)}
+                                        sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' } }}
+                                    />
+                                    <ListItemText primary={view.pretty_name} />
+                                </MenuItem>
+                            ))}
                         </Menu>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Select
-                            value={viewFilter}
-                            onChange={(e) => setViewFilter(e.target.value)}
+                        <Checkbox
+                            checked={showTechnicalViews}
+                            onChange={handleTechnicalViewsToggle}
                             sx={{
-                                borderWidth: '2px',
-                                borderColor: '#90caf9',
                                 color: '#90caf9',
-                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                                padding: { xs: '4px 8px', sm: '6px 12px' },
-                                '& .MuiOutlinedInput-notchedOutline': { borderColor: '#90caf9' },
-                                '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: '#42a5f5' },
-                                '& .MuiSelect-select': { padding: { xs: '4px 8px', sm: '6px 12px' } },
-                                '& .MuiSvgIcon-root': { color: '#90caf9' },
+                                '&.Mui-checked': { color: '#90caf9' },
+                                padding: { xs: '4px', sm: '6px' },
                             }}
-                        >
-                            <MenuItem value="all">All Views</MenuItem>
-                            <MenuItem value="technical">Technical Views</MenuItem>
-                        </Select>
+                        />
+                        <Typography sx={{ color: '#90caf9', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
+                            Show Technical Views
+                        </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Button
@@ -276,13 +282,13 @@ const HomePage = () => {
                                                         }}
                                                     >
                                                         <Typography
-                                                            variant="h6"
+                                                            variant="h5"
                                                             sx={{
                                                                 marginBottom: '8px',
                                                                 flexShrink: 0,
                                                                 color: '#283593',
                                                                 fontWeight: '600',
-                                                                fontSize: { xs: '0.9rem', sm: '1rem' },
+                                                                fontSize: { xs: '1rem', sm: '1.25rem' },
                                                             }}
                                                         >
                                                             {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
