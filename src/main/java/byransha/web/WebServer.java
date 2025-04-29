@@ -398,7 +398,7 @@ public class WebServer extends BNode {
 				response.set("results", resultsNode);
 
 				assert inputJson != null;
-				boolean rawRequest = (inputJson != null && inputJson.remove("raw") != null);
+				boolean rawRequest = inputJson.remove("raw") != null;
 
 				if (rawRequest && resolvedEndpoints.size() != 1) {
 					throw new IllegalArgumentException("Raw request requires exactly one endpoint, found: " + resolvedEndpoints.size());
