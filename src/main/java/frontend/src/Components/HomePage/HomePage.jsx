@@ -147,7 +147,7 @@ const HomePage = () => {
                             onClose={handleSelectMenuClose}
                             PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto', width: { xs: 200, sm: 250 } } }}
                         >
-                            {data.data.results.map((view) => (
+                            {(showTechnicalViews ? data.data.results : data.data.results.filter(view => view.response_type !== 'technical')).map((view) => (
                                 <MenuItem
                                     key={view.endpoint}
                                     onClick={() => handleViewToggle(view.endpoint)}
@@ -173,7 +173,7 @@ const HomePage = () => {
                             }}
                         />
                         <Typography sx={{ color: '#90caf9', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                            Show Technical Views
+                            {showTechnicalViews ? 'Hide Technical Views' : 'Show Technical Views'}
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -341,7 +341,6 @@ const HomePage = () => {
                 </Droppable>
             </DragDropContext>
         </Box>
-
     );
 };
 
