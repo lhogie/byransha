@@ -4,11 +4,16 @@ import java.util.Base64;
 
 public class ImageNode extends ValuedNode<byte[]> {
 
-	StringNode title;
+	final StringNode title;
 
 	public ImageNode(BBGraph db) {
 		super(db);
-		title = new StringNode(db, null);
+		title = db.addNode(StringNode.class);
+	}
+
+	public ImageNode(BBGraph db, int id) {
+		super(db, id);
+		title = db.addNode(StringNode.class);
 	}
 
 	@Override

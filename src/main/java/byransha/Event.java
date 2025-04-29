@@ -26,6 +26,9 @@ public abstract class Event<N extends BNode> implements Serializable, Comparable
 
 	@Override
 	public boolean equals(Object e) {
-		return date == ((Event) e).date;
+		if (!(e instanceof Event)) {
+			return false;
+		}
+		return date == ((Event<?>) e).date;
 	}
 }

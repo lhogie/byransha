@@ -4,7 +4,7 @@ import byransha.BBGraph;
 
 public class CNRS extends EPST {
 
-	CNRS(BBGraph g) {
+	public CNRS(BBGraph g) {
 		super(g);
 	}
 

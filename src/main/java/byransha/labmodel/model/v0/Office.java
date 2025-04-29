@@ -1,19 +1,20 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.IntNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
 public class Office extends BusinessNode {
-	StringNode name;
-	ListNode<Person> users;
-	IntNode surface;
-	IntNode capacity;
+	public StringNode name;
+	public ListNode<Person> users;
+	public IntNode surface;
+	public IntNode capacity;
 
 	public Office(BBGraph g) {
 		super(g);
+		name = new StringNode(g);
+		users = new ListNode<>(g);
 	}
 
 	public Office(BBGraph g, int id) {

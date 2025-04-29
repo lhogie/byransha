@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import byransha.graph.BVertex;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
@@ -26,7 +27,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
-	public static Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
+	public static final Consumer<File> sysoutPrinter = f -> System.out.println("writing " + f.getAbsolutePath());
 	public final File directory;
 	public final List<BNode> nodes;
 	private Map<Class<? extends BNode>, List<BNode>> byClass;
@@ -44,7 +45,7 @@ public class BBGraph extends BNode {
 	public BBGraph(File directory) {
 		super(null, 0); // The graph has automatically ID 0
 		this.directory = directory;
-		nodes = new ArrayList<BNode>();
+		nodes = new ArrayList<>();
 		accept(this); // self accept
 
 	}
@@ -58,7 +59,7 @@ public class BBGraph extends BNode {
 			}
 		}
 
-		Collections.sort(r, (a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		r.sort((a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
 		return r;
 	}
 
@@ -109,8 +110,8 @@ public class BBGraph extends BNode {
 					continue;
 				}
 
-				for (File nodeDir : classDir.listFiles()) {
-					int id = Integer.valueOf(nodeDir.getName().substring(1));
+				for (File nodeDir : Objects.requireNonNull(classDir.listFiles())) {
+					int id = Integer.parseInt(nodeDir.getName().substring(1));
 
 					// don't create the graph node twice!
 					if (id != 0) {
@@ -157,7 +158,7 @@ public class BBGraph extends BNode {
 //				}
 
 				try {
-					int id = Integer.valueOf(fn.substring(1));// atIndex + 1
+					int id = Integer.parseInt(fn.substring(1));// atIndex + 1
 					BNode targetNode = findByID(id);
 
 					if (targetNode == null) {
@@ -166,7 +167,7 @@ public class BBGraph extends BNode {
 					}
 
 					try {
-						if (node instanceof ListNode<?>) {
+						if (node instanceof ListNode) {
 							((ListNode<BNode>) node).add(targetNode);
 						} else {
 							try {
@@ -220,7 +221,7 @@ public class BBGraph extends BNode {
 
 	public void saveAll(Consumer<File> writingFiles) throws IOException {
 		forEachNode(n -> {
-			if (n instanceof ValuedNode<?> vn) {
+			if (n instanceof ValuedNode vn) {
 				vn.saveValue(writingFiles);
 			}
 		});
@@ -280,7 +281,7 @@ public class BBGraph extends BNode {
 					s = byClass.put(n.getClass(), new ArrayList<>());
 				}
 
-				synchronized (s) {
+				synchronized (Objects.requireNonNull(s)) {
 					s.add(n);
 				}
 			}
@@ -322,21 +323,11 @@ public class BBGraph extends BNode {
 				System.err.println("  File does not exist");
 			} else if (!d.canWrite()) {
 				System.err.println("  File is not writable");
-			} else if (d.isDirectory() && d.list() != null && d.list().length > 0) {
+			} else if (d.isDirectory() && d.list() != null && Objects.requireNonNull(d.list()).length > 0) {
 				System.err.println("  Directory is not empty");
 			}
 		}
 	}
-
-//	public void delete(int id){
-//		var targetNode = findByID(id);
-//		if(targetNode != null){
-//			System.out.println("Deleting node with ID: " + id + " (" + targetNode + ")");
-//		}
-//		else{
-//			System.err.println("Node with ID: " + id + " not found.");
-//		}
-//	}
 
 	public BNode findByID(int id) {
 		if (byID != null) {
@@ -354,29 +345,14 @@ public class BBGraph extends BNode {
 		return null;
 	}
 
-	public void saveRecursive(BNode node){
-		ArrayDeque<BNode> queue = new ArrayDeque<>();
-		Set<BNode> visited = new HashSet<>();
-
-		queue.add(node);
-		visited.add(node);
-
-		while(!queue.isEmpty()){
-			BNode currentNode = queue.poll();
-			if(currentNode instanceof PersistingNode){
-				((PersistingNode) currentNode).save(f -> {});
-				currentNode.outs().forEach((s, outNode) -> {
-					if(!visited.contains(outNode)){
-						queue.add(outNode);
-						visited.add(outNode);
-					}
-				});
-			}
-			else{
-				System.out.println("Node is not an instance of PersistingNode: " + currentNode);
-			}
-
-			System.out.println("Outs of the current node " + currentNode + ": " + currentNode.outs());
+	public <C extends BNode> C addNode(Class<C> nodeClass) {
+		try {
+			C newNode = nodeClass.getConstructor(BBGraph.class).newInstance(this);
+			System.out.println("Adding node of class: " + nodeClass.getName() + " with ID: " + newNode.id());
+			this.accept(newNode); // Add the new node to the graph
+			return newNode;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to add node of class: " + nodeClass.getName(), e);
 		}
 	}
 
@@ -432,8 +408,8 @@ public class BBGraph extends BNode {
 		return find(c, e -> true);
 	}
 
-	public NodeEndpoint<?> findEndpoint(String name) {
-		return (NodeEndpoint<?>) find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
+	public NodeEndpoint findEndpoint(String name) {
+		return (NodeEndpoint) find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
 	}
 
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
@@ -492,11 +468,19 @@ public class BBGraph extends BNode {
 			var g = new AnyGraph();
 
 			db.forEachNode(v -> {
-				g.addVertex(v.toVertex());
-				v.forEachOut((s, o) -> {
-					var a = g.newArc(g.ensureHasVertex(v), g.ensureHasVertex(o));
-					a.label = s;
-				});
+				if (v.canSee(user)) {
+					g.addVertex(v.toVertex());
+					v.forEachOut((s, o) -> {
+						if (o.canSee(user)) {
+							BVertex targetVertex = g.findVertexByID("" + o.id());
+							if (targetVertex == null) {
+								targetVertex = g.ensureHasVertex(o);
+							}
+							var arc = g.newArc(g.ensureHasVertex(v), targetVertex);
+							arc.label = s;
+						}
+					});
+				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);

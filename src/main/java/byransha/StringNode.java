@@ -8,6 +8,11 @@ public class StringNode extends ValuedNode<String> {
 
 	private PersistingNode labelFor;
 
+	public StringNode(BBGraph db) {
+		super(db);
+	}
+
+	
 	public StringNode(BBGraph g, String init) {
 		super(g);
 		set(init);

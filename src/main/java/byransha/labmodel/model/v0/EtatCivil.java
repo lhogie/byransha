@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.StringNode;
 
 public class EtatCivil extends BusinessNode {
@@ -16,14 +15,14 @@ public class EtatCivil extends BusinessNode {
 
 	public EtatCivil(BBGraph g) {
 		super(g);
-		firstName = new StringNode(g, null);
-		name = new StringNode(g, null);
-		familyNameBeforeMariage = new StringNode(g, null);
-		birthDate = new StringNode(g, null);
-		cityOfBirth = new StringNode(g, null);
-		nationality = new StringNode(g, null);
-		countryOfBirth = new StringNode(g, null);
-		address = new StringNode(g, null);
+		firstName = g.addNode(StringNode.class);  // new StringNode(g, null);
+		name = g.addNode(StringNode.class); //new StringNode(g, null);
+		familyNameBeforeMariage = g.addNode(StringNode.class);  // new StringNode(g, null);
+		birthDate = g.addNode(StringNode.class); //new StringNode(g, null);
+		cityOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
+		nationality = g.addNode(StringNode.class); //new StringNode(g, null);
+		countryOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
+		address = g.addNode(StringNode.class); //new StringNode(g, null);
 	}
 
 	public EtatCivil(BBGraph g, int id) {

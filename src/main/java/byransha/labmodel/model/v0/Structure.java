@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.ListNode;
 import byransha.SetNode;
 import byransha.StringNode;
@@ -17,11 +16,11 @@ public class Structure extends BusinessNode {
 
 	public Structure(BBGraph g) {
 		super(g);
-		name = new StringNode(g, null);
-		subStructures = new SetNode<>(g);
-		members = new ListNode<>(g);
-		status = new ListNode<>(g);
-		offices = new ListNode<>(g);
+		name = g.addNode(StringNode.class); //new StringNode(g, null);
+		subStructures = g.addNode(SetNode.class); //new SetNode<>(g);
+		members = g.addNode(ListNode.class); //new ListNode<>(g);
+		status = g.addNode(ListNode.class); //new ListNode<>(g);
+		offices = g.addNode(ListNode.class); //new ListNode<>(g);
 	}
 
 	public Structure(BBGraph g, int id) {
@@ -34,11 +33,11 @@ public class Structure extends BusinessNode {
 	}
 
 	public double occupationRatio() {
-		return offices.l.stream().mapToDouble(o -> o.occupationRatio()).average().getAsDouble();
+		return offices.l.stream().mapToDouble(Office::occupationRatio).average().getAsDouble();
 	}
 
 	public double avgSurfacePerUser() {
-		return offices.l.stream().mapToDouble(o -> o.surfacePerUser()).average().getAsDouble();
+		return offices.l.stream().mapToDouble(Office::surfacePerUser).average().getAsDouble();
 	}
 
 	public double totalSurface() {

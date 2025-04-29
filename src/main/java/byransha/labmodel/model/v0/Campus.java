@@ -1,18 +1,17 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 
 public class Campus extends BusinessNode {
-	StringNode name;
-	ListNode<Office> offices;
+	public StringNode name;
+	public ListNode<Building> buildings;
 
 	public Campus(BBGraph g) {
 		super(g);
-		name = new StringNode(g, null);
-		offices = new ListNode<>(g);
+		name = g.addNode(StringNode.class);
+		buildings = g.addNode(ListNode.class);
 	}
 
 	public Campus(BBGraph g, int id) {
@@ -24,20 +23,8 @@ public class Campus extends BusinessNode {
 		return "campus";
 	}
 
-	
 	@Override
 	public String whatIsThis() {
 		return "Campus: " + name.get();
-	}
-
-//	ListNode<Building> buildings;
-	public Office findOffice(String name) {
-		for (var o : offices.l) {
-			if (o.name.get().equals(name)) {
-				return o;
-			}
-		}
-
-		return null;
 	}
 }

@@ -38,8 +38,22 @@ public abstract class Endpoint extends BNode {
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable;
 
+	public boolean requiresAuthentication() {
+		return true;
+	}
+
+	public boolean canExec(User user) {
+		return true;
+	}
+
+	@Override
+	public boolean canSee(User user) {
+		boolean isGuestUser = user != null && user.name.get().equals("guest");
+		return !this.requiresAuthentication() || true;// TODO: add back || !isGuestUser;
+	}
+
 	public <N extends BNode> Class<N> getTargetNodeType() {
-		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
+		for (Class<? extends Endpoint> c = getClass(); c != null; c = (Class<? extends Endpoint>) c.getSuperclass()) {
 			var t = c.getGenericSuperclass();
 
 			if (t instanceof ParameterizedType pt) {

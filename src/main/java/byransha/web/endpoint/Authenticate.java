@@ -15,11 +15,15 @@ import byransha.web.WebServer;
 import byransha.web.util.TokenUtil;
 
 public class Authenticate extends NodeEndpoint<BBGraph> {
-	private final SessionStore sessionStore;
+	private SessionStore sessionStore;
 
 	@Override
 	public String whatIsThis() {
 		return "Authenticate endpoint for user login.";
+	}
+
+	public Authenticate(BBGraph db) {
+		super(db);
 	}
 
 	public Authenticate(BBGraph db, SessionStore sessionStore) {
@@ -32,7 +36,8 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 
 	public Authenticate(BBGraph db, int id) {
 		super(db, id);
-		WebServer webServerInstance = findWebServerInstance(db);
+		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
+
 		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
 			this.sessionStore = webServerInstance.getSessionStore();
 		} else {
@@ -40,6 +45,18 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 					"[ERROR] SessionStore not available during persisted endpoint loading for Authenticate ID: " + id);
 			throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
 		}
+	}
+
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
+
+	public void setSessionStore(SessionStore sessionStore) {
+		if (sessionStore == null) {
+			throw new IllegalArgumentException("SessionStore cannot be null");
+		}
+		this.sessionStore = sessionStore;
 	}
 
 	private WebServer findWebServerInstance(BBGraph graph) {
@@ -61,16 +78,6 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		https.getResponseHeaders().add("Set-Cookie", cookieValue);
 	}
 
-	public static User setDefaultUser(BBGraph g, SessionStore sessionStore, HttpsExchange https) {
-		User user = new User(g, "guest", "guest");
-		user.stack.push(g.root());
-
-		String csrfToken = TokenUtil.generateSecureToken();
-		String sessionToken = sessionStore.createSession(user, csrfToken);
-
-		setSessionCookie(https, "session_token", sessionToken);
-		return user;
-	}
 
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User _ignoredUserParameter, WebServer webServer,

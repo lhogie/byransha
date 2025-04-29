@@ -33,7 +33,7 @@ export const useApiMutation = (endpoints, options = {}) => {
                 }
             }
 
-            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${params}`, {
+            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${params ? params : ''}`, {
                 withCredentials: true,
             })
         },

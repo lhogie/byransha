@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 public class EndpointTextResponse extends EndpointResponse<String> {
 
-	public static interface A extends Consumer<PrintWriter> {
+	public interface A extends Consumer<PrintWriter> {
 		default String writer2string() {
 			var sw = new StringWriter();
 			var pw = new PrintWriter(sw);

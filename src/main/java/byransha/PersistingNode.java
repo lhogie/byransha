@@ -3,6 +3,7 @@ package byransha;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public abstract class PersistingNode extends BNode {
@@ -42,7 +43,7 @@ public abstract class PersistingNode extends BNode {
 			try {
 				var symlink = new File(outD, name + id);// + "@" + outNode.id());
 
-				for (var e : outD.listFiles()) {
+				for (var e : Objects.requireNonNull(outD.listFiles())) {
 					if (e.getName().equals(symlink.getName())) {
 //						System.err.println("Symlink with same name already exists outs: " + symlink.getName());
 						return;
@@ -83,7 +84,7 @@ public abstract class PersistingNode extends BNode {
 				try {
 					var symlink = new File(inD, inNode + "." + name);
 
-					for (var e : inD.listFiles()) {
+					for (var e : Objects.requireNonNull(inD.listFiles())) {
 						if (e.getName().equals(symlink.getName())) {
 //							System.err.println("Symlink with same name already exists ins: " + symlink.getName());
 							return;

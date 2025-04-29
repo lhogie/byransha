@@ -8,7 +8,7 @@ public class Status extends BusinessNode {
 
 	public Status(BBGraph g) {
 		super(g);
-		name = new StringNode(g, null);
+		name = g.addNode(StringNode.class); //new StringNode(g, null);
 	}
 
 	public Status(BBGraph g, int id) {

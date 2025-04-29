@@ -45,19 +45,20 @@ public class Person extends BusinessNode {
 	public Person(BBGraph g) {
 		super(g);
 
-		etatCivil = new EtatCivil(g);
-		positions = new ListNode<>(g);
-		pics = new ImageNode(g);
-		hdr = new BooleanNode(g);
+		etatCivil = g.addNode(EtatCivil.class); //new EtatCivil(g);
+		positions = g.addNode(ListNode.class); //new ListNode<>(g);
+		pics =  g.addNode(ImageNode.class); //new ImageNode(g);
 
-		badgeNumber = new StringNode(g, null);
-		website = new StringNode(g, null);
-		faxNumber = new StringNode(g, null);
-		phdDate = new StringNode(g, null);
+		hdr = g.addNode(BooleanNode.class); //new BooleanNode(g);
 
-		phoneNumbers = new ListNode<>(g);
-		emailAddresses = new ListNode<>(g);
-		offices = new ListNode<>(g);
+		badgeNumber = g.addNode(StringNode.class); //new StringNode(g, null);
+		website = g.addNode(StringNode.class); //new StringNode(g, null);
+		faxNumber = g.addNode(StringNode.class); //new StringNode(g, null);
+		phdDate = g.addNode(StringNode.class); //new StringNode(g, null);
+
+		phoneNumbers = g.addNode(ListNode.class); //new ListNode<>(g);
+		emailAddresses = g.addNode(ListNode.class); //new ListNode<>(g);
+		offices = g.addNode(ListNode.class); //new ListNode<>(g);
 	}
 
 	public Person(BBGraph g, int id) {

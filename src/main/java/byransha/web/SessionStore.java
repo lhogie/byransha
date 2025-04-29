@@ -21,7 +21,7 @@ public class SessionStore {
     private final Map<String, SessionData> activeSessions = new ConcurrentHashMap<>();
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
-    public static record SessionData(
+    public record SessionData(
             int userId,
             Instant creationTime,
             Instant lastAccessTime,

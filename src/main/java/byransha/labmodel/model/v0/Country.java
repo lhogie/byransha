@@ -1,6 +1,5 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
 import byransha.BBGraph;
 import byransha.ImageNode;
 import byransha.StringNode;
@@ -11,7 +10,7 @@ public class Country extends BusinessNode {
 
 	public Country(BBGraph g) {
 		super(g);
-		name = new StringNode(g, null);
+		name = g.addNode(StringNode.class);
 	}
 
 	public Country(BBGraph g, int id) {

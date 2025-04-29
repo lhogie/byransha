@@ -1,7 +1,6 @@
 package byransha;
 
 import java.util.Stack;
-import java.util.UUID;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -18,14 +17,14 @@ public class User extends PersistingNode {
 
 	public StringNode name;
 	public StringNode passwordNode;
-	public Stack<BNode> stack = new Stack<BNode>();
+	public final Stack<BNode> stack = new Stack<>();
 
 	public User(BBGraph g, String u, String password) {
 		super(g);
 		name = new StringNode(g, null);
 		name.setAsLabelFor(this);
 		name.set(u);
-
+		stack.push(g.root());
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 
@@ -35,6 +34,16 @@ public class User extends PersistingNode {
 		 * this.saveIns(f -> {}); forEachOut((n, node) -> node.saveIns(f -> {}));
 		 * forEachIn((n, node) -> node.saveOuts(f -> {}));
 		 */
+	}
+
+	public User(BBGraph g) {
+		super(g);
+		name = g.addNode(StringNode.class);
+		name.setAsLabelFor(this);
+		name.set("not defined");
+		stack.push(g.root());
+		passwordNode = g.addNode(StringNode.class);
+		passwordNode.set("not defined");
 	}
 
 	public User(BBGraph g, int id) {
@@ -85,7 +94,7 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-									 User node) throws Throwable {
+				User node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				pw.print("<li>Navigation history: ");
@@ -117,7 +126,7 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-									 BNode node) throws Throwable {
+				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
 			user.stack.forEach(e -> a.add(e.toJSONNode()));
 			return new EndpointJsonResponse(a, this);

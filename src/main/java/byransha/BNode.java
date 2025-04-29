@@ -42,7 +42,7 @@ public abstract class BNode {
 
 		if (g != null) {
 			this.graph = g;
-			g.accept(this);
+			//g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
 			this.graph = thisGraph;
 		} else {
@@ -139,13 +139,13 @@ public abstract class BNode {
 
 	public List<BNode> bfs2list() {
 		List<BNode> r = new ArrayList<>();
-		bfs(n -> r.add(n));
+		bfs(r::add);
 		return r;
 	}
 
 	public LinkedHashMap<String, BNode> outs() {
 		var m = new LinkedHashMap<String, BNode>();
-		forEachOut((name, o) -> m.put(name, o));
+		forEachOut(m::put);
 		return m;
 	}
 
@@ -171,10 +171,10 @@ public abstract class BNode {
 	}
 
 	public boolean canEdit(User user) {
-		return false;
+		return user.name.get().equals("admin");
 	}
 
-	public boolean matches(NodeEndpoint<?> v) {
+	public boolean matches(NodeEndpoint v) {
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
@@ -194,7 +194,9 @@ public abstract class BNode {
 
 	@Override
 	public final boolean equals(Object obj) {
-		return this.hashCode() == ((BNode) obj).hashCode();
+		if (!(obj instanceof BNode))
+			return false;
+		return this.hashCode() == obj.hashCode();
 	}
 
 	protected boolean hasField(String name) {
@@ -346,19 +348,23 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
 			g.addVertex(n.toVertex());
 
 			n.forEachOut((s, o) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
-				a.label = s;
+				if (o.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
+					a.label = s;
+				}
 			});
 
 			n.forEachIn((s, i) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
-				a.style = "dotted";
-				a.label = s;
+				if (i.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
+					a.style = "dotted";
+					a.label = s;
+				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
@@ -397,8 +403,8 @@ public abstract class BNode {
 
 	public JsonNode toJSONNode() {
 		var n = new ObjectNode(null);
-		n.put("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
-		n.put("pretty_name", new TextNode(prettyName()));
+		n.set("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
+		n.set("pretty_name", new TextNode(prettyName()));
 		return n;
 	}
 

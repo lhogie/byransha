@@ -31,15 +31,19 @@ public class Endpoints extends NodeEndpoint<BNode> {
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, BNode n) {
 		var data = new ArrayNode(null);
-		graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> {
-			var nn = new ObjectNode(null);
-			nn.set("name", new TextNode(e.name()));
-			nn.set("implementation_class", new TextNode(e.getClass().getName()));
-			nn.set("endpoint_target_type", new TextNode(e.getTargetNodeType().getName()));
-			nn.set("applicable_to_current_node", BooleanNode.valueOf(n.matches(e)));
-			nn.set("description", new TextNode(e.whatIsThis()));
-			data.add(nn);
-		});
+		graph.findAll(NodeEndpoint.class, e -> true)
+				.stream().filter(
+						e -> e.canExec(user)
+				)
+				.forEach(e -> {
+					var nn = new ObjectNode(null);
+					nn.set("name", new TextNode(e.name()));
+					nn.set("implementation_class", new TextNode(e.getClass().getName()));
+					nn.set("endpoint_target_type", new TextNode(e.getTargetNodeType().getName()));
+					nn.set("applicable_to_current_node", BooleanNode.valueOf(n.matches(e)));
+					nn.set("description", new TextNode(e.whatIsThis()));
+					data.add(nn);
+				});
 
 		return new EndpointJsonResponse(data, this);
 	}

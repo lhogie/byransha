@@ -24,9 +24,10 @@ import java.util.function.BiConsumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
+import byransha.labmodel.model.v0.*;
+import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -52,9 +53,15 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
+import byransha.labmodel.model.v0.ACMClassifier;
+import byransha.labmodel.model.v0.Building;
+import byransha.labmodel.model.v0.CNRS;
+import byransha.labmodel.model.v0.Campus;
 import byransha.labmodel.model.v0.EtatCivil;
+import byransha.labmodel.model.v0.Office;
 import byransha.labmodel.model.v0.Person;
 import byransha.labmodel.model.v0.Picture;
+import byransha.labmodel.model.v0.Publication;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
@@ -62,8 +69,6 @@ import byransha.web.endpoint.Edit;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.LoadImage;
-import byransha.web.endpoint.Logout;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
@@ -83,7 +88,7 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
-	public static File defaultDBDirectory = new File(
+	public static final File defaultDBDirectory = new File(
 			System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
 	public static void main(String[] args) throws Exception {
@@ -95,7 +100,7 @@ public class WebServer extends BNode {
 
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
-		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
+		int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
 	}
 
@@ -131,11 +136,11 @@ public class WebServer extends BNode {
 		}
 	}
 
-	static ObjectMapper mapper = new ObjectMapper();
+	static final ObjectMapper mapper = new ObjectMapper();
 
-	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
+	final List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
-	private HttpsServer httpsServer;
+	private final HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
 
 	private final SessionStore sessionStore;
@@ -145,6 +150,32 @@ public class WebServer extends BNode {
 		this.sessionStore = new SessionStore();
 		createSpecialNodes(g);
 		createEndpoints(g);
+
+		var b = new Building(g);
+
+		List<Person> persons = new ArrayList<>();
+
+		for (int i = 0; i < 10; ++i) {
+			persons.add(new Person(g));
+		}
+
+		var sophiaTech = new Campus(g);
+		sophiaTech.buildings.add(b);
+		sophiaTech.name.set("Sophiatech");
+
+		for (int i = 0; i < 5; ++i) {
+			var o = new Office(g);
+			o.name.set("office" + i);
+			o.users.add(persons.get(i));
+			o.users.add(persons.get(i + 5));
+			b.offices.add(o);
+		}
+
+		var cnrs = new CNRS(g);
+		persons.forEach(p -> cnrs.members.add(p));
+		var publication = new Publication(g);
+		publication.title.set("156 maitre du temps - MAIN-1");
+		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -163,7 +194,7 @@ public class WebServer extends BNode {
 					SSLContext context = getSSLContext();
 					params.setNeedClientAuth(false);
 
-					String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+					String[] enabledProtocols = { "TLSv1.3", "TLSv1.2" };
 					params.setProtocols(enabledProtocols);
 
 					SSLParameters defaultSSLParameters = context.getDefaultSSLParameters();
@@ -182,53 +213,62 @@ public class WebServer extends BNode {
 	}
 
 	private void createSpecialNodes(BBGraph g) {
-		new JVMNode(g);
-		new Byransha(g);
-		new OSNode(g);
+		g.addNode(JVMNode.class);
+		g.addNode(Byransha.class);
+		g.addNode(OSNode.class);
+		var user1 = g.addNode(User.class);
+		var user2 = g.addNode(User.class);
+		var user3 = g.addNode(User.class);
+
+		user1.name.set("user");
+		user1.passwordNode.set("test");
+		user2.name.set("toto");
+		user2.passwordNode.set("toto");
+		user3.name.set("admin");
+		user3.passwordNode.set("admin");
 	}
 
 	private void createEndpoints(BBGraph g) {
-		new NodeInfo(g);
-		new Views(g);
-		new Jump(g);
-		new Endpoints(g);
-		new JVMNode.Kill(g);
-		new Authenticate(g, this.sessionStore);
-		new Logout(g, this.sessionStore);
-		new Nodes(g);
-		new EndpointCallDistributionView(g);
-		new Info(g);
-		new Logs(g);
-		new BasicView(g);
-		new CharacterDistribution(g);
-		new CharExampleXY(g);
-		new User.UserView(g);
-		new BBGraph.GraphNivoView(g);
-		new OSNode.View(g);
-		new JVMNode.View(g);
-		new BNode.InOutsNivoView(g);
-		new ModelGraphivzSVGView(g);
-		new Navigator(g);
-		new OutNodeDistribution(g);
-		new Picture.V(g);
-		new LabView(g);
-		new ModelDOTView(g);
-		new SourceView(g);
-		new ToStringView(g);
-		new StructureView(g);
-		new NodeEndpoints(g);
-		new SetValue(g);
-		new AnyGraph.Classes(g);
-		new Edit(g);
-		new IntrospectingEndpoint(g);
-		new History(g);
-		new UI(g);
-		new UI.getProperties(g);
-		new Summarizer(g);
-		new LoadImage(g);
-
-		User user = new User(g, "user", "test");
-		user.stack.push(g.root());
+		g.addNode(NodeInfo.class);
+		g.addNode(Views.class);
+		g.addNode(Jump.class);
+		g.addNode(Endpoints.class);
+		g.addNode(JVMNode.Kill.class);
+		var n = g.addNode(Authenticate.class);
+		n.setSessionStore(sessionStore);
+		var l = g.addNode(Logout.class);
+		l.setSessionStore(sessionStore);
+		g.addNode(Nodes.class);
+		g.addNode(EndpointCallDistributionView.class);
+		g.addNode(Info.class);
+		g.addNode(Logs.class);
+		g.addNode(BasicView.class);
+		g.addNode(CharacterDistribution.class);
+		g.addNode(CharExampleXY.class);
+		g.addNode(User.UserView.class);
+		g.addNode(BBGraph.GraphNivoView.class);
+		g.addNode(OSNode.View.class);
+		g.addNode(JVMNode.View.class);
+		g.addNode(BNode.InOutsNivoView.class);
+		g.addNode(ModelGraphivzSVGView.class);
+		g.addNode(Navigator.class);
+		g.addNode(OutNodeDistribution.class);
+		g.addNode(Picture.V.class);
+		g.addNode(LabView.class);
+		g.addNode(ModelDOTView.class);
+		g.addNode(SourceView.class);
+		g.addNode(ToStringView.class);
+		g.addNode(StructureView.class);
+		g.addNode(NodeEndpoints.class);
+		g.addNode(SetValue.class);
+		g.addNode(AnyGraph.Classes.class);
+		g.addNode(Edit.class);
+		g.addNode(IntrospectingEndpoint.class);
+		g.addNode(History.class);
+		g.addNode(UI.class);
+		g.addNode(UI.getProperties.class);
+		g.addNode(Summarizer.class);
+		g.addNode(LoadImage.class);
 	}
 
 	public SessionStore getSessionStore() {
@@ -263,9 +303,9 @@ public class WebServer extends BNode {
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
-		SessionStore.SessionData sessionData = null;
+		SessionStore.SessionData sessionData;
 		long startTimeNs = System.nanoTime();
-		ObjectNode inputJson = null;
+		ObjectNode inputJson;
 		boolean defaultsUser = false;
 
 		try {
@@ -291,22 +331,24 @@ public class WebServer extends BNode {
 					sessionData = sessionOpt.get();
 					user = (User) graph.findByID(sessionData.userId());
 					if (user == null) {
+						System.err.println("User ID " + sessionData.userId() + " from session token " + sessionToken.substring(0, 8) + "... not found in graph. Invalidating session.");
 						sessionStore.removeSession(sessionToken);
 						Authenticate.deleteSessionCookie(https, "session_token");
-
-						defaultsUser = true;
+						sessionData = null;
 					}
 				} else {
 					Authenticate.deleteSessionCookie(https, "session_token");
-
-					defaultsUser = true;
 				}
-			} else {
-				defaultsUser = true;
 			}
 
-			if (defaultsUser) {
-				user = Authenticate.setDefaultUser(graph, sessionStore, https);
+			if (user == null) {
+				user = graph.find(User.class, u -> u.name.get().equals("guest"));
+				if (user == null) {
+					user = graph.addNode(User.class);
+					user.name.set("guest");
+					user.passwordNode.set("guest");
+					user.stack.push(graph.root());
+				}
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -318,94 +360,146 @@ public class WebServer extends BNode {
 			if (path.startsWith("/api/")) {
 				nbRequestsInProgress.add(user);
 
+				String endpointName = path.substring(5);
+				if (endpointName.endsWith("/")) {
+					endpointName = endpointName.substring(0, endpointName.length() - 1);
+				}
+
+				List<NodeEndpoint> resolvedEndpoints;
+				BNode contextNode = user.currentNode() != null ? user.currentNode() : graph.root();
+
+				if (endpointName.isEmpty()) {
+					User finalUser = user;
+					resolvedEndpoints = graph.endpointsUsableFrom(contextNode).stream()
+							.filter(e -> e instanceof View)
+							.filter(e -> e.canSee(finalUser))
+							.toList();
+				} else {
+					var specificEndpoint = graph.findEndpoint(endpointName);
+					if (specificEndpoint == null) {
+						throw new IllegalArgumentException("No such endpoint: " + endpointName);
+					}
+					resolvedEndpoints = List.of(specificEndpoint);
+				}
+
+
 				var response = new ObjectNode(null);
 				response.set("backend version", new TextNode(Byransha.VERSION));
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
 				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
-
-				// response.set("compliant_endpoints",
-				// graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this,
-				// https).toJson());
-
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
 
-				if (user != null) {
-					response.set("username", new TextNode(user.name.get()));
-					response.set("user_id", new IntNode(user.id()));
+				response.set("username", new TextNode(user.name.get()));
+				response.set("user_id", new IntNode(user.id()));
+				response.set("node_id", new TextNode(user.currentNode() == null ? "N/A" : ""+user.currentNode().id()));
+
+				var resultsNode = new ArrayNode(null);
+				response.set("results", resultsNode);
+
+				assert inputJson != null;
+				boolean rawRequest = (inputJson != null && inputJson.remove("raw") != null);
+
+				if (rawRequest && resolvedEndpoints.size() != 1) {
+					throw new IllegalArgumentException("Raw request requires exactly one endpoint, found: " + resolvedEndpoints.size());
 				}
 
-				BNode contextNode = user.currentNode();
+				for (var endpoint : resolvedEndpoints) {
+					ObjectNode er = new ObjectNode(null);
+					er.set("endpoint", new TextNode(endpoint.name()));
+					er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
+					er.set("response_type", new TextNode(endpoint.type().name()));
+					er.set("pretty_name", new TextNode(endpoint.prettyName()));
+					er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
+					long startTimeNs2 = System.nanoTime();
 
-				var endpoints = endpoints(path.substring(5), contextNode);
-//				System.err.println(endpoints);
+					try {
+						// TODO: Add back for security
+						boolean isGuestUser = user.name.get().equals("guest");
 
-				if (inputJson.remove("raw") != null) {
-					if (endpoints.size() != 1)
-						throw new IllegalArgumentException("only 1 endpoint allowed");
+						/*if (endpoint.requiresAuthentication() && isGuestUser) {
+							throw new SecurityException("Authentication required for endpoint: " + endpoint.name());
+						}*/
 
-					if (inputJson.size() > 0)
-						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
+						if (!endpoint.canExec(user)) {
+							throw new SecurityException("User '" + user.name.get() + "' is not authorized to execute endpoint: " + endpoint.name());
+						}
 
-					var endpoint = endpoints.get(0);
-					var result = endpoint.exec(inputJson, user, this, https);
-					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
-				} else {
-					var resultsNode = new ArrayNode(null);
-					response.set("results", resultsNode);
+						EndpointResponse result = endpoint.exec(inputJson.deepCopy(), user, this, https);
 
-					for (var endpoint : endpoints) {
-						ObjectNode er = new ObjectNode(null);
-						er.set("endpoint", new TextNode(endpoint.name()));
-						er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
-						er.set("response_type", new TextNode(endpoint.type().name()));
-						er.set("pretty_name", new TextNode(endpoint.prettyName()));
-						er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
-						long startTimeNs2 = System.nanoTime();
-
-						try {
-							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
+						if (rawRequest) {
+							if (!inputJson.isEmpty())
+								System.err.println("Warning: Parameters potentially unused in raw request: " + inputJson.toPrettyString()); // Log warning
+							return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
+						} else {
 							er.set("result", result.toJson());
-						} catch (Throwable err) {
-							err.printStackTrace();
-							var sw = new StringWriter();
-							err.printStackTrace(new PrintWriter(sw));
-							er.set("error", new TextNode(sw.toString()));
 						}
+					} catch (SecurityException authEx) {
+						boolean isSpecificRequest = !endpointName.isEmpty();
 
-						double duration = System.nanoTime() - startTimeNs2;
-						synchronized (endpoint) {
-							endpoint.nbCalls++;
-							endpoint.timeSpentNs += duration;
+						if (rawRequest || isSpecificRequest) {
+							int statusCode = authEx.getMessage().startsWith("Authentication required") ? 401 : 403;
+							return new HTTPResponse(statusCode, "text/plain", authEx.getMessage().getBytes());
+						} else {
+							er.set("error", new TextNode(authEx.getMessage()));
+							er.set("error_type", new TextNode(authEx.getMessage().startsWith("Authentication required") ? "AuthenticationError" : "AuthorizationError"));
 						}
-						er.set("durationNs", new DoubleNode(duration));
-						resultsNode.add(er);
+					} catch (Throwable err) {
+						err.printStackTrace();
+						var sw = new StringWriter();
+						err.printStackTrace(new PrintWriter(sw));
+						String errorMsg = sw.toString();
+
+						if (rawRequest) {
+							return new HTTPResponse(500, "text/plain", ("Endpoint execution failed: " + err.getMessage()).getBytes());
+						} else {
+							er.set("error", new TextNode(errorMsg));
+							er.set("error_type", new TextNode("ExecutionError"));
+						}
 					}
+
+					double duration = System.nanoTime() - startTimeNs2;
+					synchronized (endpoint) {
+						endpoint.nbCalls++;
+						endpoint.timeSpentNs += (long) duration;
+					}
+					er.set("durationNs", new DoubleNode(duration));
+
+					resultsNode.add(er);
+				}
+
+				if (!inputJson.isEmpty()) {
+					System.err.println("Warning: Parameters unused after processing all endpoints: " + inputJson.toPrettyString());
+					response.set("unused_parameters_warning", new TextNode("Some request parameters were not used by any executed endpoint: " + inputJson.toPrettyString()));
 				}
 
 				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
-
-				if (!inputJson.isEmpty())
-					throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
-
 				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
 			} else {
 				var file = new File(frontendDir, path);
 
 				if (!file.exists() || !file.isFile()) {
 					file = new File(frontendDir, "index.html");
+					if (!file.exists()) {
+						return new HTTPResponse(404, "text/plain", ("Not Found: " + path + " and index.html missing").getBytes());
+					}
 				}
 
-//				System.out.println("serving " + file);
 				return new HTTPResponse(200, mimeType(file.getName()), Files.readAllBytes(file.toPath()));
 			}
+		} catch (IllegalArgumentException | SecurityException e) {
+			int statusCode = (e instanceof SecurityException) ? 403 : 400;
+			System.err.println("Request Error (" + statusCode + "): " + e.getMessage());
+			var n = new ObjectNode(null);
+			n.set("error class", new TextNode(e.getClass().getName()));
+			n.set("message", new TextNode(e.getMessage()));
+			return new HTTPResponse(statusCode, "application/json", n.toPrettyString().getBytes());
 		} catch (Throwable err) {
 			err.printStackTrace();
 			var n = new ObjectNode(null);
 			n.set("error class", new TextNode(err.getClass().getName()));
 			n.set("message", new TextNode(err.getMessage()));
 			var a = new ArrayNode(null);
-
 			for (var e : err.getStackTrace()) {
 				var se = new ObjectNode(null);
 				se.set("line number", new IntNode(e.getLineNumber()));
@@ -413,11 +507,9 @@ public class WebServer extends BNode {
 				se.set("method name", new TextNode(e.getMethodName()));
 				a.add(se);
 			}
-
 			n.set("stack trace", a);
-			return new HTTPResponse(500, "text/plain", n.toPrettyString().getBytes());
+			return new HTTPResponse(500, "application/json", n.toPrettyString().getBytes());
 		} finally {
-			// Remove the user from nbRequestsInProgress if it was added
 			if (user != null) {
 				nbRequestsInProgress.remove(user);
 			}
@@ -429,8 +521,15 @@ public class WebServer extends BNode {
 			endpointName = endpointName.substring(0, endpointName.length() - 1);
 		}
 
-		if (endpointName == null || endpointName.isEmpty()) {
-			return graph.endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
+		if (endpointName.isEmpty()) {
+			if (currentNode == null) {
+				System.err.println("Warning: No current node for user, returning endpoints for graph root.");
+				currentNode = graph.root();
+			}
+
+			return graph.endpointsUsableFrom(currentNode).stream()
+					.filter(e -> e instanceof View)
+					.toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
@@ -438,38 +537,74 @@ public class WebServer extends BNode {
 				throw new IllegalArgumentException("no such endpoint: " + endpointName);
 			}
 
+			if (currentNode != null && !currentNode.matches(e)) {
+				throw new IllegalArgumentException("Endpoint " + endpointName + " is not applicable to the current node: " + currentNode);
+			}
+
 			return List.of(e);
 		}
 	}
 
 	static String mimeType(String url) {
-		if (url.endsWith(".html") || url.endsWith(".htm")) {
-			return "text/html";
-		} else if (url.endsWith(".js") || url.endsWith(".jsx")) {
-			return "text/javascript";
-		} else if (url.endsWith(".jpg") || url.endsWith(".jpeg")) {
+		if (url == null) return "application/octet-stream";
+
+		String lowerUrl = url.toLowerCase();
+
+		if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
+			return "text/html; charset=utf-8";
+		} else if (lowerUrl.endsWith(".js") || lowerUrl.endsWith(".jsx")) {
+			return "text/javascript; charset=utf-8";
+		} else if (lowerUrl.endsWith(".jpg") || lowerUrl.endsWith(".jpeg")) {
 			return "image/jpeg";
-		} else if (url.endsWith(".png")) {
+		} else if (lowerUrl.endsWith(".png")) {
 			return "image/png";
-		} else if (url.endsWith(".svg")) {
+		} else if (lowerUrl.endsWith(".svg")) {
 			return "image/svg+xml";
-		} else if (url.endsWith(".css")) {
-			return "text/css";
+		} else if (lowerUrl.endsWith(".css")) {
+			return "text/css; charset=utf-8";
+		} else if (lowerUrl.endsWith(".json")) {
+			return "application/json; charset=utf-8";
+		} else if (lowerUrl.endsWith(".txt")) {
+			return "text/plain; charset=utf-8";
+		} else if (lowerUrl.endsWith(".ico")) {
+			return "image/x-icon";
+		} else if (lowerUrl.endsWith(".webmanifest") || lowerUrl.endsWith(".manifest")) {
+			return "application/manifest+json";
+		} else if (lowerUrl.endsWith(".ttf")) {
+			return "font/ttf";
+		} else if (lowerUrl.endsWith(".woff")) {
+			return "font/woff";
+		} else if (lowerUrl.endsWith(".woff2")) {
+			return "font/woff2";
 		} else {
-			return null;
+			System.err.println("Warning: Unknown MIME type for file: " + url + ". Defaulting to application/octet-stream.");
+			return "application/octet-stream";
 		}
 	}
 
 	private static ObjectNode grabInputFromURLandPOST(HttpExchange http) throws IOException {
 		// gets the date from POST
 		var postData = http.getRequestBody().readAllBytes();
-		ObjectNode inputJson = postData.length > 0 ? (ObjectNode) mapper.readTree(postData) : new ObjectNode(null);
+		ObjectNode inputJson = null;
 
-		// adds the URL parameters from the query string to the JSON
+		try {
+			inputJson = postData.length > 0 ? (ObjectNode) mapper.readTree(postData) : new ObjectNode(null);
+		} catch (Exception e) {
+			System.err.println("Failed to parse POST body as JSON: " + new String(postData));
+			inputJson = new ObjectNode(null);
+		}
+
 		var query = query(http.getRequestURI().getQuery());
-		query.entrySet().forEach(e -> inputJson.set(e.getKey(), new TextNode(e.getValue())));
+		ObjectNode finalInputJson = inputJson;
+		query.forEach((key, value) -> {
+			if (!finalInputJson.has(key)) {
+				finalInputJson.set(key, new TextNode(value));
+			} else {
+				System.err.println("Warning: URL parameter '" + key + "' conflicts with POST data key. POST data takes precedence.");
+			}
+		});
 
-		return inputJson;
+		return finalInputJson;
 	}
 
 	private static Map<String, String> query(String s) {
@@ -477,8 +612,17 @@ public class WebServer extends BNode {
 
 		if (s != null && !s.isEmpty()) {
 			for (var e : TextUtilities.split(s, '&')) {
-				var a = e.split("=");
-				query.put(a[0], a.length == 2 ? a[1] : null);
+				if (e.isEmpty()) continue;
+				var a = e.split("=", 2);
+				if (a.length > 0 && !a[0].isEmpty()) {
+					try {
+						String key = java.net.URLDecoder.decode(a[0], java.nio.charset.StandardCharsets.UTF_8);
+						String value = (a.length == 2) ? java.net.URLDecoder.decode(a[1], java.nio.charset.StandardCharsets.UTF_8) : "";
+						query.put(key, value);
+					} catch (IllegalArgumentException decodeEx) {
+						System.err.println("Warning: Failed to decode URL parameter: " + e + " - " + decodeEx.getMessage());
+					}
+				}
 			}
 		}
 
@@ -528,7 +672,7 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer n) {
+									 WebServer n) {
 			var r = new ObjectNode(null);
 			r.set("#request NOW", new TextNode("" + n.nbRequestsInProgress.size()));
 			r.set("#requests", new TextNode("" + n.nbRequestsInProgress.stream().map(uu -> uu.name.get()).toList()));
@@ -538,7 +682,7 @@ public class WebServer extends BNode {
 			r.set("cache size", new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext()
 					.getClientSessionContext().getSessionCacheSize()));
 			r.set("SSL protocol",
-					new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
+					new TextNode(n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
 			return new EndpointJsonResponse(r, "nodeinfo");
 		}
 	}
@@ -559,11 +703,11 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer n) {
+									 WebServer n) {
 			var r = new ArrayNode(null);
 			n.logs.forEach(l -> {
 				var lr = new ObjectNode(null);
-				lr.set("date", new TextNode(l.date.toLocaleString()));
+				lr.set("date", new TextNode(l.date.toString()));
 				lr.set("message", new TextNode(l.msg));
 				r.add(lr);
 			});
@@ -587,7 +731,7 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer ws) {
+									 WebServer ws) {
 			var d = new Byransha.Distribution();
 			graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> d.addXY(e.name(), e.nbCalls));
 			return new EndpointJsonResponse(d.toJson(), "logs");

@@ -80,6 +80,11 @@ public class JVMNode extends BNode implements NoLoad {
 		}
 
 		@Override
+		public boolean canExec(User user) {
+			return user.name.value.equals("admin");
+		}
+
+		@Override
 		public String whatIsThis() {
 			return "Kill endpoint for JVMNode";
 		}
