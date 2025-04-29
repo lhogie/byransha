@@ -425,7 +425,7 @@ public class WebServer extends BNode {
 							throw new SecurityException("User '" + user.name.get() + "' is not authorized to execute endpoint: " + endpoint.name());
 						}
 
-						EndpointResponse result = endpoint.exec(inputJson.deepCopy(), user, this, https);
+						EndpointResponse result = endpoint.exec(inputJson, user, this, https);
 
 						if (rawRequest) {
 							if (!inputJson.isEmpty())
