@@ -21,7 +21,7 @@ public class EndpointJsonResponse extends EndpointResponse<JsonNode> {
 		this(d, dialect.name());
 	}
 
-	public EndpointJsonResponse(JsonNode d, NodeEndpoint e) {
+	public EndpointJsonResponse(JsonNode d, NodeEndpoint<?> e) {
 		this(d, e.name());
 	}
 

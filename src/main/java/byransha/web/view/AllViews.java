@@ -40,7 +40,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 	}
 
 	@Override
-	public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
+	public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
 			throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
@@ -53,7 +53,7 @@ final public class AllViews extends NodeEndpoint<BNode> implements DevelopmentVi
 				pw.println("<ul>");
 				pw.println("<li>");
 				try {
-					EndpointResponse r = v.exec(in, user, webServer, exchange, n);
+					EndpointResponse<?> r = v.exec(in, user, webServer, exchange, n);
 
 					if (r instanceof EndpointTextResponse) {
 						pw.println((String) r.data);

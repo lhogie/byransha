@@ -27,7 +27,7 @@ final public class StructureView extends NodeEndpoint<Structure> {
 	}
 
 	@Override
-	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+	public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			Structure s) throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");

@@ -49,8 +49,8 @@ public class BBGraph extends BNode {
 
 	}
 
-	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
-		List<NodeEndpoint> r = new ArrayList<>();
+	public List<NodeEndpoint<?>> endpointsUsableFrom(BNode n) {
+		List<NodeEndpoint<?>> r = new ArrayList<>();
 
 		for (var v : findAll(NodeEndpoint.class, e -> true)) {
 			if (v.getTargetNodeType().isAssignableFrom(n.getClass())) {
@@ -244,7 +244,7 @@ public class BBGraph extends BNode {
 	}
 
 	synchronized void accept(BNode n) {
-		if (n instanceof NodeEndpoint ne) {
+		if (n instanceof NodeEndpoint<?> ne) {
 			var alreadyIn = findEndpoint(ne.getClass());
 
 			if (alreadyIn != null)
@@ -424,7 +424,7 @@ public class BBGraph extends BNode {
 
 	public List<User> users() {
 		synchronized (nodes) {
-			return (List<User>) (List) nodes.stream().filter(n -> n instanceof User).toList();
+			return (List<User>) (List<?>) nodes.stream().filter(n -> n instanceof User).toList();
 		}
 	}
 
@@ -448,7 +448,7 @@ public class BBGraph extends BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
@@ -487,7 +487,7 @@ public class BBGraph extends BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph db) {
 			var g = new AnyGraph();
 

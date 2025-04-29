@@ -44,7 +44,7 @@ public class Logout extends NodeEndpoint<BBGraph> {
 
 
     @Override
-    public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange https, BBGraph ignoredNode) throws Throwable {
+    public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange https, BBGraph ignoredNode) throws Throwable {
         String sessionToken = null;
         String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
 

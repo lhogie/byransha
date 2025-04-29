@@ -32,7 +32,7 @@ public class Summarizer extends NodeEndpoint<BNode> {
 		var r = new ObjectNode(null);
 
 		forEachOut((name, out) -> {
-			if (out instanceof ValuedNode vn) {
+			if (out instanceof ValuedNode<?> vn) {
 				r.put(name, out.prettyName());
 			}
 		});

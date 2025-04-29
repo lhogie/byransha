@@ -24,7 +24,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 	}
 
 	@Override
-	public final EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
+	public final EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable {
 		N n = node(input.remove("node_id"), user);
 		return exec(input, user, webServer, exchange, n);
@@ -36,7 +36,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
         }
 
 		var s = node.asText();
-		
+
 		try {
 			return (N) node(Integer.parseInt(s));
 		} catch (NumberFormatException err) {
@@ -45,7 +45,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 		}
 	}
 
-	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+	public abstract EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			N node) throws Throwable;
 
     public BNode node(int id) {

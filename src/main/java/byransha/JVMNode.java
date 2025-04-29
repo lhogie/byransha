@@ -85,7 +85,7 @@ public class JVMNode extends BNode implements NoLoad {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, JVMNode jvm)
+		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, JVMNode jvm)
 				throws Throwable {
 			new Thread(() -> {
 				try {

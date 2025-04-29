@@ -34,7 +34,7 @@ public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
 	}
 
 	@Override
-	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+	public EndpointResponse<?> exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
 		return new EndpointTextResponse("text/java", pw -> {
 			pw.print(Source.getClassSourceCode(node.getClass()));

@@ -347,7 +347,7 @@ public class WebServer extends BNode {
 					if (!inputJson.isEmpty())
 						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
-					var endpoint = endpoints.get(0);
+					var endpoint = endpoints.getFirst();
 					var result = endpoint.exec(inputJson, user, this, https);
 					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
 				} else {
@@ -424,7 +424,7 @@ public class WebServer extends BNode {
 		}
 	}
 
-	private List<NodeEndpoint> endpoints(String endpointName, BNode currentNode) {
+	private List<NodeEndpoint<?>> endpoints(String endpointName, BNode currentNode) {
 		if (endpointName.endsWith("/")) {
 			endpointName = endpointName.substring(0, endpointName.length() - 1);
 		}
@@ -527,7 +527,7 @@ public class WebServer extends BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer n) {
 			var r = new ObjectNode(null);
 			r.set("#request NOW", new TextNode("" + n.nbRequestsInProgress.size()));
@@ -558,7 +558,7 @@ public class WebServer extends BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer n) {
 			var r = new ArrayNode(null);
 			n.logs.forEach(l -> {
@@ -586,7 +586,7 @@ public class WebServer extends BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+		public EndpointResponse<?> exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				WebServer ws) {
 			var d = new Byransha.Distribution();
 			graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> d.addXY(e.name(), e.nbCalls));
