@@ -15,11 +15,15 @@ import byransha.web.WebServer;
 import byransha.web.util.TokenUtil;
 
 public class Authenticate extends NodeEndpoint<BBGraph> {
-	private final SessionStore sessionStore;
+	private SessionStore sessionStore;
 
 	@Override
 	public String whatIsThis() {
 		return "Authenticate endpoint for user login.";
+	}
+
+	public Authenticate(BBGraph db) {
+		super(db);
 	}
 
 	public Authenticate(BBGraph db, SessionStore sessionStore) {
@@ -46,6 +50,13 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
+	}
+
+	public void setSessionStore(SessionStore sessionStore) {
+		if (sessionStore == null) {
+			throw new IllegalArgumentException("SessionStore cannot be null");
+		}
+		this.sessionStore = sessionStore;
 	}
 
 	private WebServer findWebServerInstance(BBGraph graph) {

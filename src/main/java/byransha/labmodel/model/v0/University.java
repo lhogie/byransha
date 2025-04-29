@@ -9,7 +9,7 @@ public class University extends Structure {
 
 	public University(BBGraph g) {
 		super(g);
-		campuses = new ListNode<>(g);
+		campuses = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
 		status.add(new IGR(g));
 		status.add(new MCF(g));
 		status.add(new PR(g));

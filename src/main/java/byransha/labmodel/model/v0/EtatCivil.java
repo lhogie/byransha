@@ -15,14 +15,14 @@ public class EtatCivil extends BusinessNode {
 
 	public EtatCivil(BBGraph g) {
 		super(g);
-		firstName = new StringNode(g, null);
-		name = new StringNode(g, null);
-		familyNameBeforeMariage = new StringNode(g, null);
-		birthDate = new StringNode(g, null);
-		cityOfBirth = new StringNode(g, null);
-		nationality = new StringNode(g, null);
-		countryOfBirth = new StringNode(g, null);
-		address = new StringNode(g, null);
+		firstName = (StringNode) g.addNode(StringNode.class);  // new StringNode(g, null);
+		name = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		familyNameBeforeMariage = (StringNode) g.addNode(StringNode.class);  // new StringNode(g, null);
+		birthDate = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		cityOfBirth = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		nationality = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		countryOfBirth = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		address = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
 	}
 
 	public EtatCivil(BBGraph g, int id) {

@@ -329,16 +329,6 @@ public class BBGraph extends BNode {
 		}
 	}
 
-//	public void delete(int id){
-//		var targetNode = findByID(id);
-//		if(targetNode != null){
-//			System.out.println("Deleting node with ID: " + id + " (" + targetNode + ")");
-//		}
-//		else{
-//			System.err.println("Node with ID: " + id + " not found.");
-//		}
-//	}
-
 	public BNode findByID(int id) {
 		if (byID != null) {
 			return byID.get(id);
@@ -355,29 +345,14 @@ public class BBGraph extends BNode {
 		return null;
 	}
 
-	public void saveRecursive(BNode node){
-		ArrayDeque<BNode> queue = new ArrayDeque<>();
-		Set<BNode> visited = new HashSet<>();
-
-		queue.add(node);
-		visited.add(node);
-
-		while(!queue.isEmpty()){
-			BNode currentNode = queue.poll();
-			if(currentNode instanceof PersistingNode){
-				((PersistingNode) currentNode).save(f -> {});
-				currentNode.outs().forEach((s, outNode) -> {
-					if(!visited.contains(outNode)){
-						queue.add(outNode);
-						visited.add(outNode);
-					}
-				});
-			}
-			else{
-				System.out.println("Node is not an instance of PersistingNode: " + currentNode);
-			}
-
-			System.out.println("Outs of the current node " + currentNode + ": " + currentNode.outs());
+	public BNode addNode(Class<? extends BNode> nodeClass) {
+		try {
+			BNode newNode = nodeClass.getConstructor(BBGraph.class).newInstance(this);
+			System.out.println("Adding node of class: " + nodeClass.getName() + " with ID: " + newNode.id());
+			this.accept(newNode); // Add the new node to the graph
+			return newNode;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to add node of class: " + nodeClass.getName(), e);
 		}
 	}
 

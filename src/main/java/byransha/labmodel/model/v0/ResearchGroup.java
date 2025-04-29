@@ -6,7 +6,7 @@ import byransha.ListNode;
 public class ResearchGroup extends Structure {
 	public ResearchGroup(BBGraph g) {
 		super(g);
-		keywords = new ListNode<>(g);
+		keywords = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
 		// TODO Auto-generated constructor stub
 	}
 

@@ -8,7 +8,12 @@ public class ImageNode extends ValuedNode<byte[]> {
 
 	public ImageNode(BBGraph db) {
 		super(db);
-		title = new StringNode(db, null);
+		title = (StringNode) db.addNode(StringNode.class);
+	}
+
+	public ImageNode(BBGraph db, int id) {
+		super(db, id);
+		title = (StringNode) db.addNode(StringNode.class);
 	}
 
 	@Override

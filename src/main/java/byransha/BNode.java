@@ -42,7 +42,7 @@ public abstract class BNode {
 
 		if (g != null) {
 			this.graph = g;
-			g.accept(this);
+			//g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
 			this.graph = thisGraph;
 		} else {

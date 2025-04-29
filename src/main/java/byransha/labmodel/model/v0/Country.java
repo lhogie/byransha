@@ -10,7 +10,7 @@ public class Country extends BusinessNode {
 
 	public Country(BBGraph g) {
 		super(g);
-		name = new StringNode(g, null);
+		name = (StringNode) g.addNode(StringNode.class);
 	}
 
 	public Country(BBGraph g, int id) {

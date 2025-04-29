@@ -26,6 +26,8 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import byransha.labmodel.model.v0.*;
+import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -67,8 +69,6 @@ import byransha.web.endpoint.Edit;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.LoadImage;
-import byransha.web.endpoint.Logout;
 import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
@@ -213,53 +213,62 @@ public class WebServer extends BNode {
 	}
 
 	private void createSpecialNodes(BBGraph g) {
-		new JVMNode(g);
-		new Byransha(g);
-		new OSNode(g);
-		new User(g, "user", "test");
-		new User(g, "toto", "toto");
-		new User(g, "admin", "admin");
+		g.addNode(JVMNode.class);
+		g.addNode(Byransha.class);
+		g.addNode(OSNode.class);
+		var user1 = (User) g.addNode(User.class);
+		var user2 = (User) g.addNode(User.class);
+		var user3 = (User) g.addNode(User.class);
+
+		user1.name.set("user");
+		user1.passwordNode.set("test");
+		user2.name.set("toto");
+		user2.passwordNode.set("toto");
+		user3.name.set("admin");
+		user3.passwordNode.set("admin");
 	}
 
 	private void createEndpoints(BBGraph g) {
-		new NodeInfo(g);
-		new Views(g);
-		new Jump(g);
-		new Endpoints(g);
-		new JVMNode.Kill(g);
-		new Authenticate(g, this.sessionStore);
-		new Logout(g, this.sessionStore);
-		new Nodes(g);
-		new EndpointCallDistributionView(g);
-		new Info(g);
-		new Logs(g);
-		new BasicView(g);
-		new CharacterDistribution(g);
-		new CharExampleXY(g);
-		new User.UserView(g);
-		new BBGraph.GraphNivoView(g);
-		new OSNode.View(g);
-		new JVMNode.View(g);
-		new BNode.InOutsNivoView(g);
-		new ModelGraphivzSVGView(g);
-		new Navigator(g);
-		new OutNodeDistribution(g);
-		new Picture.V(g);
-		new LabView(g);
-		new ModelDOTView(g);
-		new SourceView(g);
-		new ToStringView(g);
-		new StructureView(g);
-		new NodeEndpoints(g);
-		new SetValue(g);
-		new AnyGraph.Classes(g);
-		new Edit(g);
-		new IntrospectingEndpoint(g);
-		new History(g);
-		new UI(g);
-		new UI.getProperties(g);
-		new Summarizer(g);
-		new LoadImage(g);
+		g.addNode(NodeInfo.class);
+		g.addNode(Views.class);
+		g.addNode(Jump.class);
+		g.addNode(Endpoints.class);
+		g.addNode(JVMNode.Kill.class);
+		var n = (Authenticate) g.addNode(Authenticate.class);
+		n.setSessionStore(sessionStore);
+		var l = (Logout) g.addNode(Logout.class);
+		l.setSessionStore(sessionStore);
+		g.addNode(Nodes.class);
+		g.addNode(EndpointCallDistributionView.class);
+		g.addNode(Info.class);
+		g.addNode(Logs.class);
+		g.addNode(BasicView.class);
+		g.addNode(CharacterDistribution.class);
+		g.addNode(CharExampleXY.class);
+		g.addNode(User.UserView.class);
+		g.addNode(BBGraph.GraphNivoView.class);
+		g.addNode(OSNode.View.class);
+		g.addNode(JVMNode.View.class);
+		g.addNode(BNode.InOutsNivoView.class);
+		g.addNode(ModelGraphivzSVGView.class);
+		g.addNode(Navigator.class);
+		g.addNode(OutNodeDistribution.class);
+		g.addNode(Picture.V.class);
+		g.addNode(LabView.class);
+		g.addNode(ModelDOTView.class);
+		g.addNode(SourceView.class);
+		g.addNode(ToStringView.class);
+		g.addNode(StructureView.class);
+		g.addNode(NodeEndpoints.class);
+		g.addNode(SetValue.class);
+		g.addNode(AnyGraph.Classes.class);
+		g.addNode(Edit.class);
+		g.addNode(IntrospectingEndpoint.class);
+		g.addNode(History.class);
+		g.addNode(UI.class);
+		g.addNode(UI.getProperties.class);
+		g.addNode(Summarizer.class);
+		g.addNode(LoadImage.class);
 	}
 
 	public SessionStore getSessionStore() {

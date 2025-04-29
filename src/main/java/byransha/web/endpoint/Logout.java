@@ -10,11 +10,15 @@ import byransha.web.*;
 
 public class Logout extends NodeEndpoint<BBGraph> {
 
-    private final SessionStore sessionStore;
+    private SessionStore sessionStore;
 
     @Override
     public String whatIsThis() {
         return "Logs the current user out by invalidating their session.";
+    }
+
+    public Logout(BBGraph db) {
+        super(db);
     }
 
     public Logout(BBGraph db, SessionStore sessionStore) {
@@ -40,6 +44,13 @@ public class Logout extends NodeEndpoint<BBGraph> {
     @Override
     public boolean requiresAuthentication() {
         return false;
+    }
+
+    public void setSessionStore(SessionStore sessionStore) {
+        if (sessionStore == null) {
+            throw new IllegalArgumentException("SessionStore cannot be null");
+        }
+        this.sessionStore = sessionStore;
     }
 
     private WebServer findWebServerInstance(BBGraph graph) {

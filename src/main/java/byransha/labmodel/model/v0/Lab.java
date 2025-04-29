@@ -5,6 +5,7 @@ import java.util.Map;
 
 import byransha.BBGraph;
 import byransha.ListNode;
+import byransha.StringNode;
 
 public class Lab extends Structure {
 	public Person HFDS; // haut fonctionnaire defense securité
@@ -15,7 +16,7 @@ public class Lab extends Structure {
 	public Lab(BBGraph g) {
 		super(g);
 		HFDSAvisfds = new HashMap<>();
-		tutelles  = new ListNode<>(graph);
+		tutelles  =(ListNode) g.addNode(ListNode.class); //new ListNode<>(graph);
 	}
 
 	public Lab(BBGraph g, int id) {
