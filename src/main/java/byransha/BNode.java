@@ -114,11 +114,11 @@ public abstract class BNode {
 	}
 
 	public void bfs(Consumer<BNode> consumer) {
-		search(consumer, q -> q.remove(0));
+		search(consumer, List::removeFirst);
 	}
 
 	public void dfs(Consumer<BNode> consumer) {
-		search(consumer, q -> q.remove(q.size() - 1));
+		search(consumer, List::removeLast);
 	}
 
 	private void search(Consumer<BNode> consumer, Function<List<BNode>, BNode> producer) {

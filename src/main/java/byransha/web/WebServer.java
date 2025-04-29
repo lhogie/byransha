@@ -306,7 +306,6 @@ public class WebServer extends BNode {
 		SessionStore.SessionData sessionData;
 		long startTimeNs = System.nanoTime();
 		ObjectNode inputJson;
-		boolean defaultsUser = false;
 
 		try {
 			inputJson = grabInputFromURLandPOST(https);

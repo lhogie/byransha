@@ -96,7 +96,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 
 			setSessionCookie(https, "session_token", sessionToken);
 
-			ObjectNode responseJson = new ObjectNode(null);
+			ObjectNode responseJson = new ObjectNode(com.fasterxml.jackson.databind.node.JsonNodeFactory.instance);
 			responseJson.put("userId", "" + user.id());
 			responseJson.put("csrfToken", csrfToken);
 

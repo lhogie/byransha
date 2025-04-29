@@ -5,7 +5,6 @@ import java.util.Map;
 
 import byransha.BBGraph;
 import byransha.ListNode;
-import byransha.StringNode;
 
 public class Lab extends Structure {
 	public Person HFDS; // haut fonctionnaire defense securité
