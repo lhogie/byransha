@@ -211,7 +211,16 @@ public abstract class BNode {
 
 		return false;
 	}
-
+	public void getFields(int id){
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0){
+					continue;
+				}
+				//a completer
+			}
+		}
+	}
 	protected void setField(String name, BNode targetNode) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {

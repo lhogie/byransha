@@ -1,4 +1,5 @@
 package byransha.web.endpoint;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -44,17 +45,48 @@ public class Edit extends NodeEndpoint<BNode> {
             a.add(b);
         }else{
             //System.out.println("valeur non editable");
-            for (BNode node : currentNode.outs().values()) {
+            //System.out.println("Classe de curent node ");
+            //currentNode.getFields(currentNode.id());
+            System.out.println("entery set "+currentNode.outs().keySet());
+
+            for(String key : currentNode.outs().keySet()) {
+                var b = new ObjectNode(null);
+                BNode node = currentNode.outs().get(key);
+                System.out.println("Noeud de nom "+key+" Valeur "+currentNode.outs().get(key));
+
+                //A rajouter apres implementation des permisions
+                //if(currentNode.outs().get(key).canEdit(user)){}
                 if(node instanceof ValuedNode<?>){
-                    var b = new ObjectNode(null);
-                    System.out.println("Node with id:"+node.id()+" is Editable,type="+node.getClass()+" from current node(id="+ currentNode.id()+")");
-                    b.set("Id_linked_Node_Editable_id", new IntNode(node.id()));
-                    b.set("list_linked_Node_Editable_type", new TextNode(node.getClass().getSimpleName()));
+                    //System.out.println("Node with id:"+node.id()+" is Editable,type="+node.getClass()+" from current node(id="+ currentNode.id()+")");
+                    //System.out.println(node.getClass());
+                    //node.getFields(node.id());
+                    b.set("linked_Node_Editable_id", new IntNode(node.id()));
+                    b.set("linked_Node_Editable_name",new TextNode(key));
+                    b.set("linked_Node_Editable_type", new TextNode(node.getClass().getSimpleName()));
+                    b.set("val:", (node.toJSONNode()));
                     a.add(b);
                 }
+            }
+
+
+
+//            for (BNode node : currentNode.outs().values()) {
+//                System.out.println("Outs: "+ node);
+//
+//                //System.out.println("Class of node: "+node.getClass() + node.getClass().getName());
+//                if(node instanceof ValuedNode<?>){
+//                    var b = new ObjectNode(null);
+//                    //System.out.println("Node with id:"+node.id()+" is Editable,type="+node.getClass()+" from current node(id="+ currentNode.id()+")");
+//                    //System.out.println(node.getClass());
+//                    //node.getFields(node.id());
+//                    b.set("Id_linked_Node_Editable_id", new IntNode(node.id()));
+//                    b.set("list_linked_Node_Editable_type", new TextNode(node.getClass().getSimpleName()));
+//                    b.set("val:", (node.toJSONNode()));
+//                    a.add(b);
+//                }
                 //System.out.println("Node descrip : " + node.getDescription());
 
-            }
+            //}
         }
 
 

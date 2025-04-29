@@ -89,7 +89,10 @@ public class WebServer extends BNode {
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
-		// argMap.put("--createDB", "true");
+
+		//version sur disque
+		//argMap.put("--createDB", "true");
+
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
 		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
@@ -101,10 +104,13 @@ public class WebServer extends BNode {
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
 
 		if (defaultDBDirectory.exists()) {
+			//ligne pour version serveur
 			var g = (BBGraph) Class.forName(Files.readString(new File(defaultDBDirectory, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(defaultDBDirectory);
 			System.out.println("loading DB from " + defaultDBDirectory);
-//			var g = new BBGraph(defaultDBDirectory);
+
+			//ligne ajouter pour sur disque
+			//var g = new BBGraph(defaultDBDirectory);
 
 			g.loadFromDisk(n -> System.out.println("loading node " + n),
 					(n, s) -> System.out.println("loading arc " + n + ", " + s));
