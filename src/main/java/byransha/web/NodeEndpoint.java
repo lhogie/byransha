@@ -36,9 +36,9 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
         }
 
 		var s = node.asText();
-		
+
 		try {
-			return (N) node(Integer.valueOf(s));
+			return (N) node(Integer.parseInt(s));
 		} catch (NumberFormatException err) {
 			Clazz.findClassOrFail(s);
 			return null;
@@ -48,24 +48,12 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			N node) throws Throwable;
 
-	public <N extends BNode> Class<N> getTargetNodeType() {
-		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
-			var t = c.getGenericSuperclass();
-
-			if (t instanceof ParameterizedType pt) {
-				return (Class<N>) pt.getActualTypeArguments()[0];
-			}
-		}
-
-		throw new IllegalStateException();
-	}
-
-	public BNode node(int id) {
+    public BNode node(int id) {
 		return graph.findByID(id);
 	}
 
 	public List<BNode> nodes(int... ids) {
-		return Arrays.stream(ids).mapToObj(id -> node(id)).toList();
+		return Arrays.stream(ids).mapToObj(this::node).toList();
 	}
 
 	public enum TYPE {

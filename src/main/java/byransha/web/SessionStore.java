@@ -21,7 +21,7 @@ public class SessionStore {
     private final Map<String, SessionData> activeSessions = new ConcurrentHashMap<>();
     private final ScheduledExecutorService cleanupScheduler = Executors.newSingleThreadScheduledExecutor();
 
-    public static record SessionData(
+    public record SessionData(
             int userId,
             Instant creationTime,
             Instant lastAccessTime,
@@ -44,7 +44,6 @@ public class SessionStore {
 
     public SessionStore() {
         cleanupScheduler.scheduleAtFixedRate(this::removeExpiredSessions, 5, 5, TimeUnit.MINUTES);
-        System.out.println("SessionStore initialized with periodic cleanup.");
     }
 
     /**
@@ -65,7 +64,6 @@ public class SessionStore {
         activeSessions.put(token, sessionData);
 
         String tokenPrefix = token.substring(0, Math.min(8, token.length()));
-        System.out.printf("[AUTH] Session created for user ID %d with token prefix %s%n", user.id(), tokenPrefix);
         return token;
     }
 
@@ -90,12 +88,10 @@ public class SessionStore {
 
         // OWASP: Check session timeouts
         if (sessionData.isExpiredByInactivity(now)) {
-            System.out.printf("Session expired due to inactivity for token prefix %s%n", tokenPrefix);
             activeSessions.remove(token);
             return Optional.empty();
         }
         if (sessionData.isExpiredByAbsoluteTime(now)) {
-            System.out.printf("Session expired due to absolute timeout for token prefix %s%n", tokenPrefix);
             activeSessions.remove(token);
             return Optional.empty();
         }
@@ -114,7 +110,6 @@ public class SessionStore {
         if (token != null && !token.isBlank()) {
             if (activeSessions.remove(token) != null) {
                 String tokenPrefix = token.substring(0, Math.min(8, token.length()));
-                System.out.printf("Session removed for token prefix %s%n", tokenPrefix);
             }
         }
     }
@@ -129,7 +124,6 @@ public class SessionStore {
             boolean match = entry.getValue().userId() == userId;
             if (match) {
                 String tokenPrefix = entry.getKey().substring(0, Math.min(8, entry.getKey().length()));
-                System.out.printf("Removing session (token prefix: %s) for user ID %d%n", tokenPrefix, userId);
             }
             return match;
         });
@@ -150,13 +144,9 @@ public class SessionStore {
                 }
             }
         }
-        if (removedCount > 0) {
-            System.out.printf("Removed %d expired sessions during cleanup.%n", removedCount);
-        }
     }
 
     public void shutdown() {
         cleanupScheduler.shutdown();
-        System.out.println("SessionStore cleanup scheduler shut down.");
     }
 }

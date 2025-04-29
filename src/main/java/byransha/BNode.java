@@ -139,13 +139,13 @@ public abstract class BNode {
 
 	public List<BNode> bfs2list() {
 		List<BNode> r = new ArrayList<>();
-		bfs(n -> r.add(n));
+		bfs(r::add);
 		return r;
 	}
 
 	public LinkedHashMap<String, BNode> outs() {
 		var m = new LinkedHashMap<String, BNode>();
-		forEachOut((name, o) -> m.put(name, o));
+		forEachOut(m::put);
 		return m;
 	}
 
@@ -174,7 +174,7 @@ public abstract class BNode {
 		return user.name.get().equals("admin");
 	}
 
-	public boolean matches(NodeEndpoint<?> v) {
+	public boolean matches(NodeEndpoint v) {
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 
@@ -194,7 +194,9 @@ public abstract class BNode {
 
 	@Override
 	public final boolean equals(Object obj) {
-		return this.hashCode() == ((BNode) obj).hashCode();
+		if (!(obj instanceof BNode))
+			return false;
+		return this.hashCode() == obj.hashCode();
 	}
 
 	protected boolean hasField(String name) {
@@ -211,7 +213,16 @@ public abstract class BNode {
 
 		return false;
 	}
-
+	public void getFields(int id){
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0){
+					continue;
+				}
+				//a completer
+			}
+		}
+	}
 	protected void setField(String name, BNode targetNode) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
@@ -388,8 +399,8 @@ public abstract class BNode {
 
 	public JsonNode toJSONNode() {
 		var n = new ObjectNode(null);
-		n.put("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
-		n.put("pretty_name", new TextNode(prettyName()));
+		n.set("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
+		n.set("pretty_name", new TextNode(prettyName()));
 		return n;
 	}
 

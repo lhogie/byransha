@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SystemEvolver<S extends BNode> {
-	public List<Event<S>> events = new ArrayList<>();
+	public final List<Event<S>> events = new ArrayList<>();
 	public final S system;
 	int cursor = 0;
 

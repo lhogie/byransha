@@ -7,8 +7,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class EndpointJsonResponse extends EndpointResponse<JsonNode> {
 
 	public enum dialects {
-		xy, distribution, nivoNetwork;
-	};
+		xy, distribution, nivoNetwork
+	}
 
 	final String dialect;
 

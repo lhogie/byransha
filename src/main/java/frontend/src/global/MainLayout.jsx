@@ -2,13 +2,16 @@ import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-rout
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack } from "@mui/material";
+import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack, Button } from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {useApiData, useApiMutation} from '../hooks/useApiData';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import {useState, useEffect, useCallback} from "react";
 import {useQueryClient} from "@tanstack/react-query";
+import axios from "axios";
+
+
 
 const MainLayout = () => {
     const navigate = useNavigate();
@@ -37,6 +40,18 @@ const MainLayout = () => {
 
     const handleHistoryClick = (hist) => {
         jumpToNode(hist.id.toString())
+    };
+
+    const handleLogout = async () => {
+        try {
+            await axios.post(
+                `${import.meta.env.PUBLIC_API_BASE_URL}/logout`
+            );
+            // une fois déconnecté, on renvoie l’utilisateur sur la page de login
+            navigate("/");
+        } catch (err) {
+            console.error("Logout failed", err);
+        }
     };
 
     const handleMoreClick = (event) => setMenuAnchor(event.currentTarget);
@@ -171,7 +186,7 @@ const MainLayout = () => {
                             {isLoading ? (
                                 <Typography sx={{ color: '#90a4ae', fontSize: '14px' }}>Loading...</Typography>
                             ) : error ? (
-                                <Typography sx={{ color: '#ef5350', fontSize: '14px' }}>Error</Typography>
+                                <Typography sx={{ color: '#780906', fontSize: '14px' }}>Error</Typography>
                             ) : (
                                 <Box
                                     sx={{
@@ -183,8 +198,8 @@ const MainLayout = () => {
                                         borderRadius: '4px',
                                         transition: 'background-color 0.2s ease',
                                         '&:hover': { bgcolor: '#e8eaf6' },
-                                    }}
-                                >
+                                    }}>
+
                                     <Typography
                                         sx={{
                                             color: '#306DAD',
@@ -202,6 +217,9 @@ const MainLayout = () => {
                                     </Typography>
                                 </Box>
                             )}
+                            <Button variant="outlined" size="small" onClick={handleLogout} sx={{ ml :2}}>
+                                Se deconnecter
+                            </Button>
                         </Stack>
                     )
                 }}

@@ -17,7 +17,7 @@ public class User extends PersistingNode {
 
 	public StringNode name;
 	public StringNode passwordNode;
-	public Stack<BNode> stack = new Stack<BNode>();
+	public final Stack<BNode> stack = new Stack<>();
 
 	public User(BBGraph g, String u, String password) {
 		super(g);

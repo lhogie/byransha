@@ -39,13 +39,13 @@ public class CharacterDistribution extends NodeEndpoint<BNode> implements View {
 
 		{
 			var d = new Distribution<Integer>();
-			n.getClass().getSimpleName().chars().forEach(c -> d.addOccurence(c));
+			n.getClass().getSimpleName().chars().forEach(d::addOccurence);
 			r.set("class name", d.toJson());
 		}
 
 		{
 			var d = new Distribution<Integer>();
-			n.getClass().getPackageName().chars().forEach(c -> d.addOccurence(c));
+			n.getClass().getPackageName().chars().forEach(d::addOccurence);
 			r.set("package name", d.toJson());
 		}
 

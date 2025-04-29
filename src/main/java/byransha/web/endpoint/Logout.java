@@ -61,10 +61,6 @@ public class Logout extends NodeEndpoint<BBGraph> {
         if (sessionToken != null) {
             sessionStore.removeSession(sessionToken);
             Authenticate.deleteSessionCookie(https, "session_token");
-            System.out.printf("User logged out successfully (Session token prefix: %s)%n",
-                    sessionToken.substring(0, Math.min(8, sessionToken.length())));
-        } else {
-            System.out.println("Logout attempt without a session token cookie.");
         }
 
         return new EndpointJsonResponse(new TextNode("Logout successful"), this);

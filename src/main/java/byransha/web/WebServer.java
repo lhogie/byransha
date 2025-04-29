@@ -88,16 +88,19 @@ import toools.text.TextUtilities;
  */
 
 public class WebServer extends BNode {
-	public static File defaultDBDirectory = new File(
+	public static final File defaultDBDirectory = new File(
 			System.getProperty("user.home") + "/." + BBGraph.class.getPackageName());
 
 	public static void main(String[] args) throws Exception {
 		var argList = List.of(args);
 		var argMap = new HashMap<String, String>();
-		// argMap.put("--createDB", "true");
+
+		//version sur disque
+		//argMap.put("--createDB", "true");
+
 		argList.stream().map(a -> a.split("=")).forEach(a -> argMap.put(a[0], a[1]));
 		BBGraph g = instantiateGraph(argMap);
-		int port = Integer.valueOf(argMap.getOrDefault("-port", "8080"));
+		int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
 		new WebServer(g, port);
 	}
 
@@ -106,10 +109,13 @@ public class WebServer extends BNode {
 			NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
 
 		if (defaultDBDirectory.exists()) {
+			//ligne pour version serveur
 			var g = (BBGraph) Class.forName(Files.readString(new File(defaultDBDirectory, "dbClass.txt").toPath()))
 					.getConstructor(File.class).newInstance(defaultDBDirectory);
 			System.out.println("loading DB from " + defaultDBDirectory);
-//			var g = new BBGraph(defaultDBDirectory);
+
+			//ligne ajouter pour sur disque
+			//var g = new BBGraph(defaultDBDirectory);
 
 			g.loadFromDisk(n -> System.out.println("loading node " + n),
 					(n, s) -> System.out.println("loading arc " + n + ", " + s));
@@ -130,11 +136,11 @@ public class WebServer extends BNode {
 		}
 	}
 
-	static ObjectMapper mapper = new ObjectMapper();
+	static final ObjectMapper mapper = new ObjectMapper();
 
-	List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
+	final List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
-	private HttpsServer httpsServer;
+	private final HttpsServer httpsServer;
 	public final List<Log> logs = new ArrayList<>();
 
 	private final SessionStore sessionStore;
@@ -288,9 +294,9 @@ public class WebServer extends BNode {
 
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
-		SessionStore.SessionData sessionData = null;
+		SessionStore.SessionData sessionData;
 		long startTimeNs = System.nanoTime();
-		ObjectNode inputJson = null;
+		ObjectNode inputJson;
 		boolean defaultsUser = false;
 
 		try {
@@ -316,28 +322,18 @@ public class WebServer extends BNode {
 					sessionData = sessionOpt.get();
 					user = (User) graph.findByID(sessionData.userId());
 					if (user == null) {
-						System.err.printf(
-								"[ERROR] User ID %d from valid session token prefix %s not found in graph. Invalidating session.%n",
-								sessionData.userId(), sessionToken.substring(0, Math.min(8, sessionToken.length())));
 						sessionStore.removeSession(sessionToken);
 						Authenticate.deleteSessionCookie(https, "session_token");
 
 						defaultsUser = true;
-					} else {
-						System.out.printf("[AUTH] Valid session found for user ID %d (Token prefix: %s)%n", user.id(),
-								sessionToken.substring(0, Math.min(8, sessionToken.length())));
 					}
 				} else {
-					System.out.printf(
-							"[AUTH] Invalid or expired session token detected (Prefix: %s). Deleting cookie.%n",
-							sessionToken.substring(0, Math.min(8, sessionToken.length())));
 					Authenticate.deleteSessionCookie(https, "session_token");
 
 					defaultsUser = true;
 				}
 			} else {
 				defaultsUser = true;
-				System.out.println("[AUTH] No session token cookie found in request.");
 			}
 
 			if (defaultsUser) {
@@ -375,14 +371,15 @@ public class WebServer extends BNode {
 				var endpoints = endpoints(path.substring(5), contextNode);
 //				System.err.println(endpoints);
 
-				if (inputJson.remove("raw") != null) {
+                assert inputJson != null;
+                if (inputJson.remove("raw") != null) {
 					if (endpoints.size() != 1)
 						throw new IllegalArgumentException("only 1 endpoint allowed");
 
-					if (inputJson.size() > 0)
+					if (!inputJson.isEmpty())
 						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
-					var endpoint = endpoints.get(0);
+					var endpoint = endpoints.getFirst();
 					var result = endpoint.exec(inputJson, user, this, https);
 					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
 				} else {
@@ -399,7 +396,7 @@ public class WebServer extends BNode {
 						long startTimeNs2 = System.nanoTime();
 
 						try {
-							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
+							EndpointResponse result = endpoint.exec(inputJson, user, this, https);
 							er.set("result", result.toJson());
 						} catch (Throwable err) {
 							err.printStackTrace();
@@ -464,7 +461,7 @@ public class WebServer extends BNode {
 			endpointName = endpointName.substring(0, endpointName.length() - 1);
 		}
 
-		if (endpointName == null || endpointName.isEmpty()) {
+		if (endpointName.isEmpty()) {
 			return graph.endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
@@ -502,7 +499,7 @@ public class WebServer extends BNode {
 
 		// adds the URL parameters from the query string to the JSON
 		var query = query(http.getRequestURI().getQuery());
-		query.entrySet().forEach(e -> inputJson.set(e.getKey(), new TextNode(e.getValue())));
+		query.forEach((key, value) -> inputJson.set(key, new TextNode(value)));
 
 		return inputJson;
 	}
@@ -573,7 +570,7 @@ public class WebServer extends BNode {
 			r.set("cache size", new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext()
 					.getClientSessionContext().getSessionCacheSize()));
 			r.set("SSL protocol",
-					new TextNode("" + n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
+					new TextNode(n.httpsServer.getHttpsConfigurator().getSSLContext().getProtocol()));
 			return new EndpointJsonResponse(r, "nodeinfo");
 		}
 	}
@@ -598,7 +595,7 @@ public class WebServer extends BNode {
 			var r = new ArrayNode(null);
 			n.logs.forEach(l -> {
 				var lr = new ObjectNode(null);
-				lr.set("date", new TextNode(l.date.toLocaleString()));
+				lr.set("date", new TextNode(l.date.toString()));
 				lr.set("message", new TextNode(l.msg));
 				r.add(lr);
 			});

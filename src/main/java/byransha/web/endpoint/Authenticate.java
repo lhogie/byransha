@@ -33,7 +33,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 	public Authenticate(BBGraph db, int id) {
 		super(db, id);
 		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
-		
+
 		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
 			this.sessionStore = webServerInstance.getSessionStore();
 		} else {
@@ -81,12 +81,9 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 		User user = auth(username, password);
 
 		if (user == null) {
-			System.out.printf("Authentication failed for username: %s%n", username);
 			deleteSessionCookie(https, "session_token");
 			return new EndpointJsonResponse(new TextNode("Authentication Failed"), this);
 		} else {
-			System.out.printf("Authentication successful for user: %s (ID: %d)%n", username, user.id());
-
 			// OWASP: Generate new Session ID & CSRF token on login
 			String csrfToken = TokenUtil.generateSecureToken();
 			String sessionToken = sessionStore.createSession(user, csrfToken);

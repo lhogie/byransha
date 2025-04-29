@@ -20,8 +20,8 @@ import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
 public class AnyGraph {
-	public List<BVertex> nodes = new ArrayList<BVertex>();
-	public List<BLinks> links = new ArrayList<BLinks>();
+	public final List<BVertex> nodes = new ArrayList<>();
+	public final List<BLinks> links = new ArrayList<>();
 
 	public static void main(String[] args) {
 		var g = new AnyGraph();
