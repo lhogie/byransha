@@ -62,7 +62,7 @@ public class Edit extends NodeEndpoint<BNode> {
                     b.set("linked_Node_Editable_id", new IntNode(node.id()));
                     b.set("linked_Node_Editable_name",new TextNode(key));
                     b.set("linked_Node_Editable_type", new TextNode(node.getClass().getSimpleName()));
-                    b.set("val:", (node.toJSONNode()));
+                    b.set("val:", new TextNode( ((ValuedNode) node).get().toString())) ;
                     a.add(b);
                 }
             }
