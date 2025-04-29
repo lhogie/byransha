@@ -174,7 +174,7 @@ public abstract class BNode {
 		return false;
 	}
 
-	public boolean matches(NodeEndpoint<?> v) {
+	public boolean matches(NodeEndpoint v) {
 		return v.getTargetNodeType().isAssignableFrom(getClass());
 	}
 

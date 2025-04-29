@@ -166,7 +166,7 @@ public class BBGraph extends BNode {
 					}
 
 					try {
-						if (node instanceof ListNode<?>) {
+						if (node instanceof ListNode) {
 							((ListNode<BNode>) node).add(targetNode);
 						} else {
 							try {
@@ -220,7 +220,7 @@ public class BBGraph extends BNode {
 
 	public void saveAll(Consumer<File> writingFiles) throws IOException {
 		forEachNode(n -> {
-			if (n instanceof ValuedNode<?> vn) {
+			if (n instanceof ValuedNode vn) {
 				vn.saveValue(writingFiles);
 			}
 		});
@@ -432,8 +432,8 @@ public class BBGraph extends BNode {
 		return find(c, e -> true);
 	}
 
-	public NodeEndpoint<?> findEndpoint(String name) {
-		return (NodeEndpoint<?>) find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
+	public NodeEndpoint findEndpoint(String name) {
+		return (NodeEndpoint) find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
 	}
 
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {

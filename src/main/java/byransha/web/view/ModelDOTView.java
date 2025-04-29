@@ -65,7 +65,7 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 				System.out.println(graph.nodes.size());
 			}
 			var relations = new ArrayList<ModelDOTView.Relation>();
-			var class_attrs = new HashMap<Class<?>, Set<String>>();
+			var class_attrs = new HashMap<Class, Set<String>>();
 			graph.forEachNode(n -> {
 				List<Class<BNode>> stack = new ArrayList<>();
 

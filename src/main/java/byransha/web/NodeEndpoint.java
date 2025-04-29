@@ -36,7 +36,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
         }
 
 		var s = node.asText();
-		
+
 		try {
 			return (N) node(Integer.parseInt(s));
 		} catch (NumberFormatException err) {

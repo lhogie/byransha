@@ -347,7 +347,7 @@ public class WebServer extends BNode {
 					if (!inputJson.isEmpty())
 						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
 
-					var endpoint = endpoints.get(0);
+					var endpoint = endpoints.getFirst();
 					var result = endpoint.exec(inputJson, user, this, https);
 					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
 				} else {
@@ -364,7 +364,7 @@ public class WebServer extends BNode {
 						long startTimeNs2 = System.nanoTime();
 
 						try {
-							EndpointResponse<?> result = endpoint.exec(inputJson, user, this, https);
+							EndpointResponse result = endpoint.exec(inputJson, user, this, https);
 							er.set("result", result.toJson());
 						} catch (Throwable err) {
 							err.printStackTrace();
