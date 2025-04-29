@@ -87,10 +87,12 @@ public class AcademiaDB extends BBGraph {
 					var campus = find(Campus.class, n -> n.name.get().equalsIgnoreCase(campusName));
 
 					if (campus != null && !officeName.isBlank()) {
-						var office = campus.findOffice(officeName);
+						for (var b : campus.buildings.l) {
+							var office = b.findOffice(officeName);
 
-						if (office != null) {
-							p.offices.add(office);
+							if (office != null) {
+								p.offices.add(office);
+							}
 						}
 					}
 				}

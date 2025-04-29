@@ -33,6 +33,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 	public Authenticate(BBGraph db, int id) {
 		super(db, id);
 		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
+		
 		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
 			this.sessionStore = webServerInstance.getSessionStore();
 		} else {

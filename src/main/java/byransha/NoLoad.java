@@ -1,5 +1,5 @@
 package byransha;
 
-public interface NoLoad {
-
-}
+	public interface NoLoad {
+	
+	}

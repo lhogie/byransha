@@ -24,7 +24,6 @@ import java.util.function.BiConsumer;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLParameters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -52,9 +51,15 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
+import byransha.labmodel.model.v0.ACMClassifier;
+import byransha.labmodel.model.v0.Building;
+import byransha.labmodel.model.v0.CNRS;
+import byransha.labmodel.model.v0.Campus;
 import byransha.labmodel.model.v0.EtatCivil;
+import byransha.labmodel.model.v0.Office;
 import byransha.labmodel.model.v0.Person;
 import byransha.labmodel.model.v0.Picture;
+import byransha.labmodel.model.v0.Publication;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
@@ -140,6 +145,32 @@ public class WebServer extends BNode {
 		createSpecialNodes(g);
 		createEndpoints(g);
 
+		var b = new Building(g);
+
+		List<Person> persons = new ArrayList<>();
+
+		for (int i = 0; i < 10; ++i) {
+			persons.add(new Person(g));
+		}
+
+		var sophiaTech = new Campus(g);
+		sophiaTech.buildings.add(b);
+		sophiaTech.name.set("Sophiatech");
+
+		for (int i = 0; i < 5; ++i) {
+			var o = new Office(g);
+			o.name.set("office" + i);
+			o.users.add(persons.get(i));
+			o.users.add(persons.get(i + 5));
+			b.offices.add(o);
+		}
+
+		var cnrs = new CNRS(g);
+		persons.forEach(p -> cnrs.members.add(p));
+		var publication = new Publication(g);
+		publication.title.set("156 maitre du temps - MAIN-1");
+		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
+
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
 			System.out.println("writing " + classPathFile);
@@ -157,7 +188,7 @@ public class WebServer extends BNode {
 					SSLContext context = getSSLContext();
 					params.setNeedClientAuth(false);
 
-					String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+					String[] enabledProtocols = { "TLSv1.3", "TLSv1.2" };
 					params.setProtocols(enabledProtocols);
 
 					SSLParameters defaultSSLParameters = context.getDefaultSSLParameters();
@@ -179,6 +210,9 @@ public class WebServer extends BNode {
 		new JVMNode(g);
 		new Byransha(g);
 		new OSNode(g);
+		new User(g, "user", "test");
+		new User(g, "toto", "toto");
+		new User(g, "admin", "admin");
 	}
 
 	private void createEndpoints(BBGraph g) {
@@ -220,9 +254,6 @@ public class WebServer extends BNode {
 		new UI.getProperties(g);
 		new Summarizer(g);
 		new LoadImage(g);
-
-		User user = new User(g, "user", "test");
-		user.stack.push(g.root());
 	}
 
 	public SessionStore getSessionStore() {

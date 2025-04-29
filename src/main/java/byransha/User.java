@@ -1,7 +1,6 @@
 package byransha;
 
 import java.util.Stack;
-import java.util.UUID;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -25,7 +24,7 @@ public class User extends PersistingNode {
 		name = new StringNode(g, null);
 		name.setAsLabelFor(this);
 		name.set(u);
-
+		stack.push(g.root());
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 
@@ -85,7 +84,7 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-									 User node) throws Throwable {
+				User node) throws Throwable {
 			return new EndpointTextResponse("text/html", pw -> {
 				pw.println("<ul>");
 				pw.print("<li>Navigation history: ");
@@ -117,7 +116,7 @@ public class User extends PersistingNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-									 BNode node) throws Throwable {
+				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
 			user.stack.forEach(e -> a.add(e.toJSONNode()));
 			return new EndpointJsonResponse(a, this);

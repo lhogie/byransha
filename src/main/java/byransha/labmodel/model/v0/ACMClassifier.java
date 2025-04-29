@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html
@@ -32,7 +31,7 @@ public class ACMClassifier extends BusinessNode {
 
 	@Override
 	public String whatIsThis() {
-		return descr;
+		return "a ACM classification";
 	}
 
 }

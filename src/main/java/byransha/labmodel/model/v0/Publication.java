@@ -6,8 +6,8 @@ import byransha.StringNode;
 
 public class Publication extends BusinessNode {
 	public StringNode title;
-
-	private ListNode<Person> authors;
+	public ListNode<Person> authors;
+	public ACMClassifier acmClassifier;
 
 	public Publication(BBGraph g, StringNode title, ListNode<Person> authors) {
 		super(g);
@@ -21,6 +21,7 @@ public class Publication extends BusinessNode {
 
 	public Publication(BBGraph g) {
 		super(g);
+		this.title = new StringNode(g);
 	}
 
 	@Override

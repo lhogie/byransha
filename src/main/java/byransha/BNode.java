@@ -171,7 +171,7 @@ public abstract class BNode {
 	}
 
 	public boolean canEdit(User user) {
-		return false;
+		return user.name.get().equals("admin");
 	}
 
 	public boolean matches(NodeEndpoint<?> v) {
