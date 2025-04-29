@@ -16,11 +16,11 @@ public class Structure extends BusinessNode {
 
 	public Structure(BBGraph g) {
 		super(g);
-		name = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		subStructures = (SetNode) g.addNode(SetNode.class); //new SetNode<>(g);
-		members = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
-		status = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
-		offices = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
+		name = g.addNode(StringNode.class); //new StringNode(g, null);
+		subStructures = g.addNode(SetNode.class); //new SetNode<>(g);
+		members = g.addNode(ListNode.class); //new ListNode<>(g);
+		status = g.addNode(ListNode.class); //new ListNode<>(g);
+		offices = g.addNode(ListNode.class); //new ListNode<>(g);
 	}
 
 	public Structure(BBGraph g, int id) {

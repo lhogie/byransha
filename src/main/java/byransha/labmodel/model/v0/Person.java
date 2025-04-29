@@ -45,20 +45,20 @@ public class Person extends BusinessNode {
 	public Person(BBGraph g) {
 		super(g);
 
-		etatCivil = (EtatCivil) g.addNode(EtatCivil.class); //new EtatCivil(g);
-		positions = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
-		pics = (ImageNode) g.addNode(ImageNode.class); //new ImageNode(g);
+		etatCivil = g.addNode(EtatCivil.class); //new EtatCivil(g);
+		positions = g.addNode(ListNode.class); //new ListNode<>(g);
+		pics =  g.addNode(ImageNode.class); //new ImageNode(g);
 
-		hdr = (BooleanNode) g.addNode(BooleanNode.class); //new BooleanNode(g);
+		hdr = g.addNode(BooleanNode.class); //new BooleanNode(g);
 
-		badgeNumber = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		website = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		faxNumber = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		phdDate = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		badgeNumber = g.addNode(StringNode.class); //new StringNode(g, null);
+		website = g.addNode(StringNode.class); //new StringNode(g, null);
+		faxNumber = g.addNode(StringNode.class); //new StringNode(g, null);
+		phdDate = g.addNode(StringNode.class); //new StringNode(g, null);
 
-		phoneNumbers = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
-		emailAddresses = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
-		offices = (ListNode) g.addNode(ListNode.class); //new ListNode<>(g);
+		phoneNumbers = g.addNode(ListNode.class); //new ListNode<>(g);
+		emailAddresses = g.addNode(ListNode.class); //new ListNode<>(g);
+		offices = g.addNode(ListNode.class); //new ListNode<>(g);
 	}
 
 	public Person(BBGraph g, int id) {

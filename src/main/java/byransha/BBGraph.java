@@ -345,9 +345,9 @@ public class BBGraph extends BNode {
 		return null;
 	}
 
-	public BNode addNode(Class<? extends BNode> nodeClass) {
+	public <C extends BNode> C addNode(Class<C> nodeClass) {
 		try {
-			BNode newNode = nodeClass.getConstructor(BBGraph.class).newInstance(this);
+			C newNode = nodeClass.getConstructor(BBGraph.class).newInstance(this);
 			System.out.println("Adding node of class: " + nodeClass.getName() + " with ID: " + newNode.id());
 			this.accept(newNode); // Add the new node to the graph
 			return newNode;

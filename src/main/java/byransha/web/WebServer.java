@@ -216,9 +216,9 @@ public class WebServer extends BNode {
 		g.addNode(JVMNode.class);
 		g.addNode(Byransha.class);
 		g.addNode(OSNode.class);
-		var user1 = (User) g.addNode(User.class);
-		var user2 = (User) g.addNode(User.class);
-		var user3 = (User) g.addNode(User.class);
+		var user1 = g.addNode(User.class);
+		var user2 = g.addNode(User.class);
+		var user3 = g.addNode(User.class);
 
 		user1.name.set("user");
 		user1.passwordNode.set("test");
@@ -234,9 +234,9 @@ public class WebServer extends BNode {
 		g.addNode(Jump.class);
 		g.addNode(Endpoints.class);
 		g.addNode(JVMNode.Kill.class);
-		var n = (Authenticate) g.addNode(Authenticate.class);
+		var n = g.addNode(Authenticate.class);
 		n.setSessionStore(sessionStore);
-		var l = (Logout) g.addNode(Logout.class);
+		var l = g.addNode(Logout.class);
 		l.setSessionStore(sessionStore);
 		g.addNode(Nodes.class);
 		g.addNode(EndpointCallDistributionView.class);
@@ -344,9 +344,9 @@ public class WebServer extends BNode {
 			if (user == null) {
 				user = graph.find(User.class, u -> u.name.get().equals("guest"));
 				if (user == null) {
-					System.out.println("Creating default guest user.");
-
-					user = new User(graph, "guest", "guest");
+					user = graph.addNode(User.class);
+					user.name.set("guest");
+					user.passwordNode.set("guest");
 					user.stack.push(graph.root());
 				}
 			}
@@ -390,14 +390,14 @@ public class WebServer extends BNode {
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
 
-                response.set("username", new TextNode(user.name.get()));
-                response.set("user_id", new IntNode(user.id()));
-                response.set("node_id", new TextNode(user.currentNode() == null ? "N/A" : ""+user.currentNode().id()));
+				response.set("username", new TextNode(user.name.get()));
+				response.set("user_id", new IntNode(user.id()));
+				response.set("node_id", new TextNode(user.currentNode() == null ? "N/A" : ""+user.currentNode().id()));
 
 				var resultsNode = new ArrayNode(null);
 				response.set("results", resultsNode);
 
-                assert inputJson != null;
+				assert inputJson != null;
 				boolean rawRequest = (inputJson != null && inputJson.remove("raw") != null);
 
 				if (rawRequest && resolvedEndpoints.size() != 1) {
@@ -465,17 +465,17 @@ public class WebServer extends BNode {
 					}
 					er.set("durationNs", new DoubleNode(duration));
 
-                    resultsNode.add(er);
-                }
+					resultsNode.add(er);
+				}
 
-                if (!inputJson.isEmpty()) {
-                    System.err.println("Warning: Parameters unused after processing all endpoints: " + inputJson.toPrettyString());
-                    response.set("unused_parameters_warning", new TextNode("Some request parameters were not used by any executed endpoint: " + inputJson.toPrettyString()));
-                }
+				if (!inputJson.isEmpty()) {
+					System.err.println("Warning: Parameters unused after processing all endpoints: " + inputJson.toPrettyString());
+					response.set("unused_parameters_warning", new TextNode("Some request parameters were not used by any executed endpoint: " + inputJson.toPrettyString()));
+				}
 
-                response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
-                return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
-            } else {
+				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
+				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
+			} else {
 				var file = new File(frontendDir, path);
 
 				if (!file.exists() || !file.isFile()) {
@@ -672,7 +672,7 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer n) {
+									 WebServer n) {
 			var r = new ObjectNode(null);
 			r.set("#request NOW", new TextNode("" + n.nbRequestsInProgress.size()));
 			r.set("#requests", new TextNode("" + n.nbRequestsInProgress.stream().map(uu -> uu.name.get()).toList()));
@@ -703,7 +703,7 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer n) {
+									 WebServer n) {
 			var r = new ArrayNode(null);
 			n.logs.forEach(l -> {
 				var lr = new ObjectNode(null);
@@ -731,7 +731,7 @@ public class WebServer extends BNode {
 
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer ws) {
+									 WebServer ws) {
 			var d = new Byransha.Distribution();
 			graph.findAll(NodeEndpoint.class, e -> true).forEach(e -> d.addXY(e.name(), e.nbCalls));
 			return new EndpointJsonResponse(d.toJson(), "logs");

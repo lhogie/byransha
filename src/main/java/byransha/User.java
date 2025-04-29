@@ -38,10 +38,11 @@ public class User extends PersistingNode {
 
 	public User(BBGraph g) {
 		super(g);
-		name = (StringNode) g.addNode(StringNode.class);
+		name = g.addNode(StringNode.class);
 		name.setAsLabelFor(this);
 		name.set("not defined");
-		passwordNode = (StringNode) g.addNode(StringNode.class);
+		stack.push(g.root());
+		passwordNode = g.addNode(StringNode.class);
 		passwordNode.set("not defined");
 	}
 

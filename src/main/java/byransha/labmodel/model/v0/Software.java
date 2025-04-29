@@ -6,7 +6,7 @@ import byransha.BBGraph;
 public class Software extends Publication {
 	public Software(BBGraph g) {
 		super(g);
-		openSource = (BooleanNode) g.addNode(BooleanNode.class); //new BooleanNode(g);
+		openSource = g.addNode(BooleanNode.class); //new BooleanNode(g);
 		// TODO Auto-generated constructor stub
 	}
 

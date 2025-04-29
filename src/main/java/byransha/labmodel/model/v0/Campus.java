@@ -10,8 +10,8 @@ public class Campus extends BusinessNode {
 
 	public Campus(BBGraph g) {
 		super(g);
-		name = (StringNode) g.addNode(StringNode.class);
-		buildings = (ListNode) g.addNode(ListNode.class);
+		name = g.addNode(StringNode.class);
+		buildings = g.addNode(ListNode.class);
 	}
 
 	public Campus(BBGraph g, int id) {

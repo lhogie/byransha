@@ -15,14 +15,14 @@ public class EtatCivil extends BusinessNode {
 
 	public EtatCivil(BBGraph g) {
 		super(g);
-		firstName = (StringNode) g.addNode(StringNode.class);  // new StringNode(g, null);
-		name = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		familyNameBeforeMariage = (StringNode) g.addNode(StringNode.class);  // new StringNode(g, null);
-		birthDate = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		cityOfBirth = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		nationality = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		countryOfBirth = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
-		address = (StringNode) g.addNode(StringNode.class); //new StringNode(g, null);
+		firstName = g.addNode(StringNode.class);  // new StringNode(g, null);
+		name = g.addNode(StringNode.class); //new StringNode(g, null);
+		familyNameBeforeMariage = g.addNode(StringNode.class);  // new StringNode(g, null);
+		birthDate = g.addNode(StringNode.class); //new StringNode(g, null);
+		cityOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
+		nationality = g.addNode(StringNode.class); //new StringNode(g, null);
+		countryOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
+		address = g.addNode(StringNode.class); //new StringNode(g, null);
 	}
 
 	public EtatCivil(BBGraph g, int id) {
