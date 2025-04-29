@@ -79,6 +79,7 @@ public class JVMNode extends BNode implements NoLoad {
 			super(db, id);
 		}
 
+
 		@Override
 		public String whatIsThis() {
 			return "Kill endpoint for JVMNode";

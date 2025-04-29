@@ -348,19 +348,23 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
 			g.addVertex(n.toVertex());
 
 			n.forEachOut((s, o) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
-				a.label = s;
+				if (o.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
+					a.label = s;
+				}
 			});
 
 			n.forEachIn((s, i) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
-				a.style = "dotted";
-				a.label = s;
+				if (i.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
+					a.style = "dotted";
+					a.label = s;
+				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);

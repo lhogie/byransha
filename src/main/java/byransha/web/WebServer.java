@@ -322,22 +322,24 @@ public class WebServer extends BNode {
 					sessionData = sessionOpt.get();
 					user = (User) graph.findByID(sessionData.userId());
 					if (user == null) {
+						System.err.println("User ID " + sessionData.userId() + " from session token " + sessionToken.substring(0, 8) + "... not found in graph. Invalidating session.");
 						sessionStore.removeSession(sessionToken);
 						Authenticate.deleteSessionCookie(https, "session_token");
-
-						defaultsUser = true;
+						sessionData = null;
 					}
 				} else {
 					Authenticate.deleteSessionCookie(https, "session_token");
-
-					defaultsUser = true;
 				}
-			} else {
-				defaultsUser = true;
 			}
 
-			if (defaultsUser) {
-				user = Authenticate.setDefaultUser(graph, sessionStore, https);
+			if (user == null) {
+				user = graph.find(User.class, u -> u.name.get().equals("guest"));
+				if (user == null) {
+					System.out.println("Creating default guest user.");
+
+					user = new User(graph, "guest", "guest");
+					user.stack.push(graph.root());
+				}
 			}
 
 			var path = https.getRequestURI().getPath();
@@ -349,95 +351,146 @@ public class WebServer extends BNode {
 			if (path.startsWith("/api/")) {
 				nbRequestsInProgress.add(user);
 
+				String endpointName = path.substring(5);
+				if (endpointName.endsWith("/")) {
+					endpointName = endpointName.substring(0, endpointName.length() - 1);
+				}
+
+				List<NodeEndpoint> resolvedEndpoints;
+				BNode contextNode = user.currentNode() != null ? user.currentNode() : graph.root();
+
+				if (endpointName.isEmpty()) {
+					User finalUser = user;
+					resolvedEndpoints = graph.endpointsUsableFrom(contextNode).stream()
+							.filter(e -> e instanceof View)
+							.filter(e -> e.canSee(finalUser))
+							.toList();
+				} else {
+					var specificEndpoint = graph.findEndpoint(endpointName);
+					if (specificEndpoint == null) {
+						throw new IllegalArgumentException("No such endpoint: " + endpointName);
+					}
+					resolvedEndpoints = List.of(specificEndpoint);
+				}
+
+
 				var response = new ObjectNode(null);
 				response.set("backend version", new TextNode(Byransha.VERSION));
 				long uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
 				response.set("uptimeMs", new TextNode(Duration.ofMillis(uptimeMs).toString()));
-
-				// response.set("compliant_endpoints",
-				// graph.findEndpoint(Endpoints.class).exec(new ObjectNode(null), user, this,
-				// https).toJson());
-
 				if (!inputJson2sendBack.isEmpty())
 					response.set("request", inputJson2sendBack);
 
-				if (user != null) {
-					response.set("username", new TextNode(user.name.get()));
-					response.set("user_id", new IntNode(user.id()));
-				}
+                response.set("username", new TextNode(user.name.get()));
+                response.set("user_id", new IntNode(user.id()));
+                response.set("node_id", new TextNode(user.currentNode() == null ? "N/A" : ""+user.currentNode().id()));
 
-				BNode contextNode = user.currentNode();
-
-				var endpoints = endpoints(path.substring(5), contextNode);
-//				System.err.println(endpoints);
+				var resultsNode = new ArrayNode(null);
+				response.set("results", resultsNode);
 
                 assert inputJson != null;
-                if (inputJson.remove("raw") != null) {
-					if (endpoints.size() != 1)
-						throw new IllegalArgumentException("only 1 endpoint allowed");
+				boolean rawRequest = (inputJson != null && inputJson.remove("raw") != null);
 
-					if (!inputJson.isEmpty())
-						throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
-
-					var endpoint = endpoints.getFirst();
-					var result = endpoint.exec(inputJson, user, this, https);
-					return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
-				} else {
-					var resultsNode = new ArrayNode(null);
-					response.set("results", resultsNode);
-
-					for (var endpoint : endpoints) {
-						ObjectNode er = new ObjectNode(null);
-						er.set("endpoint", new TextNode(endpoint.name()));
-						er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
-						er.set("response_type", new TextNode(endpoint.type().name()));
-						er.set("pretty_name", new TextNode(endpoint.prettyName()));
-						er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
-						long startTimeNs2 = System.nanoTime();
-
-						try {
-							EndpointResponse result = endpoint.exec(inputJson, user, this, https);
-							er.set("result", result.toJson());
-						} catch (Throwable err) {
-							err.printStackTrace();
-							var sw = new StringWriter();
-							err.printStackTrace(new PrintWriter(sw));
-							er.set("error", new TextNode(sw.toString()));
-						}
-
-						double duration = System.nanoTime() - startTimeNs2;
-						synchronized (endpoint) {
-							endpoint.nbCalls++;
-							endpoint.timeSpentNs += duration;
-						}
-						er.set("durationNs", new DoubleNode(duration));
-						resultsNode.add(er);
-					}
+				if (rawRequest && resolvedEndpoints.size() != 1) {
+					throw new IllegalArgumentException("Raw request requires exactly one endpoint, found: " + resolvedEndpoints.size());
 				}
 
-				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
+				for (var endpoint : resolvedEndpoints) {
+					ObjectNode er = new ObjectNode(null);
+					er.set("endpoint", new TextNode(endpoint.name()));
+					er.set("endpoint_class", new TextNode(endpoint.getClass().getName()));
+					er.set("response_type", new TextNode(endpoint.type().name()));
+					er.set("pretty_name", new TextNode(endpoint.prettyName()));
+					er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
+					long startTimeNs2 = System.nanoTime();
 
-				if (!inputJson.isEmpty())
-					throw new IllegalArgumentException("parms unused: " + inputJson.toPrettyString());
+					try {
+						// TODO: Add back for security
+						boolean isGuestUser = user.name.get().equals("guest");
 
-				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
-			} else {
+						/*if (endpoint.requiresAuthentication() && isGuestUser) {
+							throw new SecurityException("Authentication required for endpoint: " + endpoint.name());
+						}*/
+
+						if (!endpoint.canExec(user)) {
+							throw new SecurityException("User '" + user.name.get() + "' is not authorized to execute endpoint: " + endpoint.name());
+						}
+
+						EndpointResponse result = endpoint.exec(inputJson.deepCopy(), user, this, https);
+
+						if (rawRequest) {
+							if (!inputJson.isEmpty())
+								System.err.println("Warning: Parameters potentially unused in raw request: " + inputJson.toPrettyString()); // Log warning
+							return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
+						} else {
+							er.set("result", result.toJson());
+						}
+					} catch (SecurityException authEx) {
+						boolean isSpecificRequest = !endpointName.isEmpty();
+
+						if (rawRequest || isSpecificRequest) {
+							int statusCode = authEx.getMessage().startsWith("Authentication required") ? 401 : 403;
+							return new HTTPResponse(statusCode, "text/plain", authEx.getMessage().getBytes());
+						} else {
+							er.set("error", new TextNode(authEx.getMessage()));
+							er.set("error_type", new TextNode(authEx.getMessage().startsWith("Authentication required") ? "AuthenticationError" : "AuthorizationError"));
+						}
+					} catch (Throwable err) {
+						err.printStackTrace();
+						var sw = new StringWriter();
+						err.printStackTrace(new PrintWriter(sw));
+						String errorMsg = sw.toString();
+
+						if (rawRequest) {
+							return new HTTPResponse(500, "text/plain", ("Endpoint execution failed: " + err.getMessage()).getBytes());
+						} else {
+							er.set("error", new TextNode(errorMsg));
+							er.set("error_type", new TextNode("ExecutionError"));
+						}
+					}
+
+					double duration = System.nanoTime() - startTimeNs2;
+					synchronized (endpoint) {
+						endpoint.nbCalls++;
+						endpoint.timeSpentNs += (long) duration;
+					}
+					er.set("durationNs", new DoubleNode(duration));
+
+                    resultsNode.add(er);
+                }
+
+                if (!inputJson.isEmpty()) {
+                    System.err.println("Warning: Parameters unused after processing all endpoints: " + inputJson.toPrettyString());
+                    response.set("unused_parameters_warning", new TextNode("Some request parameters were not used by any executed endpoint: " + inputJson.toPrettyString()));
+                }
+
+                response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
+                return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
+            } else {
 				var file = new File(frontendDir, path);
 
 				if (!file.exists() || !file.isFile()) {
 					file = new File(frontendDir, "index.html");
+					if (!file.exists()) {
+						return new HTTPResponse(404, "text/plain", ("Not Found: " + path + " and index.html missing").getBytes());
+					}
 				}
 
-//				System.out.println("serving " + file);
 				return new HTTPResponse(200, mimeType(file.getName()), Files.readAllBytes(file.toPath()));
 			}
+		} catch (IllegalArgumentException | SecurityException e) {
+			int statusCode = (e instanceof SecurityException) ? 403 : 400;
+			System.err.println("Request Error (" + statusCode + "): " + e.getMessage());
+			var n = new ObjectNode(null);
+			n.set("error class", new TextNode(e.getClass().getName()));
+			n.set("message", new TextNode(e.getMessage()));
+			return new HTTPResponse(statusCode, "application/json", n.toPrettyString().getBytes());
 		} catch (Throwable err) {
 			err.printStackTrace();
 			var n = new ObjectNode(null);
 			n.set("error class", new TextNode(err.getClass().getName()));
 			n.set("message", new TextNode(err.getMessage()));
 			var a = new ArrayNode(null);
-
 			for (var e : err.getStackTrace()) {
 				var se = new ObjectNode(null);
 				se.set("line number", new IntNode(e.getLineNumber()));
@@ -445,11 +498,9 @@ public class WebServer extends BNode {
 				se.set("method name", new TextNode(e.getMethodName()));
 				a.add(se);
 			}
-
 			n.set("stack trace", a);
-			return new HTTPResponse(500, "text/plain", n.toPrettyString().getBytes());
+			return new HTTPResponse(500, "application/json", n.toPrettyString().getBytes());
 		} finally {
-			// Remove the user from nbRequestsInProgress if it was added
 			if (user != null) {
 				nbRequestsInProgress.remove(user);
 			}
@@ -462,7 +513,14 @@ public class WebServer extends BNode {
 		}
 
 		if (endpointName.isEmpty()) {
-			return graph.endpointsUsableFrom(currentNode).stream().filter(e -> e instanceof View).toList();
+			if (currentNode == null) {
+				System.err.println("Warning: No current node for user, returning endpoints for graph root.");
+				currentNode = graph.root();
+			}
+
+			return graph.endpointsUsableFrom(currentNode).stream()
+					.filter(e -> e instanceof View)
+					.toList();
 		} else {
 			var e = graph.findEndpoint(endpointName);
 
@@ -470,38 +528,74 @@ public class WebServer extends BNode {
 				throw new IllegalArgumentException("no such endpoint: " + endpointName);
 			}
 
+			if (currentNode != null && !currentNode.matches(e)) {
+				throw new IllegalArgumentException("Endpoint " + endpointName + " is not applicable to the current node: " + currentNode);
+			}
+
 			return List.of(e);
 		}
 	}
 
 	static String mimeType(String url) {
-		if (url.endsWith(".html") || url.endsWith(".htm")) {
-			return "text/html";
-		} else if (url.endsWith(".js") || url.endsWith(".jsx")) {
-			return "text/javascript";
-		} else if (url.endsWith(".jpg") || url.endsWith(".jpeg")) {
+		if (url == null) return "application/octet-stream";
+
+		String lowerUrl = url.toLowerCase();
+
+		if (lowerUrl.endsWith(".html") || lowerUrl.endsWith(".htm")) {
+			return "text/html; charset=utf-8";
+		} else if (lowerUrl.endsWith(".js") || lowerUrl.endsWith(".jsx")) {
+			return "text/javascript; charset=utf-8";
+		} else if (lowerUrl.endsWith(".jpg") || lowerUrl.endsWith(".jpeg")) {
 			return "image/jpeg";
-		} else if (url.endsWith(".png")) {
+		} else if (lowerUrl.endsWith(".png")) {
 			return "image/png";
-		} else if (url.endsWith(".svg")) {
+		} else if (lowerUrl.endsWith(".svg")) {
 			return "image/svg+xml";
-		} else if (url.endsWith(".css")) {
-			return "text/css";
+		} else if (lowerUrl.endsWith(".css")) {
+			return "text/css; charset=utf-8";
+		} else if (lowerUrl.endsWith(".json")) {
+			return "application/json; charset=utf-8";
+		} else if (lowerUrl.endsWith(".txt")) {
+			return "text/plain; charset=utf-8";
+		} else if (lowerUrl.endsWith(".ico")) {
+			return "image/x-icon";
+		} else if (lowerUrl.endsWith(".webmanifest") || lowerUrl.endsWith(".manifest")) {
+			return "application/manifest+json";
+		} else if (lowerUrl.endsWith(".ttf")) {
+			return "font/ttf";
+		} else if (lowerUrl.endsWith(".woff")) {
+			return "font/woff";
+		} else if (lowerUrl.endsWith(".woff2")) {
+			return "font/woff2";
 		} else {
-			return null;
+			System.err.println("Warning: Unknown MIME type for file: " + url + ". Defaulting to application/octet-stream.");
+			return "application/octet-stream";
 		}
 	}
 
 	private static ObjectNode grabInputFromURLandPOST(HttpExchange http) throws IOException {
 		// gets the date from POST
 		var postData = http.getRequestBody().readAllBytes();
-		ObjectNode inputJson = postData.length > 0 ? (ObjectNode) mapper.readTree(postData) : new ObjectNode(null);
+		ObjectNode inputJson = null;
 
-		// adds the URL parameters from the query string to the JSON
+		try {
+			inputJson = postData.length > 0 ? (ObjectNode) mapper.readTree(postData) : new ObjectNode(null);
+		} catch (Exception e) {
+			System.err.println("Failed to parse POST body as JSON: " + new String(postData));
+			inputJson = new ObjectNode(null);
+		}
+
 		var query = query(http.getRequestURI().getQuery());
-		query.forEach((key, value) -> inputJson.set(key, new TextNode(value)));
+		ObjectNode finalInputJson = inputJson;
+		query.forEach((key, value) -> {
+			if (!finalInputJson.has(key)) {
+				finalInputJson.set(key, new TextNode(value));
+			} else {
+				System.err.println("Warning: URL parameter '" + key + "' conflicts with POST data key. POST data takes precedence.");
+			}
+		});
 
-		return inputJson;
+		return finalInputJson;
 	}
 
 	private static Map<String, String> query(String s) {
@@ -509,8 +603,17 @@ public class WebServer extends BNode {
 
 		if (s != null && !s.isEmpty()) {
 			for (var e : TextUtilities.split(s, '&')) {
-				var a = e.split("=");
-				query.put(a[0], a.length == 2 ? a[1] : null);
+				if (e.isEmpty()) continue;
+				var a = e.split("=", 2);
+				if (a.length > 0 && !a[0].isEmpty()) {
+					try {
+						String key = java.net.URLDecoder.decode(a[0], java.nio.charset.StandardCharsets.UTF_8);
+						String value = (a.length == 2) ? java.net.URLDecoder.decode(a[1], java.nio.charset.StandardCharsets.UTF_8) : "";
+						query.put(key, value);
+					} catch (IllegalArgumentException decodeEx) {
+						System.err.println("Warning: Failed to decode URL parameter: " + e + " - " + decodeEx.getMessage());
+					}
+				}
 			}
 		}
 

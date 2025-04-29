@@ -35,12 +35,14 @@ public class Nodes extends NodeEndpoint<BNode> implements View {
 
 		synchronized (graph.nodes) {
 			for (var n : graph.nodes) {
-				var nn = new ObjectNode(null);
-				nn.set("id", new TextNode("" + n.id()));
-				nn.set("description", new TextNode(n.whatIsThis()));
-				nn.set("class", new TextNode(n.getClass().getName()));
-				nn.set("to_string", new TextNode(n.toString()));
-				a.add(nn);
+				if (n.canSee(user)) {
+					var nn = new ObjectNode(null);
+					nn.set("id", new TextNode("" + n.id()));
+					nn.set("description", new TextNode(n.whatIsThis()));
+					nn.set("class", new TextNode(n.getClass().getName()));
+					nn.set("to_string", new TextNode(n.toString()));
+					a.add(nn);
+				}
 			}
 		}
 

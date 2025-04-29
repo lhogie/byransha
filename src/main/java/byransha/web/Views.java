@@ -32,26 +32,37 @@ public class Views extends NodeEndpoint<BNode> implements View {
 			BNode currentNode) {
 		ArrayNode viewsNode = new ArrayNode(null);
 
+		if (currentNode == null) {
+			currentNode = graph.root();
+		}
+
 		for (var e : graph.endpointsUsableFrom(currentNode)) {
-			var ev = new ObjectNode(null);
-			ev.set("pretty_name", new TextNode(e.prettyName()));
-			ev.set("id", new TextNode("" + e.id()));
-			ev.set("target", new TextNode(e.getTargetNodeType().getName()));
-			ev.set("can read", new TextNode("" + e.canSee(user)));
-			ev.set("can write", new TextNode("" + e.canSee(user)));
+			if (e.canSee(user) && e.canExec(user)) {
+				var ev = new ObjectNode(null);
+				ev.set("pretty_name", new TextNode(e.prettyName()));
+				ev.set("id", new TextNode("" + e.id()));
+				ev.set("target", new TextNode(e.getTargetNodeType().getName()));
+				ev.set("can read", new TextNode("" + e.canSee(user)));
+				ev.set("can write", new TextNode("" + e.canSee(user)));
+				ev.set("response_type", new TextNode(e.type().name()));
 
-			if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {
-				try {
-					ev.set("result", e.exec(inputJson, user, webServer, exchange, user).toJson());
-				} catch (Throwable err) {
-					err.printStackTrace();
-					var sw = new StringWriter();
-					err.printStackTrace(new PrintWriter(sw));
-					ev.set("error", new TextNode(sw.toString()));
+				if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {					try {
+						EndpointResponse result = e.exec(inputJson.deepCopy(), user, webServer, exchange, user.currentNode());
+						ev.set("result", result.toJson());
+					} catch (SecurityException secEx) {
+						ev.set("error", new TextNode("Execution blocked: " + secEx.getMessage()));
+						ev.set("error_type", new TextNode(secEx.getMessage().startsWith("Authentication required") ? "AuthenticationError" : "AuthorizationError"));
+					} catch (Throwable err) {
+						err.printStackTrace();
+						var sw = new StringWriter();
+						err.printStackTrace(new PrintWriter(sw));
+						ev.set("error", new TextNode(sw.toString()));
+						ev.set("error_type", new TextNode("ExecutionError"));
+					}
 				}
-			}
 
-			viewsNode.add(ev);
+				viewsNode.add(ev);
+			}
 		}
 
 		return new EndpointJsonResponse(viewsNode, this);

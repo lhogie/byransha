@@ -30,6 +30,9 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 	@Override
 	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
 			BNode node) {
+		if (!node.canSee(user)) {
+			throw new SecurityException("User does not have permission to view node " + node.id());
+		}
 
 		var r = new ObjectNode(null);
 		r.set("id", new TextNode("" + node.id()));
@@ -41,26 +44,34 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 
 		var outs = new ArrayNode(null);
 		node.forEachOut((name, outNode) -> {
-			var out = new ObjectNode(null);
-			out.set(name, new TextNode("" + outNode.id()));
-			outs.add(out);
+			if (outNode.canSee(user)) {
+				var out = new ObjectNode(null);
+				out.set(name, new TextNode("" + outNode.id()));
+				outs.add(out);
+			}
 		});
 		r.set("out", outs);
 		var ins = new ArrayNode(null);
 		node.forEachIn((name, inNode) -> {
-			var in = new ObjectNode(null);
-			in.set(name, new TextNode("" + inNode.id()));
-			ins.add(in);
+			if (inNode.canSee(user)) {
+				var in = new ObjectNode(null);
+				in.set(name, new TextNode("" + inNode.id()));
+				ins.add(in);
+			}
 		});
 		r.set("in", ins);
 
-		var a = new ArrayNode(null);
+		var availableEndpoints = new ArrayNode(null);
 
 		for (var e : graph.endpointsUsableFrom(node)) {
-			a.add(new TextNode(e.name()));
+			if (e.canSee(user)) {
+				if (e.canExec(user)) {
+					availableEndpoints.add(new TextNode(e.name()));
+				}
+			}
 		}
 
-		r.set("views", a);
+		r.set("views", availableEndpoints);
 		return new EndpointJsonResponse(r, this);
 	}
 }

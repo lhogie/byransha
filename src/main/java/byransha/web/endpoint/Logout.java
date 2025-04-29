@@ -37,6 +37,11 @@ public class Logout extends NodeEndpoint<BBGraph> {
         }
     }
 
+    @Override
+    public boolean requiresAuthentication() {
+        return false;
+    }
+
     private WebServer findWebServerInstance(BBGraph graph) {
         if (graph == null) return null;
         return graph.find(WebServer.class, ws -> true);

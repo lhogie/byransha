@@ -11,6 +11,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import byransha.graph.BVertex;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
@@ -492,11 +493,19 @@ public class BBGraph extends BNode {
 			var g = new AnyGraph();
 
 			db.forEachNode(v -> {
-				g.addVertex(v.toVertex());
-				v.forEachOut((s, o) -> {
-					var a = g.newArc(g.ensureHasVertex(v), g.ensureHasVertex(o));
-					a.label = s;
-				});
+				if (v.canSee(user)) {
+					g.addVertex(v.toVertex());
+					v.forEachOut((s, o) -> {
+						if (o.canSee(user)) {
+							BVertex targetVertex = g.findVertexByID("" + o.id());
+							if (targetVertex == null) {
+								targetVertex = g.ensureHasVertex(o);
+							}
+							var arc = g.newArc(g.ensureHasVertex(v), targetVertex);
+							arc.label = s;
+						}
+					});
+				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
