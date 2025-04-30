@@ -21,7 +21,12 @@ public class Country extends BusinessNode {
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-				new Country(g, code);
+                var country = g.addNode(Country.class);
+                try {
+                    country.setFlagCode(code);
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
 			});
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -41,6 +46,21 @@ public class Country extends BusinessNode {
 		} catch (IOException err) {
 			err.printStackTrace();
 		}
+	}
+
+	public Country(BBGraph g) {
+        super(g);
+        codeNode = g.addNode(StringNode.class);
+		name = g.addNode(StringNode.class);
+		flag = g.addNode(ImageNode.class);
+
+	}
+
+	public void setFlagCode(String code) throws IOException {
+		flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
+				.readAllBytes());
+		codeNode.set(code);
+		name = new StringNode(graph, countryCodes.get(code).asText());
 	}
 
 	public Country(BBGraph g, int id) {

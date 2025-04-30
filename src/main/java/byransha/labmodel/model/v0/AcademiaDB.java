@@ -33,8 +33,13 @@ public class AcademiaDB extends BBGraph {
 
 	public void loadFromLake(File inputDir) throws IOException {
 		Files.readAllLines(new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-			var c = new Country(graph, "fr");
-			c.name.set(l);
+			var c = graph.addNode(Country.class);
+            try {
+                c.setFlagCode("fr");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            c.name.set(l);
 		});
 
 		System.out.println(graph + " " + this);

@@ -66,7 +66,6 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.Edit;
-import byransha.web.endpoint.ShowOut;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
