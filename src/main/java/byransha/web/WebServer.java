@@ -73,7 +73,6 @@ import byransha.web.endpoint.NodeEndpoints;
 import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
-import byransha.web.endpoint.ShowOut;
 import byransha.web.endpoint.Summarizer;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.CharacterDistribution;
@@ -267,7 +266,7 @@ public class WebServer extends BNode {
 		g.addNode(SetValue.class);
 		g.addNode(AnyGraph.Classes.class);
 		g.addNode(Edit.class);
-		g.addNode(ShowOut.class);
+		g.addNode(CharacterDistribution.ShowOut.class);
 		g.addNode(History.class);
 		g.addNode(UI.class);
 		g.addNode(UI.getProperties.class);
