@@ -68,7 +68,7 @@ const HomePage = () => {
     const handleSelectMenuClose = () => setSelectMenuAnchor(null);
 
     const handleViewToggle = (endpoint) => {
-        setSelectedViews((prev) =>
+        setSelectedViewEndpoints((prev) =>
             prev.includes(endpoint)
                 ? prev.filter((id) => id !== endpoint)
                 : [...prev, endpoint]
@@ -118,8 +118,8 @@ const HomePage = () => {
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
 
     const isSpecialView = (view) => {
-        const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view', 'graph_nivo_view']; // Added graph_nivo_view
-        const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot', 'text/dot']; // Added text/dot for graphviz
+        const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view', 'graph_nivo_view'];
+        const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot', 'text/dot'];
         const isDistribution = view.endpoint.endsWith('_distribution');
         const hasResult = !!view.result;
 
@@ -127,7 +127,7 @@ const HomePage = () => {
             specialViewIds.includes(view.endpoint) ||
             isDistribution ||
             (hasResult && specialContentTypes.includes(view.result.contentType)) ||
-            (!hasResult && specialContentTypes.some(type => view.endpoint.includes(type.replace(/[\/+]/g, '_')))) // Fallback check endpoint name
+            (!hasResult && specialContentTypes.some(type => view.endpoint.includes(type.replace(/[\/+]/g, '_'))))
         );
     };
 
