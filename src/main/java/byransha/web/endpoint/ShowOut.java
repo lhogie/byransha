@@ -1,9 +1,11 @@
 package byransha.web.endpoint;
+import byransha.web.View;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+
 
 import byransha.BBGraph;
 import byransha.BNode;
@@ -14,7 +16,7 @@ import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
 
-public class ShowOut extends NodeEndpoint<BNode> {
+public class ShowOut extends NodeEndpoint<BNode> implements View {
 
     @Override
     public String whatIsThis() {
@@ -33,10 +35,12 @@ public class ShowOut extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
 
         var a = new ArrayNode(null);
-
+        var b = new ObjectNode(null);
+        b.set("number_of_outs",new IntNode(currentNode.outs().size()));
+        a.add(b);
 
         for(String key : currentNode.outs().keySet()) {
-            var b = new ObjectNode(null);
+            b = new ObjectNode(null);
             BNode node = currentNode.outs().get(key);
             b.set("id", new IntNode(node.id()));
             b.set("name",new TextNode(key));
@@ -48,5 +52,10 @@ public class ShowOut extends NodeEndpoint<BNode> {
 
         //System.out.println("id de currentNode:"+ currentNode.id());
         return new EndpointJsonResponse(a,"response for edit");
+    }
+
+    @Override
+    public boolean sendContentByDefault() {
+        return true;
     }
 }
