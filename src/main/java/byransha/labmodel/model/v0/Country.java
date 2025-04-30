@@ -1,16 +1,46 @@
 package byransha.labmodel.model.v0;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import byransha.BBGraph;
 import byransha.ImageNode;
 import byransha.StringNode;
 
 public class Country extends BusinessNode {
-	StringNode name ;
+	StringNode name, codeNode;
 	ImageNode flag;
+	static JsonNode countryCodes;
 
-	public Country(BBGraph g) {
+	public static void loadCountries(BBGraph g) {
+		try {
+			var res = Country.class.getResource("/country_flags/countries.json");
+			var json = new String(res.openStream().readAllBytes());
+			countryCodes = new ObjectMapper().readTree(json);
+
+			countryCodes.elements().forEachRemaining(e -> {
+				new Country(g, e.asText());
+			});
+		} catch (Exception err) {
+			err.printStackTrace();
+		}
+	}
+
+	public Country(BBGraph g, String code) {
 		super(g);
-		name = new StringNode(g, null);
+		codeNode = new StringNode(g);
+		codeNode.set(code);
+		name = new StringNode(g, countryCodes.get(code).asText());
+		flag = new ImageNode(g);
+
+		try {
+			flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".json").openStream()
+					.readAllBytes());
+		} catch (IOException err) {
+			err.printStackTrace();
+		}
 	}
 
 	public Country(BBGraph g, int id) {
@@ -19,12 +49,11 @@ public class Country extends BusinessNode {
 
 	@Override
 	public String whatIsThis() {
-		return "Country: " + (name != null ? name.toString() : "Unnamed");
+		return "a country";
 	}
-	
 
 	@Override
 	public String prettyName() {
-		return name.get();
+		return name.get() + "(" + codeNode.get().toUpperCase() + ")";
 	}
 }

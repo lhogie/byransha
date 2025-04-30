@@ -156,7 +156,10 @@ public class WebServer extends BNode {
 		List<Person> persons = new ArrayList<>();
 
 		for (int i = 0; i < 10; ++i) {
-			persons.add(new Person(g));
+			var  p = new Person(g);
+			persons.add(p);
+			p.etatCivil  =new EtatCivil(g);
+			p.etatCivil.address.set("2000, route des Lucioles");
 		}
 
 		var sophiaTech = new Campus(g);
@@ -172,7 +175,7 @@ public class WebServer extends BNode {
 		}
 
 		var cnrs = new CNRS(g);
-		persons.forEach(p -> cnrs.members.add(p));
+		persons.forEach(p -> cnrs.members.add(p);
 		var publication = new Publication(g);
 		publication.title.set("156 maitre du temps - MAIN-1");
 		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
