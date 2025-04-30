@@ -1,6 +1,10 @@
 package byransha.web.view;
 
+import byransha.ValuedNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
@@ -51,4 +55,5 @@ public class CharacterDistribution extends NodeEndpoint<BNode> implements View {
 
 		return new EndpointJsonResponse(in, dialects.distribution);
 	}
+
 }

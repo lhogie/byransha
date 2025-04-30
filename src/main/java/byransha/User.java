@@ -20,6 +20,7 @@ public class User extends PersistingNode {
 	public StringNode passwordNode;
 	public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
 
+
 	public User(BBGraph g, String u, String password) {
 		super(g);
 		name = new StringNode(g, null);
@@ -28,6 +29,9 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
+		this.color = "blue";
+
+
 
 		/*
 		 * this.saveOuts(f -> {});
@@ -45,6 +49,7 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = g.addNode(StringNode.class);
 		passwordNode.set("not defined");
+		this.color = "blue";
 	}
 
 	public User(BBGraph g, int id) {
