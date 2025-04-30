@@ -48,8 +48,8 @@ public class UI extends BNode {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "info about a node";
+		public String whatItDoes() {
+			return "gets UI properties for the frontend";
 		}
 
 		@Override

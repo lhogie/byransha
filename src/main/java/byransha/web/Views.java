@@ -23,8 +23,8 @@ public class Views extends NodeEndpoint<BNode> implements View {
 	}
 
 	@Override
-	public String whatIsThis() {
-		return "Description of Views";
+	public String whatItDoes() {
+		return "lists views";
 	}
 
 	@Override
@@ -46,12 +46,17 @@ public class Views extends NodeEndpoint<BNode> implements View {
 				ev.set("can write", new TextNode("" + e.canSee(user)));
 				ev.set("response_type", new TextNode(e.type().name()));
 
-				if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {					try {
-						EndpointResponse result = e.exec(inputJson.deepCopy(), user, webServer, exchange, user.currentNode());
+				if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {
+					try {
+						EndpointResponse result = e.exec(inputJson.deepCopy(), user, webServer, exchange,
+								user.currentNode());
 						ev.set("result", result.toJson());
 					} catch (SecurityException secEx) {
 						ev.set("error", new TextNode("Execution blocked: " + secEx.getMessage()));
-						ev.set("error_type", new TextNode(secEx.getMessage().startsWith("Authentication required") ? "AuthenticationError" : "AuthorizationError"));
+						ev.set("error_type",
+								new TextNode(
+										secEx.getMessage().startsWith("Authentication required") ? "AuthenticationError"
+												: "AuthorizationError"));
 					} catch (Throwable err) {
 						err.printStackTrace();
 						var sw = new StringWriter();

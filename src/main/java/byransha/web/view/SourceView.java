@@ -16,7 +16,7 @@ import toools.src.Source;
 public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "SourceView description";
 	}
 

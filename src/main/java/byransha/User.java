@@ -89,8 +89,8 @@ public class User extends PersistingNode {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "UserView for managing user-related operations.";
+		public String whatItDoes() {
+			return "show some things about users";
 		}
 
 		@Override
@@ -121,8 +121,8 @@ public class User extends PersistingNode {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "the navigation history";
+		public String whatItDoes() {
+			return "gets the navigation history";
 		}
 
 		@Override

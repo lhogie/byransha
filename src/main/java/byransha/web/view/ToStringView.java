@@ -33,7 +33,7 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 	}
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "ToStringView for BNode";
 	}
 }

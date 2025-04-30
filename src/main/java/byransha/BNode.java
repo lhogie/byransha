@@ -1,6 +1,6 @@
 package byransha;
 
-import java.awt.*;
+import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -13,7 +13,6 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import byransha.graph.BGElement;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,6 +20,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.AnyGraph;
+import byransha.graph.BGElement;
 import byransha.graph.BVertex;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
@@ -46,7 +46,7 @@ public abstract class BNode {
 
 		if (g != null) {
 			this.graph = g;
-			//g.accept(this);
+			// g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
 			this.graph = thisGraph;
 		} else {
@@ -217,16 +217,18 @@ public abstract class BNode {
 
 		return false;
 	}
-	public void getFields(int id){
+
+	public void getFields(int id) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
-				if ((f.getModifiers() & Modifier.STATIC) != 0){
+				if ((f.getModifiers() & Modifier.STATIC) != 0) {
 					continue;
 				}
-				//a completer
+				// a completer
 			}
 		}
 	}
+
 	protected void setField(String name, BNode targetNode) {
 		for (var c : Clazz.bfs(getClass())) {
 			for (var f : c.getDeclaredFields()) {
@@ -247,8 +249,8 @@ public abstract class BNode {
 
 	public static class BasicView extends NodeEndpoint<BNode> implements View {
 		@Override
-		public String whatIsThis() {
-			return "BasicView for BNode";
+		public String whatItDoes() {
+			return "";
 		}
 
 		public BasicView(BBGraph g) {
@@ -295,8 +297,8 @@ public abstract class BNode {
 	public static class Navigator extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String whatIsThis() {
-			return "navigate the graph";
+		public String whatItDoes() {
+			return "navigates the graph";
 		}
 
 		public Navigator(BBGraph g) {
@@ -334,8 +336,8 @@ public abstract class BNode {
 	public static class InOutsNivoView extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String whatIsThis() {
-			return "generate a NIVO description of the graph";
+		public String whatItDoes() {
+			return "generates a NIVO description of the graph";
 		}
 
 		public InOutsNivoView(BBGraph db) {
@@ -385,8 +387,8 @@ public abstract class BNode {
 	public static class OutNodeDistribution extends NodeEndpoint<BNode> implements View {
 
 		@Override
-		public String whatIsThis() {
-			return "OutNodeDistribution view for BNode";
+		public String whatItDoes() {
+			return "shows distributed for out nodes";
 		}
 
 		public OutNodeDistribution(BBGraph db) {

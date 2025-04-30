@@ -13,8 +13,8 @@ import byransha.web.WebServer;
 public class Jump extends NodeEndpoint<BNode> {
 
 	@Override
-	public String whatIsThis() {
-		return "Jump endpoint for navigating to a target node.";
+	public String whatItDoes() {
+		return "navigating to a target node.";
 	}
 
 	public Jump(BBGraph g) {

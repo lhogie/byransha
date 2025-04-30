@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class CharExampleXY extends NodeEndpoint<BNode> implements View {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "CharExampleXY description";
 	}
 	public CharExampleXY(BBGraph g) {

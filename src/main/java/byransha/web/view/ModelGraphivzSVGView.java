@@ -27,7 +27,7 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 	}
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "graphical (graphviz-based) representations of the model in the graph";
 	}
 

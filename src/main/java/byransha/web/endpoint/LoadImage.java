@@ -16,7 +16,7 @@ import java.net.URL;
 public class LoadImage extends NodeEndpoint<BNode> {
 
     @Override
-    public String whatIsThis() {
+    public String whatItDoes() {
         return "Load image endpoint for navigating to a target node.";
     }
 

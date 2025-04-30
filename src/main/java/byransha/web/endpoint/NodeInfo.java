@@ -23,7 +23,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 	}
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "info about a node";
 	}
 

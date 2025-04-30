@@ -36,6 +36,12 @@ public abstract class Endpoint extends BNode {
 		super(db, id);
 	}
 
+	@Override
+	public final String whatIsThis() {
+		return "endpoint " + whatItDoes();
+	}
+
+	public abstract String whatItDoes();
 
 	public abstract EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange)
 			throws Throwable;
@@ -114,8 +120,8 @@ public abstract class Endpoint extends BNode {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "Description of Endpoint.V";
+		public String whatItDoes() {
+			return "describes endpoint";
 		}
 
 		@Override

@@ -13,7 +13,7 @@ public class Logout extends NodeEndpoint<BBGraph> {
     private SessionStore sessionStore;
 
     @Override
-    public String whatIsThis() {
+    public String whatItDoes() {
         return "Logs the current user out by invalidating their session.";
     }
 

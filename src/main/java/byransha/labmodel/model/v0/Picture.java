@@ -38,8 +38,8 @@ public class Picture extends ValuedNode<byte[]> {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "Endpoint for Picture nodes";
+		public String whatItDoes() {
+			return "get the content of an image";
 		}
 	}
 
