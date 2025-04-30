@@ -550,6 +550,7 @@ export const View = ({ viewId, sx }) => {
                     <ExportButton data={exportData} fileName={`view_${viewId}_data.csv`} />
                 </Box>
             )}
+
         </Box>
     );
 };
