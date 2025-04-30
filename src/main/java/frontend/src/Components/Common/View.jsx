@@ -90,16 +90,21 @@ export const View = ({viewId}) => {
         jumpMutation.mutate(`node_id=${nodeId}`);
     }, [jumpMutation]);
 
-    useEffect(() => {
-        if (!rawApiData) return;
-        const {data: content} = rawApiData;
-        if (!content?.results?.[0]?.result) return;
-        const contentType = content.results[0].result.contentType;
+    const resultData = rawApiData?.data?.results?.[0]?.result?.data;
+    const resultContentType = rawApiData?.data?.results?.[0]?.result?.contentType;
 
-        if (contentType === 'text/dot' && graphvizRef.current) {
-            graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
+    useEffect(() => {
+        if (resultContentType === 'text/dot' && graphvizRef.current && resultData) {
+            try {
+                graphviz(graphvizRef.current).renderDot(resultData);
+            } catch (error) {
+                console.error("Error rendering Graphviz DOT:", error);
+                if (graphvizRef.current) {
+                    graphvizRef.current.innerHTML = `<div style="color: red;">Error rendering graph: ${error.message}</div>`;
+                }
+            }
         }
-    }, [rawApiData]);
+    }, [resultData, resultContentType]);
 
     const handleExportCSV = () => {
         if (Array.isArray(resultData)) {
@@ -591,9 +596,6 @@ export const View = ({viewId}) => {
             </Box>
         );
     }
-
-    const resultData = dataContent?.results?.[0]?.result?.data;
-    const resultContentType = dataContent?.results?.[0]?.result?.contentType;
 
     if (!resultData || !resultContentType) {
         return (

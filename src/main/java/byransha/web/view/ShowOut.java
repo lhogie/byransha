@@ -15,7 +15,7 @@ import byransha.web.WebServer;
 public class ShowOut extends NodeEndpoint<BNode> implements View {
 
     @Override
-    public String whatIsThis() {
+    public String whatItDoes() {
         return "Endpoint to show every values of the current node";
     }
 
