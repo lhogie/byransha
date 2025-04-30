@@ -61,6 +61,7 @@ const MainLayout = () => {
     const visibleHistory = history.length > 3 ? history.slice(-2) : history;
     const currentNode = history[history.length - 1];
 
+
     return (
         <Box sx={{
             '& .MuiDrawer-root .MuiDrawer-paper, & [role="navigation"]': {
