@@ -1,6 +1,7 @@
 package byransha.web.endpoint;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -36,14 +37,18 @@ public class ShowOut extends NodeEndpoint<BNode> implements View {
 		var a = new ArrayNode(null);
 
 		n.forEachOut((name, out) -> {
-			var b = new ObjectNode(null);
-			b.set("id", new IntNode(out.id()));
-			b.set("name", new TextNode(name));
-			b.set("type", new TextNode(out.getClass().getSimpleName()));
+			if (user.canSee(user)) {
+				var b = new ObjectNode(null);
+				b.set("id", new IntNode(out.id()));
+				b.set("name", new TextNode(name));
+				b.set("type", new TextNode(out.getClass().getSimpleName()));
+				b.set("editable", BooleanNode.valueOf(out.canEdit(user)));
 
-			if (out instanceof ValuedNode vn) {
-				b.set("value", new TextNode(vn.get().toString()));
+				if (out instanceof ValuedNode vn) {
+					b.set("value", new TextNode(vn.get().toString()));
+				}
 			}
+
 		});
 
 		// System.out.println("id de currentNode:"+ currentNode.id());
