@@ -27,6 +27,11 @@ public class ImageNode extends ValuedNode<byte[]> {
 	}
 
 	@Override
+	public String getAsString() {
+		return Base64.getEncoder().encodeToString(get());
+	}
+
+	@Override
 	public String whatIsThis() {
 		return "an image";
 	}

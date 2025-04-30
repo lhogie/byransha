@@ -419,6 +419,7 @@ public abstract class BNode {
 		return n;
 	}
 
+
 	public abstract String prettyName();
 	/*
 	 * public static class BFS extends NodeEndpoint<BNode> {
