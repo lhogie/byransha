@@ -50,6 +50,7 @@ const MainLayout = () => {
     };
 
     const handleLogout = async () => {
+        jumpToNode("0");
         logoutMutation.mutate()
     };
 
