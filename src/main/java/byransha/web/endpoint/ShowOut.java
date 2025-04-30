@@ -12,9 +12,10 @@ import byransha.User;
 import byransha.ValuedNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 
-public class ShowOut extends NodeEndpoint<BNode> {
+public class ShowOut extends NodeEndpoint<BNode> implements View {
 
 	@Override
 	public String whatIsThis() {
@@ -30,8 +31,8 @@ public class ShowOut extends NodeEndpoint<BNode> {
 	}
 
 	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-			BNode n) throws Throwable {
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
+			throws Throwable {
 		var a = new ArrayNode(null);
 
 		n.forEachOut((name, out) -> {
@@ -43,11 +44,14 @@ public class ShowOut extends NodeEndpoint<BNode> {
 			if (out instanceof ValuedNode vn) {
 				b.set("value", new TextNode(vn.get().toString()));
 			}
-
-			a.add(b);
 		});
 
 		// System.out.println("id de currentNode:"+ currentNode.id());
 		return new EndpointJsonResponse(a, "response for edit");
+	}
+
+	@Override
+	public boolean sendContentByDefault() {
+		return true;
 	}
 }
