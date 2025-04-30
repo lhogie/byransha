@@ -23,6 +23,7 @@ public class EtatCivil extends BusinessNode {
 		nationality = g.addNode(StringNode.class); //new StringNode(g, null);
 		countryOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
 		address = g.addNode(StringNode.class); //new StringNode(g, null);
+		this.color = "green";
 	}
 
 	public EtatCivil(BBGraph g, int id) {

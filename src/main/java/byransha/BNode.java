@@ -15,6 +15,7 @@ import java.util.function.Function;
 
 import byransha.graph.BGElement;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -34,6 +35,7 @@ public abstract class BNode {
 	private List<InLink> ins;
 	public final BBGraph graph;
 	private final int id;
+	public String color = "pink";
 
 	public BNode(BBGraph g) {
 		this(g, g == null ? 0 : g.nextID());
@@ -354,24 +356,28 @@ public abstract class BNode {
 			var g = new AnyGraph();
 			var current = n.toVertex();
 			g.addVertex(current);
-			current.color = BGElement.color(Color.blue);
+			current.color = this.color;
 			current.size = 20;
-			n.forEachOut((s, o) -> {
-				if (o.canSee(user)) {
-					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
-					a.label = s;
-					a.color = "red";
-				}
-			});
 
-			n.forEachIn((s, i) -> {
-				if (i.canSee(user)) {
-					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
-					a.style = "dotted";
-					a.label = s;
-				}
-			});
+				n.forEachOut((s, o) -> {
+					if (o.canSee(user)) {
+						var noeudOut = g.ensureHasVertex(o);
+						noeudOut.color = "grey";
+						var a = g.newArc(g.ensureHasVertex(n), noeudOut );
+						a.label = s;
+						a.color = "red";
+					}
+				});
 
+				n.forEachIn((s, i) -> {
+					if (i.canSee(user)) {
+						var noeudOut = g.ensureHasVertex(i);
+						noeudOut.color = i.color;
+						var a = g.newArc(g.ensureHasVertex(n), noeudOut );
+						a.style = "dotted";
+						a.label = s;
+					}
+				});
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}
@@ -408,7 +414,7 @@ public abstract class BNode {
 
 	public JsonNode toJSONNode() {
 		var n = new ObjectNode(null);
-		n.set("id", new com.fasterxml.jackson.databind.node.IntNode(id()));
+		n.set("id", new IntNode(id()));
 		n.set("pretty_name", new TextNode(prettyName()));
 		return n;
 	}
