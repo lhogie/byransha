@@ -66,6 +66,7 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.Edit;
+import byransha.web.endpoint.ShowOut;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.IntrospectingEndpoint;
 import byransha.web.endpoint.Jump;
@@ -266,6 +267,7 @@ public class WebServer extends BNode {
 		g.addNode(SetValue.class);
 		g.addNode(AnyGraph.Classes.class);
 		g.addNode(Edit.class);
+		g.addNode(ShowOut.class);
 		g.addNode(IntrospectingEndpoint.class);
 		g.addNode(History.class);
 		g.addNode(UI.class);
