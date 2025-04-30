@@ -1,19 +1,26 @@
 import axios from "axios";
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {ResponsiveLine, ResponsiveLineCanvas} from "@nivo/line";
-import {ResponsiveBar, ResponsiveBarCanvas} from "@nivo/bar";
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
-import {ResponsiveNetwork, ResponsiveNetworkCanvas} from "@nivo/network";
 import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
-import { Box, Button, Modal, Typography, IconButton, Tooltip } from "@mui/material";
+import {Box, Button, Modal, Typography, IconButton, Tooltip,Card, CardContent, CardMedia, CardActions} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
 import ExportButton from './ExportButton.jsx';
 import { saveAs } from 'file-saver';
+
+const LazyResponsiveLineCanvas = React.lazy(() =>
+    import('@nivo/line').then(module => ({ default: module.ResponsiveLineCanvas }))
+);
+const LazyResponsiveBarCanvas = React.lazy(() =>
+    import('@nivo/bar').then(module => ({ default: module.ResponsiveBarCanvas }))
+);
+const LazyResponsiveNetworkCanvas = React.lazy(() =>
+    import('@nivo/network').then(module => ({ default: module.ResponsiveNetworkCanvas }))
+);
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -107,12 +114,71 @@ export const View = ({ viewId, sx }) => {
         const backgroundColor = sx?.bgcolor || 'transparent';
 
         if (contentType === 'text/json') {
-            if (viewId === 'char_example_xy') {
+            if (viewId === 'show_out') {
+                if (!Array.isArray(content)) {
+                    return <Typography sx={{ p: 2 }} color="error">Error: Expected an array for 'show_out' data, but received type {typeof content}.</Typography>;
+                }
+                if (content.length === 0) {
+                    return <Typography sx={{ p: 2 }}>No output nodes connected.</Typography>;
+                }
+
+                return (
+                    <Box sx={{ p: 1, display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                        {content.map((outNode) => {
+                            const isImage = outNode.mimeType?.startsWith('image/') && outNode.value;
+                            const hasValue = outNode.hasOwnProperty('value') && outNode.value !== null && outNode.value !== undefined;
+
+                            return (
+                                <Card key={outNode.id} sx={{ minWidth: 275, maxWidth: 350, display: 'flex', flexDirection: 'column' }}>
+                                    <CardContent sx={{ flexGrow: 1 }}>
+                                        <Typography variant="h6" component="div" sx={{wordBreak: 'break-word'}}>
+                                            {outNode.name}
+                                        </Typography>
+                                        {isImage && (
+                                            <CardMedia
+                                                component="img"
+                                                sx={{ maxHeight: 200, width: 'auto', objectFit: 'contain', mt: 1, border: '1px solid #eee' }}
+                                                image={`data:${outNode.mimeType};base64,${outNode.value}`}
+                                                alt={`Output value for ${outNode.name}`}
+                                            />
+                                        )}
+                                        {!isImage && hasValue && (
+                                            <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all', mt: 1, p: 1, backgroundColor: '#f5f5f5', borderRadius: 1 }}>
+                                                {typeof outNode.value === 'object' ? JSON.stringify(outNode.value, null, 2) : String(outNode.value)}
+                                            </Typography>
+                                        )}
+                                        {!hasValue && !isImage && (
+                                            <Typography variant="body2" sx={{ fontStyle: 'italic', mt: 1 }}>
+                                                (No displayable value)
+                                            </Typography>
+                                        )}
+                                    </CardContent>
+
+                                    {outNode.editable === "true" && (
+                                        <CardActions>
+                                            <Button
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    console.log(`Edit action triggered for node ${outNode.id} (name: ${outNode.name})`);
+                                                    alert(`Edit action for: ${outNode.name} (ID: ${outNode.id}) - Not implemented yet.`);
+                                                }}
+                                            >
+                                                Edit
+                                            </Button>
+                                        </CardActions>
+                                    )}
+                                </Card>
+                            );
+                        })}
+                    </Box>
+                );
+            } else if (viewId === 'char_example_xy') {
                 const parsedChartData = parseNivoChartData(content);
 
                 return (
                     <div className="graph">
-                        <ResponsiveLineCanvas
+                        <LazyResponsiveLineCanvas
                             data={parsedChartData}
                             margin={{ top: 50, right: 90, bottom: 50, left: 60 }}
                             xScale={{ type: 'linear' }}
@@ -171,7 +237,7 @@ export const View = ({ viewId, sx }) => {
                 const keys = Object.values(content).length > 0 ? Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b)), []).sort() : [];
                 return (
                     <div className="graph">
-                        <ResponsiveBarCanvas
+                        <LazyResponsiveBarCanvas
                             data={barChartData}
                             keys={keys}
                             indexBy={"group"}
@@ -243,7 +309,7 @@ export const View = ({ viewId, sx }) => {
                             e.preventDefault();
                         }}
                     >
-                        <ResponsiveNetworkCanvas
+                        <LazyResponsiveNetworkCanvas
                             data={{
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
