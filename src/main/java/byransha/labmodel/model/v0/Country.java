@@ -20,8 +20,8 @@ public class Country extends BusinessNode {
 			var json = new String(res.openStream().readAllBytes());
 			countryCodes = new ObjectMapper().readTree(json);
 
-			countryCodes.elements().forEachRemaining(e -> {
-				new Country(g, e.asText());
+			countryCodes.fieldNames().forEachRemaining(code -> {
+				new Country(g, code);
 			});
 		} catch (Exception err) {
 			err.printStackTrace();
@@ -36,7 +36,7 @@ public class Country extends BusinessNode {
 		flag = new ImageNode(g);
 
 		try {
-			flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".json").openStream()
+			flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
 					.readAllBytes());
 		} catch (IOException err) {
 			err.printStackTrace();
