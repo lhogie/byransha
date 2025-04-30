@@ -18,7 +18,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 	private SessionStore sessionStore;
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "Authenticate endpoint for user login.";
 	}
 

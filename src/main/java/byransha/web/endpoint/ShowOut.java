@@ -19,7 +19,7 @@ import byransha.web.WebServer;
 public class ShowOut extends NodeEndpoint<BNode> implements View {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "Endpoint to show every values of the current node";
 	}
 
@@ -48,7 +48,6 @@ public class ShowOut extends NodeEndpoint<BNode> implements View {
 					b.set("value", new TextNode(vn.get().toString()));
 				}
 			}
-
 		});
 
 		// System.out.println("id de currentNode:"+ currentNode.id());

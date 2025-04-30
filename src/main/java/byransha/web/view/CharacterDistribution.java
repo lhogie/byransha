@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class CharacterDistribution extends NodeEndpoint<BNode> implements View {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "CharacterDistribution description";
 	}
 

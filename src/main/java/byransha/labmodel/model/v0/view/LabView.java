@@ -14,8 +14,8 @@ import byransha.web.WebServer;
 final public class LabView extends NodeEndpoint<Lab> {
 
 	@Override
-	public String whatIsThis() {
-		return "LabView description";
+	public String whatItDoes() {
+		return "show infos about a lab";
 	}
 
 	public LabView(BBGraph db) {

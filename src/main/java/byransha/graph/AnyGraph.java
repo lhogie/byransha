@@ -99,7 +99,7 @@ public class AnyGraph {
 		}
 
 		@Override
-		public String whatIsThis() {
+		public String whatItDoes() {
 			return "list all classes in the graph";
 		}
 

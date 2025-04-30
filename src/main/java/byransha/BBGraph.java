@@ -371,8 +371,8 @@ public class BBGraph extends BNode {
 	public static class DBView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		@Override
-		public String whatIsThis() {
-			return "DBView: A technical view for BBGraph.";
+		public String whatItDoes() {
+			return "gives info on the graph";
 		}
 
 		public DBView(BBGraph g) {
@@ -409,7 +409,7 @@ public class BBGraph extends BNode {
 	public static class GraphNivoView extends NodeEndpoint<BBGraph> {
 
 		@Override
-		public String whatIsThis() {
+		public String whatItDoes() {
 			return "gives a NIVO text representing the graph";
 		}
 

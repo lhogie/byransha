@@ -14,7 +14,7 @@ import byransha.web.WebServer;
 public class NodeEndpoints extends NodeEndpoint<WebServer> {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "NodeEndpoints description";
 	}
 

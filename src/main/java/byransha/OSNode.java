@@ -36,8 +36,8 @@ public class OSNode extends BNode {
 	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
 
 		@Override
-		public String whatIsThis() {
-			return "OSNode.View description";
+		public String whatItDoes() {
+			return "shows OS details";
 		}
 
 		public View(BBGraph g) {

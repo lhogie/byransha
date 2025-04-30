@@ -17,7 +17,7 @@ import byransha.web.WebServer;
 public class Edit extends NodeEndpoint<BNode> {
 
     @Override
-    public String whatIsThis() {
+    public String whatItDoes() {
         return "Endpoint to edit every value accessible via the current node";
     }
 

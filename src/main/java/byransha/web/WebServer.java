@@ -677,7 +677,7 @@ public class WebServer extends BNode {
 	public static class Info extends NodeEndpoint<WebServer> {
 
 		@Override
-		public String whatIsThis() {
+		public String whatItDoes() {
 			return "Provides information about the WebServer node.";
 		}
 
@@ -707,8 +707,8 @@ public class WebServer extends BNode {
 
 	public static class Logs extends NodeEndpoint<WebServer> {
 		@Override
-		public String whatIsThis() {
-			return "Provides a view of the logs for the WebServer node.";
+		public String whatItDoes() {
+			return "providing a view of the logs for the WebServer node";
 		}
 
 		public Logs(BBGraph db) {
@@ -735,7 +735,7 @@ public class WebServer extends BNode {
 
 	public static class EndpointCallDistributionView extends NodeEndpoint<WebServer> {
 		@Override
-		public String whatIsThis() {
+		public String whatItDoes() {
 			return "Provides a distribution view of endpoint calls for the WebServer node.";
 		}
 

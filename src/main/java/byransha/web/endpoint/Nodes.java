@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class Nodes extends NodeEndpoint<BNode> implements View {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "Nodes endpoint description";
 	}
 

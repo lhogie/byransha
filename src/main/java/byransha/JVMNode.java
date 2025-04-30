@@ -43,7 +43,7 @@ public class JVMNode extends BNode implements NoLoad {
 		}
 
 		@Override
-		public String whatIsThis() {
+		public String whatItDoes() {
 			return "describes the server's JVM";
 		}
 
@@ -85,8 +85,8 @@ public class JVMNode extends BNode implements NoLoad {
 		}
 
 		@Override
-		public String whatIsThis() {
-			return "Kill endpoint for JVMNode";
+		public String whatItDoes() {
+			return "kills the JVM";
 		}
 
 		@Override

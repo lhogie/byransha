@@ -16,7 +16,7 @@ import byransha.web.WebServer;
 public class SetValue extends NodeEndpoint<BNode> {
 
 	@Override
-	public String whatIsThis() {
+	public String whatItDoes() {
 		return "modify the value of valued nodes";
 	}
 

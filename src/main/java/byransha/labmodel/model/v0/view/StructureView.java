@@ -14,8 +14,8 @@ import byransha.web.WebServer;
 final public class StructureView extends NodeEndpoint<Structure> {
 
 	@Override
-	public String whatIsThis() {
-		return "StructureView for managing structure-related endpoints.";
+	public String whatItDoes() {
+		return "shows infos about a structure";
 	}
 
 	public StructureView(BBGraph g) {
