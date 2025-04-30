@@ -11,42 +11,34 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const HomePage = () => {
     const navigate = useNavigate();
-    const { data: apiResponse, isLoading } = useApiData('');
+    const { data, isLoading } = useApiData('');
     useTitle("Home");
 
-    const [viewConfigs, setViewConfigs] = useState([]);
+    const [views, setViews] = useState([]);
     const [columns, setColumns] = useState(2);
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
-    const [selectedViewEndpoints, setSelectedViewEndpoints] = useState([]);
+    const [selectedViews, setSelectedViews] = useState([]);
     const [showTechnicalViews, setShowTechnicalViews] = useState(false);
 
-
     React.useEffect(() => {
-        if (apiResponse?.data?.results) {
-            const allViews = apiResponse.data.results;
-            setViewConfigs(allViews);
-
-            const initiallyVisibleViews = allViews
-                .filter(view => showTechnicalViews || view.response_type !== 'technical')
-                .map(view => view.endpoint);
-
-            setSelectedViewEndpoints(prevSelected => {
-                const currentVisibleSet = new Set(initiallyVisibleViews);
-                const newSelected = prevSelected.filter(endpoint => currentVisibleSet.has(endpoint));
-                initiallyVisibleViews.forEach(endpoint => {
-                    if (!newSelected.includes(endpoint)) {
-                        newSelected.push(endpoint);
+        if (data?.data?.results) {
+            const filteredViews = showTechnicalViews
+                ? data.data.results
+                : data.data.results.filter(view => view.response_type !== 'technical');
+            setViews(filteredViews);
+            setSelectedViews(prev => {
+                const newSelected = prev.filter(endpoint =>
+                    filteredViews.some(view => view.endpoint === endpoint)
+                );
+                filteredViews.forEach(view => {
+                    if (!newSelected.includes(view.endpoint)) {
+                        newSelected.push(view.endpoint);
                     }
                 });
                 return newSelected;
             });
         }
-    }, [apiResponse, showTechnicalViews]);
-
-    const displayedViews = React.useMemo(() => {
-        const selectedSet = new Set(selectedViewEndpoints);
-        return viewConfigs.filter(view => selectedSet.has(view.endpoint));
-    }, [viewConfigs, selectedViewEndpoints]);
+    }, [data, showTechnicalViews]);
 
     if (isLoading) {
         return (
@@ -56,10 +48,10 @@ const HomePage = () => {
         );
     }
 
-    if (!apiResponse || !apiResponse.data || !apiResponse.data.results) {
+    if (!data || !data.data || !data.data.results) {
         return (
             <Box sx={{ bgcolor: '#fff3e0', p: 2, borderRadius: 2, color: '#ef6c00', textAlign: 'center' }}>
-                Error: Could not load view configurations.
+                Error: Data is null.
             </Box>
         );
     }
@@ -68,7 +60,7 @@ const HomePage = () => {
     const handleSelectMenuClose = () => setSelectMenuAnchor(null);
 
     const handleViewToggle = (endpoint) => {
-        setSelectedViewEndpoints((prev) =>
+        setSelectedViews((prev) =>
             prev.includes(endpoint)
                 ? prev.filter((id) => id !== endpoint)
                 : [...prev, endpoint]
@@ -81,53 +73,22 @@ const HomePage = () => {
 
     const onDragEnd = (result) => {
         if (!result.destination) return;
-
-        setViewConfigs(currentConfigs => {
-            const items = Array.from(currentConfigs);
-            const sourceItemEndpoint = displayedViews[result.source.index].endpoint;
-            const sourceIndexInFullList = items.findIndex(item => item.endpoint === sourceItemEndpoint);
-
-            if (sourceIndexInFullList === -1) return items;
-
-            const [reorderedItem] = items.splice(sourceIndexInFullList, 1);
-
-            let destinationIndexInFullList = -1;
-            if (result.destination.index === 0) {
-                const firstVisibleEndpoint = displayedViews[0].endpoint;
-                destinationIndexInFullList = items.findIndex(item => item.endpoint === firstVisibleEndpoint);
-                if (destinationIndexInFullList === -1) destinationIndexInFullList = 0;
-            } else {
-                const itemBeforeDestinationEndpoint = displayedViews[result.destination.index - 1].endpoint;
-                const indexBeforeInFullList = items.findIndex(item => item.endpoint === itemBeforeDestinationEndpoint);
-                if (indexBeforeInFullList !== -1) {
-                    destinationIndexInFullList = indexBeforeInFullList + 1;
-                } else {
-                    const destinationItemEndpoint = displayedViews[result.destination.index].endpoint;
-                    destinationIndexInFullList = items.findIndex(item => item.endpoint === destinationItemEndpoint);
-                    if (destinationIndexInFullList === -1) destinationIndexInFullList = items.length;
-                }
-            }
-
-            items.splice(destinationIndexInFullList, 0, reorderedItem);
-            return items;
-        });
+        const reorderedViews = Array.from(views);
+        const [movedView] = reorderedViews.splice(result.source.index, 1);
+        reorderedViews.splice(result.destination.index, 0, movedView);
+        setViews(reorderedViews);
     };
 
-
-    const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, 20));
+    const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, views.length));
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
 
     const isSpecialView = (view) => {
-        const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view', 'graph_nivo_view'];
-        const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot', 'text/dot'];
-        const isDistribution = view.endpoint.endsWith('_distribution');
-        const hasResult = !!view.result;
-
+        const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view'];
+        const specialContentTypes = ['image/svg', 'image/svg+xml', 'image/png', 'image/jsondot'];
         return (
             specialViewIds.includes(view.endpoint) ||
-            isDistribution ||
-            (hasResult && specialContentTypes.includes(view.result.contentType)) ||
-            (!hasResult && specialContentTypes.some(type => view.endpoint.includes(type.replace(/[\/+]/g, '_'))))
+            view.endpoint.endsWith('_distribution') ||
+            specialContentTypes.some(type => view.endpoint.includes(type.replace('/', '_')))
         );
     };
 
@@ -186,18 +147,19 @@ const HomePage = () => {
                             onClose={handleSelectMenuClose}
                             PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto', width: { xs: 200, sm: 250 } } }}
                         >
-                            {viewConfigs
-                                .filter(view => showTechnicalViews || view.response_type !== 'technical')
-                                .map((view) => (
-                                    <MenuItem
-                                        key={view.endpoint}
-                                        onClick={() => handleViewToggle(view.endpoint)}
-                                        sx={{ fontSize: '14px' }}
-                                    >
-                                        <Checkbox checked={selectedViewEndpoints.includes(view.endpoint)} size="small" />
-                                        <ListItemText primary={view.pretty_name} />
-                                    </MenuItem>
-                                ))}
+                            {(showTechnicalViews ? data.data.results : data.data.results.filter(view => view.response_type !== 'technical')).map((view) => (
+                                <MenuItem
+                                    key={view.endpoint}
+                                    onClick={() => handleViewToggle(view.endpoint)}
+                                    sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
+                                >
+                                    <Checkbox
+                                        checked={selectedViews.includes(view.endpoint)}
+                                        sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' } }}
+                                    />
+                                    <ListItemText primary={view.pretty_name} />
+                                </MenuItem>
+                            ))}
                         </Menu>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -211,7 +173,7 @@ const HomePage = () => {
                             }}
                         />
                         <Typography sx={{ color: '#90caf9', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                            {showTechnicalViews ? 'Hide Technical Views' : 'Show Technical Views'}
+                            Show Technical Views
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -240,7 +202,7 @@ const HomePage = () => {
                         <Button
                             variant="outlined"
                             onClick={incrementColumns}
-                            disabled={columns === 20}
+                            disabled={columns === views.length}
                             sx={{
                                 minWidth: { xs: 36, sm: 40 },
                                 borderWidth: '2px',
@@ -272,7 +234,8 @@ const HomePage = () => {
                             {...provided.droppableProps}
                             ref={provided.innerRef}
                         >
-                            {displayedViews
+                            {views
+                                .filter((view) => selectedViews.includes(view.endpoint))
                                 .map((view, index) => (
                                     <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
                                         {(provided, snapshot) => (
@@ -280,12 +243,8 @@ const HomePage = () => {
                                                 sx={{
                                                     width: {
                                                         xs: '100%',
-                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / Math.min(columns, 2)}% - 16px)`,
-                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / columns}% - 32px)`,
-                                                    },
-                                                    flexBasis: {
-                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
-                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
+                                                        sm: `calc(${100 / Math.min(columns, 2)}% - 16px)`,
+                                                        md: `calc(${100 / columns}% - 32px)`,
                                                     },
                                                     opacity: snapshot.isDragging ? 0.8 : 1,
                                                 }}
@@ -296,12 +255,12 @@ const HomePage = () => {
                                                 <Card
                                                     sx={{
                                                         cursor: 'grab',
-                                                        aspectRatio: isSpecialView(view) ? '4 / 3' : '1',
+                                                        aspectRatio: '1',
                                                         border: '1px solid #e0e0e0',
                                                         borderRadius: 2,
                                                         display: 'flex',
                                                         flexDirection: 'column',
-                                                        bgcolor: '#ffffff',
+                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
                                                     }}
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
@@ -315,7 +274,7 @@ const HomePage = () => {
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             overflow: 'hidden',
-                                                            bgcolor: '#ffffff',
+                                                            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
                                                         }}
                                                     >
                                                         <Typography
@@ -364,7 +323,15 @@ const HomePage = () => {
                                                                 fontSize: { xs: '0.75rem', sm: '0.875rem' },
                                                             }}
                                                         >
-                                                            {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
+                                                            {view.error ? view.error : (
+                                                                <View
+                                                                    viewId={view.endpoint.replaceAll(' ', '_')}
+                                                                    sx={{
+                                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+                                                                        width: '100%',
+                                                                    }}
+                                                                />
+                                                            )}
                                                         </Typography>
                                                     </CardContent>
                                                 </Card>
@@ -380,5 +347,4 @@ const HomePage = () => {
         </Box>
     );
 };
-
 export default HomePage;
