@@ -30,21 +30,21 @@ public class ShowOut extends NodeEndpoint<BNode> {
     }
 
     @Override
-    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
-
+    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
+            throws Throwable {
         var a = new ArrayNode(null);
 
-
-        for(String key : currentNode.outs().keySet()) {
+        n.forEachOut((name, out) -> {
             var b = new ObjectNode(null);
-            BNode node = currentNode.outs().get(key);
-            b.set("id", new IntNode(node.id()));
-            b.set("name",new TextNode(key));
-            b.set("type", new TextNode(node.getClass().getSimpleName()));
-            b.set("value", new TextNode(node.toString())) ;
+            b.set("id", new IntNode(out.id()));
+            b.set("name", new TextNode(name));
+            b.set("type", new TextNode(out.getClass().getSimpleName()));
+            if(out.canEdit(user)){b.set("editable",new TextNode("true"));}else{b.set("editable",new TextNode("false"));}
+            if (out instanceof ValuedNode vn) {
+                b.set("value", new TextNode(vn.get()+""));
+            }
             a.add(b);
-        }
-
+        });
 
         //System.out.println("id de currentNode:"+ currentNode.id());
         return new EndpointJsonResponse(a,"response for edit");
