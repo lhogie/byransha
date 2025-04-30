@@ -43,7 +43,8 @@ public abstract class ValuedNode<V> extends PersistingNode {
 				if (localValue == null) {
 					if (directory() != null) {
 						try {
-							loadValue(f -> {});
+							loadValue(f -> {
+							});
 							localValue = value;
 						} catch (IOException e) {
 							System.err.println("Error loading value for node " + id() + ": " + e.getMessage());
@@ -53,6 +54,7 @@ public abstract class ValuedNode<V> extends PersistingNode {
 				}
 			}
 		}
+
 		return localValue;
 	}
 
