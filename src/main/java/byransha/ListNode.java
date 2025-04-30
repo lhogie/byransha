@@ -1,12 +1,12 @@
 package byransha;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
 public class ListNode<N extends BNode> extends PersistingNode {
-	public final List<N> l = new ArrayList<>();
+	public final List<N> l = new CopyOnWriteArrayList<>();
 
 	public ListNode(BBGraph db) {
 		super(db);
@@ -29,9 +29,11 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		int i = 0;
-		if (l != null) {
-			for (var e : l) {
+		for (N e : l) {
+			if (e != null) {
 				consumer.accept(i++ + ". " + e.id(), e);
+			} else {
+				i++;
 			}
 		}
 	}
@@ -57,6 +59,10 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	}
 
 	public BNode random() {
-		return l.get(new Random().nextInt(l.size()));
+		int currentSize = l.size();
+		if (currentSize == 0) {
+			return null;
+		}
+		return l.get(new Random().nextInt(currentSize));
 	}
 }

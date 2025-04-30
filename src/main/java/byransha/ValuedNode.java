@@ -36,20 +36,28 @@ public abstract class ValuedNode<V> extends PersistingNode {
 	}
 
 	public V get() {
-		if (value == null) {
-			try {
-				loadValue(f -> System.out.println("loading value for " + id()));
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+		V localValue = value;
+		if (localValue == null) {
+			synchronized (this) {
+				localValue = value;
+				if (localValue == null) {
+					if (directory() != null) {
+						try {
+							loadValue(f -> {});
+							localValue = value;
+						} catch (IOException e) {
+							System.err.println("Error loading value for node " + id() + ": " + e.getMessage());
+							throw new RuntimeException("Failed to load value for node " + id(), e);
+						}
+					}
+				}
 			}
 		}
-
-		return value;
+		return localValue;
 	}
 
 	public void set(V newValue) {
 		this.value = newValue;
-
 		if (directory() != null) {
 			saveValue(BBGraph.sysoutPrinter);
 		}
@@ -81,9 +89,9 @@ public abstract class ValuedNode<V> extends PersistingNode {
 	}
 
 	public void loadValue(Consumer<File> readingFiles) throws IOException {
-		var valueFile = new File(directory(), "value.txt");
+		File valueFile = new File(directory(), "value.txt");
 
-		if (valueFile.exists()) {
+		if (valueFile.exists() && valueFile.isFile()) {
 			readingFiles.accept(valueFile);
 			byte[] bytes = Files.readAllBytes(valueFile.toPath());
 			fromString(new String(bytes));

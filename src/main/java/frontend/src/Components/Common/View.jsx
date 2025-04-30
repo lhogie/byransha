@@ -13,8 +13,22 @@ import { Box, Button, Modal, Typography, IconButton, Tooltip } from "@mui/materi
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
 import ExportButton from './ExportButton.jsx';
+import { saveAs } from 'file-saver';
 
+const exportToCSV = (data, fileName) => {
+    const csvRows = [];
+    const headers = Object.keys(data[0]);
+    csvRows.push(headers.join(','));
 
+    data.forEach(row => {
+        const values = headers.map(header => row[header]);
+        csvRows.push(values.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    saveAs(blob, fileName);
+};
 
 const modalStyle = {
     position: 'absolute',
@@ -49,6 +63,7 @@ export const View = ({viewId}) => {
     const graphvizRef = useRef(null);
     const queryClient = useQueryClient()
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
     const handleOpenModal = (event) => {
         event.stopPropagation()
         setIsModalOpen(true)
@@ -78,6 +93,12 @@ export const View = ({viewId}) => {
             graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
         }
     }, [rawApiData]);
+
+    const handleExportCSV = () => {
+        if (Array.isArray(resultData)) {
+            exportToCSV(resultData, `view_${viewId}_data.csv`);
+        }
+    };
 
     const displayContent = useCallback((content, contentType) => {
         if (!content) {
@@ -529,11 +550,11 @@ export const View = ({viewId}) => {
                     {displayContent(resultData, resultContentType)}
                 </Box>
             </Box>
-            <Box>
-                <ExportButton data={exportData}
-                              fileName={`view_${viewId}_data.csv`}
-                />
-            </Box>
+            {supportedExportTypes.includes(resultContentType) && (
+                <Box>
+                    <ExportButton data={exportData} fileName={`view_${viewId}_data.csv`} />
+                </Box>
+            )}
         </Box>
     );
 }

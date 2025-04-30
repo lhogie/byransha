@@ -1,5 +1,6 @@
 package byransha;
 
+import java.awt.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import byransha.graph.BGElement;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -42,7 +44,7 @@ public abstract class BNode {
 
 		if (g != null) {
 			this.graph = g;
-			g.accept(this);
+			//g.accept(this);
 		} else if (this instanceof BBGraph thisGraph) {
 			this.graph = thisGraph;
 		} else {
@@ -112,11 +114,11 @@ public abstract class BNode {
 	}
 
 	public void bfs(Consumer<BNode> consumer) {
-		search(consumer, q -> q.remove(0));
+		search(consumer, List::removeFirst);
 	}
 
 	public void dfs(Consumer<BNode> consumer) {
-		search(consumer, q -> q.remove(q.size() - 1));
+		search(consumer, List::removeLast);
 	}
 
 	private void search(Consumer<BNode> consumer, Function<List<BNode>, BNode> producer) {
@@ -348,19 +350,26 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User u, WebServer webServer, HttpsExchange exchange, BNode n) {
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
-			g.addVertex(n.toVertex());
-
+			var current = n.toVertex();
+			g.addVertex(current);
+			current.color = BGElement.color(Color.blue);
+			current.size = 20;
 			n.forEachOut((s, o) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
-				a.label = s;
+				if (o.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(o));
+					a.label = s;
+					a.color = "red";
+				}
 			});
 
 			n.forEachIn((s, i) -> {
-				var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
-				a.style = "dotted";
-				a.label = s;
+				if (i.canSee(user)) {
+					var a = g.newArc(g.ensureHasVertex(n), g.ensureHasVertex(i));
+					a.style = "dotted";
+					a.label = s;
+				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);

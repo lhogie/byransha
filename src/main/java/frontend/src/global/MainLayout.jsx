@@ -28,6 +28,13 @@ const MainLayout = () => {
         },
     });
 
+    const logoutMutation = useApiMutation('logout', {
+        onSuccess: async () => {
+            await queryClient.invalidateQueries()
+            navigate('/')
+        },
+    });
+
     const jumpToNode = useCallback((nodeId) => {
         jumpMutation.mutate(`node_id=${nodeId}`);
     }, []);
@@ -43,15 +50,7 @@ const MainLayout = () => {
     };
 
     const handleLogout = async () => {
-        try {
-            await axios.post(
-                `${import.meta.env.PUBLIC_API_BASE_URL}/logout`
-            );
-            // une fois déconnecté, on renvoie l’utilisateur sur la page de login
-            navigate("/");
-        } catch (err) {
-            console.error("Logout failed", err);
-        }
+        logoutMutation.mutate()
     };
 
     const handleMoreClick = (event) => setMenuAnchor(event.currentTarget);

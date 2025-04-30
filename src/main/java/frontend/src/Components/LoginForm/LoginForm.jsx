@@ -16,7 +16,7 @@ const LoginForm = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient()
 
-    const jumpMutation = useApiMutation('authenticate', {
+    const authMutation = useApiMutation('authenticate', {
         onSuccess: async () => {
             await queryClient.invalidateQueries()
         },
@@ -31,7 +31,7 @@ const LoginForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            jumpMutation.mutate({
+            authMutation.mutate({
                 username: username,
                 password: password
             }, {

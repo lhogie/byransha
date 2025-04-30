@@ -9,7 +9,7 @@ public class Building extends BNode {
 
 	public Building(BBGraph g) {
 		super(g);
-		offices = new ListNode<Office>(g);
+		offices = new ListNode<>(g);
 	}
 
 	public Building(BBGraph g, int id){

@@ -2,6 +2,8 @@ import React from "react";
 import {Outlet} from "react-router";
 import {createTheme} from "@mui/material";
 import {ReactRouterAppProvider} from "@toolpad/core/react-router";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
 import {useApiData} from "../hooks/useApiData.js";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 
@@ -28,10 +30,10 @@ export default function App() {
         navigation={NAVIGATION}
         theme={theme}
         branding={{
-        title: '',
-        logo: <img src="/logo.svg" alt="I3S" width={"100%"} height={"100%"} color={"inherit"} />,
-        homeUrl: '/home',
-    }}>
+            title: '',
+            logo: <img src="/logo.svg" alt="I3S" width={"100%"} height={"100%"} color={"inherit"} />,
+            homeUrl: '/home',
+        }}>
         <Outlet />
     </ReactRouterAppProvider>
 }

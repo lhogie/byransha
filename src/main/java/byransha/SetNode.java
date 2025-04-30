@@ -1,7 +1,7 @@
 package byransha;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 public class SetNode<N extends BNode> extends BNode {
@@ -24,7 +24,7 @@ public class SetNode<N extends BNode> extends BNode {
 		return "a set";
 	}
 
-	private final Set<N> l = new HashSet<>();
+	private final Set<N> l = ConcurrentHashMap.newKeySet();
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
@@ -32,7 +32,9 @@ public class SetNode<N extends BNode> extends BNode {
 			return;
 		}
 		for (var e : l) {
-			consumer.accept("" + e.id(), e);
+			if (e != null) {
+				consumer.accept("" + e.id(), e);
+			}
 		}
 	}
 

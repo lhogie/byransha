@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
                     {
                         path: '/information/:viewId',
                         element: <InformationPage/>,
-                    }
+                    },
                 ]
             }]
     }
