@@ -57,25 +57,24 @@ const modalContentStyle = {
     overflowY: 'auto',
 };
 
-
-export const View = ({viewId}) => {
+export const View = ({ viewId, sx }) => {
     const { data: rawApiData, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
-    const queryClient = useQueryClient()
+    const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
     const handleOpenModal = (event) => {
-        event.stopPropagation()
-        setIsModalOpen(true)
+        event.stopPropagation();
+        setIsModalOpen(true);
     };
     const handleCloseModal = (event) => {
-        event.stopPropagation()
-        setIsModalOpen(false)
+        event.stopPropagation();
+        setIsModalOpen(false);
     };
 
     const jumpMutation = useApiMutation('jump', {
         onSuccess: async () => {
-            await queryClient.invalidateQueries()
+            await queryClient.invalidateQueries();
         },
     });
 
@@ -85,12 +84,12 @@ export const View = ({viewId}) => {
 
     useEffect(() => {
         if (!rawApiData) return;
-        const {data: content} = rawApiData;
+        const { data: content } = rawApiData;
         if (!content?.results?.[0]?.result) return;
         const contentType = content.results[0].result.contentType;
 
         if (contentType === 'text/dot' && graphvizRef.current) {
-            graphviz(graphvizRef.current).renderDot(content.results[0].result.data)
+            graphviz(graphvizRef.current).renderDot(content.results[0].result.data);
         }
     }, [rawApiData]);
 
@@ -105,6 +104,8 @@ export const View = ({viewId}) => {
             return <div className="error-message">No content available.</div>;
         }
 
+        const backgroundColor = sx?.bgcolor || 'transparent';
+
         if (contentType === 'text/json') {
             if (viewId === 'char_example_xy') {
                 const parsedChartData = parseNivoChartData(content);
@@ -113,22 +114,28 @@ export const View = ({viewId}) => {
                     <div className="graph">
                         <ResponsiveLineCanvas
                             data={parsedChartData}
-                            margin={{top: 50, right: 110, bottom: 50, left: 60}}
-                            xScale={{type: 'linear'}}
-                            yScale={{type: 'linear', min: 'auto', max: 'auto', stacked: false}}
+                            margin={{ top: 50, right: 90, bottom: 50, left: 60 }}
+                            xScale={{ type: 'linear' }}
+                            yScale={{ type: 'linear', min: -1, max: 1, stacked: false }}
                             axisBottom={{
                                 legend: 'X Axis',
-                                legendOffset: 36,
+                                legendOffset: 40,
                                 legendPosition: 'middle',
+                                tickSize: 5,
+                                tickPadding: 5,
+                                legendFontSize: 14,
                             }}
                             axisLeft={{
                                 legend: 'Y Axis',
-                                legendOffset: -40,
+                                legendOffset: -50,
                                 legendPosition: 'middle',
+                                tickSize: 5,
+                                tickPadding: 5,
+                                legendFontSize: 14,
                             }}
-                            colors={{scheme: 'set2'}}
-                            pointSize={10}
-                            pointColor={{theme: 'background'}}
+                            colors={{ scheme: 'category10' }}
+                            pointSize={12}
+                            pointColor={{ theme: 'background' }}
                             pointBorderWidth={2}
                             useMesh={true}
                             legends={[
@@ -136,15 +143,24 @@ export const View = ({viewId}) => {
                                     anchor: 'bottom-right',
                                     direction: 'column',
                                     justify: false,
-                                    translateX: 100,
+                                    translateX: 80,
                                     translateY: 0,
-                                    itemsSpacing: 0,
+                                    itemsSpacing: 4,
                                     itemDirection: 'left-to-right',
-                                    itemWidth: 80,
-                                    itemHeight: 20,
-                                    itemOpacity: 0.75,
-                                    symbolSize: 12,
+                                    itemWidth: 90,
+                                    itemHeight: 24,
+                                    itemOpacity: 0.85,
+                                    itemTextSize: 14,
+                                    symbolSize: 14,
                                     symbolShape: 'circle',
+                                    effects: [
+                                        {
+                                            on: 'hover',
+                                            style: {
+                                                itemOpacity: 1,
+                                            },
+                                        },
+                                    ],
                                 },
                             ]}
                         />
@@ -159,12 +175,12 @@ export const View = ({viewId}) => {
                             data={barChartData}
                             keys={keys}
                             indexBy={"group"}
-                            margin={{top: 50, right: 130, bottom: 50, left: 60}}
+                            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
                             padding={0.3}
                             groupMode="grouped"
-                            valueScale={{type: 'linear'}}
-                            indexScale={{type: 'band', round: true}}
-                            colors={{scheme: 'nivo'}}
+                            valueScale={{ type: 'linear' }}
+                            indexScale={{ type: 'band', round: true }}
+                            colors={{ scheme: 'nivo' }}
                             defs={[
                                 {
                                     id: 'dots',
@@ -173,7 +189,7 @@ export const View = ({viewId}) => {
                                     color: '#38bcb2',
                                     size: 4,
                                     padding: 1,
-                                    stagger: true
+                                    stagger: true,
                                 },
                                 {
                                     id: 'lines',
@@ -182,28 +198,18 @@ export const View = ({viewId}) => {
                                     color: '#eed312',
                                     rotation: -45,
                                     lineWidth: 6,
-                                    spacing: 10
-                                }
+                                    spacing: 10,
+                                },
                             ]}
                             borderColor={{
                                 from: 'color',
-                                modifiers: [
-                                    [
-                                        'darker',
-                                        1.6
-                                    ]
-                                ]
+                                modifiers: [['darker', 1.6]],
                             }}
                             labelSkipWidth={12}
                             labelSkipHeight={12}
                             labelTextColor={{
                                 from: 'color',
-                                modifiers: [
-                                    [
-                                        'darker',
-                                        1.6
-                                    ]
-                                ]
+                                modifiers: [['darker', 1.6]],
                             }}
                             legends={[
                                 {
@@ -219,36 +225,29 @@ export const View = ({viewId}) => {
                                     itemDirection: 'left-to-right',
                                     itemOpacity: 0.85,
                                     symbolSize: 20,
-                                    effects: [
-                                        {
-                                            on: 'hover',
-                                            style: {
-                                                itemOpacity: 1
-                                            }
-                                        }
-                                    ]
-                                }
+                                    effects: [{ on: 'hover', style: { itemOpacity: 1 } }],
+                                },
                             ]}
                             role="application"
                             ariaLabel="Nivo bar chart demo"
                             barAriaLabel={e => e.id + ": " + e.formattedValue + " in country: " + e.indexValue}
                         />
                     </div>
-                )
+                );
             } else if (viewId.endsWith('nivo_view')) {
                 return (
                     <div
                         className="graph"
                         onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
+                            e.stopPropagation();
+                            e.preventDefault();
                         }}
                     >
                         <ResponsiveNetworkCanvas
                             data={{
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
-                                    id: node.label
+                                    id: node.label,
                                 })).reduce((accumulator, current) => {
                                     if (!accumulator.find((item) => item.id === current.id)) {
                                         accumulator.push(current);
@@ -258,15 +257,15 @@ export const View = ({viewId}) => {
                                 links: content.links.map((link) => ({
                                     ...link,
                                     target: link.target.label,
-                                    source: link.source.label
-                                }))
+                                    source: link.source.label,
+                                })),
                             }}
                             onClick={(node, event) => {
-                                event.preventDefault()
-                                event.stopPropagation()
-                                jumpToNode(node.id.split('@')[1])
+                                event.preventDefault();
+                                event.stopPropagation();
+                                jumpToNode(node.id.split('@')[1]);
                             }}
-                            margin={{top: 0, right: 0, bottom: 0, left: 0}}
+                            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
                             linkDistance={e => e.distance}
                             centeringStrength={0.3}
                             repulsivity={6}
@@ -276,12 +275,7 @@ export const View = ({viewId}) => {
                             nodeBorderWidth={1}
                             nodeBorderColor={{
                                 from: 'color',
-                                modifiers: [
-                                    [
-                                        'darker',
-                                        0.8
-                                    ]
-                                ]
+                                modifiers: [['darker', 0.8]],
                             }}
                             linkThickness={n => 2 + 2 * n.target.data.height}
                             linkBlendMode="multiply"
@@ -290,16 +284,16 @@ export const View = ({viewId}) => {
                     </div>
                 );
             } else if (viewId === 'bnode_nav2') {
-                return <>
-                    <Box sx={{ mb: 2 }}>
-                        {
-                            Object.keys(content.ins).map((inNode) => (
+                return (
+                    <>
+                        <Box sx={{ mb: 2 }}>
+                            {Object.keys(content.ins).map((inNode) => (
                                 <Button
                                     key={inNode}
                                     onClick={(event) => {
-                                        event.stopPropagation()
-                                        event.preventDefault()
-                                        jumpToNode(content.ins[inNode])
+                                        event.stopPropagation();
+                                        event.preventDefault();
+                                        jumpToNode(content.ins[inNode]);
                                     }}
                                     variant="contained"
                                     sx={{
@@ -313,17 +307,17 @@ export const View = ({viewId}) => {
                                     {inNode} ({content.ins[inNode]})
                                 </Button>
                             ))}
-                    </Box>
-                    <Box sx={{ paddingY: '10px' }}>
-                        {
-                            Object.keys(content.outs).map((outNode) => (
+                        </Box>
+                        <Box sx={{ paddingY: '10px' }}>
+                            {Object.keys(content.outs).map((outNode) => (
                                 <Button
                                     key={outNode}
                                     onClick={(event) => {
-                                        event.stopPropagation()
-                                        event.preventDefault()
-                                        jumpToNode(content.outs[outNode])
-                                    }}                                    variant="contained"
+                                        event.stopPropagation();
+                                        event.preventDefault();
+                                        jumpToNode(content.outs[outNode]);
+                                    }}
+                                    variant="contained"
                                     sx={{
                                         bgcolor: '#00897b',
                                         color: '#fff',
@@ -335,25 +329,26 @@ export const View = ({viewId}) => {
                                     {outNode} ({content.outs[outNode]})
                                 </Button>
                             ))}
-                    </Box>
-                </>
+                        </Box>
+                    </>
+                );
             } else {
                 return (
-                    <div className="content-container">
-                        <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")}/>
+                    <div className="content-container" style={{ background: backgroundColor }}>
+                        <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
                     </div>
                 );
             }
         } else if (contentType === 'text/dot') {
             return (
-                <div className="content-container graphviz-container">
-                    <div ref={graphvizRef}/>
+                <div className="content-container graphviz-container" style={{ background: backgroundColor }}>
+                    <div ref={graphvizRef} />
                 </div>
             );
         } else if (contentType === 'text/html') {
             return (
-                <div className="content-container html-content">
-                    <div dangerouslySetInnerHTML={{__html: content}}/>
+                <div className="content-container html-content" style={{ background: backgroundColor }}>
+                    <div dangerouslySetInnerHTML={{ __html: content }} />
                 </div>
             );
         } else if (contentType === 'image/svg') {
@@ -370,24 +365,28 @@ export const View = ({viewId}) => {
             );
         } else if (contentType === 'text/plain') {
             return (
-                <div className="content-container">
+                <div className="content-container" style={{ background: backgroundColor }}>
                     <pre>{content}</pre>
                 </div>
             );
         } else if (contentType === 'image/png' || contentType === 'image/jpeg') {
             return (
-                <div className="content-container">
-                    <img src={`data:${contentType};base64,${content}`} alt="Content"/>
+                <div className="content-container" style={{ background: backgroundColor }}>
+                    <img src={`data:${contentType};base64,${content}`} alt="Content" />
                 </div>
             );
-        }  else if (contentType === 'image/jsondot') {
-            return <div className="content-container">
-                <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")}/>
-            </div>
+        } else if (contentType === 'image/jsondot') {
+            return (
+                <div className="content-container" style={{ background: backgroundColor }}>
+                    <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
+                </div>
+            );
         } else if (contentType === 'text/java') {
-            return <div className="content-container">
-                <CustomCodeBlock language="java" code={content}/>
-            </div>
+            return (
+                <div className="content-container" style={{ background: backgroundColor }}>
+                    <CustomCodeBlock language="java" code={content} style={{ background: backgroundColor }} />
+                </div>
+            );
         } else {
             return (
                 <div className="error-message">
@@ -395,7 +394,7 @@ export const View = ({viewId}) => {
                 </div>
             );
         }
-    }, [viewId, jumpToNode, graphvizRef]);
+    }, [viewId, jumpToNode, graphvizRef, sx]);
 
     const parseNivoChartData = (content) => {
         const result = [];
@@ -404,17 +403,15 @@ export const View = ({viewId}) => {
             const cosLine = {
                 id: key,
                 data: cosData.map(val => {
-                    const key = Object.keys(val)[0]
-
+                    const key = Object.keys(val)[0];
                     return {
                         x: parseFloat(key),
-                        y: parseFloat(val[key])
-                    }
-                })
+                        y: parseFloat(val[key]),
+                    };
+                }),
             };
-            result.push(cosLine)
+            result.push(cosLine);
         }
-
         return result;
     };
 
@@ -424,9 +421,9 @@ export const View = ({viewId}) => {
             const cosData = content?.[group] || {};
             const cosLine = {
                 group: group,
-                ...cosData
+                ...cosData,
             };
-            result.push(cosLine)
+            result.push(cosLine);
         }
         return result;
     };
@@ -442,7 +439,7 @@ export const View = ({viewId}) => {
                         bottom: 95,
                         left: 1050,
                         zIndex: 10,
-                        color: 'primary.main'
+                        color: 'primary.main',
                     }}
                     aria-label="Show raw JSON"
                     disabled={dataForModal === null || dataForModal === undefined}
@@ -484,7 +481,7 @@ export const View = ({viewId}) => {
         return (
             <Box sx={{ position: 'relative', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
                 {renderJsonViewer(rawApiData)}
-                <CircularProgress/>
+                <CircularProgress />
             </Box>
         );
     }
@@ -511,9 +508,7 @@ export const View = ({viewId}) => {
         );
     }
 
-    const {data: dataContent, headers} = rawApiData;
-
-
+    const { data: dataContent, headers } = rawApiData;
 
     if (dataContent?.results?.[0]?.error !== undefined) {
         return (
@@ -546,7 +541,7 @@ export const View = ({viewId}) => {
         <Box>
             {renderJsonViewer(rawApiData)}
             <Box sx={{ position: 'relative', padding: 2 }}>
-                <Box sx={{ mt: 4}}>
+                <Box sx={{ mt: 4 }}>
                     {displayContent(resultData, resultContentType)}
                 </Box>
             </Box>
@@ -557,4 +552,4 @@ export const View = ({viewId}) => {
             )}
         </Box>
     );
-}
+};
