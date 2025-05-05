@@ -29,7 +29,7 @@ public class Jump extends NodeEndpoint<BNode> {
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
 		if(node != user.currentNode()){
-			user.stack.push(node);
+			user.stack.add(node);
 		}
 
 		return graph.findEndpoint(NodeInfo.class).exec(in, user, webServer, exchange, node);
