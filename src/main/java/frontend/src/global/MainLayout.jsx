@@ -50,6 +50,7 @@ const MainLayout = () => {
     };
 
     const handleLogout = async () => {
+        jumpToNode("0");
         logoutMutation.mutate()
     };
 
@@ -59,6 +60,7 @@ const MainLayout = () => {
     const history = historyData?.data?.results?.[0].result.data ?? [];
     const visibleHistory = history.length > 3 ? history.slice(-2) : history;
     const currentNode = history[history.length - 1];
+
 
     return (
         <Box sx={{

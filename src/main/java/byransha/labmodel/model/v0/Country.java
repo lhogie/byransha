@@ -59,6 +59,7 @@ public class Country extends BusinessNode {
 	public void setFlagCode(String code) throws IOException {
 		flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
 				.readAllBytes());
+		flag.setMimeType("image/svg+xml");
 		codeNode.set(code);
 		name = new StringNode(graph, countryCodes.get(code).asText());
 	}

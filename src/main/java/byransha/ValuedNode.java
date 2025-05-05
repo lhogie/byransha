@@ -10,6 +10,7 @@ import toools.text.TextUtilities;
 
 public abstract class ValuedNode<V> extends PersistingNode {
 	V value;
+	protected String mimeType = "text/plain";
 
 	public ValuedNode(BBGraph db) {
 		super(db);
@@ -58,6 +59,10 @@ public abstract class ValuedNode<V> extends PersistingNode {
 		return localValue;
 	}
 
+	public String getAsString() {
+		return get() + "";
+	}
+
 	public void set(V newValue) {
 		this.value = newValue;
 		if (directory() != null) {
@@ -98,5 +103,14 @@ public abstract class ValuedNode<V> extends PersistingNode {
 			byte[] bytes = Files.readAllBytes(valueFile.toPath());
 			fromString(new String(bytes));
 		}
+	}
+
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
+	public String getMimeType() {
+		return mimeType;
 	}
 }

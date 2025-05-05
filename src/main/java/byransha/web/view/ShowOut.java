@@ -1,15 +1,12 @@
 package byransha.web.view;
-
+import byransha.*;
+import byransha.web.View;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
-import byransha.ValuedNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
@@ -53,4 +50,5 @@ public class ShowOut extends NodeEndpoint<BNode> {
 		// System.out.println("id de currentNode:"+ currentNode.id());
 		return new EndpointJsonResponse(a, "response for edit");
 	}
+
 }

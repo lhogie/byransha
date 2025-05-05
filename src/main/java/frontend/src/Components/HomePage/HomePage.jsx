@@ -79,7 +79,7 @@ const HomePage = () => {
         setViews(reorderedViews);
     };
 
-    const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, 20));
+    const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, views.length));
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
 
     const isSpecialView = (view) => {
@@ -173,7 +173,7 @@ const HomePage = () => {
                             }}
                         />
                         <Typography sx={{ color: '#90caf9', fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                            {showTechnicalViews ? 'Hide Technical Views' : 'Show Technical Views'}
+                            Show Technical Views
                         </Typography>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -202,7 +202,7 @@ const HomePage = () => {
                         <Button
                             variant="outlined"
                             onClick={incrementColumns}
-                            disabled={columns === 20}
+                            disabled={columns === views.length}
                             sx={{
                                 minWidth: { xs: 36, sm: 40 },
                                 borderWidth: '2px',
@@ -243,12 +243,8 @@ const HomePage = () => {
                                                 sx={{
                                                     width: {
                                                         xs: '100%',
-                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / Math.min(columns, 2)}% - 16px)`,
-                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : `calc(${100 / columns}% - 32px)`,
-                                                    },
-                                                    flexBasis: {
-                                                        sm: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
-                                                        md: isSpecialView(view) && columns >= 3 ? '100%' : 'auto',
+                                                        sm: `calc(${100 / Math.min(columns, 2)}% - 16px)`,
+                                                        md: `calc(${100 / columns}% - 32px)`,
                                                     },
                                                     opacity: snapshot.isDragging ? 0.8 : 1,
                                                 }}
@@ -259,12 +255,12 @@ const HomePage = () => {
                                                 <Card
                                                     sx={{
                                                         cursor: 'grab',
-                                                        aspectRatio: isSpecialView(view) ? '4 / 3' : '1',
+                                                        aspectRatio: '1',
                                                         border: '1px solid #e0e0e0',
                                                         borderRadius: 2,
                                                         display: 'flex',
                                                         flexDirection: 'column',
-                                                        bgcolor: '#ffffff',
+                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
                                                     }}
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
@@ -278,7 +274,7 @@ const HomePage = () => {
                                                             display: 'flex',
                                                             flexDirection: 'column',
                                                             overflow: 'hidden',
-                                                            bgcolor: '#ffffff',
+                                                            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
                                                         }}
                                                     >
                                                         <Typography
@@ -327,7 +323,15 @@ const HomePage = () => {
                                                                 fontSize: { xs: '0.75rem', sm: '0.875rem' },
                                                             }}
                                                         >
-                                                            {view.error ? view.error : <View viewId={view.endpoint.replaceAll(' ', '_')} />}
+                                                            {view.error ? view.error : (
+                                                                <View
+                                                                    viewId={view.endpoint.replaceAll(' ', '_')}
+                                                                    sx={{
+                                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+                                                                        width: '100%',
+                                                                    }}
+                                                                />
+                                                            )}
                                                         </Typography>
                                                     </CardContent>
                                                 </Card>
@@ -343,5 +347,4 @@ const HomePage = () => {
         </Box>
     );
 };
-
 export default HomePage;
