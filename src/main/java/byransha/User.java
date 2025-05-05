@@ -62,7 +62,7 @@ public class User extends PersistingNode {
 	}
 
 	public BNode currentNode() {
-		return stack.isEmpty() ? null : stack.peek();
+		return stack.isEmpty() ? null : stack.getLast();
 	}
 
 	@Override
