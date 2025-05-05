@@ -324,13 +324,15 @@ const HomePage = () => {
                                                             }}
                                                         >
                                                             {view.error ? view.error : (
-                                                                <View
-                                                                    viewId={view.endpoint.replaceAll(' ', '_')}
-                                                                    sx={{
-                                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
-                                                                        width: '100%',
-                                                                    }}
-                                                                />
+                                                                <React.Suspense fallback={<div>Loading view...</div>}>
+                                                                    <View
+                                                                        viewId={view.endpoint.replaceAll(' ', '_')}
+                                                                        sx={{
+                                                                            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+                                                                            width: '100%',
+                                                                        }}
+                                                                    />
+                                                                </React.Suspense>
                                                             )}
                                                         </Typography>
                                                     </CardContent>
