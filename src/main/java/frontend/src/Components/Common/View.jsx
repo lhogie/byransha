@@ -1,5 +1,4 @@
-import axios from "axios";
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useRef, useState, useMemo, memo, useTransition} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
@@ -11,16 +10,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
 import ExportButton from './ExportButton.jsx';
 import { saveAs } from 'file-saver';
-
-const LazyResponsiveLineCanvas = React.lazy(() =>
-    import('@nivo/line').then(module => ({ default: module.ResponsiveLineCanvas }))
-);
-const LazyResponsiveBarCanvas = React.lazy(() =>
-    import('@nivo/bar').then(module => ({ default: module.ResponsiveBarCanvas }))
-);
-const LazyResponsiveNetworkCanvas = React.lazy(() =>
-    import('@nivo/network').then(module => ({ default: module.ResponsiveNetworkCanvas }))
-);
+import { Suspense } from 'react';
+import ReactECharts from 'echarts-for-react';
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -64,19 +55,179 @@ const modalContentStyle = {
     overflowY: 'auto',
 };
 
+const MemoizedLineChart = memo(({ data }) => {
+    const option = useMemo(() => ({
+        tooltip: {
+            trigger: 'axis'
+        },
+        color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'],
+        legend: {
+            data: data.map(series => series.id),
+            orient: 'vertical',
+            right: 10,
+            top: 'center'
+        },
+        grid: {
+            left: '5%',
+            right: '15%',
+            bottom: '10%',
+            top: '10%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'value',
+            name: 'X Axis',
+            nameLocation: 'middle',
+            nameGap: 30
+        },
+        yAxis: {
+            type: 'value',
+            name: 'Y Axis',
+            min: -1,
+            max: 1,
+            nameLocation: 'middle',
+            nameGap: 50
+        },
+        series: data.map(series => ({
+            name: series.id,
+            type: 'line',
+            data: series.data.map(point => [point.x, point.y]),
+            showSymbol: false,
+            symbolSize: 8,
+            emphasis: {
+                focus: 'series'
+            },
+            animationDuration: 300
+        }))
+    }), [data]);
+
+    return <ReactECharts lazyUpdate option={option} style={{ height: '400px', width: '100%' }} />;
+});
+
+const MemoizedBarChart = memo(({ data, keys }) => {
+    const option = useMemo(() => ({
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+                type: 'shadow'
+            }
+        },
+        legend: {
+            data: keys,
+            orient: 'vertical',
+            right: 10,
+            top: 'center'
+        },
+        grid: {
+            left: '5%',
+            right: '20%',
+            bottom: '10%',
+            top: '10%',
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: data.map(item => item.group),
+            axisLabel: {
+                rotate: 45
+            }
+        },
+        yAxis: {
+            type: 'value'
+        },
+        series: keys.map(key => ({
+            name: key,
+            type: 'bar',
+            data: data.map(item => item[key] || 0),
+            emphasis: {
+                focus: 'series'
+            },
+            animationDuration: 300
+        }))
+    }), [data, keys]);
+
+    return <ReactECharts lazyUpdate option={option} style={{ height: '400px', width: '100%' }} />;
+});
+
+const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
+    const option = useMemo(() => ({
+        tooltip: {},
+        animation: "auto",
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        darkMode: true,
+        series: [{
+            type: 'graph',
+            layout: 'force',
+            force: {
+                initLayout: 'circular',
+                layoutAnimation: false,
+            },
+            roam: true,
+            label: {
+                show: false
+            },
+            data: data.nodes.map(node => ({
+                id: node.id,
+                name: node.label,
+                symbolSize: node.size || 30,
+                itemStyle: {
+                    color: node.color || '#1f77b4'
+                },
+                x: node.x,
+                y: node.y
+            })),
+            edges: data.links.map(link => ({
+                source: link.source,
+                target: link.target,
+                lineStyle: {
+                    width: link.width || 2,
+                    curveness: 0
+                }
+            }))
+        }]
+    }), [data]);
+
+    const onChartClick = useCallback((params) => {
+        if (params.dataType === 'node' && onNodeClick) {
+            onNodeClick({ id: params.data.id }, { preventDefault: () => {}, stopPropagation: () => {} });
+        }
+    }, [onNodeClick]);
+
+    const events = useMemo(() => ({
+        'click': onChartClick
+    }), [onChartClick]);
+
+    return (
+        <ReactECharts
+            lazyUpdate
+            option={option}
+            style={{ height: '600px', width: '100%' }} 
+            onEvents={events}
+        />
+    );
+});
+
 export const View = ({ viewId, sx }) => {
     const { data: rawApiData, isLoading: loading, error, refetch } = useApiData(viewId);
     const graphvizRef = useRef(null);
     const queryClient = useQueryClient();
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPending, startTransition] = useTransition();
     const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
+
     const handleOpenModal = (event) => {
         event.stopPropagation();
-        setIsModalOpen(true);
+        startTransition(() => {
+            setIsModalOpen(true);
+        });
     };
+
     const handleCloseModal = (event) => {
         event.stopPropagation();
-        setIsModalOpen(false);
+        startTransition(() => {
+            setIsModalOpen(false);
+        });
     };
 
     const jumpMutation = useApiMutation('jump', {
@@ -89,6 +240,39 @@ export const View = ({ viewId, sx }) => {
         jumpMutation.mutate(`node_id=${nodeId}`);
     }, [jumpMutation]);
 
+    const debounce = (func, wait) => {
+        let timeout;
+        return function executedFunction(...args) {
+            const later = () => {
+                clearTimeout(timeout);
+                func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+        };
+    };
+
+    const renderGraphviz = useMemo(() => {
+        return debounce((container, dotData) => {
+            try {
+                graphviz(container, {
+                    useWorker: true,
+                    engine: 'dot',
+                    fit: true,
+                    zoom: false,
+                    width: container.clientWidth,
+                    height: container.clientHeight,
+                    scale: 1
+                })
+                .tweenPaths(false)
+                .tweenShapes(false)
+                .renderDot(dotData);
+            } catch (error) {
+                console.error("Error rendering graphviz:", error);
+            }
+        }, 100);
+    }, []);
+
     useEffect(() => {
         if (!rawApiData) return;
         const { data: content } = rawApiData;
@@ -96,9 +280,9 @@ export const View = ({ viewId, sx }) => {
         const contentType = content.results[0].result.contentType;
 
         if (contentType === 'text/dot' && graphvizRef.current) {
-            graphviz(graphvizRef.current).renderDot(content.results[0].result.data);
+            renderGraphviz(graphvizRef.current, content.results[0].result.data);
         }
-    }, [rawApiData]);
+    }, [rawApiData, renderGraphviz]);
 
     const handleExportCSV = () => {
         if (Array.isArray(resultData)) {
@@ -178,129 +362,61 @@ export const View = ({ viewId, sx }) => {
 
                 return (
                     <div className="graph">
-                        <LazyResponsiveLineCanvas
-                            data={parsedChartData}
-                            margin={{ top: 50, right: 90, bottom: 50, left: 60 }}
-                            xScale={{ type: 'linear' }}
-                            yScale={{ type: 'linear', min: -1, max: 1, stacked: false }}
-                            axisBottom={{
-                                legend: 'X Axis',
-                                legendOffset: 40,
-                                legendPosition: 'middle',
-                                tickSize: 5,
-                                tickPadding: 5,
-                                legendFontSize: 14,
-                            }}
-                            axisLeft={{
-                                legend: 'Y Axis',
-                                legendOffset: -50,
-                                legendPosition: 'middle',
-                                tickSize: 5,
-                                tickPadding: 5,
-                                legendFontSize: 14,
-                            }}
-                            colors={{ scheme: 'category10' }}
-                            pointSize={12}
-                            pointColor={{ theme: 'background' }}
-                            pointBorderWidth={2}
-                            useMesh={true}
-                            legends={[
-                                {
-                                    anchor: 'bottom-right',
-                                    direction: 'column',
-                                    justify: false,
-                                    translateX: 80,
-                                    translateY: 0,
-                                    itemsSpacing: 4,
-                                    itemDirection: 'left-to-right',
-                                    itemWidth: 90,
-                                    itemHeight: 24,
-                                    itemOpacity: 0.85,
-                                    itemTextSize: 14,
-                                    symbolSize: 14,
-                                    symbolShape: 'circle',
-                                    effects: [
-                                        {
-                                            on: 'hover',
-                                            style: {
-                                                itemOpacity: 1,
-                                            },
-                                        },
-                                    ],
-                                },
-                            ]}
-                        />
+                        <Suspense fallback={<CircularProgress />}>
+                            <MemoizedLineChart data={parsedChartData} />
+                        </Suspense>
                     </div>
                 );
             } else if (viewId.endsWith('_distribution')) {
                 const barChartData = parseBarChartData(content);
-                const keys = Object.values(content).length > 0 ? Object.keys(Object.values(content).reduce((a, b) => Object.assign({}, a, b)), []).sort() : [];
+                const keys = useMemo(() => {
+                    if (Object.values(content).length === 0) return [];
+                    const keySet = new Set();
+                    Object.values(content).forEach(obj => {
+                        Object.keys(obj).forEach(key => keySet.add(key));
+                    });
+                    return Array.from(keySet).sort();
+                }, [content]);
                 return (
                     <div className="graph">
-                        <LazyResponsiveBarCanvas
-                            data={barChartData}
-                            keys={keys}
-                            indexBy={"group"}
-                            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-                            padding={0.3}
-                            groupMode="grouped"
-                            valueScale={{ type: 'linear' }}
-                            indexScale={{ type: 'band', round: true }}
-                            colors={{ scheme: 'nivo' }}
-                            defs={[
-                                {
-                                    id: 'dots',
-                                    type: 'patternDots',
-                                    background: 'inherit',
-                                    color: '#38bcb2',
-                                    size: 4,
-                                    padding: 1,
-                                    stagger: true,
-                                },
-                                {
-                                    id: 'lines',
-                                    type: 'patternLines',
-                                    background: 'inherit',
-                                    color: '#eed312',
-                                    rotation: -45,
-                                    lineWidth: 6,
-                                    spacing: 10,
-                                },
-                            ]}
-                            borderColor={{
-                                from: 'color',
-                                modifiers: [['darker', 1.6]],
-                            }}
-                            labelSkipWidth={12}
-                            labelSkipHeight={12}
-                            labelTextColor={{
-                                from: 'color',
-                                modifiers: [['darker', 1.6]],
-                            }}
-                            legends={[
-                                {
-                                    dataFrom: 'keys',
-                                    anchor: 'bottom-right',
-                                    direction: 'column',
-                                    justify: false,
-                                    translateX: 120,
-                                    translateY: 0,
-                                    itemsSpacing: 2,
-                                    itemWidth: 100,
-                                    itemHeight: 20,
-                                    itemDirection: 'left-to-right',
-                                    itemOpacity: 0.85,
-                                    symbolSize: 20,
-                                    effects: [{ on: 'hover', style: { itemOpacity: 1 } }],
-                                },
-                            ]}
-                            role="application"
-                            ariaLabel="Nivo bar chart demo"
-                            barAriaLabel={e => e.id + ": " + e.formattedValue + " in country: " + e.indexValue}
-                        />
+                        <Suspense fallback={<CircularProgress />}>
+                            <MemoizedBarChart data={barChartData} keys={keys} />
+                        </Suspense>
                     </div>
                 );
             } else if (viewId.endsWith('nivo_view')) {
+                const networkData = useMemo(() => {
+                    const uniqueNodesMap = new Map();
+
+                    content.nodes.forEach(node => {
+                        const transformedNode = {
+                            ...node,
+                            id: node.label
+                        };
+
+                        if (!uniqueNodesMap.has(transformedNode.id)) {
+                            uniqueNodesMap.set(transformedNode.id, transformedNode);
+                        }
+                    });
+
+                    const transformedLinks = content.links.map(link => ({
+                        ...link,
+                        target: link.target.label,
+                        source: link.source.label,
+                    }));
+
+                    return {
+                        nodes: Array.from(uniqueNodesMap.values()),
+                        links: transformedLinks
+                    };
+                }, [content]);
+
+                const handleNodeClick = useCallback((node, event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    jumpToNode(node.id.split('@')[1]);
+                }, [jumpToNode]);
+
                 return (
                     <div
                         className="graph"
@@ -309,46 +425,12 @@ export const View = ({ viewId, sx }) => {
                             e.preventDefault();
                         }}
                     >
-                        <LazyResponsiveNetworkCanvas
-                            data={{
-                                nodes: content.nodes.map((node) => ({
-                                    ...node,
-                                    id: node.label,
-                                })).reduce((accumulator, current) => {
-                                    if (!accumulator.find((item) => item.id === current.id)) {
-                                        accumulator.push(current);
-                                    }
-                                    return accumulator;
-                                }, []),
-                                links: content.links.map((link) => ({
-                                    ...link,
-                                    target: link.target.label,
-                                    source: link.source.label,
-                                })),
-                            }}
-                            onClick={(node, event) => {
-                                event.preventDefault();
-                                event.stopPropagation();
-                                jumpToNode(node.id.split('@')[1]);
-                            }}
-                            iterations={30}
-                            hoverTarget="cell"
-                            margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
-                            linkDistance={e => e.distance}
-                            centeringStrength={0.3}
-                            repulsivity={6}
-                            nodeSize={n => n.size}
-                            activeNodeSize={n => 1.5 * n.size}
-                            nodeColor={e => e.color}
-                            nodeBorderWidth={1}
-                            nodeBorderColor={{
-                                from: 'color',
-                                modifiers: [['darker', 0.8]],
-                            }}
-                            linkThickness={n => 2 + 2 * n.target.data.height}
-                            linkBlendMode="multiply"
-                            motionConfig="wobbly"
-                        />
+                        <Suspense fallback={<CircularProgress />}>
+                            <MemoizedNetworkChart 
+                                data={networkData} 
+                                onNodeClick={handleNodeClick} 
+                            />
+                        </Suspense>
                     </div>
                 );
             } else if (viewId === 'bnode_navigator') {
@@ -403,7 +485,7 @@ export const View = ({ viewId, sx }) => {
             } else {
                 return (
                     <div className="content-container" style={{ background: backgroundColor }}>
-                        <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
+                        <CustomCodeBlock language="json" code={useMemo(() => JSON.stringify(content, null, "\t"), [content])} style={{ background: backgroundColor }} />
                     </div>
                 );
             }
@@ -446,7 +528,7 @@ export const View = ({ viewId, sx }) => {
         } else if (contentType === 'image/jsondot') {
             return (
                 <div className="content-container" style={{ background: backgroundColor }}>
-                    <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
+                    <CustomCodeBlock language="json" code={useMemo(() => JSON.stringify(content, null, "\t"), [content])} style={{ background: backgroundColor }} />
                 </div>
             );
         } else if (contentType === 'text/java') {
@@ -464,40 +546,49 @@ export const View = ({ viewId, sx }) => {
         }
     }, [viewId, jumpToNode, graphvizRef, sx]);
 
-    const parseNivoChartData = (content) => {
-        const result = [];
-        for (let key of Object.keys(content)) {
-            const cosData = content?.[key] || {};
-            const cosLine = {
-                id: key,
-                data: cosData.map(val => {
-                    const key = Object.keys(val)[0];
-                    return {
-                        x: parseFloat(key),
-                        y: parseFloat(val[key]),
-                    };
-                }),
-            };
-            result.push(cosLine);
-        }
-        return result;
-    };
+    const parseNivoChartData = useMemo(() => {
+        return (content) => {
+            if (!content) return [];
 
-    const parseBarChartData = (content) => {
-        const result = [];
-        for (let group of Object.keys(content)) {
-            const cosData = content?.[group] || {};
-            const cosLine = {
-                group: group,
-                ...cosData,
-            };
-            result.push(cosLine);
-        }
-        return result;
-    };
+            const result = [];
+            for (let key of Object.keys(content)) {
+                const cosData = content?.[key] || {};
+                const cosLine = {
+                    id: key,
+                    data: cosData.map(val => {
+                        const k = Object.keys(val)[0];
+                        return {
+                            x: parseFloat(k),
+                            y: parseFloat(val[k]),
+                        };
+                    }),
+                };
+                result.push(cosLine);
+            }
+            return result;
+        };
+    }, []);
 
-    const renderJsonViewer = (dataForModal) => (
-        <>
+    const parseBarChartData = useMemo(() => {
+        return (content) => {
+            if (!content) return [];
+
+            const result = [];
+            for (let group of Object.keys(content)) {
+                const cosData = content?.[group] || {};
+                const cosLine = {
+                    group: group,
+                    ...cosData,
+                };
+                result.push(cosLine);
+            }
+            return result;
+        };
+    }, []);
+
+    const renderJsonViewer = useMemo(() => {
+        return (dataForModal) => (
+            <>
             <Tooltip title="Show Raw Backend Response">
                 <IconButton
                     onClick={handleOpenModal}
@@ -510,40 +601,41 @@ export const View = ({ viewId, sx }) => {
                         color: 'primary.main',
                     }}
                     aria-label="Show raw JSON"
-                    disabled={dataForModal === null || dataForModal === undefined}
+                        disabled={dataForModal === null || dataForModal === undefined}
                 >
                     <CodeIcon />
                 </IconButton>
             </Tooltip>
-            <Modal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                aria-labelledby="raw-json-modal-title"
-                aria-describedby="raw-json-modal-description"
-            >
-                <Box sx={modalStyle}>
-                    <Box sx={modalHeaderStyle}>
-                        <Typography id="raw-json-modal-title" variant="h6" component="h2">
-                            Raw Backend Response
-                        </Typography>
-                        <IconButton onClick={handleCloseModal} aria-label="close">
-                            <CloseIcon />
-                        </IconButton>
+                <Modal
+                    open={isModalOpen}
+                    onClose={handleCloseModal}
+                    aria-labelledby="raw-json-modal-title"
+                    aria-describedby="raw-json-modal-description"
+                >
+                    <Box sx={modalStyle}>
+                        <Box sx={modalHeaderStyle}>
+                            <Typography id="raw-json-modal-title" variant="h6" component="h2">
+                                Raw Backend Response
+                            </Typography>
+                            <IconButton onClick={handleCloseModal} aria-label="close">
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
+                        <Box sx={modalContentStyle}>
+                            {dataForModal ? (
+                                <CustomCodeBlock
+                                    language="json"
+                                    code={useMemo(() => JSON.stringify(dataForModal, null, 2), [dataForModal])}
+                                />
+                            ) : (
+                                <Typography>No raw data available to display.</Typography>
+                            )}
+                        </Box>
                     </Box>
-                    <Box sx={modalContentStyle}>
-                        {dataForModal ? (
-                            <CustomCodeBlock
-                                language="json"
-                                code={JSON.stringify(dataForModal, null, 2)}
-                            />
-                        ) : (
-                            <Typography>No raw data available to display.</Typography>
-                        )}
-                    </Box>
-                </Box>
-            </Modal>
-        </>
-    );
+                </Modal>
+            </>
+        );
+    }, [isModalOpen, handleOpenModal, handleCloseModal]);
 
     if (loading) {
         return (
@@ -605,19 +697,23 @@ export const View = ({ viewId, sx }) => {
 
     const exportData = rawApiData.data.results[0].result.data;
 
-    return (
-        <Box>
-            {renderJsonViewer(rawApiData)}
-            <Box sx={{ position: 'relative', padding: 2 }}>
-                <Box sx={{ mt: 4 }}>
-                    {displayContent(resultData, resultContentType)}
-                </Box>
-            </Box>
-            {supportedExportTypes.includes(resultContentType) && (
+    const ContentRenderer = memo(({ resultData, resultContentType, exportData }) => {
+            return (
                 <Box>
-                    <ExportButton data={exportData} fileName={`view_${viewId}_data.csv`} />
+                {renderJsonViewer(rawApiData)}
+                <Box sx={{ position: 'relative', padding: 2 }}>
+                    <Box sx={{ mt: 4 }}>
+                        {displayContent(resultData, resultContentType)}
+                    </Box>
                 </Box>
-            )}
-        </Box>
-    );
+                {supportedExportTypes.includes(resultContentType) && (
+                    <Box>
+                        <ExportButton data={exportData} fileName={`view_${viewId}_data.csv`} />
+                    </Box>
+                )}
+            </Box>
+        );
+    });
+
+    return <ContentRenderer resultData={resultData} resultContentType={resultContentType} exportData={exportData} />;
 };
