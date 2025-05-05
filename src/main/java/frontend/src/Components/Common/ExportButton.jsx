@@ -1,6 +1,9 @@
 import React, {useState} from 'react';
 import {Button, MenuItem, Select, FormControl, InputLabel} from "@mui/material";
 import "./ExportButton.css";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+
 
 const ExportButton = ({data}) => {
     const [format, setFormat] = useState("csv");
@@ -50,9 +53,27 @@ const ExportButton = ({data}) => {
     };
 
     const exportToPDF = (data) => {
-        // Implémentation pour PDF
-        console.log("Export PDF non implemented");
+        const doc = new jsPDF();
+
+        if (!data || data.length === 0) {
+            console.error("Aucune donnée à exporter");
+            return;
+        }
+
+        const headers = [Object.keys(data[0])];
+        const rows = data.map(row => Object.values(row));
+
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 20,
+            styles: { fontSize: 10 },
+            headStyles: { fillColor: [48, 109, 173] }
+        });
+
+        doc.save("export.pdf");
     };
+
 
     return (
         <div className={"export-button-container"}>
