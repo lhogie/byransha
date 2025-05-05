@@ -15,6 +15,8 @@ import { saveAs } from 'file-saver';
 const LazyResponsiveLineCanvas = React.lazy(() =>
     import('@nivo/line').then(module => ({ default: module.ResponsiveLineCanvas }))
 );
+
+
 const LazyResponsiveBarCanvas = React.lazy(() =>
     import('@nivo/bar').then(module => ({ default: module.ResponsiveBarCanvas }))
 );
@@ -74,6 +76,7 @@ export const View = ({ viewId, sx }) => {
         event.stopPropagation();
         setIsModalOpen(true);
     };
+    const [selectedNodeInfo, setSelectedNodeInfo] = useState(null); //ajout d'un useState pour gérer le popup
     const handleCloseModal = (event) => {
         event.stopPropagation();
         setIsModalOpen(false);
@@ -314,6 +317,9 @@ export const View = ({ viewId, sx }) => {
                                 nodes: content.nodes.map((node) => ({
                                     ...node,
                                     id: node.label,
+                                    classe: node.classe,
+                                    pretty_name: node.pretty_name,
+                                    whatIsThis: node.whatIsThis,
                                 })).reduce((accumulator, current) => {
                                     if (!accumulator.find((item) => item.id === current.id)) {
                                         accumulator.push(current);
@@ -329,6 +335,13 @@ export const View = ({ viewId, sx }) => {
                             onClick={(node, event) => {
                                 event.preventDefault();
                                 event.stopPropagation();
+
+                                setSelectedNodeInfo({
+                                    label: node.label,
+                                    classe: node.data?.classe,
+                                    pretty_name: node.data?.pretty_name,
+                                    whatIsThis: node.data?.whatIsThis,
+                                })
                                 jumpToNode(node.id.split('@')[1]);
                             }}
                             iterations={30}
@@ -349,6 +362,32 @@ export const View = ({ viewId, sx }) => {
                             linkBlendMode="multiply"
                             motionConfig="wobbly"
                         />
+                        <Modal
+                            open={Boolean(selectedNodeInfo)}
+                            onClose={() => setSelectedNodeInfo(null)}
+                        >
+                            <Box sx={{
+                                position: 'absolute',
+                                top: '50%',
+                                left: '50%',
+                                transform: 'translate(-50%, -50%)',
+                                width: 400,
+                                bgcolor: 'background.paper',
+                                border: '2px solid #000',
+                                boxShadow: 24,
+                                p: 4,
+                                borderRadius: 2
+                            }}>
+                                <Typography variant="h6" gutterBottom>
+                                    Node Information
+                                </Typography>
+                                <Typography><strong>Label:</strong> {selectedNodeInfo?.label}</Typography>
+                                <Typography><strong>Class:</strong> {selectedNodeInfo?.classe || "N/A"}</Typography>
+                                <Typography><strong>Pretty name:</strong> {selectedNodeInfo?.pretty_name || "N/A"}</Typography>
+                                <Typography><strong>What is this:</strong> {selectedNodeInfo?.whatIsThis || "N/A"}</Typography>
+                            </Box>
+                        </Modal>
+
                     </div>
                 );
             } else if (viewId === 'bnode_navigator') {
