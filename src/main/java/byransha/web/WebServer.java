@@ -265,6 +265,7 @@ public class WebServer extends BNode {
 		g.addNode(UI.getProperties.class);
 		g.addNode(Summarizer.class);
 		g.addNode(LoadImage.class);
+		Country.loadCountries(g);
 	}
 
 	public SessionStore getSessionStore() {
