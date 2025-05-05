@@ -632,10 +632,12 @@ export const View = ({ viewId, sx }) => {
                             onClick={handleOpenModal}
                             size="small"
                             sx={{
-                                position: 'relative',
-                                bottom: 95,
-                                left: 1050,
+                                position: 'absolute',
+                                top: 5,
+                                right: 5,
                                 zIndex: 10,
+                                width: 30,
+                                height: 30,
                                 color: 'primary.main',
                             }}
                             aria-label="Show raw JSON"
