@@ -349,7 +349,7 @@ export const View = ({ viewId, sx }) => {
                         />
                     </div>
                 );
-            } else if (viewId === 'bnode_nav2') {
+            } else if (viewId === 'bnode_navigator') {
                 return (
                     <>
                         <Box sx={{ mb: 2 }}>
