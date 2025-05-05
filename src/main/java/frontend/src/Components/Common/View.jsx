@@ -125,7 +125,7 @@ const MemoizedLineChart = memo(({ data }) => {
     return <ReactECharts lazyUpdate option={option} style={{ height: '100%', minHeight: '300px', width: '100%' }} />;
 });
 
-const MemoizedBarChart = memo(({ data, keys }) => {
+const MemoizedBarChart = memo(({ prettyName, data, keys }) => {
     const option = useMemo(() => ({
         tooltip: {
             confine: true,
@@ -134,38 +134,32 @@ const MemoizedBarChart = memo(({ data, keys }) => {
                 type: 'shadow'
             }
         },
-        legend: {
-            data: keys,
-            orient: 'vertical',
-            right: 10,
-            top: 'center'
-        },
         grid: {
-            left: '5%',
-            right: '20%',
-            bottom: '10%',
-            top: '10%',
-            containLabel: true
+            containLabel: false
         },
         xAxis: {
-            type: 'category',
-            data: data.map(item => item.group),
+            data: keys.map(key => {
+                return key.length > 10 ? key.slice(0, 10) + '...' : key
+            }),
             axisLabel: {
                 rotate: 45
-            }
+            },
         },
         yAxis: {
             type: 'value'
         },
-        series: keys.map(key => ({
-            name: key,
+        series: {
+            name: prettyName,
             type: 'bar',
-            data: data.map(item => item[key] || 0),
+            data: keys.map(key => {
+                return data[key]
+            }),
             emphasis: {
-                focus: 'series'
+                focus: 'series',
+                blurScope: 'coordinateSystem'
             },
-            animationDuration: 300
-        }))
+            animationDuration: 300,
+        }
     }), [data, keys]);
 
     return <ReactECharts lazyUpdate option={option} style={{ height: '100%', minHeight: '300px', width: '100%' }} />;
@@ -292,9 +286,6 @@ export const View = ({ viewId, sx }) => {
                 engine: 'dot',
                 fit: true,
                 zoom: true,
-                width: graphvizRef.current.clientWidth,
-                height: graphvizRef.current.clientHeight,
-                scale: 1
             })
                 .tweenPaths(false)
                 .tweenShapes(false)
@@ -332,16 +323,13 @@ export const View = ({ viewId, sx }) => {
     }, []);
 
     const parseBarChartData = useCallback((content) => {
-        if (!content) return [];
+        if (!content) return {};
 
-        const result = [];
-        for (let group of Object.keys(content)) {
-            const cosData = content?.[group] || {};
-            const cosLine = {
-                group: group,
-                ...cosData,
-            };
-            result.push(cosLine);
+        const result = {};
+        for (let value of Object.values(content)) {
+            for (let key of Object.keys(value)) {
+                result[key] = value?.[key] || {};
+            }
         }
         return result;
     }, []);
@@ -476,6 +464,7 @@ export const View = ({ viewId, sx }) => {
             } else if (viewId.endsWith('_distribution')) {
                 const barChartData = parseBarChartData(content);
                 const keys = getDistributionKeys(content);
+                const prettyName = dataContent?.results?.[0]?.pretty_name
                 return (
                     <div className="graph"
                          onClick={(e) => {
@@ -483,7 +472,7 @@ export const View = ({ viewId, sx }) => {
                              e.preventDefault();
                          }}>
                         <Suspense fallback={<CircularProgress />}>
-                            <MemoizedBarChart data={barChartData} keys={keys} />
+                            <MemoizedBarChart prettyName={prettyName} data={barChartData} keys={keys} />
                         </Suspense>
                     </div>
                 );
