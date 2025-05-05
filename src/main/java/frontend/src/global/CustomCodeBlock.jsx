@@ -1,8 +1,8 @@
 import ShikiHighlighter from "react-shiki";
 
 const CustomCodeBlock = ({code, language}) => {
-    if (code.length > 1000) {
-        return <code>
+    if (code.length > 50000) {
+        return <code style={{whiteSpace: "pre-wrap", padding: "10px", borderRadius: "5px"}}>
             {code.trim()}
         </code>
     } else {

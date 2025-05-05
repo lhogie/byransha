@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import './HomePage.css';
 import { useNavigate } from "react-router";
 import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem } from '@mui/material';
@@ -8,6 +8,92 @@ import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+
+const ViewCard = memo(({ view, onClick }) => {
+    return <Card
+        sx={{
+            cursor: 'grab',
+            aspectRatio: '1',
+            border: '1px solid #e0e0e0',
+            borderRadius: 2,
+            display: 'flex',
+            flexDirection: 'column',
+            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+        }}
+        onClick={onClick}
+    >
+        <CardContent
+            sx={{
+                padding: { xs: '12px', sm: '16px' },
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden',
+                bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+            }}
+
+        >
+            <Typography
+                variant="h5"
+                sx={{
+                    marginBottom: '8px',
+                    flexShrink: 0,
+                    color: '#283593',
+                    fontWeight: '600',
+                    fontSize: { xs: '1rem', sm: '1.25rem' },
+                }}
+            >
+                {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
+            </Typography>
+            <Typography
+                variant="subtitle1"
+                sx={{
+                    marginBottom: '8px',
+                    color: '#424242',
+                    fontWeight: '500',
+                    flexShrink: 0,
+                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                }}
+            >
+                {view.what_is_this}
+            </Typography>
+            <Typography
+                variant="body2"
+                sx={{
+                    flex: 1,
+                    overflow: 'auto',
+                    color: '#424242',
+                    msOverflowStyle: 'none',
+                    scrollbarWidth: 'thin',
+                    scrollbarColor: '#3f51b5 #e8eaf6',
+                    '&::-webkit-scrollbar': { width: '6px' },
+                    '&::-webkit-scrollbar-thumb': {
+                        bgcolor: '#3f51b5',
+                        borderRadius: '3px',
+                    },
+                    '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
+                    wordBreak: 'break-word',
+                    overflowWrap: 'break-word',
+                    whiteSpace: 'pre-wrap',
+                    maxWidth: '100%',
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                }}
+            >
+                {view.error ? view.error : (
+                    <React.Suspense fallback={<div>Loading view...</div>}>
+                        <View
+                            viewId={view.endpoint.replaceAll(' ', '_')}
+                            sx={{
+                                bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
+                                width: '100%',
+                            }}
+                        />
+                    </React.Suspense>
+                )}
+            </Typography>
+        </CardContent>
+    </Card>
+});
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -252,91 +338,10 @@ const HomePage = () => {
                                                 {...provided.draggableProps}
                                                 {...provided.dragHandleProps}
                                             >
-                                                <Card
-                                                    sx={{
-                                                        cursor: 'grab',
-                                                        aspectRatio: '1',
-                                                        border: '1px solid #e0e0e0',
-                                                        borderRadius: 2,
-                                                        display: 'flex',
-                                                        flexDirection: 'column',
-                                                        bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
-                                                    }}
-                                                    onClick={(e) => {
-                                                        if (e.defaultPrevented) return;
-                                                        navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
-                                                    }}
-                                                >
-                                                    <CardContent
-                                                        sx={{
-                                                            padding: { xs: '12px', sm: '16px' },
-                                                            height: '100%',
-                                                            display: 'flex',
-                                                            flexDirection: 'column',
-                                                            overflow: 'hidden',
-                                                            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
-                                                        }}
-                                                    >
-                                                        <Typography
-                                                            variant="h5"
-                                                            sx={{
-                                                                marginBottom: '8px',
-                                                                flexShrink: 0,
-                                                                color: '#283593',
-                                                                fontWeight: '600',
-                                                                fontSize: { xs: '1rem', sm: '1.25rem' },
-                                                            }}
-                                                        >
-                                                            {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
-                                                        </Typography>
-                                                        <Typography
-                                                            variant="subtitle1"
-                                                            sx={{
-                                                                marginBottom: '8px',
-                                                                color: '#424242',
-                                                                fontWeight: '500',
-                                                                flexShrink: 0,
-                                                                fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                                                            }}
-                                                        >
-                                                            {view.what_is_this}
-                                                        </Typography>
-                                                        <Typography
-                                                            variant="body2"
-                                                            sx={{
-                                                                flex: 1,
-                                                                overflow: 'auto',
-                                                                color: '#424242',
-                                                                msOverflowStyle: 'none',
-                                                                scrollbarWidth: 'thin',
-                                                                scrollbarColor: '#3f51b5 #e8eaf6',
-                                                                '&::-webkit-scrollbar': { width: '6px' },
-                                                                '&::-webkit-scrollbar-thumb': {
-                                                                    bgcolor: '#3f51b5',
-                                                                    borderRadius: '3px',
-                                                                },
-                                                                '&::-webkit-scrollbar-track': { bgcolor: '#e8eaf6' },
-                                                                wordBreak: 'break-word',
-                                                                overflowWrap: 'break-word',
-                                                                whiteSpace: 'pre-wrap',
-                                                                maxWidth: '100%',
-                                                                fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                                                            }}
-                                                        >
-                                                            {view.error ? view.error : (
-                                                                <React.Suspense fallback={<div>Loading view...</div>}>
-                                                                    <View
-                                                                        viewId={view.endpoint.replaceAll(' ', '_')}
-                                                                        sx={{
-                                                                            bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
-                                                                            width: '100%',
-                                                                        }}
-                                                                    />
-                                                                </React.Suspense>
-                                                            )}
-                                                        </Typography>
-                                                    </CardContent>
-                                                </Card>
+                                                <ViewCard view={view}  onClick={(e) => {
+                                                    if (e.defaultPrevented) return;
+                                                    navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
+                                                }} />
                                             </Box>
                                         )}
                                     </Draggable>

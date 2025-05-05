@@ -2,7 +2,6 @@ import React, {useCallback, useEffect, useRef, useState, useMemo, memo, useTrans
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
 import CustomCodeBlock from "../../global/CustomCodeBlock.jsx";
-import './View.css'
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
 import {Box, Button, Modal, Typography, IconButton, Tooltip,Card, CardContent, CardMedia, CardActions} from "@mui/material";
@@ -12,6 +11,7 @@ import ExportButton from './ExportButton.jsx';
 import { saveAs } from 'file-saver';
 import { Suspense } from 'react';
 import ReactECharts from 'echarts-for-react';
+import './View.css'
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -42,6 +42,7 @@ const modalStyle = {
     p: 4,
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'hidden',
 };
 
 const modalHeaderStyle = {
@@ -53,6 +54,25 @@ const modalHeaderStyle = {
 
 const modalContentStyle = {
     overflowY: 'auto',
+    maxHeight: 'calc(80vh - 100px)',
+    width: '100%',
+    scrollbarWidth: 'thin',
+    scrollbarColor: '#888 #f1f1f1',
+    '&::-webkit-scrollbar': {
+        width: '8px',
+        height: '8px',
+    },
+    '&::-webkit-scrollbar-track': {
+        background: '#f1f1f1',
+        borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb': {
+        background: '#888',
+        borderRadius: '4px',
+    },
+    '&::-webkit-scrollbar-thumb:hover': {
+        background: '#555',
+    },
 };
 
 const MemoizedLineChart = memo(({ data }) => {
@@ -101,7 +121,7 @@ const MemoizedLineChart = memo(({ data }) => {
         }))
     }), [data]);
 
-    return <ReactECharts lazyUpdate option={option} style={{ height: '400px', width: '100%' }} />;
+    return <ReactECharts lazyUpdate option={option} style={{ height: '100%', minHeight: '300px', width: '100%' }} />;
 });
 
 const MemoizedBarChart = memo(({ data, keys }) => {
@@ -146,7 +166,7 @@ const MemoizedBarChart = memo(({ data, keys }) => {
         }))
     }), [data, keys]);
 
-    return <ReactECharts lazyUpdate option={option} style={{ height: '400px', width: '100%' }} />;
+    return <ReactECharts lazyUpdate option={option} style={{ height: '100%', minHeight: '300px', width: '100%' }} />;
 });
 
 const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
@@ -202,7 +222,7 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         <ReactECharts
             lazyUpdate
             option={option}
-            style={{ height: '600px', width: '100%' }}
+            style={{ height: '100%', minHeight: '400px', width: '100%' }}
             onEvents={events}
         />
     );
@@ -222,7 +242,6 @@ export const View = ({ viewId, sx }) => {
             setIsModalOpen(true);
         });
     };
-    const [selectedNodeInfo, setSelectedNodeInfo] = useState(null); //ajout d'un useState pour gérer le popup
 
     const stringifyJson = useCallback((data, indent = 2) => {
         if (!data) return "";
@@ -266,10 +285,9 @@ export const View = ({ viewId, sx }) => {
 
         if (contentType === 'text/dot' && graphvizRef.current) {
             graphviz(graphvizRef.current, {
-                useWorker: true,
                 engine: 'dot',
                 fit: true,
-                zoom: false,
+                zoom: true,
                 width: graphvizRef.current.clientWidth,
                 height: graphvizRef.current.clientHeight,
                 scale: 1
@@ -324,7 +342,6 @@ export const View = ({ viewId, sx }) => {
         return result;
     }, []);
 
-    // Extract functions that compute derived data outside of the render function
     const getDistributionKeys = useCallback((content) => {
         if (!content || Object.values(content).length === 0) return [];
         const keySet = new Set();
@@ -362,7 +379,6 @@ export const View = ({ viewId, sx }) => {
         };
     }, []);
 
-    // Define handleNodeClick outside of displayContent to avoid nested hooks
     const handleNodeClick = useCallback((node, event) => {
         if (event) {
             event.preventDefault();
@@ -443,7 +459,11 @@ export const View = ({ viewId, sx }) => {
                 const parsedChartData = parseNivoChartData(content);
 
                 return (
-                    <div className="graph">
+                    <div className="graph"
+                         onClick={(e) => {
+                             e.stopPropagation();
+                             e.preventDefault();
+                         }}>
                         <Suspense fallback={<CircularProgress />}>
                             <MemoizedLineChart data={parsedChartData} />
                         </Suspense>
@@ -453,7 +473,11 @@ export const View = ({ viewId, sx }) => {
                 const barChartData = parseBarChartData(content);
                 const keys = getDistributionKeys(content);
                 return (
-                    <div className="graph">
+                    <div className="graph"
+                         onClick={(e) => {
+                             e.stopPropagation();
+                             e.preventDefault();
+                         }}>
                         <Suspense fallback={<CircularProgress />}>
                             <MemoizedBarChart data={barChartData} keys={keys} />
                         </Suspense>
@@ -656,7 +680,7 @@ export const View = ({ viewId, sx }) => {
 
     if (loading) {
         return (
-            <Box sx={{ position: 'relative', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+            <Box className="view-container" sx={{ position: 'relative', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
                 {renderJsonViewer(rawApiData)}
                 <CircularProgress />
             </Box>
@@ -665,7 +689,7 @@ export const View = ({ viewId, sx }) => {
 
     if (error) {
         return (
-            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+            <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
                 {renderJsonViewer(rawApiData)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Error fetching data: {error.message}
@@ -676,7 +700,7 @@ export const View = ({ viewId, sx }) => {
 
     if (!rawApiData) {
         return (
-            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+            <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
                 {renderJsonViewer(null)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     No data available.
@@ -689,7 +713,7 @@ export const View = ({ viewId, sx }) => {
 
     if (dataContent?.results?.[0]?.error !== undefined) {
         return (
-            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+            <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
                 {renderJsonViewer(rawApiData)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Backend Error: {dataContent.results[0].error}
@@ -703,7 +727,7 @@ export const View = ({ viewId, sx }) => {
 
     if (!resultData || !resultContentType) {
         return (
-            <Box className="information-page" sx={{ position: 'relative', padding: 2 }}>
+            <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
                 {renderJsonViewer(rawApiData)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Result data or content type missing in the response.
@@ -715,15 +739,42 @@ export const View = ({ viewId, sx }) => {
     const exportData = rawApiData.data.results[0].result.data;
 
     return (
-        <Box>
+        <Box className="view-container" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {renderJsonViewer(rawApiData)}
-            <Box sx={{ position: 'relative', padding: 2 }}>
-                <Box sx={{ mt: 4 }}>
+            <Box sx={{
+                position: 'relative',
+                padding: 2,
+                flex: 1,
+                minHeight: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                overflow: 'hidden'
+            }}>
+                <Box sx={{
+                    mt: 4,
+                    flex: 1,
+                    overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                        width: '8px',
+                        height: '8px',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                        background: '#f1f1f1',
+                        borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                        background: '#888',
+                        borderRadius: '4px',
+                    },
+                    '&::-webkit-scrollbar-thumb:hover': {
+                        background: '#555',
+                    },
+                }}>
                     {displayContent(resultData, resultContentType)}
                 </Box>
             </Box>
             {supportedExportTypes.includes(resultContentType) && (
-                <Box>
+                <Box sx={{ mt: 2 }}>
                     <ExportButton data={exportData} fileName={`view_${viewId}_data.csv`} />
                 </Box>
             )}
