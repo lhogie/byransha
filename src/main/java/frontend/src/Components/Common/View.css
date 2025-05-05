@@ -1,4 +1,16 @@
 .graph {
     width: 100%;
     aspect-ratio: 16/9;
+    display: flex;
+    justify-content: center;  /*  centre horizontalement */
+    align-items: center;      /*  centre verticalement si utile */
 }
+.graph > canvas,
+.graph > svg {
+    max-width: 100%;
+}
+/*Le graphique reste au centre de son conteneur
+
+Il garde un bon ratio (16/9),
+
+Il n’est pas écrasé même s’il est plus petit.*/

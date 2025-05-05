@@ -202,7 +202,7 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         <ReactECharts
             lazyUpdate
             option={option}
-            style={{ height: '600px', width: '100%' }} 
+            style={{ height: '600px', width: '100%' }}
             onEvents={events}
         />
     );
@@ -222,6 +222,7 @@ export const View = ({ viewId, sx }) => {
             setIsModalOpen(true);
         });
     };
+    const [selectedNodeInfo, setSelectedNodeInfo] = useState(null); //ajout d'un useState pour gérer le popup
 
     const handleCloseModal = (event) => {
         event.stopPropagation();
@@ -426,9 +427,9 @@ export const View = ({ viewId, sx }) => {
                         }}
                     >
                         <Suspense fallback={<CircularProgress />}>
-                            <MemoizedNetworkChart 
-                                data={networkData} 
-                                onNodeClick={handleNodeClick} 
+                            <MemoizedNetworkChart
+                                data={networkData}
+                                onNodeClick={handleNodeClick}
                             />
                         </Suspense>
                     </div>
