@@ -132,17 +132,18 @@ const MemoizedBarChart = memo(({ prettyName, data, keys }) => {
             trigger: 'axis',
             axisPointer: {
                 type: 'shadow'
-            }
+            },
         },
         grid: {
             containLabel: false
         },
         xAxis: {
-            data: keys.map(key => {
-                return key.length > 10 ? key.slice(0, 10) + '...' : key
-            }),
+            data: keys,
             axisLabel: {
-                rotate: 45
+                rotate: 45,
+                formatter: function (value) {
+                    return value.length > 10 ? value.substring(0, 10) + '...' : value;
+                }
             },
         },
         yAxis: {
