@@ -78,7 +78,8 @@ const modalContentStyle = {
 const MemoizedLineChart = memo(({ data }) => {
     const option = useMemo(() => ({
         tooltip: {
-            trigger: 'axis'
+            trigger: 'axis',
+            confine: true,
         },
         color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4', '#ea7ccc'],
         legend: {
@@ -127,6 +128,7 @@ const MemoizedLineChart = memo(({ data }) => {
 const MemoizedBarChart = memo(({ data, keys }) => {
     const option = useMemo(() => ({
         tooltip: {
+            confine: true,
             trigger: 'axis',
             axisPointer: {
                 type: 'shadow'
@@ -171,7 +173,9 @@ const MemoizedBarChart = memo(({ data, keys }) => {
 
 const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
     const option = useMemo(() => ({
-        tooltip: {},
+        tooltip: {
+            confine: true,
+        },
         animation: "auto",
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
