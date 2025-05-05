@@ -378,6 +378,7 @@ public abstract class BNode {
 					a.label = s;
 				}
 			});
+
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}

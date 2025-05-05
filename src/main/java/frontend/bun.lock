@@ -28,6 +28,7 @@
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-icons": "^5.5.0",
+        "react-json-view-lite": "^2.4.1",
         "react-router": "^7.5.3",
         "react-scripts": "^5.0.1",
         "react-shiki": "^0.5.3",
@@ -2353,6 +2354,8 @@
     "react-icons": ["react-icons@5.5.0", "", { "peerDependencies": { "react": "*" } }, "sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw=="],
 
     "react-is": ["react-is@19.1.0", "", {}, "sha512-Oe56aUPnkHyyDxxkvqtd7KkdQP5uIUfHxd5XTb3wE9d/kRnZLmKbDB0GWk919tdQ+mxxPtG6EAs6RMT6i1qtHg=="],
+
+    "react-json-view-lite": ["react-json-view-lite@2.4.1", "", { "peerDependencies": { "react": "^18.0.0 || ^19.0.0" } }, "sha512-fwFYknRIBxjbFm0kBDrzgBy1xa5tDg2LyXXBepC5f1b+MY3BUClMCsvanMPn089JbV1Eg3nZcrp0VCuH43aXnA=="],
 
     "react-property": ["react-property@2.0.2", "", {}, "sha512-+PbtI3VuDV0l6CleQMsx2gtK0JZbZKbpdu5ynr+lbsuvtmgbNcS3VM0tuY2QjFNOcWxvXeHjDpy42RO+4U2rug=="],
 

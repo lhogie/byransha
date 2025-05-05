@@ -12,6 +12,8 @@ import { saveAs } from 'file-saver';
 import { Suspense } from 'react';
 import ReactECharts from 'echarts-for-react';
 import './View.css'
+import 'react-json-view-lite/dist/index.css'
+import {JsonView, collapseAllNested} from 'react-json-view-lite';
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -549,7 +551,7 @@ export const View = ({ viewId, sx }) => {
                 return (
                     <div className="content-container" style={{ background: backgroundColor }}>
                         <Suspense fallback={<CircularProgress />}>
-                            <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
+                            <JsonView data={content} shouldExpandNode={collapseAllNested} />
                         </Suspense>
                     </div>
                 );
@@ -594,7 +596,7 @@ export const View = ({ viewId, sx }) => {
             return (
                 <div className="content-container" style={{ background: backgroundColor }}>
                     <Suspense fallback={<CircularProgress />}>
-                        <CustomCodeBlock language="json" code={stringifyJson(content, "tab")} style={{ background: backgroundColor }} />
+                        <JsonView data={content} />
                     </Suspense>
                 </div>
             );
@@ -617,8 +619,6 @@ export const View = ({ viewId, sx }) => {
 
     const renderJsonViewer = useMemo(() => {
         return (dataForModal) => {
-            const jsonString = dataForModal ? stringifyJson(dataForModal) : "";
-
             return (
                 <>
                     <Tooltip title="Show Raw Backend Response">
@@ -658,9 +658,8 @@ export const View = ({ viewId, sx }) => {
                             <Box sx={modalContentStyle}>
                                 {dataForModal ? (
                                     <Suspense fallback={<CircularProgress />}>
-                                        <CustomCodeBlock
-                                            language="json"
-                                            code={jsonString}
+                                        <JsonView
+                                            data={dataForModal}
                                         />
                                     </Suspense>
                                 ) : (
