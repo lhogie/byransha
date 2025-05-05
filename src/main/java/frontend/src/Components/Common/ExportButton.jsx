@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Button, MenuItem, Select, FormControl, InputLabel} from "@mui/material";
 import "./ExportButton.css";
-import jsPDF from "jspdf";
+import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 
 
