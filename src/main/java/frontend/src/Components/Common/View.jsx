@@ -734,7 +734,7 @@ export const View = ({ viewId, sx }) => {
     if (!resultData || !resultContentType) {
         return (
             <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
-                {renderJsonViewer(rawApiData)}
+                {renderJsonViewer(resultData) || renderJsonViewer(resultContentType)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Result data or content type missing in the response.
                 </div>
@@ -746,7 +746,7 @@ export const View = ({ viewId, sx }) => {
 
     return (
         <Box className="view-container" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {renderJsonViewer(rawApiData)}
+            {renderJsonViewer(exportData)}
             <Box sx={{
                 position: 'relative',
                 padding: 2,
