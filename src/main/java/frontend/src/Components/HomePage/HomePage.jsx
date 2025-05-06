@@ -105,9 +105,15 @@ const HomePage = () => {
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
     const [selectedViews, setSelectedViews] = useState([]);
     const [showTechnicalViews, setShowTechnicalViews] = useState(false);
-    React.useEffect(() => {
-        setColumns(getAutoColumnCount());
-    }, []);
+
+    const getAutoColumnCount = () => {
+        const width = window.innerWidth;
+        console.log(width)
+        if (width < 600) return 1;
+        if (width < 900) return 2;
+        if (width < 1800) return 3;
+        return 4;
+    };
 
     React.useEffect(() => {
         if (data?.data?.results) {
@@ -128,6 +134,10 @@ const HomePage = () => {
             });
         }
     }, [data, showTechnicalViews]);
+
+    React.useEffect(() => {
+        setColumns(getAutoColumnCount());
+    }, []);
 
     if (isLoading) {
         return (
@@ -170,13 +180,6 @@ const HomePage = () => {
 
     const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, views.length));
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
-    const getAutoColumnCount = () => {
-        const width = window.innerWidth;
-        if (width < 600) return 1;
-        if (width < 900) return 2;
-        if (width < 1200) return 3;
-        return 4;
-    };
 
     const isSpecialView = (view) => {
         const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view'];

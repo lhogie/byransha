@@ -177,6 +177,9 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
         darkMode: true,
+        grid: {
+            containLabel: false
+        },
         series: [{
             type: 'graph',
             layout: 'force',
@@ -188,6 +191,11 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
             label: {
                 show: false
             },
+            tooltip: {
+                formatter: function (params) {
+                    return `${params.data.prettyName ?? params.data.name}<br>${params.data.whatIsThis ?? ''}<br>${params.data.className ?? ''}`;
+                }
+            },
             data: data.nodes.map(node => ({
                 id: node.id,
                 name: node.label,
@@ -196,7 +204,10 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
                     color: node.color || '#1f77b4'
                 },
                 x: node.x,
-                y: node.y
+                y: node.y,
+                prettyName: node.prettyName,
+                whatIsThis: node.whatIsThis,
+                className: node.className,
             })),
             edges: data.links.map(link => ({
                 source: link.source,

@@ -361,7 +361,10 @@ public abstract class BNode {
 				if (o.canSee(user)) {
 					var noeudOut = g.ensureHasVertex(o);
 					noeudOut.color = "grey";
-					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					noeudOut.prettyName = o.prettyName();
+					noeudOut.whatIsThis = o.whatIsThis();
+					noeudOut.className = o.getClass().getName();
+					var a = g.newArc(current, noeudOut);
 					a.label = s;
 					a.color = "red";
 				}
@@ -371,7 +374,10 @@ public abstract class BNode {
 				if (i.canSee(user)) {
 					var noeudOut = g.ensureHasVertex(i);
 					noeudOut.color = i.color;
-					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					noeudOut.prettyName = i.prettyName();
+					noeudOut.whatIsThis = i.whatIsThis();
+					noeudOut.className = i.getClass().getName();
+					var a = g.newArc(current, noeudOut);
 					a.style = "dotted";
 					a.label = s;
 				}

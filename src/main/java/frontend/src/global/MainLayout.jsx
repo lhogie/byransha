@@ -225,7 +225,9 @@ const MainLayout = () => {
                     )
                 }}
             >
-                <PageContainer>
+                <PageContainer style={{
+                    maxWidth: '100%',
+                }}>
                     <Outlet />
                 </PageContainer>
             </DashboardLayout>
