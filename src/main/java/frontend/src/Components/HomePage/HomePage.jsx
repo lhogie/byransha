@@ -9,10 +9,10 @@ import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-const ViewCard = memo(({ view, onClick }) => {
+const ViewCard = memo(({ view, onClick, dragHandleProps }) => {
     return <Card
         sx={{
-            cursor: 'grab',
+            cursor: 'pointer',
             aspectRatio: '1',
             border: '1px solid #e0e0e0',
             borderRadius: 2,
@@ -22,16 +22,32 @@ const ViewCard = memo(({ view, onClick }) => {
         }}
         onClick={onClick}
     >
+        <Box 
+            {...dragHandleProps}
+            sx={{
+                height: '40px',
+                width: '100%',
+                bgcolor: view.response_type === 'technical' ? '#fff8b0' : '#f5f5f5',
+                borderBottom: '1px solid #e0e0e0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'grab',
+            }}
+        >
+            <Typography variant="caption" sx={{ color: '#757575' }}>
+                Drag here
+            </Typography>
+        </Box>
         <CardContent
             sx={{
                 padding: { xs: '12px', sm: '16px' },
-                height: '100%',
+                height: 'calc(100% - 40px)',
                 display: 'flex',
                 flexDirection: 'column',
                 overflow: 'hidden',
                 bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
             }}
-
         >
             <Typography
                 variant="h5"
@@ -57,8 +73,7 @@ const ViewCard = memo(({ view, onClick }) => {
             >
                 {view.what_is_this}
             </Typography>
-            <Typography
-                variant="body2"
+            <Box
                 sx={{
                     flex: 1,
                     overflow: 'auto',
@@ -90,7 +105,7 @@ const ViewCard = memo(({ view, onClick }) => {
                         />
                     </React.Suspense>
                 )}
-            </Typography>
+            </Box>
         </CardContent>
     </Card>
 });
@@ -108,7 +123,7 @@ const HomePage = () => {
 
     const getAutoColumnCount = () => {
         const width = window.innerWidth;
-        console.log(width)
+
         if (width < 600) return 1;
         if (width < 900) return 2;
         if (width < 1800) return 3;
@@ -337,7 +352,11 @@ const HomePage = () => {
                             {views
                                 .filter((view) => selectedViews.includes(view.endpoint))
                                 .map((view, index) => (
-                                    <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
+                                    <Draggable 
+                                        key={view.endpoint} 
+                                        draggableId={view.endpoint} 
+                                        index={index}
+                                    >
                                         {(provided, snapshot) => (
                                             <Box
                                                 sx={{
@@ -350,12 +369,15 @@ const HomePage = () => {
                                                 }}
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
                                             >
-                                                <ViewCard view={view}  onClick={(e) => {
-                                                    if (e.defaultPrevented) return;
-                                                    navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
-                                                }} />
+                                                <ViewCard 
+                                                    view={view}  
+                                                    onClick={(e) => {
+                                                        if (e.defaultPrevented) return;
+                                                        navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
+                                                    }} 
+                                                    dragHandleProps={provided.dragHandleProps}
+                                                />
                                             </Box>
                                         )}
                                     </Draggable>

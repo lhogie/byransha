@@ -253,7 +253,6 @@ public class WebServer extends BNode {
 		g.addNode(Picture.V.class);
 		g.addNode(LabView.class);
 		g.addNode(ModelDOTView.class);
-		g.addNode(SourceView.class);
 		g.addNode(ToStringView.class);
 		g.addNode(StructureView.class);
 		g.addNode(NodeEndpoints.class);
