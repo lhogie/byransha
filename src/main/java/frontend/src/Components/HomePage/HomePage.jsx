@@ -105,6 +105,9 @@ const HomePage = () => {
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
     const [selectedViews, setSelectedViews] = useState([]);
     const [showTechnicalViews, setShowTechnicalViews] = useState(false);
+    React.useEffect(() => {
+        setColumns(getAutoColumnCount());
+    }, []);
 
     React.useEffect(() => {
         if (data?.data?.results) {
@@ -167,6 +170,13 @@ const HomePage = () => {
 
     const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, views.length));
     const decrementColumns = () => setColumns((prev) => Math.max(prev - 1, 1));
+    const getAutoColumnCount = () => {
+        const width = window.innerWidth;
+        if (width < 600) return 1;
+        if (width < 900) return 2;
+        if (width < 1200) return 3;
+        return 4;
+    };
 
     const isSpecialView = (view) => {
         const specialViewIds = ['char_example_xy', 'bnode_in_outs_nivo_view'];
@@ -214,6 +224,7 @@ const HomePage = () => {
                             variant="outlined"
                             onClick={handleSelectMenuOpen}
                             sx={{
+                                minWidth: { xs: 36, sm: 40 },
                                 borderWidth: '2px',
                                 borderColor: '#90caf9',
                                 color: '#90caf9',
@@ -225,7 +236,7 @@ const HomePage = () => {
                                 },
                             }}
                         >
-                            Select Views
+                            Auto
                         </Button>
                         <Menu
                             anchorEl={selectMenuAnchor}
