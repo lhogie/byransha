@@ -346,7 +346,7 @@ public class WebServer extends BNode {
 					user = graph.addNode(User.class);
 					user.name.set("guest");
 					user.passwordNode.set("guest");
-					user.stack.push(graph.root());
+					//user.stack.push(graph.root());
 				}
 			}
 
