@@ -22,7 +22,7 @@ import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
+public class ModelDOTView extends NodeEndpoint<BNode> implements DevelopmentView {
 
 	@Override
 	public String whatItDoes() {
@@ -61,15 +61,13 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 
 	@Override
 	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-			BBGraph node) throws Throwable {
+			BNode node) throws Throwable {
 		if (node == null) {
 			throw new IllegalStateException(
-                    "ModelDOTView executed with an incompatible node type: " +
-                            "null" +
-                            ". Expected BBGraph. Dispatcher logic needs correction.");
+                    "ModelDOTView executed with an incompatible node type: null. Dispatcher logic needs correction.");
 		}
 
-		final BBGraph graphToRender = this.graph;
+		final BBGraph graphToRender = (node instanceof BBGraph) ? (BBGraph)node : node.graph;
 
 		return new EndpointTextResponse("text/dot", pw -> {
 			var relations = new ArrayList<ModelDOTView.Relation>();
