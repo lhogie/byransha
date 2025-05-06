@@ -248,7 +248,8 @@ public class WebServer extends BNode {
 		g.addNode(BNode.InOutsNivoView.class);
 		g.addNode(ModelGraphivzSVGView.class);
 		g.addNode(Navigator.class);
-		g.addNode(OutNodeDistribution.class);
+		g.addNode(OutDegreeDistribution.class);
+		g.addNode(ClassDistribution.class);
 		g.addNode(Picture.V.class);
 		g.addNode(LabView.class);
 		g.addNode(ModelDOTView.class);
@@ -265,6 +266,8 @@ public class WebServer extends BNode {
 		g.addNode(UI.getProperties.class);
 		g.addNode(Summarizer.class);
 		g.addNode(LoadImage.class);
+
+		Country.loadCountries(g);
 	}
 
 	public SessionStore getSessionStore() {

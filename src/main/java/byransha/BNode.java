@@ -1,6 +1,5 @@
 package byransha;
 
-import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -20,7 +19,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.AnyGraph;
-import byransha.graph.BGElement;
 import byransha.graph.BVertex;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
@@ -361,49 +359,80 @@ public abstract class BNode {
 			current.color = this.color;
 			current.size = 20;
 
-				n.forEachOut((s, o) -> {
-					if (o.canSee(user)) {
-						var noeudOut = g.ensureHasVertex(o);
-						noeudOut.color = "grey";
-						var a = g.newArc(g.ensureHasVertex(n), noeudOut );
-						a.label = s;
-						a.color = "red";
-					}
-				});
+			n.forEachOut((s, o) -> {
+				if (o.canSee(user)) {
+					var noeudOut = g.ensureHasVertex(o);
+					noeudOut.color = "grey";
+					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					a.label = s;
+					a.color = "red";
+				}
+			});
 
-				n.forEachIn((s, i) -> {
-					if (i.canSee(user)) {
-						var noeudOut = g.ensureHasVertex(i);
-						noeudOut.color = i.color;
-						var a = g.newArc(g.ensureHasVertex(n), noeudOut );
-						a.style = "dotted";
-						a.label = s;
-					}
-				});
+			n.forEachIn((s, i) -> {
+				if (i.canSee(user)) {
+					var noeudOut = g.ensureHasVertex(i);
+					noeudOut.color = i.color;
+					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					a.style = "dotted";
+					a.label = s;
+				}
+			});
+
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}
 
-	public static class OutNodeDistribution extends NodeEndpoint<BNode> implements View {
+	public static class OutDegreeDistribution extends NodeEndpoint<BBGraph> implements View {
 
 		@Override
 		public String whatItDoes() {
 			return "shows distributed for out nodes";
 		}
 
-		public OutNodeDistribution(BBGraph db) {
+		public OutDegreeDistribution(BBGraph db) {
 			super(db);
 		}
 
-		public OutNodeDistribution(BBGraph db, int id) {
+		public OutDegreeDistribution(BBGraph db, int id) {
 			super(db, id);
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph g)
+				throws Throwable {
+			var d = new Byransha.Distribution<Integer>();
+			g.forEachNode(n -> d.addOccurence(n.outDegree()));
+			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+
+	}
+
+	public static class ClassDistribution extends NodeEndpoint<BBGraph> implements View {
+
+		public ClassDistribution(BBGraph db) {
+			super(db);
+		}
+
+		public ClassDistribution(BBGraph db, int id) {
+			super(db, id);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "shows distributed for out nodes";
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph g)
 				throws Throwable {
 			var d = new Byransha.Distribution<String>();
-			forEachOut((n, o) -> d.addOccurence(o.getClass().getName()));
+			g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
 			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
 		}
 
@@ -420,7 +449,6 @@ public abstract class BNode {
 		n.set("pretty_name", new TextNode(prettyName()));
 		return n;
 	}
-
 
 	public abstract String prettyName();
 	/*
