@@ -43,26 +43,26 @@ public class AcademiaDB extends BBGraph {
 		});
 
 		System.out.println(graph + " " + this);
-		Lab i3s = new Lab(graph);
+		Lab i3s = graph.addNode(Lab.class); //new Lab(graph);
 
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = new EPST(graph);
+			var epst = graph.addNode(EPST.class); //new EPST(graph);
 			epst.name.set(n);
 			i3s.tutelles.add(epst);
 		}
 
-		var UniCA = new University(graph);
+		var UniCA = graph.addNode(University.class); //new University(graph);
 		UniCA.name.set("UniCA");
 		i3s.tutelles.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(graph);
+			var group = graph.addNode(ResearchGroup.class); //new ResearchGroup(graph);
 			group.name.set(n);
 			i3s.subStructures.add(group);
 		}
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = new Campus(graph);
+			var campus = graph.addNode(Campus.class); //new Campus(graph);
 			campus.name.set(n);
 			UniCA.campuses.add(campus);
 		}
@@ -70,7 +70,7 @@ public class AcademiaDB extends BBGraph {
 		var csv = new CSV(new File(inputDir, "TB_personneI3S_IT.csv"), ";");
 
 		for (var l : csv) {
-			var p = new Person(graph);
+			var p = graph.addNode(Person.class); //new Person(graph);
 
 			if (l.set(0, null).equals("member")) {
 				i3s.members.add(p);
@@ -84,7 +84,9 @@ public class AcademiaDB extends BBGraph {
 			p.etatCivil.countryOfBirth.set(l.set(6, null));
 			p.etatCivil.nationality.set(l.set(7, null));
 			p.etatCivil.address.set(l.set(8, null));
-			p.phoneNumbers.add(new StringNode(this, l.set(9, null)));
+			var inter = graph.addNode(StringNode.class);
+			inter.set(l.set(9, null));
+			p.phoneNumbers.add(inter);
 
 			var officeName = l.set(15, null);
 
@@ -105,14 +107,17 @@ public class AcademiaDB extends BBGraph {
 			}
 
 			for (var phoneNumber : List.of(l.set(12, null), l.set(13, null), l.set(14, null))) {
-				var n = new StringNode(this, phoneNumber);
+				var n = graph.addNode(StringNode.class); //new StringNode(this, phoneNumber);
+				n.set(phoneNumber);
 				p.phoneNumbers.add(n);
 			}
 
 			p.badgeNumber.set(l.set(16, null));
 			p.website.set(l.set(17, null));
 			p.faxNumber.set(l.set(18, null));
-			p.emailAddresses.add(new EmailNode(this, l.set(19, null)));
+			var email = graph.addNode(EmailNode.class);
+			email.set(l.set(19, null));
+			p.emailAddresses.add(email);
 			p.researchGroup = find(ResearchGroup.class, n -> n.name.get().equals(l.set(20, null)));
 			boolean doctor = l.set(21, null).equalsIgnoreCase("oui");
 			String phdDate = l.set(22, null);
@@ -128,25 +133,33 @@ public class AcademiaDB extends BBGraph {
 
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, null);
-				p.position = new Position(graph);
+				p.position = graph.addNode(Position.class); //new Position(graph);
 				p.position.employer = find(ResearchGroup.class, n -> n.name.get().equals(employer));
 				var corps = l.set(i - 2, null);
 				p.position.status = find(Status.class, s -> s.name.get().equals(corps));
 
 				if (!startDate.isBlank()) {
-					p.position.from = new DateNode(this, startDate);
+					var startDateNode = graph.addNode(DateNode.class);
+					startDateNode.set(startDate);
+					p.position.from = startDateNode;
 				}
 
 				if (!endDate.isBlank()) {
-					p.position.to = new DateNode(this, endDate);
+					var endDateNode = graph.addNode(DateNode.class);
+					endDateNode.set(endDate);
+					p.position.to = endDateNode;
 				}
 			}
 
 			p.enposte = l.set(27, null).equals("en poste");
 			p.position.comment = l.set(28, null);
-			p.quotite = new StringNode(this, l.set(29, null));
+			var quotite = graph.addNode(StringNode.class);
+			quotite.set(l.set(29, null));
+			p.quotite = quotite ;//new StringNode(this, l.set(29, null));
 			comment = l.set(32, null);
-			p.researchActivity = new StringNode(this, l.set(33, null));
+			var researchActivity = graph.addNode(StringNode.class);
+			researchActivity.set(l.set(33, null));
+			p.researchActivity = researchActivity ;//new StringNode(this, l.set(33, null));
 
 			if (l.stream().anyMatch(Objects::nonNull))
 				throw new IllegalStateException("unused columns: " + l);

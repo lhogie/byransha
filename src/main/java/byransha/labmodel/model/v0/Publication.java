@@ -31,6 +31,9 @@ public class Publication extends BusinessNode {
 
 	@Override
 	public String toString() {
+		if(title == null) {
+			return "Publication: " + id();
+		}
 		return title.get();
 	}
 

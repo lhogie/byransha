@@ -1,9 +1,12 @@
 package byransha;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new CopyOnWriteArrayList<>();
@@ -40,6 +43,7 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	public void add(N n) {
 		l.add(n);
+		this.save(f -> {});
 	}
 
 	public void remove(N p) {
