@@ -124,9 +124,9 @@ const HomePage = () => {
     const getAutoColumnCount = () => {
         const width = window.innerWidth;
 
-        if (width < 600) return 1;
-        if (width < 900) return 2;
-        if (width < 1800) return 3;
+        if (width < 900) return 1;
+        else if (width < 1600) return 2;
+        else if (width < 2100) return 3;
         return 4;
     };
 
@@ -151,8 +151,14 @@ const HomePage = () => {
     }, [data, showTechnicalViews]);
 
     React.useEffect(() => {
-        setColumns(getAutoColumnCount());
+        const handleResize = () => setColumns(getAutoColumnCount());
+
+        window.addEventListener('resize', handleResize);
+        handleResize(); // Initialize on mount
+
+        return () => window.removeEventListener('resize', handleResize);
     }, []);
+
 
     if (isLoading) {
         return (
