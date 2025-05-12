@@ -9,7 +9,8 @@ import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
-const ViewCard = memo(({ view, onClick, dragHandleProps }) => {
+const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => {
+
     return <Card
         sx={{
             cursor: 'pointer',
@@ -22,7 +23,7 @@ const ViewCard = memo(({ view, onClick, dragHandleProps }) => {
         }}
         onClick={onClick}
     >
-        <Box 
+        <Box
             {...dragHandleProps}
             sx={{
                 height: '40px',
@@ -39,7 +40,10 @@ const ViewCard = memo(({ view, onClick, dragHandleProps }) => {
             <Typography className="DragHere" variant="caption" sx={{ color: '#757575' }}>
                 Drag here
             </Typography>
-            <button className= "erased-card" onClick={() => console.log("To define")}> &times; </button>
+            <button className= "erased-card" onClick={(e) => {
+                e.stopPropagation();
+                handleViewToggle(view.endpoint)}}> &times;
+                </button>
         </Box>
         <CardContent
             sx={{
@@ -122,6 +126,9 @@ const HomePage = () => {
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
     const [selectedViews, setSelectedViews] = useState([]);
     const [showTechnicalViews, setShowTechnicalViews] = useState(false);
+
+    const visibleViews = views.filter(view => selectedViews.includes(view.endpoint));
+    const rowColumns = Math.min(columns, visibleViews.length);
 
     const getAutoColumnCount = () => {
         const width = window.innerWidth;
@@ -360,9 +367,9 @@ const HomePage = () => {
                             {views
                                 .filter((view) => selectedViews.includes(view.endpoint))
                                 .map((view, index) => (
-                                    <Draggable 
-                                        key={view.endpoint} 
-                                        draggableId={view.endpoint} 
+                                    <Draggable
+                                        key={view.endpoint}
+                                        draggableId={view.endpoint}
                                         index={index}
                                     >
                                         {(provided, snapshot) => (
@@ -371,20 +378,21 @@ const HomePage = () => {
                                                     width: {
                                                         xs: '100%',
                                                         sm: `calc(${100 / Math.min(columns, 2)}% - 16px)`,
-                                                        md: `calc(${100 / columns}% - 32px)`,
+                                                        md: `calc(${100 / rowColumns}% - 32px)`,
                                                     },
                                                     opacity: snapshot.isDragging ? 0.8 : 1,
                                                 }}
                                                 ref={provided.innerRef}
                                                 {...provided.draggableProps}
                                             >
-                                                <ViewCard 
-                                                    view={view}  
+                                                <ViewCard
+                                                    view={view}
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
                                                         navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
-                                                    }} 
+                                                    }}
                                                     dragHandleProps={provided.dragHandleProps}
+                                                    handleViewToggle={handleViewToggle}
                                                 />
                                             </Box>
                                         )}
