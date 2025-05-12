@@ -3,6 +3,9 @@ import './InformationPage.css';
 import React, {useEffect, useState} from 'react';
 import {useTitle} from "../../global/useTitle";
 import {View} from "../Common/View.jsx";
+import {IconButton} from "@mui/material";
+import CloseIcon from '@mui/icons-material/Close';
+import CodeIcon from '@mui/icons-material/Code';
 
 const InformationPage = () => {
     const {viewId} = useParams();
@@ -10,11 +13,13 @@ const InformationPage = () => {
     useTitle(`Information for View ${viewId}`);
 
     return (
-        <main className="information-page">
+        <div className="information-page">
             <h1>Content:</h1>
             <View viewId={viewId} />
-            <button className= "close-button" onClick={() => console.log('Close button clicked')}> &times; </button>
-        </main>
+            <IconButton className="close-button" onClick={() => console.log('Close button clicked')} aria-label="close">
+                <CloseIcon />
+            </IconButton>
+        </div>
     );
 };
 export default InformationPage;

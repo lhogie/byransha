@@ -6,6 +6,7 @@
     max-width: 100%;
     width: 100%;
     text-overflow: ellipsis;
+    position: relative;
 }
 
 .information-page h1 {
@@ -143,6 +144,7 @@
     font-size: 20px;
     cursor: pointer;
     z-index: 1000;
-    background: red;
-    border: 2px solid black;
+    width: 40;
+    height: 40;
+    color: 'primary.main';
 }
