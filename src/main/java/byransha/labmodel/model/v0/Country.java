@@ -54,6 +54,7 @@ public class Country extends BusinessNode {
         codeNode = g.addNode(StringNode.class);
 		name = g.addNode(StringNode.class);
 		flag = g.addNode(ImageNode.class);
+		this.color = "red";
 
 	}
 

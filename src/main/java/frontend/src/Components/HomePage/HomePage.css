@@ -21,3 +21,21 @@
     font-size: 14px;
   }
 
+.erased-card {
+    margin-left: auto; /* Push the button to the right */
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #757575;
+    cursor: pointer;
+}
+
+.erased-card:hover {
+    color: #ff0000; /* Optional: Change color on hover */
+}
+
+
+.DragHere {
+    width: 100%;
+    text-align: center;
+}

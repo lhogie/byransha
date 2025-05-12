@@ -10,10 +10,11 @@ const InformationPage = () => {
     useTitle(`Information for View ${viewId}`);
 
     return (
-        <div className="information-page">
+        <main className="information-page">
             <h1>Content:</h1>
             <View viewId={viewId} />
-        </div>
+            <button className= "close-button" onClick={() => console.log('Close button clicked')}> &times; </button>
+        </main>
     );
 };
 export default InformationPage;

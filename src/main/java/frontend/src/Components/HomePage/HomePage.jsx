@@ -35,9 +35,11 @@ const ViewCard = memo(({ view, onClick, dragHandleProps }) => {
                 cursor: 'grab',
             }}
         >
-            <Typography variant="caption" sx={{ color: '#757575' }}>
+
+            <Typography className="DragHere" variant="caption" sx={{ color: '#757575' }}>
                 Drag here
             </Typography>
+            <button className= "erased-card" onClick={() => console.log("To define")}> &times; </button>
         </Box>
         <CardContent
             sx={{
