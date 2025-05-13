@@ -6,9 +6,12 @@ import {View} from "../Common/View.jsx";
 import {IconButton} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
+import {useNavigate} from "react-router";
 
 const InformationPage = () => {
     const {viewId} = useParams();
+
+    const navigate = useNavigate();
 
     useTitle(`Information for View ${viewId}`);
 
@@ -16,7 +19,7 @@ const InformationPage = () => {
         <div className="information-page">
             <h1>Content:</h1>
             <View viewId={viewId} />
-            <IconButton className="close-button" onClick={() => console.log('Close button clicked')} aria-label="close">
+            <IconButton className="close-button" onClick={() => {navigate("/home")}} aria-label="close">
                 <CloseIcon />
             </IconButton>
         </div>
