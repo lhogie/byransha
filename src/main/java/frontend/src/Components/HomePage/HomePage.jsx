@@ -125,7 +125,10 @@ const HomePage = () => {
     const [columns, setColumns] = useState(2);
     const [selectMenuAnchor, setSelectMenuAnchor] = useState(null);
     const [selectedViews, setSelectedViews] = useState([]);
-    const [showTechnicalViews, setShowTechnicalViews] = useState(false);
+    const [showTechnicalViews, setShowTechnicalViews] = useState(() => {
+            const saved = localStorage.getItem('showTechnicalViews');
+            return saved ? JSON.parse(saved) : false;
+    });
 
     const visibleViews = views.filter(view => selectedViews.includes(view.endpoint));
     const rowColumns = Math.min(columns, visibleViews.length);
@@ -145,16 +148,19 @@ const HomePage = () => {
                 ? data.data.results
                 : data.data.results.filter(view => view.response_type !== 'technical');
             setViews(filteredViews);
-            setSelectedViews(prev => {
-                const newSelected = prev.filter(endpoint =>
+            setSelectedViews(() => {
+                const saved = JSON.parse(localStorage.getItem('selectedViewsSaved')) || [];
+                const validSaved = saved.filter(endpoint =>
                     filteredViews.some(view => view.endpoint === endpoint)
                 );
-                filteredViews.forEach(view => {
-                    if (!newSelected.includes(view.endpoint)) {
-                        newSelected.push(view.endpoint);
-                    }
-                });
-                return newSelected;
+                localStorage.setItem('selectedViewsSaved', JSON.stringify(validSaved));
+                return validSaved;
+            });
+            const savedOrder = JSON.parse(localStorage.getItem('viewOrder')) || [];
+            const orderedViews = filteredViews.sort((a, b) => {
+                const indexA = savedOrder.indexOf(a.endpoint);
+                const indexB = savedOrder.indexOf(b.endpoint);
+                return indexA - indexB;
             });
         }
     }, [data, showTechnicalViews]);
@@ -189,15 +195,29 @@ const HomePage = () => {
     const handleSelectMenuClose = () => setSelectMenuAnchor(null);
 
     const handleViewToggle = (endpoint) => {
-        setSelectedViews((prev) =>
-            prev.includes(endpoint)
+        setSelectedViews((prev) => {
+            const newSelected = prev.includes(endpoint)
                 ? prev.filter((id) => id !== endpoint)
-                : [...prev, endpoint]
-        );
+                : [...prev, endpoint];
+
+            localStorage.setItem('selectedViewsSaved', JSON.stringify(newSelected));
+
+            const technicalViews = views.filter(view => view.response_type === 'technical');
+            const openTechnicalViews = technicalViews.filter(view => newSelected.includes(view.endpoint));
+            if (openTechnicalViews.length === 0 && showTechnicalViews) {
+                setShowTechnicalViews(false);
+                localStorage.setItem('showTechnicalViews', JSON.stringify(false));
+            }
+            return newSelected;
+        });
     };
 
     const handleTechnicalViewsToggle = () => {
-        setShowTechnicalViews(prev => !prev);
+        setShowTechnicalViews(prev => {
+            const newValue = !prev;
+            localStorage.setItem('showTechnicalViews', JSON.stringify(newValue));
+            return newValue;
+        });
     };
 
     const onDragEnd = (result) => {
@@ -206,6 +226,9 @@ const HomePage = () => {
         const [movedView] = reorderedViews.splice(result.source.index, 1);
         reorderedViews.splice(result.destination.index, 0, movedView);
         setViews(reorderedViews);
+
+        const order = reorderedViews.map((view) => view.endpoint);
+        localStorage.setItem('viewOrder', JSON.stringify(order));
     };
 
     const incrementColumns = () => setColumns((prev) => Math.min(prev + 1, views.length));
