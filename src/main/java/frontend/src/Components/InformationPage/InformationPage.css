@@ -148,3 +148,7 @@
     height: 40;
     color: 'primary.main';
 }
+
+.information-page .close-button:hover {
+    color: #e74c3c;
+}
