@@ -7,6 +7,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => {
@@ -149,19 +150,32 @@ const HomePage = () => {
                 : data.data.results.filter(view => view.response_type !== 'technical');
             setViews(filteredViews);
             setSelectedViews(() => {
-                const saved = JSON.parse(localStorage.getItem('selectedViewsSaved')) || [];
-                const validSaved = saved.filter(endpoint =>
-                    filteredViews.some(view => view.endpoint === endpoint)
-                );
-                localStorage.setItem('selectedViewsSaved', JSON.stringify(validSaved));
-                return validSaved;
+                const saved = JSON.parse(localStorage.getItem('selectedViewsSaved'));
+                let newSelected;
+                if (!saved || saved.length === 0) {
+                    newSelected = filteredViews.map(view => view.endpoint);
+                } else {
+                    newSelected = saved.filter(endpoint =>
+                        filteredViews.some(view => view.endpoint === endpoint)
+                    );
+                }
+                localStorage.setItem('selectedViewsSaved', JSON.stringify(newSelected));
+                return newSelected;
             });
+
             const savedOrder = JSON.parse(localStorage.getItem('viewOrder')) || [];
-            const orderedViews = filteredViews.sort((a, b) => {
-                const indexA = savedOrder.indexOf(a.endpoint);
-                const indexB = savedOrder.indexOf(b.endpoint);
-                return indexA - indexB;
-            });
+            let orderedViews = filteredViews;
+
+            if (savedOrder.length > 0) {
+                orderedViews = [...filteredViews].sort((a, b) => {
+                    const indexA = savedOrder.indexOf(a.endpoint);
+                    const indexB = savedOrder.indexOf(b.endpoint);
+                    return (indexA === -1 ? Infinity : indexA) - (indexB === -1 ? Infinity : indexB);
+                });
+            }
+
+            setViews(orderedViews);
+
         }
     }, [data, showTechnicalViews]);
 
@@ -216,6 +230,15 @@ const HomePage = () => {
         setShowTechnicalViews(prev => {
             const newValue = !prev;
             localStorage.setItem('showTechnicalViews', JSON.stringify(newValue));
+            if (newValue) {
+                const techViews = views.filter(view => view.response_type === 'technical');
+                const techEndpoints = techViews.map(view => view.endpoint);
+                    setSelectedViews(prevSelected => {
+                    const merged = techEndpoints;
+                    localStorage.setItem('selectedViewsSaved', JSON.stringify(merged));
+                    return merged;
+                });
+            }
             return newValue;
         });
     };
@@ -292,28 +315,79 @@ const HomePage = () => {
                                 },
                             }}
                         >
-                            Auto
+                            Views
                         </Button>
-                        <Menu
+                        <DragDropContext
+                          onDragEnd={(result) => {
+                            if (!result.destination) return;
+                            const reordered = Array.from(views);
+                            const [moved] = reordered.splice(result.source.index, 1);
+                            reordered.splice(result.destination.index, 0, moved);
+                            setViews(reordered);
+                            localStorage.setItem('viewOrder', JSON.stringify(reordered.map(v => v.endpoint)));
+                          }}
+                        >
+                          <Menu
                             anchorEl={selectMenuAnchor}
                             open={Boolean(selectMenuAnchor)}
                             onClose={handleSelectMenuClose}
-                            PaperProps={{ sx: { maxHeight: 300, overflowY: 'auto', width: { xs: 200, sm: 250 } } }}
-                        >
-                            {(showTechnicalViews ? data.data.results : data.data.results.filter(view => view.response_type !== 'technical')).map((view) => (
-                                <MenuItem
-                                    key={view.endpoint}
-                                    onClick={() => handleViewToggle(view.endpoint)}
-                                    sx={{ fontSize: '14px', color: '#424242', '&:hover': { bgcolor: '#e8eaf6' } }}
-                                >
-                                    <Checkbox
-                                        checked={selectedViews.includes(view.endpoint)}
-                                        sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' } }}
-                                    />
-                                    <ListItemText primary={view.pretty_name} />
-                                </MenuItem>
-                            ))}
-                        </Menu>
+                            PaperProps={{
+                              sx: {
+                                maxHeight: 500,
+                                maxWidth: 400,
+                                overflowY: 'auto',
+                                width: 'auto',
+                                padding: 1,
+                                borderRadius: '8px'
+                              },
+                            }}
+                          >
+                            <Droppable droppableId="menu-views">
+                              {(provided) => (
+                                <div ref={provided.innerRef} {...provided.droppableProps}>
+                                  {views.map((view, index) => (
+                                    <Draggable key={view.endpoint} draggableId={view.endpoint} index={index}>
+                                      {(provided) => (
+                                        <MenuItem
+                                          ref={provided.innerRef}
+                                          {...provided.draggableProps}
+                                          sx={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            paddingRight: 1,
+                                            fontSize: '14px',
+                                            color: view.response_type === 'technical' ? '#283593' : '#424242',
+                                            backgroundColor: view.response_type === 'technical' ? '#fff9c4' : 'transparent',
+                                            borderRadius: '8px',
+                                            '&:hover': {
+                                              backgroundColor: view.response_type === 'technical' ? '#fff8b0' : '#e8eaf6',
+                                            },
+                                          }}
+                                        >
+                                          <Box
+                                            sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 , borderRadius: '18px'}}
+                                            onClick={() => handleViewToggle(view.endpoint)}
+                                          >
+                                            <Checkbox
+                                              checked={selectedViews.includes(view.endpoint)}
+                                              sx={{ color: '#90caf9', '&.Mui-checked': { color: '#90caf9' }}}
+                                            />
+                                            <ListItemText primary={view.pretty_name} />
+                                          </Box>
+                                          <Box {...provided.dragHandleProps} sx={{ cursor: 'grab', ml: 1, display: 'flex', alignItems: 'center' }}>
+                                            <DragIndicatorIcon fontSize="small" sx={{ color: '#90caf9' }} />
+                                          </Box>
+                                        </MenuItem>
+                                      )}
+                                    </Draggable>
+                                  ))}
+                                  {provided.placeholder}
+                                </div>
+                              )}
+                            </Droppable>
+                          </Menu>
+                        </DragDropContext>
                     </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Checkbox
