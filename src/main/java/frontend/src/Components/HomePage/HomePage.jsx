@@ -230,18 +230,25 @@ const HomePage = () => {
         setShowTechnicalViews(prev => {
             const newValue = !prev;
             localStorage.setItem('showTechnicalViews', JSON.stringify(newValue));
-            if (newValue) {
-                const techViews = views.filter(view => view.response_type === 'technical');
-                const techEndpoints = techViews.map(view => view.endpoint);
-                    setSelectedViews(prevSelected => {
-                    const merged = techEndpoints;
-                    localStorage.setItem('selectedViewsSaved', JSON.stringify(merged));
-                    return merged;
-                });
-            }
+
+            const techViews = data?.data?.results?.filter(view => view.response_type === 'technical') || [];
+            const techEndpoints = techViews.map(view => view.endpoint);
+
+            setSelectedViews(prevSelected => {
+                let updated;
+                if (newValue) {
+                    updated = [...new Set([...prevSelected, ...techEndpoints])];
+                } else {
+                    updated = prevSelected.filter(endpoint => !techEndpoints.includes(endpoint));
+                }
+                localStorage.setItem('selectedViewsSaved', JSON.stringify(updated));
+                return updated;
+            });
+
             return newValue;
         });
     };
+
 
     const onDragEnd = (result) => {
         if (!result.destination) return;
