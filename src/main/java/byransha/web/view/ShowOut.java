@@ -32,21 +32,6 @@ public class ShowOut extends NodeEndpoint<BNode> implements View {
             throws Throwable {
         var a = new ArrayNode(null);
 
-
-//        n.forEachOutNodeField(field -> {
-//            //System.out.println("fields:"+field);
-//            try {
-//                BNode node = (BNode) field.get(n);
-//                if (node != null) {
-//                    if (node instanceof ValuedNode<?> vn) {
-//                        System.out.println("Val: "+vn.getAsString());
-//                    }
-//                }
-//            } catch (IllegalAccessException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-
         n.forEachOut((name, out) -> {
             if (!out.canSee(user) || out.id() == 0) {
                 return;

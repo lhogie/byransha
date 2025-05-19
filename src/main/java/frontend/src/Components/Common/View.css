@@ -12,6 +12,8 @@
   overflow: auto;
   border-radius: 4px;
   position: relative;
+  display: flex;
+  justify-content: center;
 }
 
 .content-container::-webkit-scrollbar {
@@ -86,3 +88,8 @@
   max-height: 600px;
   overflow: auto;
 }
+
+.content-container .chrome-picker {
+ width: 100%;
+ box-shadow: none;
+ }

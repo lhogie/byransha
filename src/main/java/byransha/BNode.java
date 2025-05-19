@@ -54,7 +54,11 @@ public abstract class BNode {
 
 	public abstract String whatIsThis();
 
-	public static class InLink {
+    public String getColor() {
+		return color;
+    }
+
+    public static class InLink {
 		final String role;
 		final BNode source;
 

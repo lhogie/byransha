@@ -1,5 +1,6 @@
 package byransha.web;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +28,9 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import byransha.*;
 import byransha.labmodel.model.v0.*;
+import byransha.web.view.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -40,16 +43,6 @@ import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.Byransha;
-import byransha.JVMNode;
-import byransha.ListNode;
-import byransha.Log;
-import byransha.OSNode;
-import byransha.StringNode;
-import byransha.UI;
-import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
@@ -57,7 +50,6 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.Edit;
-import byransha.web.view.ShowOut;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.LoadImage;
@@ -67,12 +59,6 @@ import byransha.web.endpoint.NodeInfo;
 import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
 import byransha.web.endpoint.Summarizer;
-import byransha.web.view.CharExampleXY;
-import byransha.web.view.CharacterDistribution;
-import byransha.web.view.ModelDOTView;
-import byransha.web.view.ModelGraphivzSVGView;
-import byransha.web.view.SourceView;
-import byransha.web.view.ToStringView;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
@@ -265,6 +251,7 @@ public class WebServer extends BNode {
 		g.addNode(UI.getProperties.class);
 		g.addNode(Summarizer.class);
 		g.addNode(LoadImage.class);
+		g.addNode(ColorNodeView.class);
 
 		Country.loadCountries(g);
 	}

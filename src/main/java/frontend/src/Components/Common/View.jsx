@@ -14,6 +14,7 @@ import ReactECharts from 'echarts-for-react';
 import './View.css'
 import 'react-json-view-lite/dist/index.css'
 import {JsonView, collapseAllNested} from 'react-json-view-lite';
+import { ChromePicker } from 'react-color';
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -247,6 +248,16 @@ export const View = ({ viewId, sx }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
+
+    const [hex, setHex] = useState('#ffffff');
+      const saveColour = useApiMutation('update_colour');
+      const handleHexChange = useCallback(
+        (colour) => {
+          setHex(colour.hex);
+          saveColour.mutate({ view_id: viewId, value: colour.hex });
+        },
+        [saveColour, viewId]
+      );
 
     const handleOpenModal = (event) => {
         event.stopPropagation();
@@ -619,6 +630,16 @@ export const View = ({ viewId, sx }) => {
                     </Suspense>
                 </div>
             );
+        } else if (contentType === 'text/hex') {
+          return (
+            <div className="content-container" style={{ background: backgroundColor }}>
+              <ChromePicker
+                color={hex}
+                disableAlpha
+                onChangeComplete={handleHexChange}
+              />
+            </div>
+          );
         } else {
             return (
                 <div className="error-message">

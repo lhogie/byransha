@@ -6,6 +6,7 @@ public class ColorNode extends ValuedNode<Color> {
 
 	public ColorNode(BBGraph g) {
 		super(g);
+		this.setMimeType("text/hex");
 	}
 
 	public ColorNode(BBGraph g, int id) {

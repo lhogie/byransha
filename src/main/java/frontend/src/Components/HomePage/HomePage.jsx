@@ -4,11 +4,13 @@ import { useNavigate } from "react-router";
 import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import Expand from '@mui/icons-material/AspectRatio';
 import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import { ChromePicker } from 'react-color';
 
 const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => {
 
@@ -22,7 +24,6 @@ const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => 
             flexDirection: 'column',
             bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
         }}
-        onClick={onClick}
     >
         <Box
             {...dragHandleProps}
@@ -38,11 +39,11 @@ const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => 
             }}
         >
 
+            <button className="expand-card" onClick={onClick} aria-label="expand"> <Expand /> </button>
             <Typography className="DragHere" variant="caption" sx={{ color: '#757575' }}>
                 Drag here
             </Typography>
             <button className= "erased-card" onClick={(e) => {
-                e.stopPropagation();
                 handleViewToggle(view.endpoint)}}> &times;
                 </button>
         </Box>
@@ -131,6 +132,8 @@ const HomePage = () => {
             return saved ? JSON.parse(saved) : false;
     });
 
+    const [showColorPicker, setShowColorPicker] = useState(false);
+    const [pickerColor, setPickerColor] = useState('#ffffff');
     const visibleViews = views.filter(view => selectedViews.includes(view.endpoint));
     const rowColumns = Math.min(columns, visibleViews.length);
 
@@ -507,6 +510,46 @@ const HomePage = () => {
                     )}
                 </Droppable>
             </DragDropContext>
+            <Box
+                sx={{
+                    position: 'fixed',
+                    bottom: 0,
+                    left: 0,
+                    zIndex: 9999,
+                    display: 'flex',
+                    alignItems: 'flex-end',
+                    flexDirection: 'column',
+                }}
+            >
+                {showColorPicker && (
+                    <Box sx={{ mb: 1, ml: 1, bgcolor: '#fff', p: 2, borderRadius: 2, boxShadow: 3 }}>
+                        <ChromePicker
+                            color={pickerColor}
+                            onChangeComplete={(color) => {
+                                setPickerColor(color.hex);
+                                document.body.style.backgroundColor = color.hex;
+                            }}
+                        />
+                    </Box>
+                )}
+                <Box
+                    onClick={() => setShowColorPicker(prev => !prev)}
+                    sx={{
+                        bgcolor: '#90caf9',
+                        color: '#fff',
+                        px: 2,
+                        py: 1,
+                        borderTopRightRadius: 8,
+                        cursor: 'pointer',
+                        fontSize: '0.75rem',
+                        '&:hover': {
+                            bgcolor: '#42a5f5',
+                        }
+                    }}
+                >
+                    🎨 Couleur
+                </Box>
+            </Box>
         </Box>
     );
 };
