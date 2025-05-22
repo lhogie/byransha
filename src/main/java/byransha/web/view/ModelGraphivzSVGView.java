@@ -45,7 +45,7 @@ public class ModelGraphivzSVGView extends NodeEndpoint<BBGraph> implements Techn
 		if (generator == null || generator.equals("dot")) {
 			return Proces.exec("dot", dot.getBytes(), "-Tsvg");
 		} else if (generator.equals("fdp")) {
-			return Proces.exec("fdp", dot, "-Tsvg", "-Gmaxiter=10000", "-GK=1");
+			return Proces.exec("fdp", dot.getBytes(), "-Tsvg", "-Gmaxiter=10000", "-GK=1");
 		} else {
 			throw new IllegalArgumentException("unknown generator: " + generator);
 		}

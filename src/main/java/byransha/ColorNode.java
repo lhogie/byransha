@@ -26,5 +26,4 @@ public class ColorNode extends ValuedNode<Color> {
 	public String prettyName() {
 		return "color";
 	}
-
 }

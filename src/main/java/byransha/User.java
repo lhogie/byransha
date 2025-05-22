@@ -20,7 +20,6 @@ public class User extends PersistingNode {
 	public StringNode passwordNode;
 	public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
 
-
 	public User(BBGraph g, String u, String password) {
 		super(g);
 		name = new StringNode(g, null);
@@ -30,8 +29,6 @@ public class User extends PersistingNode {
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
 		this.color = "blue";
-
-
 
 		/*
 		 * this.saveOuts(f -> {});
@@ -43,11 +40,11 @@ public class User extends PersistingNode {
 
 	public User(BBGraph g) {
 		super(g);
-		name = g.addNode(StringNode.class);
+		name = BNode.create(g, StringNode.class);
 		name.setAsLabelFor(this);
 		name.set("not defined");
 		stack.push(g.root());
-		passwordNode = g.addNode(StringNode.class);
+		passwordNode = BNode.create(g, StringNode.class);
 		passwordNode.set("not defined");
 		this.color = "blue";
 	}
@@ -142,5 +139,9 @@ public class User extends PersistingNode {
 	@Override
 	public String prettyName() {
 		return name.get();
+	}
+
+	public boolean isAdmin() {
+		return name.get().equals("admin");
 	}
 }

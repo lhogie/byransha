@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 
 public class University extends Structure {
@@ -9,7 +10,7 @@ public class University extends Structure {
 
 	public University(BBGraph g) {
 		super(g);
-		campuses = g.addNode(ListNode.class); //new ListNode<>(g);
+		campuses = BNode.create(g, ListNode.class); // new ListNode<>(g);
 		status.add(new IGR(g));
 		status.add(new MCF(g));
 		status.add(new PR(g));

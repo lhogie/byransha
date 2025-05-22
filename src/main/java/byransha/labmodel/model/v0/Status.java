@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.StringNode;
 
 public class Status extends BusinessNode {
@@ -8,7 +9,7 @@ public class Status extends BusinessNode {
 
 	public Status(BBGraph g) {
 		super(g);
-		name = g.addNode(StringNode.class); //new StringNode(g, null);
+		name = BNode.create(g, StringNode.class); //new StringNode(g, null);
 	}
 
 	public Status(BBGraph g, int id) {

@@ -1,6 +1,7 @@
 package byransha.labmodel;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.StringNode;
 import byransha.labmodel.model.v0.Lab;
 
@@ -13,7 +14,7 @@ public class I3S extends Lab {
 
 	public I3S(BBGraph g) {
 		super(g);
-		name = g.addNode(StringNode.class);
+		name = BNode.create(g, StringNode.class);
 		name.set("I3S");
 	}
 

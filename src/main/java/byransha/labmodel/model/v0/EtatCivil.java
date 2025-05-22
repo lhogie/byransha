@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.StringNode;
 
 public class EtatCivil extends BusinessNode {
@@ -15,14 +16,14 @@ public class EtatCivil extends BusinessNode {
 
 	public EtatCivil(BBGraph g) {
 		super(g);
-		firstName = g.addNode(StringNode.class);  // new StringNode(g, null);
-		name = g.addNode(StringNode.class); //new StringNode(g, null);
-		familyNameBeforeMariage = g.addNode(StringNode.class);  // new StringNode(g, null);
-		birthDate = g.addNode(StringNode.class); //new StringNode(g, null);
-		cityOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
-		nationality = g.addNode(StringNode.class); //new StringNode(g, null);
-		countryOfBirth = g.addNode(StringNode.class); //new StringNode(g, null);
-		address = g.addNode(StringNode.class); //new StringNode(g, null);
+		firstName = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		name = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		familyNameBeforeMariage = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		birthDate = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		cityOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		nationality = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		countryOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		address = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		this.color = "green";
 	}
 

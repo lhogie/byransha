@@ -1,5 +1,6 @@
 package byransha;
 
+import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import byransha.web.EndpointResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
 import byransha.web.WebServer;
+import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
@@ -35,11 +37,12 @@ public abstract class BNode {
 	private final int id;
 	public String color = "pink";
 
-	public BNode(BBGraph g) {
+	
+	protected BNode(BBGraph g) {
 		this(g, g == null ? 0 : g.nextID());
 	}
 
-	public BNode(BBGraph g, int id) {
+	protected BNode(BBGraph g, int id) {
 		this.id = id;
 
 		if (g != null) {
@@ -52,15 +55,29 @@ public abstract class BNode {
 		}
 	}
 
+	public static <N extends BNode> N create(BBGraph g, Class<N> nodeClass) {
+		try {
+			N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
+			newNode.init();
+			g.accept(newNode); // add the new node to the graph
+			return newNode;
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to add node of class: " + nodeClass.getName(), e);
+		}
+	}
+
+	protected void init() {
+	}
+
 	public abstract String whatIsThis();
 
 	public static class InLink {
-		final String role;
 		final BNode source;
+		final String role;
 
 		public InLink(String role, BNode c) {
-			this.role = role;
 			this.source = c;
+			this.role = role;
 		}
 
 		@Override
@@ -173,7 +190,7 @@ public abstract class BNode {
 	}
 
 	public boolean canEdit(User user) {
-		return user.name.get().equals("admin");
+		return user.isAdmin();
 	}
 
 	public boolean matches(NodeEndpoint v) {
@@ -386,7 +403,7 @@ public abstract class BNode {
 
 		@Override
 		public String whatItDoes() {
-			return "shows distributed for out nodes";
+			return "shows distribution for out nodes";
 		}
 
 		public OutDegreeDistribution(BBGraph db) {
@@ -412,41 +429,16 @@ public abstract class BNode {
 
 	}
 
-	public static class ClassDistribution extends NodeEndpoint<BBGraph> implements View {
-
-		public ClassDistribution(BBGraph db) {
-			super(db);
-		}
-
-		public ClassDistribution(BBGraph db, int id) {
-			super(db, id);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "shows distributed for out nodes";
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph g)
-				throws Throwable {
-			var d = new Byransha.Distribution<String>();
-			g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
-			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
-		}
-
-		@Override
-		public boolean sendContentByDefault() {
-			return false;
-		}
-
-	}
-
 	public JsonNode toJSONNode() {
 		var n = new ObjectNode(null);
 		n.set("id", new IntNode(id()));
 		n.set("pretty_name", new TextNode(prettyName()));
+		n.set("color", new TextNode(Utilities.toRGBHex(getColor())));
 		return n;
+	}
+
+	public Color getColor() {
+		return Color.white;
 	}
 
 	public abstract String prettyName();

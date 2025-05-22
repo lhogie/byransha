@@ -1,19 +1,18 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 
 public class ResearchGroup extends Structure {
 	public ResearchGroup(BBGraph g) {
 		super(g);
-		keywords = g.addNode(ListNode.class); //new ListNode<>(g);
-		// TODO Auto-generated constructor stub
+		keywords = BNode.create(g, ListNode.class); // new ListNode<>(g);
 	}
 
 	public ResearchGroup(BBGraph g, int id) {
 		super(g, id);
-		// TODO Auto-generated constructor stub
 	}
 
-	ListNode<ACMClassifier> keywords ;
+	ListNode<ACMClassifier> keywords;
 }

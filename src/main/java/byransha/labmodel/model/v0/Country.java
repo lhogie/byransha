@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ImageNode;
 import byransha.StringNode;
 
@@ -21,7 +22,7 @@ public class Country extends BusinessNode {
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-                var country = g.addNode(Country.class);
+                var country = BNode.create(g, Country.class);
                 try {
                     country.setFlagCode(code);
                 } catch (IOException ex) {
@@ -50,9 +51,9 @@ public class Country extends BusinessNode {
 
 	public Country(BBGraph g) {
         super(g);
-        codeNode = g.addNode(StringNode.class);
-		name = g.addNode(StringNode.class);
-		flag = g.addNode(ImageNode.class);
+        codeNode = BNode.create(g, StringNode.class);
+		name = BNode.create(g, StringNode.class);
+		flag = BNode.create(g, ImageNode.class);
 
 	}
 

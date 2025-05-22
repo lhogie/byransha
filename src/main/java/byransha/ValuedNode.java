@@ -21,7 +21,7 @@ public abstract class ValuedNode<V> extends PersistingNode {
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		return super.toString() + "(value=\"" + get() + "\")";
 	}
 

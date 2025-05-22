@@ -6,18 +6,17 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
 import byransha.web.WebServer;
 
-public class Nodes extends NodeEndpoint<BNode> implements View {
+public class Nodes extends NodeEndpoint<BBGraph> implements View {
 
 	@Override
 	public String whatItDoes() {
-		return "Nodes endpoint description";
+		return "list all nodes in the graph";
 	}
 
 	public Nodes(BBGraph db) {
@@ -30,10 +29,10 @@ public class Nodes extends NodeEndpoint<BNode> implements View {
 
 	@Override
 	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
-			BNode g) {
+			BBGraph g) {
 		var a = new ArrayNode(null);
 
-		graph.forEachNode(n -> {
+		g.forEachNode(n -> {
 			if (n.canSee(user)) {
 				var nn = new ObjectNode(null);
 				nn.set("id", new TextNode("" + n.id()));

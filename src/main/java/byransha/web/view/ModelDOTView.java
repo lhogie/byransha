@@ -2,12 +2,7 @@ package byransha.web.view;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -21,6 +16,12 @@ import byransha.web.DevelopmentView;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import lmu.AssociationRelation;
+import lmu.DotWriter;
+import lmu.Entity;
+import lmu.InheritanceRelation;
+import lmu.Model;
+import lmu.WriterException;
 
 public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
 
@@ -28,6 +29,7 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	public String whatItDoes() {
 		return "ModelDOTView provides a DOT representation of the graph.";
 	}
+
 	public ModelDOTView(BBGraph db) {
 		super(db);
 	}
@@ -41,119 +43,95 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 		return false;
 	}
 
-	static class Relation {
-		final Class<? extends BNode> a;
-		final Class<? extends BNode> b;
-		final Map<String, String> attrs;
-		final boolean inheritance;
-
-		Relation(Class<? extends BNode> a, Class<? extends BNode> b, Map<String, String> attrs, boolean inheritance) {
-			this.a = a;
-			this.b = b;
-			this.attrs = attrs;
-			this.inheritance = inheritance;
-		}
-	}
-
 	public static int id(Class n) {
 		return Math.abs(n.getName().hashCode());
 	}
 
 	@Override
 	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-			BBGraph node) throws Throwable {
-		if (node == null) {
-			throw new IllegalStateException(
-                    "ModelDOTView executed with an incompatible node type: " +
-                            "null" +
-                            ". Expected BBGraph. Dispatcher logic needs correction.");
-		}
+			BBGraph g) throws Throwable {
 
-		final BBGraph graphToRender = this.graph;
+		return new EndpointTextResponse("text/dot", pw -> pw.print(toDot(g, c -> true)));
+	}
 
-		return new EndpointTextResponse("text/dot", pw -> {
-			var relations = new ArrayList<ModelDOTView.Relation>();
-			var class_attrs = new HashMap<Class, Set<String>>();
-			graphToRender.forEachNode(n -> {
-				List<Class<? extends BNode>> stack = new ArrayList<>();
+	public static String toDot(BBGraph g, Predicate<Class> nodeFilter) {
+		var model = new Model();
 
-				for (Class<?> c = n.getClass(); c != null && BNode.class.isAssignableFrom(c) && c != BNode.class; c = c.getSuperclass()) {
-					Class<? extends BNode> bnodeClass = c.asSubclass(BNode.class);
+		g.forEachNode(n -> {
+			Entity childEntity = null;
 
-					if (ValuedNode.class.isAssignableFrom(bnodeClass) || class_attrs.containsKey(bnodeClass)) {
+			for (Class c = n.getClass(); c != null && nodeFilter.test(c); c = c.getSuperclass()) {
+				var entityName = c.getSimpleName();
+				var e = model.findEntity(et -> et.getName().equals(entityName));
+
+				if (e == null) // entity NOT yet in the model
+				{
+					e = new Entity();
+					e.setName(entityName);
+					e.target = c;
+					model.addEntity(e);
+				}
+
+				var ee = e;
+				var childEntitye = childEntity;
+
+				if (childEntity != null && model
+						.getRelations().stream().filter(r -> r instanceof InheritanceRelation ir
+								&& ir.getSuperEntity() == ee && ir.getSubEntity() == childEntitye)
+						.findFirst().isEmpty()) {
+					model.addRelation(new InheritanceRelation(childEntity, e));
+				}
+
+				childEntity = e;
+			}
+		});
+
+		System.out.println("**************");
+		if (false)
+			for (var e : model.entities) {
+				System.out.println(e);
+				for (var f : ((Class) e.target).getDeclaredFields()) {
+					if (Modifier.isStatic(f.getModifiers()) || !BNode.class.isAssignableFrom(f.getType())) {
 						continue;
 					}
 
-					class_attrs.put(bnodeClass, new HashSet<>());
+					f.setAccessible(true);
 
-					if (!stack.isEmpty()) {
-						relations.add(new Relation(stack.getLast(), bnodeClass, Map.of("arrowhead", "empty"), true));
-					}
-					stack.add(bnodeClass);
+					var childEntity = model.findEntity(et -> et.target == f.getType());
 
-					for (var f : bnodeClass.getDeclaredFields()) {
-						if (Modifier.isStatic(f.getModifiers()) || !BNode.class.isAssignableFrom(f.getType())) {
-							continue;
-						}
+					var r = new AssociationRelation(e, childEntity);
+					model.addRelation(r);
 
-						f.setAccessible(true);
+					boolean isList = ListNode.class.isAssignableFrom(f.getType());
 
-						Class<?> fieldType = f.getType();
-						Class<? extends BNode> targetType;
-						boolean isList = ListNode.class.isAssignableFrom(fieldType);
+					Class<? extends BNode> targetType = null;
 
-						if (isList) {
-							if (f.getGenericType() instanceof ParameterizedType pt && pt.getActualTypeArguments().length > 0) {
+					if (isList) {
+						if (f.getGenericType() instanceof ParameterizedType pt) {
+							if (pt.getActualTypeArguments().length == 1) {
 								targetType = ((Class<?>) pt.getActualTypeArguments()[0]).asSubclass(BNode.class);
 							} else {
-								continue;
+								throw new IllegalStateException();
 							}
 						} else {
-							targetType = fieldType.asSubclass(BNode.class);
+							throw new IllegalStateException();
 						}
-
-						if (ValuedNode.class.isAssignableFrom(targetType)) {
-							class_attrs.get(bnodeClass).add((isList ? "*" : "") + f.getName());
-						} else {
-							var label = f.getName();
-							var attrsMap = new HashMap<>(Map.of("label", label));
-							if (isList) {
-								attrsMap.put("taillabel", "0..*");
-							}
-							relations.add(new Relation(bnodeClass, targetType, attrsMap, false));
-						}
+					} else {
+						targetType = f.getType().asSubclass(BNode.class);
 					}
-				}
-			});
 
-			pw.println("digraph G {");
-			pw.println("\t node [shape=record, style=filled, fillcolor=lightblue];");
-
-			class_attrs.forEach((clazz, attrs) -> {
-				pw.print("\t " + id(clazz) + " [label=\"{" + clazz.getSimpleName());
-				if (!attrs.isEmpty()) {
-					pw.print("|");
-					attrs.stream().sorted().forEach(a -> pw.print(a + "\\l"));
-				}
-				pw.println("}\"];");
-			});
-
-			for (var r : relations) {
-				if (class_attrs.containsKey(r.a) && class_attrs.containsKey(r.b)) {
-					pw.print("\t " + id(r.a) + " -> " + id(r.b) + " [");
-					r.attrs.forEach((key, value) -> pw.print(" " + key + "=\"" + value + "\""));
-					pw.print(" arrowhead=" + (r.inheritance ? "empty" : "vee"));
-					if (r.inheritance) {
-						pw.print(" style=dashed color=gray");
+					r.setCardinality(isList ? "*" : "");
+					if (ValuedNode.class.isAssignableFrom(targetType)) {
+						var a = new lmu.Attribute();
+						a.setName(f.getName());
+//a.setType(f.getType());
 					}
-					pw.println(" ];");
-				} else {
-					System.err.println("Warning: Skipping relation involving missing class: " + r.a.getSimpleName() + " -> " + r.b.getSimpleName());
 				}
 			}
-
-			pw.println("}");
-		});
+		try {
+			return new String(new DotWriter().writeModel(model));
+		} catch (WriterException e1) {
+			throw new IllegalStateException(e1);
+		}
 	}
-
 }

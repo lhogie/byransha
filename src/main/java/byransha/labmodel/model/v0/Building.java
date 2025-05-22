@@ -1,18 +1,17 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BNode;
-import byransha.ListNode;
 import byransha.BBGraph;
+import byransha.ListNode;
 
-public class Building extends BNode {
-	public  ListNode<Office> offices;
+public class Building extends BusinessNode {
+	public ListNode<Office> offices;
 
 	public Building(BBGraph g) {
 		super(g);
 		offices = new ListNode<>(g);
 	}
 
-	public Building(BBGraph g, int id){
+	public Building(BBGraph g, int id) {
 		super(g, id);
 	}
 
@@ -27,14 +26,11 @@ public class Building extends BNode {
 		return null;
 	}
 
-
-	
 	@Override
 	public String prettyName() {
 		return "building";
 	}
 
-	
 	@Override
 	public String whatIsThis() {
 		return "Building description";

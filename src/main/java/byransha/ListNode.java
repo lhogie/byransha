@@ -5,6 +5,17 @@ import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+
+import byransha.web.EndpointJsonResponse;
+import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.View;
+import byransha.web.WebServer;
+
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new CopyOnWriteArrayList<>();
 
@@ -18,7 +29,7 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	@Override
 	public String whatIsThis() {
-		return "ListNode containing " + l.size() + " elements.";
+		return "a list node";
 	}
 
 	@Override
@@ -65,4 +76,45 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		}
 		return l.get(new Random().nextInt(currentSize));
 	}
+
+	public static class ListNodes extends NodeEndpoint<ListNode> implements View {
+
+		public ListNodes(BBGraph g) {
+			super(g.graph);
+		}
+
+		public ListNodes(BBGraph g, int id) {
+			super(g.graph, id);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "returns the elements within a given list";
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, ListNode n)
+				throws Throwable {
+
+			if (n == null) {
+				throw new IllegalArgumentException("The provided node is null.");
+			}
+
+			var response = new ArrayNode(JsonNodeFactory.instance);
+
+			for (var element : n.l) {
+				var jsonElement = new ObjectNode(JsonNodeFactory.instance);
+				jsonElement.put("toString", element.toString());
+				response.add(jsonElement);
+			}
+
+			return new EndpointJsonResponse(response, "listNodeContents");
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return true;
+		}
+	}
+
 }

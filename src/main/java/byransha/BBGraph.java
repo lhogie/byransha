@@ -25,6 +25,7 @@ import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
+import byransha.web.View;
 import byransha.web.WebServer;
 import toools.reflect.Clazz;
 
@@ -321,16 +322,7 @@ public class BBGraph extends BNode {
 		return nodesById.get(id);
 	}
 
-	public <C extends BNode> C addNode(Class<C> nodeClass) {
-		try {
-			C newNode = nodeClass.getConstructor(BBGraph.class).newInstance(this);
-			System.out.println("Adding node of class: " + nodeClass.getName() + " with ID: " + newNode.id());
-			this.accept(newNode); // Add the new node to the graph
-			return newNode;
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to add node of class: " + nodeClass.getName(), e);
-		}
-	}
+
 
 	public synchronized <C extends BNode> C find(Class<C> nodeClass, Predicate<C> p) {
 		List<C> l = findAll(nodeClass, p);
@@ -364,6 +356,8 @@ public class BBGraph extends BNode {
 		return find(c, e -> true);
 	}
 
+	
+	
 	public NodeEndpoint findEndpoint(String name) {
 		return find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
 	}
@@ -450,5 +444,40 @@ public class BBGraph extends BNode {
 	public String prettyName() {
 		return "graph";
 	}
+	
+	public HashSet<?> classes(){
+		return new HashSet<>(nodesById.values().stream().map(n -> n.getClass()).toList());
+	}
+
+	
+	public static class ClassDistribution extends NodeEndpoint<BBGraph> implements View {
+		public ClassDistribution(BBGraph db) {
+			super(db);
+		}
+
+		public ClassDistribution(BBGraph db, int id) {
+			super(db, id);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "shows distributed for out nodes";
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph g)
+				throws Throwable {
+			var d = new Byransha.Distribution<String>();
+			g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
+			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
+		}
+		
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+	}
+
 
 }

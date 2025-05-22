@@ -9,13 +9,15 @@ public class MapNode<N extends BNode> extends BNode {
 	public MapNode(BBGraph db) {
 		super(db);
 	}
+
 	@Override
 	public String prettyName() {
 		return "a map";
 	}
+
 	@Override
 	public String whatIsThis() {
-		return "MapNode with " + l.size() + " entries";
+		return "a map";
 	}
 
 	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();

@@ -12,7 +12,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String prettyName() {
-		return "a boolean: " + get();
+		return "boolean: " + get();
 	}
 
 	@Override
@@ -21,20 +21,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	}
 
 	@Override
-	public String toString() {
-		return super.toString() + "(" + get() + ")";
-	}
-
-	public void set(Boolean newValue) {
-		super.set(newValue);
-	}
-
-	public Boolean get() {
-		return super.get();
-	}
-
-	@Override
 	public String whatIsThis() {
-		return "BooleanNode: " + get();
+		return "a boolean";
 	}
 }

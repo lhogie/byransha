@@ -1,6 +1,7 @@
 package byransha;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,12 +10,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 public class Byransha extends BNode {
-	public Byransha(BBGraph db) {
-		super(db);
-	}
 
-	public Byransha(BBGraph db, int id) {
-		super(db, id);
+	protected Byransha(BBGraph g) {
+		super(g);
 	}
 
 	@Override
@@ -33,7 +31,8 @@ public class Byransha extends BNode {
 		JsonNode toJson();
 	}
 
-	public static class Distribution<E> extends XY<E, Double> {
+	public static class Distribution<E extends Comparable<E>> extends CoupleList<E, Double> {
+
 		public void addOccurence(E a) {
 			var e = getEntry(a);
 
@@ -45,15 +44,15 @@ public class Byransha extends BNode {
 		}
 	}
 
-	public static class Function extends XY<Double, Double> {
+	public static class Function extends CoupleList<Double, Double> {
 	}
 
-	public static class XY<X, Y> implements JSONable {
-		static class Entry<X, Y> implements JSONable {
+	public static class CoupleList<X extends Comparable<X>, Y> implements JSONable {
+		static class Couple<X extends Comparable<X>, Y> implements JSONable, Comparable<Couple<X, Y>> {
 			final X x;
 			public Y y;
 
-			public Entry(X x, Y y) {
+			public Couple(X x, Y y) {
 				this.x = x;
 				this.y = y;
 			}
@@ -64,18 +63,24 @@ public class Byransha extends BNode {
 				n.set(x.toString(), new TextNode(y.toString()));
 				return n;
 			}
+
+			@Override
+			public int compareTo(Couple<X, Y> o) {
+				return x.compareTo(o.x);
+			}
 		}
 
-		final List<Entry<X, Y>> entries = new ArrayList<>();
+		final List<Couple<X, Y>> entries = new ArrayList<>();
 
 		@Override
 		public JsonNode toJson() {
+			Collections.sort(entries);
 			var n = new ArrayNode(null);
 			entries.forEach(e -> n.add(e.toJson()));
 			return n;
 		}
 
-		public Entry<X, Y> getEntry(X x) {
+		public Couple<X, Y> getEntry(X x) {
 			for (var e : entries) {
 				if (e.x.equals(x)) {
 					return e;
@@ -85,8 +90,11 @@ public class Byransha extends BNode {
 			return null;
 		}
 
-		public Entry<X, Y> addXY(X x, Y y) {
-			var e = new Entry<>(x, y);
+		public Couple<X, Y> addXY(X x, Y y) {
+			if (getEntry(x) != null)
+				throw new IllegalStateException(x + " was already defined");
+
+			var e = new Couple<>(x, y);
 			entries.add(e);
 			return e;
 		}

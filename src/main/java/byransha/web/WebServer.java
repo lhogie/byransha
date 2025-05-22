@@ -27,7 +27,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
-import byransha.labmodel.model.v0.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -41,10 +40,12 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import byransha.BBGraph;
+import byransha.BBGraph.ClassDistribution;
 import byransha.BNode;
 import byransha.Byransha;
 import byransha.JVMNode;
 import byransha.ListNode;
+import byransha.ListNode.ListNodes;
 import byransha.Log;
 import byransha.OSNode;
 import byransha.StringNode;
@@ -53,11 +54,20 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
+import byransha.labmodel.model.v0.ACMClassifier;
+import byransha.labmodel.model.v0.Building;
+import byransha.labmodel.model.v0.CNRS;
+import byransha.labmodel.model.v0.Campus;
+import byransha.labmodel.model.v0.Country;
+import byransha.labmodel.model.v0.EtatCivil;
+import byransha.labmodel.model.v0.Office;
+import byransha.labmodel.model.v0.Person;
+import byransha.labmodel.model.v0.Picture;
+import byransha.labmodel.model.v0.Publication;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.Authenticate;
 import byransha.web.endpoint.Edit;
-import byransha.web.view.ShowOut;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.Jump;
 import byransha.web.endpoint.LoadImage;
@@ -68,10 +78,9 @@ import byransha.web.endpoint.Nodes;
 import byransha.web.endpoint.SetValue;
 import byransha.web.endpoint.Summarizer;
 import byransha.web.view.CharExampleXY;
-import byransha.web.view.CharacterDistribution;
 import byransha.web.view.ModelDOTView;
 import byransha.web.view.ModelGraphivzSVGView;
-import byransha.web.view.SourceView;
+import byransha.web.view.ShowOut;
 import byransha.web.view.ToStringView;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
@@ -143,35 +152,16 @@ public class WebServer extends BNode {
 		this.sessionStore = new SessionStore();
 		createSpecialNodes(g);
 		createEndpoints(g);
+		createDemoNodes(g);
 
-		var b = new Building(g);
+		System.out.println(g.classes());
 
-		List<Person> persons = new ArrayList<>();
-
-		for (int i = 0; i < 10; ++i) {
-			var p = new Person(g);
-			persons.add(p);
-			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.address.set("2000, route des Lucioles");
-		}
-
-		var sophiaTech = new Campus(g);
-		sophiaTech.buildings.add(b);
-		sophiaTech.name.set("Sophiatech");
-
-		for (int i = 0; i < 5; ++i) {
-			var o = new Office(g);
-			o.name.set("office" + i);
-			o.users.add(persons.get(i));
-			o.users.add(persons.get(i + 5));
-			b.offices.add(o);
-		}
-
-		var cnrs = new CNRS(g);
-		persons.forEach(p -> cnrs.members.add(p));
-		var publication = new Publication(g);
-		publication.title.set("156 maitre du temps - MAIN-1");
-		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
+		var dot = ModelDOTView.toDot(g, c -> !Endpoint.class.isAssignableFrom(c));
+		var svg = ModelGraphivzSVGView.gen(dot, "fdp");
+		var f = Path.of("/Users/lhogie/a/job/byransha/model.svg");
+		System.out.print("writing " + f);
+		Files.write(f, svg);
+		System.out.println("   done");
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
@@ -208,13 +198,51 @@ public class WebServer extends BNode {
 		httpsServer.start();
 	}
 
+	private void createDemoNodes(BBGraph g) {
+		var l = new ListNode<BNode>(g);
+		l.add(new StringNode(g, "a"));
+		l.add(new StringNode(g, "b"));
+		l.add(new StringNode(g, "c"));
+
+		System.out.println(g.classes().contains(Building.class));
+		var b = new Building(g);
+		System.out.println(g.classes().contains(Building.class));
+
+		List<Person> persons = new ArrayList<>();
+
+		for (int i = 0; i < 10; ++i) {
+			var p = new Person(g);
+			persons.add(p);
+			p.etatCivil = new EtatCivil(g);
+			p.etatCivil.address.set("2000, route des Lucioles");
+		}
+
+		var sophiaTech = new Campus(g);
+		sophiaTech.buildings.add(b);
+		sophiaTech.name.set("Sophiatech");
+
+		for (int i = 0; i < 5; ++i) {
+			var o = new Office(g);
+			o.name.set("office" + i);
+			o.users.add(persons.get(i));
+			o.users.add(persons.get(i + 5));
+			b.offices.add(o);
+		}
+
+		var cnrs = new CNRS(g);
+		persons.forEach(p -> cnrs.members.add(p));
+		var publication = new Publication(g);
+		publication.title.set("156 maitre du temps - MAIN-1");
+		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
+	}
+
 	private void createSpecialNodes(BBGraph g) {
-		g.addNode(JVMNode.class);
-		g.addNode(Byransha.class);
-		g.addNode(OSNode.class);
-		var user1 = g.addNode(User.class);
-		var user2 = g.addNode(User.class);
-		var user3 = g.addNode(User.class);
+		BNode.create(g, JVMNode.class);
+		BNode.create(g, Byransha.class);
+		BNode.create(g, OSNode.class);
+		var user1 = BNode.create(g, User.class);
+		var user2 = BNode.create(g, User.class);
+		var user3 = BNode.create(g, User.class);
 
 		user1.name.set("user");
 		user1.passwordNode.set("test");
@@ -225,48 +253,46 @@ public class WebServer extends BNode {
 	}
 
 	private void createEndpoints(BBGraph g) {
-		g.addNode(NodeInfo.class);
-		g.addNode(Views.class);
-		g.addNode(Jump.class);
-		g.addNode(Endpoints.class);
-		g.addNode(JVMNode.Kill.class);
-		var n = g.addNode(Authenticate.class);
+		BNode.create(g, NodeInfo.class);
+		BNode.create(g, Views.class);
+		BNode.create(g, Jump.class);
+		BNode.create(g, Endpoints.class);
+		BNode.create(g, JVMNode.Kill.class);
+		var n = BNode.create(g, Authenticate.class);
 		n.setSessionStore(sessionStore);
-		var l = g.addNode(Logout.class);
+		var l = BNode.create(g, Logout.class);
 		l.setSessionStore(sessionStore);
-		g.addNode(Nodes.class);
-		g.addNode(EndpointCallDistributionView.class);
-		g.addNode(Info.class);
-		g.addNode(Logs.class);
-		g.addNode(BasicView.class);
-		g.addNode(CharacterDistribution.class);
-		g.addNode(CharExampleXY.class);
-		g.addNode(User.UserView.class);
-		g.addNode(BBGraph.GraphNivoView.class);
-		g.addNode(OSNode.View.class);
-		g.addNode(JVMNode.View.class);
-		g.addNode(BNode.InOutsNivoView.class);
-		g.addNode(ModelGraphivzSVGView.class);
-		g.addNode(Navigator.class);
-		g.addNode(OutDegreeDistribution.class);
-		g.addNode(ClassDistribution.class);
-		g.addNode(Picture.V.class);
-		g.addNode(LabView.class);
-		g.addNode(ModelDOTView.class);
-		g.addNode(SourceView.class);
-		g.addNode(ToStringView.class);
-		g.addNode(StructureView.class);
-		g.addNode(NodeEndpoints.class);
-		g.addNode(SetValue.class);
-		g.addNode(AnyGraph.Classes.class);
-		g.addNode(Edit.class);
-		g.addNode(ShowOut.class);
-		g.addNode(History.class);
-		g.addNode(UI.class);
-		g.addNode(UI.getProperties.class);
-		g.addNode(Summarizer.class);
-		g.addNode(LoadImage.class);
-
+		BNode.create(g, Nodes.class);
+		BNode.create(g, EndpointCallDistributionView.class);
+		BNode.create(g, Info.class);
+		BNode.create(g, Logs.class);
+		BNode.create(g, BasicView.class);
+		BNode.create(g, CharExampleXY.class);
+		BNode.create(g, User.UserView.class);
+		BNode.create(g, BBGraph.GraphNivoView.class);
+		BNode.create(g, OSNode.View.class);
+		BNode.create(g, JVMNode.View.class);
+		BNode.create(g, BNode.InOutsNivoView.class);
+		BNode.create(g, ModelGraphivzSVGView.class);
+		BNode.create(g, Navigator.class);
+		BNode.create(g, OutDegreeDistribution.class);
+		BNode.create(g, ClassDistribution.class);
+		BNode.create(g, Picture.V.class);
+		BNode.create(g, LabView.class);
+		BNode.create(g, ModelDOTView.class);
+		BNode.create(g, ToStringView.class);
+		BNode.create(g, StructureView.class);
+		BNode.create(g, NodeEndpoints.class);
+		BNode.create(g, SetValue.class);
+		BNode.create(g, AnyGraph.Classes.class);
+		BNode.create(g, Edit.class);
+		BNode.create(g, ShowOut.class);
+		BNode.create(g, History.class);
+		BNode.create(g, UI.class);
+		BNode.create(g, UI.getProperties.class);
+		BNode.create(g, Summarizer.class);
+		BNode.create(g, LoadImage.class);
+		BNode.create(g, ListNodes.class);
 		Country.loadCountries(g);
 	}
 
@@ -343,7 +369,7 @@ public class WebServer extends BNode {
 			if (user == null) {
 				user = graph.find(User.class, u -> u.name.get().equals("guest"));
 				if (user == null) {
-					user = graph.addNode(User.class);
+					user = BNode.create(graph, User.class);
 					user.name.set("guest");
 					user.passwordNode.set("guest");
 					user.stack.push(graph.root());

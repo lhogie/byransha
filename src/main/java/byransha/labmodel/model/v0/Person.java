@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.BooleanNode;
 import byransha.EmailNode;
 import byransha.ImageNode;
@@ -45,20 +46,20 @@ public class Person extends BusinessNode {
 	public Person(BBGraph g) {
 		super(g);
 
-		etatCivil = g.addNode(EtatCivil.class); //new EtatCivil(g);
-		positions = g.addNode(ListNode.class); //new ListNode<>(g);
-		pics =  g.addNode(ImageNode.class); //new ImageNode(g);
+		etatCivil = BNode.create(g, EtatCivil.class); // new EtatCivil(g);
+		positions = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		pics = BNode.create(g, ImageNode.class); // new ImageNode(g);
 
-		hdr = g.addNode(BooleanNode.class); //new BooleanNode(g);
+		hdr = BNode.create(g, BooleanNode.class); // new BooleanNode(g);
 
-		badgeNumber = g.addNode(StringNode.class); //new StringNode(g, null);
-		website = g.addNode(StringNode.class); //new StringNode(g, null);
-		faxNumber = g.addNode(StringNode.class); //new StringNode(g, null);
-		phdDate = g.addNode(StringNode.class); //new StringNode(g, null);
+		badgeNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		website = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		faxNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		phdDate = BNode.create(g, StringNode.class); // new StringNode(g, null);
 
-		phoneNumbers = g.addNode(ListNode.class); //new ListNode<>(g);
-		emailAddresses = g.addNode(ListNode.class); //new ListNode<>(g);
-		offices = g.addNode(ListNode.class); //new ListNode<>(g);
+		phoneNumbers = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		emailAddresses = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		offices = BNode.create(g, ListNode.class); // new ListNode<>(g);
 	}
 
 	public Person(BBGraph g, int id) {

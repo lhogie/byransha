@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 
 public class Lab extends Structure {
@@ -11,11 +12,10 @@ public class Lab extends Structure {
 	Map<Person, HFDSAvisE> HFDSAvisfds;
 	ListNode<Structure> tutelles;
 
-
 	public Lab(BBGraph g) {
 		super(g);
 		HFDSAvisfds = new HashMap<>();
-		tutelles  = g.addNode(ListNode.class); //new ListNode<>(graph);
+		tutelles = BNode.create(g, ListNode.class); // new ListNode<>(graph);
 	}
 
 	public Lab(BBGraph g, int id) {
@@ -25,7 +25,5 @@ public class Lab extends Structure {
 	enum HFDSAvisE {
 		YES, NO, INBETWEEN
 	}
-
-
 
 }

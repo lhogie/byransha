@@ -2,17 +2,16 @@ package byransha.labmodel.model.v0;
 
 import byransha.BooleanNode;
 import byransha.BBGraph;
+import byransha.BNode;
 
 public class Software extends Publication {
 	public Software(BBGraph g) {
 		super(g);
-		openSource = g.addNode(BooleanNode.class); //new BooleanNode(g);
-		// TODO Auto-generated constructor stub
+		openSource = BNode.create(g, BooleanNode.class); //new BooleanNode(g);
 	}
 
 	public Software(BBGraph g, int id) {
 		super(g, id);
-		// TODO Auto-generated constructor stub
 	}
 
 	BooleanNode openSource;
