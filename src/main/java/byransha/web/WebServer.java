@@ -243,7 +243,6 @@ public class WebServer extends BNode {
 		g.addNode(LoadImage.class);
 		g.addNode(ColorNodeView.class);
 		g.addNode(AddNode.class);
-		g.addNode(AllClassView.class);
 
 		Country.loadCountries(g);
 	}
