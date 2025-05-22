@@ -30,6 +30,7 @@ import javax.net.ssl.SSLParameters;
 
 import byransha.*;
 import byransha.labmodel.model.v0.*;
+import byransha.web.endpoint.*;
 import byransha.web.view.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -48,17 +49,6 @@ import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.Edit;
-import byransha.web.endpoint.Endpoints;
-import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.LoadImage;
-import byransha.web.endpoint.Logout;
-import byransha.web.endpoint.NodeEndpoints;
-import byransha.web.endpoint.NodeInfo;
-import byransha.web.endpoint.Nodes;
-import byransha.web.endpoint.SetValue;
-import byransha.web.endpoint.Summarizer;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
@@ -252,6 +242,8 @@ public class WebServer extends BNode {
 		g.addNode(Summarizer.class);
 		g.addNode(LoadImage.class);
 		g.addNode(ColorNodeView.class);
+		g.addNode(AddNode.class);
+		g.addNode(AllClassView.class);
 
 		Country.loadCountries(g);
 	}

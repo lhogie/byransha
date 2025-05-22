@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import { Box, Button, Card, CardContent, CircularProgress, Typography, Checkbox, ListItemText, Menu, MenuItem } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
+import CloseIcon from '@mui/icons-material/Close';
 import Expand from '@mui/icons-material/AspectRatio';
 import { useTitle } from "../../global/useTitle";
 import { useApiData } from '../../hooks/useApiData';
@@ -39,13 +40,11 @@ const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => 
             }}
         >
 
-            <button className="expand-card" onClick={onClick} aria-label="expand"> <Expand /> </button>
             <Typography className="DragHere" variant="caption" sx={{ color: '#757575' }}>
-                Drag here
+                {`${view.endpoint.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())} - ${view.what_is_this}`                 }
             </Typography>
-            <button className= "erased-card" onClick={(e) => {
-                handleViewToggle(view.endpoint)}}> &times;
-                </button>
+            <button className="expand-card" onClick={onClick} aria-label="expand"> <Expand /> </button>
+            <button className= "erased-card" onClick={(e) => {handleViewToggle(view.endpoint)}}> <CloseIcon /> </button>
         </Box>
         <CardContent
             sx={{
@@ -57,30 +56,6 @@ const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => 
                 bgcolor: view.response_type === 'technical' ? '#fff9c4' : '#ffffff',
             }}
         >
-            <Typography
-                variant="h5"
-                sx={{
-                    marginBottom: '8px',
-                    flexShrink: 0,
-                    color: '#283593',
-                    fontWeight: '600',
-                    fontSize: { xs: '1rem', sm: '1.25rem' },
-                }}
-            >
-                {view.pretty_name.replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())}
-            </Typography>
-            <Typography
-                variant="subtitle1"
-                sx={{
-                    marginBottom: '8px',
-                    color: '#424242',
-                    fontWeight: '500',
-                    flexShrink: 0,
-                    fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                }}
-            >
-                {view.what_is_this}
-            </Typography>
             <Box
                 sx={{
                     flex: 1,
@@ -457,7 +432,26 @@ const HomePage = () => {
                         </Button>
                     </Box>
                 </Box>
+                <Button
+                    variant="outlined"
+                    onClick={() => navigate('/add-node')}
+                    sx={{
+                        minWidth: { xs: 36, sm: 40 },
+                        borderWidth: '2px',
+                        borderColor: '#90caf9',
+                        color: '#90caf9',
+                        fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                        padding: { xs: '4px 8px', sm: '6px 12px' },
+                        '&:hover': {
+                            borderColor: '#42a5f5',
+                            bgcolor: '#37474f',
+                        },
+                    }}
+                >
+                    Add new node
+                </Button>
             </Box>
+
             <DragDropContext onDragEnd={onDragEnd}>
                 <Droppable droppableId="views">
                     {(provided, snapshot) => (
@@ -510,46 +504,6 @@ const HomePage = () => {
                     )}
                 </Droppable>
             </DragDropContext>
-            <Box
-                sx={{
-                    position: 'fixed',
-                    bottom: 0,
-                    left: 0,
-                    zIndex: 9999,
-                    display: 'flex',
-                    alignItems: 'flex-end',
-                    flexDirection: 'column',
-                }}
-            >
-                {showColorPicker && (
-                    <Box sx={{ mb: 1, ml: 1, bgcolor: '#fff', p: 2, borderRadius: 2, boxShadow: 3 }}>
-                        <ChromePicker
-                            color={pickerColor}
-                            onChangeComplete={(color) => {
-                                setPickerColor(color.hex);
-                                document.body.style.backgroundColor = color.hex;
-                            }}
-                        />
-                    </Box>
-                )}
-                <Box
-                    onClick={() => setShowColorPicker(prev => !prev)}
-                    sx={{
-                        bgcolor: '#90caf9',
-                        color: '#fff',
-                        px: 2,
-                        py: 1,
-                        borderTopRightRadius: 8,
-                        cursor: 'pointer',
-                        fontSize: '0.75rem',
-                        '&:hover': {
-                            bgcolor: '#42a5f5',
-                        }
-                    }}
-                >
-                    🎨 Couleur
-                </Box>
-            </Box>
         </Box>
     );
 };
