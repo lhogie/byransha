@@ -20,6 +20,7 @@ const AddNodePage = () => {
     const navigate = useNavigate();
     const {data : rawApiData, isLoading: loading, error, refetch} = useApiData('bnode_class_distribution');
     const [className, setClassName] = useState([]);
+    const [fullClassName, setFullClassName] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [favorites, setFavorites] = useState(() => {
       try {
@@ -30,6 +31,19 @@ const AddNodePage = () => {
         return [];
       }
     });
+
+    const [exitAnim, setExitAnim] = useState(false);
+
+    const handleClose = () => {
+      setExitAnim(true);
+      setTimeout(() => navigate("/home"), 300); // Match animation duration
+    };
+
+    const handleClickClass = (name) => {
+        const fullName = fullClassName.find(item => item.endsWith(name));
+        navigate(`/add-node/form/${fullName}`);
+    };
+
 
     const toggleFavorite = (name) => {
       setFavorites((prev) =>
@@ -43,7 +57,6 @@ const AddNodePage = () => {
 
     const stringifyData = useCallback((data, indent = 2) => {
          if (!data) return "";
-         console.log("stringifyData");
          return JSON.stringify(data, null, indent === "tab" ? "\t" : indent);
     }, []);
 
@@ -51,19 +64,35 @@ const AddNodePage = () => {
         if (!rawApiData) return;
         try {
             const classList = rawApiData?.data?.results?.[0]?.result?.data || [];
-            const shortNames = classList.map(item => {
+
+            // Filter out class names containing "endpoint"
+            const filteredList = classList.filter(item => {
+                const fullName = Object.keys(item)[0];
+                return fullName && !fullName.toLowerCase().includes("endpoint") && !fullName.toLowerCase().includes("view")
+                && !fullName.toLowerCase().includes("$");
+            });
+
+            const shortName = filteredList.map(item => {
                 const fullName = Object.keys(item)[0];
                 return fullName.split('.').pop();
             });
-            setClassName(shortNames);
+
+            const fullName = filteredList.map(item => {
+                return Object.keys(item)[0];
+            });
+
+            setClassName(shortName);
+            setFullClassName(fullName);
+
         } catch (err) {
             console.error("Failed to parse class names:", err);
         }
     }, [rawApiData]);
 
+
    return (
       <>
-     <div className="add-node-page">
+      <div className={`add-node-page ${exitAnim ? 'add-node-exit' : ''}`}>
        <h1>Add a new node</h1>
 
        <input
@@ -91,7 +120,7 @@ const AddNodePage = () => {
                             >
                               <StarIcon style={{ color: '#f1c40f' }} />
                             </span>
-                            <span onClick={() => console.log(`Clicked on ${name}`)}>
+                            <span onClick={() => handleClickClass(name)}>
                               {name}
                             </span>
                           </div>
@@ -116,14 +145,14 @@ const AddNodePage = () => {
                        >
                          <StarBorderIcon style={{ color: '#ccc' }} />
                        </span>
-                       <span onClick={() => console.log(`Clicked on ${name}`)}>
+                       <span onClick={() => handleClickClass(name)}>
                          {name}
                        </span>
                      </div>
                    ))}
                </div>
 
-       <IconButton className="close-button" onClick={() => { navigate("/home")}} aria-label="close">
+       <IconButton className="close-button" onClick={handleClose} aria-label="close">
          <CloseIcon />
        </IconButton>
      </div>

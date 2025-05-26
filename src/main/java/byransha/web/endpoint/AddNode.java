@@ -6,9 +6,12 @@ import byransha.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.lang.reflect.Field;
 
 public class AddNode extends NodeEndpoint<BNode> {
 
@@ -29,18 +32,15 @@ public class AddNode extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
             throws Throwable {
         var a = new ObjectNode(null);
-        a.put("message", new TextNode("Node added successfully"));
-        System.out.println("Adding node in Add node endpoint in: " + in);
-        System.out.println("Adding node in Add node endpoint user: " + user);
-        System.out.println("Adding node in Add node endpoint WebServer: " + webServer);
-        System.out.println("Adding node in Add node endpoint exchange: " + exchange);
-        System.out.println("Adding node in Add node endpoint node: " + node.getClass());
-
-        if(!in.isEmpty()){
-            System.err.println("Adding node in Add node endpoint in: +++++++++++++++++++++++++   " + in.get("test"));
+        if(in.has("classForm")) {
+            var clazz = Class.forName(in.get("classForm").asText());
+            Field[] field = clazz.getDeclaredFields();
+            for (Field f: field){
+                a.put(f.getName(), new TextNode(f.getType().getName()));
+            }
         }
 
-        return new EndpointJsonResponse(    a, "Node added successfully");
+        return new EndpointJsonResponse(a, "Add_node call");
     }
 
 }
