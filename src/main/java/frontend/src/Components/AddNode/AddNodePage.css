@@ -135,24 +135,6 @@
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.add-node-page .close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 20px;
-    cursor: pointer;
-    z-index: 1000;
-    width: 40;
-    height: 40;
-    color: 'primary.main';
-}
-
-.add-node-page .close-button:hover {
-    color: #e74c3c;
-}
-
 .class-card-container {
   display: flex;
   flex-wrap: wrap;
@@ -246,3 +228,28 @@
   margin-left: 1rem;
 }
 
+.add-node-page .button-group {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+  z-index: 1000;
+}
+
+.add-node-page .header-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  color: var(--primary-color, #333);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-node-page .header-button:hover {
+  color: #e74c3c;
+}

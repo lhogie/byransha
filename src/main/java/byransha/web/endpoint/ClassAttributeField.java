@@ -6,25 +6,24 @@ import byransha.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
-import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
 
-public class AddNode extends NodeEndpoint<BNode> {
+public class ClassAttributeField extends NodeEndpoint<BNode> {
 
     @Override
     public String whatItDoes() {
         return "Adds a new node to the graph.";
     }
 
-    public AddNode(BBGraph g) {
+    public ClassAttributeField(BBGraph g) {
         super(g);
     }
 
-    public AddNode(BBGraph g, int id) {
+    public ClassAttributeField(BBGraph g, int id) {
         super(g, id);
     }
 

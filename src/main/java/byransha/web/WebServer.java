@@ -242,7 +242,8 @@ public class WebServer extends BNode {
 		g.addNode(Summarizer.class);
 		g.addNode(LoadImage.class);
 		g.addNode(ColorNodeView.class);
-		g.addNode(AddNode.class);
+		g.addNode(ClassAttributeField.class);
+		g.addNode(ClassInformation.class);
 
 		Country.loadCountries(g);
 	}
