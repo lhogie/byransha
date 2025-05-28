@@ -40,7 +40,6 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import byransha.BBGraph;
-import byransha.BBGraph.ClassDistribution;
 import byransha.BNode;
 import byransha.Byransha;
 import byransha.JVMNode;
@@ -293,6 +292,7 @@ public class WebServer extends BNode {
 		BNode.create(g, Summarizer.class);
 		BNode.create(g, LoadImage.class);
 		BNode.create(g, ListNodes.class);
+
 		Country.loadCountries(g);
 	}
 
@@ -372,7 +372,7 @@ public class WebServer extends BNode {
 					user = BNode.create(graph, User.class);
 					user.name.set("guest");
 					user.passwordNode.set("guest");
-					user.stack.push(graph.root());
+					// user.stack.push(graph.root());
 				}
 			}
 

@@ -1,4 +1,4 @@
-.information-page {
+.add-node-page {
     margin: 0 auto;
     padding: 2rem;
     background-color: #f8f9fa;
@@ -9,7 +9,7 @@
     position: relative;
 }
 
-.information-page h1 {
+.add-node-page h1 {
     color: #2c3e50;
     font-size: 2.5rem;
     margin-bottom: 2rem;
@@ -19,7 +19,7 @@
     padding-bottom: 1rem;
 }
 
-.information-page h2 {
+.add-node-page h2 {
     color: #34495e;
     font-size: 1.8rem;
     margin: 1.5rem 0;
@@ -35,7 +35,7 @@
 }
 
 /* Style pour le contenu JSON */
-.information-page pre {
+.add-node-page pre {
     background-color: #f8f9fa;
     padding: 1.5rem;
     border-radius: 6px;
@@ -48,7 +48,7 @@
 }
 
 /* Style pour le contenu HTML */
-.information-page .html-content {
+.add-node-page .html-content {
     line-height: 1.6;
     color: #2c3e50;
     max-width: 100%;
@@ -57,7 +57,7 @@
 }
 
 /* Style pour les images */
-.information-page img {
+.add-node-page img {
     max-width: 100%;
     height: auto;
     border-radius: 6px;
@@ -66,7 +66,7 @@
 }
 
 /* Style pour le graphviz */
-.information-page .graphviz-container {
+.add-node-page .graphviz-container {
     background: white;
     padding: 1rem;
     border-radius: 6px;
@@ -95,15 +95,15 @@
 
 /* Responsive design */
 @media (max-width: 768px) {
-    .information-page {
+    .add-node-page {
         padding: 1rem;
     }
 
-    .information-page h1 {
+    .add-node-page h1 {
         font-size: 2rem;
     }
 
-    .information-page h2 {
+    .add-node-page h2 {
         font-size: 1.5rem;
     }
 
@@ -124,7 +124,7 @@
     }
 }
 
-.information-page svg {
+.add-node-page svg {
     width: 100%;
 }
 
@@ -135,7 +135,7 @@
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
 }
 
-.information-page .close-button {
+.add-node-page .close-button {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -149,6 +149,62 @@
     color: 'primary.main';
 }
 
-.information-page .close-button:hover {
+.add-node-page .close-button:hover {
     color: #e74c3c;
+}
+
+.class-card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+.class-card {
+  user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  min-width: 120px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 1rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.class-card:hover {
+  background-color: #f0f8ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.search-bar {
+  width: 100%;
+  max-width: 400px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  margin: 0 auto 1.5rem;
+  display: block;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.star-icon {
+  margin-right: 8px;
+  display: inline-flex;
+  vertical-align: middle;
+  cursor: pointer;
+}
+.class-card {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
 }

@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import java.io.IOException;
+import java.util.Base64;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -54,7 +55,7 @@ public class Country extends BusinessNode {
         codeNode = BNode.create(g, StringNode.class);
 		name = BNode.create(g, StringNode.class);
 		flag = BNode.create(g, ImageNode.class);
-
+		this.color = "red";
 	}
 
 	public void setFlagCode(String code) throws IOException {
@@ -62,7 +63,8 @@ public class Country extends BusinessNode {
 				.readAllBytes());
 		flag.setMimeType("image/svg+xml");
 		codeNode.set(code);
-		name = new StringNode(graph, countryCodes.get(code).asText());
+		name = BNode.create(graph, StringNode.class); //new StringNode(graph, countryCodes.get(code).asText());
+		name.set(countryCodes.get(code).asText());
 	}
 
 	public Country(BBGraph g, int id) {

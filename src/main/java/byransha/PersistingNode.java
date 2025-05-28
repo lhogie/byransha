@@ -33,6 +33,10 @@ public abstract class PersistingNode extends BNode {
 
 	public void saveOuts(Consumer<File> writingFiles, String id) {
 		var outD = outsDirectory();
+		if(outD == null) {
+			System.err.println("Outs directory is null for " + this);
+			return;
+		}
 
 		if (!outD.exists()) {
 			writingFiles.accept(outD);
@@ -73,6 +77,10 @@ public abstract class PersistingNode extends BNode {
 
 	public void createInSymLinks(Consumer<File> writingFiles) {
 		var inD = new File(directory(), "ins");
+		if(inD == null) {
+			System.err.println("In directory is null for " + this);
+			return;
+		}
 
 		if (!inD.exists()) {
 			writingFiles.accept(inD);
@@ -103,6 +111,10 @@ public abstract class PersistingNode extends BNode {
 	}
 
 	public void save(Consumer<File> writingFiles) {
+		if(directory() == null) {
+			//System.err.println("Directory is null for " + this);
+			return;
+		}
 		createOutSymLinks(writingFiles);
 		createInSymLinks(writingFiles);
 	}

@@ -50,7 +50,6 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 	@Override
 	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 			BBGraph g) throws Throwable {
-
 		return new EndpointTextResponse("text/dot", pw -> pw.print(toDot(g, c -> true)));
 	}
 

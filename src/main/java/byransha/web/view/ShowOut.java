@@ -11,44 +11,49 @@ import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
-public class ShowOut extends NodeEndpoint<BNode> {
 
-	@Override
-	public String whatItDoes() {
-		return "Endpoint to show every values of the current node";
-	}
+public class ShowOut extends NodeEndpoint<BNode> implements View {
 
-	public ShowOut(BBGraph g) {
-		super(g);
-	}
+    @Override
+    public String whatItDoes() {
+        return "Endpoint to show every values of the current node";
+    }
 
-	public ShowOut(BBGraph g, int id) {
-		super(g, id);
-	}
+    public ShowOut(BBGraph g) {
+        super(g);
+    }
 
-	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
-			throws Throwable {
-		var a = new ArrayNode(null);
+    public ShowOut(BBGraph g, int id) {
+        super(g, id);
+    }
 
-		n.forEachOut((name, out) -> {
-			var b = new ObjectNode(null);
-			b.set("id", new IntNode(out.id()));
-			b.set("name", new TextNode(name));
-			b.set("type", new TextNode(out.getClass().getSimpleName()));
-			if (out.canEdit(user)) {
-				b.set("editable", new TextNode("true"));
-			} else {
-				b.set("editable", new TextNode("false"));
-			}
-			if (out instanceof ValuedNode vn) {
-				b.set("value", new TextNode(vn.get() + ""));
-			}
-			a.add(b);
-		});
+    @Override
+    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n)
+            throws Throwable {
+        var a = new ArrayNode(null);
 
-		// System.out.println("id de currentNode:"+ currentNode.id());
-		return new EndpointJsonResponse(a, "response for edit");
-	}
+        n.forEachOut((name, out) -> {
+            if (!out.canSee(user) || out.id() == 0) {
+                return;
+            }
+            var b = new ObjectNode(null);
+            b.set("id", new IntNode(out.id()));
+            b.set("name", new TextNode(name));
+            b.set("type", new TextNode(out.getClass().getSimpleName()));
+            if(out.canEdit(user)){b.set("editable",new TextNode("true"));}else{b.set("editable",new TextNode("false"));}
+            if (out instanceof ValuedNode<?> vn) {
+                b.set("value", new TextNode(vn.getAsString()));
+                b.set("mimeType", new TextNode(vn.getMimeType()));
+            }
+            a.add(b);
+        });
 
+        //System.out.println("id de currentNode:"+ currentNode.id());
+        return new EndpointJsonResponse(a,"response for edit");
+    }
+
+    @Override
+    public boolean sendContentByDefault() {
+        return true;
+    }
 }

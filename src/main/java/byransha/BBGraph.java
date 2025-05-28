@@ -244,33 +244,31 @@ public class BBGraph extends BNode {
 		BNode previous;
 		Class<? extends BNode> nodeClass = n.getClass();
 
-		synchronized(this) {
-			previous = nodesById.putIfAbsent(n.id(), n);
-			if (previous != null) {
-				if (previous != n) {
-					throw new IllegalStateException("can't add node " + n + " because its ID " + n.id() + " is already taken by: " + previous);
-				}
-				return;
+		previous = nodesById.putIfAbsent(n.id(), n);
+		if (previous != null) {
+			if (previous != n) {
+				throw new IllegalStateException("can't add node " + n + " because its ID " + n.id() + " is already taken by: " + previous);
+			}
+			return;
+		}
+
+		byClass.computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>()).add(n);
+
+		if (n instanceof NodeEndpoint ne) {
+			var alreadyInClass = findEndpoint(ne.getClass());
+			if (alreadyInClass != null && alreadyInClass != ne) {
+				nodesById.remove(n.id());
+				Queue<BNode> queue = byClass.get(nodeClass);
+				if (queue != null) queue.remove(n);
+				throw new IllegalArgumentException("Adding " + ne + ", endpoint with same class '" + ne.getClass().getName() + "' already there: " + alreadyInClass);
 			}
 
-			byClass.computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>()).add(n);
-
-			if (n instanceof NodeEndpoint ne) {
-				var alreadyInClass = findEndpoint(ne.getClass());
-				if (alreadyInClass != null && alreadyInClass != ne) {
-					nodesById.remove(n.id());
-					Queue<BNode> queue = byClass.get(nodeClass);
-					if (queue != null) queue.remove(n);
-					throw new IllegalArgumentException("Adding " + ne + ", endpoint with same class '" + ne.getClass().getName() + "' already there: " + alreadyInClass);
-				}
-
-				var alreadyInName = findEndpoint(ne.name());
-				if (alreadyInName != null && alreadyInName != ne) {
-					nodesById.remove(n.id());
-					Queue<BNode> queue = byClass.get(nodeClass);
-					if (queue != null) queue.remove(n);
-					throw new IllegalArgumentException("Adding " + ne + ", endpoint with same name '" + ne.name() + "' already there: " + alreadyInName.getClass().getName());
-				}
+			var alreadyInName = findEndpoint(ne.name());
+			if (alreadyInName != null && alreadyInName != ne) {
+				nodesById.remove(n.id());
+				Queue<BNode> queue = byClass.get(nodeClass);
+				if (queue != null) queue.remove(n);
+				throw new IllegalArgumentException("Adding " + ne + ", endpoint with same name '" + ne.name() + "' already there: " + alreadyInName.getClass().getName());
 			}
 		}
 

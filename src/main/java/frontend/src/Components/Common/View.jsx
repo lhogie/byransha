@@ -12,6 +12,9 @@ import { saveAs } from 'file-saver';
 import { Suspense } from 'react';
 import ReactECharts from 'echarts-for-react';
 import './View.css'
+import 'react-json-view-lite/dist/index.css'
+import {JsonView, collapseAllNested} from 'react-json-view-lite';
+import { ChromePicker } from 'react-color';
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -132,17 +135,18 @@ const MemoizedBarChart = memo(({ prettyName, data, keys }) => {
             trigger: 'axis',
             axisPointer: {
                 type: 'shadow'
-            }
+            },
         },
         grid: {
             containLabel: false
         },
         xAxis: {
-            data: keys.map(key => {
-                return key.length > 10 ? key.slice(0, 10) + '...' : key
-            }),
+            data: keys,
             axisLabel: {
-                rotate: 45
+                rotate: 45,
+                formatter: function (value) {
+                    return value.length > 10 ? value.substring(0, 10) + '...' : value;
+                }
             },
         },
         yAxis: {
@@ -174,6 +178,9 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
         darkMode: true,
+        grid: {
+            containLabel: false
+        },
         series: [{
             type: 'graph',
             layout: 'force',
@@ -185,6 +192,11 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
             label: {
                 show: false
             },
+            tooltip: {
+                formatter: function (params) {
+                    return `${params.data.prettyName ?? params.data.name}<br>${params.data.whatIsThis ?? ''}<br>${params.data.className ?? ''}`;
+                }
+            },
             data: data.nodes.map(node => ({
                 id: node.id,
                 name: node.label,
@@ -193,7 +205,10 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
                     color: node.color || '#1f77b4'
                 },
                 x: node.x,
-                y: node.y
+                y: node.y,
+                prettyName: node.prettyName,
+                whatIsThis: node.whatIsThis,
+                className: node.className,
             })),
             edges: data.links.map(link => ({
                 source: link.source,
@@ -233,6 +248,16 @@ export const View = ({ viewId, sx }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPending, startTransition] = useTransition();
     const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
+
+    const [hex, setHex] = useState('#ffffff');
+      const saveColour = useApiMutation('update_colour');
+      const handleHexChange = useCallback(
+        (colour) => {
+          setHex(colour.hex);
+          saveColour.mutate({ view_id: viewId, value: colour.hex });
+        },
+        [saveColour, viewId]
+      );
 
     const handleOpenModal = (event) => {
         event.stopPropagation();
@@ -548,7 +573,7 @@ export const View = ({ viewId, sx }) => {
                 return (
                     <div className="content-container" style={{ background: backgroundColor }}>
                         <Suspense fallback={<CircularProgress />}>
-                            <CustomCodeBlock language="json" code={JSON.stringify(content, null, "\t")} style={{ background: backgroundColor }} />
+                            <JsonView data={content} shouldExpandNode={collapseAllNested} />
                         </Suspense>
                     </div>
                 );
@@ -593,7 +618,7 @@ export const View = ({ viewId, sx }) => {
             return (
                 <div className="content-container" style={{ background: backgroundColor }}>
                     <Suspense fallback={<CircularProgress />}>
-                        <CustomCodeBlock language="json" code={stringifyJson(content, "tab")} style={{ background: backgroundColor }} />
+                        <JsonView data={content} />
                     </Suspense>
                 </div>
             );
@@ -605,6 +630,16 @@ export const View = ({ viewId, sx }) => {
                     </Suspense>
                 </div>
             );
+        } else if (contentType === 'text/hex') {
+          return (
+            <div className="content-container" style={{ background: backgroundColor }}>
+              <ChromePicker
+                color={hex}
+                disableAlpha
+                onChangeComplete={handleHexChange}
+              />
+            </div>
+          );
         } else {
             return (
                 <div className="error-message">
@@ -616,8 +651,6 @@ export const View = ({ viewId, sx }) => {
 
     const renderJsonViewer = useMemo(() => {
         return (dataForModal) => {
-            const jsonString = dataForModal ? stringifyJson(dataForModal) : "";
-
             return (
                 <>
                     <Tooltip title="Show Raw Backend Response">
@@ -657,9 +690,8 @@ export const View = ({ viewId, sx }) => {
                             <Box sx={modalContentStyle}>
                                 {dataForModal ? (
                                     <Suspense fallback={<CircularProgress />}>
-                                        <CustomCodeBlock
-                                            language="json"
-                                            code={jsonString}
+                                        <JsonView
+                                            data={dataForModal}
                                         />
                                     </Suspense>
                                 ) : (

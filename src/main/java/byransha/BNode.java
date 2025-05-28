@@ -71,7 +71,7 @@ public abstract class BNode {
 
 	public abstract String whatIsThis();
 
-	public static class InLink {
+    public static class InLink {
 		final BNode source;
 		final String role;
 
@@ -169,9 +169,7 @@ public abstract class BNode {
 	}
 
 	public int outDegree() {
-		AtomicInteger i = new AtomicInteger(0);
-		forEachOut((name, prop) -> i.incrementAndGet());
-		return i.get();
+		return outs().size();
 	}
 
 	public List<SearchResult> search(String query) {
@@ -380,7 +378,10 @@ public abstract class BNode {
 				if (o.canSee(user)) {
 					var noeudOut = g.ensureHasVertex(o);
 					noeudOut.color = "grey";
-					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					noeudOut.prettyName = o.prettyName();
+					noeudOut.whatIsThis = o.whatIsThis();
+					noeudOut.className = o.getClass().getName();
+					var a = g.newArc(current, noeudOut);
 					a.label = s;
 					a.color = "red";
 				}
@@ -390,16 +391,20 @@ public abstract class BNode {
 				if (i.canSee(user)) {
 					var noeudOut = g.ensureHasVertex(i);
 					noeudOut.color = i.color;
-					var a = g.newArc(g.ensureHasVertex(n), noeudOut);
+					noeudOut.prettyName = i.prettyName();
+					noeudOut.whatIsThis = i.whatIsThis();
+					noeudOut.className = i.getClass().getName();
+					var a = g.newArc(current, noeudOut);
 					a.style = "dotted";
 					a.label = s;
 				}
 			});
+
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}
 	}
 
-	public static class OutDegreeDistribution extends NodeEndpoint<BBGraph> implements View {
+	public static class OutDegreeDistribution extends NodeEndpoint<BNode> implements View {
 
 		@Override
 		public String whatItDoes() {
@@ -415,10 +420,43 @@ public abstract class BNode {
 		}
 
 		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph g)
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 				throws Throwable {
 			var d = new Byransha.Distribution<Integer>();
+			BBGraph g = (node instanceof BBGraph) ? (BBGraph)node : node.graph;
 			g.forEachNode(n -> d.addOccurence(n.outDegree()));
+			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
+		}
+
+		@Override
+		public boolean sendContentByDefault() {
+			return false;
+		}
+
+	}
+
+
+	public static class ClassDistribution extends NodeEndpoint<BNode> implements View {
+
+		public ClassDistribution(BBGraph db) {
+			super(db);
+		}
+
+		public ClassDistribution(BBGraph db, int id) {
+			super(db, id);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "shows distributed for out nodes";
+		}
+
+		@Override
+		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
+				throws Throwable {
+			var d = new Byransha.Distribution<String>();
+			BBGraph g = (node instanceof BBGraph) ? (BBGraph)node : node.graph;
+			g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
 			return new EndpointJsonResponse(d.toJson(), dialects.distribution);
 		}
 
@@ -444,28 +482,28 @@ public abstract class BNode {
 	public abstract String prettyName();
 	/*
 	 * public static class BFS extends NodeEndpoint<BNode> {
-	 * 
+	 *
 	 * @Override public EndpointResponse exec(ObjectNode input, User user, WebServer
 	 * webServer, HttpsExchange exchange, ObjectNode r = null;
-	 * 
+	 *
 	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new
 	 * Int2ObjectOpenHashMap<ObjectNode>();
-	 * 
+	 *
 	 * while (!q.isEmpty()) { c = q.remove(0); var nn = visited.put(c.id(), new
 	 * ObjectNode(null)); r.add(nn);
-	 * 
+	 *
 	 * c.forEachOut((f, out) -> { if (!visited.containsKey(out)) { visited.add(new
 	 * ObjectNode(null)); q.add(out); } }); }
-	 * 
+	 *
 	 * var outs = new ObjectNode(null); n.forEachOut((name, o) -> outs.set(name, new
 	 * TextNode("" + o))); r.set("outs", outs); var ins = new ObjectNode(null);
 	 * n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o))); r.set("ins",
 	 * ins); return r; }
-	 * 
+	 *
 	 * @Override public String whatIsThis() { return
 	 * "generates a JSON describing the local node and its out-nodes, up to a given depth"
 	 * ; }
-	 * 
+	 *
 	 * }
 	 */
 
