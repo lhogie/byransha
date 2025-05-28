@@ -6,6 +6,7 @@ import HomePage from "../Components/HomePage/HomePage";
 import InformationPage from "../Components/InformationPage/InformationPage";
 import React from "react";
 import AddNodePage from "../Components/AddNode/AddNodePage";
+import FormPage from "../Components/AddNode/FormPage";
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +30,10 @@ export const router = createBrowserRouter([
                     {
                         path: '/add-node',
                         element: <AddNodePage/>,
+                    },
+                    {
+                        path: '/add-node/form/:classForm',
+                        element: <FormPage/>,
                     }
                 ]
             }]
