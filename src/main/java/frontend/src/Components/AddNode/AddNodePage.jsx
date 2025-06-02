@@ -101,11 +101,10 @@ const AddNodePage = () => {
       }); // Adjust the URL to add the server url when deploy.
       const result = await response.json();
       const data = result?.results?.[0]?.result?.data;
-      const isPersisting = data?.superPersistingNode !== undefined ? data.superPersistingNode : false;
-      const isBusiness = data?.superBusinessNode !== undefined ? data.businessNode : false;
+      const isBusiness = data?.BusinessNode !== undefined ? data.BusinessNode : false;
 
       //localStorage.setItem(cacheKey, isPersisting ? 'true' : 'false');
-      return isPersisting || isBusiness;
+      return isBusiness;
     } catch (err) {
       console.error(`Error fetching info for ${fullName}:`, err);
       return false;

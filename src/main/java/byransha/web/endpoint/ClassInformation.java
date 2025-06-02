@@ -16,7 +16,7 @@ public class ClassInformation extends NodeEndpoint<BNode> {
 
     @Override
     public String whatItDoes() {
-        return "Send back the super of the class.";
+        return "Send back the super and interface of the class.";
     }
 
     public ClassInformation(BBGraph g) {
@@ -31,23 +31,23 @@ public class ClassInformation extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
             throws Throwable {
         var result = new ObjectNode(null);
+
         if (in.has("classForm")) {
             var clazz = Class.forName(in.get("classForm").asText());
 
             var current = clazz.getSuperclass();
             while (current != null) {
-                System.out.println("super"+ current.getSimpleName());
-                result.put("super" + current.getSimpleName(), new TextNode(current.getName()));
+                result.put(current.getSimpleName(), new TextNode(current.getName()));
                 current = current.getSuperclass();
             }
 
             Class<?>[] interfaces = clazz.getInterfaces();
             for (Class<?> i : interfaces) {
-                result.put("interface_" + i.getSimpleName(), new TextNode(i.getName()));
+                result.put(i.getSimpleName(), new TextNode(i.getName()));
             }
         }
 
-        return new EndpointJsonResponse(result, "Class hierarchy and interfaces");
+        return new EndpointJsonResponse(result, "Class super and interfaces");
     }
 
 
