@@ -229,3 +229,19 @@
   text-align: center;
 }
 
+.deeper-button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: #2980b9;
+  font-size: 1.25rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.deeper-button:hover {
+  text-decoration: underline;
+  color: #1c5980;
+}
+

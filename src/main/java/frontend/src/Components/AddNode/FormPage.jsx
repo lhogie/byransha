@@ -51,7 +51,6 @@ const FormPage = () => {
   });
 
 
-
   const jumpToToggleNode = useApiMutation('jump', {
     onSuccess: async (data) => {
         console.log("Subfield data fetched successfully");
@@ -62,9 +61,29 @@ const FormPage = () => {
 
   const goBackToRootNode = useApiMutation('jump', {
       onSuccess: async (data) => {
-          console.log("Returned to root node successfully -------------------");
+          console.log("Returned to root node successfully");
       }
   })
+
+  const moveDeeper = async (name, id) => {
+    if (id === rootId) return console.log("return from moveDeeper");
+
+    try {
+
+      await jumpDeeper.mutateAsync(`node_id=${id}`);
+      await navigate(`/add-node/form/${name}`);
+      window.location.reload();
+    } catch (error) {
+      console.error("Error jumping deeper:", error);
+    }
+  };
+
+  const jumpDeeper = useApiMutation('jump', {
+      onSuccess: async (data) => {
+            console.log("Jumped deeper successfully");
+      }
+  });
+
 
 
 const toggleField = (fieldName, nodeId) => {
@@ -151,7 +170,11 @@ const toggleField = (fieldName, nodeId) => {
       return (
         <div key={fieldKey} className="form-field-wrapper">
           <div className="form-field">
-            <label htmlFor={name} className="main-label">{shortenAndFormatLabel(name)}</label>
+            <label htmlFor={name} className="main-label">
+                <button type="button" className="deeper-button" onClick={() => {moveDeeper(name,id);}} title={fieldKey}>
+                {shortenAndFormatLabel(name)}
+                </button>
+                </label>
 
             {(type === "StringNode") && (
               <input
@@ -185,10 +208,10 @@ const toggleField = (fieldName, nodeId) => {
                 <div className="toggle-wrapper">
                       <button
                         type="button"
-                        onClick={() => toggleField(name, id)}
+                        onClick={() => toggleField(fieldKey, id)}
                         className="toggle-button"
                       >
-                        <span className="toggle-icon">{expandedFields[name] ? '▼' : '▶'}</span>
+                        <span className="toggle-icon">{expandedFields[fieldKey] ? '▼' : '▶'}</span>
                       </button>
                     </div>
                   )}
@@ -196,7 +219,7 @@ const toggleField = (fieldName, nodeId) => {
 
           {!["StringNode", "BooleanNode"].includes(type) && (
             <div className="nested-fields">
-              {expandedFields[name] ? (
+              {expandedFields[fieldKey] ? (
                 subfieldData[id] ? (
                   subfieldData[id].length > 0 ? (
                     renderFields(subfieldData[id], new Set(visited))

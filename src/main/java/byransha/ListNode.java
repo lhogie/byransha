@@ -45,7 +45,7 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		int i = 0;
 		for (N e : l) {
 			if (e != null) {
-				consumer.accept(i++ + ". " + e.id(), e);
+				consumer.accept(i++ + ". " + e.prettyName(), e);
 			} else {
 				i++;
 			}
