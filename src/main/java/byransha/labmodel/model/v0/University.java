@@ -11,9 +11,10 @@ public class University extends Structure {
 	public University(BBGraph g) {
 		super(g);
 		campuses = BNode.create(g, ListNode.class); // new ListNode<>(g);
-		status.add(new IGR(g));
-		status.add(new MCF(g));
-		status.add(new PR(g));
+
+		status.add(BNode.create(g, IGR.class));
+		status.add(BNode.create(g,MCF.class));
+		status.add(BNode.create(g, PR.class));
 	}
 
 	public University(BBGraph g, int id) {

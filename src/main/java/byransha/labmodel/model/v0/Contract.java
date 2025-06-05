@@ -24,6 +24,10 @@ public class Contract extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if (name == null || name.get() == null || name.get().isEmpty()) {
+			System.err.println("Contract with no name: " + this);
+			return "Contract(unknown)";
+		}
 		return name.get() + "(" + holder.prettyName() + ")";
 	}
 

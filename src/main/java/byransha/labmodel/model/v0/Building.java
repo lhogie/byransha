@@ -1,6 +1,7 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.BNode;
 import byransha.ListNode;
 
 public class Building extends BusinessNode {
@@ -8,7 +9,7 @@ public class Building extends BusinessNode {
 
 	public Building(BBGraph g) {
 		super(g);
-		offices = new ListNode<>(g);
+		offices = BNode.create(g, ListNode.class);
 	}
 
 	public Building(BBGraph g, int id) {

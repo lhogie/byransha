@@ -45,6 +45,7 @@ public class ClassInformation extends NodeEndpoint<BNode> {
             for (Class<?> i : interfaces) {
                 result.put(i.getSimpleName(), new TextNode(i.getName()));
             }
+            in.remove("classForm");
         }
 
         return new EndpointJsonResponse(result, "Class super and interfaces");

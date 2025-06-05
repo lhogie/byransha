@@ -7,10 +7,13 @@ import {IconButton} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
 import {useNavigate} from "react-router";
-import {useApiData} from "../../hooks/useApiData.js";
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ReloadIcon from '@mui/icons-material/Refresh';
+import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
+import {useQueryClient} from "@tanstack/react-query";
+
+
 
 const AddNodePage = () => {
   useTitle(`Add node`);
@@ -18,6 +21,8 @@ const AddNodePage = () => {
   const {viewId} = useParams();
   const navigate = useNavigate();
   const {data: rawApiData, isLoading: loading, error, refetch} = useApiData('bnode_class_distribution');
+  const queryClient = useQueryClient();
+
 
   const [className, setClassName] = useState([]);
   const [fullClassName, setFullClassName] = useState([]);
@@ -39,10 +44,45 @@ const AddNodePage = () => {
     setTimeout(() => navigate("/home"), 300);
   };
 
-  const handleClickClass = (name) => {
+  const jumpMutation = useApiMutation('jump', {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries();
+    },
+  });
+
+
+  const handleCreateAndJump = async (name) => {
     const fullName = fullClassName.find(item => item.endsWith(name));
-    navigate(`/add-node/form/${fullName}`);
+    try {
+      const response = await fetch(`https://localhost:8080/api/add_node?BNodeClass=${encodeURIComponent(fullName)}`, {
+        credentials: 'include',
+        headers: {
+          Accept: "application/json, text/plain, */*"
+        }
+      });
+      const result = await response.json();
+      const data = result.results?.[0]?.result?.data.id;
+
+      await jumpMutation.mutateAsync(`node_id=${encodeURIComponent(data)}`);
+
+    } catch (err) {
+      console.error(`Error during handleCreateAndJump for ${fullName}:`, err);
+      throw err;
+    }
   };
+
+
+  const handleClickClass = async (name) => {
+    try {
+      await handleCreateAndJump(name);
+      const fullName = fullClassName.find(item => item.endsWith(name));
+      navigate(`/add-node/form/${fullName}`);
+    } catch (err) {
+      console.error("Navigation skipped due to error:", err);
+    }
+  };
+
+
 
   const toggleFavorite = (name) => {
     setFavorites((prev) =>

@@ -23,6 +23,10 @@ public class Device extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if(brand == null || brand.get() == null || brand.get().isEmpty()) {
+			System.err.println("Device with no brand: " + this);
+			return "Device(unknown)";
+		}
 		return brand.get() + " " + modelName.get() + "(S/N: " + serialNumber.get() + ")";
 	}
 }

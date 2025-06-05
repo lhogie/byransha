@@ -32,41 +32,25 @@
     margin-top: 2rem;
 }
 
-.content-container {
-    background: #ffffff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.06);
-    padding: 1.5rem;
-    margin-top: 1.5rem;
-    transition: transform 0.2s ease;
-
-    max-width: fit-content;
-    min-width: 300px;
-}
-
-
-.content-container:hover {
-    transform: translateY(-2px);
-}
-
-/* Form layout */
 .form-fields {
     display: flex;
     flex-direction: column;
     gap: 1.25rem;
+    width: 100%;
     max-width: fit-content;
 }
 
 
 .form-field {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     flex-wrap: wrap;
     gap: 0.75rem;
     justify-content: flex-start;
     text-align: left;
+    width: 100%;
+    max-width: 600px;
 }
-
 
 .form-field label {
     flex: 0 0 140px;
@@ -130,7 +114,6 @@
     color: #e74c3c;
 }
 
-/* JSON viewer */
 .form-page pre {
     background-color: #f1f1f1;
     padding: 1rem;
@@ -141,7 +124,6 @@
     color: #2c3e50;
 }
 
-/* Graphviz or visuals */
 .form-page .graphviz-container {
     background: white;
     padding: 1rem;
@@ -149,7 +131,6 @@
     overflow: auto;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .form-page {
         padding: 1rem;
@@ -187,14 +168,20 @@
 
 .toggle-button {
   background: none;
-  border: none;
-  color: #2980b9;
+  border: 1px solid transparent;
+  padding: 0.45rem 0.75rem;
   font-size: 1rem;
-  margin: 0.5rem 0;
   cursor: pointer;
-  padding-left: 1rem;
+  color: #2980b9;
   text-align: left;
+  border-radius: 6px;
+  min-width: 200px;
+  max-width: 400px;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
 }
+
 
 
 .unsupported-field {
@@ -213,5 +200,32 @@
 .unsupported-icon {
   font-size: 1.2rem;
   color: #e74c3c;
+}
+
+.nested-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-left: calc(140px + 1rem);
+  padding-left: 0.5rem;
+  border-left: 2px dashed #ccc;
+  max-width: 100%;
+  overflow-x : auto;
+}
+
+
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  max-width: 400px;
+}
+
+.toggle-icon {
+  font-size: 1rem;
+  color: #2980b9;
+  width: 1rem;
+  text-align: center;
 }
 

@@ -27,6 +27,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -65,17 +66,6 @@ import byransha.labmodel.model.v0.Picture;
 import byransha.labmodel.model.v0.Publication;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.Edit;
-import byransha.web.endpoint.Endpoints;
-import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.LoadImage;
-import byransha.web.endpoint.Logout;
-import byransha.web.endpoint.NodeEndpoints;
-import byransha.web.endpoint.NodeInfo;
-import byransha.web.endpoint.Nodes;
-import byransha.web.endpoint.SetValue;
-import byransha.web.endpoint.Summarizer;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.ModelDOTView;
 import byransha.web.view.ModelGraphivzSVGView;
@@ -292,7 +282,9 @@ public class WebServer extends BNode {
 		BNode.create(g, Summarizer.class);
 		BNode.create(g, LoadImage.class);
 		BNode.create(g, ListNodes.class);
-
+		BNode.create(g, ClassInformation.class);
+		BNode.create(g, ClassAttributeField.class);
+		BNode.create(g, AddNode.class);
 
 		Country.loadCountries(g);
 	}
