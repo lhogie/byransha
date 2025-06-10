@@ -46,14 +46,14 @@ const FormPage = () => {
         [lastExpandedNode.current]: subfields,
       }));
 
-      console.log("Set subfields for", lastExpandedNode.current, subfields);
+//       console.log("Set subfields for", lastExpandedNode.current, subfields);
     }
   });
 
 
   const jumpToToggleNode = useApiMutation('jump', {
     onSuccess: async (data) => {
-        console.log("Subfield data fetched successfully");
+//         console.log("Subfield data fetched successfully");
         addFieldToggleNode.mutate();
         goBackToRootNode.mutate({'node_id': rootId});
     },
@@ -61,7 +61,7 @@ const FormPage = () => {
 
   const goBackToRootNode = useApiMutation('jump', {
       onSuccess: async (data) => {
-          console.log("Returned to root node successfully");
+//           console.log("Returned to root node successfully");
       }
   })
 
@@ -80,26 +80,24 @@ const FormPage = () => {
 
   const jumpDeeper = useApiMutation('jump', {
       onSuccess: async (data) => {
-            console.log("Jumped deeper successfully");
+//             console.log("Jumped deeper successfully");
       }
   });
 
+  const toggleField = (fieldName, nodeId) => {
+    const isExpanded = expandedFields[fieldName];
 
+    if (!isExpanded && !subfieldData[nodeId] && nodeId !== rootId && !loading) {
+      setCurrentToggleNodeId(nodeId);
+      lastExpandedNode.current = nodeId;
+      jumpToToggleNode.mutate(`node_id=${nodeId}`);
+    }
 
-const toggleField = (fieldName, nodeId) => {
-  const isExpanded = expandedFields[fieldName];
-
-  if (!isExpanded && !subfieldData[nodeId] && nodeId !== rootId && !loading) {
-    setCurrentToggleNodeId(nodeId);
-    lastExpandedNode.current = nodeId;
-    jumpToToggleNode.mutate(`node_id=${nodeId}`);
-  }
-
-  setExpandedFields(prev => ({
-    ...prev,
-    [fieldName]: !prev[fieldName],
-  }));
-};
+    setExpandedFields(prev => ({
+        ...prev,
+        [fieldName]: !prev[fieldName],
+    }));
+  };
 
   const shortenAndFormatLabel = (label) => {
     if (!label) return '';
@@ -110,8 +108,6 @@ const toggleField = (fieldName, nodeId) => {
 
     return spaced.charAt(0).toUpperCase() + spaced.slice(1);
   };
-
-
 
   const stringifyData = useCallback((data, indent = 2) => {
     if (!data) return "";
@@ -140,14 +136,32 @@ const toggleField = (fieldName, nodeId) => {
     }
   }, [loading, rawApiData]);
 
-
-
   const formFields = (
     rawApiData?.data?.results?.[0]?.result?.data ||
     rawApiData?.results?.[0]?.result?.data ||
     []
   ).filter(field => field?.name !== "graph");
 
+  const saveChanges = () => {
+
+      Object.entries(subfieldData).forEach(([nodeId, subfield]) => {
+          subfield.forEach(field => {
+              const fieldKey = field.id + "@" + field.name;
+              const value = formValues[fieldKey] || "";
+              if(!(value == "" || value == "null")) console.log(`Saving ${fieldKey} with value:`, value);
+
+          }
+            );
+        }
+        );
+  };
+
+
+  const save = useApiMutation('set_value', {
+      onSuccess: async (data) => {
+            //console.log(stringifyData(data));
+         },
+     })
 
   const renderFields = (fields, visited = new Set()) => {
     if (!fields || !Array.isArray(fields)) return null;
@@ -171,10 +185,10 @@ const toggleField = (fieldName, nodeId) => {
         <div key={fieldKey} className="form-field-wrapper">
           <div className="form-field">
             <label htmlFor={name} className="main-label">
-                <button type="button" className="deeper-button" onClick={() => {moveDeeper(name,id);}} title={fieldKey}>
+              <button type="button" className="deeper-button" onClick={() => moveDeeper(name, id)} title={fieldKey}>
                 {shortenAndFormatLabel(name)}
-                </button>
-                </label>
+              </button>
+            </label>
 
             {(type === "StringNode") && (
               <input
@@ -205,31 +219,31 @@ const toggleField = (fieldName, nodeId) => {
             )}
 
             {!["StringNode", "BooleanNode"].includes(type) && (
-                <div className="toggle-wrapper">
-                      <button
-                        type="button"
-                        onClick={() => toggleField(fieldKey, id)}
-                        className="toggle-button"
-                      >
-                        <span className="toggle-icon">{expandedFields[fieldKey] ? '▼' : '▶'}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+              <div className="toggle-wrapper">
+                <button
+                  type="button"
+                  onClick={() => toggleField(fieldKey, id)}
+                  className="toggle-button"
+                >
+                  <span className="toggle-icon">{expandedFields[fieldKey] ? '▼' : '▶'}</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           {!["StringNode", "BooleanNode"].includes(type) && (
             <div className="nested-fields">
-              {expandedFields[fieldKey] ? (
+              {expandedFields[fieldKey] && (
                 subfieldData[id] ? (
                   subfieldData[id].length > 0 ? (
-                    renderFields(subfieldData[id], new Set(visited))
+                    renderFields(subfieldData[id], newVisited)
                   ) : (
                     <p>No subfields available for this.</p>
                   )
                 ) : (
                   <p>Loading subfields or error, please reload...</p>
                 )
-              ) : null}
+              )}
             </div>
           )}
         </div>
@@ -260,6 +274,10 @@ const toggleField = (fieldName, nodeId) => {
           <p>No fields available.</p>
         )}
       </form>
+
+      <button className="save-button" onClick={() => {saveChanges()}}>
+        Save Changes
+        </button>
     </div>
   );
 };

@@ -32,21 +32,12 @@ public class SetValue extends NodeEndpoint<BNode> {
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 			BNode target) throws Throwable {
 
-		if (target instanceof EmailNode) {
-			var value = requireParm(in, "value").asText();
-			((EmailNode) target).set(value);
-		} else if (target instanceof DateNode) {
-			var value = requireParm(in, "value").asText();
-			((DateNode) target).set(value);
-		} else if (target instanceof StringNode) {
-			var value = requireParm(in, "value").asText();
-			((StringNode) target).set(value);
+		var a = new ObjectNode(null);
+
+		if(!in.isEmpty()) {
+			System.out.println("SetValue: " + in);
 		}
-/*
-		target.save(file -> {
-			System.out.println("Saving the new value in the node : " + target);
-		});
-*/
-		return new NodeInfo(graph).exec(in, user, webServer, exchange, target);
+
+		return new EndpointJsonResponse(a, "Setting the value");
 	}
 }
