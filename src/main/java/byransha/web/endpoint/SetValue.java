@@ -1,17 +1,16 @@
 package byransha.web.endpoint;
 
+import byransha.*;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.DateNode;
-import byransha.EmailNode;
-import byransha.StringNode;
-import byransha.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+
+import java.util.Iterator;
+import java.util.Map;
 
 public class SetValue extends NodeEndpoint<BNode> {
 
@@ -36,6 +35,19 @@ public class SetValue extends NodeEndpoint<BNode> {
 
 		if(!in.isEmpty()) {
 			System.out.println("SetValue: " + in);
+			Iterator<Map.Entry<String, JsonNode>> fields = in.fields();
+			if (fields.hasNext()) {
+				Map.Entry<String, JsonNode> entry = fields.next();
+				String key = entry.getKey();
+				JsonNode value = entry.getValue();
+				int id = Integer.parseInt(key);
+				var node = graph.findByID(id);
+				if(node instanceof StringNode vn){
+					vn.set(value.asText());
+				}
+			}
+			in.removeAll();
+
 		}
 
 		return new EndpointJsonResponse(a, "Setting the value");

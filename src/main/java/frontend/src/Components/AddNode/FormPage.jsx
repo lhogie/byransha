@@ -143,23 +143,19 @@ const FormPage = () => {
   ).filter(field => field?.name !== "graph");
 
   const saveChanges = () => {
-
-      Object.entries(subfieldData).forEach(([nodeId, subfield]) => {
-          subfield.forEach(field => {
-              const fieldKey = field.id + "@" + field.name;
-              const value = formValues[fieldKey] || "";
-              if(!(value == "" || value == "null")) console.log(`Saving ${fieldKey} with value:`, value);
-
+      Object.entries(formValues).forEach(([nodeId, field]) => {
+          if(!(field == "" || field == "null"))  {
+              //console.log(`Saving ${nodeId} with value:`, field);
+              const id = nodeId.split('@')[0]
+              save.mutateAsync(`${id}=${field}`)
           }
-            );
-        }
-        );
+      })
   };
 
 
   const save = useApiMutation('set_value', {
       onSuccess: async (data) => {
-            //console.log(stringifyData(data));
+
          },
      })
 
@@ -273,11 +269,13 @@ const FormPage = () => {
         ) : (
           <p>No fields available.</p>
         )}
-      </form>
 
-      <button className="save-button" onClick={() => {saveChanges()}}>
-        Save Changes
-        </button>
+      </form>
+      <div className="save-button-container">
+          <button className="save-button" onClick={saveChanges}>
+            Save Changes
+          </button>
+      </div>
     </div>
   );
 };
