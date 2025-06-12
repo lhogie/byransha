@@ -1,9 +1,6 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
-import byransha.ValuedNode;
+import byransha.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
@@ -14,6 +11,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> {
 
@@ -41,6 +39,20 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             b.set("type", new TextNode(out.getClass().getSimpleName()));
             if(out instanceof ValuedNode<?> vn) {
                 b.set("value", new TextNode(vn.getAsString()));
+            }
+
+            if(out instanceof ListNode<?> listNode){
+                try{
+                    Field field = node.getClass().getDeclaredField(name);
+                    var genericType = field.getGenericType();
+                    if (genericType instanceof ParameterizedType parameterizedType) {
+                        var actualType = parameterizedType.getActualTypeArguments()[0];
+                        b.set("listNodeType", new TextNode(actualType.getTypeName()));
+                    }
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
             a.add(b);
         });

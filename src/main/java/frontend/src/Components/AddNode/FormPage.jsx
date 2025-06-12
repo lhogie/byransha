@@ -5,6 +5,7 @@ import { IconButton } from '@mui/material';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useNavigate } from "react-router";
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
+import AddIcon from '@mui/icons-material/Add';
 
 const FormPage = () => {
   const { classForm } = useParams();
@@ -45,31 +46,24 @@ const FormPage = () => {
         ...prev,
         [lastExpandedNode.current]: subfields,
       }));
-
-//       console.log("Set subfields for", lastExpandedNode.current, subfields);
     }
   });
 
 
   const jumpToToggleNode = useApiMutation('jump', {
     onSuccess: async (data) => {
-//         console.log("Subfield data fetched successfully");
         addFieldToggleNode.mutate();
         goBackToRootNode.mutate({'node_id': rootId});
     },
   });
 
   const goBackToRootNode = useApiMutation('jump', {
-      onSuccess: async (data) => {
-//           console.log("Returned to root node successfully");
-      }
+      onSuccess: async (data) => {}
   })
 
   const moveDeeper = async (name, id) => {
     if (id === rootId) return console.log("return from moveDeeper");
-
     try {
-
       await jumpDeeper.mutateAsync(`node_id=${id}`);
       await navigate(`/add-node/form/${name}`);
       window.location.reload();
@@ -79,9 +73,7 @@ const FormPage = () => {
   };
 
   const jumpDeeper = useApiMutation('jump', {
-      onSuccess: async (data) => {
-//             console.log("Jumped deeper successfully");
-      }
+      onSuccess: async (data) => {}
   });
 
   const toggleField = (fieldName, nodeId) => {
@@ -145,19 +137,61 @@ const FormPage = () => {
   const saveChanges = () => {
       Object.entries(formValues).forEach(([nodeId, field]) => {
           if(!(field == "" || field == "null"))  {
-              //console.log(`Saving ${nodeId} with value:`, field);
               const id = nodeId.split('@')[0]
               save.mutateAsync(`${id}=${field}`)
           }
       })
   };
 
-
   const save = useApiMutation('set_value', {
       onSuccess: async (data) => {
 
-         },
-     })
+      },
+  })
+
+  const handleAddNewNode = async (field) => {
+    console.log("Add new node clicked");
+    const id = field?.id;
+    const fullName = field?.listNodeType;
+
+    setCurrentToggleNodeId(id); // For context in addNewNode
+    await jumpDeeper.mutateAsync(`node_id=${id}`);
+    await addNewNode.mutateAsync(`BNodeClass=${encodeURIComponent(fullName)}`);
+  };
+
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+  const addNewNode = useApiMutation('add_node', {
+    onSuccess: async (data, variables) => {
+      console.log("New node added successfully");
+      const newNode = data?.data?.results?.[0]?.result?.data;
+      console.log(stringifyData(newNode, "tab"));
+      if (!newNode) return console.warn("No new node returned");
+
+      const parentId = currentToggleNodeId; // or pass it in `variables`
+      const fieldKey = newNode.id + "@" + newNode.name;
+
+      setSubfieldData(prev => ({
+        ...prev,
+        [parentId]: [...(prev[parentId] || []), newNode]
+      }));
+
+      if (newNode.name && newNode.value !== undefined && newNode.value !== "null") {
+        setFormValues(prev => ({
+          ...prev,
+          [fieldKey]: newNode.value
+        }));
+      }
+
+      await goBackToRootNode.mutate({ node_id: rootId });
+    }
+  });
+
+
+  const handleAddExistingNode = async (field) => {
+    console.log("Add existing node clicked with field :", field);
+      }
 
   const renderFields = (fields, visited = new Set()) => {
     if (!fields || !Array.isArray(fields)) return null;
@@ -186,7 +220,7 @@ const FormPage = () => {
               </button>
             </label>
 
-            {(type === "StringNode") && (
+            {(type === "StringNode" || type === "EmailNode") && (
               <input
                 id={fieldKey}
                 type="text"
@@ -214,7 +248,7 @@ const FormPage = () => {
               />
             )}
 
-            {!["StringNode", "BooleanNode"].includes(type) && (
+            {!["StringNode", "BooleanNode", "EmailNode"].includes(type) && (
               <div className="toggle-wrapper">
                 <button
                   type="button"
@@ -227,7 +261,7 @@ const FormPage = () => {
             )}
           </div>
 
-          {!["StringNode", "BooleanNode"].includes(type) && (
+          {!["StringNode", "BooleanNode", "EmailNode"].includes(type) && (
             <div className="nested-fields">
               {expandedFields[fieldKey] && (
                 subfieldData[id] ? (
@@ -240,6 +274,17 @@ const FormPage = () => {
                   <p>Loading subfields or error, please reload...</p>
                 )
               )}
+              {["ListNode", "SetNode"].includes(type) && expandedFields[fieldKey] && (
+                  <div className="add-new-node">
+                      <IconButton className="add-element" onClick={() => {handleAddNewNode(field)}}>
+                          <AddIcon /> <span>Add New Node</span>
+                      </IconButton>
+                      <IconButton className="add-element-existing" onClick={() => {handleAddExistingNode(field)}}>
+                            <AddIcon /> <span>Add from Existing Node</span>
+                      </IconButton>
+                  </div>
+              )}
+
             </div>
           )}
         </div>

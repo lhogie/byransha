@@ -273,3 +273,20 @@
     margin-top: 2rem;
 }
 
+.add-element, .add-element-existing {
+    background: none;
+    border: 2px solid #90caf9;
+    color: #90caf9;
+    font-size: 1rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.add-element:hover, .add-element-existing:hover {
+    background-color: #37474f;
+    border-color: #42a5f5;
+    color: #ffffff;
+}
+

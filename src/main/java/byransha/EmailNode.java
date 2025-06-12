@@ -10,6 +10,10 @@ public class EmailNode extends StringNode {
 		super(g, id);
 	}
 
+	public EmailNode(BBGraph g) {
+		super(g, null);
+	}
+
 	public static final String re = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
 }
