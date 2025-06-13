@@ -17,11 +17,11 @@ public class Structure extends BusinessNode {
 
 	public Structure(BBGraph g) {
 		super(g);
-		name = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		subStructures = BNode.create(g, SetNode.class); // new SetNode<>(g);
-		members = BNode.create(g, ListNode.class); // new ListNode<>(g);
-		status = BNode.create(g, ListNode.class); // new ListNode<>(g);
-		offices = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		name = BNode.create(g, StringNode.class);
+		subStructures = BNode.create(g, SetNode.class);
+		members = BNode.create(g, ListNode.class);
+		status = BNode.create(g, ListNode.class);
+		offices = BNode.create(g, ListNode.class);
 	}
 
 	public Structure(BBGraph g, int id) {
@@ -47,6 +47,9 @@ public class Structure extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if(name.get() == null || name.get().isEmpty()) {
+			return "Unnamed Structure";
+		}
 		return name.get();
 	}
 }

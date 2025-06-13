@@ -1,9 +1,6 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.IntNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import byransha.*;
 
 public class Office extends BusinessNode {
 	public StringNode name;
@@ -13,8 +10,8 @@ public class Office extends BusinessNode {
 
 	public Office(BBGraph g) {
 		super(g);
-		name = new StringNode(g);
-		users = new ListNode<>(g);
+		name = BNode.create(g, StringNode.class);
+		users = BNode.create(g, ListNode.class);
 	}
 
 	public Office(BBGraph g, int id) {
@@ -28,6 +25,10 @@ public class Office extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if(name.get() == null || name.get().isEmpty()) {
+			return "Unnamed Office";
+		}
+
 		return "Office: " + (name != null ? name.get() : "Unnamed");
 	}
 

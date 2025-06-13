@@ -20,6 +20,12 @@ const FormPage = () => {
   const lastExpandedNode = useRef(null);
   const [currentToggleNodeId, setCurrentToggleNodeId] = useState(null);
 
+  const [showExistingNodeCard, setShowExistingNodeCard] = useState(false);
+  const [existingNodeList, setExistingNodeList] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedField, setSelectedField] = useState(null);
+
+
 
   const addFieldToggleNode = useApiMutation('class_attribute_field', {
     onSuccess: async (data) => {
@@ -79,17 +85,26 @@ const FormPage = () => {
   const toggleField = (fieldName, nodeId) => {
     const isExpanded = expandedFields[fieldName];
 
-    if (!isExpanded && !subfieldData[nodeId] && nodeId !== rootId && !loading) {
-      setCurrentToggleNodeId(nodeId);
-      lastExpandedNode.current = nodeId;
-      jumpToToggleNode.mutate(`node_id=${nodeId}`);
+    if (isExpanded) {
+      setSubfieldData(prev => {
+        const newData = { ...prev };
+        delete newData[nodeId];
+        return newData;
+      });
+    } else {
+      if (!subfieldData[nodeId] && nodeId !== rootId && !loading) {
+        setCurrentToggleNodeId(nodeId);
+        lastExpandedNode.current = nodeId;
+        jumpToToggleNode.mutate(`node_id=${nodeId}`);
+      }
     }
 
     setExpandedFields(prev => ({
-        ...prev,
-        [fieldName]: !prev[fieldName],
+      ...prev,
+      [fieldName]: !prev[fieldName],
     }));
   };
+
 
   const shortenAndFormatLabel = (label) => {
     if (!label) return '';
@@ -125,6 +140,8 @@ const FormPage = () => {
       setFormValues(initialValues);
       setExpandedFields({});
       setSubfieldData({});
+
+      console.log(stringifyData(rawApiData, "tab"));
     }
   }, [loading, rawApiData]);
 
@@ -143,16 +160,13 @@ const FormPage = () => {
       })
   };
 
-  const save = useApiMutation('set_value', {
-      onSuccess: async (data) => {
-
-      },
-  })
+  const save = useApiMutation('set_value', {onSuccess: async (data) => {},})
 
   const handleAddNewNode = async (field) => {
     console.log("Add new node clicked");
     const id = field?.id;
     const fullName = field?.listNodeType;
+    console.log(stringifyData(field, "tab"));
 
     setCurrentToggleNodeId(id); // For context in addNewNode
     await jumpDeeper.mutateAsync(`node_id=${id}`);
@@ -190,8 +204,20 @@ const FormPage = () => {
 
 
   const handleAddExistingNode = async (field) => {
-    console.log("Add existing node clicked with field :", field);
-      }
+    console.log("Add existing node clicked with field:", field);
+    setSelectedField(field);
+    setShowExistingNodeCard(true);
+    const shortName = field.listNodeType.split('.').pop();
+    await listExistingNodes.mutate({type : shortName});
+  };
+
+
+    const listExistingNodes = useApiMutation('list_existing_node', {
+        onSuccess: async (data) => {
+            const result = data?.data?.results?.[0]?.result?.data || [];
+            setExistingNodeList(result);
+        }
+    });
 
   const renderFields = (fields, visited = new Set()) => {
     if (!fields || !Array.isArray(fields)) return null;
@@ -321,6 +347,57 @@ const FormPage = () => {
             Save Changes
           </button>
       </div>
+
+      {showExistingNodeCard && (
+        <div className="overlay">
+          <div className="existing-node-card">
+            <div className="card-header">
+              <h2>Select Existing Node</h2>
+              <IconButton onClick={() => setShowExistingNodeCard(false)}>
+                <CloseRoundedIcon />
+              </IconButton>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search nodes..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-bar"
+            />
+
+            <div className="node-list">
+              {existingNodeList
+                .filter(node =>
+                  node.name.toLowerCase().includes(searchQuery.toLowerCase())
+                )
+                .map(node => (
+                  <div
+                    key={node.id}
+                    className="node-card-item"
+                    onClick={() => {
+                      const fieldKey = node.id + "@" + node.name;
+                      setSubfieldData(prev => ({
+                        ...prev,
+                        [selectedField.id]: [...(prev[selectedField.id] || []), node]
+                      }));
+                      setFormValues(prev => ({
+                        ...prev,
+                        [fieldKey]: node.value
+                      }));
+
+                      setShowExistingNodeCard(false);
+                    }}
+                  >
+                    <strong>{node.name}</strong>: {node.value}
+                  </div>
+                ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };

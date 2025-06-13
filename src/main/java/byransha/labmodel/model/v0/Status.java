@@ -23,6 +23,9 @@ public class Status extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if(name == null || name.get() == null || name.get().isEmpty()) {
+			return "Unnamed Status";
+		}
 		return name.get();
 	}
 }

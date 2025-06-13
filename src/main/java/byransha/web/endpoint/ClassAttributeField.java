@@ -28,6 +28,21 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
         super(g, id);
     }
 
+    private Field findField(Class<?> clazz, String name) {
+        try {
+            return clazz.getField(name);
+        } catch (NoSuchFieldException e) {
+            try {
+                Field f = clazz.getDeclaredField(name);
+                f.setAccessible(true);
+                return f;
+            } catch (NoSuchFieldException ex) {
+                return null;
+            }
+        }
+    }
+
+
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
             throws Throwable {
@@ -41,9 +56,10 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
                 b.set("value", new TextNode(vn.getAsString()));
             }
 
+            System.out.println("Processing out node: " + out.getClass().getSimpleName() + " with name: " + name);
             if(out instanceof ListNode<?> listNode){
                 try{
-                    Field field = node.getClass().getDeclaredField(name);
+                    Field field = findField(node.getClass(), name);
                     var genericType = field.getGenericType();
                     if (genericType instanceof ParameterizedType parameterizedType) {
                         var actualType = parameterizedType.getActualTypeArguments()[0];
@@ -56,7 +72,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             }
             a.add(b);
         });
-
 
         return new EndpointJsonResponse(a, "Add_node call");
     }

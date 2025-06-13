@@ -40,6 +40,9 @@ public class Person extends BusinessNode {
 
 	@Override
 	public String prettyName() {
+		if( etatCivil == null || etatCivil.name == null || etatCivil.name.get() == null || etatCivil.name.get().isEmpty()) {
+			return this.id() + "@Unnamed Person";
+		}
 		return etatCivil.name.get();
 	}
 
