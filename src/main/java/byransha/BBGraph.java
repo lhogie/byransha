@@ -64,7 +64,16 @@ public class BBGraph extends BNode {
 			}
 		}
 
-		r.sort((a, b) -> a.getTargetNodeType().isAssignableFrom(b.getTargetNodeType()) ? 1 : -1);
+		r.sort((a, b) -> {
+			Class<?> aType = a.getTargetNodeType();
+			Class<?> bType = b.getTargetNodeType();
+
+			if (aType.equals(bType)) return 0;
+			else if (aType.isAssignableFrom(bType)) return 1;
+			else if (bType.isAssignableFrom(aType)) return -1;
+			else return aType.getName().compareTo(bType.getName());
+		});
+
 		return r;
 	}
 

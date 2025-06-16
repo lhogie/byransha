@@ -25,8 +25,6 @@ const FormPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedField, setSelectedField] = useState(null);
 
-
-
   const addFieldToggleNode = useApiMutation('class_attribute_field', {
     onSuccess: async (data) => {
       const id = data?.data?.node_id;
@@ -208,14 +206,22 @@ const FormPage = () => {
     setSelectedField(field);
     setShowExistingNodeCard(true);
     const shortName = field.listNodeType.split('.').pop();
+    await jumpDeeper.mutateAsync(`node_id=${field.id}`);
     await listExistingNodes.mutate({type : shortName});
-  };
 
+  };
 
     const listExistingNodes = useApiMutation('list_existing_node', {
         onSuccess: async (data) => {
             const result = data?.data?.results?.[0]?.result?.data || [];
             setExistingNodeList(result);
+        }
+    });
+
+    const addExistingNode = useApiMutation('add_existing_node', {
+        onSuccess: async (data) => {
+            console.log("Existing node added successfully", stringifyData(data, "tab"));
+            await goBackToRootNode.mutate({ node_id: rootId });
         }
     });
 
@@ -353,7 +359,7 @@ const FormPage = () => {
           <div className="existing-node-card">
             <div className="card-header">
               <h2>Select Existing Node</h2>
-              <IconButton onClick={() => setShowExistingNodeCard(false)}>
+              <IconButton onClick={() => {setShowExistingNodeCard(false); goBackToRootNode.mutate({ node_id: rootId });}} aria-label="close">
                 <CloseRoundedIcon />
               </IconButton>
             </div>
@@ -373,21 +379,22 @@ const FormPage = () => {
                 )
                 .map(node => (
                   <div
-                    key={node.id}
-                    className="node-card-item"
-                    onClick={() => {
-                      const fieldKey = node.id + "@" + node.name;
-                      setSubfieldData(prev => ({
-                        ...prev,
-                        [selectedField.id]: [...(prev[selectedField.id] || []), node]
-                      }));
-                      setFormValues(prev => ({
-                        ...prev,
-                        [fieldKey]: node.value
-                      }));
+                        key={node.id}
+                        className="node-card-item"
+                        onClick={() => {
+                          const fieldKey = node.id + "@" + node.name;
+                          setSubfieldData(prev => ({
+                            ...prev,
+                            [selectedField.id]: [...(prev[selectedField.id] || []), node]
+                          }));
+                          setFormValues(prev => ({
+                            ...prev,
+                            [fieldKey]: node.value
+                          }));
+                            addExistingNode.mutateAsync({id:node.id});
 
-                      setShowExistingNodeCard(false);
-                    }}
+                          setShowExistingNodeCard(false);
+                        }}
                   >
                     <strong>{node.name}</strong>: {node.value}
                   </div>

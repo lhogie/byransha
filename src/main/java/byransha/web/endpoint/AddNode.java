@@ -10,9 +10,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-
 public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     @Override
