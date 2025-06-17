@@ -34,7 +34,6 @@
     margin-top: 2rem;
 }
 
-/* Style pour le contenu JSON */
 .add-node-page pre {
     background-color: #f8f9fa;
     padding: 1.5rem;
@@ -47,7 +46,6 @@
     color: #2c3e50;
 }
 
-/* Style pour le contenu HTML */
 .add-node-page .html-content {
     line-height: 1.6;
     color: #2c3e50;
@@ -56,7 +54,6 @@
     text-overflow: ellipsis;
 }
 
-/* Style pour les images */
 .add-node-page img {
     max-width: 100%;
     height: auto;
@@ -65,7 +62,6 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Style pour le graphviz */
 .add-node-page .graphviz-container {
     background: white;
     padding: 1rem;
@@ -74,7 +70,6 @@
     overflow: auto;
 }
 
-/* Loading spinner container */
 .loading-container {
     display: flex;
     justify-content: center;
@@ -82,7 +77,6 @@
     min-height: 60vh;
 }
 
-/* Error message */
 .error-message {
     color: #e74c3c;
     background-color: #fdf0ed;
@@ -93,7 +87,6 @@
     text-align: center;
 }
 
-/* Responsive design */
 @media (max-width: 768px) {
     .add-node-page {
         padding: 1rem;
@@ -112,7 +105,6 @@
     }
 }
 
-/* Animations */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -128,7 +120,6 @@
     width: 100%;
 }
 
-/* Hover effects */
 .content-container:hover {
     transform: translateY(-2px);
     transition: transform 0.3s ease;
@@ -166,16 +157,27 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
+.search-bar-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+}
+
+
 .search-bar {
   width: 100%;
   max-width: 400px;
   padding: 10px 16px;
   font-size: 1rem;
-  margin: 0 auto 1.5rem;
-  display: block;
   border: 1px solid #ccc;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.search-bar:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
 .star-icon {

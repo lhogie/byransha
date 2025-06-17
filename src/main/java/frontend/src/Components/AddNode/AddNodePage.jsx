@@ -178,13 +178,16 @@ const AddNodePage = () => {
       <div className={`add-node-page ${exitAnim ? 'add-node-exit' : ''}`}>
         <h1>Add a new node</h1>
 
-        <input
-          type="text"
-          placeholder="Search class name..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-bar"
-        />
+        <div className="search-bar-wrapper">
+          <input
+            type="text"
+            placeholder="Search class name..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-bar"
+          />
+        </div>
+
 
         {favorites.length > 0 && (
           <>
