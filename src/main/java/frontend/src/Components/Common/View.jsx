@@ -170,66 +170,67 @@ const MemoizedBarChart = memo(({ prettyName, data, keys }) => {
 });
 
 const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
+
+    const processedData = useMemo(() => {
+        return data;
+    }, [data]);
+
     const option = useMemo(() => ({
-        tooltip: {
-            confine: true,
+        title: {
+            text: 'Database graph',
+            subtext: 'Default layout',
+            top: 'bottom',
+            left: 'right'
         },
-        animation: "auto",
-        animationDurationUpdate: 1500,
+        tooltip: {},
+        legend: [{data: processedData.categories ? processedData.categories.map(c => c.name) : []}],
+        animationDuration: 1500,
         animationEasingUpdate: 'quinticInOut',
-        darkMode: true,
-        grid: {
-            containLabel: false
-        },
         series: [{
             type: 'graph',
+            legendHoverLink: false,
             layout: 'force',
-            force: {
-                initLayout: 'circular',
-                layoutAnimation: false,
-            },
-            roam: true,
-            label: {
-                show: false
-            },
-            tooltip: {
-                formatter: function (params) {
-                    return `${params.data.prettyName ?? params.data.name}<br>${params.data.whatIsThis ?? ''}<br>${params.data.className ?? ''}`;
-                }
-            },
-            data: data.nodes.map(node => ({
+            data: processedData.nodes.map(node => ({
                 id: node.id,
                 name: node.label,
                 symbolSize: node.size || 30,
                 itemStyle: {
                     color: node.color || '#1f77b4'
                 },
+                label: {show: false},
                 x: node.x,
-                y: node.y,
-                prettyName: node.prettyName,
-                whatIsThis: node.whatIsThis,
-                className: node.className,
+                y: node.y
             })),
-            edges: data.links.map(link => ({
-                source: link.source,
-                target: link.target,
-                lineStyle: {
-                    width: link.width || 2,
-                    curveness: 0
-                }
-            }))
+            links: processedData.links,
+            categories: processedData.categories,
+            roam: true,
+            label: {
+                position: 'right',
+                formatter: '{b}'
+            },
+            lineStyle: {
+                color: 'source',
+                curveness: 0.3
+            },
+            emphasis: {
+                focus: 'adjacency',
+                lineStyle: {width: 10}
+            }
         }]
-    }), [data]);
+    }), [processedData]);
 
     const onChartClick = useCallback((params) => {
+        if (!params) return;
         if (params.dataType === 'node' && onNodeClick) {
-            onNodeClick({ id: params.data.id }, { preventDefault: () => {}, stopPropagation: () => {} });
+            onNodeClick({ id: params.data.id }, { preventDefault: () => {console.log(params.data)}, stopPropagation: () => {} });
+        } else if (params.dataType === 'edge' && onNodeClick) {
+            const partAfterFirstAt = params.data.target.split("@")[1];
+            const number = partAfterFirstAt.split("(")[0];
+            onNodeClick({ id: number }, { preventDefault: () => {}, stopPropagation: () => {} });
         }
     }, [onNodeClick]);
 
-    const events = useMemo(() => ({
-        'click': onChartClick
-    }), [onChartClick]);
+    const events = useMemo(() => ({ click: onChartClick }), [onChartClick]);
 
     return (
         <ReactECharts

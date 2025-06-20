@@ -344,3 +344,35 @@
 }
 
 
+.image-field {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: calc(140px + 1rem);
+  margin-top: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.image-preview {
+  max-height: 100px;
+  width: auto;
+  object-fit: contain;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 1em;
+  font-size: 1.2em;
+  color: #555;
+  animation: pulse 1s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+
+

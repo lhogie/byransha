@@ -27,6 +27,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import byransha.labmodel.model.v0.*;
 import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -54,16 +55,6 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
-import byransha.labmodel.model.v0.ACMClassifier;
-import byransha.labmodel.model.v0.Building;
-import byransha.labmodel.model.v0.CNRS;
-import byransha.labmodel.model.v0.Campus;
-import byransha.labmodel.model.v0.Country;
-import byransha.labmodel.model.v0.EtatCivil;
-import byransha.labmodel.model.v0.Office;
-import byransha.labmodel.model.v0.Person;
-import byransha.labmodel.model.v0.Picture;
-import byransha.labmodel.model.v0.Publication;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.view.CharExampleXY;
@@ -285,6 +276,8 @@ public class WebServer extends BNode {
 		BNode.create(g, ClassInformation.class);
 		BNode.create(g, ClassAttributeField.class);
 		BNode.create(g, AddNode.class);
+        BNode.create(g, AddExistingNode.class);
+        BNode.create(g, ListExistingNode.class);
 
 		Country.loadCountries(g);
 	}

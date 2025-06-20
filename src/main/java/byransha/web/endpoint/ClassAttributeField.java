@@ -4,20 +4,19 @@ import byransha.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.util.Base64;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> {
 
     @Override
     public String whatItDoes() {
-        return "Adds a new node to the graph.";
+        return "List the out of the current node.";
     }
 
     public ClassAttributeField(BBGraph g) {
@@ -52,21 +51,21 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             b.set("id", new IntNode(out.id()));
             b.set("name", new TextNode(name));
             b.set("type", new TextNode(out.getClass().getSimpleName()));
-            if(out instanceof ValuedNode<?> vn) {
+            if (out instanceof ValuedNode<?> vn) {
                 b.set("value", new TextNode(vn.getAsString()));
+                b.set("mimeType", new TextNode(vn.getMimeType()));
             }
 
             System.out.println("Processing out node: " + out.getClass().getSimpleName() + " with name: " + name);
-            if(out instanceof ListNode<?> listNode){
-                try{
+            if (out instanceof ListNode<?> listNode) {
+                try {
                     Field field = findField(node.getClass(), name);
                     var genericType = field.getGenericType();
                     if (genericType instanceof ParameterizedType parameterizedType) {
                         var actualType = parameterizedType.getActualTypeArguments()[0];
                         b.set("listNodeType", new TextNode(actualType.getTypeName()));
                     }
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

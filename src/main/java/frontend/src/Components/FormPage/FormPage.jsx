@@ -6,6 +6,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useNavigate } from "react-router";
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import AddIcon from '@mui/icons-material/Add';
+import axios from 'axios';
 
 const FormPage = () => {
     const { classForm } = useParams();
@@ -24,10 +25,11 @@ const FormPage = () => {
     const [existingNodeList, setExistingNodeList] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedField, setSelectedField] = useState(null);
+    const [lastChangedField, setLastChangedField] = useState(null);
 
-    const inputTextField = ["StringNode", "EmailNode", "PhoneNumberNode"]
-    const checkboxField = ["BooleanNode"];
-    const typeComponent = [...inputTextField, ...checkboxField];
+    const [loadingExistingNodes, setLoadingExistingNodes] = useState(false);
+
+
 
     /* Logic */
 
@@ -36,8 +38,9 @@ const FormPage = () => {
     const classAttributeField = useApiMutation('class_attribute_field', {onSuccess: async (data) => {return data; }});
     const setValue = useApiMutation('set_value', {onSuccess: async (data) => {return data; }});
     const addNode = useApiMutation('add_node', {onSuccess: async (data) => {return data; }});
-    const listExistingNodes = useApiMutation('list_existing_nodes', {onSuccess: async (data) => { return data; }});
+    const listExistingNode = useApiMutation('list_existing_node', {onSuccess: async (data) => { return data; }});
     const addExistingNode = useApiMutation('add_existing_node', {onSuccess: async (data) => { return data; }});
+    const sleep = (ms => new Promise(resolve => setTimeout(resolve, ms)));
     ////////////////////////////////////////////////////////////////
 
     // Utility functions
@@ -71,17 +74,25 @@ const FormPage = () => {
         }
     };
 
-    const handleSaveChanges = async () => {
-        console.log("Saving changes with form values:", stringifyData(formValues, "tab"));
-        Object.entries(formValues).forEach(([nodeId, field]) => {
-            if(!(field == "" || field == "null"))  {
-                const id = nodeId.split('@')[0];
-                setValue.mutateAsync(`${id}=${field}`)
-            }
+
+    const handleSaveChanges = async (field) => {
+      if (!field) return console.warn("No field provided for saving changes");
+      const fieldKey = createKey(field.id, field.name);
+      let value = formValues[fieldKey];
+      try {
+          const data = await axios.post('https://localhost:8080/api/set_value', {
+          id: field.id,
+          value: value,
         });
+        console.log("Changes saved successfully:", stringifyData(data, "tab"));
+      } catch (error) {
+        console.error('Error saving changes:', error);
+      }
     };
 
+
     const toggleField = async(fieldName, nodeId) => {
+        console.log(`Toggling field: ${fieldName} with nodeId: ${nodeId}`);
         const isExpanded = expandedFields[fieldName];
         if (isExpanded) {
             setSubfieldData(prev => {
@@ -93,34 +104,7 @@ const FormPage = () => {
             if (!subfieldData[nodeId] && nodeId !== rootId && !loading){
                 setCurrentToggleNodeId(nodeId);
                 lastExpandedNode.current = nodeId;
-
-                await jumpToId.mutateAsync(`node_id=${nodeId}`);
-                try{
-                    const data = await classAttributeField.mutateAsync();
-                    const id = data?.data?.node_id;
-                    if (id === rootId) return console.log("Same id as the root node, not loading subfields");
-                    const allFields = data?.data?.results?.[0]?.result?.data || [];
-                    const subfields = allFields.filter(field => field?.name !== "graph");
-
-                    const newValues = {};
-                    subfields.forEach(field => {
-                        if (field.name && field.value !== undefined && field.value !== "null") {
-                        const fieldKey = createKey(field.id, field.name);
-                        newValues[fieldKey] = field.value;
-                    }});
-
-                    setFormValues(prev => ({
-                        ...prev,
-                        ...newValues,
-                    }));
-
-                    setSubfieldData(prev => ({
-                        ...prev,
-                        [lastExpandedNode.current]: subfields,
-                    }));
-
-                } catch (error) {console.log("Error in wanting to load field:", error);}
-                await jumpToId.mutateAsync({'node_id': rootId});
+                await handleNestedField(nodeId);
             }
         }
         setExpandedFields(prev => ({
@@ -128,6 +112,30 @@ const FormPage = () => {
             [fieldName]: !prev[fieldName],
         }));
     };
+
+    const handleNestedField = async (id) => {
+        await jumpToId.mutateAsync(`node_id=${id}`);
+        try{
+            const data = await classAttributeField.mutateAsync();
+            //console.log(stringifyData(data, "tab"));
+            const id = data?.data?.node_id;
+            if (id === rootId) return console.log("Same id as the root node, not loading subfields");
+            const allFields = data?.data?.results?.[0]?.result?.data || [];
+            const subfields = allFields.filter(field => field?.name !== "graph");
+
+            const newValues = {};
+            subfields.forEach(field => {
+                if (field.name && field.value !== undefined && field.value !== "null") {
+                const fieldKey = createKey(field.id, field.name);
+                newValues[fieldKey] = field.value;
+            }});
+
+            setFormValues(prev => ({...prev,...newValues,}));
+            setSubfieldData(prev => ({...prev,[lastExpandedNode.current]: subfields,}));
+
+        } catch (error) {console.log("Error in wanting to load field:", error);}
+        await jumpToId.mutateAsync({'node_id': rootId});
+    }
 
     const handleAddNewNode = async (field) => {
         console.log("Add new node clicked");
@@ -141,7 +149,7 @@ const FormPage = () => {
             const data = await addNode.mutateAsync(`BNodeClass=${encodeURIComponent(fullName)}`);
             const node = data?.data?.results?.[0]?.result?.data;
             if (!node) return console.warn("No node returned from addNode mutation");
-            const parentId = currentToggleNodeId;
+            const parentId = id;
             const fieldKey = createKey(node.id, node.name);
             setSubfieldData(prev => ({
                 ...prev,
@@ -153,6 +161,7 @@ const FormPage = () => {
                     [fieldKey]: node.value
                 }));
             }
+
         } catch (error) {console.error("Error adding new node:", error);}
 
         await jumpToId.mutateAsync({ node_id: rootId });
@@ -162,14 +171,22 @@ const FormPage = () => {
         console.log("Add existing node clicked with field:", field);
         setSelectedField(field);
         setShowExistingNodeCard(true);
+        setLoadingExistingNodes(true); // <--- start spinner
+
         const shortName = field.listNodeType.split('.').pop();
         await jumpToId.mutateAsync(`node_id=${field.id}`);
+
         try {
-            const data = await listExistingNodes.mutateAsync({type : shortName});
+            const data = await listExistingNode.mutateAsync({ type: shortName });
             const result = data?.data?.results?.[0]?.result?.data || [];
             setExistingNodeList(result);
-        } catch (error) { console.error("Error fetching class attribute field:", error); }
+        } catch (error) {
+            console.error("Error fetching class attribute field:", error);
+        } finally {
+            setLoadingExistingNodes(false); // <--- stop spinner
+        }
     };
+
 
     const handleAddExistingNode = async (node) => {
         try{
@@ -184,6 +201,7 @@ const FormPage = () => {
     useEffect(() => {
         if (!loading && rawApiData) {
             const initialValues = {};
+            const initialFieldData = {};
 
             const allFields =
             rawApiData?.data?.results?.[0]?.result?.data ||
@@ -194,6 +212,8 @@ const FormPage = () => {
                 if (field.name && field.value !== "null" && field.value !== undefined) {
                     const fieldKey = createKey(field.id, field.name);
                     initialValues[fieldKey] = field.value;
+                    initialFieldData[fieldKey] = field;
+
                 }
             });
 
@@ -203,11 +223,29 @@ const FormPage = () => {
         }
     }, [loading, rawApiData]);
 
+    useEffect(() => {
+        if (!lastChangedField) return;
+
+        const handler = setTimeout(() => {
+            handleSaveChanges(lastChangedField);
+        }, 500);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [formValues]);
+
+
     const formFields = (
         rawApiData?.data?.results?.[0]?.result?.data ||
         rawApiData?.results?.[0]?.result?.data ||
         []
     ).filter(field => field?.name !== "graph");
+
+    const inputTextField = ["StringNode", "EmailNode", "PhoneNumberNode", "IntNode"]
+    const checkboxField = ["BooleanNode"];
+    const imageField = ["ImageNode"];
+    const typeComponent = [...inputTextField, ...checkboxField];
 
     const renderFields = (fields, visited = new Set()) => {
         if (!fields || !Array.isArray(fields)) return null;
@@ -245,8 +283,8 @@ const FormPage = () => {
                                         ...prev,
                                         [fieldKey]: e.target.value,
                                     }));
+                                    setLastChangedField(field);
                                 }}
-                                onBlur={(e) => {handleSaveChanges()}}
                             />
                         )}
 
@@ -288,11 +326,56 @@ const FormPage = () => {
                             {["ListNode", "SetNode"].includes(type) && expandedFields[fieldKey] && (
                                 <div className="add-new-node">
                                     <IconButton className="add-element" onClick={() => {handleAddNewNode(field)}}>
-                                        <AddIcon /> <span>Add New Node</span>
+                                        <AddIcon /> <span>Add new {field.name}</span>
                                     </IconButton>
                                     <IconButton className="add-element-existing" onClick={() => {handleListExistingNode(field)}}>
-                                        <AddIcon /> <span>Add from Existing Node</span>
+                                        <AddIcon /> <span>Add {field.name} from Existing Node</span>
                                     </IconButton>
+                                </div>
+                            )}
+
+                            {expandedFields[fieldKey] && (
+                                <div className="image-preview-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    {formValues[fieldKey] && (
+
+                                        <img
+                                            className="image-preview"
+                                            src={`data:${field.mimeType};base64,${formValues[fieldKey]}`}
+                                            alt={name}
+                                            style={{
+                                                maxHeight: '150px',
+                                                width: 'auto',
+                                                objectFit: 'contain',
+                                                marginTop: '10px',
+                                                border: '1px solid #eee'
+                                            }}
+
+                                            onClick={() => {}}
+                                        />
+                                    )}
+
+                                    <label className="add-element" style={{ marginTop: '10px', cursor: 'pointer' }}>
+                                        Upload New Image
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            style={{ display: 'none' }}
+                                            onChange={async (e) => {
+                                                const file = e.target.files[0];
+                                                if (!file) return;
+                                                const reader = new FileReader();
+                                                reader.onloadend = async () => {
+                                                    const base64String = reader.result.split(',')[1];
+                                                    setFormValues(prev => ({
+                                                        ...prev,
+                                                        [fieldKey]: base64String
+                                                    }));
+                                                    setLastChangedField(field);
+                                                };
+                                                reader.readAsDataURL(file);
+                                            }}
+                                        />
+                                    </label>
                                 </div>
                             )}
                         </div>
@@ -323,12 +406,6 @@ const FormPage = () => {
                 renderFields(formFields)) : (<p>No fields available.</p>)}
             </form>
 
-            <div className="save-button-container">
-                <button className="save-button" onClick={handleSaveChanges}>
-                    Save Changes
-                </button>
-            </div>
-
             {showExistingNodeCard && (
                 <div className="overlay">
                     <div className="existing-node-card">
@@ -348,32 +425,35 @@ const FormPage = () => {
                         />
 
                         <div className="node-list">
-                            {existingNodeList
-                                .filter(node =>
-                                node.name.toLowerCase().includes(searchQuery.toLowerCase())
-                            )
-                            .map(node => (
-                                <div
-                                    key={node.id}
-                                    className="node-card-item"
-                                    onClick={() => {
-                                        const fieldKey = createKey(node.id, node.name);
-                                        setSubfieldData(prev => ({
-                                            ...prev,
-                                            [selectedField.id]: [...(prev[selectedField.id] || []), node]
-                                        }));
-                                        setFormValues(prev => ({
-                                            ...prev,
-                                            [fieldKey]: node.value
-                                        }));
-                                        handleAddExistingNode(node);
-                                        setShowExistingNodeCard(false);
-                                    }}
-                                >
-                                    <strong>{node.name}</strong>: {node.value}
-                                </div>
-                            ))}
+                            {loadingExistingNodes ? (
+                                <div className="loading-spinner">Loading nodes...</div>
+                            ) : (
+                                existingNodeList
+                                    .filter(node => node.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                                    .map(node => (
+                                        <div
+                                            key={node.id}
+                                            className="node-card-item"
+                                            onClick={() => {
+                                                const fieldKey = createKey(node.id, node.name);
+                                                setSubfieldData(prev => ({
+                                                    ...prev,
+                                                    [selectedField.id]: [...(prev[selectedField.id] || []), node]
+                                                }));
+                                                setFormValues(prev => ({
+                                                    ...prev,
+                                                    [fieldKey]: node.value
+                                                }));
+                                                handleAddExistingNode(node);
+                                                setShowExistingNodeCard(false);
+                                            }}
+                                        >
+                                            <strong>{node.name}</strong>
+                                        </div>
+                                    ))
+                            )}
                         </div>
+
                     </div>
                 </div>
             )}

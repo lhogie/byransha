@@ -25,9 +25,9 @@ public abstract class ValuedNode<V> extends PersistingNode {
 		return super.toString() + "(value=\"" + get() + "\")";
 	}
 
-	@Override
-	public void forEachOut(BiConsumer<String, BNode> consumer) {
-	}
+//	@Override
+//	public void forEachOut(BiConsumer<String, BNode> consumer) {
+//	}
 
 	public abstract void fromString(String s);
 
