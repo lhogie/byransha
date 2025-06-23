@@ -23,17 +23,8 @@ export const useApiData = (endpoints, params = {}) => {
 export const useApiMutation = (endpoints, options = {}) => {
     return useMutation({
         mutationFn: (data) => {
-            let params = data
-            if (typeof data === 'object') {
-                params = new URLSearchParams();
-                for (const key in data) {
-                    if (data.hasOwnProperty(key)) {
-                        params.append(key, data[key]);
-                    }
-                }
-            }
-
-            return axios.get(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}?${params ? params : ''}`, {
+            console.log(data)
+            return axios.post(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`, data, {
                 withCredentials: true,
             })
         },

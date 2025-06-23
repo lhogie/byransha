@@ -6,7 +6,6 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { useNavigate } from "react-router";
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import AddIcon from '@mui/icons-material/Add';
-import axios from 'axios';
 
 const FormPage = () => {
     const { classForm } = useParams();
@@ -30,7 +29,6 @@ const FormPage = () => {
     const [loadingExistingNodes, setLoadingExistingNodes] = useState(false);
 
 
-
     /* Logic */
 
     // Hooks
@@ -40,18 +38,17 @@ const FormPage = () => {
     const addNode = useApiMutation('add_node', {onSuccess: async (data) => {return data; }});
     const listExistingNode = useApiMutation('list_existing_node', {onSuccess: async (data) => { return data; }});
     const addExistingNode = useApiMutation('add_existing_node', {onSuccess: async (data) => { return data; }});
-    const sleep = (ms => new Promise(resolve => setTimeout(resolve, ms)));
     ////////////////////////////////////////////////////////////////
 
     // Utility functions
     const shortenAndFormatLabel = (label) => {
-            if (!label) return '';
-            const spaced = label
+        if (!label) return '';
+        const spaced = label
             .replace(/([a-z])([A-Z])/g, '$1 $2')
             .replace(/_/g, ' ')
             .trim();
-            return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-        };
+        return spaced.charAt(0).toUpperCase() + spaced.slice(1);
+    };
 
     const stringifyData = useCallback((data, indent = 2) => {
         if (!data) return "";
@@ -66,7 +63,7 @@ const FormPage = () => {
     const handleChangingForm = async(name, id) => {
         if(id === rootId) return console.log("return from handleChangingForm");
         try{
-            await jumpToId.mutateAsync(`node_id=${id}`);
+            await jumpToId.mutateAsync({ node_id: id });
             await navigate(`/add-node/form/${name}`);
             window.location.reload();
         } catch (error) {
@@ -76,18 +73,18 @@ const FormPage = () => {
 
 
     const handleSaveChanges = async (field) => {
-      if (!field) return console.warn("No field provided for saving changes");
-      const fieldKey = createKey(field.id, field.name);
-      let value = formValues[fieldKey];
-      try {
-          const data = await axios.post('https://localhost:8080/api/set_value', {
-          id: field.id,
-          value: value,
-        });
-        console.log("Changes saved successfully:", stringifyData(data, "tab"));
-      } catch (error) {
-        console.error('Error saving changes:', error);
-      }
+        if (!field) return console.warn("No field provided for saving changes");
+        const fieldKey = createKey(field.id, field.name);
+        let value = formValues[fieldKey];
+        try {
+            const data = await setValue.mutateAsync( {
+                id: field.id,
+                value: value,
+            });
+            console.log("Changes saved successfully:", stringifyData(data, "tab"));
+        } catch (error) {
+            console.error('Error saving changes:', error);
+        }
     };
 
 
@@ -96,10 +93,10 @@ const FormPage = () => {
         const isExpanded = expandedFields[fieldName];
         if (isExpanded) {
             setSubfieldData(prev => {
-            const newData = { ...prev };
-            delete newData[nodeId];
-            return newData;
-        });}
+                const newData = { ...prev };
+                delete newData[nodeId];
+                return newData;
+            });}
         else {
             if (!subfieldData[nodeId] && nodeId !== rootId && !loading){
                 setCurrentToggleNodeId(nodeId);
@@ -114,7 +111,7 @@ const FormPage = () => {
     };
 
     const handleNestedField = async (id) => {
-        await jumpToId.mutateAsync(`node_id=${id}`);
+        await jumpToId.mutateAsync({node_id: id});
         try{
             const data = await classAttributeField.mutateAsync();
             //console.log(stringifyData(data, "tab"));
@@ -126,15 +123,15 @@ const FormPage = () => {
             const newValues = {};
             subfields.forEach(field => {
                 if (field.name && field.value !== undefined && field.value !== "null") {
-                const fieldKey = createKey(field.id, field.name);
-                newValues[fieldKey] = field.value;
-            }});
+                    const fieldKey = createKey(field.id, field.name);
+                    newValues[fieldKey] = field.value;
+                }});
 
             setFormValues(prev => ({...prev,...newValues,}));
             setSubfieldData(prev => ({...prev,[lastExpandedNode.current]: subfields,}));
 
         } catch (error) {console.log("Error in wanting to load field:", error);}
-        await jumpToId.mutateAsync({'node_id': rootId});
+        await jumpToId.mutateAsync({node_id: rootId});
     }
 
     const handleAddNewNode = async (field) => {
@@ -144,9 +141,9 @@ const FormPage = () => {
         console.log(stringifyData(field, "tab"));
 
         setCurrentToggleNodeId(id);
-        await jumpToId.mutateAsync(`node_id=${id}`);
+        await jumpToId.mutateAsync({node_id: id});
         try {
-            const data = await addNode.mutateAsync(`BNodeClass=${encodeURIComponent(fullName)}`);
+            const data = await addNode.mutateAsync({BNodeClass: fullName});
             const node = data?.data?.results?.[0]?.result?.data;
             if (!node) return console.warn("No node returned from addNode mutation");
             const parentId = id;
@@ -174,7 +171,7 @@ const FormPage = () => {
         setLoadingExistingNodes(true); // <--- start spinner
 
         const shortName = field.listNodeType.split('.').pop();
-        await jumpToId.mutateAsync(`node_id=${field.id}`);
+        await jumpToId.mutateAsync({node_id: field.id});
 
         try {
             const data = await listExistingNode.mutateAsync({ type: shortName });
@@ -204,9 +201,9 @@ const FormPage = () => {
             const initialFieldData = {};
 
             const allFields =
-            rawApiData?.data?.results?.[0]?.result?.data ||
-            rawApiData?.results?.[0]?.result?.data ||
-            [];
+                rawApiData?.data?.results?.[0]?.result?.data ||
+                rawApiData?.results?.[0]?.result?.data ||
+                [];
 
             allFields.forEach(field => {
                 if (field.name && field.value !== "null" && field.value !== undefined) {
@@ -319,8 +316,8 @@ const FormPage = () => {
                         <div className="nested-fields">
                             {expandedFields[fieldKey] && (
                                 subfieldData[id] ? (
-                                subfieldData[id].length > 0 ? (
-                                renderFields(subfieldData[id], newVisited)) : (<p>No subfields available for this.</p>)) : (<p>Loading subfields or error, please reload...</p>)
+                                    subfieldData[id].length > 0 ? (
+                                        renderFields(subfieldData[id], newVisited)) : (<p>No subfields available for this.</p>)) : (<p>Loading subfields or error, please reload...</p>)
                             )}
 
                             {["ListNode", "SetNode"].includes(type) && expandedFields[fieldKey] && (
@@ -403,7 +400,7 @@ const FormPage = () => {
 
             <form className="form-fields" onSubmit={e => e.preventDefault()}>
                 {formFields.length > 0 ? (
-                renderFields(formFields)) : (<p>No fields available.</p>)}
+                    renderFields(formFields)) : (<p>No fields available.</p>)}
             </form>
 
             {showExistingNodeCard && (

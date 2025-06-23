@@ -63,7 +63,7 @@ const AddNodePage = () => {
       const result = await response.json();
       const data = result.results?.[0]?.result?.data.id;
 
-      await jumpMutation.mutateAsync(`node_id=${encodeURIComponent(data)}`);
+      await jumpMutation.mutateAsync({ node_id: data });
 
     } catch (err) {
       console.error(`Error during handleCreateAndJump for ${fullName}:`, err);

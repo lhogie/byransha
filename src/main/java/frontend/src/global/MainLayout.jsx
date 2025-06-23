@@ -36,7 +36,9 @@ const MainLayout = () => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`node_id=${nodeId}`);
+        jumpMutation.mutate({
+            node_id: nodeId
+        });
     }, []);
 
     const handleViewChange = (event) => {

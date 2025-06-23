@@ -258,6 +258,7 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
                     fit: true,
                     padding: 30,
                 }}
+
                 cy={(cy) => {
                     // Store the Cytoscape instance for potential future use
                     cy.on('tap', 'node', (event) => {
@@ -327,7 +328,7 @@ export const View = ({ viewId, sx }) => {
     });
 
     const jumpToNode = useCallback((nodeId) => {
-        jumpMutation.mutate(`node_id=${nodeId}`);
+        jumpMutation.mutate({node_id: nodeId});
     }, [jumpMutation]);
 
     const debounce = (func, wait) => {
