@@ -251,8 +251,9 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
                 style={{ width: '100%', height: '100%' }}
                 stylesheet={cytoscapeStyles}
                 layout={{
-                    name: 'fcose',
+                    name: 'random',
                     animate: false,
+                    samplingType: false,
                     animationDuration: 1500,
                     fit: true,
                     padding: 30,
