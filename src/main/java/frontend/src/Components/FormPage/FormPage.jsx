@@ -114,7 +114,6 @@ const FormPage = () => {
         await jumpToId.mutateAsync({node_id: id});
         try{
             const data = await classAttributeField.mutateAsync();
-            //console.log(stringifyData(data, "tab"));
             const id = data?.data?.node_id;
             if (id === rootId) return console.log("Same id as the root node, not loading subfields");
             const allFields = data?.data?.results?.[0]?.result?.data || [];
@@ -331,7 +330,7 @@ const FormPage = () => {
                                 </div>
                             )}
 
-                            {expandedFields[fieldKey] && (
+                            {expandedFields[fieldKey] && imageField.includes(type) && (
                                 <div className="image-preview-wrapper" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                                     {formValues[fieldKey] && (
 
