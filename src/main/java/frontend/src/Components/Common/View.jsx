@@ -244,8 +244,6 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         }
     ], []);
 
-    console.log(elements);
-
     return (
         <Box sx={{ height: '100%', minHeight: '600px', width: '100%' }}>
             <CytoscapeComponent
@@ -416,8 +414,6 @@ export const View = ({ viewId, sx }) => {
     const getNetworkData = useCallback((content) => {
         if (!content || !content.nodes) return { nodes: [], links: [] };
 
-        console.log("Original network data:", content);
-
         const uniqueNodesMap = new Map();
 
         // Process nodes
@@ -460,8 +456,6 @@ export const View = ({ viewId, sx }) => {
             nodes: Array.from(uniqueNodesMap.values()),
             links: transformedLinks
         };
-
-        console.log("Processed network data:", processedData);
 
         return processedData;
     }, []);
@@ -529,7 +523,6 @@ export const View = ({ viewId, sx }) => {
                                                 size="small"
                                                 onClick={(e) => {
                                                     e.stopPropagation();
-                                                    console.log(`Edit action triggered for node ${outNode.id} (name: ${outNode.name})`);
                                                     alert(`Edit action for: ${outNode.name} (ID: ${outNode.id}) - Not implemented yet.`);
                                                 }}
                                             >
