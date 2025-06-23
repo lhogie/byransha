@@ -1,3 +1,4 @@
+import Cytoscape from 'cytoscape';
 import React, {useCallback, useEffect, useRef, useState, useMemo, memo, useTransition} from "react";
 import CircularProgress from "@mui/material/CircularProgress";
 import {graphviz} from "d3-graphviz";
@@ -15,6 +16,10 @@ import './View.css'
 import 'react-json-view-lite/dist/index.css'
 import {JsonView, collapseAllNested} from 'react-json-view-lite';
 import { ChromePicker } from 'react-color';
+import CytoscapeComponent from 'react-cytoscapejs';
+import fcose from 'cytoscape-fcose';
+
+Cytoscape.use(fcose);
 
 const exportToCSV = (data, fileName) => {
     const csvRows = [];
@@ -175,49 +180,24 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
         return data;
     }, [data]);
 
-    const option = useMemo(() => ({
-        title: {
-            text: 'Database graph',
-            subtext: 'Default layout',
-            top: 'bottom',
-            left: 'right'
-        },
-        tooltip: {},
-        legend: [{data: processedData.categories ? processedData.categories.map(c => c.name) : []}],
-        animationDuration: 1500,
-        animationEasingUpdate: 'quinticInOut',
-        series: [{
-            type: 'graph',
-            legendHoverLink: false,
-            layout: 'force',
-            data: processedData.nodes.map(node => ({
+    const elements = useMemo(() => (CytoscapeComponent.normalizeElements({
+        nodes: processedData.nodes.map(node => ({
+            data: {
                 id: node.id,
-                name: node.label,
-                symbolSize: node.size || 30,
-                itemStyle: {
-                    color: node.color || '#1f77b4'
-                },
-                label: {show: false},
+                label: node.label,
+                size: node.size || 30,
+                color: node.color || '#1f77b4',
                 x: node.x,
                 y: node.y
-            })),
-            links: processedData.links,
-            categories: processedData.categories,
-            roam: true,
-            label: {
-                position: 'right',
-                formatter: '{b}'
-            },
-            lineStyle: {
-                color: 'source',
-                curveness: 0.3
-            },
-            emphasis: {
-                focus: 'adjacency',
-                lineStyle: {width: 10}
             }
-        }]
-    }), [processedData]);
+        })),
+        edges: processedData.links.map(link => ({
+            data: {
+                source: link.source,
+                target: link.target
+            }
+        }))
+    })), [processedData]);
 
     const onChartClick = useCallback((params) => {
         if (!params) return;
@@ -232,13 +212,77 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
 
     const events = useMemo(() => ({ click: onChartClick }), [onChartClick]);
 
+    // Define styles for nodes and edges
+    const cytoscapeStyles = useMemo(() => [
+        {
+            selector: 'node',
+            style: {
+                'background-color': 'data(color)',
+                'width': 'data(size)',
+                'height': 'data(size)',
+                'text-valign': 'top',
+                'text-halign': 'center',
+                'text-margin-y': -5,
+                'font-size': '12px',
+                'color': '#000000',
+                'text-outline-width': 2,
+                'text-outline-color': '#ffffff',
+                'z-index': 1,
+                // Hide label by default - will be shown on hover via event handlers
+                'label': ''
+            }
+        },
+        {
+            selector: 'edge',
+            style: {
+                'width': 2,
+                'line-color': '#cccccc',
+                'target-arrow-color': '#cccccc',
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
+            }
+        }
+    ], []);
+
+    console.log(elements);
+
     return (
-        <ReactECharts
-            lazyUpdate
-            option={option}
-            style={{ height: '100%', minHeight: '400px', width: '100%' }}
-            onEvents={events}
-        />
+        <Box sx={{ height: '100%', minHeight: '600px', width: '100%' }}>
+            <CytoscapeComponent
+                elements={elements}
+                style={{ width: '100%', height: '100%' }}
+                stylesheet={cytoscapeStyles}
+                layout={{
+                    quality: 'proof',
+                    name: 'fcose',
+                    animate: false,
+                    animationDuration: 1500,
+                    fit: true,
+                    padding: 30,
+                    nodeDimensionsIncludeLabels: true
+                }}
+                cy={(cy) => {
+                    // Store the Cytoscape instance for potential future use
+                    cy.on('tap', 'node', (event) => {
+                        const node = event.target;
+                        if (onNodeClick) {
+                            onNodeClick({ id: node.id() }, event);
+                        }
+                    });
+
+                    // Add hover events to show/hide labels
+                    cy.on('mouseover', 'node', (event) => {
+                        const node = event.target;
+                        node.style('label', node.data('label'));
+                    });
+
+                    cy.on('mouseout', 'node', (event) => {
+                        const node = event.target;
+                        node.style('label', '');
+                    });
+                }}
+            />
+        </Box>
     );
 });
 
@@ -251,14 +295,14 @@ export const View = ({ viewId, sx }) => {
     const supportedExportTypes = ['text/csv', 'image/png', 'image/jpeg', 'application/pdf'];
 
     const [hex, setHex] = useState('#ffffff');
-      const saveColour = useApiMutation('update_colour');
-      const handleHexChange = useCallback(
+    const saveColour = useApiMutation('update_colour');
+    const handleHexChange = useCallback(
         (colour) => {
-          setHex(colour.hex);
-          saveColour.mutate({ view_id: viewId, value: colour.hex });
+            setHex(colour.hex);
+            saveColour.mutate({ view_id: viewId, value: colour.hex });
         },
         [saveColour, viewId]
-      );
+    );
 
     const handleOpenModal = (event) => {
         event.stopPropagation();
@@ -372,12 +416,23 @@ export const View = ({ viewId, sx }) => {
     const getNetworkData = useCallback((content) => {
         if (!content || !content.nodes) return { nodes: [], links: [] };
 
+        console.log("Original network data:", content);
+
         const uniqueNodesMap = new Map();
 
+        // Process nodes
         content.nodes.forEach(node => {
+            // Ensure node has an id, fallback to label if id is missing
+            const nodeId = node.id || node.label;
+
             const transformedNode = {
                 ...node,
-                id: node.label
+                id: nodeId,
+                // Ensure label exists
+                label: node.label || nodeId,
+                // Add default size and color if not present
+                size: node.size || 30,
+                color: node.color || '#1f77b4'
             };
 
             if (!uniqueNodesMap.has(transformedNode.id)) {
@@ -385,16 +440,30 @@ export const View = ({ viewId, sx }) => {
             }
         });
 
-        const transformedLinks = content.links.map(link => ({
-            ...link,
-            target: link.target.label,
-            source: link.source.label,
-        }));
+        // Process links
+        const transformedLinks = content.links.map(link => {
+            // Handle both object references and direct string references
+            const sourceId = typeof link.source === 'object' ? 
+                (link.source.id || link.source.label) : link.source;
 
-        return {
+            const targetId = typeof link.target === 'object' ? 
+                (link.target.id || link.target.label) : link.target;
+
+            return {
+                ...link,
+                source: sourceId,
+                target: targetId
+            };
+        });
+
+        const processedData = {
             nodes: Array.from(uniqueNodesMap.values()),
             links: transformedLinks
         };
+
+        console.log("Processed network data:", processedData);
+
+        return processedData;
     }, []);
 
     const handleNodeClick = useCallback((node, event) => {
@@ -632,15 +701,15 @@ export const View = ({ viewId, sx }) => {
                 </div>
             );
         } else if (contentType === 'text/hex') {
-          return (
-            <div className="content-container" style={{ background: backgroundColor }}>
-              <ChromePicker
-                color={hex}
-                disableAlpha
-                onChangeComplete={handleHexChange}
-              />
-            </div>
-          );
+            return (
+                <div className="content-container" style={{ background: backgroundColor }}>
+                    <ChromePicker
+                        color={hex}
+                        disableAlpha
+                        onChangeComplete={handleHexChange}
+                    />
+                </div>
+            );
         } else {
             return (
                 <div className="error-message">
