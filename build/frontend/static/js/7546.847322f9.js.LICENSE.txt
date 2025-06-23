@@ -8,6 +8,20 @@
 * https://github.com/ecomfe/zrender/blob/master/LICENSE.txt
 */
 
+/*!
+Embeddable Minimum Strictly-Compliant Promises/A+ 1.1.1 Thenable
+Copyright (c) 2013-2014 Ralf S. Engelschall (http://engelschall.com)
+Licensed under The MIT License (http://opensource.org/licenses/MIT)
+*/
+
+/*!
+Event object based on jQuery events, MIT license
+
+https://jquery.org/license/
+https://tldrlegal.com/license/mit-license
+https://github.com/jquery/jquery/blob/master/src/event.js
+*/
+
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation.
 
@@ -22,6 +36,10 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
+
+/*! Bezier curve function generator. Copyright Gaetan Renaudeau. MIT License: http://en.wikipedia.org/wiki/MIT_License */
+
+/*! Runge-Kutta spring physics function generator. Adapted from Framer.js, copyright Koen Bok. MIT License: http://en.wikipedia.org/wiki/MIT_License */
 
 /**
  * @license
@@ -240,7 +258,7 @@ PERFORMANCE OF THIS SOFTWARE.
  */
 
 /**
- * @mui/styled-engine v7.0.2
+ * @mui/styled-engine v7.1.1
  *
  * @license MIT
  * This source code is licensed under the MIT license found in the
