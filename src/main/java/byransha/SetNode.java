@@ -1,10 +1,12 @@
 package byransha;
 
+import javassist.bytecode.analysis.SubroutineScanner;
+
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
-public class SetNode<N extends BNode> extends BNode {
+public class SetNode<N extends BNode> extends PersistingNode {
 
 	@Override
 	public String whatIsThis() {
@@ -28,18 +30,19 @@ public class SetNode<N extends BNode> extends BNode {
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
-		if(l == null) {
-			return;
-		}
-		for (var e : l) {
+		int i = 0;
+		for (N e : l) {
 			if (e != null) {
-				consumer.accept("" + e.id(), e);
+				consumer.accept(i++ + ". " + e.prettyName(), e);
+			} else {
+				i++;
 			}
 		}
 	}
 
 	public void add(N n) {
 		l.add(n);
+		this.save(f -> {});
 	}
 
 	public void remove(N p) {

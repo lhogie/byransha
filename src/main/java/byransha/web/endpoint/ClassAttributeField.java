@@ -57,7 +57,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             }
 
             System.out.println("Processing out node: " + out.getClass().getSimpleName() + " with name: " + name);
-            if (out instanceof ListNode<?> listNode) {
+            if (out instanceof ListNode<?> || out instanceof SetNode<?>) {
                 try {
                     Field field = findField(node.getClass(), name);
                     var genericType = field.getGenericType();

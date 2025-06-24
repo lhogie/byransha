@@ -44,9 +44,13 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (currentNode instanceof ListNode<?> listNode) {
                 @SuppressWarnings("unchecked")
                 ListNode<N> typedListNode = (ListNode<N>) listNode;
-                a.put("size before adding node", new IntNode(typedListNode.size()));
                 typedListNode.add((N) existingNode);
-                a.put("size after adding node", new IntNode(typedListNode.size()));
+            }
+
+            if(currentNode instanceof SetNode<?> setNode) {
+                @SuppressWarnings("unchecked")
+                SetNode<N> typedSetNode = (SetNode<N>) setNode;
+                typedSetNode.add((N) existingNode);
             }
         }
 

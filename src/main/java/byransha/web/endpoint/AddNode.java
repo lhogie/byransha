@@ -49,6 +49,12 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
                 typedListNode.add(node);
             }
 
+            if(currentNode instanceof SetNode<?> setNode) {
+                @SuppressWarnings("unchecked")
+                SetNode<N> typedSetNode = (SetNode<N>) setNode;
+                typedSetNode.add(node);
+            }
+
         } else {
             return new EndpointJsonResponse(null, "Failed to create node of class: " + className);
         }
