@@ -31,8 +31,6 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
         a.put("id of the list to link", new IntNode(currentNode.id()));
         a.put("id of the thing we link", new IntNode(idToLink));
 
-
-
         var existingNode = graph.findByID(idToLink);
         if (existingNode == null) {
             return new EndpointJsonResponse(a, "Node with ID " + idToLink + " does not exist in the graph.");
@@ -56,7 +54,7 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             if(currentNode instanceof DropdownNode<?> dropdownNode) {
                 @SuppressWarnings("unchecked")
                 DropdownNode<N> typedDropdownNode = (DropdownNode<N>) dropdownNode;
-                typedDropdownNode.setValue((N) existingNode);
+                typedDropdownNode.set((N) existingNode);
             }
         }
 

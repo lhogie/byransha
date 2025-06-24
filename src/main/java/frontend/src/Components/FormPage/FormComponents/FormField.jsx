@@ -1,5 +1,14 @@
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {Box, Button, CircularProgress, FormControl, Grid, IconButton, InputAdornment, Typography} from '@mui/material';
+import {
+    Autocomplete,
+    Box,
+    Button,
+    CircularProgress,
+    FormControl,
+    Grid,
+    IconButton,
+    Typography
+} from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import TextFormField from './TextFormField';
@@ -10,13 +19,15 @@ import {useDebouncedCallback} from "use-debounce";
 import {
     checkboxField,
     createKey,
-    dateField,
+    dateField, dropdownField,
     imageField,
     inputTextField,
     shortenAndFormatLabel, typeComponent
 } from "../../../utils/utils.js";
 import dayjs from "dayjs";
 import {useApiMutation} from "../../../hooks/useApiData.js";
+import TextField from '@mui/material/TextField';
+import DropdownField from "./DropdownField.jsx";
 
 const FormField = ({
                        field,
@@ -27,9 +38,13 @@ const FormField = ({
                        defaultValue = '', // Default value for the field
                    }) => {
     const { id, name, type } = field;
-    const [value, setValue] = useState(defaultValue);
+    const [value, setValue] = useState(dropdownField.includes(type) ? {
+        label: defaultValue,
+        value: defaultValue.split('@')[1]
+    } : defaultValue);
 
     const setValueMutation = useApiMutation('set_value');
+    const addExistingNodeMutation = useApiMutation('add_existing_node');
 
     const validateFieldValue = (type, value) => {
         // If value is null or undefined, it's valid (empty is allowed)
@@ -81,11 +96,34 @@ const FormField = ({
         }
     }, 500, { maxWait: 2000 });
 
+    const handleSaveDropdownChanges = useDebouncedCallback(async (field, value) => {
+        if (!field) return console.warn("No field provided for saving changes");
+        const isValid = validateFieldValue(field.type, value);
+        if (!isValid) {
+            console.warn(`Invalid value for ${field.name} (${field.type}): ${value}`);
+            return;
+        }
+
+        try {
+            const data = await addExistingNodeMutation.mutateAsync({
+                node_id: field.id,
+                id: value,
+            });
+        } catch (error) {
+            console.error('Error saving changes:', error);
+        }
+    })
+
     // Memoize handlers to prevent recreating functions on each render
     const handleValueChange = useCallback((value) => {
         handleSaveChanges(field);
         setValue(value);
     }, [fieldKey, field]);
+
+    const handleDropdownValueChange = useCallback((value) => {
+        handleSaveDropdownChanges(field, value?.value);
+        setValue(value);
+    })
 
     const handleChangingForm = useCallback(() => {
         onChangingForm(name, id);
@@ -138,6 +176,7 @@ const FormField = ({
                             fieldKey={fieldKey}
                             value={value}
                             onChange={handleValueChange}
+                            size="small"
                         />
                     )}
 
@@ -146,6 +185,7 @@ const FormField = ({
                             fieldKey={fieldKey}
                             value={value}
                             onChange={handleValueChange}
+                            size="small"
                         />
                     )}
 
@@ -154,6 +194,7 @@ const FormField = ({
                             fieldKey={fieldKey}
                             value={value}
                             onChange={handleValueChange}
+                            size="small"
                         />
                     )}
 
@@ -163,6 +204,18 @@ const FormField = ({
                             fieldKey={fieldKey}
                             value={value}
                             onChange={handleValueChange}
+                            size="small"
+                        />
+                    )}
+
+                    {dropdownField.includes(type) && (
+                        <DropdownField
+                            field={field}
+                            fieldKey={fieldKey}
+                            value={value}
+                            onChange={handleDropdownValueChange}
+                            size="small"
+                            defaultValue={defaultValue}
                         />
                     )}
                 </Grid>

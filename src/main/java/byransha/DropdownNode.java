@@ -2,7 +2,7 @@ package byransha;
 
 import java.util.function.BiConsumer;
 
-public class DropdownNode<N extends BNode> extends PersistingNode{
+public class DropdownNode<N extends BNode> extends ValuedNode<N>{
 
     public N value;
 
@@ -12,6 +12,23 @@ public class DropdownNode<N extends BNode> extends PersistingNode{
 
     public DropdownNode(BBGraph db, int id) {
         super(db, id);
+    }
+
+    @Override
+    public void fromString(String s) {
+        if (s == null || s.isEmpty()) {
+            value = null;
+        } else {
+            var v = graph.findByID(Integer.parseInt(s));
+            if (v == null) {
+                throw new IllegalArgumentException("No node found with ID: " + s);
+            }
+            if (!(v instanceof BNode)) {
+                throw new IllegalArgumentException("Node with ID " + s + " is not a valid BNode");
+            }
+
+            value = (N) v;
+        }
     }
 
     @Override
@@ -30,14 +47,4 @@ public class DropdownNode<N extends BNode> extends PersistingNode{
             consumer.accept("Selected Value", value);
         }
     }
-
-    public void setValue(N value) {
-        this.value = value;
-        this.save(f -> {});
-    }
-
-    public N getValue() {
-        return value;
-    }
-
 }

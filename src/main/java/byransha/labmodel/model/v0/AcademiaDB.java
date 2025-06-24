@@ -83,7 +83,7 @@ public class AcademiaDB extends BBGraph {
 			p.etatCivil.firstName.set(l.set(3, null));
 			p.etatCivil.birthDate.set(l.set(4, null));
 			p.etatCivil.cityOfBirth.set(l.set(5, null));
-			p.etatCivil.countryOfBirth.set(l.set(6, null));
+			//p.etatCivil.countryOfBirth.set(l.set(6, null));
 			p.etatCivil.nationality.set(l.set(7, null));
 			p.etatCivil.address.set(l.set(8, null));
 			var inter = BNode.create(graph, StringNode.class);

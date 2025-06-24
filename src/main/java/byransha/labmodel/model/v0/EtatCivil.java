@@ -8,8 +8,8 @@ public class EtatCivil extends BusinessNode {
 	public StringNode familyNameBeforeMariage;
 	public DateNode birthDate;
 	public StringNode cityOfBirth;
-	public DropdownNode<StringNode> nationality;
-	public StringNode countryOfBirth;
+	public StringNode nationality;
+	public DropdownNode<Country> countryOfBirth;
 	public StringNode address;
 
 	public EtatCivil(BBGraph g) {
@@ -19,8 +19,8 @@ public class EtatCivil extends BusinessNode {
 		familyNameBeforeMariage = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		birthDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
 		cityOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		nationality = BNode.create(g, DropdownNode.class); // new StringNode(g, null);
-		countryOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		nationality = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		countryOfBirth = BNode.create(g, DropdownNode.class); // new StringNode(g, null);
 		address = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		this.color = "green";
 	}

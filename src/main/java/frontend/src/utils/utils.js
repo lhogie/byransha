@@ -20,4 +20,5 @@ export const inputTextField = ["StringNode", "EmailNode", "PhoneNumberNode", "In
 export const checkboxField =  ["BooleanNode"];
 export const dateField = ["DateNode"];
 export const imageField =  ["ImageNode"];
-export const typeComponent = [...inputTextField, ...checkboxField, ...dateField];
+export const dropdownField = ["DropdownNode"];
+export const typeComponent = [...inputTextField, ...checkboxField, ...dateField, ...dropdownField];

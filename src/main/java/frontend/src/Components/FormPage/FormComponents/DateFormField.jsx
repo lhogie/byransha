@@ -11,6 +11,11 @@ const DateFormField = ({ fieldKey, value, onFocus, onChange, ...rest }) => {
             onFocus={onFocus}
             sx={{ width: '100%' }}
             {...rest}
+            slotProps={{
+                textField: {
+                    size: 'small'
+                }
+            }}
         />
     );
 };

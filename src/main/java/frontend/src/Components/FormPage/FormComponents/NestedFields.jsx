@@ -116,7 +116,7 @@ const NestedFields = ({
         const shortName = field.listNodeType.split('.').pop();
 
         try {
-            const data = await listExistingNode.mutateAsync({ type: shortName, node_id: id });
+            const data = await listExistingNode.mutateAsync({ type: shortName });
             const result = data?.data?.results?.[0]?.result?.data || [];
             setExistingNodeList(result);
         } catch (error) {
@@ -192,9 +192,6 @@ const NestedFields = ({
             if (visited.has(id)) {
                 return <Typography key={`cycle-${id}`} color="error">Circular reference detected for {name}</Typography>;
             }
-
-            const newVisited = new Set(visited);
-            newVisited.add(id);
 
             const isFieldExpanded = expandedFields[subFieldKey] || false;
 
