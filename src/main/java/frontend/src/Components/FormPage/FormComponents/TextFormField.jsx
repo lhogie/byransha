@@ -1,7 +1,7 @@
 import React from 'react';
 import {CircularProgress, InputAdornment, TextField} from '@mui/material';
 
-const TextFormField = ({ field, fieldKey, value, onFocus, onChange, ...rest }) => {
+const TextFormField = ({ field, fieldKey, value, onFocus, onChange, error, helperText, ...rest }) => {
     const getInputType = (type) => {
         switch (type) {
             case "EmailNode": return "email";
@@ -20,6 +20,8 @@ const TextFormField = ({ field, fieldKey, value, onFocus, onChange, ...rest }) =
             value={value || ""}
             onFocus={onFocus}
             onChange={(e) => onChange(e.target.value)}
+            error={error}
+            helperText={helperText}
             {...rest}
         />
     );

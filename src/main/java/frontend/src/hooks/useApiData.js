@@ -24,7 +24,6 @@ export const useApiData = (endpoints, params = {}, querySettings = {}) => {
 export const useApiMutation = (endpoints, options = {}) => {
     return useMutation({
         mutationFn: (data) => {
-            console.log(data)
             return axios.post(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`, data, {
                 withCredentials: true,
             })

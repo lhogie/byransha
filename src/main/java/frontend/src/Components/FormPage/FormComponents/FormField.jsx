@@ -5,6 +5,7 @@ import {
     Button,
     CircularProgress,
     FormControl,
+    FormHelperText,
     Grid,
     IconButton,
     Typography
@@ -42,9 +43,26 @@ const FormField = ({
         label: defaultValue,
         value: defaultValue.split('@')[1]
     } : defaultValue);
+    const [error, setError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const setValueMutation = useApiMutation('set_value');
     const addExistingNodeMutation = useApiMutation('add_existing_node');
+
+    const getErrorMessage = (type, value) => {
+        switch (type) {
+            case 'EmailNode':
+                return 'Please enter a valid email address';
+            case 'IntNode':
+                return 'Please enter a valid integer';
+            case 'PhoneNumberNode':
+                return 'Please enter a valid phone number (digits only)';
+            case 'DateNode':
+                return 'Please enter a valid date';
+            default:
+                return 'Invalid value';
+        }
+    };
 
     const validateFieldValue = (type, value) => {
         // If value is null or undefined, it's valid (empty is allowed)
@@ -54,36 +72,51 @@ const FormField = ({
         if (typeof value === 'string' && value.trim() === '') return true;
 
         // Validate based on field type
+        let isValid = true;
         switch (type) {
             case 'EmailNode':
                 // Email validation using regex pattern from EmailNode.java
                 const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-                return emailRegex.test(value);
+                isValid = emailRegex.test(value);
+                break;
 
             case 'IntNode':
                 // Check if value is a valid integer
-                return /^-?\d+$/.test(value);
+                isValid = /^-?\d+$/.test(value);
+                break;
 
             case 'PhoneNumberNode':
                 // Check if value is a valid phone number (digits only)
-                return /^\d+$/.test(value);
+                isValid = /^\d+$/.test(value);
+                break;
 
             case 'DateNode':
                 // Check if value is a valid dayjs date object
-                return dayjs(value).isValid();
+                isValid = dayjs(value).isValid();
+                break;
 
             default:
                 // For other field types, consider them valid
-                return true;
+                isValid = true;
+                break;
         }
+
+        return isValid;
     };
 
     const handleSaveChanges = useDebouncedCallback(async (field) => {
         if (!field) return console.warn("No field provided for saving changes");
         const isValid = validateFieldValue(field.type, value);
+
+        // Update error state based on validation result
+        setError(!isValid);
         if (!isValid) {
+            const message = getErrorMessage(field.type, value);
+            setErrorMessage(message);
             console.warn(`Invalid value for ${field.name} (${field.type}): ${value}`);
             return;
+        } else {
+            setErrorMessage('');
         }
 
         try {
@@ -93,15 +126,24 @@ const FormField = ({
             });
         } catch (error) {
             console.error('Error saving changes:', error);
+            setError(true);
+            setErrorMessage('Error saving changes: ' + error.message);
         }
     }, 500, { maxWait: 2000 });
 
     const handleSaveDropdownChanges = useDebouncedCallback(async (field, value) => {
         if (!field) return console.warn("No field provided for saving changes");
         const isValid = validateFieldValue(field.type, value);
+
+        // Update error state based on validation result
+        setError(!isValid);
         if (!isValid) {
+            const message = getErrorMessage(field.type, value);
+            setErrorMessage(message);
             console.warn(`Invalid value for ${field.name} (${field.type}): ${value}`);
             return;
+        } else {
+            setErrorMessage('');
         }
 
         try {
@@ -111,16 +153,36 @@ const FormField = ({
             });
         } catch (error) {
             console.error('Error saving changes:', error);
+            setError(true);
+            setErrorMessage('Error saving changes: ' + error.message);
         }
     })
 
     // Memoize handlers to prevent recreating functions on each render
     const handleValueChange = useCallback((value) => {
+        // Validate immediately for user feedback
+        const isValid = validateFieldValue(field.type, value);
+        setError(!isValid);
+        if (!isValid) {
+            setErrorMessage(getErrorMessage(field.type, value));
+        } else {
+            setErrorMessage('');
+        }
+
         handleSaveChanges(field);
         setValue(value);
     }, [fieldKey, field]);
 
     const handleDropdownValueChange = useCallback((value) => {
+        // Validate immediately for user feedback
+        const isValid = validateFieldValue(field.type, value?.value);
+        setError(!isValid);
+        if (!isValid) {
+            setErrorMessage(getErrorMessage(field.type, value?.value));
+        } else {
+            setErrorMessage('');
+        }
+
         handleSaveDropdownChanges(field, value?.value);
         setValue(value);
     })
@@ -177,6 +239,8 @@ const FormField = ({
                             value={value}
                             onChange={handleValueChange}
                             size="small"
+                            error={error}
+                            helperText={error ? errorMessage : ''}
                         />
                     )}
 
@@ -186,6 +250,8 @@ const FormField = ({
                             value={value}
                             onChange={handleValueChange}
                             size="small"
+                            error={error}
+                            helperText={error ? errorMessage : ''}
                         />
                     )}
 
@@ -216,6 +282,8 @@ const FormField = ({
                             onChange={handleDropdownValueChange}
                             size="small"
                             defaultValue={defaultValue}
+                            error={error}
+                            helperText={error ? errorMessage : ''}
                         />
                     )}
                 </Grid>
