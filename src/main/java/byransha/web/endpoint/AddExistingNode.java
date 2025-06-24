@@ -52,6 +52,12 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
                 SetNode<N> typedSetNode = (SetNode<N>) setNode;
                 typedSetNode.add((N) existingNode);
             }
+
+            if(currentNode instanceof DropdownNode<?> dropdownNode) {
+                @SuppressWarnings("unchecked")
+                DropdownNode<N> typedDropdownNode = (DropdownNode<N>) dropdownNode;
+                typedDropdownNode.setValue((N) existingNode);
+            }
         }
 
         return new EndpointJsonResponse(a, "Add_existing_node call executed successfully");

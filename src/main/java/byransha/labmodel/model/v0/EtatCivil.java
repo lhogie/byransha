@@ -1,9 +1,6 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.DateNode;
-import byransha.StringNode;
+import byransha.*;
 
 public class EtatCivil extends BusinessNode {
 	public StringNode firstName;
@@ -11,7 +8,7 @@ public class EtatCivil extends BusinessNode {
 	public StringNode familyNameBeforeMariage;
 	public DateNode birthDate;
 	public StringNode cityOfBirth;
-	public StringNode nationality;
+	public DropdownNode<StringNode> nationality;
 	public StringNode countryOfBirth;
 	public StringNode address;
 
@@ -22,7 +19,7 @@ public class EtatCivil extends BusinessNode {
 		familyNameBeforeMariage = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		birthDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
 		cityOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		nationality = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		nationality = BNode.create(g, DropdownNode.class); // new StringNode(g, null);
 		countryOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		address = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		this.color = "green";
