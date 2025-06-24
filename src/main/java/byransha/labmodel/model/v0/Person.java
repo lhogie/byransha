@@ -1,16 +1,10 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.BooleanNode;
-import byransha.EmailNode;
-import byransha.ImageNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import byransha.*;
 
 public class Person extends BusinessNode {
 	public EtatCivil etatCivil;
-	public ListNode<Position> positions;
+	public SetNode<Position> positions;
 	public ImageNode pics;
 	public BooleanNode hdr;
 
@@ -18,12 +12,12 @@ public class Person extends BusinessNode {
 	public StringNode website;
 	public StringNode faxNumber;
 	public ResearchGroup researchGroup;
-	public StringNode phdDate;
+	public DateNode phdDate;
 
-	public ListNode<StringNode> phoneNumbers;
-	protected ListNode<EmailNode> emailAddresses;
-	public ListNode<Office> offices;
-	protected ListNode<ACMClassifier> topics;
+	public SetNode<StringNode> phoneNumbers;
+	protected SetNode<EmailNode> emailAddresses;
+	public SetNode<Office> offices;
+	protected SetNode<ACMClassifier> topics;
 	public StringNode quotite;
 
 	public Position position;
@@ -50,7 +44,7 @@ public class Person extends BusinessNode {
 		super(g);
 
 		etatCivil = BNode.create(g, EtatCivil.class); // new EtatCivil(g);
-		positions = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		positions = BNode.create(g, SetNode.class); // new ListNode<>(g);
 		pics = BNode.create(g, ImageNode.class); // new ImageNode(g);
 
 		hdr = BNode.create(g, BooleanNode.class); // new BooleanNode(g);
@@ -58,11 +52,11 @@ public class Person extends BusinessNode {
 		badgeNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		website = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		faxNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		phdDate = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		phdDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
 
-		phoneNumbers = BNode.create(g, ListNode.class); // new ListNode<>(g);
-		emailAddresses = BNode.create(g, ListNode.class); // new ListNode<>(g);
-		offices = BNode.create(g, ListNode.class); // new ListNode<>(g);
+		phoneNumbers = BNode.create(g, SetNode.class); // new ListNode<>(g);
+		emailAddresses = BNode.create(g, SetNode.class); // new ListNode<>(g);
+		offices = BNode.create(g, SetNode.class); // new ListNode<>(g);
 	}
 
 	public Person(BBGraph g, int id) {

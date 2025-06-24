@@ -52,7 +52,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             b.set("name", new TextNode(name));
             b.set("type", new TextNode(out.getClass().getSimpleName()));
             if (out instanceof ValuedNode<?> vn) {
-                b.set("value", new TextNode(vn.getAsString()));
+                b.set("value", vn.get() == null ? new TextNode("") : new TextNode(vn.getAsString()));
                 b.set("mimeType", new TextNode(vn.getMimeType()));
             }
 

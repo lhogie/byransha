@@ -5,13 +5,13 @@ import byransha.*;
 public class Agent extends BusinessNode {
 
     public EtatCivil etatCivil;
-    public ListNode<Position> positions;
+    public SetNode<Position> positions;
     public IntNode badgeNumber;
     public ResearchGroup researchGroup;
 
-    public ListNode<PhoneNumberNode> phoneNumbers;
-    public ListNode<EmailNode> emailAddresses;
-    public ListNode<Office> offices;
+    public SetNode<PhoneNumberNode> phoneNumbers;
+    public SetNode<EmailNode> emailAddresses;
+    public SetNode<Office> offices;
 
     public ImageNode pic;
     public ListNode<ImageNode> listPics;
@@ -20,12 +20,12 @@ public class Agent extends BusinessNode {
         super(g);
 
         etatCivil = BNode.create(g, EtatCivil.class);
-        positions = BNode.create(g, ListNode.class);
+        positions = BNode.create(g, SetNode.class);
         badgeNumber = BNode.create(g, IntNode.class);
         researchGroup = BNode.create(g, ResearchGroup.class);
-        phoneNumbers = BNode.create(g, ListNode.class);
-        emailAddresses = BNode.create(g, ListNode.class);
-        offices = BNode.create(g, ListNode.class);
+        phoneNumbers = BNode.create(g, SetNode.class);
+        emailAddresses = BNode.create(g, SetNode.class);
+        offices = BNode.create(g, SetNode.class);
 
         pic = BNode.create(g, ImageNode.class);
         listPics = BNode.create(g, ListNode.class);

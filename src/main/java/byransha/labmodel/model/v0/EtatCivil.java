@@ -2,13 +2,14 @@ package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
 import byransha.BNode;
+import byransha.DateNode;
 import byransha.StringNode;
 
 public class EtatCivil extends BusinessNode {
 	public StringNode firstName;
 	public StringNode name;
 	public StringNode familyNameBeforeMariage;
-	public StringNode birthDate;
+	public DateNode birthDate;
 	public StringNode cityOfBirth;
 	public StringNode nationality;
 	public StringNode countryOfBirth;
@@ -19,7 +20,7 @@ public class EtatCivil extends BusinessNode {
 		firstName = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		name = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		familyNameBeforeMariage = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		birthDate = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		birthDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
 		cityOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		nationality = BNode.create(g, StringNode.class); // new StringNode(g, null);
 		countryOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);

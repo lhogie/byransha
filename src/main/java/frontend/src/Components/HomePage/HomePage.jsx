@@ -161,7 +161,7 @@ const HomePage = () => {
         const handleResize = () => setColumns(getAutoColumnCount());
 
         window.addEventListener('resize', handleResize);
-        handleResize(); // Initialize on mount
+        handleResize();
 
         return () => window.removeEventListener('resize', handleResize);
     }, []);

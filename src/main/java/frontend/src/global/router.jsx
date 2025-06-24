@@ -7,7 +7,7 @@ import InformationPage from "../Components/InformationPage/InformationPage";
 import React from "react";
 import AddNodePage from "../Components/AddNode/AddNodePage";
 import FormPage from "../Components/FormPage/FormPage";
-import Utils from "../Utils/Utils";
+import Utils from "../utils/utils.js";
 
 export const router = createBrowserRouter([
     {
