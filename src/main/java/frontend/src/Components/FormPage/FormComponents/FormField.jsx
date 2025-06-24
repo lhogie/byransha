@@ -105,7 +105,10 @@ const FormField = ({
         <Box key={fieldKey} className="form-field-wrapper" sx={{ p: 1 }}>
             <Grid container className="form-field" spacing={2} alignItems="center">
                 <Grid size={{ xs: 12, sm: 4 }}>
-                    <FormControl component="fieldset">
+                    <FormControl component="fieldset" sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                    }}>
                         <Button
                             variant="text"
                             color="primary"
@@ -115,6 +118,16 @@ const FormField = ({
                         >
                             <Typography fontWeight="medium">{shortenAndFormatLabel(name)}</Typography>
                         </Button>
+                        {!typeComponent.includes(type) && (
+                            <Box className="toggle-wrapper" textAlign="right">
+                                <IconButton
+                                    onClick={handleToggleField}
+                                    size="small"
+                                >
+                                    {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                </IconButton>
+                            </Box>
+                        )}
                     </FormControl>
                 </Grid>
 
@@ -151,19 +164,6 @@ const FormField = ({
                             value={value}
                             onChange={handleValueChange}
                         />
-                    )}
-                </Grid>
-
-                <Grid size={{ xs: 12, sm: 2 }}>
-                    {!typeComponent.includes(type) && (
-                        <Box className="toggle-wrapper" textAlign="right">
-                            <IconButton
-                                onClick={handleToggleField}
-                                size="small"
-                            >
-                                {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                            </IconButton>
-                        </Box>
                     )}
                 </Grid>
             </Grid>
