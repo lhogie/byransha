@@ -2,8 +2,11 @@ package byransha;
 
 public class BooleanNode extends ValuedNode<Boolean> {
 
+	public String name = "boolean";
+
 	public BooleanNode(BBGraph db) {
 		super(db);
+		set(false);
 	}
 
 	public BooleanNode(BBGraph db, int id) {
@@ -12,7 +15,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String prettyName() {
-		return "boolean: " + get();
+		return  name + " : ";
 	}
 
 	@Override
@@ -22,6 +25,10 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String whatIsThis() {
-		return "a boolean";
+		return "a boolean with name : " + name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }
