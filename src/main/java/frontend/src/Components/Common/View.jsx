@@ -251,14 +251,13 @@ const MemoizedNetworkChart = memo(({ data, onNodeClick }) => {
                 style={{ width: '100%', height: '100%' }}
                 stylesheet={cytoscapeStyles}
                 layout={{
-                    name: 'random',
+                    name: processedData.nodes.length > 1000 ? 'random' : 'fcose',
                     animate: false,
                     samplingType: false,
                     animationDuration: 1500,
                     fit: true,
                     padding: 30,
                 }}
-
                 cy={(cy) => {
                     // Store the Cytoscape instance for potential future use
                     cy.on('tap', 'node', (event) => {
