@@ -9,6 +9,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { frFR as corefrFR } from '@mui/material/locale';
 import { frFR } from '@mui/x-date-pickers/locales';
 import 'dayjs/locale/fr'
+import {Toaster} from "react-hot-toast";
 
 const theme = createTheme({
         cssVariables: true,
@@ -36,7 +37,8 @@ export default function App() {
         }));
 
     return <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="fr">
-        <ReactRouterAppProvider
+        <Toaster />
+        <   ReactRouterAppProvider
             navigation={NAVIGATION}
             theme={theme}
             branding={{

@@ -29,6 +29,7 @@ import dayjs from "dayjs";
 import {useApiMutation} from "../../../hooks/useApiData.js";
 import TextField from '@mui/material/TextField';
 import DropdownField from "./DropdownField.jsx";
+import toast from "react-hot-toast";
 
 const FormField = ({
                        field,
@@ -120,9 +121,13 @@ const FormField = ({
         }
 
         try {
-            const data = await setValueMutation.mutateAsync( {
+            await toast.promise(setValueMutation.mutateAsync({
                 id: field.id,
                 value: value,
+            }), {
+                loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
+                success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
+                error: `Erreur lors de l'enregistrement des changements pour ${shortenAndFormatLabel(field.name)}`,
             });
         } catch (error) {
             console.error('Error saving changes:', error);
@@ -147,9 +152,13 @@ const FormField = ({
         }
 
         try {
-            const data = await addExistingNodeMutation.mutateAsync({
+            await toast.promise(addExistingNodeMutation.mutateAsync({
                 node_id: field.id,
                 id: value,
+            }), {
+                loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
+                success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
+                error: `Erreur lors de l'enregistrement des changements pour ${shortenAndFormatLabel(field.name)}`,
             });
         } catch (error) {
             console.error('Error saving changes:', error);
