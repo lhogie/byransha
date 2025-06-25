@@ -83,7 +83,7 @@ const FormField = ({
                         }]
                     })
                     await queryClient.invalidateQueries({
-                        queryKey: ['apiData', 'show_out', {}]
+                        queryKey: ['apiData', 'class_attribute_field', {}]
                     })
                 }
             }), {
@@ -125,7 +125,7 @@ const FormField = ({
                         }]
                     })
                     await queryClient.invalidateQueries({
-                        queryKey: ['apiData', 'show_out', {}]
+                        queryKey: ['apiData', 'class_attribute_field', {}]
                     })
                 }
             }), {
