@@ -18,7 +18,7 @@ const NestedFields = ({
                           isToggle = false,
                       }) => {
     const { data: rawApiData, isLoading: loading, error, refetch } = useApiData(`class_attribute_field`, {
-        node_id: field.id
+        node_id: typeof field.id === 'string' ? Number.parseInt(field.id) : field.id,
     }, {
         enabled: isToggle || isRoot,
     });
@@ -181,7 +181,7 @@ const NestedFields = ({
 
 
     // Memoize the renderFields function to prevent recreation on every render
-    const renderFields = useCallback((fields, visited = new Set()) => {
+    const renderFields = useCallback((parentId, fields, visited = new Set()) => {
         if (!fields || !Array.isArray(fields)) return null;
 
         return fields.map(subField => {
@@ -204,6 +204,7 @@ const NestedFields = ({
                         onToggleField={toggleField}
                         onChangingForm={handleChangingForm}
                         defaultValue={ subField.value }
+                        parentId={parentId}
                     />
 
                     {!typeComponent.includes(type) && (
@@ -233,13 +234,13 @@ const NestedFields = ({
                 isRoot ? (
                     <Box component="form" className="form-fields" onSubmit={e => e.preventDefault()} sx={{ mt: 3 }}>
                         {subfieldData.length > 0 ? (
-                            renderFields(subfieldData)) : (<Typography>No fields available.</Typography>)}
+                            renderFields(field.id, subfieldData)) : (<Typography>No fields available.</Typography>)}
                     </Box>
                 ) : (
                     <Box className="nested-fields" sx={{ mt: 2, pl: 2, borderLeft: '1px solid #e0e0e0' }}>
                         {isToggle && (
                             subfieldData.length > 0 ? (
-                                renderFields(subfieldData)) : (
+                                renderFields(field.id, subfieldData)) : (
                                 <Typography variant="body2" color="text.secondary">No subfields available for this.</Typography>
                             )
                         )}

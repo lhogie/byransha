@@ -12,10 +12,12 @@ import {useApiData, useApiMutation} from "../../../hooks/useApiData.js";
 import {useDebouncedCallback} from "use-debounce";
 import toast from "react-hot-toast";
 import {shortenAndFormatLabel} from "../../../utils/utils.js";
+import {useQueryClient} from "@tanstack/react-query";
 
-const ListCheckboxComponent = ({ option }) => {
+const ListCheckboxComponent = ({ option, fieldId }) => {
     const [value, setValue] = useState(option.value);
     const setValueMutation = useApiMutation('set_value');
+    const queryClient = useQueryClient();
 
     const handleSaveChanges = useDebouncedCallback(async (field) => {
         if (!field) return console.warn("No field provided for saving changes");
@@ -23,6 +25,14 @@ const ListCheckboxComponent = ({ option }) => {
             await toast.promise(setValueMutation.mutateAsync({
                 id: field.id,
                 value: value,
+            }, {
+                onSuccess: async () => {
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'class_attribute_field', {
+                            node_id: Number.parseInt(fieldId)
+                        }]
+                    })
+                }
             }), {
                 loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
                 success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
@@ -54,7 +64,7 @@ const ListCheckboxField = ({ field, fieldKey, onFocus, error, helperText, ...res
             <FormGroup row>
                 {
                     data?.data?.results?.[0]?.result?.data?.map((option, index) => (
-                       <ListCheckboxComponent key={index} option={option} />
+                       <ListCheckboxComponent key={index} option={option} fieldId={field.id} />
                     ))
                 }
             </FormGroup>

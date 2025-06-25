@@ -452,10 +452,9 @@ public class BBGraph extends BNode {
 		return "graph";
 	}
 	
-	public HashSet<?> classes(){
-		return new HashSet<>(nodesById.values().stream().map(n -> n.getClass()).toList());
+	public HashSet<Class<? extends BNode>> classes() {
+		return new HashSet<>(byClass.keySet());
 	}
-
 	
 	public static class ClassDistribution extends NodeEndpoint<BBGraph> implements View {
 		public ClassDistribution(BBGraph db) {

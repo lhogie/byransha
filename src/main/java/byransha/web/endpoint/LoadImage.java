@@ -34,8 +34,6 @@ public class LoadImage extends NodeEndpoint<BNode> {
         System.out.println("loadImageEndpoints");
         // load an image from internet url to base 64
 
-
-
         String imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Cat03.jpg/1200px-Cat03.jpg";
         System.out.println("Image URL: " + imageUrl);
 

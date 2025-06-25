@@ -23,8 +23,6 @@ const FormPage = () => {
     const rootId = rawApiData?.data?.node_id || null;
     const pageName = classForm.split('.').pop()
 
-    /* useEffect */
-
     if (loading) return <Box display="flex" justifyContent="center" alignItems="center" height="100vh"><CircularProgress /></Box>
     if (error) return <Typography color="error">Error loading form fields: {error.message || 'Unknown error'}</Typography>;
 

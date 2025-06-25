@@ -32,6 +32,7 @@ import DropdownField from "./DropdownField.jsx";
 import toast from "react-hot-toast";
 import RadioField from "./RadioField.jsx";
 import ListCheckboxField from "./ListCheckboxField.jsx";
+import {useQueryClient} from "@tanstack/react-query";
 
 const FormField = ({
                        field,
@@ -39,6 +40,7 @@ const FormField = ({
                        isExpanded, // Changed from expandedFields to isExpanded
                        onToggleField,
                        onChangingForm,
+                       parentId,
                        defaultValue = '', // Default value for the field
                    }) => {
     const { id, name, type } = field;
@@ -48,6 +50,7 @@ const FormField = ({
     } : defaultValue);
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const queryClient = useQueryClient();
 
     const setValueMutation = useApiMutation('set_value');
     const addExistingNodeMutation = useApiMutation('add_existing_node');
@@ -72,6 +75,17 @@ const FormField = ({
             await toast.promise(setValueMutation.mutateAsync({
                 id: field.id,
                 value: value,
+            }, {
+                onSuccess: async () => {
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'class_attribute_field', {
+                            node_id: Number.parseInt(parentId)
+                        }]
+                    })
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'show_out', {}]
+                    })
+                }
             }), {
                 loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
                 success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
@@ -103,6 +117,17 @@ const FormField = ({
             await toast.promise(addExistingNodeMutation.mutateAsync({
                 node_id: field.id,
                 id: value,
+            }, {
+                onSuccess: async () => {
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'class_attribute_field', {
+                            node_id: Number.parseInt(parentId)
+                        }]
+                    })
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'show_out', {}]
+                    })
+                }
             }), {
                 loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
                 success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
