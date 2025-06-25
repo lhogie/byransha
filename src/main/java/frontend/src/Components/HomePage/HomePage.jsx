@@ -7,7 +7,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import CloseIcon from '@mui/icons-material/Close';
 import Expand from '@mui/icons-material/AspectRatio';
 import { useTitle } from "../../global/useTitle";
-import { useApiData } from '../../hooks/useApiData';
+import { useApiData, useApiMutation  } from '../../hooks/useApiData';
 import { View } from "../Common/View.jsx";
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -111,6 +111,8 @@ const HomePage = () => {
     const [pickerColor, setPickerColor] = useState('#ffffff');
     const visibleViews = views.filter(view => selectedViews.includes(view.endpoint));
     const rowColumns = Math.min(columns, visibleViews.length);
+
+    const jumpToId = useApiMutation('jump');
 
     const getAutoColumnCount = () => {
         const width = window.innerWidth;
@@ -491,7 +493,8 @@ const HomePage = () => {
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
                                                         if(view.endpoint.endsWith('show_out')) {
-                                                            navigate(`/add-node/form/${view.result?.dialect}`);
+                                                            jumpToId.mutate({node: view.result?.dialect.split('@')[1]});
+                                                            navigate(`/add-node/form/${view.result?.dialect.split('@')[0]}`);
                                                         }
                                                         else navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
                                                     }}

@@ -49,7 +49,7 @@ public class ShowOut extends NodeEndpoint<BNode> implements View {
         });
 
         //System.out.println("id de currentNode:"+ currentNode.id());
-        return new EndpointJsonResponse(a, n.prettyName());
+        return new EndpointJsonResponse(a, n.prettyName()+'@'+n.id());
     }
 
     @Override
