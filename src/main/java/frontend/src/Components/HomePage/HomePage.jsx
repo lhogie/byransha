@@ -490,7 +490,10 @@ const HomePage = () => {
                                                     view={view}
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
-                                                        navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
+                                                        if(view.endpoint.endsWith('show_out')) {
+                                                            navigate(`/add-node/form/${view.result?.dialect}`);
+                                                        }
+                                                        else navigate(`/information/${view.endpoint.replaceAll(' ', '_')}`);
                                                     }}
                                                     dragHandleProps={provided.dragHandleProps}
                                                     handleViewToggle={handleViewToggle}
