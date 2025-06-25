@@ -3,10 +3,12 @@ import {useApiData, useApiMutation} from "../../Hooks/useApiData";
 import {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useNavigate} from "react-router";
+import {useDebounce} from "use-debounce";
 
 
 export const SearchBar = () => {
     const [query, setQuery] = useState("")
+    const [debounceQuery] = useDebounce(query, 500);
     const navigate = useNavigate()
     const queryClient = useQueryClient();
 
@@ -16,7 +18,7 @@ export const SearchBar = () => {
         },
     });
     const { isLoading, data } = useApiData('search_node', {
-		query
+		query: debounceQuery
 	}, {
 		enabled: query.length > 0,
 	})
