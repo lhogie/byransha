@@ -11,7 +11,9 @@ public class Gender extends RadioNode<String>{
 
     public Gender (BBGraph g){
         super(g);
-        this.options = Set.of("Homme", "Femme", "Autre");
+        this.options.add("Homme");
+        this.options.add("Femme");
+        this.options.add("Autre");
     }
 
     public Gender(BBGraph g, int id) {

@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 import java.io.IOException;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public abstract class RadioNode<N> extends ValuedNode<Integer> {
 
-    public Set<N> options = Set.of();
+    public Set<N> options = new LinkedHashSet<>();
 
     public RadioNode(BBGraph db) {
         super(db);
