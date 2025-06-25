@@ -7,6 +7,7 @@ import byransha.ValuedNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import byransha.web.util.Utilities;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -16,7 +17,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.util.Comparator;
 import java.util.List;
 
-public class ListExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
+public class ListExistingNode extends NodeEndpoint<BNode> {
 
     @Override
     public String whatItDoes() {
@@ -55,7 +56,7 @@ public class ListExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             filteredNodes.sort(Comparator.comparingInt(node -> {
                 String name = node.prettyName();
                 if (name == null) return Integer.MAX_VALUE;
-                return levenshteinDistance(name.toLowerCase(), query);
+                return Utilities.levenshteinDistance(name.toLowerCase(), query);
             }));
         }
 
@@ -63,29 +64,6 @@ public class ListExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         return new EndpointJsonResponse(a, "List_existing_node call executed successfully");
     }
-
-    private int levenshteinDistance(String a, String b) {
-        int[][] dp = new int[a.length() + 1][b.length() + 1];
-
-        for (int i = 0; i <= a.length(); i++) {
-            for (int j = 0; j <= b.length(); j++) {
-                if (i == 0) {
-                    dp[i][j] = j;
-                } else if (j == 0) {
-                    dp[i][j] = i;
-                } else {
-                    int cost = a.charAt(i - 1) == b.charAt(j - 1) ? 0 : 1;
-                    dp[i][j] = Math.min(
-                            Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1),
-                            dp[i - 1][j - 1] + cost
-                    );
-                }
-            }
-        }
-
-        return dp[a.length()][b.length()];
-    }
-
 
 
     private void addNodeInfo(ArrayNode a, BNode node) {

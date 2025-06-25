@@ -2,22 +2,30 @@ import { Outlet, useLocation, useNavigate, Link as RouterLink } from "react-rout
 import { DashboardLayout, PageContainer } from "@toolpad/core";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { Box, MenuItem, Select, Typography, Breadcrumbs, Link, Stack, Button } from "@mui/material";
+import {
+    Box,
+    MenuItem,
+    Select,
+    Typography,
+    Breadcrumbs,
+    Link,
+    Stack,
+    Button,
+    Autocomplete,
+    TextField, CircularProgress
+} from "@mui/material";
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import {useApiData, useApiMutation} from '../hooks/useApiData';
 import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import {useState, useEffect, useCallback} from "react";
 import {useQueryClient} from "@tanstack/react-query";
-import axios from "axios";
-
-
+import {SearchBar} from "../Components/Common/SearchBar";
 
 const MainLayout = () => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
     const [viewMode, setViewMode] = useState(pathname.startsWith("/grid") ? "grid" : "default");
-    const hideSidebar = pathname.startsWith("/grid");
     const [menuAnchor, setMenuAnchor] = useState(null);
     const { data, isLoading, error } = useApiData('');
     const { data: historyData, isLoading: isHistoryLoading } = useApiData('user_history');
@@ -41,12 +49,6 @@ const MainLayout = () => {
         });
     }, []);
 
-    const handleViewChange = (event) => {
-        const selectedView = event.target.value;
-        setViewMode(selectedView);
-        navigate(selectedView === "grid" ? "/grid" : "/home");
-    };
-
     const handleHistoryClick = (hist) => {
         jumpToNode(hist.id.toString())
     };
@@ -62,7 +64,6 @@ const MainLayout = () => {
     const history = historyData?.data?.results?.[0].result.data ?? [];
     const visibleHistory = history.length > 3 ? history.slice(-2) : history;
     const currentNode = history[history.length - 1];
-
 
     return (
         <Box sx={{
@@ -185,6 +186,7 @@ const MainLayout = () => {
                     ),
                     toolbarActions: () => (
                         <Stack direction="row" alignItems="center" spacing={2}>
+                            <SearchBar />
                             {/* User Info Before Select */}
                             {isLoading ? (
                                 <Typography sx={{ color: '#90a4ae', fontSize: '14px' }}>Loading...</Typography>
@@ -202,7 +204,6 @@ const MainLayout = () => {
                                         transition: 'background-color 0.2s ease',
                                         '&:hover': { bgcolor: '#e8eaf6' },
                                     }}>
-
                                     <Typography
                                         sx={{
                                             color: '#306DAD',

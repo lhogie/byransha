@@ -1,24 +1,31 @@
-import {useParams} from 'react-router';
-import './AddNodePage.css';
 import React, {useEffect, useState, useCallback} from 'react';
 import {useTitle} from "../../global/useTitle";
-import {View} from "../Common/View.jsx";
-import {IconButton} from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Fade,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Paper,
+  TextField,
+  Typography
+} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
-import CodeIcon from '@mui/icons-material/Code';
 import {useNavigate} from "react-router";
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ReloadIcon from '@mui/icons-material/Refresh';
+import SearchIcon from '@mui/icons-material/Search';
 import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useQueryClient} from "@tanstack/react-query";
-
 
 
 const AddNodePage = () => {
   useTitle(`Add node`);
 
-  const {viewId} = useParams();
   const navigate = useNavigate();
   const {data: rawApiData, isLoading: loading, error, refetch} = useApiData('bnode_class_distribution');
   const queryClient = useQueryClient();
@@ -174,25 +181,63 @@ const AddNodePage = () => {
   }, [fullClassName]);
 
   return (
-    <>
-      <div className={`add-node-page ${exitAnim ? 'add-node-exit' : ''}`}>
-        <h1>Add a new node</h1>
+    <Fade in={!exitAnim} timeout={300}>
+      <Container component={Paper} elevation={3} sx={{
+        p: 4,
+        position: 'relative',
+        bgcolor: '#f8f9fa',
+        maxWidth: '100%',
+        width: '100%',
+        minHeight: '80vh',
+        overflow: 'hidden'
+      }}>
+        <Typography 
+          variant="h3" 
+          component="h1" 
+          gutterBottom 
+          sx={{
+            color: '#2c3e50',
+            textAlign: 'center',
+            fontWeight: 600,
+            pb: 2,
+            borderBottom: '3px solid #3498db'
+          }}
+        >
+          Add a new node
+        </Typography>
 
-        <div className="search-bar-wrapper">
-          <input
-            type="text"
+        <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3, width: '100%' }}>
+          <TextField
+            fullWidth
+            variant="outlined"
             placeholder="Search class name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-bar"
+            sx={{ maxWidth: 400 }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
           />
-        </div>
-
+        </Box>
 
         {favorites.length > 0 && (
           <>
-            <h2>Favorites (Persistent Only)</h2>
-            <div className="class-card-container">
+            <Typography 
+              variant="h4" 
+              component="h2" 
+              sx={{ 
+                color: '#34495e', 
+                my: 3, 
+                fontWeight: 500 
+              }}
+            >
+              Favorites (Persistent Only)
+            </Typography>
+            <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
               {favorites
                 .map(name => {
                   const fullName = fullClassName.find(f => f.endsWith(name));
@@ -201,25 +246,58 @@ const AddNodePage = () => {
                 .filter(({ full }) => full && persistingClasses.has(full))
                 .filter(({ short }) => short.toLowerCase().includes(searchTerm.toLowerCase()))
                 .map(({ short }) => (
-                  <div key={short} className="class-card">
-                    <span
-                      className="star-icon"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleFavorite(short);
+                  <Grid item key={short}>
+                    <Card 
+                      sx={{ 
+                        minWidth: 120,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        '&:hover': {
+                          bgcolor: '#f0f8ff',
+                          transform: 'translateY(-2px)',
+                          boxShadow: 3
+                        }
                       }}
                     >
-                      <StarIcon style={{ color: '#f1c40f' }} />
-                    </span>
-                    <span onClick={() => handleClickClass(short)}>{short}</span>
-                  </div>
+                      <CardContent sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'flex-start',
+                        p: 2,
+                        '&:last-child': { pb: 2 }
+                      }}>
+                        <Box 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(short);
+                          }}
+                          sx={{ mr: 1, display: 'inline-flex', cursor: 'pointer' }}
+                        >
+                          <StarIcon sx={{ color: '#f1c40f' }} />
+                        </Box>
+                        <Box onClick={() => handleClickClass(short)}>
+                          {short}
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </Grid>
                 ))}
-            </div>
+            </Grid>
           </>
         )}
 
-        <h2>All persisting classes</h2>
-        <div className="class-card-container">
+        <Typography 
+          variant="h4" 
+          component="h2" 
+          sx={{ 
+            color: '#34495e', 
+            my: 3, 
+            fontWeight: 500 
+          }}
+        >
+          All persisting classes
+        </Typography>
+        <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
           {className
             .map((name, index) => ({
               short: name,
@@ -228,42 +306,89 @@ const AddNodePage = () => {
             .filter(({ full }) => persistingClasses.has(full))
             .filter(({ short }) => short.toLowerCase().includes(searchTerm.toLowerCase()))
             .map(({ short }) => (
-              <div key={short} className="class-card">
-                <span
-                  className="star-icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleFavorite(short);
+              <Grid item key={short}>
+                <Card 
+                  sx={{ 
+                    minWidth: 120,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      bgcolor: '#f0f8ff',
+                      transform: 'translateY(-2px)',
+                      boxShadow: 3
+                    }
                   }}
                 >
-                  {favorites.includes(short) ? (
-                    <StarIcon style={{ color: '#f1c40f' }} />
-                  ) : (
-                    <StarBorderIcon style={{ color: '#ccc' }} />
-                  )}
-                </span>
-                <span onClick={() => handleClickClass(short)}>{short}</span>
-              </div>
+                  <CardContent sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'flex-start',
+                    p: 2,
+                    '&:last-child': { pb: 2 }
+                  }}>
+                    <Box 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleFavorite(short);
+                      }}
+                      sx={{ mr: 1, display: 'inline-flex', cursor: 'pointer' }}
+                    >
+                      {favorites.includes(short) ? (
+                        <StarIcon sx={{ color: '#f1c40f' }} />
+                      ) : (
+                        <StarBorderIcon sx={{ color: '#ccc' }} />
+                      )}
+                    </Box>
+                    <Box onClick={() => handleClickClass(short)}>
+                      {short}
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
             ))}
-        </div>
+        </Grid>
 
-        <div className = "button-group">
-            <IconButton className="header-button reload-button"  onClick={() => {Object.keys(localStorage).filter(key => key
-                            .startsWith('persisting:'))
-                            .forEach(key => localStorage.removeItem(key));
-                            setPersistingClasses(new Set());
-                            refetch();
-                        }} aria-label="reload" title="Reload all classes">
-                    <ReloadIcon />
-            </IconButton>
-            <IconButton className="header-button close-button" onClick={handleClose} aria-label="close" title="Close">
-                <CloseIcon />
-            </IconButton>
-        </div>
-
-
-      </div>
-    </>
+        <Box sx={{ 
+          position: 'absolute', 
+          top: 10, 
+          right: 10, 
+          display: 'flex', 
+          gap: 1, 
+          zIndex: 1000 
+        }}>
+          <IconButton 
+            onClick={() => {
+              Object.keys(localStorage)
+                .filter(key => key.startsWith('persisting:'))
+                .forEach(key => localStorage.removeItem(key));
+              setPersistingClasses(new Set());
+              refetch();
+            }} 
+            aria-label="reload" 
+            title="Reload all classes"
+            sx={{
+              '&:hover': {
+                color: '#3498db'
+              }
+            }}
+          >
+            <ReloadIcon />
+          </IconButton>
+          <IconButton 
+            onClick={handleClose} 
+            aria-label="close" 
+            title="Close"
+            sx={{
+              '&:hover': {
+                color: '#e74c3c'
+              }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </Container>
+    </Fade>
   );
 };
 
