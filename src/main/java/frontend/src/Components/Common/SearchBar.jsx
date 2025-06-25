@@ -8,7 +8,8 @@ import {useDebounce} from "use-debounce";
 
 export const SearchBar = () => {
     const [query, setQuery] = useState("")
-    const [debounceQuery] = useDebounce(query, 500);
+    const [debounceQuery] = useDebounce(query, 250,
+        { maxWait: 500 });
     const navigate = useNavigate()
     const queryClient = useQueryClient();
 
