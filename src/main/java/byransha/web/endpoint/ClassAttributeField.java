@@ -3,6 +3,7 @@ package byransha.web.endpoint;
 import byransha.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
+import byransha.web.View;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -14,7 +15,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Base64;
 import java.util.stream.Collectors;
 
-public class ClassAttributeField extends NodeEndpoint<BNode> {
+public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     @Override
     public String whatItDoes() {
@@ -95,7 +96,11 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             a.add(b);
         });
 
-        return new EndpointJsonResponse(a, "Add_node call");
+        return new EndpointJsonResponse(a, node.prettyName()+'@'+node.id());
     }
 
+    @Override
+    public boolean sendContentByDefault() {
+        return false;
+    }
 }

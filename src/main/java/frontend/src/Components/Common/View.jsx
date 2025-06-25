@@ -476,9 +476,9 @@ export const View = ({ viewId, sx }) => {
         }
 
         if (contentType === 'text/json') {
-            if (viewId === 'show_out') {
+            if (viewId === 'class_attribute_field') {
                 if (!Array.isArray(content)) {
-                    return <Typography sx={{ p: 2 }} color="error">Error: Expected an array for 'show_out' data, but received type {typeof content}.</Typography>;
+                    return <Typography sx={{ p: 2 }} color="error">Error: Expected an array for 'class_attribute_field' data, but received type {typeof content}.</Typography>;
                 }
                 if (content.length === 0) {
                     return <Typography sx={{ p: 2 }}>No output nodes connected.</Typography>;
@@ -489,6 +489,7 @@ export const View = ({ viewId, sx }) => {
                         {content.map((outNode) => {
                             const isImage = outNode.mimeType?.startsWith('image/') && outNode.value;
                             const hasValue = outNode.hasOwnProperty('value') && outNode.value !== null && outNode.value !== undefined;
+                            if(outNode.name == "graph") return null;
 
                             return (
                                 <Card key={outNode.id} sx={{ minWidth: 275, maxWidth: 350, display: 'flex', flexDirection: 'column' }}>

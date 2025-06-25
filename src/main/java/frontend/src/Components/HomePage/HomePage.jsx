@@ -492,7 +492,7 @@ const HomePage = () => {
                                                     view={view}
                                                     onClick={(e) => {
                                                         if (e.defaultPrevented) return;
-                                                        if(view.endpoint.endsWith('show_out')) {
+                                                        if(view.endpoint.endsWith('class_attribute_field')) {
                                                             jumpToId.mutate({node: view.result?.dialect.split('@')[1]});
                                                             navigate(`/add-node/form/${view.result?.dialect.split('@')[0]}`);
                                                         }

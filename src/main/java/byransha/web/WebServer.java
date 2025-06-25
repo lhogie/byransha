@@ -60,7 +60,6 @@ import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.view.CharExampleXY;
 import byransha.web.view.ModelDOTView;
 import byransha.web.view.ModelGraphivzSVGView;
-import byransha.web.view.ShowOut;
 import byransha.web.view.ToStringView;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
@@ -266,7 +265,6 @@ public class WebServer extends BNode {
 		BNode.create(g, SetValue.class);
 		BNode.create(g, AnyGraph.Classes.class);
 		BNode.create(g, Edit.class);
-		BNode.create(g, ShowOut.class);
 		BNode.create(g, History.class);
 		BNode.create(g, UI.class);
 		BNode.create(g, UI.getProperties.class);
