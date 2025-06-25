@@ -287,6 +287,7 @@ const FormField = ({
                             value={value}
                             onChange={handleValueChange}
                             size="small"
+                            defaultValue={defaultValue}
                             error={error}
                             helperText={error ? errorMessage : ''}
                         />

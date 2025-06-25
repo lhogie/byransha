@@ -213,7 +213,7 @@ public class WebServer extends BNode {
 		var publication = new Publication(g);
 		publication.title.set("156 maitre du temps - MAIN-1");
 		publication.acmClassifier = new ACMClassifier(g, "B.1.4", "Microprogram Design Aids");
-	}
+    }
 
 	private void createSpecialNodes(BBGraph g) {
 		BNode.create(g, JVMNode.class);
@@ -276,6 +276,8 @@ public class WebServer extends BNode {
 		BNode.create(g, AddNode.class);
         BNode.create(g, AddExistingNode.class);
         BNode.create(g, ListExistingNode.class);
+        BNode.create(g, SearchNode.class);
+        BNode.create(g, Agent.class);
 
 		Country.loadCountries(g);
 	}
