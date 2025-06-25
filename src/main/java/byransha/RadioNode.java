@@ -6,21 +6,21 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public abstract class RadioNode<N> extends ValuedNode<Integer> {
-
-    public Set<N> options = new LinkedHashSet<>();
+public class RadioNode<N> extends IntNode {
+    private final Set<N> options = new LinkedHashSet<>();
 
     public RadioNode(BBGraph db) {
         super(db);
-        set(0); // Default value
+        set(null);
     }
 
     public RadioNode(BBGraph db, int id) {
         super(db, id);
-        set(0); // Default value
+        set(null);
     }
 
 
@@ -44,5 +44,17 @@ public abstract class RadioNode<N> extends ValuedNode<Integer> {
     @Override
     public String prettyName() {
         return "";
+    }
+
+    public void addOption(N option) {
+        options.add(option);
+    }
+
+    public void addOptions(N... newOptions) {
+        Collections.addAll(options, newOptions);
+    }
+
+    public Set<N> getOptions() {
+        return Collections.unmodifiableSet(options);
     }
 }

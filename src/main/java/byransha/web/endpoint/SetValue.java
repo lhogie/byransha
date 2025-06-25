@@ -2,6 +2,7 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -18,25 +19,24 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class SetValue extends NodeEndpoint<BNode> {
+    @Override
+    public String whatItDoes() {
+        return "modify the value of valued nodes";
+    }
 
-	@Override
-	public String whatItDoes() {
-		return "modify the value of valued nodes";
-	}
+    public SetValue(BBGraph g) {
+        super(g);
+    }
 
-	public SetValue(BBGraph g) {
-		super(g);
-	}
+    public SetValue(BBGraph g, int id) {
+        super(g, id);
+    }
 
-	public SetValue(BBGraph g, int id) {
-		super(g, id);
-	}
+    @Override
+    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+                                     BNode target) throws Throwable {
 
-	@Override
-	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-			BNode target) throws Throwable {
-
-		var a = new ObjectNode(null);
+        var a = new ObjectNode(null);
 
         if (!in.isEmpty()) {
             int id = in.get("id").asInt();
@@ -53,6 +53,9 @@ public class SetValue extends NodeEndpoint<BNode> {
             } else if (node instanceof byransha.IntNode i) {
                 i.set(value.asInt());
                 a.set("value", new IntNode(value.asInt()));
+            } else if (node instanceof byransha.BooleanNode b) {
+                b.set(value.asBoolean());
+                a.set("value", value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE);
             } else if (node instanceof ImageNode im) {
                 String base64Image = value.asText();
                 byte[] data = Base64.getDecoder().decode(base64Image);
@@ -74,6 +77,6 @@ public class SetValue extends NodeEndpoint<BNode> {
             in.removeAll();
         }
 
-		return new EndpointJsonResponse(a, "Setting the value");
-	}
+        return new EndpointJsonResponse(a, "Setting the value");
+    }
 }

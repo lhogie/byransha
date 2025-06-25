@@ -1,7 +1,6 @@
 package byransha;
 
 public class BooleanNode extends ValuedNode<Boolean> {
-
 	public String name = "boolean";
 
 	public BooleanNode(BBGraph db) {
@@ -15,7 +14,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String prettyName() {
-		return  name + " : ";
+		return name;
 	}
 
 	@Override

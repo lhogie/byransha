@@ -20,16 +20,18 @@ import {useDebouncedCallback} from "use-debounce";
 import {
     checkboxField,
     createKey,
-    dateField, dropdownField,
+    dateField, dropdownField, getErrorMessage,
     imageField,
-    inputTextField,
-    shortenAndFormatLabel, typeComponent
+    inputTextField, listCheckboxField, radioField,
+    shortenAndFormatLabel, typeComponent, validateFieldValue
 } from "../../../utils/utils.js";
 import dayjs from "dayjs";
 import {useApiMutation} from "../../../hooks/useApiData.js";
 import TextField from '@mui/material/TextField';
 import DropdownField from "./DropdownField.jsx";
 import toast from "react-hot-toast";
+import RadioField from "./RadioField.jsx";
+import ListCheckboxField from "./ListCheckboxField.jsx";
 
 const FormField = ({
                        field,
@@ -42,7 +44,7 @@ const FormField = ({
     const { id, name, type } = field;
     const [value, setValue] = useState(dropdownField.includes(type) ? {
         label: defaultValue,
-        value: defaultValue.split('@')[1]
+        value: defaultValue?.split('@')[1]
     } : defaultValue);
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -50,60 +52,6 @@ const FormField = ({
     const setValueMutation = useApiMutation('set_value');
     const addExistingNodeMutation = useApiMutation('add_existing_node');
 
-    const getErrorMessage = (type, value) => {
-        switch (type) {
-            case 'EmailNode':
-                return 'Please enter a valid email address';
-            case 'IntNode':
-                return 'Please enter a valid integer';
-            case 'PhoneNumberNode':
-                return 'Please enter a valid phone number (digits only)';
-            case 'DateNode':
-                return 'Please enter a valid date';
-            default:
-                return 'Invalid value';
-        }
-    };
-
-    const validateFieldValue = (type, value) => {
-        // If value is null or undefined, it's valid (empty is allowed)
-        if (value === null || value === undefined) return true;
-
-        // For empty strings, consider them valid
-        if (typeof value === 'string' && value.trim() === '') return true;
-
-        // Validate based on field type
-        let isValid = true;
-        switch (type) {
-            case 'EmailNode':
-                // Email validation using regex pattern from EmailNode.java
-                const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
-                isValid = emailRegex.test(value);
-                break;
-
-            case 'IntNode':
-                // Check if value is a valid integer
-                isValid = /^-?\d+$/.test(value);
-                break;
-
-            case 'PhoneNumberNode':
-                // Check if value is a valid phone number (digits only)
-                isValid = /^\d+$/.test(value);
-                break;
-
-            case 'DateNode':
-                // Check if value is a valid dayjs date object
-                isValid = dayjs(value).isValid();
-                break;
-
-            default:
-                // For other field types, consider them valid
-                isValid = true;
-                break;
-        }
-
-        return isValid;
-    };
 
     const handleSaveChanges = useDebouncedCallback(async (field) => {
         if (!field) return console.warn("No field provided for saving changes");
@@ -167,9 +115,7 @@ const FormField = ({
         }
     })
 
-    // Memoize handlers to prevent recreating functions on each render
-    const handleValueChange = useCallback((value) => {
-        // Validate immediately for user feedback
+    const handleValueChange = useCallback((value, f = undefined) => {
         const isValid = validateFieldValue(field.type, value);
         setError(!isValid);
         if (!isValid) {
@@ -219,6 +165,7 @@ const FormField = ({
                         flexDirection: 'row',
                     }}>
                         <Button
+                            tabIndex="-1"
                             variant="text"
                             color="primary"
                             onClick={handleChangingForm}
@@ -241,6 +188,18 @@ const FormField = ({
                 </Grid>
 
                 <Grid size={{ xs: 12, sm: 6 }}>
+                    {
+                        (listCheckboxField.includes(type) && (
+                            <ListCheckboxField
+                                field={field}
+                                fieldKey={fieldKey}
+                                size="small"
+                                error={error}
+                                helperText={error ? errorMessage : ''}
+                            />
+                        ))
+                    }
+
                     {(inputTextField.includes(type)) && (
                         <TextFormField
                             field={field}
@@ -291,6 +250,18 @@ const FormField = ({
                             onChange={handleDropdownValueChange}
                             size="small"
                             defaultValue={defaultValue}
+                            error={error}
+                            helperText={error ? errorMessage : ''}
+                        />
+                    )}
+
+                    {radioField.includes(type) && (
+                        <RadioField
+                            field={field}
+                            fieldKey={fieldKey}
+                            value={value}
+                            onChange={handleValueChange}
+                            size="small"
                             error={error}
                             helperText={error ? errorMessage : ''}
                         />

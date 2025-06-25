@@ -5,12 +5,14 @@ import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Base64;
+import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> {
 
@@ -52,7 +54,16 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
             b.set("name", new TextNode(name));
             b.set("type", new TextNode(out.getClass().getSimpleName()));
             if (out instanceof ValuedNode<?> vn) {
-                b.set("value", vn.get() == null ? new TextNode("") : new TextNode(vn.getAsString()));
+                if (vn.get() == null) {
+                    b.set("value", NullNode.getInstance());
+                } else if (vn instanceof byransha.BooleanNode) {
+                    b.set("value", BooleanNode.valueOf((Boolean) vn.get()));
+                } else if (vn instanceof byransha.IntNode) {
+                    b.set("value", new IntNode((Integer) vn.get()));
+                } else {
+                    b.set("value", new TextNode(vn.getAsString()));
+                }
+
                 b.set("mimeType", new TextNode(vn.getMimeType()));
             }
 
@@ -69,6 +80,18 @@ public class ClassAttributeField extends NodeEndpoint<BNode> {
                     e.printStackTrace();
                 }
             }
+
+            if (out instanceof RadioNode<?> radioNode) {
+                try {
+                    b.set("options", JsonNodeFactory.instance.arrayNode().addAll(
+                            radioNode.getOptions().stream()
+                                    .map(option -> option == null ? NullNode.getInstance() : new TextNode(option.toString()))
+                                    .collect(Collectors.toList())));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
             a.add(b);
         });
 

@@ -12,20 +12,26 @@ const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange
         error: apiError
     } = useApiData('list_existing_node', {
         type: shortName
-    });
+    })
+
+    console.log(defaultValue)
 
     useEffect(() => {
-        if (!isLoading && !isError && listData?.data?.results?.[0]?.result?.data?.length !== 0 && defaultValue) {
-            const id = Number.parseInt(defaultValue.split('@')[1]);
-            const existingOption = listData?.data?.results?.[0]?.result?.data.find(option => option.id === id);
+        if (!isLoading && !isError && listData?.data?.results?.[0]?.result?.data?.length !== 0) {
+            if (defaultValue) {
+                const id = Number.parseInt(defaultValue.split('@')[1]);
+                const existingOption = listData?.data?.results?.[0]?.result?.data.find(option => option.id === id);
 
-            if (existingOption) {
-                onChange({
-                    label: existingOption.name,
-                    value: existingOption.id
-                });
+                if (existingOption) {
+                    onChange({
+                        label: existingOption.name,
+                        value: existingOption.id
+                    });
+                } else {
+                    onChange(undefined);
+                }
             } else {
-                onChange(null);
+                onChange(undefined);
             }
         }
     }, [isLoading, isError]);

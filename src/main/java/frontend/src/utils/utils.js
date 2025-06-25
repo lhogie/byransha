@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export const shortenAndFormatLabel = (label) => {
 	if (!label) return '';
 	const spaced = label
@@ -16,9 +18,66 @@ export const shortenAndFormatLabel = (label) => {
 */
 export const createKey = (id, name) => `${id}@${name}`;
 
+export const getErrorMessage = (type, value) => {
+    switch (type) {
+        case 'EmailNode':
+            return 'Please enter a valid email address';
+        case 'IntNode':
+            return 'Please enter a valid integer';
+        case 'PhoneNumberNode':
+            return 'Please enter a valid phone number (digits only)';
+        case 'DateNode':
+            return 'Please enter a valid date';
+        default:
+            return 'Invalid value';
+    }
+};
+
+export const validateFieldValue = (type, value) => {
+    // If value is null or undefined, it's valid (empty is allowed)
+    if (value === null || value === undefined) return true;
+
+    // For empty strings, consider them valid
+    if (typeof value === 'string' && value.trim() === '') return true;
+
+    // Validate based on field type
+    let isValid = true;
+    switch (type) {
+        case 'EmailNode':
+            // Email validation using regex pattern from EmailNode.java
+            const emailRegex = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+            isValid = emailRegex.test(value);
+            break;
+
+        case 'IntNode':
+            // Check if value is a valid integer
+            isValid = /^-?\d+$/.test(value);
+            break;
+
+        case 'PhoneNumberNode':
+            // Check if value is a valid phone number (digits only)
+            isValid = /^\d+$/.test(value);
+            break;
+
+        case 'DateNode':
+            // Check if value is a valid dayjs date object
+            isValid = dayjs(value).isValid();
+            break;
+
+        default:
+            // For other field types, consider them valid
+            isValid = true;
+            break;
+    }
+
+    return isValid;
+};
+
 export const inputTextField = ["StringNode", "EmailNode", "PhoneNumberNode", "IntNode"];
 export const checkboxField =  ["BooleanNode"];
 export const dateField = ["DateNode"];
 export const imageField =  ["ImageNode"];
 export const dropdownField = ["DropdownNode"];
-export const typeComponent = [...inputTextField, ...checkboxField, ...dateField, ...dropdownField];
+export const radioField = ["RadioNode"];
+export const listCheckboxField = ["ListCheckboxNode"]
+export const typeComponent = [...inputTextField, ...checkboxField, ...listCheckboxField, ...dateField, ...dropdownField, ...radioField];
