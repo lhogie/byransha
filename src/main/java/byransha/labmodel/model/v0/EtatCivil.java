@@ -12,16 +12,21 @@ public class EtatCivil extends BusinessNode {
 	public DropdownNode<Country> countryOfBirth;
 	public StringNode address;
 
+	public Gender gender;
+
 	public EtatCivil(BBGraph g) {
 		super(g);
-		firstName = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		name = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		familyNameBeforeMariage = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		birthDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
-		cityOfBirth = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		nationality = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		countryOfBirth = BNode.create(g, DropdownNode.class); // new StringNode(g, null);
-		address = BNode.create(g, StringNode.class); // new StringNode(g, null);
+		firstName = BNode.create(g, StringNode.class);
+		name = BNode.create(g, StringNode.class);
+		familyNameBeforeMariage = BNode.create(g, StringNode.class);
+		birthDate = BNode.create(g, DateNode.class);
+		cityOfBirth = BNode.create(g, StringNode.class);
+		nationality = BNode.create(g, StringNode.class);
+		countryOfBirth = BNode.create(g, DropdownNode.class);
+		address = BNode.create(g, StringNode.class);
+
+		gender = BNode.create(g, Gender.class);
+
 		this.color = "green";
 	}
 
