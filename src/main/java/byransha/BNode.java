@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.AnyGraph;
@@ -375,7 +376,7 @@ public abstract class BNode {
 			current.size = 20;
 
 			n.forEachOut((s, o) -> {
-				if (o.canSee(user)) {
+				if (o.canSee(user) && !(o instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(o);
 					noeudOut.color = "grey";
 					noeudOut.prettyName = o.prettyName();
@@ -388,7 +389,7 @@ public abstract class BNode {
 			});
 
 			n.forEachIn((s, i) -> {
-				if (i.canSee(user)) {
+				if (i.canSee(user) && !(i instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(i);
 					noeudOut.color = i.color;
 					noeudOut.prettyName = i.prettyName();
