@@ -107,9 +107,9 @@ public class WebServer extends BNode {
 			var g = new BBGraph(null);
 			var p = new Person(g);
 			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.name = new StringNode(g, "Caro");
-			p.etatCivil.firstName = new StringNode(g, "George");
-			p.etatCivil.nationality = new StringNode(g, "FR");
+			p.etatCivil.nomUsuel = new StringNode(g, "Caro");
+			p.etatCivil.prenom = new StringNode(g, "George");
+			//p.etatCivil.nationalites = new StringNode(g, "FR");
 			var lab = new I3S(g);
 			lab.members.add(p);
 			lab.director = p;
@@ -193,7 +193,7 @@ public class WebServer extends BNode {
 			var p = new Person(g);
 			persons.add(p);
 			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.address.set("2000, route des Lucioles");
+			p.etatCivil.adressePersonnelle.set("2000, route des Lucioles");
 		}
 
 		var sophiaTech = new Campus(g);
