@@ -20,7 +20,7 @@ import {useDebouncedCallback} from "use-debounce";
 import {
     checkboxField,
     createKey,
-    dateField, dropdownField, getErrorMessage,
+    dateField, dropdownField, fileField, getErrorMessage,
     imageField,
     inputTextField, listCheckboxField, radioField,
     shortenAndFormatLabel, typeComponent, validateFieldValue
@@ -33,6 +33,7 @@ import toast from "react-hot-toast";
 import RadioField from "./RadioField.jsx";
 import ListCheckboxField from "./ListCheckboxField.jsx";
 import {useQueryClient} from "@tanstack/react-query";
+import PdfFormField from "./PdfFormField.jsx";
 
 const FormField = ({
                        field,
@@ -97,6 +98,41 @@ const FormField = ({
             setErrorMessage('Error saving changes: ' + error.message);
         }
     }, 500, { maxWait: 2000 });
+
+    const handleFileChange = useCallback(async (fileData) => {
+        if (!fileData) {
+            setValue(null)
+            return;
+        }
+
+        setValue(fileData)
+
+        try {
+            await toast.promise(setValueMutation.mutateAsync({
+                id: field.id,
+                value: fileData,
+            }, {
+                onSuccess: async () => {
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'class_attribute_field', {
+                            node_id: Number.parseInt(parentId)
+                        }]
+                    })
+                    await queryClient.invalidateQueries({
+                        queryKey: ['apiData', 'class_attribute_field', {}]
+                    })
+                }
+            }), {
+                loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
+                success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
+                error: `Erreur lors de l'enregistrement des changements pour ${shortenAndFormatLabel(field.name)}`,
+            });
+        } catch (error) {
+            console.error('Error saving changes:', error);
+            setError(true);
+            setErrorMessage('Error saving changes: ' + error.message);
+        }
+    })
 
     const handleSaveDropdownChanges = useDebouncedCallback(async (field, value) => {
         if (!field) return console.warn("No field provided for saving changes");
@@ -290,6 +326,15 @@ const FormField = ({
                             defaultValue={defaultValue}
                             error={error}
                             helperText={error ? errorMessage : ''}
+                        />
+                    )}
+
+                    {fileField.includes(type) && (
+                        <PdfFormField
+                            value={value}
+                            onChange={handleFileChange}
+                            error={error}
+                            helperText={errorMessage}
                         />
                     )}
                 </Grid>

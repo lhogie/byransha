@@ -18,6 +18,7 @@ public class FileNode extends ValuedNode<byte[]> {
 
     @Override
     public void fromString(String s) {
+        System.out.println("FileNode.fromString: " + s);
         set(Base64.getDecoder().decode(s.getBytes()));
     }
 

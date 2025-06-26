@@ -68,7 +68,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 b.set("mimeType", new TextNode(vn.getMimeType()));
             }
 
-            System.out.println("Processing out node: " + out.getClass().getSimpleName() + " with name: " + name);
             if (out instanceof ListNode<?> || out instanceof SetNode<?> || out instanceof DropdownNode<?>) {
                 try {
                     Field field = findField(node.getClass(), name);

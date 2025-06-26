@@ -72,7 +72,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                 im.setMimeType(mimeType);
                 a.set("value", new TextNode(im.get().toString()));
             } else if(node instanceof FileNode fn){
-
+                System.out.println("value" + value + " : " + value.asText());
                 String base64File = value.asText();
                 byte[] data = Base64.getDecoder().decode(base64File);
                 String mimeType = "application/octet-stream";
@@ -81,7 +81,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                 } else if (base64File.startsWith("data:text/plain;base64,")) {
                     mimeType = "text/plain";
                 }
-
+                System.out.println("data" + data);
                 fn.set(data);
                 fn.setMimeType(mimeType);
                 a.set("value", new TextNode(fn.get().toString()));
