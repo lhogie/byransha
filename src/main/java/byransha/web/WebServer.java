@@ -135,12 +135,12 @@ public class WebServer extends BNode {
 
 		System.out.println(g.classes());
 
-		var dot = ModelDOTView.toDot(g, c -> !Endpoint.class.isAssignableFrom(c));
-		var svg = ModelGraphivzSVGView.gen(dot, "fdp");
-		var f = Path.of("/Users/lhogie/a/job/byransha/model.svg");
-		System.out.print("writing " + f);
-		Files.write(f, svg);
-		System.out.println("   done");
+		//var dot = ModelDOTView.toDot(g, c -> !Endpoint.class.isAssignableFrom(c));
+		//var svg = ModelGraphivzSVGView.gen(dot, "fdp");
+		//var f = Path.of("/Users/lhogie/a/job/byransha/model.svg");
+		//System.out.print("writing " + f);
+		//Files.write(f, svg);
+		//System.out.println("   done");
 
 		try {
 			Path classPathFile = new File(Byransha.class.getPackageName() + "-classpath.lst").toPath();
