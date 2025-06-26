@@ -36,10 +36,10 @@ public class Agent extends BusinessNode {
     }
 
     private String returnName() {
-        if (etatCivil == null || etatCivil.name == null || etatCivil.name.get() == null || etatCivil.name.get().isEmpty()) {
+        if (etatCivil == null || etatCivil.nomUsuel == null || etatCivil.nomUsuel.get() == null || etatCivil.nomUsuel.get().isEmpty()) {
             return "Agent: " + this.id() + " is an unnamed Agent";
         }
-        return etatCivil.name.get();
+        return etatCivil.nomUsuel.get();
     }
 
     @Override

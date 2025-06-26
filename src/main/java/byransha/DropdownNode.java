@@ -3,6 +3,9 @@ package byransha;
 import java.util.function.BiConsumer;
 
 public class DropdownNode<N extends BNode> extends ValuedNode<N>{
+    final public boolean canAddNewNode = false;
+    final public boolean isDropdown = true;
+
 
     public N value;
 

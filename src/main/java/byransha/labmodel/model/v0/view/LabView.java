@@ -31,7 +31,7 @@ final public class LabView extends NodeEndpoint<Lab> {
 			throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
-			pw.println("<li>HFDS: " + lab.HFDS.etatCivil.name.get());
+			pw.println("<li>HFDS: " + lab.HFDS.etatCivil.nomUsuel.get());
 			pw.println("</ul>");
 		});
 	}

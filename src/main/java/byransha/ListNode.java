@@ -21,6 +21,9 @@ import byransha.web.WebServer;
 
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new CopyOnWriteArrayList<>();
+	public boolean canAddNewNode = true;
+	public boolean isDropdown = false;
+
 
 	public ListNode(BBGraph db) {
 		super(db);
@@ -79,6 +82,15 @@ public class ListNode<N extends BNode> extends PersistingNode {
 			return null;
 		}
 		return l.get(new Random().nextInt(currentSize));
+	}
+
+	public void disableAddNewNode(){
+		canAddNewNode = false;
+	}
+
+	public void enableIsDropdown() {
+		canAddNewNode = false;
+		isDropdown = true;
 	}
 
 	public static class ListNodes extends NodeEndpoint<ListNode> implements View {

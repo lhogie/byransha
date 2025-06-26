@@ -29,15 +29,12 @@ public class Person extends BusinessNode {
 		if (etatCivil == null) {
 			return "null";
 		}
-		return etatCivil.name.get();
+		return etatCivil.nomUsuel.get();
 	}
 
 	@Override
 	public String prettyName() {
-		if( etatCivil == null || etatCivil.name == null || etatCivil.name.get() == null || etatCivil.name.get().isEmpty()) {
-			return this.id() + "@Unnamed Person";
-		}
-		return etatCivil.name.get();
+		return "Person: " + etatCivil.nomUsuel.get();
 	}
 
 	public Person(BBGraph g) {

@@ -78,14 +78,14 @@ public class AcademiaDB extends BBGraph {
 				i3s.members.add(p);
 			}
 
-			p.etatCivil.name.set(l.set(1, null));
-			p.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
-			p.etatCivil.firstName.set(l.set(3, null));
-			p.etatCivil.birthDate.set(l.set(4, null));
-			p.etatCivil.cityOfBirth.set(l.set(5, null));
+//			p.etatCivil.name.set(l.set(1, null));
+//			p.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
+//			p.etatCivil.firstName.set(l.set(3, null));
+//			p.etatCivil.birthDate.set(l.set(4, null));
+//			p.etatCivil.cityOfBirth.set(l.set(5, null));
 			//p.etatCivil.countryOfBirth.set(l.set(6, null));
-			p.etatCivil.nationality.set(l.set(7, null));
-			p.etatCivil.address.set(l.set(8, null));
+			//p.etatCivil.nationality.set(l.set(7, null));
+//			p.etatCivil.address.set(l.set(8, null));
 			var inter = BNode.create(graph, StringNode.class);
 			inter.set(l.set(9, null));
 			p.phoneNumbers.add(inter);

@@ -13,6 +13,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.Base64;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
@@ -66,6 +67,16 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 }
 
                 b.set("mimeType", new TextNode(vn.getMimeType()));
+            }
+            if (out instanceof ListNode<?> ln) {
+                b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode));
+                b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown));
+            } else if (out instanceof SetNode<?> sn) {
+                b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode));
+                b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown));
+            } else if (out instanceof DropdownNode<?> dn) {
+                b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode));
+                b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown));
             }
 
             if (out instanceof ListNode<?> || out instanceof SetNode<?> || out instanceof DropdownNode<?>) {

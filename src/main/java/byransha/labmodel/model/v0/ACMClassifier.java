@@ -15,6 +15,10 @@ public class ACMClassifier extends BusinessNode {
 		this.descr = descr;
 	}
 
+	public ACMClassifier(BBGraph g) {
+		super(g);
+	}
+
 	public ACMClassifier(BBGraph g, int id) {
 		super(g, id);
 	}

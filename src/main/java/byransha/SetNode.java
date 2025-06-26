@@ -7,6 +7,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
 public class SetNode<N extends BNode> extends PersistingNode {
+	public boolean canAddNewNode = true;
+	public boolean isDropdown = false;
 
 	@Override
 	public String whatIsThis() {
@@ -43,6 +45,15 @@ public class SetNode<N extends BNode> extends PersistingNode {
 	public void add(N n) {
 		l.add(n);
 		this.save(f -> {});
+	}
+
+	public void disableAddNewNode(){
+		canAddNewNode = false;
+	}
+
+	public void enableIsDropdown() {
+		canAddNewNode = false;
+		isDropdown = true;
 	}
 
 	public void remove(N p) {

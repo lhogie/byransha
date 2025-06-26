@@ -31,7 +31,7 @@ final public class StructureView extends NodeEndpoint<Structure> {
 			Structure s) throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
-			pw.println("<li>Director: " + s.director.etatCivil.name.get());
+			pw.println("<li>Director: " + s.director.etatCivil.nomUsuel.get());
 			pw.println("<li>" + s.members.size() + " members");
 			pw.println("<li>#offices: " + s.offices.size());
 			pw.println("<li>Office surface: " + s.totalSurface());

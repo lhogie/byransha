@@ -5,6 +5,8 @@ import byransha.BNode;
 import byransha.ListNode;
 
 public class ResearchGroup extends Structure {
+
+
 	public ResearchGroup(BBGraph g) {
 		super(g);
 		keywords = BNode.create(g, ListNode.class); // new ListNode<>(g);
@@ -14,5 +16,5 @@ public class ResearchGroup extends Structure {
 		super(g, id);
 	}
 
-	ListNode<ACMClassifier> keywords;
+	public ListNode<ACMClassifier> keywords;
 }
