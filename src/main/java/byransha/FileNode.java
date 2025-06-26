@@ -1,5 +1,7 @@
 package byransha;
 
+import java.util.Base64;
+
 public class FileNode extends ValuedNode<byte[]> {
 
     public StringNode title;
@@ -16,12 +18,7 @@ public class FileNode extends ValuedNode<byte[]> {
 
     @Override
     public void fromString(String s) {
-        if (s == null || s.isEmpty()) {
-            System.err.println("FileNode fromString received null or empty string: " + this);
-            return;
-        }
-        set(s.getBytes());
-
+        set(Base64.getDecoder().decode(s.getBytes()));
     }
 
     @Override
@@ -48,6 +45,6 @@ public class FileNode extends ValuedNode<byte[]> {
             System.err.println("FileNode with no value: " + this);
             return "";
         }
-        return new String(get());
+        return Base64.getEncoder().encodeToString(get());
     }
 }

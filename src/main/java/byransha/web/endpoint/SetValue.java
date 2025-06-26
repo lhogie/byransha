@@ -59,8 +59,7 @@ public class SetValue extends NodeEndpoint<BNode> {
             } else if (node instanceof ImageNode im) {
                 String base64Image = value.asText();
                 byte[] data = Base64.getDecoder().decode(base64Image);
-                // Fetch the image mime from the data
-                String mimeType = "image/png"; // Default to PNG, can be improved with a library
+                String mimeType = "image/png";
                 if (base64Image.startsWith("data:image/jpeg;base64,")) {
                     mimeType = "image/jpeg";
                 } else if (base64Image.startsWith("data:image/gif;base64,")) {
@@ -72,6 +71,20 @@ public class SetValue extends NodeEndpoint<BNode> {
                 im.set(data);
                 im.setMimeType(mimeType);
                 a.set("value", new TextNode(im.get().toString()));
+            } else if(node instanceof FileNode fn){
+
+                String base64File = value.asText();
+                byte[] data = Base64.getDecoder().decode(base64File);
+                String mimeType = "application/octet-stream";
+                if (base64File.startsWith("data:application/pdf;base64,")) {
+                    mimeType = "application/pdf";
+                } else if (base64File.startsWith("data:text/plain;base64,")) {
+                    mimeType = "text/plain";
+                }
+
+                fn.set(data);
+                fn.setMimeType(mimeType);
+                a.set("value", new TextNode(fn.get().toString()));
             }
 
             in.removeAll();
