@@ -193,7 +193,7 @@ public class WebServer extends BNode {
 			var p = new Person(g);
 			persons.add(p);
 			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.address.set("2000, route des Lucioles");
+			p.etatCivil.adressePersonnelle.set("2000, route des Lucioles");
 		}
 
 		var sophiaTech = new Campus(g);
