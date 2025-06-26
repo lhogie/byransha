@@ -30,7 +30,7 @@ const FormPage = () => {
         <Container className="form-page" component={Paper} elevation={3} sx={{ p: 3, position: 'relative' }}>
             <IconButton
                 className="close-button"
-                onClick={() => navigate("/add-node")}
+                onClick={() => navigate(-1)}
                 aria-label="close"
                 sx={{ position: 'absolute', top: 16, right: 16 }}
             >
