@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@babel/runtime": "^7.27.6",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.0",
     "@hello-pangea/dnd": "18.0.1",
@@ -50,7 +51,9 @@
   "scripts": {
     "start": "rsbuild dev",
     "build": "rsbuild build",
-    "serve": "rsbuild preview"
+    "serve": "rsbuild preview",
+    "dev:rsdoctor": "RSDOCTOR=true rsbuild dev",
+    "build:rsdoctor": "RSDOCTOR=true rsbuild build"
   },
   "eslintConfig": {
     "extends": [
@@ -74,10 +77,12 @@
     "@babel/plugin-proposal-private-property-in-object": "7.21.11",
     "@rsbuild/core": "1.4.0",
     "@rsbuild/plugin-react": "1.3.2",
+    "@rsdoctor/rspack-plugin": "^1.1.4",
     "@types/cytoscape": "3.21.9",
     "@types/cytoscape-fcose": "2.2.4",
     "@types/react-cytoscapejs": "1.2.5",
-    "@vitejs/plugin-react-swc": "3.10.2"
+    "@vitejs/plugin-react-swc": "3.10.2",
+    "cross-env": "^7.0.0"
   },
   "trustedDependencies": [
     "@mui/x-telemetry",
