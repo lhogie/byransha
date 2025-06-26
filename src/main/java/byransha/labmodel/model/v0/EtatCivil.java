@@ -16,6 +16,8 @@ public class EtatCivil extends BusinessNode {
     public ListCheckboxNode veryLongField;
     public BooleanNode human;
 
+	public FileNode fileNode;
+
 	public EtatCivil(BBGraph g) {
 		super(g);
 		firstName = BNode.create(g, StringNode.class);
@@ -36,6 +38,8 @@ public class EtatCivil extends BusinessNode {
                 "Option 11", "Option 12", "Option 13", "Option 14", "Option 15");
 
         human = BNode.create(g, BooleanNode.class);
+
+		fileNode = BNode.create(g, FileNode.class);
 
 		this.color = "green";
 	}
