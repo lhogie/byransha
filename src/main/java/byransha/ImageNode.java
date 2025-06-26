@@ -19,7 +19,6 @@ public class ImageNode extends ValuedNode<byte[]> {
 	@Override
 	public String prettyName() {
 		if(title.get() == null || title.get().isEmpty()) {
-			System.err.println("ImageNode with no title: " + this);
 			return "ImageNode(unknown)";
 		}
 		return title.get();
@@ -33,7 +32,6 @@ public class ImageNode extends ValuedNode<byte[]> {
 	@Override
 	public String getAsString() {
 		if (get() == null) {
-			System.err.println("ImageNode with no value: " + this);
 			return "";
 		}
 		return Base64.getEncoder().encodeToString(get());

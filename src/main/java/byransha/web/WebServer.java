@@ -107,9 +107,9 @@ public class WebServer extends BNode {
 			var g = new BBGraph(null);
 			var p = new Person(g);
 			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.name = new StringNode(g, "Caro");
-			p.etatCivil.firstName = new StringNode(g, "George");
-			p.etatCivil.nationality = new StringNode(g, "FR");
+			//p.etatCivil.name = new StringNode(g, "Caro");
+			//p.etatCivil.firstName = new StringNode(g, "George");
+			//p.etatCivil.nationality = new StringNode(g, "FR");
 			var lab = new I3S(g);
 			lab.members.add(p);
 			lab.director = p;
@@ -137,9 +137,12 @@ public class WebServer extends BNode {
 
 		var dot = ModelDOTView.toDot(g, c -> !Endpoint.class.isAssignableFrom(c));
 		var svg = ModelGraphivzSVGView.gen(dot, "fdp");
-		var f = Path.of("/Users/lhogie/a/job/byransha/model.svg");
-		System.out.print("writing " + f);
-		Files.write(f, svg);
+        // check if the folder exists
+        if (new File("/Users/lhogie/").exists()) {
+            var f = Path.of("/Users/lhogie/a/job/byransha/model.svg");
+            System.out.print("writing " + f);
+            Files.write(f, svg);
+        }
 		System.out.println("   done");
 
 		try {
@@ -193,7 +196,7 @@ public class WebServer extends BNode {
 			var p = new Person(g);
 			persons.add(p);
 			p.etatCivil = new EtatCivil(g);
-			p.etatCivil.address.set("2000, route des Lucioles");
+			//p.etatCivil.address.set("2000, route des Lucioles");
 		}
 
 		var sophiaTech = new Campus(g);
@@ -278,6 +281,7 @@ public class WebServer extends BNode {
         BNode.create(g, ListExistingNode.class);
         BNode.create(g, SearchNode.class);
         BNode.create(g, Agent.class);
+        BNode.create(g, byransha.web.endpoint.ExportCSV.class);
 
 		Country.loadCountries(g);
 	}

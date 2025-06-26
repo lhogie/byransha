@@ -25,7 +25,6 @@ public class FileNode extends ValuedNode<byte[]> {
     @Override
     public String whatIsThis() {
         if(title.get() == null || title.get().isEmpty()) {
-            System.err.println("FileNode with no title: " + this);
             return "FileNode(unknown)";
         }
         return "File" + title.get();
@@ -34,7 +33,6 @@ public class FileNode extends ValuedNode<byte[]> {
     @Override
     public String prettyName() {
         if(title.get() == null || title.get().isEmpty()) {
-            System.err.println("FileNode with no title: " + this);
             return "FileNode(unknown)";
         }
         return title.get();
@@ -43,7 +41,6 @@ public class FileNode extends ValuedNode<byte[]> {
     @Override
     public String getAsString() {
         if (get() == null) {
-            System.err.println("FileNode with no value: " + this);
             return "";
         }
         return Base64.getEncoder().encodeToString(get());

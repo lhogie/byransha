@@ -85,7 +85,6 @@ public class ModelDOTView extends NodeEndpoint<BBGraph> implements DevelopmentVi
 			}
 		});
 
-		System.out.println("**************");
 		if (false)
 			for (var e : model.entities) {
 				System.out.println(e);
