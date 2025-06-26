@@ -11,8 +11,6 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 const PdfFormField = ({ value, onChange, error, helperText }) => {
-    // `value` is the URL of the PDF from the parent component (e.g., from the server)
-    // `onChange` is the callback to notify the parent of a new file selection
     const [fileUrl, setFileUrl] = useState(value);
 
     useEffect(() => {
@@ -40,16 +38,15 @@ const PdfFormField = ({ value, onChange, error, helperText }) => {
                 onChange(base64String);
             };
 
-            reader.readAsDataURL(selectedFile); // Read the file as a data URL
+            reader.readAsDataURL(selectedFile);
         } else if (selectedFile) {
-            // Optional: Provide feedback if a non-PDF file is selected
             alert("Please select a PDF file.");
-            event.target.value = null; // Clear the input field
+            event.target.value = null;
         }
     };
 
     const openPdfInNewTab = (e) => {
-        e.stopPropagation(); // Prevent any parent onClick handlers
+        e.stopPropagation();
         if (fileUrl) {
             window.open(fileUrl, '_blank', 'noopener,noreferrer');
         }
@@ -65,7 +62,7 @@ const PdfFormField = ({ value, onChange, error, helperText }) => {
                     border: `2px solid ${error ? 'error.main' : 'transparent'}`,
                     borderRadius: '8px',
                     width: '180px',
-                    height: '254px', // Maintain A4-ish aspect ratio
+                    height: '254px',
                     overflow: 'hidden',
                     position: 'relative',
                     display: 'flex',
@@ -97,7 +94,6 @@ const PdfFormField = ({ value, onChange, error, helperText }) => {
                             </Box>
                         }
                     >
-                        {/* Render a thumbnail of the first page */}
                         <Page
                             pageNumber={1}
                             width={180}
