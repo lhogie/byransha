@@ -14,7 +14,7 @@ public class EtatCivil extends BusinessNode {
 
 	public RadioNode<String> gender;
     public ListCheckboxNode veryLongField;
-    public BooleanNode stupid;
+    public BooleanNode human;
 
 	public EtatCivil(BBGraph g) {
 		super(g);
@@ -35,7 +35,7 @@ public class EtatCivil extends BusinessNode {
                 "Option 5", "Option 6", "Option 7", "Option 8", "Option 9", "Option 10",
                 "Option 11", "Option 12", "Option 13", "Option 14", "Option 15");
 
-        stupid = BNode.create(g, BooleanNode.class);
+        human = BNode.create(g, BooleanNode.class);
 
 		this.color = "green";
 	}
