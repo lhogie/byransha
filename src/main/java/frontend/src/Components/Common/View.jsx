@@ -9,7 +9,6 @@ import {Box, Button, Modal, Typography, IconButton, Tooltip,Card, CardContent, C
 import CloseIcon from '@mui/icons-material/Close';
 import CodeIcon from '@mui/icons-material/Code';
 import ExportButton from './ExportButton.jsx';
-import { saveAs } from 'file-saver';
 import { Suspense } from 'react';
 import ReactECharts from 'echarts-for-react';
 import './View.css'
@@ -20,21 +19,6 @@ import CytoscapeComponent from 'react-cytoscapejs';
 import fcose from 'cytoscape-fcose';
 
 Cytoscape.use(fcose);
-
-const exportToCSV = (data, fileName) => {
-    const csvRows = [];
-    const headers = Object.keys(data[0]);
-    csvRows.push(headers.join(','));
-
-    data.forEach(row => {
-        const values = headers.map(header => row[header]);
-        csvRows.push(values.join(','));
-    });
-
-    const csvContent = csvRows.join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    saveAs(blob, fileName);
-};
 
 const modalStyle = {
     position: 'absolute',
@@ -359,12 +343,6 @@ export const View = ({ viewId, sx }) => {
                 .renderDot(content.results[0].result.data);
         }
     }, [rawApiData]);
-
-    const handleExportCSV = () => {
-        if (Array.isArray(resultData)) {
-            exportToCSV(resultData, `view_${viewId}_data.csv`);
-        }
-    };
 
     const backgroundColor = useMemo(() => sx?.bgcolor || 'transparent', [sx?.bgcolor]);
 

@@ -15,7 +15,7 @@ root.render(
         <StyledEngineProvider injectFirst>
             <QueryClientProvider client={queryClient}>
                 <RouterProvider router={router} />
-                <ReactQueryDevtools initialIsOpen={false} />
+                <ReactQueryDevtools buttonPosition="bottom-left" initialIsOpen={false} />
             </QueryClientProvider>
         </StyledEngineProvider>
     </React.StrictMode>
