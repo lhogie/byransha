@@ -1,6 +1,6 @@
 package byransha;
 
-public class PhoneNumberNode extends IntNode {
+public class PhoneNumberNode extends StringNode {
 
     public PhoneNumberNode(BBGraph db) {
         super(db);
@@ -8,7 +8,11 @@ public class PhoneNumberNode extends IntNode {
 
     @Override
     public String prettyName() {
-        return "Phone number";
+        if( get() == null || get().isEmpty()) {
+            return "Phone number (empty)";
+        }
+
+        return getAsString();
     }
 
     @Override
