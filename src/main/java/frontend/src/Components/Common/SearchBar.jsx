@@ -1,5 +1,5 @@
 import {Autocomplete, CircularProgress, TextField, Typography} from "@mui/material";
-import {useApiData, useApiMutation} from "../../Hooks/useApiData";
+import {useApiData, useApiMutation} from "../../hooks/useApiData.js";
 import {useState} from "react";
 import {useQueryClient} from "@tanstack/react-query";
 import {useNavigate} from "react-router";
