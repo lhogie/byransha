@@ -157,25 +157,22 @@ public class CSVExporter {
                     Object value = field.get(node);
                     String fieldName = prefix + (prefix.isEmpty() ? "" : ".") + field.getName();
 
-                    if (value instanceof ValuedNode) {
-                        // For ValuedNode, get the actual value
-                        ValuedNode<?> valuedNode = (ValuedNode<?>) value;
-                        fieldsToExport.put(fieldName, valuedNode.get());
-                    } else if (value instanceof SetNode) {
-                        // For SetNode, we'll handle it separately
-                        handleSetNode((SetNode<?>) value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                    } else if (value instanceof ListNode) {
-                        // For ListNode, we'll handle it separately
-                        handleListNode((ListNode<?>) value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                    } else if (value instanceof BNode && currentDepth < maxDepth) {
-                        // For other BNode types, recurse if within depth limit
-                        BNode bNode = (BNode) value;
-                        if (includeRecursiveNodes.test(bNode)) {
-                            collectFields(value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth + 1);
+                    switch (value) {
+                        case DropdownNode<?> dropdownNode ->
+                                handleDropDown(dropdownNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                        case ValuedNode<?> valuedNode ->
+                                fieldsToExport.put(fieldName, valuedNode.get());
+                        case SetNode<?> setNode ->
+                                handleSetNode(setNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                        case ListNode<?> listNode ->
+                                handleListNode(listNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                        case BNode bNode when currentDepth < maxDepth -> {
+                            if (includeRecursiveNodes.test(bNode)) {
+                                collectFields(value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth + 1);
+                            }
                         }
-                    } else {
-                        // For primitive types and other objects
-                        fieldsToExport.put(fieldName, value);
+                        case null, default ->
+                                fieldsToExport.put(fieldName, value);
                     }
                 } catch (IllegalAccessException e) {
                     // Skip fields that can't be accessed
@@ -208,7 +205,7 @@ public class CSVExporter {
                 elements.add(formatValue(valuedNode.get()));
             } else if (includeRecursiveNodes.test(node) && currentDepth < maxDepth) {
                 // For other nodes, add their string representation
-                elements.add(node.toString());
+                elements.add(node.prettyName());
             }
         });
 
@@ -239,11 +236,20 @@ public class CSVExporter {
                 elements.add(formatValue(valuedNode.get()));
             } else if (includeRecursiveNodes.test(node) && currentDepth < maxDepth) {
                 // For other nodes, add their string representation
-                elements.add(node.toString());
+                elements.add(node.prettyName());
             }
         });
 
         fieldsToExport.put(fieldName, String.join(",", elements));
+    }
+
+    private static void handleDropDown(DropdownNode<?> dropdownNode, String fieldName, Map<String, Object> fieldsToExport,
+                                     Predicate<Field> includeFields,
+                                     Predicate<BNode> includeRecursiveNodes,
+                                     int maxDepth, int currentDepth) {
+        if (dropdownNode.get() != null) {
+            fieldsToExport.put(fieldName, dropdownNode.get().prettyName());
+        }
     }
 
     /**
