@@ -37,6 +37,12 @@ public class EtatCivil extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		return  " " ;
+		if( nomUsuel.get() == null) {
+			if( prenom.get() == null) {
+				return "Civil Information";
+			}
+			return "(no usual name) " +  prenom.get();
+		}
+		return  nomUsuel.get() + " " + prenom.get();
 	}
 }
