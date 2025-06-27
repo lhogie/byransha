@@ -7,6 +7,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
 import java.lang.reflect.Field;
@@ -160,6 +166,8 @@ public class CSVExporter {
                     switch (value) {
                         case DropdownNode<?> dropdownNode ->
                                 handleDropDown(dropdownNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                        case DateNode dateNode ->
+                                handleDateNode(dateNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
                         case ValuedNode<?> valuedNode ->
                                 fieldsToExport.put(fieldName, valuedNode.get());
                         case SetNode<?> setNode ->
@@ -249,6 +257,21 @@ public class CSVExporter {
                                      int maxDepth, int currentDepth) {
         if (dropdownNode.get() != null) {
             fieldsToExport.put(fieldName, dropdownNode.get().prettyName());
+        }
+    }
+
+    private static void handleDateNode(DateNode dateNode, String fieldName, Map<String, Object> fieldsToExport,
+                                       Predicate<Field> includeFields,
+                                       Predicate<BNode> includeRecursiveNodes,
+                                       int maxDepth, int currentDepth) {
+        if (dateNode.get() != null) {
+            // Use new date to convert the date in a readable format (it's save with T...)
+            OffsetDateTime odt = OffsetDateTime.parse(dateNode.get());
+            Date parsedDate = Date.from(odt.toInstant());
+
+            DateFormat excelDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String formattedString = excelDateFormat.format(parsedDate);
+            fieldsToExport.put(fieldName, formattedString);
         }
     }
 
