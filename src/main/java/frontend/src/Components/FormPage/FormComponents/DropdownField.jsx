@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Autocomplete, CircularProgress, FormControl, FormHelperText, InputAdornment, TextField} from '@mui/material';
 import {useApiData, useApiMutation} from "../../../hooks/useApiData.js";
 
-const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange, onFirstChange, error, helperText, ...rest }) => {
+const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange, onFirstChange, error, helperText, multiple = false, ...rest }) => {
     const shortName = field.listNodeType.split('.').pop();
 
     const {
@@ -15,7 +15,7 @@ const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange
     })
 
     useEffect(() => {
-        if (!isLoading && !isError && listData?.data?.results?.[0]?.result?.data?.length !== 0) {
+        if (!isLoading && !isError && listData?.data?.results?.[0]?.result?.data?.length !== 0 && !multiple) {
             if (defaultValue) {
                 const id = Number.parseInt(defaultValue.split('@')[1]);
                 const existingOption = listData?.data?.results?.[0]?.result?.data.find(option => option.id === id);
@@ -65,12 +65,19 @@ const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange
                     }) || []
                 }
                 groupBy={(option) => option.firstLetter}
+                getOptionKey={(option) => option.value}
+                getOptionLabel={(option) => option.label}
+                isOptionEqualToValue={(option, value) => {
+                    return option.value === value.value;
+                }}
                 size="small"
                 id={fieldKey}
                 value={value}
                 onChange={(event, newValue) => {
                     onChange(newValue);
                 }}
+                multiple={multiple}
+                {...rest}
             />
             {helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControl>

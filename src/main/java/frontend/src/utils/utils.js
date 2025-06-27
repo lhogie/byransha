@@ -81,4 +81,5 @@ export const dropdownField = ["DropdownNode"];
 export const radioField = ["RadioNode"];
 export const listCheckboxField = ["ListCheckboxNode"]
 export const fileField = ['FileNode'];
+export const listField = ["ListNode", "SetNode"]
 export const typeComponent = [...inputTextField, ...fileField, ...checkboxField, ...listCheckboxField, ...dateField, ...dropdownField, ...radioField];

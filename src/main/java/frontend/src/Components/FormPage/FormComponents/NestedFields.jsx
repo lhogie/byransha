@@ -4,11 +4,12 @@ import AddIcon from '@mui/icons-material/Add';
 import FormField from './FormField';
 import {useApiData, useApiMutation} from "../../../hooks/useApiData.js";
 import ExistingNodeSelector from "./ExistingNodeSelector.jsx";
-import {createKey, shortenAndFormatLabel, typeComponent} from "../../../utils/utils.js";
+import {createKey, listField, shortenAndFormatLabel, typeComponent} from "../../../utils/utils.js";
 import {useNavigate} from "react-router";
 import {useDebouncedCallback} from "use-debounce";
 import {useQueryClient} from "@tanstack/react-query";
 import dayjs from "dayjs";
+import DropdownField from "./DropdownField.jsx";
 
 const NestedFields = ({
                           fieldKey,
@@ -207,7 +208,7 @@ const NestedFields = ({
                         parentId={parentId}
                     />
 
-                    {!typeComponent.includes(type) && (
+                    {!(typeComponent.includes(type) || (listField.includes(type) && subField.isDropdown)) && (
                         <NestedFields
                             fieldKey={subFieldKey}
                             field={subField}
@@ -228,6 +229,8 @@ const NestedFields = ({
 
     const subfieldData = rawApiData?.data?.results?.[0]?.result?.data || []
 
+    console.log(field)
+
     return (
         <React.Fragment>
             {
@@ -245,15 +248,18 @@ const NestedFields = ({
                             )
                         )}
 
-                        {["ListNode", "SetNode"].includes(type) && isToggle && (
+                        {listField.includes(type) && isToggle && !field.isDropdown && (
                             <Stack direction="row" spacing={2} className="add-new-node" sx={{ mt: 2 }}>
-                                <Button
-                                    variant="outlined"
-                                    startIcon={<AddIcon />}
-                                    onClick={() => handleAddNewNode(field)}
-                                >
-                                    Add new {name}
-                                </Button>
+                                {
+                                    field.canAddNewNode ?? <Button
+                                        variant="outlined"
+                                        startIcon={<AddIcon />}
+                                        onClick={() => handleAddNewNode(field)}
+                                    >
+                                        Add new {name}
+                                    </Button>
+                                }
+
                                 <Button
                                     variant="outlined"
                                     startIcon={<AddIcon />}
@@ -283,7 +289,7 @@ const NestedFields = ({
 
 export default React.memo(NestedFields, (prevProps, nextProps) => {
     return (
-        prevProps.fieldKey === nextProps.fieldKey && 
+        prevProps.fieldKey === nextProps.fieldKey &&
         prevProps.rootId === nextProps.rootId &&
         prevProps.isToggle === nextProps.isToggle
     );

@@ -22,7 +22,7 @@ import {
     createKey,
     dateField, dropdownField, fileField, getErrorMessage,
     imageField,
-    inputTextField, listCheckboxField, radioField,
+    inputTextField, listCheckboxField, listField, radioField,
     shortenAndFormatLabel, typeComponent, validateFieldValue
 } from "../../../utils/utils.js";
 import dayjs from "dayjs";
@@ -34,6 +34,7 @@ import RadioField from "./RadioField.jsx";
 import ListCheckboxField from "./ListCheckboxField.jsx";
 import {useQueryClient} from "@tanstack/react-query";
 import PdfFormField from "./PdfFormField.jsx";
+import MultiDropdownField from "./MultiDropdownField.jsx";
 
 const FormField = ({
                        field,
@@ -45,10 +46,10 @@ const FormField = ({
                        defaultValue = '', // Default value for the field
                    }) => {
     const { id, name, type } = field;
-    const [value, setValue] = useState(dropdownField.includes(type) ? {
+    const [value, setValue] = useState((dropdownField.includes(type) ? {
         label: defaultValue,
         value: defaultValue?.split('@')[1]
-    } : defaultValue);
+    } : (listField.includes(type) ? [] : defaultValue)));
     const [error, setError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
     const queryClient = useQueryClient();
@@ -203,6 +204,33 @@ const FormField = ({
         setValue(value);
     })
 
+    const handleMultiDropdownValueChange = useCallback((newValue) => {
+        const isValid = validateFieldValue(field.type, newValue?.value);
+        setError(!isValid);
+        if (!isValid) {
+            setErrorMessage(getErrorMessage(field.type, newValue?.value));
+        } else {
+            setErrorMessage('');
+        }
+
+        const oldValues = value || [];
+        const newValues = newValue || [];
+
+        const addedValues = newValues.filter(newItem =>
+            !oldValues.some(oldItem => oldItem.value === newItem.value)
+        );
+
+        if (addedValues.length > 0) {
+            addedValues.forEach(addedItem => {
+                handleSaveDropdownChanges(field, addedItem.value);
+            });
+        }
+
+        // TODO: HANDLE MULTIPLE ADDED VALUES AND DELETED VALUES
+
+        setValue(newValue);
+    })
+
     const handleChangingForm = useCallback(() => {
         onChangingForm(name, id);
     }, [onChangingForm, name, id]);
@@ -235,7 +263,7 @@ const FormField = ({
                         >
                             <Typography fontWeight="medium">{shortenAndFormatLabel(name)}</Typography>
                         </Button>
-                        {!typeComponent.includes(type) && (
+                        {!(typeComponent.includes(type) || (listField.includes(type) && field.isDropdown)) && (
                             <Box className="toggle-wrapper" textAlign="right">
                                 <IconButton
                                     onClick={handleToggleField}
@@ -318,6 +346,24 @@ const FormField = ({
                             helperText={error ? errorMessage : ''}
                         />
                     )}
+
+                    {
+                        (listField.includes(type) && field.isDropdown) && (
+                            <MultiDropdownField
+                                field={field}
+                                fieldKey={fieldKey}
+                                value={value ?? []}
+                                onChange={handleMultiDropdownValueChange}
+                                onFirstChange={(value) => {
+                                    setValue(value)
+                                }}
+                                size="small"
+                                defaultValue={defaultValue}
+                                error={error}
+                                helperText={error ? errorMessage : ''}
+                            />
+                        )
+                    }
 
                     {radioField.includes(type) && (
                         <RadioField
