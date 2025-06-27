@@ -2,7 +2,7 @@ import React, {useEffect} from 'react';
 import {Autocomplete, CircularProgress, FormControl, FormHelperText, InputAdornment, TextField} from '@mui/material';
 import {useApiData, useApiMutation} from "../../../hooks/useApiData.js";
 
-const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange, error, helperText, ...rest }) => {
+const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange, onFirstChange, error, helperText, ...rest }) => {
     const shortName = field.listNodeType.split('.').pop();
 
     const {
@@ -14,8 +14,6 @@ const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange
         type: shortName
     })
 
-    console.log(defaultValue)
-
     useEffect(() => {
         if (!isLoading && !isError && listData?.data?.results?.[0]?.result?.data?.length !== 0) {
             if (defaultValue) {
@@ -23,15 +21,15 @@ const DropdownField = ({ field, fieldKey, value, defaultValue, onFocus, onChange
                 const existingOption = listData?.data?.results?.[0]?.result?.data.find(option => option.id === id);
 
                 if (existingOption) {
-                    onChange({
+                    onFirstChange({
                         label: existingOption.name,
                         value: existingOption.id
                     });
                 } else {
-                    onChange(undefined);
+                    onFirstChange(undefined);
                 }
             } else {
-                onChange(undefined);
+                onFirstChange(undefined);
             }
         }
     }, [isLoading, isError]);

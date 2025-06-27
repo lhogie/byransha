@@ -309,6 +309,9 @@ const FormField = ({
                             fieldKey={fieldKey}
                             value={value}
                             onChange={handleDropdownValueChange}
+                            onFirstChange={(value) => {
+                                setValue(value)
+                            }}
                             size="small"
                             defaultValue={defaultValue}
                             error={error}
