@@ -2,6 +2,8 @@ import { defineConfig } from '@rsbuild/core';
 import { pluginReact } from '@rsbuild/plugin-react';
 import { pluginBabel } from '@rsbuild/plugin-babel';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 export default defineConfig({
     html: {
         template: './index.html',
@@ -12,13 +14,17 @@ export default defineConfig({
         }
     },
     output: {
-        cleanDistPath: process.env.NODE_ENV === 'production',
+        cleanDistPath: !isDev,
         distPath: {
             root: '../../../../build/frontend'
         }
     },
     server: {
         port: 5173
+    },
+    performance: {
+        removeConsole: isDev ? false : ['log', 'warn'],
+        preload: true
     },
     plugins: [
         pluginReact(),

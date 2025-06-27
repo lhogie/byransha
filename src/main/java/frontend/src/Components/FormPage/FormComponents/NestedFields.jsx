@@ -229,8 +229,6 @@ const NestedFields = ({
 
     const subfieldData = rawApiData?.data?.results?.[0]?.result?.data || []
 
-    console.log(field)
-
     return (
         <React.Fragment>
             {
