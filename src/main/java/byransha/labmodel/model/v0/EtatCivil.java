@@ -32,17 +32,24 @@ public class EtatCivil extends BusinessNode {
 
 	@Override
 	public String whatIsThis() {
-		return "civil information";
+		return "Etat Civil";
 	}
 
 	@Override
 	public String prettyName() {
-		if( nomUsuel.get() == null) {
-			if( prenom.get() == null) {
-				return "Civil Information";
-			}
-			return "(no usual name) " +  prenom.get();
+		return returnName();
+	}
+
+	private String returnName() {
+		if( nomUsuel.get() != null && prenom.get() != null) {
+			return nomUsuel.get() + " " + prenom.get();
 		}
-		return  nomUsuel.get() + " " + prenom.get();
+		else if( nomUsuel.get() != null && prenom.get() == null) {
+			return nomUsuel.get() + " (pas de prénom)";
+		}
+		else if( prenom.get() != null && nomUsuel.get() == null) {
+			return "(pas de nom) " + prenom.get();
+		}
+		return "Etat Civil sans information ";
 	}
 }
