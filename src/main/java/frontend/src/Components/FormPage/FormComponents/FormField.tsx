@@ -28,8 +28,8 @@ import {
 	shortenAndFormatLabel,
 	typeComponent,
 	validateFieldValue,
-} from "../../../utils/utils";
-import { useApiMutation } from "../../../hooks/useApiData";
+} from "@/utils/utils";
+import { useApiMutation } from "@hooks/useApiData";
 import DropdownField from "./DropdownField";
 import toast from "react-hot-toast";
 import RadioField from "./RadioField.js";

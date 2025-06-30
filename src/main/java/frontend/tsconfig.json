@@ -13,9 +13,10 @@
 		"paths": {
 			"@/*": ["./src/*"],
 			"@hooks/*": ["./src/hooks/*"],
-			"@components/*": ["./src/components/*"],
+			"@components/*": ["./src/Components/*"],
 			"@assets/*": ["./src/assets/*"],
-			"@global/*": ["./src/global/*"]
+			"@global/*": ["./src/global/*"],
+			"@common/*": ["./src/Components/Common/*"]
 		},
 		"allowSyntheticDefaultImports": true
 	},

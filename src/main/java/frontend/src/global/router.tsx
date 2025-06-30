@@ -1,11 +1,11 @@
 import { createBrowserRouter } from "react-router";
 import App from "./App.js";
-import LoginForm from "../Components/LoginForm/LoginForm";
+import LoginForm from "@components/LoginForm/LoginForm";
 import MainLayout from "./MainLayout.js";
-import HomePage from "../Components/HomePage/HomePage";
-import InformationPage from "../Components/InformationPage/InformationPage";
-import AddNodePage from "../Components/AddNode/AddNodePage";
-import FormPage from "../Components/FormPage/FormPage";
+import HomePage from "@components/HomePage/HomePage";
+import InformationPage from "@components/InformationPage/InformationPage";
+import AddNodePage from "@components/AddNode/AddNodePage";
+import FormPage from "@components/FormPage/FormPage";
 
 export const router = createBrowserRouter([
 	{

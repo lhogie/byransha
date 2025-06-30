@@ -22,8 +22,8 @@ import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useCallback, type MouseEventHandler } from "react";
-import { SearchBar } from "../Components/Common/SearchBar";
-import { useApiData, useApiMutation } from "../hooks/useApiData";
+import { SearchBar } from "@components/Common/SearchBar";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
 
 const MainLayout = () => {
 	const navigate = useNavigate();

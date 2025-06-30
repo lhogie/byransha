@@ -3,8 +3,8 @@ import "./LoginForm.css";
 import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
 import logo from "../Assets/i3S_RVB_Couleur.png";
 import { useNavigate } from "react-router";
-import { useTitle } from "../../global/useTitle.js";
-import { useApiMutation } from "../../hooks/useApiData";
+import { useTitle } from "@global/useTitle";
+import { useApiMutation } from "@hooks/useApiData";
 import { useQueryClient } from "@tanstack/react-query";
 
 const LoginForm = () => {

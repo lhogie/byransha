@@ -6,7 +6,7 @@ import {
 	FormHelperText,
 	TextField,
 } from "@mui/material";
-import { useApiData } from "../../../hooks/useApiData";
+import { useApiData } from "@hooks/useApiData";
 
 export type DropdownFieldProps = {
 	field: any;

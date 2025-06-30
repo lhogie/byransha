@@ -19,7 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import Expand from "@mui/icons-material/AspectRatio";
 import { useTitle } from "@global/useTitle";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { View } from "../Common/View";
+import { View } from "@common/View";
 
 const ViewCard = memo(
 	({

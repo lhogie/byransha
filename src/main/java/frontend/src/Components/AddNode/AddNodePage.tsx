@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useTitle } from "../../global/useTitle.js";
+import { useTitle } from "@global/useTitle";
 import {
 	Box,
 	Card,
@@ -19,7 +19,7 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReloadIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import { useApiData, useApiMutation } from "../../hooks/useApiData";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { useQueryClient } from "@tanstack/react-query";
 
 const AddNodePage = () => {

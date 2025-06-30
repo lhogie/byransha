@@ -6,10 +6,10 @@ import {
 	FormGroup,
 	FormHelperText,
 } from "@mui/material";
-import { useApiData, useApiMutation } from "../../../hooks/useApiData";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { useDebouncedCallback } from "use-debounce";
 import toast from "react-hot-toast";
-import { shortenAndFormatLabel } from "../../../utils/utils";
+import { shortenAndFormatLabel } from "@/utils/utils";
 import { useQueryClient } from "@tanstack/react-query";
 
 const ListCheckboxComponent = ({

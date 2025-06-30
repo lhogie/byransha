@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect } from "react";
-import { useApiData } from "../../../hooks/useApiData";
+import { useApiData } from "@hooks/useApiData";
 import DropdownField from "./DropdownField";
 
 export type MultiDropdownFieldProps = {
