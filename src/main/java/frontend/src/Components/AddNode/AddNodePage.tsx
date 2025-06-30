@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTitle } from "@global/useTitle";
 import {
 	Box,
@@ -135,7 +135,7 @@ const AddNodePage = () => {
 		}
 	}, [rawApiData]);
 
-	const fetchClassInfo = async (fullName: string) => {
+	const fetchClassInfo = useCallback(async (fullName: string) => {
 		const cacheKey = `persisting:${fullName}`;
 		const cached = localStorage.getItem(cacheKey);
 		if (cached !== null) {
@@ -163,10 +163,12 @@ const AddNodePage = () => {
 			console.error(`Error fetching info for ${fullName}:`, err);
 			return false;
 		}
-	};
+	}, []);
 
 	useEffect(() => {
 		if (!fullClassName || fullClassName.length === 0) return;
+
+		console.log("hi");
 
 		const checkPersistingNodes = async () => {
 			const persistingSet = new Set<string>();

@@ -72,6 +72,7 @@ const FormField = ({
 
 	const setValueMutation = useApiMutation("set_value");
 	const addExistingNodeMutation = useApiMutation("add_existing_node");
+	const removeFromListMutation = useApiMutation("remove_from_list");
 
 	const handleSaveChanges = useDebouncedCallback(
 		async (field) => {
@@ -186,7 +187,7 @@ const FormField = ({
 	);
 
 	const handleSaveDropdownChanges = useDebouncedCallback(
-		async (field, value) => {
+		async (field, value, added: boolean = true) => {
 			if (!field) return console.warn("No field provided for saving changes");
 			const isValid = validateFieldValue(field.type, value);
 
@@ -205,7 +206,10 @@ const FormField = ({
 
 			try {
 				await toast.promise(
-					addExistingNodeMutation.mutateAsync(
+					(added
+						? addExistingNodeMutation
+						: removeFromListMutation
+					).mutateAsync(
 						{
 							node_id: field.id,
 							id: value,
@@ -274,6 +278,10 @@ const FormField = ({
 		[field, handleSaveDropdownChanges],
 	);
 
+	const handleDropdownFirstValueChange = useCallback((value: any) => {
+		setValue(value);
+	}, []);
+
 	const handleMultiDropdownValueChange = useCallback(
 		(newValue: any) => {
 			const isValid = validateFieldValue(field.type, newValue?.value);
@@ -299,10 +307,25 @@ const FormField = ({
 			}
 
 			// TODO: HANDLE MULTIPLE ADDED VALUES AND DELETED VALUES
+			const removedValues = oldValues.filter(
+				(oldItem: any) =>
+					!newValues.some((newItem: any) => newItem.value === oldItem.value),
+			);
+
+			if (removedValues.length > 0) {
+				removedValues.forEach((removedItem: any) => {
+					handleSaveDropdownChanges(field, removedItem.value, false);
+				});
+			}
 
 			setValue(newValue);
 		},
 		[field, handleSaveDropdownChanges, value],
+	);
+
+	const handleMultiDropdownFirstChange = useCallback(
+		(newValue: any) => setValue(newValue),
+		[],
 	);
 
 	const handleChangingForm = useCallback(() => {
@@ -410,9 +433,7 @@ const FormField = ({
 							fieldKey={fieldKey}
 							value={value}
 							onChange={handleDropdownValueChange}
-							onFirstChange={(value) => {
-								setValue(value);
-							}}
+							onFirstChange={handleDropdownFirstValueChange}
 							defaultValue={defaultValue}
 							error={error}
 							helperText={error ? errorMessage : ""}
@@ -425,9 +446,7 @@ const FormField = ({
 							fieldKey={fieldKey}
 							value={value ?? []}
 							onChange={handleMultiDropdownValueChange}
-							onFirstChange={(value) => {
-								setValue(value);
-							}}
+							onFirstChange={handleMultiDropdownFirstChange}
 							error={error}
 							helperText={error ? errorMessage : ""}
 						/>
