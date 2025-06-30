@@ -1,9 +1,6 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ListNode;
-import byransha.User;
+import byransha.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.NodeEndpoint;
@@ -12,7 +9,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-public class RemoveFromList extends NodeEndpoint<BNode> {
+public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
 
     public RemoveFromList(BBGraph g) {
         super(g);
@@ -24,18 +21,24 @@ public class RemoveFromList extends NodeEndpoint<BNode> {
 
     @Override
     public EndpointJsonResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node) throws Throwable {
-        var id = requireParm(input, "id").asInt();
-        if(node instanceof ListNode) {
-            ListNode<?> listNode = (ListNode<?>) node;
-            if (id < 0 || id >= listNode.l.size()) {
-                throw new IllegalArgumentException("Invalid index: " + id);
-            }
-            BNode toRemove = listNode.l.get(id);
-            if (toRemove == null) {
-                throw new IllegalArgumentException("No node found at index: " + id);
-            }
-            listNode.removeById(id);
-            return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + toRemove.id() + " from list: " + listNode.prettyName());
+        var nodeToRemove = graph.findByID(requireParm(input, "id").asInt());
+        if (node instanceof ListNode<?> listNode) {
+            @SuppressWarnings("unchecked")
+            ListNode<N> typedListNode = (ListNode<N>) listNode;
+            typedListNode.add((N) nodeToRemove);
+            return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from list: " + listNode.prettyName());
+        }
+        else if (node instanceof SetNode<?> setNode) {
+            @SuppressWarnings("unchecked")
+            SetNode<N> typedSetNode = (SetNode<N>) setNode;
+            typedSetNode.remove((N) nodeToRemove);
+            return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from set: " + setNode.prettyName());
+        }
+        else if (node instanceof DropdownNode<?> dropdownNode) {
+            @SuppressWarnings("unchecked")
+            DropdownNode<N> typedDropdownNode = (DropdownNode<N>) dropdownNode;
+            typedDropdownNode.set((N) nodeToRemove);
+            return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from dropdown: " + dropdownNode.prettyName());
         }
         else
             throw new IllegalArgumentException("Node is not a ListNode, cannot remove from it.");

@@ -65,11 +65,6 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		this.save(f -> {});
 	}
 
-	public void removeById(int id) {
-		l.removeIf(n -> n.id() == id);
-		this.save(f -> {});
-	}
-
 	public N get(int i) {
 		return l.get(i);
 	}
