@@ -690,66 +690,9 @@ export const View = ({ viewId, sx }) => {
         }
     }, [viewId, jumpToNode, graphvizRef, backgroundColor, stringifyJson]);
 
-    const renderJsonViewer = useMemo(() => {
-        return (dataForModal) => {
-            return (
-                <>
-                    <Tooltip title="Show Raw Backend Response">
-                        <IconButton
-                            onClick={handleOpenModal}
-                            size="small"
-                            sx={{
-                                position: 'absolute',
-                                top: 5,
-                                right: 5,
-                                zIndex: 10,
-                                width: 30,
-                                height: 30,
-                                color: 'primary.main',
-                            }}
-                            aria-label="Show raw JSON"
-                            disabled={dataForModal === null || dataForModal === undefined}
-                        >
-                            <CodeIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Modal
-                        open={isModalOpen}
-                        onClose={handleCloseModal}
-                        aria-labelledby="raw-json-modal-title"
-                        aria-describedby="raw-json-modal-description"
-                    >
-                        <Box sx={modalStyle}>
-                            <Box sx={modalHeaderStyle}>
-                                <Typography id="raw-json-modal-title" variant="h6" component="h2">
-                                    Raw Backend Response
-                                </Typography>
-                                <IconButton onClick={handleCloseModal} aria-label="close">
-                                    <CloseIcon />
-                                </IconButton>
-                            </Box>
-                            <Box sx={modalContentStyle}>
-                                {dataForModal ? (
-                                    <Suspense fallback={<CircularProgress />}>
-                                        <JsonView
-                                            data={dataForModal}
-                                        />
-                                    </Suspense>
-                                ) : (
-                                    <Typography>No raw data available to display.</Typography>
-                                )}
-                            </Box>
-                        </Box>
-                    </Modal>
-                </>
-            );
-        };
-    }, [isModalOpen, handleOpenModal, handleCloseModal, stringifyJson]);
-
     if (loading) {
         return (
             <Box className="view-container" sx={{ position: 'relative', padding: 2, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '300px' }}>
-                {renderJsonViewer(rawApiData)}
                 <CircularProgress />
             </Box>
         );
@@ -758,7 +701,6 @@ export const View = ({ viewId, sx }) => {
     if (error) {
         return (
             <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
-                {renderJsonViewer(rawApiData)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Error fetching data: {error.message}
                 </div>
@@ -769,7 +711,6 @@ export const View = ({ viewId, sx }) => {
     if (!rawApiData) {
         return (
             <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
-                {renderJsonViewer(null)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     No data available.
                 </div>
@@ -782,7 +723,6 @@ export const View = ({ viewId, sx }) => {
     if (dataContent?.results?.[0]?.error !== undefined) {
         return (
             <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
-                {renderJsonViewer(rawApiData)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Backend Error: {dataContent.results[0].error}
                 </div>
@@ -796,7 +736,6 @@ export const View = ({ viewId, sx }) => {
     if (!resultData || !resultContentType) {
         return (
             <Box className="view-container information-page" sx={{ position: 'relative', padding: 2 }}>
-                {renderJsonViewer(resultData) || renderJsonViewer(resultContentType)}
                 <div className="error-message" style={{ marginTop: '40px' }}>
                     Result data or content type missing in the response.
                 </div>
@@ -808,7 +747,6 @@ export const View = ({ viewId, sx }) => {
 
     return (
         <Box className="view-container" sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            {renderJsonViewer(exportData)}
             <Box sx={{
                 position: 'relative',
                 padding: 2,
