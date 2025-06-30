@@ -3,6 +3,7 @@ package byransha.web.endpoint;
 import byransha.*;
 import byransha.labmodel.model.v0.Position;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -56,7 +57,7 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             }
 
         } else {
-            return new EndpointJsonResponse(null, "Failed to create node of class: " + className);
+            return ErrorResponse.serverError("Failed to create node of class: " + className);
         }
 
         return new EndpointJsonResponse(a,"Add_node call executed successfully");

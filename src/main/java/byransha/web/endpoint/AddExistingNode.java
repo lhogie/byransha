@@ -2,6 +2,7 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.IntNode;
@@ -33,7 +34,7 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         var existingNode = graph.findByID(idToLink);
         if (existingNode == null) {
-            return new EndpointJsonResponse(a, "Node with ID " + idToLink + " does not exist in the graph.");
+            return ErrorResponse.notFound("Node with ID " + idToLink + " does not exist in the graph.");
         }
         else{
             a.put("id", new IntNode(existingNode.id()));

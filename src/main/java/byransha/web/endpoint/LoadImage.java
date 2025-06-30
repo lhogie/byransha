@@ -4,6 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -45,7 +46,7 @@ public class LoadImage extends NodeEndpoint<BNode> {
             return new EndpointJsonResponse(l, this);
         } catch (Exception e) {
             e.printStackTrace();
-            return new EndpointJsonResponse(new TextNode("Failed to load or encode the image" + e), this);
+            return ErrorResponse.serverError("Failed to load or encode the image: " + e.getMessage());
         }
     }
 }

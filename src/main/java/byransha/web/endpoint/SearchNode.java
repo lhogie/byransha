@@ -3,17 +3,17 @@ package byransha.web.endpoint;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.ValuedNode;
 import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
-import byransha.web.util.Utilities;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+import toools.text.TextUtilities;
 
 import java.util.Comparator;
 
@@ -39,7 +39,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
         var query = requireParm(in, "query").asText();
 
         if (query == null || query.isEmpty()) {
-            return new EndpointJsonResponse(a, "Query parameter is missing or empty.");
+            return ErrorResponse.badRequest("Query parameter is missing or empty.");
         }
 
         var nodes = graph.findAll(BusinessNode.class, node -> node.prettyName().toLowerCase().contains(query.toLowerCase()));
@@ -47,7 +47,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
         nodes.sort(Comparator.comparingInt(node -> {
             String name = node.prettyName();
             if (name == null) return Integer.MAX_VALUE;
-            return Utilities.levenshteinDistance(name.toLowerCase(), query);
+            return TextUtilities.computeLevenshteinDistance(name.toLowerCase(), query);
         }));
 
         nodes.forEach(node -> {

@@ -11,10 +11,33 @@ class HTTPResponse {
 	final byte[] content;
 	final String contentType;
 
+	private Long rangeStart;
+	private Long rangeEnd;
+	private Long contentLength;
+
 	public HTTPResponse(int i, String contentType, byte[] content) {
 		this.code = i;
 		this.content = content;
 		this.contentType = contentType;
+		this.contentLength = (long) content.length;
+	}
+
+	/**
+	 * Constructor for range requests
+	 * 
+	 * @param code HTTP status code
+	 * @param contentType Content type of the response
+	 * @param content Full content of the response
+	 * @param rangeStart Start byte of the range (inclusive)
+	 * @param rangeEnd End byte of the range (inclusive)
+	 */
+	public HTTPResponse(int code, String contentType, byte[] content, long rangeStart, long rangeEnd) {
+		this.code = code;
+		this.content = content;
+		this.contentType = contentType;
+		this.rangeStart = rangeStart;
+		this.rangeEnd = rangeEnd;
+		this.contentLength = (long) content.length;
 	}
 
 
@@ -31,73 +54,113 @@ class HTTPResponse {
                 e.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, Authorization");
                 e.getResponseHeaders().add("Access-Control-Max-Age", "3600");
 
-                // Add security headers
                 e.getResponseHeaders().add("X-Content-Type-Options", "nosniff");
                 e.getResponseHeaders().add("X-Frame-Options", "SAMEORIGIN");
                 e.getResponseHeaders().add("X-XSS-Protection", "1; mode=block");
                 e.getResponseHeaders().add("Referrer-Policy", "strict-origin-when-cross-origin");
                 e.getResponseHeaders().add("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
 
-                // Handle preflight OPTIONS request
                 if (e.getRequestMethod().equalsIgnoreCase("OPTIONS")) {
                     e.getResponseHeaders().set("Content-Type", "text/plain");
-                    e.sendResponseHeaders(204, -1); // No content
+                    e.sendResponseHeaders(204, -1);
                     return;
                 }
 
-                // Set content type
                 e.getResponseHeaders().set("Content-type", contentType);
 
-                // Add cache control headers for static resources
                 if (isStaticResource(contentType)) {
-                    // Cache static resources for 1 day (86400 seconds)
                     e.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
 
-                    // Add ETag header for cache validation
                     String eTag = "\"" + Integer.toHexString(java.util.Arrays.hashCode(content)) + "\"";
                     e.getResponseHeaders().set("ETag", eTag);
 
-                    // Check if client sent If-None-Match header
                     String ifNoneMatch = e.getRequestHeaders().getFirst("If-None-Match");
                     if (ifNoneMatch != null && ifNoneMatch.equals(eTag)) {
-                        // Resource not modified, return 304
                         e.sendResponseHeaders(304, -1);
                         return;
                     }
                 } else {
-                    // Don't cache dynamic content
                     e.getResponseHeaders().set("Cache-Control", "no-store, must-revalidate");
                     e.getResponseHeaders().set("Pragma", "no-cache");
                 }
 
-                // Check if client accepts gzip encoding and if content is compressible
                 String acceptEncoding = e.getRequestHeaders().getFirst("Accept-Encoding");
                 boolean useGzip = acceptEncoding != null && 
                                  acceptEncoding.contains("gzip") && 
                                  isCompressibleContentType(contentType) && 
-                                 content.length > 1024; // Only compress content larger than 1KB
+                                 content.length > 1024;
 
                 byte[] responseContent = content;
 
-                // Apply gzip compression if appropriate
                 if (useGzip) {
                     try {
                         ByteArrayOutputStream byteStream = new ByteArrayOutputStream(content.length);
-                        try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream)) {
+
+                      try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream, 16384) {
+                            {
+                                def.setLevel(6);
+                            }
+                        }) {
                             gzipStream.write(content);
                         }
+
                         responseContent = byteStream.toByteArray();
                         e.getResponseHeaders().set("Content-Encoding", "gzip");
+
+                        e.getResponseHeaders().add("Vary", "Accept-Encoding");
                     } catch (IOException ex) {
-                        // If compression fails, fall back to uncompressed content
                         System.err.println("Gzip compression failed: " + ex.getMessage());
                         responseContent = content;
                     }
                 }
 
-                // Send response
-                e.sendResponseHeaders(code, responseContent.length);
-                output.write(responseContent);
+                String connection = e.getRequestHeaders().getFirst("Connection");
+                boolean keepAlive = connection != null && connection.equalsIgnoreCase("keep-alive");
+
+                if (keepAlive) {
+                    e.getResponseHeaders().set("Connection", "keep-alive");
+                    e.getResponseHeaders().set("Keep-Alive", "timeout=5, max=1000");
+                } else {
+                    e.getResponseHeaders().set("Connection", "close");
+                }
+
+                if (rangeStart != null && rangeEnd != null) {
+                    e.getResponseHeaders().set("Accept-Ranges", "bytes");
+                    e.getResponseHeaders().set("Content-Range", 
+                            String.format("bytes %d-%d/%d", rangeStart, rangeEnd, contentLength));
+
+                    int rangeLength = (int) (rangeEnd - rangeStart + 1);
+                    e.sendResponseHeaders(206, rangeLength);
+
+                    int bufferSize = 8192;
+                    byte[] buffer = new byte[bufferSize];
+                    long remaining = rangeLength;
+                    int offset = rangeStart.intValue();
+
+                    while (remaining > 0) {
+                        int bytesToRead = (int) Math.min(bufferSize, remaining);
+                        System.arraycopy(responseContent, offset, buffer, 0, bytesToRead);
+                        output.write(buffer, 0, bytesToRead);
+                        offset += bytesToRead;
+                        remaining -= bytesToRead;
+                    }
+                } else {
+                    e.getResponseHeaders().set("Accept-Ranges", "bytes");
+
+                    e.sendResponseHeaders(code, responseContent.length);
+
+                    int bufferSize = 8192;
+                    byte[] buffer = new byte[bufferSize];
+                    int offset = 0;
+
+                    while (offset < responseContent.length) {
+                        int bytesToRead = Math.min(bufferSize, responseContent.length - offset);
+                        System.arraycopy(responseContent, offset, buffer, 0, bytesToRead);
+                        output.write(buffer, 0, bytesToRead);
+                        offset += bytesToRead;
+                    }
+                }
+
                 output.flush();
             } catch (IOException ex) {
                 System.err.println("Error sending response: " + ex.getMessage());

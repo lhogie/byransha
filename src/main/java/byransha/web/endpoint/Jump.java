@@ -7,6 +7,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
@@ -32,6 +33,11 @@ public class Jump extends NodeEndpoint<BNode> {
 			user.stack.add(node);
 		}
 
-		return graph.findEndpoint(NodeInfo.class).exec(in, user, webServer, exchange, node);
+		NodeInfo nodeInfoEndpoint = graph.findEndpoint(NodeInfo.class);
+		if (nodeInfoEndpoint == null) {
+			return ErrorResponse.serverError("NodeInfo endpoint not found in the graph.");
+		}
+
+		return nodeInfoEndpoint.exec(in, user, webServer, exchange, node);
 	}
 }

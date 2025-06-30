@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
@@ -151,13 +152,17 @@ public class WebServer extends BNode {
 		}
 
 		System.out.println("starting HTTP server on port " + port);
-		httpsServer = HttpsServer.create(new InetSocketAddress(port), 0);
+
+		int backlog = 100;
+		httpsServer = HttpsServer.create(new InetSocketAddress(port), backlog);
 		httpsServer.setHttpsConfigurator(new HttpsConfigurator(getSslContext()) {
 			@Override
 			public void configure(HttpsParameters params) {
 				try {
 					SSLContext context = getSSLContext();
 					params.setNeedClientAuth(false);
+
+					context.getClientSessionContext().setSessionTimeout(60);
 
 					String[] enabledProtocols = { "TLSv1.3", "TLSv1.2" };
 					params.setProtocols(enabledProtocols);
@@ -315,6 +320,77 @@ public class WebServer extends BNode {
 
 	static final File frontendDir = new File("build/frontend");
 
+    private static final Map<String, CachedFile> fileCache = new ConcurrentHashMap<>();
+    private static final long MAX_CACHE_SIZE = 50 * 1024 * 1024;
+    private static long currentCacheSize = 0;
+
+	private static class CachedFile {
+		final byte[] content;
+		final String contentType;
+		final long lastModified;
+		final String eTag;
+		long lastAccessed;
+
+		CachedFile(byte[] content, String contentType, long lastModified) {
+			this.content = content;
+			this.contentType = contentType;
+			this.lastModified = lastModified;
+			this.eTag = "\"" + Integer.toHexString(java.util.Arrays.hashCode(content)) + "\"";
+			this.lastAccessed = System.currentTimeMillis();
+		}
+
+		long size() {
+			return content.length;
+		}
+
+		void updateLastAccessed() {
+			this.lastAccessed = System.currentTimeMillis();
+		}
+	}
+
+	/**
+	 * Adds a file to the cache, evicting least recently used files if necessary.
+	 * 
+	 * @param key The cache key (usually the file path)
+	 * @param content The file content
+	 * @param contentType The content type of the file
+	 * @param lastModified The last modified timestamp of the file
+	 */
+	private static synchronized void addToCache(String key, byte[] content, String contentType, long lastModified) {
+		if (content.length > 5 * 1024 * 1024) {
+			return;
+		}
+
+		CachedFile existing = fileCache.remove(key);
+		if (existing != null) {
+			currentCacheSize -= existing.size();
+		}
+
+		CachedFile newEntry = new CachedFile(content, contentType, lastModified);
+
+		while (currentCacheSize + newEntry.size() > MAX_CACHE_SIZE && !fileCache.isEmpty()) {
+			String lruKey = null;
+			long oldestAccess = Long.MAX_VALUE;
+
+			for (Map.Entry<String, CachedFile> entry : fileCache.entrySet()) {
+				if (entry.getValue().lastAccessed < oldestAccess) {
+					oldestAccess = entry.getValue().lastAccessed;
+					lruKey = entry.getKey();
+				}
+			}
+
+			if (lruKey != null) {
+				CachedFile evicted = fileCache.remove(lruKey);
+				if (evicted != null) {
+					currentCacheSize -= evicted.size();
+				}
+			}
+		}
+
+		fileCache.put(key, newEntry);
+		currentCacheSize += newEntry.size();
+	}
+
 	private HTTPResponse processRequest(HttpsExchange https) {
 		User user = null;
 		SessionStore.SessionData sessionData;
@@ -417,6 +493,9 @@ public class WebServer extends BNode {
 							"Raw request requires exactly one endpoint, found: " + resolvedEndpoints.size());
 				}
 
+				boolean hasErrors = false;
+				int responseStatusCode = 200;
+
 				for (var endpoint : resolvedEndpoints) {
 					ObjectNode er = new ObjectNode(null);
 					er.set("endpoint", new TextNode(endpoint.name()));
@@ -447,15 +526,20 @@ public class WebServer extends BNode {
 							if (!inputJson.isEmpty())
 								System.err.println("Warning: Parameters potentially unused in raw request: "
 										+ inputJson.toPrettyString()); // Log warning
-							return new HTTPResponse(200, result.contentType, result.toRawText().getBytes());
+							return new HTTPResponse(result.getStatusCode(), result.contentType, result.toRawText().getBytes());
 						} else {
 							er.set("result", result.toJson());
+
+							if (result.getStatusCode() != 200 && responseStatusCode == 200) {
+								responseStatusCode = result.getStatusCode();
+							}
 						}
 					} catch (SecurityException authEx) {
+						hasErrors = true;
 						boolean isSpecificRequest = !endpointName.isEmpty();
+						int statusCode = authEx.getMessage().startsWith("Authentication required") ? 401 : 403;
 
 						if (rawRequest || isSpecificRequest) {
-							int statusCode = authEx.getMessage().startsWith("Authentication required") ? 401 : 403;
 							return new HTTPResponse(statusCode, "text/plain", authEx.getMessage().getBytes());
 						} else {
 							er.set("error", new TextNode(authEx.getMessage()));
@@ -463,8 +547,13 @@ public class WebServer extends BNode {
 									new TextNode(authEx.getMessage().startsWith("Authentication required")
 											? "AuthenticationError"
 											: "AuthorizationError"));
+
+							if (responseStatusCode == 200) {
+								responseStatusCode = statusCode;
+							}
 						}
 					} catch (Throwable err) {
+						hasErrors = true;
 						err.printStackTrace();
 						var sw = new StringWriter();
 						err.printStackTrace(new PrintWriter(sw));
@@ -476,6 +565,10 @@ public class WebServer extends BNode {
 						} else {
 							er.set("error", new TextNode(errorMsg));
 							er.set("error_type", new TextNode("ExecutionError"));
+
+							if (responseStatusCode == 200) {
+								responseStatusCode = 500;
+							}
 						}
 					}
 
@@ -496,19 +589,92 @@ public class WebServer extends BNode {
 				}
 
 				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
-				return new HTTPResponse(200, "text/json", response.toPrettyString().getBytes());
-			} else {
-				var file = new File(frontendDir, path);
 
+				return new HTTPResponse(responseStatusCode, "text/json", response.toPrettyString().getBytes());
+			} else {
+				String cacheKey = path;
+				CachedFile cachedFile = fileCache.get(cacheKey);
+
+				var file = new File(frontendDir, path);
 				if (!file.exists() || !file.isFile()) {
 					file = new File(frontendDir, "index.html");
+					cacheKey = "index.html";
+					cachedFile = fileCache.get(cacheKey);
+
 					if (!file.exists()) {
 						return new HTTPResponse(404, "text/plain",
 								("Not Found: " + path + " and index.html missing").getBytes());
 					}
 				}
 
-				return new HTTPResponse(200, mimeType(file.getName()), Files.readAllBytes(file.toPath()));
+				if (cachedFile == null || file.lastModified() > cachedFile.lastModified) {
+					try {
+						byte[] content = Files.readAllBytes(file.toPath());
+						String contentType = mimeType(file.getName());
+
+						addToCache(cacheKey, content, contentType, file.lastModified());
+
+						String rangeHeader = https.getRequestHeaders().getFirst("Range");
+						if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+							String rangeValue = rangeHeader.substring("bytes=".length());
+							String[] ranges = rangeValue.split("-");
+
+							if (ranges.length == 2) {
+								try {
+									long rangeStart = Long.parseLong(ranges[0]);
+									long rangeEnd = ranges[1].isEmpty()
+										? content.length - 1 
+										: Long.parseLong(ranges[1]);
+
+									if (rangeStart >= 0 && rangeEnd < content.length && rangeStart <= rangeEnd) {
+										return new HTTPResponse(206, contentType, content,
+												rangeStart, rangeEnd);
+									}
+								} catch (NumberFormatException e) {
+									System.err.println("Invalid range format: " + rangeHeader);
+								}
+							}
+						}
+
+						return new HTTPResponse(200, contentType, content);
+					} catch (IOException e) {
+						System.err.println("Error reading file: " + file.getPath() + " - " + e.getMessage());
+						return new HTTPResponse(500, "text/plain", 
+								("Error reading file: " + e.getMessage()).getBytes());
+					}
+				} else {
+					cachedFile.updateLastAccessed();
+
+					String ifNoneMatch = https.getRequestHeaders().getFirst("If-None-Match");
+					if (ifNoneMatch != null && ifNoneMatch.equals(cachedFile.eTag)) {
+						return new HTTPResponse(304, cachedFile.contentType, new byte[0]);
+					}
+
+					String rangeHeader = https.getRequestHeaders().getFirst("Range");
+					if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+						String rangeValue = rangeHeader.substring("bytes=".length());
+						String[] ranges = rangeValue.split("-");
+
+						if (ranges.length == 2) {
+							try {
+								long rangeStart = Long.parseLong(ranges[0]);
+
+								long rangeEnd = ranges[1].isEmpty()
+									? cachedFile.content.length - 1 
+									: Long.parseLong(ranges[1]);
+
+								if (rangeStart >= 0 && rangeEnd < cachedFile.content.length && rangeStart <= rangeEnd) {
+									return new HTTPResponse(206, cachedFile.contentType, cachedFile.content,
+											rangeStart, rangeEnd);
+								}
+							} catch (NumberFormatException e) {
+								System.err.println("Invalid range format: " + rangeHeader);
+							}
+						}
+					}
+
+					return new HTTPResponse(200, cachedFile.contentType, cachedFile.content);
+				}
 			}
 		} catch (IllegalArgumentException | SecurityException e) {
 			int statusCode = (e instanceof SecurityException) ? 403 : 400;
@@ -607,7 +773,6 @@ public class WebServer extends BNode {
 	}
 
 	private static ObjectNode grabInputFromURLandPOST(HttpExchange http) throws IOException {
-		// gets the date from POST
 		var postData = http.getRequestBody().readAllBytes();
 		ObjectNode inputJson = null;
 

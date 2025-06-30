@@ -5,17 +5,17 @@ import byransha.BNode;
 import byransha.User;
 import byransha.ValuedNode;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
-import byransha.web.util.Utilities;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+import toools.text.TextUtilities;
 
 import java.util.Comparator;
-import java.util.List;
 
 public class ListExistingNode extends NodeEndpoint<BNode> {
 
@@ -41,7 +41,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
                 .findFirst();
 
         if (nodeClass.isEmpty()) {
-            return new EndpointJsonResponse(a, "Node type not found: " + in.get("type").asText());
+            return ErrorResponse.notFound("Node type not found: " + in.get("type").asText());
         }
 
         String query = in.has("query") ? in.get("query").asText().toLowerCase() : null;
@@ -56,7 +56,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
             filteredNodes.sort(Comparator.comparingInt(node -> {
                 String name = node.prettyName();
                 if (name == null) return Integer.MAX_VALUE;
-                return Utilities.levenshteinDistance(name.toLowerCase(), query);
+                return TextUtilities.computeLevenshteinDistance(name.toLowerCase(), query);
             }));
         }
 

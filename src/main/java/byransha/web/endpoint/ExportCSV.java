@@ -36,7 +36,7 @@ public class ExportCSV extends NodeEndpoint<BNode> {
     public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node) throws Throwable {
         // Check if the node is a BusinessNode
         if (!(node instanceof BusinessNode)) {
-            throw new IllegalArgumentException("Node must be a BusinessNode for CSV export.");
+            return ErrorResponse.badRequest("Node must be a BusinessNode for CSV export.");
         }
 
         // Get export parameters from the request
@@ -100,38 +100,49 @@ public class ExportCSV extends NodeEndpoint<BNode> {
         // Export to CSV
         StringWriter writer = new StringWriter();
 
-        if (exportMultiple) {
-            // Get the list of nodes to export
-            List<BusinessNode> nodesToExport = new ArrayList<>();
+        try {
+            if (exportMultiple) {
+                // Get the list of nodes to export
+                List<BusinessNode> nodesToExport = new ArrayList<>();
 
-            // If the current node is a ListNode or SetNode containing BusinessNodes
-            if (node instanceof ListNode) {
-                ListNode<?> listNode = (ListNode<?>) node;
-                listNode.forEachOut((name, n) -> {
-                    if (n instanceof BusinessNode) {
-                        nodesToExport.add((BusinessNode) n);
-                    }
-                });
-            } else if (node instanceof SetNode) {
-                SetNode<?> setNode = (SetNode<?>) node;
-                setNode.forEachOut((name, n) -> {
-                    if (n instanceof BusinessNode) {
-                        nodesToExport.add((BusinessNode) n);
-                    }
-                });
+                // If the current node is a ListNode or SetNode containing BusinessNodes
+                if (node instanceof ListNode) {
+                    ListNode<?> listNode = (ListNode<?>) node;
+                    listNode.forEachOut((name, n) -> {
+                        if (n instanceof BusinessNode) {
+                            nodesToExport.add((BusinessNode) n);
+                        }
+                    });
+                } else if (node instanceof SetNode) {
+                    SetNode<?> setNode = (SetNode<?>) node;
+                    setNode.forEachOut((name, n) -> {
+                        if (n instanceof BusinessNode) {
+                            nodesToExport.add((BusinessNode) n);
+                        }
+                    });
+                } else {
+                    // Just export the current node
+                    nodesToExport.add((BusinessNode) node);
+                }
+
+                if (nodesToExport.isEmpty()) {
+                    return ErrorResponse.badRequest("No BusinessNodes found to export.");
+                }
+
+                CSVExporter.exportToCSV(nodesToExport, writer, fieldPredicate, nodePredicate, maxDepth);
             } else {
-                // Just export the current node
-                nodesToExport.add((BusinessNode) node);
+                // Export single node
+                CSVExporter.exportToCSV((BusinessNode) node, writer, fieldPredicate, nodePredicate, maxDepth);
             }
 
-            CSVExporter.exportToCSV(nodesToExport, writer, fieldPredicate, nodePredicate, maxDepth);
-        } else {
-            // Export single node
-            CSVExporter.exportToCSV((BusinessNode) node, writer, fieldPredicate, nodePredicate, maxDepth);
+            // Return the CSV data
+            String csvContent = writer.toString();
+            if (csvContent.isEmpty()) {
+                return ErrorResponse.serverError("CSV export produced empty content.");
+            }
+            return new EndpointTextResponse("text/csv", pw -> pw.write(csvContent));
+        } catch (Exception e) {
+            return ErrorResponse.serverError("Error during CSV export: " + e.getMessage());
         }
-
-        // Return the CSV data
-        String csvContent = writer.toString();
-        return new EndpointTextResponse("text/csv", pw -> pw.write(csvContent));
     }
 }

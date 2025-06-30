@@ -14,6 +14,10 @@ public class EndpointBinaryResponse extends EndpointResponse<byte[]> {
 //		this.binaryContentType = binaryContentType;
 	}
 
+	public EndpointBinaryResponse(String binaryContentType, byte[] d, int statusCode) {
+		super(d, binaryContentType, statusCode);
+	}
+
 	@Override
 	public ObjectNode toJson() {
 		var r = super.toJson();

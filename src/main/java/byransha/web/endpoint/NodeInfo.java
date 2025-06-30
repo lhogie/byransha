@@ -9,6 +9,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
@@ -31,7 +32,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
 			BNode node) {
 		if (!node.canSee(user)) {
-			throw new SecurityException("User does not have permission to view node " + node.id());
+			return ErrorResponse.forbidden("User does not have permission to view node " + node.id());
 		}
 
 		var r = new ObjectNode(null);

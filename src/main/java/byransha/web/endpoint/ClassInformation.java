@@ -4,6 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -32,8 +33,17 @@ public class ClassInformation extends NodeEndpoint<BNode> {
             throws Throwable {
         var result = new ObjectNode(null);
 
-        if (in.has("classForm")) {
-            var clazz = Class.forName(in.get("classForm").asText());
+        if (!in.has("classForm")) {
+            return ErrorResponse.badRequest("Missing required parameter: 'classForm'");
+        }
+
+        String className = in.get("classForm").asText();
+        if (className == null || className.isEmpty()) {
+            return ErrorResponse.badRequest("Invalid 'classForm' parameter: cannot be empty");
+        }
+
+        try {
+            var clazz = Class.forName(className);
 
             var current = clazz.getSuperclass();
             while (current != null) {
@@ -46,9 +56,13 @@ public class ClassInformation extends NodeEndpoint<BNode> {
                 result.put(i.getSimpleName(), new TextNode(i.getName()));
             }
             in.remove("classForm");
-        }
 
-        return new EndpointJsonResponse(result, "Class super and interfaces");
+            return new EndpointJsonResponse(result, "Class super and interfaces");
+        } catch (ClassNotFoundException e) {
+            return ErrorResponse.notFound("Class not found: " + className);
+        } catch (Exception e) {
+            return ErrorResponse.serverError("Error retrieving class information: " + e.getMessage());
+        }
     }
 
 

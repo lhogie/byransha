@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.SessionStore;
 import byransha.web.WebServer;
@@ -88,7 +89,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 
 		if (user == null) {
 			deleteSessionCookie(https, "session_token");
-			return new EndpointJsonResponse(new TextNode("Authentication Failed"), this);
+			return ErrorResponse.unauthorized("Authentication Failed");
 		} else {
 			// OWASP: Generate new Session ID & CSRF token on login
 			String csrfToken = TokenUtil.generateSecureToken();

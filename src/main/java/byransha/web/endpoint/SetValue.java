@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
@@ -38,15 +39,37 @@ public class SetValue extends NodeEndpoint<BNode> {
 
         var a = new ObjectNode(null);
 
-        if (!in.isEmpty()) {
-            int id = in.get("id").asInt();
-            var node = graph.findByID(id);
-            a.set("id", new IntNode(node.id()));
-            a.set("name", new TextNode(node.prettyName()));
-            a.set("type", new TextNode(node.getClass().getSimpleName()));
+        if (in.isEmpty()) {
+            return ErrorResponse.badRequest("Request body is empty. Expected 'id' and 'value' parameters.");
+        }
 
-            var value = in.get("value");
+        if (!in.has("id")) {
+            return ErrorResponse.badRequest("Missing required parameter: 'id'");
+        }
 
+        if (!in.has("value")) {
+            return ErrorResponse.badRequest("Missing required parameter: 'value'");
+        }
+
+        int id;
+        try {
+            id = in.get("id").asInt();
+        } catch (Exception e) {
+            return ErrorResponse.badRequest("Invalid 'id' parameter: must be an integer");
+        }
+
+        var node = graph.findByID(id);
+        if (node == null) {
+            return ErrorResponse.notFound("Node with ID " + id + " not found in the graph.");
+        }
+
+        a.set("id", new IntNode(node.id()));
+        a.set("name", new TextNode(node.prettyName()));
+        a.set("type", new TextNode(node.getClass().getSimpleName()));
+
+        var value = in.get("value");
+
+        try {
             if (node instanceof StringNode sn) {
                 sn.set(value.asText());
                 a.set("value", new TextNode(value.asText()));
@@ -57,39 +80,48 @@ public class SetValue extends NodeEndpoint<BNode> {
                 b.set(value.asBoolean());
                 a.set("value", value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE);
             } else if (node instanceof ImageNode im) {
-                String base64Image = value.asText();
-                byte[] data = Base64.getDecoder().decode(base64Image);
-                String mimeType = "image/png";
-                if (base64Image.startsWith("data:image/jpeg;base64,")) {
-                    mimeType = "image/jpeg";
-                } else if (base64Image.startsWith("data:image/gif;base64,")) {
-                    mimeType = "image/gif";
-                } else if (base64Image.startsWith("data:image/svg+xml;base64,")) {
-                    mimeType = "image/svg+xml";
-                }
+                try {
+                    String base64Image = value.asText();
+                    byte[] data = Base64.getDecoder().decode(base64Image);
+                    String mimeType = "image/png";
+                    if (base64Image.startsWith("data:image/jpeg;base64,")) {
+                        mimeType = "image/jpeg";
+                    } else if (base64Image.startsWith("data:image/gif;base64,")) {
+                        mimeType = "image/gif";
+                    } else if (base64Image.startsWith("data:image/svg+xml;base64,")) {
+                        mimeType = "image/svg+xml";
+                    }
 
-                im.set(data);
-                im.setMimeType(mimeType);
-                a.set("value", new TextNode(im.get().toString()));
+                    im.set(data);
+                    im.setMimeType(mimeType);
+                    a.set("value", new TextNode(im.get().toString()));
+                } catch (IllegalArgumentException e) {
+                    return ErrorResponse.badRequest("Invalid base64 image data: " + e.getMessage());
+                }
             } else if(node instanceof FileNode fn){
-                System.out.println("value" + value + " : " + value.asText());
-                String base64File = value.asText();
-                byte[] data = Base64.getDecoder().decode(base64File);
-                String mimeType = "application/octet-stream";
-                if (base64File.startsWith("data:application/pdf;base64,")) {
-                    mimeType = "application/pdf";
-                } else if (base64File.startsWith("data:text/plain;base64,")) {
-                    mimeType = "text/plain";
+                try {
+                    String base64File = value.asText();
+                    byte[] data = Base64.getDecoder().decode(base64File);
+                    String mimeType = "application/octet-stream";
+                    if (base64File.startsWith("data:application/pdf;base64,")) {
+                        mimeType = "application/pdf";
+                    } else if (base64File.startsWith("data:text/plain;base64,")) {
+                        mimeType = "text/plain";
+                    }
+                    fn.set(data);
+                    fn.setMimeType(mimeType);
+                    a.set("value", new TextNode(fn.get().toString()));
+                } catch (IllegalArgumentException e) {
+                    return ErrorResponse.badRequest("Invalid base64 file data: " + e.getMessage());
                 }
-                System.out.println("data" + data);
-                fn.set(data);
-                fn.setMimeType(mimeType);
-                a.set("value", new TextNode(fn.get().toString()));
+            } else {
+                return ErrorResponse.badRequest("Node type " + node.getClass().getSimpleName() + " is not supported for value setting.");
             }
-
-            in.removeAll();
+        } catch (Exception e) {
+            return ErrorResponse.serverError("Error setting value: " + e.getMessage());
         }
 
+        in.removeAll();
         return new EndpointJsonResponse(a, "Setting the value");
     }
 }

@@ -8,6 +8,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.BBGraph;
 import byransha.User;
 import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 
@@ -31,15 +32,15 @@ public class NodeEndpoints extends NodeEndpoint<WebServer> {
 		var currentNode = user.currentNode();
 
 		if (currentNode == null) {
-			return null;
-		} else {
-			var data = new ArrayNode(null);
-			graph.findAll(NodeEndpoint.class, e -> true).stream()
-					.filter(currentNode::matches)
-					.filter(e -> e.canExec(user))
-					.forEach(e -> data.add(new TextNode(e.name())));
-
-			return new EndpointJsonResponse(data, this);
+			return ErrorResponse.badRequest("User has no current node.");
 		}
+
+		var data = new ArrayNode(null);
+		graph.findAll(NodeEndpoint.class, e -> true).stream()
+				.filter(currentNode::matches)
+				.filter(e -> e.canExec(user))
+				.forEach(e -> data.add(new TextNode(e.name())));
+
+		return new EndpointJsonResponse(data, this);
 	}
 }
