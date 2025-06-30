@@ -25,7 +25,7 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
         if (node instanceof ListNode<?> listNode) {
             @SuppressWarnings("unchecked")
             ListNode<N> typedListNode = (ListNode<N>) listNode;
-            typedListNode.add((N) nodeToRemove);
+            typedListNode.remove((N) nodeToRemove);
             return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from list: " + listNode.prettyName());
         }
         else if (node instanceof SetNode<?> setNode) {
@@ -33,12 +33,6 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
             SetNode<N> typedSetNode = (SetNode<N>) setNode;
             typedSetNode.remove((N) nodeToRemove);
             return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from set: " + setNode.prettyName());
-        }
-        else if (node instanceof DropdownNode<?> dropdownNode) {
-            @SuppressWarnings("unchecked")
-            DropdownNode<N> typedDropdownNode = (DropdownNode<N>) dropdownNode;
-            typedDropdownNode.set((N) nodeToRemove);
-            return new EndpointJsonResponse(NullNode.getInstance(), "Removed node with ID: " + nodeToRemove.id() + " from dropdown: " + dropdownNode.prettyName());
         }
         else
             throw new IllegalArgumentException("Node is not a ListNode, cannot remove from it.");
