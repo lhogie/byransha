@@ -40,9 +40,9 @@ const ViewCard = memo(({ view, onClick, dragHandleProps, handleViewToggle }) => 
         >
 
             <Typography className="DragHere" variant="caption" sx={{ color: '#757575' }}>
-                {`${view.endpoint.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())} - ${view.what_is_this}`                 }
+                {`${view.endpoint.replace(/_/g, ' ').replace(/(?:^|\s)\S/g, (match) => match.toUpperCase())} - ${view.what_is_this}`}
             </Typography>
-            <button className="expand-card" onClick={onClick} aria-label="expand"> <Expand /> </button> 
+            <button className="expand-card" onClick={onClick} aria-label="expand"> <Expand /> </button>
         </Box>
         <CardContent
             sx={{

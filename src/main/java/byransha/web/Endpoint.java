@@ -38,7 +38,7 @@ public abstract class Endpoint extends BNode {
 
 	@Override
 	public final String whatIsThis() {
-		return "endpoint " + whatItDoes();
+		return whatItDoes();
 	}
 
 	public abstract String whatItDoes();
