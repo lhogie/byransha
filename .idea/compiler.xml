@@ -16,4 +16,7 @@
       <module name="byransha" options="" />
     </option>
   </component>
+  <component name="TypeScriptCompiler">
+    <option name="nodeInterpreterTextField" value="$USER_HOME$/.bun/bin/bun" />
+  </component>
 </project>

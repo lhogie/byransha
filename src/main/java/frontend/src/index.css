@@ -1,41 +1,41 @@
 @font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('../public/fonts/IBMPlexSans-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
+	font-family: "IBM Plex Sans";
+	src: url("../public/fonts/IBMPlexSans-Regular.ttf") format("truetype");
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
-  font-family: 'IBM Plex Sans';
-  src: url('../public/fonts/IBMPlexSans-Bold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
+	font-family: "IBM Plex Sans";
+	src: url("../public/fonts/IBMPlexSans-Bold.ttf") format("truetype");
+	font-weight: bold;
+	font-style: normal;
 }
 
-body{
-  font-family: 'IBM Plex Sans', sans-serif;
-  background: #ffffff;
+body {
+	font-family: "IBM Plex Sans", sans-serif;
+	background: #ffffff;
 }
 
-.content{
-  height: 100%;
-  width: 100%;
+.content {
+	height: 100%;
+	width: 100%;
 }
 
-::-webkit-scrollbar{
-  width: 10px;
+::-webkit-scrollbar {
+	width: 10px;
 }
 
 /* Track */
-::-webkit-scrollbar-track{
-  background: #e0e0e0;
+::-webkit-scrollbar-track {
+	background: #e0e0e0;
 }
 
 /* Handle */
-::-webkit-scrollbar-thumb{
-  background: #888;
+::-webkit-scrollbar-thumb {
+	background: #888;
 }
 
-::-webkit-scrollbar-track:hover{
-  background: #555;
+::-webkit-scrollbar-track:hover {
+	background: #555;
 }
