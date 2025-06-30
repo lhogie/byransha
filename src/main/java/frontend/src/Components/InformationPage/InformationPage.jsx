@@ -15,9 +15,21 @@ const InformationPage = () => {
 
     useTitle(`Information for View ${viewId}`);
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'Escape') {
+                navigate('/home');
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [navigate]);
+
     return (
         <div className="information-page">
-            <h1>Content:</h1>
+            <h1>{viewId}</h1>
             <View viewId={viewId} />
             <IconButton className="close-button" onClick={() => {navigate("/home")}} aria-label="close">
                 <CloseIcon />
