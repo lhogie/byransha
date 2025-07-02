@@ -2,20 +2,16 @@ package byransha.web.endpoint;
 
 import java.time.Duration;
 
+import byransha.BBGraph;
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
+import byransha.BNode;
 import byransha.User;
-import byransha.web.EndpointJsonResponse;
-import byransha.web.ErrorResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.SessionStore;
-import byransha.web.WebServer;
 import byransha.web.util.TokenUtil;
 
-public class Authenticate extends NodeEndpoint<BBGraph> {
+public class Authenticate extends NodeEndpoint<BNode> {
 	private SessionStore sessionStore;
 
 	@Override
@@ -82,7 +78,7 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User _ignoredUserParameter, WebServer webServer,
-			HttpsExchange https, BBGraph g) throws Throwable {
+			HttpsExchange https, BNode bnode) throws Throwable {
 		String username = requireParm(in, "username").asText();
 		String password = requireParm(in, "password").asText();
 		User user = auth(username, password);
@@ -108,5 +104,4 @@ public class Authenticate extends NodeEndpoint<BBGraph> {
 	private User auth(String username, String password) {
 		return graph.find(User.class, u -> u.name != null && u.passwordNode != null && u.accept(username, password));
 	}
-
 }
