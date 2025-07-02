@@ -28,7 +28,7 @@ public class DropdownNode<N extends BNode> extends ValuedNode<N>{
 
     private ListSettings getListSettings() {
         for (InLink inLink : ins()) {
-            for (Field field : inLink.source.getClass().getDeclaredFields()) {
+            for (Field field : inLink.source().getClass().getDeclaredFields()) {
                 if (field.getType().isAssignableFrom(DropdownNode.class)) {
                     ListSettings annotation = field.getAnnotation(ListSettings.class);
                     if (annotation != null) {

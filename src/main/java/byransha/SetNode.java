@@ -1,7 +1,5 @@
 package byransha;
 
-import javassist.bytecode.analysis.SubroutineScanner;
-
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -63,7 +61,7 @@ public class SetNode<N extends BNode> extends PersistingNode {
 
 	private ListSettings getListSettings() {
 		for (InLink inLink : ins()) {
-			for (Field field : inLink.source.getClass().getDeclaredFields()) {
+			for (Field field : inLink.source().getClass().getDeclaredFields()) {
 				if (field.getType().isAssignableFrom(SetNode.class)) {
 					ListSettings annotation = field.getAnnotation(ListSettings.class);
 					if (annotation != null) {

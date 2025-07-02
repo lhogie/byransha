@@ -1,12 +1,9 @@
 package byransha;
 
-import java.io.File;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -89,7 +86,7 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	private ListSettings getListSettings() {
 		for (InLink inLink : ins()) {
-			for (Field field : inLink.source.getClass().getDeclaredFields()) {
+			for (Field field : inLink.source().getClass().getDeclaredFields()) {
 				if (field.getType().isAssignableFrom(ListNode.class)) {
 					ListSettings annotation = field.getAnnotation(ListSettings.class);
 					if (annotation != null) {

@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.fasterxml.jackson.databind.node.ValueNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.AnyGraph;
@@ -36,8 +34,6 @@ import byransha.annotations.Min;
 import byransha.annotations.Pattern;
 import byransha.annotations.Required;
 import byransha.annotations.Size;
-
-import java.util.Collection;
 
 public abstract class BNode {
 	public String comment;
@@ -81,20 +77,12 @@ public abstract class BNode {
 
 	public abstract String whatIsThis();
 
-    public static class InLink {
-		final BNode source;
-		final String role;
-
-		public InLink(String role, BNode c) {
-			this.source = c;
-			this.role = role;
-		}
-
-		@Override
-		public String toString() {
-			return source + "." + role;
-		}
-	}
+    public record InLink(String role, BNode source) {
+        @Override
+        public String toString() {
+            return source + "." + role;
+        }
+    }
 
 	public List<InLink> ins() {
 		return ins == null ? graph.findRefsTO(this) : ins;
@@ -509,8 +497,8 @@ public abstract class BNode {
 					if (value != null) {
 						if (f.isAnnotationPresent(Min.class)) {
 							Min min = f.getAnnotation(Min.class);
-							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof Number) {
-								if (((Number) ((ValuedNode) value).get()).doubleValue() < min.value()) {
+							if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof Number) {
+								if (((Number) ((ValuedNode<?>) value).get()).doubleValue() < min.value()) {
 									return false;
 								}
 							}
@@ -518,8 +506,8 @@ public abstract class BNode {
 
 						if (f.isAnnotationPresent(Max.class)) {
 							Max max = f.getAnnotation(Max.class);
-							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof Number) {
-								if (((Number) ((ValuedNode) value).get()).doubleValue() > max.value()) {
+							if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof Number) {
+								if (((Number) ((ValuedNode<?>) value).get()).doubleValue() > max.value()) {
 									return false;
 								}
 							}
@@ -529,12 +517,12 @@ public abstract class BNode {
 							Size size = f.getAnnotation(Size.class);
 							int length = -1;
 
-							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof String) {
-								length = ((String) ((ValuedNode) value).get()).length();
+							if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof String) {
+								length = ((String) ((ValuedNode<?>) value).get()).length();
 							} else if (value instanceof ListNode) {
-								length = ((ListNode) value).size();
+								length = ((ListNode<?>) value).size();
 							} else if (value instanceof SetNode) {
-								length = ((SetNode) value).size();
+								length = ((SetNode<?>) value).size();
 							}
 
 							if (length != -1 && (length < size.min() || length > size.max())) {
@@ -544,8 +532,8 @@ public abstract class BNode {
 
 						if (f.isAnnotationPresent(Pattern.class)) {
 							Pattern pattern = f.getAnnotation(Pattern.class);
-							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof String) {
-								if (!((String) ((ValuedNode) value).get()).matches(pattern.regex())) {
+							if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof String) {
+								if (!((String) ((ValuedNode<?>) value).get()).matches(pattern.regex())) {
 									return false;
 								}
 							}
