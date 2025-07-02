@@ -40,7 +40,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
             return ErrorResponse.badRequest("Query parameter is missing or empty.");
         }
 
-        var nodes = graph.findAll(BusinessNode.class, node -> node.prettyName().toLowerCase().contains(query.toLowerCase()));
+        var nodes = graph.findAll(BusinessNode.class, node -> {return !node.deleted && node.prettyName().toLowerCase().contains(query.toLowerCase());});
 
         nodes.sort(Comparator.comparingInt(node -> {
             String name = node.prettyName();

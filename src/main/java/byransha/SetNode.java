@@ -47,6 +47,11 @@ public class SetNode<N extends BNode> extends PersistingNode {
 		this.save(f -> {});
 	}
 
+	public void removeAll() {
+		l.clear();
+		this.save(f -> {});
+	}
+
 	public int size() {
 		return l.size();
 	}

@@ -1,8 +1,6 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import byransha.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
@@ -10,6 +8,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveNode extends NodeEndpoint<BNode> {
 
@@ -24,20 +24,23 @@ public class RemoveNode extends NodeEndpoint<BNode> {
     @Override
     public EndpointJsonResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node) throws Throwable {
         var a = new ArrayNode(null);
-        node.forEachIn((n, inNode) -> {
-            var b = new ObjectNode(null);
-            b.set("incoming link from", new TextNode(inNode.toString()));
-            a.add(b);
-        });
+        if(!node.ins().isEmpty() || node.getClass().getSimpleName().equals("graph") ) return new EndpointJsonResponse(a, "Node cannot be removed because it has incoming links or it is the graph.");
 
+        var numberOfOuts = node.outs().size();
+        AtomicInteger numberOfOutsDeleted = new AtomicInteger(0);
         node.forEachOut((n, outNode) -> {
             var b = new ObjectNode(null);
             b.set("outgoing link to", new TextNode(outNode.toString()));
-            if(!outNode.getClass().getSimpleName().equals("graph")) outNode.remove();
+            if(outNode instanceof ListNode<?> ls) ls.removeAll();
+            else if(outNode instanceof SetNode<?> ss) ss.removeAll();
+            if(!outNode.getClass().getSimpleName().equals("graph")) {
+                outNode.remove();
+                numberOfOutsDeleted.getAndIncrement();
+            }
             a.add(b);
         });
-
-        if(!node.getClass().getSimpleName().equals("graph")) node.remove();
+        System.out.println(numberOfOuts + " expected vs reality " + numberOfOutsDeleted.get());
+        if(numberOfOutsDeleted.get() == numberOfOuts) node.remove();
         return new EndpointJsonResponse(a, "Node removed from the graph.");
     }
 

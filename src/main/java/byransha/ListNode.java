@@ -72,6 +72,11 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		this.save(f -> {});
 	}
 
+	public void removeAll(){
+		l.clear();
+		this.save(f -> {});
+	}
+
 	public N get(int i) {
 		return l.get(i);
 	}
