@@ -28,14 +28,14 @@ export const SearchBar = () => {
 
 	const results: {
 		id: string;
-		title: string;
+		name: string;
 	}[] = data?.data?.results?.[0]?.result?.data || [];
 
 	return (
 		<Autocomplete
 			sx={{ width: 300 }}
-			isOptionEqualToValue={(option, value) => option.title === value.title}
-			getOptionLabel={(option) => option.title}
+			isOptionEqualToValue={(option, value) => option.name === value.name}
+			getOptionLabel={(option) => option.name}
 			options={results}
 			loading={isLoading}
 			onChange={(_event, value) => {

@@ -20,61 +20,121 @@ export const createKey = (id: string | number, name: string) => `${id}@${name}`;
 
 export const getErrorMessage = (
 	type: string,
-	_value: string | number | Date,
+	value: string | number | Date | any[] | null | undefined,
+	validations: any,
 ) => {
+	if (validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+		return "Ce champ est requis";
+	}
+
+	if (validations?.min !== undefined && typeof value === 'number' && value < validations.min) {
+		return `La valeur doit être au moins ${validations.min}`;
+	}
+
+	if (validations?.max !== undefined && typeof value === 'number' && value > validations.max) {
+		return `La valeur doit être au plus ${validations.max}`;
+	}
+
+	if (validations?.size) {
+		const len = Array.isArray(value) ? value.length : (typeof value === 'string' ? value.length : -1);
+		if (len !== -1) {
+			if (validations.size.min !== undefined && len < validations.size.min) {
+				return `Doit contenir au moins ${validations.size.min} caractères/éléments`;
+			}
+			if (validations.size.max !== undefined && len > validations.size.max) {
+				return `Doit contenir au plus ${validations.size.max} caractères/éléments`;
+			}
+		}
+	}
+
+	if (validations?.pattern && typeof value === 'string' && !new RegExp(validations.pattern).test(value)) {
+		return `Doit correspondre au modèle : ${validations.pattern}`;
+	}
+
 	switch (type) {
 		case "EmailNode":
-			return "Please enter a valid email address";
+			return "Veuillez entrer une adresse e-mail valide";
 		case "IntNode":
-			return "Please enter a valid integer";
+			return "Veuillez entrer un entier valide";
 		case "PhoneNumberNode":
-			return "Please enter a valid phone number (digits only)";
+			return "Veuillez entrer un numéro de téléphone valide";
 		case "DateNode":
-			return "Please enter a valid date";
+			return "Veuillez entrer une date valide";
 		default:
-			return "Invalid value";
+			return "Valeur invalide";
 	}
 };
 
-export const validateFieldValue = (type: string, value: string) => {
-	// If value is null or undefined, it's valid (empty is allowed)
-	if (value === null || value === undefined) return true;
-
-	// For empty strings, consider them valid
-	if (typeof value === "string" && value.trim() === "") return true;
-
-	// Validate based on field type
+export const validateFieldValue = (
+	type: string,
+	value: string | number | Date | any[] | null | undefined,
+	validations: any,
+) => {
 	let isValid = true;
-	switch (type) {
-		case "EmailNode": {
-			// Email validation using regex pattern from EmailNode.java
-			const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
-			isValid = emailRegex.test(value);
-			break;
+	let message = "";
+
+	// Required validation
+	if (validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+		isValid = false;
+		message = "Ce champ est requis";
+		return { isValid, message };
+	}
+
+	// If not required and value is empty, it's valid
+	if (!validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+		return { isValid: true, message: "" };
+	}
+
+	// Min validation
+	if (validations?.min !== undefined && typeof value === 'number' && value < validations.min) {
+		isValid = false;
+		message = `La valeur doit être au moins ${validations.min}`;
+		return { isValid, message };
+	}
+
+	// Max validation
+	if (validations?.max !== undefined && typeof value === 'number' && value > validations.max) {
+		isValid = false;
+		message = `La valeur doit être au plus ${validations.max}`;
+		return { isValid, message };
+	}
+
+	// Size validation
+	if (validations?.size) {
+		const len = Array.isArray(value) ? value.length : (typeof value === 'string' ? value.length : -1);
+		if (len !== -1) {
+			if (validations.size.min !== undefined && len < validations.size.min) {
+				isValid = false;
+				message = `Doit contenir au moins ${validations.size.min} caractères/éléments`;
+				return { isValid, message };
+			}
+			if (validations.size.max !== undefined && len > validations.size.max) {
+				isValid = false;
+				message = `Doit contenir au plus ${validations.size.max} caractères/éléments`;
+				return { isValid, message };
+			}
 		}
+	}
 
+	// Pattern validation
+	if (validations?.pattern && typeof value === 'string' && !new RegExp(validations.pattern).test(value)) {
+		isValid = false;
+		message = `Doit correspondre au modèle : ${validations.pattern}`;
+		return { isValid, message };
+	}
+
+	switch (type) {
 		case "IntNode":
-			// Check if value is a valid integer
-			isValid = /^-?\d+$/.test(value);
+			isValid = /^-?\d+$/.test(value as string);
+			if (!isValid) message = "Veuillez entrer un entier valide";
 			break;
-
-		case "PhoneNumberNode":
-			// Check if value is a valid phone number (digits only)
-			isValid = /^\d+$/.test(value);
-			break;
-
 		case "DateNode":
-			// Check if value is a valid dayjs date object
-			isValid = dayjs(value).isValid();
-			break;
-
-		default:
-			// For other field types, consider them valid
-			isValid = true;
+			isValid = dayjs(value as string).isValid();
+			if (!isValid) message = "Veuillez entrer une date valide";
 			break;
 	}
 
-	return isValid;
+	return { isValid, message };
 };
 
 export const inputTextField = [

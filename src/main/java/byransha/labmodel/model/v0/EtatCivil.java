@@ -15,6 +15,7 @@ public class EtatCivil extends BusinessNode {
     @ListSettings(displayAsDropdown = true, allowCreation = false)
     @Size(max=2)
 	public SetNode<Country> nationalites;
+    @Pattern(regex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$")
 	public PhoneNumberNode telephone;
 
 

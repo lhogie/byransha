@@ -55,7 +55,7 @@ const FormField = ({
 	parentId: string;
 	defaultValue?: any;
 }) => {
-	const { id, name, type } = field;
+	const { id, name, type, validations } = field;
 	const [value, setValue] = useState(
 		dropdownField.includes(type)
 			? {
@@ -74,22 +74,34 @@ const FormField = ({
 	const addExistingNodeMutation = useApiMutation("add_existing_node");
 	const removeFromListMutation = useApiMutation("remove_from_list");
 
+	const validateAndSetError = useCallback(
+		(currentValue: any) => {
+			const validationResult = validateFieldValue(
+				type,
+				currentValue,
+				validations,
+			);
+			setError(!validationResult.isValid);
+			setErrorMessage(validationResult.message);
+			return validationResult.isValid;
+		},
+		[type, validations],
+	);
+
+	useEffect(() => {
+		validateAndSetError(value);
+	}, [value, validateAndSetError]);
+
 	const handleSaveChanges = useDebouncedCallback(
 		async (field) => {
 			if (!field) return console.warn("No field provided for saving changes");
-			const isValid = validateFieldValue(field.type, value);
+			const isValid = validateAndSetError(value);
 
-			// Update error state based on validation result
-			setError(!isValid);
 			if (!isValid) {
-				const message = getErrorMessage(field.type, value);
-				setErrorMessage(message);
 				console.warn(
 					`Invalid value for ${field.name} (${field.type}): ${value}`,
 				);
 				return;
-			} else {
-				setErrorMessage("");
 			}
 
 			try {
@@ -189,19 +201,13 @@ const FormField = ({
 	const handleSaveDropdownChanges = useDebouncedCallback(
 		async (field, value, added: boolean = true) => {
 			if (!field) return console.warn("No field provided for saving changes");
-			const isValid = validateFieldValue(field.type, value);
+			const isValid = validateAndSetError(value);
 
-			// Update error state based on validation result
-			setError(!isValid);
 			if (!isValid) {
-				const message = getErrorMessage(field.type, value);
-				setErrorMessage(message);
 				console.warn(
 					`Invalid value for ${field.name} (${field.type}): ${value}`,
 				);
 				return;
-			} else {
-				setErrorMessage("");
 			}
 
 			try {
@@ -247,10 +253,10 @@ const FormField = ({
 
 	const handleValueChange = useCallback(
 		(value: any, _f = undefined) => {
-			const isValid = validateFieldValue(field.type, value);
+			const isValid = validateFieldValue(field.type, value, validations);
 			setError(!isValid);
 			if (!isValid) {
-				setErrorMessage(getErrorMessage(field.type, value));
+				setErrorMessage(getErrorMessage(field.type, value, validations));
 			} else {
 				setErrorMessage("");
 			}
@@ -258,16 +264,16 @@ const FormField = ({
 			handleSaveChanges(field);
 			setValue(value);
 		},
-		[field, handleSaveChanges],
+		[field, handleSaveChanges, validations],
 	);
 
 	const handleDropdownValueChange = useCallback(
 		(value: any) => {
 			// Validate immediately for user feedback
-			const isValid = validateFieldValue(field.type, value?.value);
+			const isValid = validateFieldValue(field.type, value?.value, validations);
 			setError(!isValid);
 			if (!isValid) {
-				setErrorMessage(getErrorMessage(field.type, value?.value));
+				setErrorMessage(getErrorMessage(field.type, value?.value, validations));
 			} else {
 				setErrorMessage("");
 			}
@@ -275,7 +281,7 @@ const FormField = ({
 			handleSaveDropdownChanges(field, value?.value);
 			setValue(value);
 		},
-		[field, handleSaveDropdownChanges],
+		[field, handleSaveDropdownChanges, validations],
 	);
 
 	const handleDropdownFirstValueChange = useCallback((value: any) => {
@@ -284,12 +290,10 @@ const FormField = ({
 
 	const handleMultiDropdownValueChange = useCallback(
 		(newValue: any) => {
-			const isValid = validateFieldValue(field.type, newValue?.value);
-			setError(!isValid);
+			const isValid = validateAndSetError(newValue);
+
 			if (!isValid) {
-				setErrorMessage(getErrorMessage(field.type, newValue?.value));
-			} else {
-				setErrorMessage("");
+				return;
 			}
 
 			const oldValues = value || [];
@@ -306,7 +310,6 @@ const FormField = ({
 				});
 			}
 
-			// TODO: HANDLE MULTIPLE ADDED VALUES AND DELETED VALUES
 			const removedValues = oldValues.filter(
 				(oldItem: any) =>
 					!newValues.some((newItem: any) => newItem.value === oldItem.value),
@@ -320,7 +323,7 @@ const FormField = ({
 
 			setValue(newValue);
 		},
-		[field, handleSaveDropdownChanges, value],
+		[field, handleSaveDropdownChanges, value, validations, validateAndSetError],
 	);
 
 	const handleMultiDropdownFirstChange = useCallback(
