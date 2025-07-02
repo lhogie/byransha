@@ -37,6 +37,7 @@ public abstract class BNode {
 	public final BBGraph graph;
 	private final int id;
 	public String color = "pink";
+	public Boolean deleted = false;
 
 	
 	protected BNode(BBGraph g) {
@@ -171,6 +172,10 @@ public abstract class BNode {
 
 	public int outDegree() {
 		return outs().size();
+	}
+
+	public void remove(){
+		this.deleted = true;
 	}
 
 	public List<SearchResult> search(String query) {

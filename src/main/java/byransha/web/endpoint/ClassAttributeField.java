@@ -51,59 +51,61 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             throws Throwable {
         var a = new ArrayNode(null);
         node.forEachOut((name, out) -> {
-            var b = new ObjectNode(null);
-            b.set("id", new IntNode(out.id()));
-            b.set("name", new TextNode(name));
-            b.set("type", new TextNode(out.getClass().getSimpleName()));
-            if (out instanceof ValuedNode<?> vn) {
-                if (vn.get() == null) {
-                    b.set("value", NullNode.getInstance());
-                } else if (vn instanceof byransha.BooleanNode) {
-                    b.set("value", BooleanNode.valueOf((Boolean) vn.get()));
-                } else if (vn instanceof byransha.IntNode) {
-                    b.set("value", new IntNode((Integer) vn.get()));
-                } else {
-                    b.set("value", new TextNode(vn.getAsString()));
-                }
-
-                b.set("mimeType", new TextNode(vn.getMimeType()));
-            }
-            if (out instanceof ListNode<?> ln) {
-                b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode));
-                b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown));
-            } else if (out instanceof SetNode<?> sn) {
-                b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode));
-                b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown));
-            } else if (out instanceof DropdownNode<?> dn) {
-                b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode));
-                b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown));
-            }
-
-            if (out instanceof ListNode<?> || out instanceof SetNode<?> || out instanceof DropdownNode<?>) {
-                try {
-                    Field field = findField(node.getClass(), name);
-                    var genericType = field.getGenericType();
-                    if (genericType instanceof ParameterizedType parameterizedType) {
-                        var actualType = parameterizedType.getActualTypeArguments()[0];
-                        b.set("listNodeType", new TextNode(actualType.getTypeName()));
+            if(!out.deleted) {
+                var b = new ObjectNode(null);
+                b.set("id", new IntNode(out.id()));
+                b.set("name", new TextNode(name));
+                b.set("type", new TextNode(out.getClass().getSimpleName()));
+                if (out instanceof ValuedNode<?> vn) {
+                    if (vn.get() == null) {
+                        b.set("value", NullNode.getInstance());
+                    } else if (vn instanceof byransha.BooleanNode) {
+                        b.set("value", BooleanNode.valueOf((Boolean) vn.get()));
+                    } else if (vn instanceof byransha.IntNode) {
+                        b.set("value", new IntNode((Integer) vn.get()));
+                    } else {
+                        b.set("value", new TextNode(vn.getAsString()));
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
 
-            if (out instanceof RadioNode<?> radioNode) {
-                try {
-                    b.set("options", JsonNodeFactory.instance.arrayNode().addAll(
-                            radioNode.getOptions().stream()
-                                    .map(option -> option == null ? NullNode.getInstance() : new TextNode(option.toString()))
-                                    .collect(Collectors.toList())));
-                } catch (Exception e) {
-                    e.printStackTrace();
+                    b.set("mimeType", new TextNode(vn.getMimeType()));
                 }
-            }
+                if (out instanceof ListNode<?> ln) {
+                    b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode));
+                    b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown));
+                } else if (out instanceof SetNode<?> sn) {
+                    b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode));
+                    b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown));
+                } else if (out instanceof DropdownNode<?> dn) {
+                    b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode));
+                    b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown));
+                }
 
-            a.add(b);
+                if (out instanceof ListNode<?> || out instanceof SetNode<?> || out instanceof DropdownNode<?>) {
+                    try {
+                        Field field = findField(node.getClass(), name);
+                        var genericType = field.getGenericType();
+                        if (genericType instanceof ParameterizedType parameterizedType) {
+                            var actualType = parameterizedType.getActualTypeArguments()[0];
+                            b.set("listNodeType", new TextNode(actualType.getTypeName()));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if (out instanceof RadioNode<?> radioNode) {
+                    try {
+                        b.set("options", JsonNodeFactory.instance.arrayNode().addAll(
+                                radioNode.getOptions().stream()
+                                        .map(option -> option == null ? NullNode.getInstance() : new TextNode(option.toString()))
+                                        .collect(Collectors.toList())));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                a.add(b);
+            }
         });
 
         return new EndpointJsonResponse(a, node.prettyName()+'@'+node.id());
