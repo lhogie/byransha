@@ -55,7 +55,7 @@ const FormField = ({
 	parentId: string;
 	defaultValue?: any;
 }) => {
-	const { id, name, type, validations } = field;
+	const { id, name, type, validations, isValid } = field;
 	const [value, setValue] = useState(
 		dropdownField.includes(type)
 			? {
@@ -364,7 +364,7 @@ const FormField = ({
 							title={fieldKey}
 							sx={{ textAlign: "left", justifyContent: "flex-start" }}
 						>
-							<Typography fontWeight="medium">
+							<Typography fontWeight="medium" color={isValid === false ? "error" : "primary"} sx={{ fontWeight: isValid === false ? 'bold' : 'regular' }}>
 								{shortenAndFormatLabel(name)}
 							</Typography>
 						</Button>

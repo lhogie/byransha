@@ -1,14 +1,12 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
-import byransha.annotations.ListSettings;
-import byransha.annotations.Max;
-import byransha.annotations.Pattern;
-import byransha.annotations.Size;
+import byransha.annotations.*;
 
 public class EtatCivil extends BusinessNode {
     @Size(min = 2, max=5)
 	public StringNode nomUsuel;
+    @Required
     public StringNode nomDeJeuneFille, prenom, villeDeNaissance, adressePersonnelle;
     public DropdownNode<Country> paysDeNaissance;
 	public DateNode dateDeNaissance;

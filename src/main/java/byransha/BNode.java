@@ -502,7 +502,7 @@ public abstract class BNode {
 					f.setAccessible(true);
 					Object value = f.get(this);
 
-					if (f.isAnnotationPresent(Required.class) && value == null) {
+					if (f.isAnnotationPresent(Required.class) && (value == null || (value instanceof ValuedNode && ((ValuedNode) value).get() == null))) {
 						return false;
 					}
 

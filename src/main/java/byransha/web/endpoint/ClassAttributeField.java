@@ -2,6 +2,7 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.annotations.*;
+import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -56,6 +57,11 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 b.set("id", new IntNode(out.id()));
                 b.set("name", new TextNode(name));
                 b.set("type", new TextNode(out.getClass().getSimpleName()));
+
+                if (out instanceof BusinessNode bn) {
+                    b.set("isValid", BooleanNode.valueOf(bn.isValid()));
+                }
+
                 if (out instanceof ValuedNode<?> vn) {
                     if (vn.get() == null) {
                         b.set("value", NullNode.getInstance());
@@ -69,6 +75,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
                     b.set("mimeType", new TextNode(vn.getMimeType()));
                 }
+
                 if (out instanceof ListNode<?> ln) {
                     b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode()));
                     b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown()));
