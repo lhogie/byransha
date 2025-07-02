@@ -438,7 +438,7 @@ const FormField = ({
 						<DropdownField
 							field={field}
 							fieldKey={fieldKey}
-							value={value}
+							value={value ?? null}
 							onChange={handleDropdownValueChange}
 							onFirstChange={handleDropdownFirstValueChange}
 							defaultValue={defaultValue}

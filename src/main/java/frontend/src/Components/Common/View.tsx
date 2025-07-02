@@ -157,10 +157,10 @@ const MemoizedLineChart = memo(({ data }: { data: any }) => {
 
 const MemoizedBarChart = memo(
 	({
-		prettyName,
-		data,
-		keys,
-	}: {
+		 prettyName,
+		 data,
+		 keys,
+	 }: {
 		prettyName: string | undefined;
 		data: any;
 		keys: string[];
@@ -216,9 +216,9 @@ const MemoizedBarChart = memo(
 
 const MemoizedNetworkChart = memo(
 	({
-		data,
-		onNodeClick,
-	}: {
+		 data,
+		 onNodeClick,
+	 }: {
 		data: any;
 		onNodeClick: (node: any, event: any) => void;
 	}) => {
@@ -911,23 +911,25 @@ export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 			return (
 				<>
 					<Tooltip title="Show Raw Backend Response">
-						<IconButton
-							onClick={handleOpenModal}
-							size="small"
-							sx={{
-								position: "absolute",
-								top: 5,
-								right: 5,
-								zIndex: 10,
-								width: 30,
-								height: 30,
-								color: "primary.main",
-							}}
-							aria-label="Show raw JSON"
-							disabled={dataForModal === null || dataForModal === undefined}
-						>
-							<CodeIcon />
-						</IconButton>
+						<span>
+							<IconButton
+								onClick={handleOpenModal}
+								size="small"
+								sx={{
+									position: "absolute",
+									top: 5,
+									right: 5,
+									zIndex: 10,
+									width: 30,
+									height: 30,
+									color: "primary.main",
+								}}
+								aria-label="Show raw JSON"
+								disabled={dataForModal === null || dataForModal === undefined}
+							>
+								<CodeIcon />
+							</IconButton>
+						</span>
 					</Tooltip>
 					<Modal
 						open={isModalOpen}

@@ -168,8 +168,6 @@ const AddNodePage = () => {
 	useEffect(() => {
 		if (!fullClassName || fullClassName.length === 0) return;
 
-		console.log("hi");
-
 		const checkPersistingNodes = async () => {
 			const persistingSet = new Set<string>();
 

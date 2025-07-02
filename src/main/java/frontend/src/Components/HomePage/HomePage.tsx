@@ -384,7 +384,7 @@ const HomePage = () => {
 						>
 							{views.map((view, _index) => (
 								<MenuItem
-									key={view.id}
+									key={view.endpoint}
 									sx={{
 										display: "flex",
 										alignItems: "center",
@@ -535,7 +535,7 @@ const HomePage = () => {
 					.filter((view) => selectedViews.includes(view.endpoint))
 					.map((view, _index) => (
 						<Box
-							key={view.index}
+							key={view.endpoint}
 							sx={{
 								width: {
 									xs: "100%",
