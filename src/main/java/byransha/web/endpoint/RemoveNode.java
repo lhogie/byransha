@@ -39,7 +39,6 @@ public class RemoveNode extends NodeEndpoint<BNode> {
             }
             a.add(b);
         });
-        System.out.println(numberOfOuts + " expected vs reality " + numberOfOutsDeleted.get());
         if(numberOfOutsDeleted.get() == numberOfOuts) node.remove();
         return new EndpointJsonResponse(a, "Node removed from the graph.");
     }
