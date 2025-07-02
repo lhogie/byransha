@@ -115,15 +115,18 @@ const FormPage = () => {
 						icon: <DeleteIcon />,
 						name: "Supprimer",
 						onClick: async () => {
-							await removeNodeMutation.mutateAsync({
-								node_id: rootId,
-							}, {
-								onSuccess: async () => {
-									await refetch();
-									navigate(-1);
-								}
-							});
-						}
+							await removeNodeMutation.mutateAsync(
+								{
+									node_id: rootId,
+								},
+								{
+									onSuccess: async () => {
+										await refetch();
+										navigate(-1);
+									},
+								},
+							);
+						},
 					},
 				].map((action) => (
 					<SpeedDialAction

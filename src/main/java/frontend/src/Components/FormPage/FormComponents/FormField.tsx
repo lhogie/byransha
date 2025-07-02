@@ -323,7 +323,7 @@ const FormField = ({
 
 			setValue(newValue);
 		},
-		[field, handleSaveDropdownChanges, value, validations, validateAndSetError],
+		[field, handleSaveDropdownChanges, value, validateAndSetError],
 	);
 
 	const handleMultiDropdownFirstChange = useCallback(
@@ -364,7 +364,11 @@ const FormField = ({
 							title={fieldKey}
 							sx={{ textAlign: "left", justifyContent: "flex-start" }}
 						>
-							<Typography fontWeight="medium" color={isValid === false ? "error" : "primary"} sx={{ fontWeight: isValid === false ? 'bold' : 'regular' }}>
+							<Typography
+								fontWeight="medium"
+								color={isValid === false ? "error" : "primary"}
+								sx={{ fontWeight: isValid === false ? "bold" : "regular" }}
+							>
 								{shortenAndFormatLabel(name)}
 							</Typography>
 						</Button>

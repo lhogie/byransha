@@ -1,4 +1,9 @@
-import React, { useState, memo, type MouseEventHandler } from "react";
+import React, {
+	useState,
+	memo,
+	type MouseEventHandler,
+	useCallback,
+} from "react";
 import "./HomePage.css";
 import { useNavigate } from "react-router";
 import {
@@ -62,11 +67,17 @@ const ViewCard = memo(
 					>
 						{`${view.endpoint.replace(/_/g, " ").replace(/(?:^|\s)\S/g, (match: any) => match.toUpperCase())} - ${view.what_is_this}`}
 					</Typography>
-					<button className="expand-card" onClick={onClick} aria-label="expand">
+					<button
+						type="button"
+						className="expand-card"
+						onClick={onClick}
+						aria-label="expand"
+					>
 						{" "}
 						<Expand />{" "}
 					</button>
 					<button
+						type="button"
 						className="erased-card"
 						onClick={(_e) => {
 							handleViewToggle(view.endpoint);
@@ -154,14 +165,14 @@ const HomePage = () => {
 
 	const jumpToId = useApiMutation("jump");
 
-	const getAutoColumnCount = () => {
+	const getAutoColumnCount = useCallback(() => {
 		const width = window.innerWidth;
 
 		if (width < 900) return 1;
 		else if (width < 1600) return 2;
 		else if (width < 2100) return 3;
 		return 4;
-	};
+	}, []);
 
 	React.useEffect(() => {
 		if (data?.data?.results) {
@@ -175,7 +186,7 @@ const HomePage = () => {
 				const saved = JSON.parse(
 					localStorage.getItem("selectedViewsSaved") as string,
 				);
-				let newSelected;
+				let newSelected: any;
 				if (!saved || saved.length === 0) {
 					newSelected = filteredViews.map((view) => view.endpoint);
 				} else {
@@ -286,7 +297,7 @@ const HomePage = () => {
 			const techEndpoints = techViews.map((view) => view.endpoint);
 
 			setSelectedViews((prevSelected) => {
-				let updated;
+				let updated: any;
 				if (newValue) {
 					updated = [...new Set([...prevSelected, ...techEndpoints])];
 				} else {
@@ -373,6 +384,7 @@ const HomePage = () => {
 						>
 							{views.map((view, _index) => (
 								<MenuItem
+									key={view.id}
 									sx={{
 										display: "flex",
 										alignItems: "center",
@@ -523,6 +535,7 @@ const HomePage = () => {
 					.filter((view) => selectedViews.includes(view.endpoint))
 					.map((view, _index) => (
 						<Box
+							key={view.index}
 							sx={{
 								width: {
 									xs: "100%",

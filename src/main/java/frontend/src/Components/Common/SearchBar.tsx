@@ -1,10 +1,19 @@
-import { Autocomplete, CircularProgress, TextField, ListItem, ListItemAvatar, Avatar, ListItemText, Badge } from "@mui/material";
+import {
+	Autocomplete,
+	CircularProgress,
+	TextField,
+	ListItem,
+	ListItemAvatar,
+	Avatar,
+	ListItemText,
+	Badge,
+} from "@mui/material";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useDebounce } from "use-debounce";
-import WarningIcon from "@mui/icons-material/Warning"
+import WarningIcon from "@mui/icons-material/Warning";
 
 export const SearchBar = () => {
 	const [query, setQuery] = useState("");
@@ -46,12 +55,18 @@ export const SearchBar = () => {
 			renderOption={(props, option) => (
 				<ListItem {...props}>
 					<ListItemAvatar>
-						<Badge invisible={option.isValid} badgeContent={
-							<WarningIcon color="warning" />
-						}>
-						<Avatar  src={option.img ? (
-							`data:${option.imgMimeType};base64,${option.img}`
-						) : ''} alt={option.name} />
+						<Badge
+							invisible={option.isValid}
+							badgeContent={<WarningIcon color="warning" />}
+						>
+							<Avatar
+								src={
+									option.img
+										? `data:${option.imgMimeType};base64,${option.img}`
+										: ""
+								}
+								alt={option.name}
+							/>
 						</Badge>
 					</ListItemAvatar>
 					<ListItemText

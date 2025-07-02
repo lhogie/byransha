@@ -23,20 +23,38 @@ export const getErrorMessage = (
 	value: string | number | Date | any[] | null | undefined,
 	validations: any,
 ) => {
-	if (validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+	if (
+		validations?.required &&
+		(value === null ||
+			value === undefined ||
+			(typeof value === "string" && value.trim() === "") ||
+			(Array.isArray(value) && value.length === 0))
+	) {
 		return "Ce champ est requis";
 	}
 
-	if (validations?.min !== undefined && typeof value === 'number' && value < validations.min) {
+	if (
+		validations?.min !== undefined &&
+		typeof value === "number" &&
+		value < validations.min
+	) {
 		return `La valeur doit être au moins ${validations.min}`;
 	}
 
-	if (validations?.max !== undefined && typeof value === 'number' && value > validations.max) {
+	if (
+		validations?.max !== undefined &&
+		typeof value === "number" &&
+		value > validations.max
+	) {
 		return `La valeur doit être au plus ${validations.max}`;
 	}
 
 	if (validations?.size) {
-		const len = Array.isArray(value) ? value.length : (typeof value === 'string' ? value.length : -1);
+		const len = Array.isArray(value)
+			? value.length
+			: typeof value === "string"
+				? value.length
+				: -1;
 		if (len !== -1) {
 			if (validations.size.min !== undefined && len < validations.size.min) {
 				return `Doit contenir au moins ${validations.size.min} caractères/éléments`;
@@ -47,7 +65,11 @@ export const getErrorMessage = (
 		}
 	}
 
-	if (validations?.pattern && typeof value === 'string' && !new RegExp(validations.pattern).test(value)) {
+	if (
+		validations?.pattern &&
+		typeof value === "string" &&
+		!new RegExp(validations.pattern).test(value)
+	) {
 		return `Doit correspondre au modèle : ${validations.pattern}`;
 	}
 
@@ -74,26 +96,46 @@ export const validateFieldValue = (
 	let message = "";
 
 	// Required validation
-	if (validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+	if (
+		validations?.required &&
+		(value === null ||
+			value === undefined ||
+			(typeof value === "string" && value.trim() === "") ||
+			(Array.isArray(value) && value.length === 0))
+	) {
 		isValid = false;
 		message = "Ce champ est requis";
 		return { isValid, message };
 	}
 
 	// If not required and value is empty, it's valid
-	if (!validations?.required && (value === null || value === undefined || (typeof value === 'string' && value.trim() === '') || (Array.isArray(value) && value.length === 0))) {
+	if (
+		!validations?.required &&
+		(value === null ||
+			value === undefined ||
+			(typeof value === "string" && value.trim() === "") ||
+			(Array.isArray(value) && value.length === 0))
+	) {
 		return { isValid: true, message: "" };
 	}
 
 	// Min validation
-	if (validations?.min !== undefined && typeof value === 'number' && value < validations.min) {
+	if (
+		validations?.min !== undefined &&
+		typeof value === "number" &&
+		value < validations.min
+	) {
 		isValid = false;
 		message = `La valeur doit être au moins ${validations.min}`;
 		return { isValid, message };
 	}
 
 	// Max validation
-	if (validations?.max !== undefined && typeof value === 'number' && value > validations.max) {
+	if (
+		validations?.max !== undefined &&
+		typeof value === "number" &&
+		value > validations.max
+	) {
 		isValid = false;
 		message = `La valeur doit être au plus ${validations.max}`;
 		return { isValid, message };
@@ -101,7 +143,11 @@ export const validateFieldValue = (
 
 	// Size validation
 	if (validations?.size) {
-		const len = Array.isArray(value) ? value.length : (typeof value === 'string' ? value.length : -1);
+		const len = Array.isArray(value)
+			? value.length
+			: typeof value === "string"
+				? value.length
+				: -1;
 		if (len !== -1) {
 			if (validations.size.min !== undefined && len < validations.size.min) {
 				isValid = false;
@@ -117,7 +163,11 @@ export const validateFieldValue = (
 	}
 
 	// Pattern validation
-	if (validations?.pattern && typeof value === 'string' && !new RegExp(validations.pattern).test(value)) {
+	if (
+		validations?.pattern &&
+		typeof value === "string" &&
+		!new RegExp(validations.pattern).test(value)
+	) {
 		isValid = false;
 		message = `Doit correspondre au modèle : ${validations.pattern}`;
 		return { isValid, message };
