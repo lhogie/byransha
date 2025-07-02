@@ -1,6 +1,7 @@
 package byransha.web.endpoint;
 
 import byransha.*;
+import byransha.annotations.*;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -12,8 +13,6 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.util.Base64;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
@@ -32,17 +31,18 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     }
 
     private Field findField(Class<?> clazz, String name) {
-        try {
-            return clazz.getField(name);
-        } catch (NoSuchFieldException e) {
+        Class<?> current = clazz;
+        while (current != null && current != Object.class) {
             try {
-                Field f = clazz.getDeclaredField(name);
-                f.setAccessible(true);
-                return f;
-            } catch (NoSuchFieldException ex) {
-                return null;
+                Field field = current.getDeclaredField(name);
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException e) {
+                // Not in current class, try superclass
             }
+            current = current.getSuperclass();
         }
+        return null;
     }
 
 
@@ -70,23 +70,25 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                     b.set("mimeType", new TextNode(vn.getMimeType()));
                 }
                 if (out instanceof ListNode<?> ln) {
-                    b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode));
-                    b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown));
+                    b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode()));
+                    b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown()));
                 } else if (out instanceof SetNode<?> sn) {
-                    b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode));
-                    b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown));
+                    b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode()));
+                    b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown()));
                 } else if (out instanceof DropdownNode<?> dn) {
-                    b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode));
-                    b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown));
+                    b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode()));
+                    b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown()));
                 }
 
                 if (out instanceof ListNode<?> || out instanceof SetNode<?> || out instanceof DropdownNode<?>) {
                     try {
                         Field field = findField(node.getClass(), name);
-                        var genericType = field.getGenericType();
-                        if (genericType instanceof ParameterizedType parameterizedType) {
-                            var actualType = parameterizedType.getActualTypeArguments()[0];
-                            b.set("listNodeType", new TextNode(actualType.getTypeName()));
+                        if (field != null) {
+                            var genericType = field.getGenericType();
+                            if (genericType instanceof ParameterizedType parameterizedType) {
+                                var actualType = parameterizedType.getActualTypeArguments()[0];
+                                b.set("listNodeType", new TextNode(actualType.getTypeName()));
+                            }
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -101,6 +103,33 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                                         .collect(Collectors.toList())));
                     } catch (Exception e) {
                         e.printStackTrace();
+                    }
+                }
+
+                Field field = findField(node.getClass(), name);
+                if (field != null) {
+                    var validations = new ObjectNode(null);
+                    if (field.isAnnotationPresent(Required.class)) {
+                        validations.set("required", BooleanNode.valueOf(true));
+                    }
+                    if (field.isAnnotationPresent(Min.class)) {
+                        validations.set("min", new DoubleNode(field.getAnnotation(Min.class).value()));
+                    }
+                    if (field.isAnnotationPresent(Max.class)) {
+                        validations.set("max", new DoubleNode(field.getAnnotation(Max.class).value()));
+                    }
+                    if (field.isAnnotationPresent(Size.class)) {
+                        var size = field.getAnnotation(Size.class);
+                        var sizeInfo = new ObjectNode(null);
+                        sizeInfo.set("min", new IntNode(size.min()));
+                        sizeInfo.set("max", new IntNode(size.max()));
+                        validations.set("size", sizeInfo);
+                    }
+                    if (field.isAnnotationPresent(Pattern.class)) {
+                        validations.set("pattern", new TextNode(field.getAnnotation(Pattern.class).regex()));
+                    }
+                    if (validations.size() > 0) {
+                        b.set("validations", validations);
                     }
                 }
 

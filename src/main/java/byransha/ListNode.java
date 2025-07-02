@@ -19,10 +19,20 @@ import byransha.web.NodeEndpoint;
 import byransha.web.View;
 import byransha.web.WebServer;
 
+import byransha.annotations.ListSettings;
+
+import java.lang.reflect.Field;
+
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new CopyOnWriteArrayList<>();
-	public boolean canAddNewNode = true;
-	public boolean isDropdown = false;
+
+	public boolean canAddNewNode() {
+		return getListSettings().allowCreation();
+	}
+
+	public boolean isDropdown() {
+		return getListSettings().displayAsDropdown();
+	}
 
 
 	public ListNode(BBGraph db) {
@@ -77,6 +87,36 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		return l.size();
 	}
 
+	private ListSettings getListSettings() {
+		for (InLink inLink : ins()) {
+			for (Field field : inLink.source.getClass().getDeclaredFields()) {
+				if (field.getType().isAssignableFrom(ListNode.class)) {
+					ListSettings annotation = field.getAnnotation(ListSettings.class);
+					if (annotation != null) {
+						return annotation;
+					}
+				}
+			}
+		}
+		// Return default settings if no annotation is found
+		return new ListSettings() {
+			@Override
+			public boolean allowCreation() {
+				return true;
+			}
+
+			@Override
+			public boolean displayAsDropdown() {
+				return false;
+			}
+
+			@Override
+			public Class<? extends java.lang.annotation.Annotation> annotationType() {
+				return ListSettings.class;
+			}
+		};
+	}
+
 	public BNode random() {
 		int currentSize = l.size();
 		if (currentSize == 0) {
@@ -85,14 +125,7 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		return l.get(new Random().nextInt(currentSize));
 	}
 
-	public void disableAddNewNode(){
-		canAddNewNode = false;
-	}
-
-	public void enableIsDropdown() {
-		canAddNewNode = false;
-		isDropdown = true;
-	}
+	
 
 	public static class ListNodes extends NodeEndpoint<ListNode> implements View {
 

@@ -33,6 +33,7 @@ const FormPage = () => {
 	const rootId = rawApiData?.data?.node_id || 0;
 	const pageName = classForm?.split(".").pop() ?? "";
 	const exportCSVMutation = useApiMutation("export_csv");
+	const removeNodeMutation = useApiMutation("remove_node");
 
 	if (loading)
 		return (
@@ -113,6 +114,16 @@ const FormPage = () => {
 					{
 						icon: <DeleteIcon />,
 						name: "Supprimer",
+						onClick: async () => {
+							await removeNodeMutation.mutateAsync({
+								node_id: rootId,
+							}, {
+								onSuccess: async () => {
+									await refetch();
+									navigate(-1);
+								}
+							});
+						}
 					},
 				].map((action) => (
 					<SpeedDialAction

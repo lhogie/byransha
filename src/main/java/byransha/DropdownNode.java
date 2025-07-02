@@ -2,10 +2,11 @@ package byransha;
 
 import java.util.function.BiConsumer;
 
-public class DropdownNode<N extends BNode> extends ValuedNode<N>{
-    final public boolean canAddNewNode = false;
-    final public boolean isDropdown = true;
+import byransha.annotations.ListSettings;
 
+import java.lang.reflect.Field;
+
+public class DropdownNode<N extends BNode> extends ValuedNode<N>{
 
     public N value;
 
@@ -15,6 +16,44 @@ public class DropdownNode<N extends BNode> extends ValuedNode<N>{
 
     public DropdownNode(BBGraph db, int id) {
         super(db, id);
+    }
+
+    public boolean canAddNewNode() {
+        return getListSettings().allowCreation();
+    }
+
+    public boolean isDropdown() {
+        return getListSettings().displayAsDropdown();
+    }
+
+    private ListSettings getListSettings() {
+        for (InLink inLink : ins()) {
+            for (Field field : inLink.source.getClass().getDeclaredFields()) {
+                if (field.getType().isAssignableFrom(DropdownNode.class)) {
+                    ListSettings annotation = field.getAnnotation(ListSettings.class);
+                    if (annotation != null) {
+                        return annotation;
+                    }
+                }
+            }
+        }
+        // Return default settings if no annotation is found
+        return new ListSettings() {
+            @Override
+            public boolean allowCreation() {
+                return false;
+            }
+
+            @Override
+            public boolean displayAsDropdown() {
+                return true;
+            }
+
+            @Override
+            public Class<? extends java.lang.annotation.Annotation> annotationType() {
+                return ListSettings.class;
+            }
+        };
     }
 
     @Override

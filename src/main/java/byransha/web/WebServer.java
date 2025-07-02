@@ -286,6 +286,7 @@ public class WebServer extends BNode {
         BNode.create(g, AgentCdd.class);
         BNode.create(g, ExportCSV.class);
         BNode.create(g, RemoveFromList.class);
+        BNode.create(g, RemoveNode.class);
 
 		Country.loadCountries(g);
 	}

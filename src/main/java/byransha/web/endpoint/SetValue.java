@@ -66,6 +66,7 @@ public class SetValue extends NodeEndpoint<BNode> {
         a.set("id", new IntNode(node.id()));
         a.set("name", new TextNode(node.prettyName()));
         a.set("type", new TextNode(node.getClass().getSimpleName()));
+        a.set("isValid", BooleanNode.valueOf(node.isValid()));
 
         var value = in.get("value");
 

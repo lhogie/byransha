@@ -6,9 +6,11 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 
+import byransha.annotations.ListSettings;
+
+import java.lang.reflect.Field;
+
 public class SetNode<N extends BNode> extends PersistingNode {
-	public boolean canAddNewNode = true;
-	public boolean isDropdown = false;
 
 	@Override
 	public String whatIsThis() {
@@ -47,13 +49,46 @@ public class SetNode<N extends BNode> extends PersistingNode {
 		this.save(f -> {});
 	}
 
-	public void disableAddNewNode(){
-		canAddNewNode = false;
+	public int size() {
+		return l.size();
 	}
 
-	public void enableIsDropdown() {
-		canAddNewNode = false;
-		isDropdown = true;
+	public boolean canAddNewNode() {
+		return getListSettings().allowCreation();
+	}
+
+	public boolean isDropdown() {
+		return getListSettings().displayAsDropdown();
+	}
+
+	private ListSettings getListSettings() {
+		for (InLink inLink : ins()) {
+			for (Field field : inLink.source.getClass().getDeclaredFields()) {
+				if (field.getType().isAssignableFrom(SetNode.class)) {
+					ListSettings annotation = field.getAnnotation(ListSettings.class);
+					if (annotation != null) {
+						return annotation;
+					}
+				}
+			}
+		}
+		// Return default settings if no annotation is found
+		return new ListSettings() {
+			@Override
+			public boolean allowCreation() {
+				return true;
+			}
+
+			@Override
+			public boolean displayAsDropdown() {
+				return false;
+			}
+
+			@Override
+			public Class<? extends java.lang.annotation.Annotation> annotationType() {
+				return ListSettings.class;
+			}
+		};
 	}
 
 	public void remove(N p) {

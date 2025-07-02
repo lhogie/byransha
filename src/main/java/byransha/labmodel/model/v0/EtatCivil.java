@@ -1,11 +1,19 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.ListSettings;
+import byransha.annotations.Max;
+import byransha.annotations.Pattern;
+import byransha.annotations.Size;
 
 public class EtatCivil extends BusinessNode {
-	public StringNode nomUsuel, nomDeJeuneFille, prenom, villeDeNaissance, adressePersonnelle ;
-	public DropdownNode<Country> paysDeNaissance;
+    @Size(min = 2, max=5)
+	public StringNode nomUsuel;
+    public StringNode nomDeJeuneFille, prenom, villeDeNaissance, adressePersonnelle;
+    public DropdownNode<Country> paysDeNaissance;
 	public DateNode dateDeNaissance;
+    @ListSettings(displayAsDropdown = true, allowCreation = false)
+    @Size(max=2)
 	public SetNode<Country> nationalites;
 	public PhoneNumberNode telephone;
 
@@ -19,7 +27,6 @@ public class EtatCivil extends BusinessNode {
 		villeDeNaissance = BNode.create(g, StringNode.class);
 		paysDeNaissance = BNode.create(g, DropdownNode.class);
 		nationalites = BNode.create(g, SetNode.class);
-		nationalites.enableIsDropdown();
 		adressePersonnelle = BNode.create(g, StringNode.class);
 		telephone = BNode.create(g, PhoneNumberNode.class);
 

@@ -31,6 +31,14 @@ import byransha.web.WebServer;
 import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
+import byransha.annotations.Max;
+import byransha.annotations.Min;
+import byransha.annotations.Pattern;
+import byransha.annotations.Required;
+import byransha.annotations.Size;
+
+import java.util.Collection;
+
 public abstract class BNode {
 	public String comment;
 	private List<InLink> ins;
@@ -486,6 +494,71 @@ public abstract class BNode {
 	}
 
 	public abstract String prettyName();
+
+	public boolean isValid() {
+		for (var c : Clazz.bfs(getClass())) {
+			for (var f : c.getDeclaredFields()) {
+				try {
+					f.setAccessible(true);
+					Object value = f.get(this);
+
+					if (f.isAnnotationPresent(Required.class) && value == null) {
+						return false;
+					}
+
+					if (value != null) {
+						if (f.isAnnotationPresent(Min.class)) {
+							Min min = f.getAnnotation(Min.class);
+							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof Number) {
+								if (((Number) ((ValuedNode) value).get()).doubleValue() < min.value()) {
+									return false;
+								}
+							}
+						}
+
+						if (f.isAnnotationPresent(Max.class)) {
+							Max max = f.getAnnotation(Max.class);
+							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof Number) {
+								if (((Number) ((ValuedNode) value).get()).doubleValue() > max.value()) {
+									return false;
+								}
+							}
+						}
+
+						if (f.isAnnotationPresent(Size.class)) {
+							Size size = f.getAnnotation(Size.class);
+							int length = -1;
+
+							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof String) {
+								length = ((String) ((ValuedNode) value).get()).length();
+							} else if (value instanceof ListNode) {
+								length = ((ListNode) value).size();
+							} else if (value instanceof SetNode) {
+								length = ((SetNode) value).size();
+							}
+
+							if (length != -1 && (length < size.min() || length > size.max())) {
+								return false;
+							}
+						}
+
+						if (f.isAnnotationPresent(Pattern.class)) {
+							Pattern pattern = f.getAnnotation(Pattern.class);
+							if (value instanceof ValuedNode && ((ValuedNode) value).get() instanceof String) {
+								if (!((String) ((ValuedNode) value).get()).matches(pattern.regex())) {
+									return false;
+								}
+							}
+						}
+					}
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return true;
+	}
+
 	/*
 	 * public static class BFS extends NodeEndpoint<BNode> {
 	 *
