@@ -1,9 +1,10 @@
-import { Autocomplete, CircularProgress, TextField } from "@mui/material";
+import { Autocomplete, CircularProgress, TextField, ListItem, ListItemAvatar, Avatar, ListItemText, Badge } from "@mui/material";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useDebounce } from "use-debounce";
+import WarningIcon from "@mui/icons-material/Warning"
 
 export const SearchBar = () => {
 	const [query, setQuery] = useState("");
@@ -29,15 +30,37 @@ export const SearchBar = () => {
 	const results: {
 		id: string;
 		name: string;
+		type: string;
+		img?: string;
+		imgMimeType?: string;
+		isValid: boolean;
 	}[] = data?.data?.results?.[0]?.result?.data || [];
 
 	return (
 		<Autocomplete
 			sx={{ width: 300 }}
 			isOptionEqualToValue={(option, value) => option.name === value.name}
-			getOptionLabel={(option) => option.name}
+			getOptionLabel={(option) => `${option.name} (${option.type})`}
 			options={results}
 			loading={isLoading}
+			renderOption={(props, option) => (
+				<ListItem {...props}>
+					<ListItemAvatar>
+						<Badge invisible={option.isValid} badgeContent={
+							<WarningIcon color="warning" />
+						}>
+						<Avatar  src={option.img ? (
+							`data:${option.imgMimeType};base64,${option.img}`
+						) : ''} alt={option.name} />
+						</Badge>
+					</ListItemAvatar>
+					<ListItemText
+						primary={option.name}
+						secondary={option.type}
+						primaryTypographyProps={{ style: { marginRight: 8 } }}
+					/>
+				</ListItem>
+			)}
 			onChange={(_event, value) => {
 				if (value) {
 					jumpMutation.mutate({

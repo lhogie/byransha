@@ -2,16 +2,14 @@ package byransha.web.endpoint;
 
 import byransha.BBGraph;
 import byransha.BNode;
+import byransha.ImageNode;
 import byransha.User;
 import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.sun.net.httpserver.HttpsExchange;
 import toools.text.TextUtilities;
 
@@ -59,9 +57,18 @@ public class SearchNode extends NodeEndpoint<BNode> {
 
     private void addNodeInfo(ArrayNode a, BNode node) {
         ObjectNode nodeInfo = new ObjectNode(null);
-        nodeInfo.put("id", new IntNode(node.id()));
-        nodeInfo.put("name", new TextNode(node.prettyName()));
-        nodeInfo.put("type", new TextNode(node.getClass().getSimpleName()));
+        nodeInfo.set("id", new IntNode(node.id()));
+        nodeInfo.set("name", new TextNode(node.prettyName()));
+        nodeInfo.set("type", new TextNode(node.getClass().getSimpleName()));
+        nodeInfo.set("isValid", BooleanNode.valueOf(node.isValid()));
+
+        node.forEachOut((name, outNode) -> {
+            if (outNode instanceof ImageNode imageNode) {
+                nodeInfo.set("img", new TextNode(imageNode.getAsString()));
+                nodeInfo.set("imgMimeType", new TextNode(imageNode.getMimeType()));
+            }
+        });
+
         a.add(nodeInfo);
     }
 

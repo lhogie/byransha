@@ -4,7 +4,7 @@ import byransha.*;
 import byransha.annotations.*;
 
 public class EtatCivil extends BusinessNode {
-    @Size(min = 2, max=5)
+    @Size(min = 2)
 	public StringNode nomUsuel;
     @Required
     public StringNode nomDeJeuneFille, prenom, villeDeNaissance, adressePersonnelle;
@@ -15,6 +15,7 @@ public class EtatCivil extends BusinessNode {
 	public SetNode<Country> nationalites;
     @Pattern(regex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$")
 	public PhoneNumberNode telephone;
+    public ImageNode pic;
 
 
 	public EtatCivil(BBGraph g) {
@@ -28,6 +29,7 @@ public class EtatCivil extends BusinessNode {
 		nationalites = BNode.create(g, SetNode.class);
 		adressePersonnelle = BNode.create(g, StringNode.class);
 		telephone = BNode.create(g, PhoneNumberNode.class);
+        pic = BNode.create(g, ImageNode.class);
 
 		this.color = "green";
 	}
