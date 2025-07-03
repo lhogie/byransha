@@ -1,7 +1,8 @@
 import { useParams } from "react-router";
 import "./FormPage.css";
 import {
-	Box, Button,
+	Box,
+	Button,
 	CircularProgress,
 	Container,
 	IconButton,
@@ -20,7 +21,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { saveAs } from "file-saver";
-import {useQueryClient} from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 
 const FormPage = () => {
 	const { rootId: rawRootId } = useParams();
@@ -28,31 +29,35 @@ const FormPage = () => {
 	const rootId = rawRootId ? parseInt(rawRootId) : 0;
 
 	const queryClient = useQueryClient();
-	const navigate = useNavigate()
+	const navigate = useNavigate();
 	const {
 		data: rawApiData,
 		isLoading: loading,
 		error,
 		refetch,
 	} = useApiData(`class_attribute_field`, {
-		node_id: rootId
+		node_id: rootId,
 	});
-	const pageName = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
+	const pageName =
+		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
-	const searchNodeMutation = useApiMutation('search_node', {
+	const searchNodeMutation = useApiMutation("search_node", {
 		onSuccess: async () => {
 			await queryClient.invalidateQueries({
 				queryKey: [
 					"apiData",
 					"class_attribute_field",
 					{
-						node_id: rawApiData?.data?.results?.[0]?.result?.data?.attributes?.filter((attribute: any) => attribute.name === 'results')[0].id,
+						node_id:
+							rawApiData?.data?.results?.[0]?.result?.data?.attributes?.filter(
+								(attribute: any) => attribute.name === "results",
+							)[0].id,
 					},
 				],
 			});
-		}
-	})
+		},
+	});
 
 	if (loading)
 		return (
@@ -102,15 +107,19 @@ const FormPage = () => {
 					}}
 				/>
 
-				{
-					rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type === "SearchForm" ? (
-						<Button variant="contained" color="primary" sx={{
-
-						}} onClick={() => searchNodeMutation.mutate({})}>
-							Rechercher
-						</Button>
-					) : ''
-				}
+				{rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type ===
+				"SearchForm" ? (
+					<Button
+						variant="contained"
+						color="primary"
+						sx={{}}
+						onClick={() => searchNodeMutation.mutate({})}
+					>
+						Rechercher
+					</Button>
+				) : (
+					""
+				)}
 			</Container>
 			<SpeedDial
 				ariaLabel="SpeedDial playground example"

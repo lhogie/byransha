@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 import { useDebounce } from "use-debounce";
 import WarningIcon from "@mui/icons-material/Warning";
 
-export const SearchBar = ({key}: {key?: string}) => {
+export const SearchBar = ({ key }: { key?: string }) => {
 	const [query, setQuery] = useState("");
 	const [debounceQuery] = useDebounce(query, 250, { maxWait: 500 });
 	const navigate = useNavigate();
@@ -33,7 +33,7 @@ export const SearchBar = ({key}: {key?: string}) => {
 		},
 		{
 			enabled: debounceQuery.length > 0,
-			gcTime: 30000
+			gcTime: 30000,
 		},
 	);
 

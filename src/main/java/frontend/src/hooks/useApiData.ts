@@ -1,4 +1,4 @@
-import {type UndefinedInitialDataOptions, useMutation, useQuery, type UseQueryOptions} from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 // Custom hook to fetch API data with TanStack Query

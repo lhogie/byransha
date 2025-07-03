@@ -1,5 +1,5 @@
-import {useCallback, useEffect, useState} from "react";
-import {useTitle} from "@global/useTitle";
+import { useCallback, useEffect, useState } from "react";
+import { useTitle } from "@global/useTitle";
 import {
 	Box,
 	Card,
@@ -14,13 +14,13 @@ import {
 	Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import {useNavigate} from "react-router";
+import { useNavigate } from "react-router";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReloadIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import {useApiData, useApiMutation} from "@hooks/useApiData";
-import {useQueryClient} from "@tanstack/react-query";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useQueryClient } from "@tanstack/react-query";
 
 const AddNodePage = () => {
 	useTitle(`Add node`);
@@ -66,8 +66,8 @@ const AddNodePage = () => {
 		},
 	});
 
-	const addNodeMutation = useApiMutation('add_node')
-	const classInformationMutation = useApiMutation('class_information')
+	const addNodeMutation = useApiMutation("add_node");
+	const classInformationMutation = useApiMutation("class_information");
 
 	const handleCreateAndJump = async (name: string) => {
 		const fullName = fullClassName.find((item) => item.endsWith(name));
@@ -75,13 +75,13 @@ const AddNodePage = () => {
 		try {
 			const response = await addNodeMutation.mutateAsync({
 				BNodeClass: fullName,
-			})
+			});
 
 			const data = response?.data?.results?.[0]?.result?.data.id;
 
 			await jumpMutation.mutateAsync({ node_id: data });
 
-			return data
+			return data;
 		} catch (err) {
 			console.error(`Error during handleCreateAndJump for ${fullName}:`, err);
 			throw err;
@@ -133,26 +133,29 @@ const AddNodePage = () => {
 		}
 	}, [rawApiData]);
 
-	const fetchClassInfo = useCallback(async (fullName: string) => {
-		const cacheKey = `persisting:${fullName}`;
-		const cached = localStorage.getItem(cacheKey);
-		if (cached !== null) {
-			return cached === "true";
-		}
+	const fetchClassInfo = useCallback(
+		async (fullName: string) => {
+			const cacheKey = `persisting:${fullName}`;
+			const cached = localStorage.getItem(cacheKey);
+			if (cached !== null) {
+				return cached === "true";
+			}
 
-		try {
-			const response = await classInformationMutation.mutateAsync({
-				classForm: fullName
-			})
-			const data = response?.data?.results?.[0]?.result?.data;
+			try {
+				const response = await classInformationMutation.mutateAsync({
+					classForm: fullName,
+				});
+				const data = response?.data?.results?.[0]?.result?.data;
 
-			//localStorage.setItem(cacheKey, isPersisting ? 'true' : 'false');
-			return data?.BusinessNode !== undefined;
-		} catch (err) {
-			console.error(`Error fetching info for ${fullName}:`, err);
-			return false;
-		}
-	}, []);
+				//localStorage.setItem(cacheKey, isPersisting ? 'true' : 'false');
+				return data?.BusinessNode !== undefined;
+			} catch (err) {
+				console.error(`Error fetching info for ${fullName}:`, err);
+				return false;
+			}
+		},
+		[classInformationMutation.mutateAsync],
+	);
 
 	useEffect(() => {
 		if (!fullClassName || fullClassName.length === 0) return;

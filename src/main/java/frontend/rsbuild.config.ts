@@ -25,7 +25,7 @@ export default defineConfig({
 	},
 	performance: {
 		removeConsole: isDev ? false : ["log", "warn"],
-		preload: isDev ? undefined : true
+		preload: isDev ? undefined : true,
 	},
 	plugins: [
 		pluginTypeCheck(),

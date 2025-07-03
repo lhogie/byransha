@@ -90,36 +90,41 @@ const DropdownField = ({
 				options={
 					listData?.data?.results?.[0]?.result?.data
 						.map((option: any) => {
-									const firstLetter = option.name[0].toUpperCase();
+							const firstLetter = option.name[0].toUpperCase();
 
-									return {
-										label: option.name,
-										value: option.id,
-										firstLetter: option.name === "France(FR)" ? " " : (/[0-9]/.test(firstLetter) ? "0-9" : firstLetter),
-									};
-								})
-								.sort(
-									(
-										a: {
-											label: string;
-											value: string;
-											firstLetter: string;
-										},
-										b: {
-											label: string;
-											value: string;
-											firstLetter: string;
-										},
-									) => {
-										// Sort by firstLetter first to ensure correct grouping
-										// Space " " comes before "0-9" and letters, so France(FR) will be at the top
-										if (a.firstLetter !== b.firstLetter) {
-											return a.firstLetter.localeCompare(b.firstLetter);
-										}
-										// Then sort by label for items within the same group
-										return a.label.localeCompare(b.label);
-									},
-								) || []
+							return {
+								label: option.name,
+								value: option.id,
+								firstLetter:
+									option.name === "France(FR)"
+										? " "
+										: /[0-9]/.test(firstLetter)
+											? "0-9"
+											: firstLetter,
+							};
+						})
+						.sort(
+							(
+								a: {
+									label: string;
+									value: string;
+									firstLetter: string;
+								},
+								b: {
+									label: string;
+									value: string;
+									firstLetter: string;
+								},
+							) => {
+								// Sort by firstLetter first to ensure correct grouping
+								// Space " " comes before "0-9" and letters, so France(FR) will be at the top
+								if (a.firstLetter !== b.firstLetter) {
+									return a.firstLetter.localeCompare(b.firstLetter);
+								}
+								// Then sort by label for items within the same group
+								return a.label.localeCompare(b.label);
+							},
+						) || []
 				}
 				groupBy={(option) => option.firstLetter}
 				getOptionKey={(option) => option.value ?? ""}

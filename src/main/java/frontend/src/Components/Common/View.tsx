@@ -157,10 +157,10 @@ const MemoizedLineChart = memo(({ data }: { data: any }) => {
 
 const MemoizedBarChart = memo(
 	({
-		 prettyName,
-		 data,
-		 keys,
-	 }: {
+		prettyName,
+		data,
+		keys,
+	}: {
 		prettyName: string | undefined;
 		data: any;
 		keys: string[];
@@ -216,9 +216,9 @@ const MemoizedBarChart = memo(
 
 const MemoizedNetworkChart = memo(
 	({
-		 data,
-		 onNodeClick,
-	 }: {
+		data,
+		onNodeClick,
+	}: {
 		data: any;
 		onNodeClick: (node: any, event: any) => void;
 	}) => {

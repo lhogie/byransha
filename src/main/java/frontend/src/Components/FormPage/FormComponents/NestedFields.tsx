@@ -64,7 +64,7 @@ const NestedFields = ({
 	// Handle functions - memoized to prevent unnecessary re-renders
 
 	const handleChangingForm = useCallback(
-		async (name: string, id: string) => {
+		async (_name: string, id: string) => {
 			try {
 				await jumpToId.mutateAsync({ node_id: id });
 				await navigate(`/add-node/form/${id}`);
@@ -209,7 +209,8 @@ const NestedFields = ({
 				[key: string]: any;
 			} = {};
 
-			const allFields = rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
+			const allFields =
+				rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
 
 			allFields.forEach((field: any) => {
 				if (field.name && field.value !== "null" && field.value !== undefined) {
@@ -271,7 +272,8 @@ const NestedFields = ({
 		[expandedFields, toggleField, handleChangingForm, rootId],
 	);
 
-	const subfieldData = rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
+	const subfieldData =
+		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
 
 	return (
 		<React.Fragment>
