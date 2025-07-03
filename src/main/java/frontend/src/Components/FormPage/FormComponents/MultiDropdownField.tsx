@@ -37,10 +37,10 @@ const MultiDropdownField = ({
 		if (
 			!isLoading &&
 			!isError &&
-			rawApiData?.data?.results?.[0]?.result?.data?.length !== 0
+			rawApiData?.data?.results?.[0]?.result?.data?.attributes?.length !== 0
 		) {
 			onFirstChange(
-				rawApiData?.data?.results?.[0]?.result?.data.map((data: any) => ({
+				rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map((data: any) => ({
 					firstLetter: data.name.split(". ")[1][0],
 					label: data.name.split(". ")[1],
 					value: data.id,

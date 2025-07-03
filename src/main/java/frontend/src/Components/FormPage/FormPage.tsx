@@ -31,7 +31,7 @@ const FormPage = () => {
 		refetch,
 	} = useApiData(`class_attribute_field`);
 	const rootId = rawApiData?.data?.node_id || 0;
-	const pageName = classForm?.split(".").pop() ?? "";
+	const pageName = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
 

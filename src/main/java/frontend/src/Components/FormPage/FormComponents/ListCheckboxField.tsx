@@ -95,7 +95,7 @@ const ListCheckboxField = ({
 	return (
 		<FormControl fullWidth error={error}>
 			<FormGroup row>
-				{data?.data?.results?.[0]?.result?.data?.map(
+				{data?.data?.results?.[0]?.result?.data?.attributes?.map(
 					(option: any, index: any) => (
 						<ListCheckboxComponent
 							key={index}

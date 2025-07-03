@@ -209,7 +209,7 @@ const NestedFields = ({
 				[key: string]: any;
 			} = {};
 
-			const allFields = rawApiData?.data?.results?.[0]?.result?.data || [];
+			const allFields = rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
 
 			allFields.forEach((field: any) => {
 				if (field.name && field.value !== "null" && field.value !== undefined) {
@@ -271,7 +271,7 @@ const NestedFields = ({
 		[expandedFields, toggleField, handleChangingForm, rootId],
 	);
 
-	const subfieldData = rawApiData?.data?.results?.[0]?.result?.data || [];
+	const subfieldData = rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
 
 	return (
 		<React.Fragment>
