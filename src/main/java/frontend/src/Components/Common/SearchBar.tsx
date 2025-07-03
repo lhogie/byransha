@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 import { useDebounce } from "use-debounce";
 import WarningIcon from "@mui/icons-material/Warning";
 
-export const SearchBar = () => {
+export const SearchBar = ({key}: {key?: string}) => {
 	const [query, setQuery] = useState("");
 	const [debounceQuery] = useDebounce(query, 250, { maxWait: 500 });
 	const navigate = useNavigate();
@@ -32,7 +32,8 @@ export const SearchBar = () => {
 			query: debounceQuery,
 		},
 		{
-			enabled: query.length > 0,
+			enabled: debounceQuery.length > 0,
+			gcTime: 30000
 		},
 	);
 
@@ -49,12 +50,13 @@ export const SearchBar = () => {
 		<Autocomplete
 			sx={{ width: 300 }}
 			isOptionEqualToValue={(option, value) => option.name === value.name}
+			getOptionKey={(option) => option.id}
 			getOptionLabel={(option) => `${option.name} (${option.type})`}
 			options={results}
 			loading={isLoading}
 			renderOption={(props, option) => (
-				<ListItem {...props}>
-					<ListItemAvatar>
+				<ListItem {...props} key={option.id}>
+					<ListItemAvatar key={`${option.id}.avatar`}>
 						<Badge
 							invisible={option.isValid}
 							badgeContent={<WarningIcon color="warning" />}
@@ -70,6 +72,7 @@ export const SearchBar = () => {
 						</Badge>
 					</ListItemAvatar>
 					<ListItemText
+						key={`${option.id}.text`}
 						primary={option.name}
 						secondary={option.type}
 						primaryTypographyProps={{ style: { marginRight: 8 } }}

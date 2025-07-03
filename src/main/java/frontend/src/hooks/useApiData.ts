@@ -1,11 +1,11 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {type UndefinedInitialDataOptions, useMutation, useQuery, type UseQueryOptions} from "@tanstack/react-query";
 import axios from "axios";
 
 // Custom hook to fetch API data with TanStack Query
 export const useApiData = (
 	endpoints: string,
 	params: any = {},
-	querySettings = {},
+	querySettings?: any,
 ) => {
 	const queryParams = new URLSearchParams({ ...params }).toString();
 	const queryString = queryParams ? `?${queryParams}` : "";

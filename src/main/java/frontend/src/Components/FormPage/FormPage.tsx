@@ -1,7 +1,7 @@
 import { useParams } from "react-router";
 import "./FormPage.css";
 import {
-	Box,
+	Box, Button,
 	CircularProgress,
 	Container,
 	IconButton,
@@ -20,9 +20,10 @@ import DownloadIcon from "@mui/icons-material/Download";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
 import { saveAs } from "file-saver";
+import {useQueryClient} from "@tanstack/react-query";
 
 const FormPage = () => {
-	const { classForm } = useParams();
+	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const {
 		data: rawApiData,
@@ -34,6 +35,19 @@ const FormPage = () => {
 	const pageName = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
+	const searchNodeMutation = useApiMutation('search_node', {
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({
+				queryKey: [
+					"apiData",
+					"class_attribute_field",
+					{
+						node_id: rootId,
+					},
+				],
+			});
+		}
+	})
 
 	if (loading)
 		return (
@@ -52,6 +66,8 @@ const FormPage = () => {
 				Error loading form fields: {error.message || "Unknown error"}
 			</Typography>
 		);
+
+	console.log(rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type )
 
 	return (
 		<>
@@ -82,6 +98,16 @@ const FormPage = () => {
 						id: rootId,
 					}}
 				/>
+
+				{
+					rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type === "SearchForm" ? (
+						<Button variant="contained" color="primary" sx={{
+
+						}} onClick={() => searchNodeMutation.mutate({})}>
+							Rechercher
+						</Button>
+					) : ''
+				}
 			</Container>
 			<SpeedDial
 				ariaLabel="SpeedDial playground example"
