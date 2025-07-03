@@ -28,6 +28,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
 
+import byransha.*;
 import byransha.labmodel.model.v0.*;
 import byransha.web.endpoint.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -287,6 +288,8 @@ public class WebServer extends BNode {
         BNode.create(g, ExportCSV.class);
         BNode.create(g, RemoveFromList.class);
         BNode.create(g, RemoveNode.class);
+
+		BNode.create(g, SearchForm.class);
 
 		Country.loadCountries(g);
 	}
