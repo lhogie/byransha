@@ -51,6 +51,30 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
             throws Throwable {
         var a = new ArrayNode(null);
+
+        var currentNodeInformation = new ObjectNode(null);
+        var currentNodeInfo = new ObjectNode(null);
+        currentNodeInfo.set("id", new IntNode(node.id()));
+        currentNodeInfo.set("name", new TextNode(node.prettyName()));
+        currentNodeInfo.set("type", new TextNode(node.getClass().getSimpleName()));
+        if (node instanceof BusinessNode businessNode) {
+            currentNodeInfo.set("isValid", BooleanNode.valueOf(businessNode.isValid()));
+        }
+        if (node instanceof ValuedNode<?> valuedNode) {
+            if (valuedNode.get() == null) {
+                currentNodeInfo.set("value", NullNode.getInstance());
+            } else if (valuedNode instanceof byransha.BooleanNode) {
+                currentNodeInfo.set("value", BooleanNode.valueOf((Boolean) valuedNode.get()));
+            } else if (valuedNode instanceof byransha.IntNode) {
+                currentNodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
+            } else {
+                currentNodeInfo.set("value", new TextNode(valuedNode.getAsString()));
+            }
+            currentNodeInfo.set("mimeType", new TextNode(valuedNode.getMimeType()));
+        }
+
+        currentNodeInformation.set("currentNode", currentNodeInfo);
+
         node.forEachOut((name, out) -> {
             if(!out.deleted) {
                 var b = new ObjectNode(null);
@@ -144,7 +168,9 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             }
         });
 
-        return new EndpointJsonResponse(a, node.prettyName()+'@'+node.id());
+        currentNodeInformation.set("attributes", a);
+
+        return new EndpointJsonResponse(currentNodeInformation, node.prettyName()+'@'+node.id());
     }
 
     @Override
