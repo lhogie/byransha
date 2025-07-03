@@ -565,15 +565,15 @@ export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 
 			if (contentType === "text/json") {
 				if (viewId === "class_attribute_field") {
-					if (!Array.isArray(content)) {
+					if (!Array.isArray(content?.attributes)) {
 						return (
 							<Typography sx={{ p: 2 }} color="error">
 								Error: Expected an array for 'class_attribute_field' data, but
-								received type {typeof content}.
+								received type {typeof content?.attributes}.
 							</Typography>
 						);
 					}
-					if (content.length === 0) {
+					if (content?.attributes.length === 0) {
 						return (
 							<Typography sx={{ p: 2 }}>No output nodes connected.</Typography>
 						);
@@ -581,7 +581,7 @@ export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 
 					return (
 						<Box sx={{ p: 1, display: "flex", flexWrap: "wrap", gap: 2 }}>
-							{content.map((outNode) => {
+							{content?.attributes?.map((outNode: any) => {
 								const isImage =
 									outNode.mimeType?.startsWith("image/") && outNode.value;
 								const hasValue =
