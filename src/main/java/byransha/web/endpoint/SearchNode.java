@@ -37,6 +37,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
         String query;
         if (currentNode instanceof SearchForm){
             query = ((SearchForm) currentNode).searchTerm.getAsString();
+            ((SearchForm) currentNode).results.removeAll();
         }
         else query = requireParm(in, "query").asText();
         if (query == null || query.isEmpty()) {
@@ -52,6 +53,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
         }));
 
         nodes.forEach(node -> {
+            if(currentNode instanceof SearchForm) ((SearchForm) currentNode).results.add(node);
             addNodeInfo(a, node);
         });
         return new EndpointJsonResponse(a, "Search results for: " + query);
