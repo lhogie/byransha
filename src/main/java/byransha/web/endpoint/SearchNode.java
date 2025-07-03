@@ -5,6 +5,7 @@ import byransha.BNode;
 import byransha.ImageNode;
 import byransha.User;
 import byransha.labmodel.model.v0.BusinessNode;
+import byransha.labmodel.model.v0.SearchForm;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -33,9 +34,11 @@ public class SearchNode extends NodeEndpoint<BNode> {
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
         var a = new ArrayNode(null);
-
-        var query = requireParm(in, "query").asText();
-
+        String query;
+        if (currentNode instanceof SearchForm){
+            query = ((SearchForm) currentNode).searchTerm.getAsString();
+        }
+        else query = requireParm(in, "query").asText();
         if (query == null || query.isEmpty()) {
             return ErrorResponse.badRequest("Query parameter is missing or empty.");
         }
@@ -51,7 +54,6 @@ public class SearchNode extends NodeEndpoint<BNode> {
         nodes.forEach(node -> {
             addNodeInfo(a, node);
         });
-
         return new EndpointJsonResponse(a, "Search results for: " + query);
     }
 

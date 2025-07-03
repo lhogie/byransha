@@ -24,7 +24,7 @@ public class RemoveNode extends NodeEndpoint<BNode> {
     @Override
     public EndpointJsonResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node) throws Throwable {
         var a = new ArrayNode(null);
-        if(!node.ins().isEmpty() || node.getClass().getSimpleName().equals("graph") ) return new EndpointJsonResponse(a, "Node cannot be removed because it has incoming links or it is the graph.");
+        if(!node.ins().isEmpty() || node.getClass().getSimpleName().equals("graph") ) return new EndpointJsonResponse(new ObjectNode(null).set("ins", new TextNode(node.ins().toString())), "Node cannot be removed because it has incoming links or it is the graph.");
 
         var numberOfOuts = node.outs().size();
         AtomicInteger numberOfOutsDeleted = new AtomicInteger(0);
