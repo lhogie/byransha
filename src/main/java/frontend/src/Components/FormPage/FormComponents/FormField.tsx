@@ -122,9 +122,6 @@ const FormField = ({
 										},
 									],
 								});
-								await queryClient.invalidateQueries({
-									queryKey: ["apiData", "class_attribute_field", {}],
-								});
 							},
 						},
 					),
@@ -170,9 +167,6 @@ const FormField = ({
 											node_id: Number.parseInt(parentId),
 										},
 									],
-								});
-								await queryClient.invalidateQueries({
-									queryKey: ["apiData", "class_attribute_field", {}],
 								});
 							},
 						},
@@ -230,9 +224,6 @@ const FormField = ({
 											node_id: Number.parseInt(parentId),
 										},
 									],
-								});
-								await queryClient.invalidateQueries({
-									queryKey: ["apiData", "class_attribute_field", {}],
 								});
 							},
 						},

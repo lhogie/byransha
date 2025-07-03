@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { useTitle } from "@global/useTitle";
+import {useCallback, useEffect, useState} from "react";
+import {useTitle} from "@global/useTitle";
 import {
 	Box,
 	Card,
@@ -14,13 +14,13 @@ import {
 	Typography,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
-import { useNavigate } from "react-router";
+import {useNavigate} from "react-router";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import ReloadIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { useQueryClient } from "@tanstack/react-query";
+import {useApiData, useApiMutation} from "@hooks/useApiData";
+import {useQueryClient} from "@tanstack/react-query";
 
 const AddNodePage = () => {
 	useTitle(`Add node`);
@@ -66,23 +66,22 @@ const AddNodePage = () => {
 		},
 	});
 
+	const addNodeMutation = useApiMutation('add_node')
+	const classInformationMutation = useApiMutation('class_information')
+
 	const handleCreateAndJump = async (name: string) => {
 		const fullName = fullClassName.find((item) => item.endsWith(name));
 		if (!fullName) return;
 		try {
-			const response = await fetch(
-				`https://localhost:8080/api/add_node?BNodeClass=${encodeURIComponent(fullName)}`,
-				{
-					credentials: "include",
-					headers: {
-						Accept: "application/json, text/plain, */*",
-					},
-				},
-			);
-			const result = await response.json();
-			const data = result.results?.[0]?.result?.data.id;
+			const response = await addNodeMutation.mutateAsync({
+				BNodeClass: fullName,
+			})
+
+			const data = response?.data?.results?.[0]?.result?.data.id;
 
 			await jumpMutation.mutateAsync({ node_id: data });
+
+			return data
 		} catch (err) {
 			console.error(`Error during handleCreateAndJump for ${fullName}:`, err);
 			throw err;
@@ -91,9 +90,8 @@ const AddNodePage = () => {
 
 	const handleClickClass = async (name: string) => {
 		try {
-			await handleCreateAndJump(name);
-			const fullName = fullClassName.find((item) => item.endsWith(name));
-			navigate(`/add-node/form/${fullName}`);
+			const data = await handleCreateAndJump(name);
+			navigate(`/add-node/form/${data}`);
 		} catch (err) {
 			console.error("Navigation skipped due to error:", err);
 		}
@@ -143,22 +141,13 @@ const AddNodePage = () => {
 		}
 
 		try {
-			const response = await fetch(
-				`https://localhost:8080/api/class_information?classForm=${encodeURIComponent(fullName)}`,
-				{
-					credentials: "include",
-					headers: {
-						Accept: "application/json, text/plain, */*",
-					},
-				},
-			); // Adjust the URL to add the server url when deploy.
-			const result = await response.json();
-			const data = result?.results?.[0]?.result?.data;
-			const isBusiness =
-				data?.BusinessNode !== undefined ? data.BusinessNode : false;
+			const response = await classInformationMutation.mutateAsync({
+				classForm: fullName
+			})
+			const data = response?.data?.results?.[0]?.result?.data;
 
 			//localStorage.setItem(cacheKey, isPersisting ? 'true' : 'false');
-			return isBusiness;
+			return data?.BusinessNode !== undefined;
 		} catch (err) {
 			console.error(`Error fetching info for ${fullName}:`, err);
 			return false;

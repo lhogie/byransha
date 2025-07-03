@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
 						element: <AddNodePage />,
 					},
 					{
-						path: "/add-node/form/:classForm",
+						path: "/add-node/form/:rootId",
 						element: <FormPage />,
 					},
 				],

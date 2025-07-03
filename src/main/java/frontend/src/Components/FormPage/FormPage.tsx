@@ -23,15 +23,20 @@ import { saveAs } from "file-saver";
 import {useQueryClient} from "@tanstack/react-query";
 
 const FormPage = () => {
+	const { rootId: rawRootId } = useParams();
+
+	const rootId = rawRootId ? parseInt(rawRootId) : 0;
+
 	const queryClient = useQueryClient();
-	const navigate = useNavigate();
+	const navigate = useNavigate()
 	const {
 		data: rawApiData,
 		isLoading: loading,
 		error,
 		refetch,
-	} = useApiData(`class_attribute_field`);
-	const rootId = rawApiData?.data?.node_id || 0;
+	} = useApiData(`class_attribute_field`, {
+		node_id: rootId
+	});
 	const pageName = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
