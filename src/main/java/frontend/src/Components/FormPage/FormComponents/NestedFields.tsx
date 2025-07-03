@@ -67,7 +67,7 @@ const NestedFields = ({
 		async (name: string, id: string) => {
 			try {
 				await jumpToId.mutateAsync({ node_id: id });
-				await navigate(`/add-node/form/${name}`);
+				await navigate(`/add-node/form/${id}`);
 				window.location.reload();
 			} catch (error) {
 				console.error("Error changing form:", error);

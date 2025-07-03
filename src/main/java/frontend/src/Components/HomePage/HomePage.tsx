@@ -553,7 +553,7 @@ const HomePage = () => {
 											node: view.result?.dialect.split("@")[1],
 										});
 										navigate(
-											`/add-node/form/${view.result?.dialect.split("@")[0]}`,
+											`/add-node/form/${view.result?.dialect.split("@")[1]}`,
 										);
 									} else
 										navigate(

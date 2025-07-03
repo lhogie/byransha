@@ -47,7 +47,7 @@ const FormPage = () => {
 					"apiData",
 					"class_attribute_field",
 					{
-						node_id: rootId,
+						node_id: rawApiData?.data?.results?.[0]?.result?.data?.attributes?.filter((attribute: any) => attribute.name === 'results')[0].id,
 					},
 				],
 			});
@@ -71,8 +71,6 @@ const FormPage = () => {
 				Error loading form fields: {error.message || "Unknown error"}
 			</Typography>
 		);
-
-	console.log(rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type )
 
 	return (
 		<>
