@@ -34,11 +34,6 @@ public class ExportCSV extends NodeEndpoint<BNode> {
 
     @Override
     public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node) throws Throwable {
-        // Check if the node is a BusinessNode
-        if (!(node instanceof BusinessNode)) {
-            return ErrorResponse.badRequest("Node must be a BusinessNode for CSV export.");
-        }
-
         // Get export parameters from the request
         boolean includeAllFields = in.has("includeAllFields") && in.get("includeAllFields").asBoolean(true);
         boolean includeAllNodes = in.has("includeAllNodes") && in.get("includeAllNodes").asBoolean(true);
@@ -101,7 +96,7 @@ public class ExportCSV extends NodeEndpoint<BNode> {
         StringWriter writer = new StringWriter();
 
         try {
-            if (exportMultiple) {
+            if (exportMultiple || node instanceof ListNode || node instanceof SetNode) {
                 // Get the list of nodes to export
                 List<BusinessNode> nodesToExport = new ArrayList<>();
 

@@ -17,7 +17,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
-public class SearchNode extends NodeEndpoint<BNode> {
+public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     @Override
     public String whatItDoes() {
@@ -39,12 +39,16 @@ public class SearchNode extends NodeEndpoint<BNode> {
         HashMap<String, String> options = new HashMap<>();
         if (currentNode instanceof SearchForm && in.isEmpty()) {
             currentNode.forEachOut((name, outNode) -> {
-                if (outNode instanceof ValuedNode vn) {
+                if(outNode instanceof RadioNode<?> rn ) {
+                    if(rn.getSelectedOption() != null) options.put(name, rn.getSelectedOption().toString());
+                } else if (outNode instanceof ValuedNode vn) {
                     options.put(name, vn.getAsString());
                 }
             });
             query = options.get("searchTerm");
             options.remove("searchTerm");
+
+            System.out.println(options);
             ((SearchForm) currentNode).results.removeAll();
         }
         else query = requireParm(in, "query").asText();  in.remove("query");

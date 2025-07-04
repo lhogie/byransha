@@ -54,6 +54,16 @@ public class RadioNode<N> extends IntNode {
         Collections.addAll(options, newOptions);
     }
 
+    public N getSelectedOption() {
+        if (get() == null) {
+            return null;
+        }
+        return options.stream()
+                .skip(get())
+                .findFirst()
+                .orElse(null);
+    }
+
     public Set<N> getOptions() {
         return Collections.unmodifiableSet(options);
     }
