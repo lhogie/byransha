@@ -58,7 +58,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
                     &&  node.prettyName().toLowerCase().contains(query.toLowerCase());
 
             if(!options.isEmpty() && baseCondition){
-                if((!options.get("searchClass").equals("null") || !options.get("searchClass").equals(""))
+                if(!(options.get("searchClass").equals("null") || options.get("searchClass").equals("") || options.get("searchClass") == null)
                         && !node.getClass().getSimpleName().toLowerCase().contains(options.get("searchClass").toLowerCase())) return false;
             }
 
