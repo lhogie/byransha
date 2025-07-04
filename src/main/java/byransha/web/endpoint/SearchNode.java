@@ -12,7 +12,10 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.sun.net.httpserver.HttpsExchange;
 import toools.text.TextUtilities;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
 
 public class SearchNode extends NodeEndpoint<BNode> {
 
@@ -33,17 +36,34 @@ public class SearchNode extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
         var a = new ArrayNode(null);
         String query;
-        if (currentNode instanceof SearchForm){
-            query = ((SearchForm) currentNode).searchTerm.getAsString();
+        HashMap<String, String> options = new HashMap<>();
+        if (currentNode instanceof SearchForm && in.isEmpty()) {
+            currentNode.forEachOut((name, outNode) -> {
+                if (outNode instanceof ValuedNode vn) {
+                    options.put(name, vn.getAsString());
+                }
+            });
+            query = options.get("searchTerm");
+            options.remove("searchTerm");
             ((SearchForm) currentNode).results.removeAll();
         }
-        else query = requireParm(in, "query").asText();
+        else query = requireParm(in, "query").asText();  in.remove("query");
         if (query == null || query.isEmpty()) {
             return ErrorResponse.badRequest("Query parameter is missing or empty.");
         }
 
-        var nodes = graph.findAll(BusinessNode.class, node -> {return !node.deleted && !node.getClass().getSimpleName().equals("SearchForm") &&  node.prettyName().toLowerCase().contains(query.toLowerCase());});
+        var nodes = graph.findAll(BusinessNode.class, node -> {
+            boolean baseCondition = !node.deleted
+                    && !node.getClass().getSimpleName().equals("SearchForm")
+                    &&  node.prettyName().toLowerCase().contains(query.toLowerCase());
 
+            if(!options.isEmpty() && baseCondition){
+                if((!options.get("searchClass").equals("null") || !options.get("searchClass").equals(""))
+                        && !node.getClass().getSimpleName().toLowerCase().contains(options.get("searchClass").toLowerCase())) return false;
+            }
+
+            return baseCondition;
+        });
         nodes.sort(Comparator.comparingInt(node -> {
             String name = node.prettyName();
             if (name == null) return Integer.MAX_VALUE;
@@ -54,6 +74,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
             if(currentNode instanceof SearchForm) ((SearchForm) currentNode).results.add(node);
             addNodeInfo(a, node);
         });
+
         return new EndpointJsonResponse(a, "Search results for: " + query);
     }
 

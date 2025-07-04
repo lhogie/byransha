@@ -3,12 +3,14 @@ package byransha;
 public class SearchForm extends PersistingNode{
 
     public StringNode searchTerm;
+    public StringNode searchClass;
     public ListNode<BNode> results;
 
     public SearchForm(BBGraph g) {
         super(g);
 
         searchTerm = BNode.create(g, StringNode.class);
+        searchClass = BNode.create(g, StringNode.class);
         results = BNode.create(g, ListNode.class);
     }
 
