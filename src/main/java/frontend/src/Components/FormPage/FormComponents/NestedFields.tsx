@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import FormField from "./FormField.js";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
 import ExistingNodeSelector from "./ExistingNodeSelector";
-import { createKey, listField, typeComponent } from "@/utils/utils";
+import { createKey, listField } from "@/utils/utils";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
+import FieldRenderer from "./FieldRenderer";
 
 const NestedFields = ({
 	fieldKey,
@@ -222,55 +222,7 @@ const NestedFields = ({
 		}
 	}, [loading, rawApiData]);
 
-	// Memoize the renderFields function to prevent recreation on every render
-	const renderFields = useCallback(
-		(parentId: string, fields: any, visited = new Set()) => {
-			if (!fields || !Array.isArray(fields)) return null;
-
-			return fields.map((subField) => {
-				const { id, name, type } = subField;
-				if (!name || name === "graph") return null;
-				const subFieldKey = createKey(subField.id, subField.name);
-
-				if (visited.has(id)) {
-					return (
-						<Typography key={`cycle-${id}`} color="error">
-							Circular reference detected for {name}
-						</Typography>
-					);
-				}
-
-				const isFieldExpanded = expandedFields[subFieldKey] || false;
-
-				return (
-					<React.Fragment key={subFieldKey}>
-						<FormField
-							field={subField}
-							fieldKey={subFieldKey}
-							isExpanded={isFieldExpanded}
-							onToggleField={toggleField}
-							onChangingForm={handleChangingForm}
-							defaultValue={subField.value}
-							parentId={parentId}
-						/>
-
-						{!(
-							typeComponent.includes(type) ||
-							(listField.includes(type) && subField.isDropdown)
-						) && (
-							<NestedFields
-								fieldKey={subFieldKey}
-								field={subField}
-								rootId={rootId}
-								isToggle={isFieldExpanded}
-							/>
-						)}
-					</React.Fragment>
-				);
-			});
-		},
-		[expandedFields, toggleField, handleChangingForm, rootId],
-	);
+	
 
 	const subfieldData =
 		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
@@ -285,7 +237,14 @@ const NestedFields = ({
 					sx={{ mt: 3 }}
 				>
 					{subfieldData.length > 0 ? (
-						renderFields(field.id, subfieldData)
+						<FieldRenderer
+							parentId={field.id}
+							fields={subfieldData}
+							expandedFields={expandedFields}
+							toggleField={toggleField}
+							handleChangingForm={handleChangingForm}
+							rootId={rootId}
+						/>
 					) : (
 						<Typography>No fields available.</Typography>
 					)}
@@ -297,7 +256,14 @@ const NestedFields = ({
 				>
 					{isToggle &&
 						(subfieldData.length > 0 ? (
-							renderFields(field.id, subfieldData)
+							<FieldRenderer
+								parentId={field.id}
+								fields={subfieldData}
+								expandedFields={expandedFields}
+								toggleField={toggleField}
+								handleChangingForm={handleChangingForm}
+								rootId={rootId}
+							/>
 						) : (
 							<Typography variant="body2" color="text.secondary">
 								No subfields available for this.
