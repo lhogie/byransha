@@ -1,6 +1,5 @@
 import {
 	useCallback,
-	useMemo,
 	type MouseEventHandler,
 	Suspense,
 	useTransition,

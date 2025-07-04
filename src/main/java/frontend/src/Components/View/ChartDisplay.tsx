@@ -33,7 +33,7 @@ const MemoizedLineChart = memo(({ data }: { data: any }) => {
 			},
 			grid: {
 				left: "5%",
-				right: "15%",	
+				right: "15%",
 				bottom: "10%",
 				top: "10%",
 				containLabel: true,

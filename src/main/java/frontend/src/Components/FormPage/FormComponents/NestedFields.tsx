@@ -222,8 +222,6 @@ const NestedFields = ({
 		}
 	}, [loading, rawApiData]);
 
-	
-
 	const subfieldData =
 		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
 
