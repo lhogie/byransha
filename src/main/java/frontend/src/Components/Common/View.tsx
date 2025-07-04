@@ -1,15 +1,10 @@
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
+import { useState, useMemo, useCallback } from "react";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { Box, Typography } from "@mui/material";
+import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { ModalComponent } from "../View/ModalComponent";
 import { ViewContent } from "../View/ViewContent";
 import "./View.css";
-
-
-
-
 
 export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 	const { data: rawApiData, isLoading: loading, error } = useApiData(viewId);

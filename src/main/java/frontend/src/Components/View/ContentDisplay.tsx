@@ -1,5 +1,5 @@
 import { Suspense, useCallback, useRef, useEffect } from "react";
-import { Box, CircularProgress, Typography } from "@mui/material";
+import { CircularProgress } from "@mui/material";
 import { JsonView, collapseAllNested } from "react-json-view-lite";
 import { ChromePicker } from "react-color";
 import CustomCodeBlock from "@global/CustomCodeBlock";
@@ -77,10 +77,7 @@ export const ContentDisplay = ({
 			);
 		} else if (viewId === "bnode_navigator") {
 			return (
-				<BNodeNavigatorDisplay
-					content={content}
-					jumpToNode={jumpToNode}
-				/>
+				<BNodeNavigatorDisplay content={content} jumpToNode={jumpToNode} />
 			);
 		} else {
 			return (
@@ -114,10 +111,7 @@ export const ContentDisplay = ({
 		);
 	} else if (contentType === "image/svg") {
 		return (
-			<div
-				className="content-container"
-				style={{ background: "transparent" }}
-			>
+			<div className="content-container" style={{ background: "transparent" }}>
 				<div
 					dangerouslySetInnerHTML={{ __html: content }}
 					style={{ background: "transparent" }}
@@ -126,10 +120,7 @@ export const ContentDisplay = ({
 		);
 	} else if (contentType === "image/svg+xml") {
 		return (
-			<div
-				className="content-container"
-				style={{ background: "transparent" }}
-			>
+			<div className="content-container" style={{ background: "transparent" }}>
 				<img
 					src={`data:image/svg+xml;base64,${content}`}
 					alt="Graphviz"

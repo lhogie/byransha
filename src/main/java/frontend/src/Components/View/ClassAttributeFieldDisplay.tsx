@@ -30,8 +30,7 @@ export const ClassAttributeFieldDisplay = ({
 	return (
 		<Box sx={{ p: 1, display: "flex", flexWrap: "wrap", gap: 2 }}>
 			{content?.attributes?.map((outNode: any) => {
-				const isImage =
-					outNode.mimeType?.startsWith("image/") && outNode.value;
+				const isImage = outNode.mimeType?.startsWith("image/") && outNode.value;
 				const hasValue =
 					Object.hasOwn(outNode, "value") &&
 					outNode.value !== null &&
@@ -89,10 +88,7 @@ export const ClassAttributeFieldDisplay = ({
 								</Typography>
 							)}
 							{!hasValue && !isImage && (
-								<Typography
-									variant="body2"
-									sx={{ fontStyle: "italic", mt: 1 }}
-								>
+								<Typography variant="body2" sx={{ fontStyle: "italic", mt: 1 }}>
 									(No displayable value)
 								</Typography>
 							)}
