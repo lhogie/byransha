@@ -24,6 +24,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, useCallback, type MouseEventHandler } from "react";
 import { SearchBar } from "@components/Common/SearchBar";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
+import TuneIcon from '@mui/icons-material/Tune';
 
 const MainLayout = () => {
 	const navigate = useNavigate();
@@ -70,6 +71,43 @@ const MainLayout = () => {
 	const history = historyData?.data?.results?.[0].result.data ?? [];
 	const visibleHistory = history.length > 3 ? history.slice(-2) : history;
 	const currentNode = history[history.length - 1];
+	const bnodeClassDistribution = useApiMutation("bnode_class_distribution")
+
+	const addNodeMutation = useApiMutation('add_node');
+    const handleCreateAndJump = async (name: string) => {
+        const fullName = name || "byransha.labmodel.model.v0.SearchForm";
+        if (!fullName) return;
+        try {
+            const response = await addNodeMutation.mutateAsync({
+                BNodeClass: fullName,
+            })
+
+            const data = response?.data?.results?.[0]?.result?.data.id;
+
+            await jumpMutation.mutateAsync({ node_id: data });
+
+            return data
+        } catch (err) {
+            console.error(`Error during handleCreateAndJump for ${fullName}:`, err);
+            throw err;
+        }
+    };
+
+    const handleClickClass = async () => {
+        try {
+            const response = await bnodeClassDistribution.mutateAsync({});
+            const classList = response?.data?.results?.[0]?.result?.data || [];
+
+            const searchFormClass = classList.find((item: any) => {
+                const fullName = Object.keys(item)[0];
+                return fullName && fullName.includes("SearchForm");
+            });
+            const data = await handleCreateAndJump(Object.keys(searchFormClass)[0]);
+            navigate(`/add-node/form/${data}`);
+        } catch (err) {
+            console.error("Navigation skipped due to error:", err);
+        }
+    };
 
 	return (
 		<Box
@@ -199,8 +237,8 @@ const MainLayout = () => {
 					),
 					toolbarActions: () => (
 						<Stack direction="row" alignItems="center" spacing={2}>
+                            <IconButton onClick={handleClickClass}> <TuneIcon/> </IconButton>
 							<SearchBar />
-							{/* User Info Before Select */}
 							{isLoading ? (
 								<Typography sx={{ color: "#90a4ae", fontSize: "14px" }}>
 									Loading...

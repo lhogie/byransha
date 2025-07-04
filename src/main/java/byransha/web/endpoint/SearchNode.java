@@ -1,16 +1,14 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ImageNode;
-import byransha.User;
+import byransha.*;
 import byransha.labmodel.model.v0.BusinessNode;
-import byransha.labmodel.model.v0.SearchForm;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.*;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.sun.net.httpserver.HttpsExchange;
 import toools.text.TextUtilities;
 
@@ -44,7 +42,7 @@ public class SearchNode extends NodeEndpoint<BNode> {
             return ErrorResponse.badRequest("Query parameter is missing or empty.");
         }
 
-        var nodes = graph.findAll(BusinessNode.class, node -> {return !node.deleted && node.prettyName().toLowerCase().contains(query.toLowerCase());});
+        var nodes = graph.findAll(BusinessNode.class, node -> {return !node.deleted && !node.getClass().getSimpleName().equals("SearchForm") &&  node.prettyName().toLowerCase().contains(query.toLowerCase());});
 
         nodes.sort(Comparator.comparingInt(node -> {
             String name = node.prettyName();

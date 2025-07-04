@@ -1,11 +1,6 @@
-package byransha.labmodel.model.v0;
+package byransha;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ListNode;
-import byransha.StringNode;
-
-public class SearchForm extends BusinessNode {
+public class SearchForm extends PersistingNode{
 
     public StringNode searchTerm;
     public ListNode<BNode> results;
@@ -28,6 +23,7 @@ public class SearchForm extends BusinessNode {
 
     @Override
     public String prettyName() {
-        return "Search Form";
+        if(searchTerm.get() == null) return "Search Form";
+        else return searchTerm.get();
     }
 }
