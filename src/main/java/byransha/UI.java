@@ -18,9 +18,9 @@ public class UI extends BNode {
 	public UI(BBGraph db) {
 		super(db);
 		backgroundColor = new ColorNode(db);
-		backgroundColor.set(Color.darkGray);
+		backgroundColor.set("#A9A9A9");
 		textColor = new ColorNode(db);
-		textColor.set(Color.black);
+		textColor.set("#000000");
 	}
 
 	public UI(BBGraph db, int id) {
@@ -57,8 +57,8 @@ public class UI extends BNode {
 				BNode node) {
 			var r = new ObjectNode(null);
 			UI ui = graph.find(UI.class, e -> true);
-			r.set("bg_color", new TextNode(Utilities.toRGBHex(ui.backgroundColor.get())));
-			r.set("text_color", new TextNode(Utilities.toRGBHex(ui.backgroundColor.get())));
+			r.set("bg_color", new TextNode(ui.backgroundColor.get()));
+			r.set("text_color", new TextNode(ui.backgroundColor.get()));
 			return new EndpointJsonResponse(r, this);
 		}
 	}

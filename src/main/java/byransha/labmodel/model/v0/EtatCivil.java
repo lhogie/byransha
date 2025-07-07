@@ -32,7 +32,7 @@ public class EtatCivil extends BusinessNode {
 		adressePersonnelle = BNode.create(g, StringNode.class);
 		telephone = BNode.create(g, PhoneNumberNode.class);
         pic = BNode.create(g, ImageNode.class);
-		this.setColor(Color.GREEN);
+		this.setColor("#03fc62");
 	}
 
 	public EtatCivil(BBGraph g, int id) {

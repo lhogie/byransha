@@ -29,7 +29,7 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
-		this.setColor(Color.BLUE);
+		this.setColor("#032cfc");
 
 		/*
 		 * this.saveOuts(f -> {});
@@ -47,7 +47,7 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = BNode.create(g, StringNode.class);
 		passwordNode.set("not defined");
-		this.setColor(Color.BLUE);
+		this.setColor("#030bfc");
 	}
 
 	public User(BBGraph g, int id) {

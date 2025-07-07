@@ -2,7 +2,7 @@ package byransha;
 
 import java.awt.Color;
 
-public class ColorNode extends ValuedNode<Color> {
+public class ColorNode extends ValuedNode<String> {
 
 	public ColorNode(BBGraph g) {
 		super(g);
@@ -15,7 +15,7 @@ public class ColorNode extends ValuedNode<Color> {
 
 	@Override
 	public void fromString(String s) {
-		set(Color.getColor(s));
+		set(s);
 	}
 
 	@Override
@@ -25,6 +25,6 @@ public class ColorNode extends ValuedNode<Color> {
 
 	@Override
 	public String prettyName() {
-		return get() != null ? get().toString() : "null";
+		return get() != null ? get() : "null";
 	}
 }

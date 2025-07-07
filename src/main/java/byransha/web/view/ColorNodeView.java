@@ -32,7 +32,8 @@ public class ColorNodeView extends NodeEndpoint<BNode> implements DevelopmentVie
 	@Override
 	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {
-		return new EndpointJsonResponse(new TextNode(Utilities.toRGBHex(node.getColor())), "color");
+		if(node.color == null || node.color.getAsString() == null) return new EndpointJsonResponse(new TextNode("default color"), "color");
+		return new EndpointJsonResponse(new TextNode(node.color.getAsString()), "color");
 	}
 
 	@Override

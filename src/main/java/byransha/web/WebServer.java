@@ -32,6 +32,7 @@ import javax.net.ssl.SSLParameters;
 import byransha.*;
 import byransha.labmodel.model.v0.*;
 import byransha.web.endpoint.*;
+import byransha.web.view.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -60,10 +61,6 @@ import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-import byransha.web.view.CharExampleXY;
-import byransha.web.view.ModelDOTView;
-import byransha.web.view.ModelGraphivzSVGView;
-import byransha.web.view.ToStringView;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
@@ -289,41 +286,10 @@ public class WebServer extends BNode {
         BNode.create(g, ExportCSV.class);
         BNode.create(g, RemoveFromList.class);
         BNode.create(g, RemoveNode.class);
-
+		BNode.create(g, ColorNodeView.class);
 		BNode.create(g, SearchForm.class);
 
-		createColor(g);
-
 		Country.loadCountries(g);
-	}
-
-	public void createColor(BBGraph g) {
-		var black = BNode.create(g, ColorNode.class);
-		black.set(Color.BLACK);
-		var blue = BNode.create(g, ColorNode.class);
-		blue.set(Color.BLUE);
-		var red = BNode.create(g, ColorNode.class);
-		red.set(Color.RED);
-		var green = BNode.create(g, ColorNode.class);
-		green.set(Color.GREEN);
-		var white = BNode.create(g, ColorNode.class);
-		white.set(Color.WHITE);
-		var yellow = BNode.create(g, ColorNode.class);
-		yellow.set(Color.YELLOW);
-		var cyan = BNode.create(g, ColorNode.class);
-		cyan.set(Color.CYAN);
-		var magenta = BNode.create(g, ColorNode.class);
-		magenta.set(Color.MAGENTA);
-		var lightGray = BNode.create(g, ColorNode.class);
-		lightGray.set(Color.LIGHT_GRAY);
-		var darkGray = BNode.create(g, ColorNode.class);
-		darkGray.set(Color.DARK_GRAY);
-		var orange = BNode.create(g, ColorNode.class);
-		orange.set(Color.ORANGE);
-		var pink = BNode.create(g, ColorNode.class);
-		pink.set(Color.PINK);
-		var gray = BNode.create(g, ColorNode.class);
-		gray.set(Color.GRAY);
 	}
 
 	public SessionStore getSessionStore() {
