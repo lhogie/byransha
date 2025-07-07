@@ -77,6 +77,9 @@ public class SetValue extends NodeEndpoint<BNode> {
             } else if (node instanceof byransha.IntNode i) {
                 i.set(value.asInt());
                 a.set("value", new IntNode(value.asInt()));
+            } else if (node instanceof ColorNode c){
+                c.set(value.asText());
+                a.set("value", new TextNode(c.getAsString()));
             } else if (node instanceof byransha.BooleanNode b) {
                 b.set(value.asBoolean());
                 a.set("value", value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE);

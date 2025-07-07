@@ -83,10 +83,8 @@ public abstract class BNode {
 			}
             return false;
         });
-		if(this.color == null) {
-			this.color = BNode.create(graph, ColorNode.class);
-			this.color.set(newColor);
-		}
+		this.color = BNode.create(graph, ColorNode.class);
+		this.color.set(newColor);
 	}
 
 	public abstract String whatIsThis();
@@ -394,7 +392,8 @@ public abstract class BNode {
 			n.forEachOut((s, o) -> {
 				if (o.canSee(user) && !(o instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(o);
-					noeudOut.color = "grey";
+					if(o.color == null || o.color.getAsString() == null ) noeudOut.color = "blue";
+					else noeudOut.color = o.color.getAsString();
 					noeudOut.prettyName = o.prettyName();
 					noeudOut.whatIsThis = o.whatIsThis();
 					noeudOut.className = o.getClass().getName();
