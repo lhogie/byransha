@@ -201,6 +201,7 @@ export const radioField = ["RadioNode"];
 export const listCheckboxField = ["ListCheckboxNode"];
 export const fileField = ["FileNode"];
 export const listField = ["ListNode", "SetNode"];
+export const colorField = ["ColorNode"];
 export const typeComponent = [
 	...inputTextField,
 	...fileField,
@@ -209,4 +210,5 @@ export const typeComponent = [
 	...dateField,
 	...dropdownField,
 	...radioField,
+	...colorField
 ];

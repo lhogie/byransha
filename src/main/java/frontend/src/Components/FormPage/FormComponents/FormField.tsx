@@ -15,7 +15,7 @@ import CheckboxFormField from "./CheckboxFormField.js";
 import ImageFormField from "./ImageFormField";
 import { useDebouncedCallback } from "use-debounce";
 import {
-	checkboxField,
+	checkboxField, colorField,
 	dateField,
 	dropdownField,
 	fileField,
@@ -37,16 +37,17 @@ import ListCheckboxField from "./ListCheckboxField.js";
 import { useQueryClient } from "@tanstack/react-query";
 import PdfFormField from "./PdfFormField.js";
 import MultiDropdownField from "./MultiDropdownField.js";
+import ColorPickerField from "@components/FormPage/FormComponents/ColorPickerField";
 
 const FormField = ({
-	field,
-	fieldKey,
-	isExpanded, // Changed from expandedFields to isExpanded
-	onToggleField,
-	onChangingForm,
-	parentId,
-	defaultValue = "", // Default value for the field
-}: {
+					   field,
+					   fieldKey,
+					   isExpanded, // Changed from expandedFields to isExpanded
+					   onToggleField,
+					   onChangingForm,
+					   parentId,
+					   defaultValue = "", // Default value for the field
+				   }: {
 	field: any;
 	fieldKey: string;
 	isExpanded: boolean;
@@ -59,9 +60,9 @@ const FormField = ({
 	const [value, setValue] = useState(
 		dropdownField.includes(type)
 			? {
-					label: defaultValue,
-					value: defaultValue?.split("@")[1],
-				}
+				label: defaultValue,
+				value: defaultValue?.split("@")[1],
+			}
 			: listField.includes(type)
 				? []
 				: defaultValue,
@@ -207,8 +208,8 @@ const FormField = ({
 			try {
 				await toast.promise(
 					(added
-						? addExistingNodeMutation
-						: removeFromListMutation
+							? addExistingNodeMutation
+							: removeFromListMutation
 					).mutateAsync(
 						{
 							node_id: field.id,
@@ -466,6 +467,15 @@ const FormField = ({
 						<PdfFormField
 							value={value}
 							onChange={handleFileChange}
+							error={error}
+							helperText={errorMessage}
+						/>
+					)}
+
+					{colorField.includes(type) && (
+						<ColorPickerField
+							value={value}
+							onChange={handleValueChange}
 							error={error}
 							helperText={errorMessage}
 						/>
