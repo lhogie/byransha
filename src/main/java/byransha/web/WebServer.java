@@ -1,5 +1,6 @@
 package byransha.web;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -291,7 +292,38 @@ public class WebServer extends BNode {
 
 		BNode.create(g, SearchForm.class);
 
+		createColor(g);
+
 		Country.loadCountries(g);
+	}
+
+	public void createColor(BBGraph g) {
+		var black = BNode.create(g, ColorNode.class);
+		black.set(Color.BLACK);
+		var blue = BNode.create(g, ColorNode.class);
+		blue.set(Color.BLUE);
+		var red = BNode.create(g, ColorNode.class);
+		red.set(Color.RED);
+		var green = BNode.create(g, ColorNode.class);
+		green.set(Color.GREEN);
+		var white = BNode.create(g, ColorNode.class);
+		white.set(Color.WHITE);
+		var yellow = BNode.create(g, ColorNode.class);
+		yellow.set(Color.YELLOW);
+		var cyan = BNode.create(g, ColorNode.class);
+		cyan.set(Color.CYAN);
+		var magenta = BNode.create(g, ColorNode.class);
+		magenta.set(Color.MAGENTA);
+		var lightGray = BNode.create(g, ColorNode.class);
+		lightGray.set(Color.LIGHT_GRAY);
+		var darkGray = BNode.create(g, ColorNode.class);
+		darkGray.set(Color.DARK_GRAY);
+		var orange = BNode.create(g, ColorNode.class);
+		orange.set(Color.ORANGE);
+		var pink = BNode.create(g, ColorNode.class);
+		pink.set(Color.PINK);
+		var gray = BNode.create(g, ColorNode.class);
+		gray.set(Color.GRAY);
 	}
 
 	public SessionStore getSessionStore() {

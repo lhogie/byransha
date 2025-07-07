@@ -3,6 +3,8 @@ package byransha.labmodel.model.v0;
 import byransha.*;
 import byransha.annotations.*;
 
+import java.awt.*;
+
 public class EtatCivil extends BusinessNode {
     @Size(min = 2)
 	public StringNode nomUsuel;
@@ -30,8 +32,7 @@ public class EtatCivil extends BusinessNode {
 		adressePersonnelle = BNode.create(g, StringNode.class);
 		telephone = BNode.create(g, PhoneNumberNode.class);
         pic = BNode.create(g, ImageNode.class);
-
-		this.color = "green";
+		this.setColor(Color.GREEN);
 	}
 
 	public EtatCivil(BBGraph g, int id) {

@@ -1,15 +1,12 @@
 package byransha.labmodel.model.v0;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.Base64;
 
+import byransha.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ImageNode;
-import byransha.StringNode;
 
 public class Country extends BusinessNode {
 	StringNode name, codeNode;
@@ -56,7 +53,7 @@ public class Country extends BusinessNode {
         codeNode = BNode.create(g, StringNode.class);
 		name = BNode.create(g, StringNode.class);
 		flag = BNode.create(g, ImageNode.class);
-		this.color = "red";
+		this.setColor(Color.RED);
 	}
 
 	public void setFlagCode(String code) throws IOException {

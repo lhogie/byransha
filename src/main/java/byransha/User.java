@@ -1,5 +1,6 @@
 package byransha;
 
+import java.awt.*;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -28,7 +29,7 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = new StringNode(g, null);
 		passwordNode.set(password);
-		this.color = "blue";
+		this.setColor(Color.BLUE);
 
 		/*
 		 * this.saveOuts(f -> {});
@@ -46,7 +47,7 @@ public class User extends PersistingNode {
 		stack.push(g.root());
 		passwordNode = BNode.create(g, StringNode.class);
 		passwordNode.set("not defined");
-		this.color = "blue";
+		this.setColor(Color.BLUE);
 	}
 
 	public User(BBGraph g, int id) {

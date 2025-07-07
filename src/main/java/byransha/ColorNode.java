@@ -25,6 +25,6 @@ public class ColorNode extends ValuedNode<Color> {
 
 	@Override
 	public String prettyName() {
-		return "color";
+		return get() != null ? get().toString() : "null";
 	}
 }

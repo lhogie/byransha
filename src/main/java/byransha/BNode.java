@@ -40,7 +40,7 @@ public abstract class BNode {
 	private List<InLink> ins;
 	public final BBGraph graph;
 	private final int id;
-	public String color = "pink";
+	public ColorNode color;
 	public Boolean deleted = false;
 
 	
@@ -73,6 +73,16 @@ public abstract class BNode {
 	}
 
 	protected void init() {
+	}
+
+	public void setColor(Color newColor){
+		graph.findAll(ColorNode.class, n -> {
+			if( n.getAsString().equals(newColor.toString())) {
+				this.color = n;
+				return true;
+			}
+            return false;
+        });
 	}
 
 	public abstract String whatIsThis();
@@ -368,12 +378,20 @@ public abstract class BNode {
 			return false;
 		}
 
+		public static String getHexFromColorString(String colorString) {
+			int r = Integer.parseInt(colorString.replaceAll(".*r=(\\d+).*", "$1"));
+			int g = Integer.parseInt(colorString.replaceAll(".*g=(\\d+).*", "$1"));
+			int b = Integer.parseInt(colorString.replaceAll(".*b=(\\d+).*", "$1"));
+			return String.format("#%02X%02X%02X", r, g, b);
+		}
+
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
 			var current = n.toVertex();
 			g.addVertex(current);
-			current.color = this.color;
+			if(this.color == null || this.color.getAsString() == null) current.color = "pink";
+			else current.color = getHexFromColorString(this.color.getAsString());
 			current.size = 20;
 
 			n.forEachOut((s, o) -> {
@@ -392,7 +410,8 @@ public abstract class BNode {
 			n.forEachIn((s, i) -> {
 				if (i.canSee(user) && !(i instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(i);
-					noeudOut.color = i.color;
+					if(i.color == null || i.color.getAsString() == null ) noeudOut.color = "pink";
+					else noeudOut.color = getHexFromColorString(i.color.getAsString());
 					noeudOut.prettyName = i.prettyName();
 					noeudOut.whatIsThis = i.whatIsThis();
 					noeudOut.className = i.getClass().getName();
