@@ -385,15 +385,20 @@ public abstract class BNode {
 			var g = new AnyGraph();
 			var current = n.toVertex();
 			g.addVertex(current);
-			if(this.color == null || this.color.getAsString() == null) current.color = "pink";
-			else current.color = this.color.getAsString();
+			if(n.color == null || n.color.get() == null) current.color = "pink";
+			else current.color = n.color.getAsString();
+
+			System.out.println("current color: " + current.color);
+
 			current.size = 20;
 
 			n.forEachOut((s, o) -> {
 				if (o.canSee(user) && !(o instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(o);
-					if(o.color == null || o.color.getAsString() == null ) noeudOut.color = "blue";
+					if(o.color == null || o.color.get() == null ) noeudOut.color = "blue";
 					else noeudOut.color = o.color.getAsString();
+
+					System.out.println("out color: " + noeudOut.color);
 					noeudOut.prettyName = o.prettyName();
 					noeudOut.whatIsThis = o.whatIsThis();
 					noeudOut.className = o.getClass().getName();
@@ -406,8 +411,11 @@ public abstract class BNode {
 			n.forEachIn((s, i) -> {
 				if (i.canSee(user) && !(i instanceof ValuedNode<?>)) {
 					var noeudOut = g.ensureHasVertex(i);
-					if(i.color == null || i.color.getAsString() == null ) noeudOut.color = "pink";
+					if(i.color == null || i.color.get() == null ) noeudOut.color = "pink";
 					else noeudOut.color = i.color.getAsString();
+
+					System.out.println("in color: " + noeudOut.color);
+
 					noeudOut.prettyName = i.prettyName();
 					noeudOut.whatIsThis = i.whatIsThis();
 					noeudOut.className = i.getClass().getName();

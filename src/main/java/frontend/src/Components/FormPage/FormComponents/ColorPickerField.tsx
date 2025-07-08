@@ -25,7 +25,7 @@ const ColorPickerField = ({
 				color={value || ""}
 				onFocus={onFocus}
 				onChange={(color) => {
-					onChange(color.hexa);
+					onChange(color.hex);
 				}}
 				{...rest}
 			/>
