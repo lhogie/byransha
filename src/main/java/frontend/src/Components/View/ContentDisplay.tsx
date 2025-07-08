@@ -49,7 +49,7 @@ export const ContentDisplay = ({
 		return <div className="error-message">No content available.</div>;
 	}
 
-	if (contentType === "text/json") {
+	if (contentType === "application/json") {
 		if (viewId === "class_attribute_field") {
 			return <ClassAttributeFieldDisplay content={content} />;
 		} else if (

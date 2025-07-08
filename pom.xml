@@ -21,11 +21,11 @@
 			<artifactId>toools</artifactId>
 			<version>master-SNAPSHOT</version>
 		</dependency>
-		<dependency>
-			<groupId>com.opencsv</groupId>
-			<artifactId>opencsv</artifactId>
-			<version>5.9</version>
-		</dependency>
+        <dependency>
+            <groupId>com.upokecenter</groupId>
+            <artifactId>cbor</artifactId>
+            <version>5.0.0-alpha2</version>
+        </dependency>
 	</dependencies>
 	<build>
 		<plugins>

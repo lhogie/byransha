@@ -5,43 +5,44 @@ import java.io.IOException;
 import java.util.zip.GZIPOutputStream;
 
 import com.sun.net.httpserver.HttpExchange;
+import com.upokecenter.cbor.CBORObject;
 
 class HTTPResponse {
-	final int code;
-	final byte[] content;
-	final String contentType;
+    final int code;
+    final byte[] content;
+    final String contentType;
 
-	private Long rangeStart;
-	private Long rangeEnd;
-	private Long contentLength;
+    private Long rangeStart;
+    private Long rangeEnd;
+    private Long contentLength;
 
-	public HTTPResponse(int i, String contentType, byte[] content) {
-		this.code = i;
-		this.content = content;
-		this.contentType = contentType;
-		this.contentLength = (long) content.length;
-	}
+    public HTTPResponse(int i, String contentType, byte[] content) {
+        this.code = i;
+        this.content = content;
+        this.contentType = contentType;
+        this.contentLength = (long) content.length;
+    }
 
-	/**
-	 * Constructor for range requests
-	 * 
-	 * @param code HTTP status code
-	 * @param contentType Content type of the response
-	 * @param content Full content of the response
-	 * @param rangeStart Start byte of the range (inclusive)
-	 * @param rangeEnd End byte of the range (inclusive)
-	 */
-	public HTTPResponse(int code, String contentType, byte[] content, long rangeStart, long rangeEnd) {
-		this.code = code;
-		this.content = content;
-		this.contentType = contentType;
-		this.rangeStart = rangeStart;
-		this.rangeEnd = rangeEnd;
-		this.contentLength = (long) content.length;
-	}
+    /**
+     * Constructor for range requests
+     *
+     * @param code HTTP status code
+     * @param contentType Content type of the response
+     * @param content Full content of the response
+     * @param rangeStart Start byte of the range (inclusive)
+     * @param rangeEnd End byte of the range (inclusive)
+     */
+    public HTTPResponse(int code, String contentType, byte[] content, long rangeStart, long rangeEnd) {
+        this.code = code;
+        this.content = content;
+        this.contentType = contentType;
+        this.rangeStart = rangeStart;
+        this.rangeEnd = rangeEnd;
+        this.contentLength = (long) content.length;
+    }
 
 
-	void send(HttpExchange e) throws IOException {
+    void send(HttpExchange e) throws IOException {
         try (var output = e.getResponseBody()) {
             try {
                 String origin = e.getRequestHeaders().getFirst("Origin");
@@ -66,9 +67,21 @@ class HTTPResponse {
                     return;
                 }
 
-                e.getResponseHeaders().set("Content-type", contentType);
+                String accept = e.getRequestHeaders().getFirst("Accept");
+                boolean supportsCbor = accept != null && accept.contains("application/cbor");
 
-                if (isStaticResource(contentType)) {
+                byte[] responseData = content;
+                String finalContentType = contentType;
+
+                if (supportsCbor && contentType.contains("application/json")) {
+                    var cborObject = CBORObject.FromJSONBytes(content);
+                    responseData = cborObject.EncodeToBytes();
+                    finalContentType = "application/cbor";
+                }
+
+                e.getResponseHeaders().set("Content-type", finalContentType);
+
+                if (isStaticResource(finalContentType)) {
                     e.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
 
                     String eTag = "\"" + Integer.toHexString(java.util.Arrays.hashCode(content)) + "\"";
@@ -85,18 +98,18 @@ class HTTPResponse {
                 }
 
                 String acceptEncoding = e.getRequestHeaders().getFirst("Accept-Encoding");
-                boolean useGzip = acceptEncoding != null && 
-                                 acceptEncoding.contains("gzip") && 
-                                 isCompressibleContentType(contentType) && 
-                                 content.length > 1024;
+                boolean useGzip = acceptEncoding != null &&
+                        acceptEncoding.contains("gzip") &&
+                        isCompressibleContentType(finalContentType) &&
+                        content.length > 1024;
 
-                byte[] responseContent = content;
+                byte[] responseContent = responseData;
 
                 if (useGzip) {
                     try {
                         ByteArrayOutputStream byteStream = new ByteArrayOutputStream(content.length);
 
-                      try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream, 16384) {
+                        try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream, 16384) {
                             {
                                 def.setLevel(6);
                             }
@@ -110,7 +123,6 @@ class HTTPResponse {
                         e.getResponseHeaders().add("Vary", "Accept-Encoding");
                     } catch (IOException ex) {
                         System.err.println("Gzip compression failed: " + ex.getMessage());
-                        responseContent = content;
                     }
                 }
 
@@ -126,7 +138,7 @@ class HTTPResponse {
 
                 if (rangeStart != null && rangeEnd != null) {
                     e.getResponseHeaders().set("Accept-Ranges", "bytes");
-                    e.getResponseHeaders().set("Content-Range", 
+                    e.getResponseHeaders().set("Content-Range",
                             String.format("bytes %d-%d/%d", rangeStart, rangeEnd, contentLength));
 
                     int rangeLength = (int) (rangeEnd - rangeStart + 1);
@@ -169,8 +181,8 @@ class HTTPResponse {
         } catch (IOException ex) {
             System.err.println("Error closing output stream: " + ex.getMessage());
         }
-		// System.out.println("sent: " + code + " content:" + new String(content));
-	}
+        // System.out.println("sent: " + code + " content:" + new String(content));
+    }
 
     /**
      * Determines if the content type is compressible.
@@ -183,11 +195,11 @@ class HTTPResponse {
         }
 
         String lowerContentType = contentType.toLowerCase();
-        return lowerContentType.contains("text/") || 
-               lowerContentType.contains("application/json") || 
-               lowerContentType.contains("application/javascript") || 
-               lowerContentType.contains("application/xml") ||
-               lowerContentType.contains("image/svg+xml");
+        return lowerContentType.contains("text/") ||
+                lowerContentType.contains("application/json") ||
+                lowerContentType.contains("application/javascript") ||
+                lowerContentType.contains("application/xml") ||
+                lowerContentType.contains("image/svg+xml");
     }
 
     /**
@@ -201,13 +213,13 @@ class HTTPResponse {
         }
 
         String lowerContentType = contentType.toLowerCase();
-        return lowerContentType.contains("image/") || 
-               lowerContentType.contains("text/css") || 
-               lowerContentType.contains("application/javascript") ||
-               lowerContentType.contains("font/") ||
-               lowerContentType.contains("application/font") ||
-               lowerContentType.endsWith(".woff") ||
-               lowerContentType.endsWith(".woff2") ||
-               lowerContentType.endsWith(".ttf");
+        return lowerContentType.contains("image/") ||
+                lowerContentType.contains("text/css") ||
+                lowerContentType.contains("application/javascript") ||
+                lowerContentType.contains("font/") ||
+                lowerContentType.contains("application/font") ||
+                lowerContentType.endsWith(".woff") ||
+                lowerContentType.endsWith(".woff2") ||
+                lowerContentType.endsWith(".ttf");
     }
 }

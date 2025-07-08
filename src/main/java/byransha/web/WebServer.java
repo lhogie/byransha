@@ -13,13 +13,8 @@ import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
@@ -289,8 +284,8 @@ public class WebServer extends BNode {
 		BNode.create(g, ColorNodeView.class);
 		BNode.create(g, SearchForm.class);
 
-		Country.loadCountries(g);
-	}
+        Country.loadCountries(g);
+    }
 
 	public SessionStore getSessionStore() {
 		return sessionStore;
@@ -592,7 +587,7 @@ public class WebServer extends BNode {
 
 				response.set("durationNs", new TextNode("" + (System.nanoTime() - startTimeNs)));
 
-				return new HTTPResponse(responseStatusCode, "text/json", response.toPrettyString().getBytes());
+				return new HTTPResponse(responseStatusCode, "application/json", response.toPrettyString().getBytes());
 			} else {
 				String cacheKey = path;
 				CachedFile cachedFile = fileCache.get(cacheKey);
