@@ -117,8 +117,6 @@ class HTTPResponse {
                             gzipStream.write(responseData);
                         }
 
-                        System.out.println("Using gzip");
-
                         responseContent = byteStream.toByteArray();
                         e.getResponseHeaders().set("Content-Encoding", "gzip");
 

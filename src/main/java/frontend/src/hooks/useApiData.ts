@@ -71,12 +71,15 @@ export const useApiMutation = (endpoints: string, options: any = {}) => {
 					headers: {
 						Accept: "application/cbor",
 					},
+					responseType: "arraybuffer",
 				},
 			)
-				.then((res) => ({
-					...res,
-					data: decoder.decode(new Uint8Array(res.data))
-				}));
+				.then((res) => {
+					return ({
+						...res,
+						data: decoder.decode(new Uint8Array(res.data))
+					})
+				});
 		},
 		...options,
 	});
