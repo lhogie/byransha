@@ -43,6 +43,12 @@ public class Endpoints extends NodeEndpoint<BNode> {
 					}
 					return true;
 				})
+                .filter(e -> {
+                    if (in.has("only_applicable")) {
+                        return n.matches(e);
+                    }
+                    return true;
+                })
 				.forEach(e -> {
 					var nn = new ObjectNode(null);
 					nn.set("name", new TextNode(e.name()));

@@ -26,7 +26,7 @@ const theme = createTheme(
 );
 
 export default function App() {
-	const { data, isLoading, error } = useApiData("");
+	const { data, isLoading, error } = useApiData("endpoints?only_applicable&type=byransha.web.View");
 
 	const NAVIGATION =
 		isLoading || error || !data?.data?.results

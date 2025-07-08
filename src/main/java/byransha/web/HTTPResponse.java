@@ -84,7 +84,7 @@ class HTTPResponse {
                 if (isStaticResource(finalContentType)) {
                     e.getResponseHeaders().set("Cache-Control", "public, max-age=86400");
 
-                    String eTag = "\"" + Integer.toHexString(java.util.Arrays.hashCode(content)) + "\"";
+                    String eTag = "\"" + Integer.toHexString(java.util.Arrays.hashCode(responseData)) + "\"";
                     e.getResponseHeaders().set("ETag", eTag);
 
                     String ifNoneMatch = e.getRequestHeaders().getFirst("If-None-Match");
@@ -101,21 +101,23 @@ class HTTPResponse {
                 boolean useGzip = acceptEncoding != null &&
                         acceptEncoding.contains("gzip") &&
                         isCompressibleContentType(finalContentType) &&
-                        content.length > 1024;
+                        responseData.length > 1024;
 
                 byte[] responseContent = responseData;
 
                 if (useGzip) {
                     try {
-                        ByteArrayOutputStream byteStream = new ByteArrayOutputStream(content.length);
+                        ByteArrayOutputStream byteStream = new ByteArrayOutputStream(responseData.length);
 
                         try (GZIPOutputStream gzipStream = new GZIPOutputStream(byteStream, 16384) {
                             {
                                 def.setLevel(6);
                             }
                         }) {
-                            gzipStream.write(content);
+                            gzipStream.write(responseData);
                         }
+
+                        System.out.println("Using gzip");
 
                         responseContent = byteStream.toByteArray();
                         e.getResponseHeaders().set("Content-Encoding", "gzip");
@@ -198,6 +200,7 @@ class HTTPResponse {
         return lowerContentType.contains("text/") ||
                 lowerContentType.contains("application/json") ||
                 lowerContentType.contains("application/javascript") ||
+                lowerContentType.contains("application/cbor") ||
                 lowerContentType.contains("application/xml") ||
                 lowerContentType.contains("image/svg+xml");
     }

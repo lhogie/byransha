@@ -1,5 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { Decoder } from 'cbor-x/decode';
 import axios from "axios";
+
+const decoder = new Decoder({
+	mapsAsObjects: true
+})
 
 // Custom hook to fetch API data with TanStack Query
 export const useApiData = (
@@ -40,7 +45,15 @@ export const useApiData = (
 		queryFn: () =>
 			axios.get(url, {
 				withCredentials: true,
-			}),
+				headers: {
+					Accept: "application/cbor",
+				},
+				responseType: "arraybuffer",
+			})
+				.then((res) => ({
+					...res,
+					data: decoder.decode(new Uint8Array(res.data))
+				})),
 		retry: 2,
 		staleTime: 60000,
 		...querySettings,
@@ -55,8 +68,15 @@ export const useApiMutation = (endpoints: string, options: any = {}) => {
 				data,
 				{
 					withCredentials: true,
+					headers: {
+						Accept: "application/cbor",
+					},
 				},
-			);
+			)
+				.then((res) => ({
+					...res,
+					data: decoder.decode(new Uint8Array(res.data))
+				}));
 		},
 		...options,
 	});

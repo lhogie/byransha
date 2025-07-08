@@ -45,14 +45,14 @@ const ViewCard = memo(
 					borderRadius: 2,
 					display: "flex",
 					flexDirection: "column",
-					bgcolor: view.response_type === "technical" ? "#fff9c4" : "#ffffff",
+					bgcolor: view.type === "technical" ? "#fff9c4" : "#ffffff",
 				}}
 			>
 				<Box
 					sx={{
 						height: "40px",
 						width: "100%",
-						bgcolor: view.response_type === "technical" ? "#fff8b0" : "#f5f5f5",
+						bgcolor: view.type === "technical" ? "#fff8b0" : "#f5f5f5",
 						borderBottom: "1px solid #e0e0e0",
 						display: "flex",
 						alignItems: "center",
@@ -65,7 +65,7 @@ const ViewCard = memo(
 						variant="caption"
 						sx={{ color: "#757575" }}
 					>
-						{`${view.endpoint.replace(/_/g, " ").replace(/(?:^|\s)\S/g, (match: any) => match.toUpperCase())} - ${view.what_is_this}`}
+						{`${view.pretty_name} - ${view.description}`}
 					</Typography>
 					<button
 						type="button"
@@ -80,7 +80,7 @@ const ViewCard = memo(
 						type="button"
 						className="erased-card"
 						onClick={(_e) => {
-							handleViewToggle(view.endpoint);
+							handleViewToggle(view.name);
 						}}
 					>
 						{" "}
@@ -94,7 +94,7 @@ const ViewCard = memo(
 						display: "flex",
 						flexDirection: "column",
 						overflow: "hidden",
-						bgcolor: view.response_type === "technical" ? "#fff9c4" : "#ffffff",
+						bgcolor: view.type === "technical" ? "#fff9c4" : "#ffffff",
 					}}
 				>
 					<Box
@@ -123,10 +123,10 @@ const ViewCard = memo(
 						) : (
 							<React.Suspense fallback={<div>Loading view...</div>}>
 								<View
-									viewId={view.endpoint.replaceAll(" ", "_")}
+									viewId={view.name.replaceAll(" ", "_")}
 									sx={{
 										bgcolor:
-											view.response_type === "technical"
+											view.type === "technical"
 												? "#fff9c4"
 												: "#ffffff",
 										width: "100%",
@@ -143,7 +143,7 @@ const ViewCard = memo(
 
 const HomePage = () => {
 	const navigate = useNavigate();
-	const { data, isLoading } = useApiData("");
+	const { data, isLoading } = useApiData("endpoints?only_applicable&type=byransha.web.View");
 	useTitle("Home");
 
 	const [views, setViews] = useState<any[]>([]);
@@ -159,7 +159,7 @@ const HomePage = () => {
 	const [_showColorPicker, _setShowColorPicker] = useState<boolean>(false);
 	const [_pickerColor, _setPickerColor] = useState<string>("#ffffff");
 	const visibleViews = views.filter((view) =>
-		selectedViews.includes(view.endpoint),
+		selectedViews.includes(view.name),
 	);
 	const rowColumns = Math.min(columns, visibleViews.length);
 
@@ -175,11 +175,11 @@ const HomePage = () => {
 	}, []);
 
 	React.useEffect(() => {
-		if (data?.data?.results) {
+		if (data?.data?.results?.[0]?.result?.data) {
 			const filteredViews = showTechnicalViews
-				? data.data.results
-				: data.data.results.filter(
-						(view) => view.response_type !== "technical",
+				?data?.data?.results?.[0]?.result?.data
+				: data?.data?.results?.[0]?.result?.data.filter(
+						(view: any) => view.type !== "technical",
 					);
 			setViews(filteredViews);
 			setSelectedViews(() => {
@@ -188,10 +188,10 @@ const HomePage = () => {
 				);
 				let newSelected: any;
 				if (!saved || saved.length === 0) {
-					newSelected = filteredViews.map((view) => view.endpoint);
+					newSelected = filteredViews.map((view: any) => view.name);
 				} else {
 					newSelected = saved.filter((endpoint: any) =>
-						filteredViews.some((view) => view.endpoint === endpoint),
+						filteredViews.some((view: any) => view.name === endpoint),
 					);
 				}
 				localStorage.setItem("selectedViewsSaved", JSON.stringify(newSelected));
@@ -272,10 +272,10 @@ const HomePage = () => {
 			localStorage.setItem("selectedViewsSaved", JSON.stringify(newSelected));
 
 			const technicalViews = views.filter(
-				(view) => view.response_type === "technical",
+				(view) => view.type === "technical",
 			);
 			const openTechnicalViews = technicalViews.filter((view) =>
-				newSelected.includes(view.endpoint),
+				newSelected.includes(view.name),
 			);
 			if (openTechnicalViews.length === 0 && showTechnicalViews) {
 				setShowTechnicalViews(false);
@@ -291,10 +291,10 @@ const HomePage = () => {
 			localStorage.setItem("showTechnicalViews", JSON.stringify(newValue));
 
 			const techViews =
-				data?.data?.results?.filter(
-					(view) => view.response_type === "technical",
+				data?.data?.results?.[0]?.result?.data?.filter(
+					(view: any) => view.type === "technical",
 				) || [];
-			const techEndpoints = techViews.map((view) => view.endpoint);
+			const techEndpoints = techViews.map((view: any) => view.name);
 
 			setSelectedViews((prevSelected) => {
 				let updated: any;
@@ -384,7 +384,7 @@ const HomePage = () => {
 						>
 							{views.map((view, _index) => (
 								<MenuItem
-									key={view.endpoint}
+									key={view.name}
 									sx={{
 										display: "flex",
 										alignItems: "center",
@@ -392,17 +392,17 @@ const HomePage = () => {
 										paddingRight: 1,
 										fontSize: "14px",
 										color:
-											view.response_type === "technical"
+											view.type === "technical"
 												? "#283593"
 												: "#424242",
 										backgroundColor:
-											view.response_type === "technical"
+											view.type === "technical"
 												? "#fff9c4"
 												: "transparent",
 										borderRadius: "8px",
 										"&:hover": {
 											backgroundColor:
-												view.response_type === "technical"
+												view.type === "technical"
 													? "#fff8b0"
 													: "#e8eaf6",
 										},
@@ -415,10 +415,10 @@ const HomePage = () => {
 											flexGrow: 1,
 											borderRadius: "18px",
 										}}
-										onClick={() => handleViewToggle(view.endpoint)}
+										onClick={() => handleViewToggle(view.name)}
 									>
 										<Checkbox
-											checked={selectedViews.includes(view.endpoint)}
+											checked={selectedViews.includes(view.name)}
 											sx={{
 												color: "#90caf9",
 												"&.Mui-checked": { color: "#90caf9" },
@@ -532,10 +532,10 @@ const HomePage = () => {
 				}}
 			>
 				{views
-					.filter((view) => selectedViews.includes(view.endpoint))
+					.filter((view) => selectedViews.includes(view.name))
 					.map((view, _index) => (
 						<Box
-							key={view.endpoint}
+							key={view.name}
 							sx={{
 								width: {
 									xs: "100%",
@@ -548,7 +548,7 @@ const HomePage = () => {
 								view={view}
 								onClick={(e) => {
 									if (e.defaultPrevented) return;
-									if (view.endpoint.endsWith("class_attribute_field")) {
+									if (view.name.endsWith("class_attribute_field")) {
 										jumpToId.mutate({
 											node: view.result?.dialect.split("@")[1],
 										});
@@ -557,7 +557,7 @@ const HomePage = () => {
 										);
 									} else
 										navigate(
-											`/information/${view.endpoint.replaceAll(" ", "_")}`,
+											`/information/${view.name.replaceAll(" ", "_")}`,
 										);
 								}}
 								handleViewToggle={handleViewToggle}
