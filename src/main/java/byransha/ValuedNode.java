@@ -22,7 +22,9 @@ public abstract class ValuedNode<V> extends PersistingNode {
 
 	@Override
 	public final String toString() {
-		return super.toString() + "(value=\"" + get() + "\")";
+		StringBuilder sb = new StringBuilder(super.toString());
+		sb.append("(value=\"").append(get()).append("\")");
+		return sb.toString();
 	}
 
 //	@Override
@@ -60,7 +62,8 @@ public abstract class ValuedNode<V> extends PersistingNode {
 	}
 
 	public String getAsString() {
-		return get() + "";
+		V value = get();
+		return value != null ? value.toString() : "";
 	}
 
 	public void set(V newValue) {

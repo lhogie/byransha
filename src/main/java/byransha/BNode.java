@@ -8,6 +8,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -101,26 +104,61 @@ public abstract class BNode {
         }
     }
 
+	/**
+	 * Gets the incoming references to this node.
+	 * Uses the cached version if available, otherwise gets it from the graph's inverse index.
+	 */
 	public List<InLink> ins() {
-		return ins == null ? graph.findRefsTO(this) : ins;
+		if (ins == null) {
+			ins = graph.findRefsTO(this);
+		}
+		return new ArrayList<>(ins);
+	}
+	
+	/**
+	 * Invalidates the incoming references cache, forcing a rebuild on next access
+	 */
+	protected void invalidateInsCache() {
+		ins = null;
 	}
 
+	private static final ConcurrentMap<Class<?>, List<Field>> outNodeFieldsCache = new ConcurrentHashMap<>();
+	
+	/**
+	 * Gets all fields of this node that are of type BNode or a subclass.
+	 * Uses caching to avoid repeated reflection operations.
+	 */
 	public void forEachOutNodeField(Consumer<Field> consumer) {
-		for (var c : Clazz.bfs(getClass())) {
-			for (var f : c.getDeclaredFields()) {
-				if ((f.getModifiers() & Modifier.STATIC) != 0)
-					continue;
-
-				if (BNode.class.isAssignableFrom(f.getType())) {
-					try {
+		List<Field> fields = getOutNodeFields(getClass());
+		for (Field f : fields) {
+			try {
+				consumer.accept(f);
+			} catch (IllegalArgumentException err) {
+				throw new IllegalStateException(err);
+			}
+		}
+	}
+	
+	/**
+	 * Gets all fields of the given class that are of type BNode or a subclass.
+	 * Uses caching to avoid repeated reflection operations.
+	 */
+	private static List<Field> getOutNodeFields(Class<?> clazz) {
+		return outNodeFieldsCache.computeIfAbsent(clazz, cls -> {
+			List<Field> fields = new ArrayList<>();
+			for (var c : Clazz.bfs(cls)) {
+				for (var f : c.getDeclaredFields()) {
+					if ((f.getModifiers() & Modifier.STATIC) != 0)
+						continue;
+					
+					if (BNode.class.isAssignableFrom(f.getType())) {
 						f.setAccessible(true);
-						consumer.accept(f);
-					} catch (IllegalArgumentException err) {
-						throw new IllegalStateException(err);
+						fields.add(f);
 					}
 				}
 			}
-		}
+			return Collections.unmodifiableList(fields);
+		});
 	}
 
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
@@ -177,10 +215,27 @@ public abstract class BNode {
 		return r;
 	}
 
+	private LinkedHashMap<String, BNode> outsCache;
+	private boolean outsCacheDirty = true;
+	
+	/**
+	 * Gets the outgoing relationships of this node.
+	 * Uses a cached version if available and not dirty.
+	 */
 	public LinkedHashMap<String, BNode> outs() {
-		var m = new LinkedHashMap<String, BNode>();
-		forEachOut(m::put);
-		return m;
+		if (outsCacheDirty || outsCache == null) {
+			outsCache = new LinkedHashMap<String, BNode>();
+			forEachOut(outsCache::put);
+			outsCacheDirty = false;
+		}
+		return new LinkedHashMap<>(outsCache);
+	}
+	
+	/**
+	 * Marks the outs cache as dirty, forcing a rebuild on next access
+	 */
+	protected void invalidateOutsCache() {
+		outsCacheDirty = true;
 	}
 
 	public int outDegree() {
@@ -270,7 +325,26 @@ public abstract class BNode {
 				if (f.getName().equals(name)) {
 					try {
 						f.setAccessible(true);
+						BNode oldValue = null;
+						try {
+							oldValue = (BNode) f.get(this);
+						} catch (Exception ignored) {
+							// Ignore if we can't get the old value
+						}
+						
 						f.set(this, targetNode);
+						
+						invalidateOutsCache();
+						
+						if (graph != null) {
+							if (oldValue != null) {
+								graph.removeIncomingReference(oldValue, name, this);
+							}
+							
+							if (targetNode != null) {
+								graph.addIncomingReference(targetNode, name, this);
+							}
+						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						throw new IllegalStateException(e);
 					}

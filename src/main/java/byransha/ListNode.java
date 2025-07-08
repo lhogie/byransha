@@ -1,7 +1,9 @@
 package byransha;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 
@@ -22,6 +24,9 @@ import java.lang.reflect.Field;
 
 public class ListNode<N extends BNode> extends PersistingNode {
 	public final List<N> l = new CopyOnWriteArrayList<>();
+	
+	private static final Map<Integer, ListSettings> listSettingsCache = new ConcurrentHashMap<>();
+    private static final Random RANDOM = new Random();
 
 	public boolean canAddNewNode() {
 		return getListSettings().allowCreation();
@@ -64,15 +69,40 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	public void add(N n) {
 		l.add(n);
+		if (n != null && graph != null) {
+			String role = (l.size() - 1) + ". " + n.prettyName();
+			graph.addIncomingReference(n, role, this);
+
+			invalidateOutsCache();
+		}
 		this.save(f -> {});
 	}
 
 	public void remove(N p) {
+		int index = l.indexOf(p);
+		if (index != -1 && p != null && graph != null) {
+			String role = index + ". " + p.prettyName();
+			graph.removeIncomingReference(p, role, this);
+
+			invalidateOutsCache();
+		}
 		l.remove(p);
 		this.save(f -> {});
 	}
 
 	public void removeAll(){
+		if (graph != null) {
+			int i = 0;
+			for (N n : l) {
+				if (n != null) {
+					graph.removeIncomingReference(n, i++ + ". " + n.prettyName(), this);
+				} else {
+					i++;
+				}
+			}
+
+			invalidateOutsCache();
+		}
 		l.clear();
 		this.save(f -> {});
 	}
@@ -90,18 +120,23 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	}
 
 	private ListSettings getListSettings() {
+		if (listSettingsCache.containsKey(id())) {
+			return listSettingsCache.get(id());
+		}
+		
 		for (InLink inLink : ins()) {
 			for (Field field : inLink.source().getClass().getDeclaredFields()) {
 				if (field.getType().isAssignableFrom(ListNode.class)) {
 					ListSettings annotation = field.getAnnotation(ListSettings.class);
 					if (annotation != null) {
+						listSettingsCache.put(id(), annotation);
 						return annotation;
 					}
 				}
 			}
 		}
-		// Return default settings if no annotation is found
-		return new ListSettings() {
+		
+		ListSettings defaultSettings = new ListSettings() {
 			@Override
 			public boolean allowCreation() {
 				return true;
@@ -117,6 +152,13 @@ public class ListNode<N extends BNode> extends PersistingNode {
 				return ListSettings.class;
 			}
 		};
+		
+		listSettingsCache.put(id(), defaultSettings);
+		return defaultSettings;
+	}
+	
+	public void invalidateSettingsCache() {
+		listSettingsCache.remove(id());
 	}
 
 	public BNode random() {
@@ -124,12 +166,14 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		if (currentSize == 0) {
 			return null;
 		}
-		return l.get(new Random().nextInt(currentSize));
+
+		return l.get(RANDOM.nextInt(currentSize));
 	}
 
 	
 
 	public static class ListNodes extends NodeEndpoint<ListNode> implements View {
+		private static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 
 		public ListNodes(BBGraph g) {
 			super(g.graph);
@@ -152,10 +196,10 @@ public class ListNode<N extends BNode> extends PersistingNode {
 				throw new IllegalArgumentException("The provided node is null.");
 			}
 
-			var response = new ArrayNode(JsonNodeFactory.instance);
+			ArrayNode response = nodeFactory.arrayNode();
 
 			for (var element : n.l) {
-				var jsonElement = new ObjectNode(JsonNodeFactory.instance);
+				ObjectNode jsonElement = nodeFactory.objectNode();
 				jsonElement.put("toString", element.toString());
 				response.add(jsonElement);
 			}

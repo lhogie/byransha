@@ -12,8 +12,11 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ClassInformation extends NodeEndpoint<BNode> {
+    private static final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<>();
 
     @Override
     public String whatItDoes() {
@@ -43,7 +46,11 @@ public class ClassInformation extends NodeEndpoint<BNode> {
         }
 
         try {
-            var clazz = Class.forName(className);
+            Class<?> clazz = classCache.get(className);
+            if (clazz == null) {
+                clazz = Class.forName(className);
+                classCache.putIfAbsent(className, clazz);
+            }
 
             var current = clazz.getSuperclass();
             while (current != null) {

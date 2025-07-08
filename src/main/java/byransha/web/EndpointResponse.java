@@ -1,13 +1,15 @@
 package byransha.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 public abstract class EndpointResponse<R> {
+	protected static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
 	public final String contentType;
 	public final R data;
-	public int statusCode = 200; // Default status code is 200 OK
+	public int statusCode = 200;
 
 	public EndpointResponse(R d, String contentType) {
 		this.data = d;
@@ -21,8 +23,8 @@ public abstract class EndpointResponse<R> {
 	}
 
 	public ObjectNode toJson() {
-		ObjectNode r = new ObjectNode(null);
-		r.set("contentType", new TextNode(contentType));
+		ObjectNode r = nodeFactory.objectNode();
+		r.set("contentType", nodeFactory.textNode(contentType));
 		r.set("data", data());
 		return r;
 	}

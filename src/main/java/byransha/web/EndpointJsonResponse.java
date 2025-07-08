@@ -41,7 +41,8 @@ public class EndpointJsonResponse extends EndpointResponse<JsonNode> {
 	@Override
 	public ObjectNode toJson() {
 		var r = super.toJson();
-		r.set("dialect", new TextNode(dialect));
+
+		r.set("dialect", nodeFactory.textNode(dialect));
 		return r;
 	}
 
@@ -52,6 +53,8 @@ public class EndpointJsonResponse extends EndpointResponse<JsonNode> {
 
 	@Override
 	public String toRawText() {
-		return dialect + "\n" + data.toPrettyString();
+		StringBuilder sb = new StringBuilder(dialect);
+		sb.append('\n').append(data.toPrettyString());
+		return sb.toString();
 	}
 }

@@ -43,12 +43,29 @@ public class SetNode<N extends BNode> extends PersistingNode {
 	}
 
 	public void add(N n) {
-		l.add(n);
+		if (l.add(n) && n != null && graph != null) {
+			String role = l.size() - 1 + ". " + n.prettyName();
+			graph.addIncomingReference(n, role, this);
+
+			invalidateOutsCache();
+		}
 		this.save(f -> {});
 	}
 
 	public void removeAll() {
+		if (graph != null) {
+			int i = 0;
+			for (N n : l) {
+				if (n != null) {
+					graph.removeIncomingReference(n, i++ + ". " + n.prettyName(), this);
+				} else {
+					i++;
+				}
+			}
+		}
 		l.clear();
+
+		invalidateOutsCache();
 		this.save(f -> {});
 	}
 
@@ -75,7 +92,7 @@ public class SetNode<N extends BNode> extends PersistingNode {
 				}
 			}
 		}
-		// Return default settings if no annotation is found
+
 		return new ListSettings() {
 			@Override
 			public boolean allowCreation() {
@@ -95,6 +112,17 @@ public class SetNode<N extends BNode> extends PersistingNode {
 	}
 
 	public void remove(N p) {
-		l.remove(p);
+		if (l.remove(p) && p != null && graph != null) {
+			int i = 0;
+			for (N n : l) {
+				if (n != null && n.equals(p)) {
+					break;
+				}
+				i++;
+			}
+			graph.removeIncomingReference(p, i + ". " + p.prettyName(), this);
+			invalidateOutsCache();
+		}
+		this.save(f -> {});
 	}
 }

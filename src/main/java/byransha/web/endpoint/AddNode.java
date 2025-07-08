@@ -10,9 +10,12 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
-
+    private static final ConcurrentMap<String, Class<? extends BNode>> classCache = new ConcurrentHashMap<>();
+    
     @Override
     public String whatItDoes() {
         return "Adds a new node to the graph.";
@@ -32,7 +35,14 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
         var className = requireParm(in, "BNodeClass").asText();
         System.out.println("Adding node of class: " + className);
 
-        Class<N> clazz = (Class<N>) Class.forName(className);
+        Class<N> clazz;
+        Class<?> cachedClass = classCache.get(className);
+        if (cachedClass != null) {
+            clazz = (Class<N>) cachedClass;
+        } else {
+            clazz = (Class<N>) Class.forName(className);
+            classCache.putIfAbsent(className, clazz);
+        }
         var node = BNode.create(graph, clazz);
         if(node != null) {
             a.put("id", new IntNode(node.id()));

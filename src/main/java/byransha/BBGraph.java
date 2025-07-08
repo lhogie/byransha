@@ -35,6 +35,7 @@ public class BBGraph extends BNode {
 
 	private final ConcurrentMap<Integer, BNode> nodesById;
 	private final ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
+	private final ConcurrentMap<BNode, List<InLink>> incomingReferences;
 
 	private final AtomicInteger idSequence = new AtomicInteger(1);
 
@@ -51,8 +52,8 @@ public class BBGraph extends BNode {
 		this.directory = directory;
 		this.nodesById = new ConcurrentHashMap<>();
 		this.byClass = new ConcurrentHashMap<>();
+		this.incomingReferences = new ConcurrentHashMap<>();
 		accept(this); // self accept
-
 	}
 
 	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
@@ -86,8 +87,12 @@ public class BBGraph extends BNode {
 	}
 
 	public List<InLink> findRefsTO(BNode searchedNode) {
+		List<InLink> cachedRefs = incomingReferences.get(searchedNode);
+		if (cachedRefs != null) {
+			return new ArrayList<>(cachedRefs);
+		}
+		
 		var r = new ArrayList<InLink>();
-
 		forEachNode(n -> {
 			n.forEachOut((role, outNode) -> {
 				if (outNode == searchedNode) {
@@ -95,8 +100,39 @@ public class BBGraph extends BNode {
 				}
 			});
 		});
-
+		
+		incomingReferences.put(searchedNode, new ArrayList<>(r));
+		
 		return r;
+	}
+	
+	/**
+	 * Adds an incoming reference to the inverse index
+	 */
+	public void addIncomingReference(BNode target, String role, BNode source) {
+		incomingReferences.computeIfAbsent(target, k -> new ArrayList<>())
+			.add(new InLink(role, source));
+		
+		if (target != null) {
+			target.invalidateInsCache();
+		}
+	}
+	
+	/**
+	 * Removes an incoming reference from the inverse index
+	 */
+	public void removeIncomingReference(BNode target, String role, BNode source) {
+		List<InLink> refs = incomingReferences.get(target);
+		if (refs != null) {
+			refs.removeIf(link -> link.role().equals(role) && link.source() == source);
+			if (refs.isEmpty()) {
+				incomingReferences.remove(target);
+			}
+			
+			if (target != null) {
+				target.invalidateInsCache();
+			}
+		}
 	}
 
 	public void loadFromDisk(Consumer<BNode> newNodeInstantiated, BiConsumer<BNode, String> setRelation) {
@@ -338,17 +374,30 @@ public class BBGraph extends BNode {
 
 	public <C extends BNode> List<C> findAll(Class<C> nodeClass, Predicate<C> p) {
 		List<C> r = new ArrayList<>();
-
-		for (Map.Entry<Class<? extends BNode>, Queue<BNode>> entry : byClass.entrySet()) {
-			if (nodeClass.isAssignableFrom(entry.getKey())) {
-				for (BNode node : entry.getValue()) {
-					C nn = nodeClass.cast(node);
-					if (p.test(nn)) {
-						r.add(nn);
+		
+		Queue<BNode> directNodes = byClass.get(nodeClass);
+		if (directNodes != null) {
+			for (BNode node : directNodes) {
+				C nn = nodeClass.cast(node);
+				if (p.test(nn)) {
+					r.add(nn);
+				}
+			}
+		}
+		
+		if (nodeClass != BNode.class) {
+			for (Map.Entry<Class<? extends BNode>, Queue<BNode>> entry : byClass.entrySet()) {
+				if (entry.getKey() != nodeClass && nodeClass.isAssignableFrom(entry.getKey())) {
+					for (BNode node : entry.getValue()) {
+						C nn = nodeClass.cast(node);
+						if (p.test(nn)) {
+							r.add(nn);
+						}
 					}
 				}
 			}
 		}
+		
 		return r;
 	}
 
@@ -426,20 +475,30 @@ public class BBGraph extends BNode {
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
 				BBGraph db) {
 			var g = new AnyGraph();
+			
+			Map<Integer, BVertex> vertexCache = new HashMap<>();
+			db.forEachNode(v -> {
+				if (v.canSee(user)) {
+					BVertex vertex = v.toVertex();
+					g.addVertex(vertex);
+					vertexCache.put(v.id(), vertex);
+				}
+			});
 
 			db.forEachNode(v -> {
 				if (v.canSee(user)) {
-					g.addVertex(v.toVertex());
-					v.forEachOut((s, o) -> {
-						if (o.canSee(user)) {
-							BVertex targetVertex = g.findVertexByID("" + o.id());
-							if (targetVertex == null) {
-								targetVertex = g.ensureHasVertex(o);
+					BVertex sourceVertex = vertexCache.get(v.id());
+					if (sourceVertex != null) {
+						v.forEachOut((s, o) -> {
+							if (o.canSee(user)) {
+								BVertex targetVertex = vertexCache.get(o.id());
+								if (targetVertex != null) {
+									var arc = g.newArc(sourceVertex, targetVertex);
+									arc.label = s;
+								}
 							}
-							var arc = g.newArc(g.ensureHasVertex(v), targetVertex);
-							arc.label = s;
-						}
-					});
+						});
+					}
 				}
 			});
 
