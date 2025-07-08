@@ -83,8 +83,13 @@ public abstract class BNode {
 			}
             return false;
         });
-		this.color = BNode.create(graph, ColorNode.class);
-		this.color.set(newColor);
+		if(this.color == null) {
+			this.color = BNode.create(graph, ColorNode.class);
+			this.color.set(newColor);
+		} else if(!this.color.getAsString().equals(newColor)) {
+			this.color = BNode.create(graph, ColorNode.class);
+			this.color.set(newColor);
+		}
 	}
 
 	public abstract String whatIsThis();

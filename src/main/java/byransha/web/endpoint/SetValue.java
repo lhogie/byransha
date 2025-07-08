@@ -77,8 +77,13 @@ public class SetValue extends NodeEndpoint<BNode> {
             } else if (node instanceof byransha.IntNode i) {
                 i.set(value.asInt());
                 a.set("value", new IntNode(value.asInt()));
-            } else if (node instanceof ColorNode c){
-                c.set(value.asText());
+            } else if (node instanceof ColorNode c && in.has("parentId")){
+                int parentId = in.get("parentId").asInt();
+                BNode parentNode = graph.findByID(parentId);
+                if (parentNode == null) {
+                    return ErrorResponse.notFound("Parent node with ID " + parentId + " not found in the graph.");
+                }
+                parentNode.setColor(value.asText());
                 a.set("value", new TextNode(c.getAsString()));
             } else if (node instanceof byransha.BooleanNode b) {
                 b.set(value.asBoolean());
