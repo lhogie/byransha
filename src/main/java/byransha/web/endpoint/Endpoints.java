@@ -50,6 +50,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 					nn.set("endpoint_target_type", new TextNode(e.getTargetNodeType().getName()));
 					nn.set("applicable_to_current_node", BooleanNode.valueOf(n.matches(e)));
 					nn.set("description", new TextNode(e.whatIsThis()));
+					nn.set("pretty_name", new TextNode(e.prettyName()));
 					nn.set("type", new TextNode(e.type().toString()));
 					data.add(nn);
 				});
