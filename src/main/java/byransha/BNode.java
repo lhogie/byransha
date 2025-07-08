@@ -383,49 +383,42 @@ public abstract class BNode {
 		@Override
 		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
 			var g = new AnyGraph();
-			var current = n.toVertex();
-			g.addVertex(current);
-			if(n.color == null || n.color.get() == null) current.color = "pink";
-			else current.color = n.color.getAsString();
+			var currentVertex = g.ensureHasVertex(n);
+			setVertexProperties(currentVertex, n, "pink");
+			currentVertex.size = 20;
 
-			System.out.println("current color: " + current.color);
-
-			current.size = 20;
-
-			n.forEachOut((s, o) -> {
-				if (o.canSee(user) && !(o instanceof ValuedNode<?>)) {
-					var noeudOut = g.ensureHasVertex(o);
-					if(o.color == null || o.color.get() == null ) noeudOut.color = "blue";
-					else noeudOut.color = o.color.getAsString();
-
-					System.out.println("out color: " + noeudOut.color);
-					noeudOut.prettyName = o.prettyName();
-					noeudOut.whatIsThis = o.whatIsThis();
-					noeudOut.className = o.getClass().getName();
-					var a = g.newArc(current, noeudOut);
-					a.label = s;
-					a.color = "red";
+			n.forEachOut((role, outNode) -> {
+				if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
+					var outVertex = g.ensureHasVertex(outNode);
+					setVertexProperties(outVertex, outNode, "blue");
+					var arc = g.newArc(currentVertex, outVertex);
+					arc.label = role;
+					arc.color = "red";
 				}
 			});
 
-			n.forEachIn((s, i) -> {
-				if (i.canSee(user) && !(i instanceof ValuedNode<?>)) {
-					var noeudOut = g.ensureHasVertex(i);
-					if(i.color == null || i.color.get() == null ) noeudOut.color = "pink";
-					else noeudOut.color = i.color.getAsString();
-
-					System.out.println("in color: " + noeudOut.color);
-
-					noeudOut.prettyName = i.prettyName();
-					noeudOut.whatIsThis = i.whatIsThis();
-					noeudOut.className = i.getClass().getName();
-					var a = g.newArc(current, noeudOut);
-					a.style = "dotted";
-					a.label = s;
+			n.forEachIn((role, inNode) -> {
+				if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
+					var inVertex = g.ensureHasVertex(inNode);
+					setVertexProperties(inVertex, inNode, "pink");
+					var arc = g.newArc(inVertex, currentVertex);
+					arc.style = "dotted";
+					arc.label = role;
 				}
 			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
+		}
+
+		private void setVertexProperties(BVertex vertex, BNode node, String defaultColor) {
+			if (node.color == null || node.color.get() == null) {
+				vertex.color = defaultColor;
+			} else {
+				vertex.color = node.color.getAsString();
+			}
+			vertex.prettyName = node.prettyName();
+			vertex.whatIsThis = node.whatIsThis();
+			vertex.className = node.getClass().getName();
 		}
 	}
 
