@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -44,8 +45,6 @@ public abstract class BNode {
 	private final int id;
 	public ColorNode color;
 	public Boolean deleted = false;
-	public Cluster assignedCluster;
-
 	
 	protected BNode(BBGraph g) {
 		this(g, g == null ? 0 : g.nextID());
@@ -80,20 +79,19 @@ public abstract class BNode {
 	}
 
 	public void createOrAssignCluster(){
+		AtomicBoolean assigned = new AtomicBoolean(false);
 		graph.findAll(Cluster.class, n -> {
 			if(n.getTypeOfCluster() != null && n.getTypeOfCluster().equals(this.getClass().getSimpleName())) {
 				n.add(this);
-				assignedCluster = n;
-				System.out.println(n.size());
+				assigned.set(true);
 				return true;
 			}
 			return false;
 		});
-		if(assignedCluster == null) {
+		if(!assigned.get()) {
 			var newCluster = BNode.create(graph, Cluster.class);
 			newCluster.setTypeOfCluster(this.getClass().getSimpleName());
 			newCluster.add(this);
-			assignedCluster = newCluster;
 			if(this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
 		}
 	}
@@ -495,39 +493,41 @@ public abstract class BNode {
 					arc.label = "cluster";
 					return true;
 				});
+			} else{
+				n.forEachOut((role, outNode) -> {
+					if(outNode.canSee(user) && n instanceof Cluster){
+						var outVertex = g.ensureHasVertex(outNode);
+						setVertexProperties(outVertex, outNode, "blue");
+						var arc = g.newArc(currentVertex, outVertex);
+						arc.label = role;
+						arc.color = "red";
+					} else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
+						var outVertex = g.ensureHasVertex(outNode);
+						setVertexProperties(outVertex, outNode, "blue");
+						var arc = g.newArc(currentVertex, outVertex);
+						arc.label = role;
+						arc.color = "red";
+					}
+				});
+
+				n.forEachIn((role, inNode) -> {
+					if(inNode.canSee(user) && n instanceof Cluster){
+						var inVertex = g.ensureHasVertex(inNode);
+						setVertexProperties(inVertex, inNode, "pink");
+						var arc = g.newArc(inVertex, currentVertex);
+						arc.style = "dotted";
+						arc.label = role;
+					} else if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
+						var inVertex = g.ensureHasVertex(inNode);
+						setVertexProperties(inVertex, inNode, "pink");
+						var arc = g.newArc(inVertex, currentVertex);
+						arc.style = "dotted";
+						arc.label = role;
+					}
+				});
 			}
 
-			n.forEachOut((role, outNode) -> {
-				if(outNode.canSee(user) && n instanceof Cluster){
-					var outVertex = g.ensureHasVertex(outNode);
-					setVertexProperties(outVertex, outNode, "blue");
-					var arc = g.newArc(currentVertex, outVertex);
-					arc.label = role;
-					arc.color = "red";
-				} else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
-					var outVertex = g.ensureHasVertex(outNode);
-					setVertexProperties(outVertex, outNode, "blue");
-					var arc = g.newArc(currentVertex, outVertex);
-					arc.label = role;
-					arc.color = "red";
-				}
-			});
 
-			n.forEachIn((role, inNode) -> {
-				if(inNode.canSee(user) && n instanceof Cluster){
-					var inVertex = g.ensureHasVertex(inNode);
-					setVertexProperties(inVertex, inNode, "pink");
-					var arc = g.newArc(inVertex, currentVertex);
-					arc.style = "dotted";
-					arc.label = role;
-				} else if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
-					var inVertex = g.ensureHasVertex(inNode);
-					setVertexProperties(inVertex, inNode, "pink");
-					var arc = g.newArc(inVertex, currentVertex);
-					arc.style = "dotted";
-					arc.label = role;
-				}
-			});
 
 			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
 		}

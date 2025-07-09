@@ -54,6 +54,7 @@ public class BBGraph extends BNode {
 		this.byClass = new ConcurrentHashMap<>();
 		this.incomingReferences = new ConcurrentHashMap<>();
 		accept(this); // self accept
+		this.setColor("#ff8c00");
 	}
 
 	public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
