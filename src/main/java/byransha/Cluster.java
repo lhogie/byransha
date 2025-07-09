@@ -31,7 +31,7 @@ public class Cluster extends SetNode<BNode> {
     @Override
     public String prettyName() {
         if (this.size() > 0) {
-            return "a cluster with types " + this.typeOfCluster +  " nodes";
+            return this.typeOfCluster;
         }
         return "a cluster empty";
     }

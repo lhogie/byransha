@@ -1,10 +1,7 @@
 package byransha.web.endpoint;
 
 import byransha.web.*;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import com.fasterxml.jackson.databind.node.*;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
@@ -52,6 +49,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 				.forEach(e -> {
 					var nn = new ObjectNode(null);
 					nn.set("name", new TextNode(e.name()));
+					nn.set("id", new IntNode(e.id()));
 					nn.set("implementation_class", new TextNode(e.getClass().getName()));
 					nn.set("endpoint_target_type", new TextNode(e.getTargetNodeType().getName()));
 					nn.set("applicable_to_current_node", BooleanNode.valueOf(n.matches(e)));

@@ -92,6 +92,7 @@ public abstract class BNode {
 			var newCluster = BNode.create(graph, Cluster.class);
 			newCluster.setTypeOfCluster(this.getClass().getSimpleName());
 			newCluster.add(this);
+			newCluster.add(graph);
 			if(this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
 		}
 	}
@@ -490,7 +491,7 @@ public abstract class BNode {
 					setVertexProperties(clusterVertex, c, "green");
 					var arc = g.newArc(currentVertex, clusterVertex);
 					arc.style = "dashed";
-					arc.label = "cluster";
+					arc.label = c.prettyName();
 					return true;
 				});
 			} else{
