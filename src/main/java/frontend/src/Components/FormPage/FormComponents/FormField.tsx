@@ -402,6 +402,7 @@ const FormField = ({
 					{dateField.includes(type) && (
 						<DateFormField
 							fieldKey={fieldKey}
+							field={field}
 							value={value}
 							onChange={handleValueChange}
 							error={error}
