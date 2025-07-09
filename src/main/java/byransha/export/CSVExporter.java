@@ -154,7 +154,7 @@ public class CSVExporter {
         }
 
         Class<?> clazz = node.getClass();
-        while (clazz != null && clazz != Object.class) {
+        while (clazz != null && clazz != BNode.class) {
             // Add basic fields
             for (Field field : clazz.getDeclaredFields()) {
                 if (Modifier.isStatic(field.getModifiers())) {
