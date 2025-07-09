@@ -34,6 +34,29 @@ const TextFormField = ({
 		}
 	};
 
+	// Extract min and max values from validations if they exist
+	const inputProps: any = {};
+	
+	if (field.validations) {
+		// For number inputs, apply min and max directly
+		if (field.type === "IntNode" && field.validations.min !== undefined) {
+			inputProps.min = field.validations.min;
+		}
+		if (field.type === "IntNode" && field.validations.max !== undefined) {
+			inputProps.max = field.validations.max;
+		}
+		
+		// For text inputs with size constraints
+		if (field.validations.size) {
+			if (field.validations.size.min !== undefined) {
+				inputProps.minLength = field.validations.size.min;
+			}
+			if (field.validations.size.max !== undefined) {
+				inputProps.maxLength = field.validations.size.max;
+			}
+		}
+	}
+
 	return (
 		<TextField
 			fullWidth
@@ -45,6 +68,7 @@ const TextFormField = ({
 			onChange={(e) => onChange(e.target.value)}
 			error={error}
 			helperText={helperText}
+			inputProps={inputProps}
 			{...rest}
 		/>
 	);

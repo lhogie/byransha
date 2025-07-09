@@ -8,6 +8,7 @@ const DateFormField = ({
 	onChange,
 	error,
 	helperText,
+	field,
 	...rest
 }: {
 	fieldKey: string;
@@ -15,13 +16,29 @@ const DateFormField = ({
 	onChange: (value: any) => void;
 	error: boolean;
 	helperText: string;
+	field?: any;
 }) => {
+	// Extract min and max date values from validations if they exist
+	let minDate = undefined;
+	let maxDate = undefined;
+	
+	if (field?.validations) {
+		if (field.validations.min !== undefined) {
+			minDate = dayjs(field.validations.min);
+		}
+		if (field.validations.max !== undefined) {
+			maxDate = dayjs(field.validations.max);
+		}
+	}
+
 	return (
 		<FormControl fullWidth error={error}>
 			<DatePicker
 				value={value ? dayjs(value) : null}
 				onChange={(newValue) => onChange(newValue)}
 				sx={{ width: "100%" }}
+				minDate={minDate}
+				maxDate={maxDate}
 				{...rest}
 				slotProps={{
 					textField: {
