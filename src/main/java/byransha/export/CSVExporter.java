@@ -154,43 +154,45 @@ public class CSVExporter {
         }
 
         Class<?> clazz = node.getClass();
+        while (clazz != null && clazz != Object.class) {
+            // Add basic fields
+            for (Field field : clazz.getDeclaredFields()) {
+                if (Modifier.isStatic(field.getModifiers())) {
+                    continue;
+                }
 
-        // Add basic fields
-        for (Field field : clazz.getDeclaredFields()) {
-            if (Modifier.isStatic(field.getModifiers())) {
-                continue;
-            }
+                field.setAccessible(true);
 
-            field.setAccessible(true);
+                if (includeFields.test(field)) {
+                    try {
+                        Object value = field.get(node);
+                        String fieldName = prefix + (prefix.isEmpty() ? "" : ".") + field.getName();
 
-            if (includeFields.test(field)) {
-                try {
-                    Object value = field.get(node);
-                    String fieldName = prefix + (prefix.isEmpty() ? "" : ".") + field.getName();
-
-                    switch (value) {
-                        case DropdownNode<?> dropdownNode ->
-                                handleDropDown(dropdownNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                        case DateNode dateNode ->
-                                handleDateNode(dateNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                        case ValuedNode<?> valuedNode ->
-                                fieldsToExport.put(fieldName, valuedNode.get());
-                        case SetNode<?> setNode ->
-                                handleSetNode(setNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                        case ListNode<?> listNode ->
-                                handleListNode(listNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
-                        case BNode bNode when currentDepth < maxDepth -> {
-                            if (includeRecursiveNodes.test(bNode)) {
-                                collectFields(value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth + 1);
+                        switch (value) {
+                            case DropdownNode<?> dropdownNode ->
+                                    handleDropDown(dropdownNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                            case DateNode dateNode ->
+                                    handleDateNode(dateNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                            case ValuedNode<?> valuedNode ->
+                                    fieldsToExport.put(fieldName, valuedNode.get());
+                            case SetNode<?> setNode ->
+                                    handleSetNode(setNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                            case ListNode<?> listNode ->
+                                    handleListNode(listNode, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth);
+                            case BNode bNode when currentDepth < maxDepth -> {
+                                if (includeRecursiveNodes.test(bNode)) {
+                                    collectFields(value, fieldName, fieldsToExport, includeFields, includeRecursiveNodes, maxDepth, currentDepth + 1);
+                                }
                             }
+                            case null, default ->
+                                    fieldsToExport.put(fieldName, value);
                         }
-                        case null, default ->
-                                fieldsToExport.put(fieldName, value);
+                    } catch (IllegalAccessException e) {
+                        // Skip fields that can't be accessed
                     }
-                } catch (IllegalAccessException e) {
-                    // Skip fields that can't be accessed
                 }
             }
+            clazz = clazz.getSuperclass();
         }
     }
 
@@ -262,6 +264,8 @@ public class CSVExporter {
                                      int maxDepth, int currentDepth) {
         if (dropdownNode.get() != null) {
             fieldsToExport.put(fieldName, dropdownNode.get().prettyName());
+        } else {
+            fieldsToExport.put(fieldName, null);
         }
     }
 
@@ -277,6 +281,8 @@ public class CSVExporter {
             DateFormat excelDateFormat = new SimpleDateFormat("dd/MM/yyyy");
             String formattedString = excelDateFormat.format(parsedDate);
             fieldsToExport.put(fieldName, formattedString);
+        } else {
+            fieldsToExport.put(fieldName, null);
         }
     }
 
