@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
@@ -45,6 +44,7 @@ public abstract class BNode {
 	private final int id;
 	public ColorNode color;
 	public Boolean deleted = false;
+	public Cluster assignedCluster;
 
 	
 	protected BNode(BBGraph g) {
@@ -67,8 +67,8 @@ public abstract class BNode {
 	public static <N extends BNode> N create(BBGraph g, Class<N> nodeClass) {
 		try {
 			N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
-			newNode.init();
-			g.accept(newNode); // add the new node to the graph
+			if(!nodeClass.getSimpleName().equals("Cluster")) newNode.init();
+			g.accept(newNode);
 			return newNode;
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to add node of class: " + nodeClass.getName(), e);
@@ -76,6 +76,26 @@ public abstract class BNode {
 	}
 
 	protected void init() {
+		this.createOrAssignCluster();
+	}
+
+	public void createOrAssignCluster(){
+		graph.findAll(Cluster.class, n -> {
+			if(n.getTypeOfCluster() != null && n.getTypeOfCluster().equals(this.getClass().getSimpleName())) {
+				n.add(this);
+				assignedCluster = n;
+				System.out.println(n.size());
+				return true;
+			}
+			return false;
+		});
+		if(assignedCluster == null) {
+			var newCluster = BNode.create(graph, Cluster.class);
+			newCluster.setTypeOfCluster(this.getClass().getSimpleName());
+			newCluster.add(this);
+			assignedCluster = newCluster;
+			if(this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
+		}
 	}
 
 	public void setColor(String newColor){
@@ -466,8 +486,25 @@ public abstract class BNode {
 			setVertexProperties(currentVertex, n, "pink");
 			currentVertex.size = 20;
 
+			if(n.getClass().getSimpleName().equals("BBGraph")){
+				graph.findAll(Cluster.class, c -> {
+					var clusterVertex = g.ensureHasVertex(c);
+					setVertexProperties(clusterVertex, c, "green");
+					var arc = g.newArc(currentVertex, clusterVertex);
+					arc.style = "dashed";
+					arc.label = "cluster";
+					return true;
+				});
+			}
+
 			n.forEachOut((role, outNode) -> {
-				if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
+				if(outNode.canSee(user) && n instanceof Cluster){
+					var outVertex = g.ensureHasVertex(outNode);
+					setVertexProperties(outVertex, outNode, "blue");
+					var arc = g.newArc(currentVertex, outVertex);
+					arc.label = role;
+					arc.color = "red";
+				} else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
 					var outVertex = g.ensureHasVertex(outNode);
 					setVertexProperties(outVertex, outNode, "blue");
 					var arc = g.newArc(currentVertex, outVertex);
@@ -477,7 +514,13 @@ public abstract class BNode {
 			});
 
 			n.forEachIn((role, inNode) -> {
-				if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
+				if(inNode.canSee(user) && n instanceof Cluster){
+					var inVertex = g.ensureHasVertex(inNode);
+					setVertexProperties(inVertex, inNode, "pink");
+					var arc = g.newArc(inVertex, currentVertex);
+					arc.style = "dotted";
+					arc.label = role;
+				} else if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
 					var inVertex = g.ensureHasVertex(inNode);
 					setVertexProperties(inVertex, inNode, "pink");
 					var arc = g.newArc(inVertex, currentVertex);

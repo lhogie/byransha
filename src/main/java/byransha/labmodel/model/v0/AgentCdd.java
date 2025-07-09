@@ -49,6 +49,7 @@ public class AgentCdd extends Agent {
         devenir = BNode.create(g, StringNode.class);
         dateDArrivee = BNode.create(g, DateNode.class);
         dateDeDepart = BNode.create(g, DateNode.class);
+        this.setColor("#fcba03");
     }
 
     public AgentCdd(BBGraph g, int id) {

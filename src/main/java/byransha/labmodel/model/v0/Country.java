@@ -53,7 +53,7 @@ public class Country extends BusinessNode {
         codeNode = BNode.create(g, StringNode.class);
 		name = BNode.create(g, StringNode.class);
 		flag = BNode.create(g, ImageNode.class);
-		this.setColor("#fc0307"); // light gray
+		this.setColor("#fc0307");
 	}
 
 	public void setFlagCode(String code) throws IOException {
