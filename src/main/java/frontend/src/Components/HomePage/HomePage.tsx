@@ -550,10 +550,10 @@ const HomePage = () => {
 									if (e.defaultPrevented) return;
 									if (view.name.endsWith("class_attribute_field")) {
 										jumpToId.mutate({
-											node: view.result?.dialect.split("@")[1],
+											node: data?.data?.node_id,
 										});
 										navigate(
-											`/add-node/form/${view.result?.dialect.split("@")[1]}`,
+											`/add-node/form/${data?.data?.node_id}`,
 										);
 									} else
 										navigate(

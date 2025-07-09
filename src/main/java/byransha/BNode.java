@@ -539,7 +539,7 @@ public abstract class BNode {
 			} else {
 				vertex.color = node.color.getAsString();
 			}
-			vertex.prettyName = node.prettyName();
+			vertex.label = node.prettyName();
 			vertex.whatIsThis = node.whatIsThis();
 			vertex.className = node.getClass().getName();
 		}
