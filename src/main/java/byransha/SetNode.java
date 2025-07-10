@@ -43,29 +43,17 @@ public class SetNode<N extends BNode> extends PersistingNode {
 
     public void add(N n) {
         if (l.add(n) && n != null && graph != null) {
-            			String role = "set_member_" + n.id() + "_to_" + this.id();
-            
-
             invalidateOutsCache();
         }
         this.save(f -> {});
     }
 
     public void removeAll() {
-		if (graph != null) {
-			int i = 0;
-			for (N n : l) {
-				if (n != null) {
-				} else {
-					i++;
-				}
-			}
-		}
-		l.clear();
+        l.clear();
 
-		invalidateOutsCache();
-		this.save(f -> {});
-	}
+        invalidateOutsCache();
+        this.save(f -> {});
+    }
 
     public int size() {
         return l.size();
@@ -81,27 +69,17 @@ public class SetNode<N extends BNode> extends PersistingNode {
 
     private ListSettings getListSettings() {
         for (InLink inLink : ins()) {
-            for (var c : Clazz.bfs(inLink.source().getClass())) {
-                for (Field field : c.getDeclaredFields()) {
-                    if (field.getType().isAssignableFrom(SetNode.class)) {
-                        ListSettings annotation = field.getAnnotation(
-                            ListSettings.class
-                        );
-                        if (annotation != null) {
-                            System.out.println("Annotation found" + annotation);
-                            return annotation;
-                        }
+            for (Field field : inLink.source().getClass().getDeclaredFields()) {
+                if (field.getType().isAssignableFrom(SetNode.class)) {
+                    ListSettings annotation = field.getAnnotation(
+                        ListSettings.class
+                    );
+                    if (annotation != null) {
+                        return annotation;
                     }
                 }
             }
         }
-
-        System.out.println(
-            "Could not find annotation for SetNode in:" +
-            ins() +
-            " count : " +
-            ins().size()
-        );
 
         return new ListSettings() {
             @Override
@@ -132,7 +110,7 @@ public class SetNode<N extends BNode> extends PersistingNode {
                 }
                 i++;
             }
-            
+
             invalidateOutsCache();
         }
         this.save(f -> {});

@@ -10,12 +10,11 @@ import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.sun.net.httpserver.HttpsExchange;
-import toools.text.TextUtilities;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import toools.text.TextUtilities;
 
 public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
@@ -33,14 +32,23 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
     }
 
     @Override
-    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
+    public EndpointJsonResponse exec(
+        ObjectNode in,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode currentNode
+    ) throws Throwable {
         var a = new ArrayNode(null);
         String query;
         HashMap<String, String> options = new HashMap<>();
         if (currentNode instanceof SearchForm && in.isEmpty()) {
             currentNode.forEachOut((name, outNode) -> {
-                if(outNode instanceof RadioNode<?> rn ) {
-                    if(rn.getSelectedOption() != null) options.put(name, rn.getSelectedOption().toString());
+                if (outNode instanceof RadioNode<?> rn) {
+                    if (rn.getSelectedOption() != null) options.put(
+                        name,
+                        rn.getSelectedOption().toString()
+                    );
                 } else if (outNode instanceof ValuedNode vn) {
                     options.put(name, vn.getAsString());
                 }
@@ -48,34 +56,51 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             query = options.get("searchTerm");
             options.remove("searchTerm");
 
-            System.out.println(options);
             ((SearchForm) currentNode).results.removeAll();
-        }
-        else query = requireParm(in, "query").asText();  in.remove("query");
+        } else query = requireParm(in, "query").asText();
+        in.remove("query");
         if (query == null || query.isEmpty()) {
-            return ErrorResponse.badRequest("Query parameter is missing or empty.");
+            return ErrorResponse.badRequest(
+                "Query parameter is missing or empty."
+            );
         }
 
         var nodes = graph.findAll(BusinessNode.class, node -> {
-            boolean baseCondition = !node.deleted
-                    && !node.getClass().getSimpleName().equals("SearchForm")
-                    &&  node.prettyName().toLowerCase().contains(query.toLowerCase());
+            boolean baseCondition =
+                !node.deleted &&
+                !node.getClass().getSimpleName().equals("SearchForm") &&
+                node.prettyName().toLowerCase().contains(query.toLowerCase());
 
-            if(!options.isEmpty() && baseCondition){
-                if(!(options.get("searchClass").equals("null") || options.get("searchClass").equals("") || options.get("searchClass") == null)
-                        && !node.getClass().getSimpleName().toLowerCase().contains(options.get("searchClass").toLowerCase())) return false;
+            if (!options.isEmpty() && baseCondition) {
+                if (
+                    !(options.get("searchClass").equals("null") ||
+                        options.get("searchClass").equals("") ||
+                        options.get("searchClass") == null) &&
+                    !node
+                        .getClass()
+                        .getSimpleName()
+                        .toLowerCase()
+                        .contains(options.get("searchClass").toLowerCase())
+                ) return false;
             }
 
             return baseCondition;
         });
-        nodes.sort(Comparator.comparingInt(node -> {
-            String name = node.prettyName();
-            if (name == null) return Integer.MAX_VALUE;
-            return TextUtilities.computeLevenshteinDistance(name.toLowerCase(), query);
-        }));
+        nodes.sort(
+            Comparator.comparingInt(node -> {
+                String name = node.prettyName();
+                if (name == null) return Integer.MAX_VALUE;
+                return TextUtilities.computeLevenshteinDistance(
+                    name.toLowerCase(),
+                    query
+                );
+            })
+        );
 
         nodes.forEach(node -> {
-            if(currentNode instanceof SearchForm) ((SearchForm) currentNode).results.add(node);
+            if (
+                currentNode instanceof SearchForm
+            ) ((SearchForm) currentNode).results.add(node);
             addNodeInfo(a, node);
         });
 
@@ -92,11 +117,13 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         node.forEachOut((name, outNode) -> {
             if (outNode instanceof ImageNode imageNode) {
                 nodeInfo.set("img", new TextNode(imageNode.getAsString()));
-                nodeInfo.set("imgMimeType", new TextNode(imageNode.getMimeType()));
+                nodeInfo.set(
+                    "imgMimeType",
+                    new TextNode(imageNode.getMimeType())
+                );
             }
         });
 
         a.add(nodeInfo);
     }
-
 }
