@@ -1,10 +1,10 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { Decoder } from 'cbor-x/decode';
+import { Decoder } from "cbor-x/decode";
 import axios from "axios";
 
 const decoder = new Decoder({
-	mapsAsObjects: true
-})
+	mapsAsObjects: true,
+});
 
 // Custom hook to fetch API data with TanStack Query
 export const useApiData = (
@@ -43,16 +43,17 @@ export const useApiData = (
 		initialData: undefined,
 		queryKey: ["apiData", endpoints, params], // Unique key for caching
 		queryFn: () =>
-			axios.get(url, {
-				withCredentials: true,
-				headers: {
-					Accept: "application/cbor",
-				},
-				responseType: "arraybuffer",
-			})
+			axios
+				.get(url, {
+					withCredentials: true,
+					headers: {
+						Accept: "application/cbor",
+					},
+					responseType: "arraybuffer",
+				})
 				.then((res) => ({
 					...res,
-					data: decoder.decode(new Uint8Array(res.data))
+					data: decoder.decode(new Uint8Array(res.data)),
 				})),
 		retry: 2,
 		staleTime: 60000,
@@ -63,22 +64,19 @@ export const useApiData = (
 export const useApiMutation = (endpoints: string, options: any = {}) => {
 	return useMutation<any, any, any, any>({
 		mutationFn: (data: any) => {
-			return axios.post(
-				`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`,
-				data,
-				{
+			return axios
+				.post(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`, data, {
 					withCredentials: true,
 					headers: {
 						Accept: "application/cbor",
 					},
 					responseType: "arraybuffer",
-				},
-			)
+				})
 				.then((res) => {
-					return ({
+					return {
 						...res,
-						data: decoder.decode(new Uint8Array(res.data))
-					})
+						data: decoder.decode(new Uint8Array(res.data)),
+					};
 				});
 		},
 		...options,

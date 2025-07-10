@@ -36,7 +36,7 @@ const TextFormField = ({
 
 	// Extract min and max values from validations if they exist
 	const inputProps: any = {};
-	
+
 	if (field.validations) {
 		// For number inputs, apply min and max directly
 		if (field.type === "IntNode" && field.validations.min !== undefined) {
@@ -45,7 +45,7 @@ const TextFormField = ({
 		if (field.type === "IntNode" && field.validations.max !== undefined) {
 			inputProps.max = field.validations.max;
 		}
-		
+
 		// For text inputs with size constraints
 		if (field.validations.size) {
 			if (field.validations.size.min !== undefined) {

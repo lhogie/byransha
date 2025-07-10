@@ -1,7 +1,7 @@
 const CustomCodeBlock = ({
-							 code,
-							 language,
-						 }: {
+	code,
+	language,
+}: {
 	code: string;
 	language: string;
 }) => {

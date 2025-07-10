@@ -210,5 +210,5 @@ export const typeComponent = [
 	...dateField,
 	...dropdownField,
 	...radioField,
-	...colorField
+	...colorField,
 ];

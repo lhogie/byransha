@@ -1,6 +1,6 @@
 import type React from "react";
-import Sketch from '@uiw/react-color-sketch';
-import {Typography} from "@mui/material";
+import Sketch from "@uiw/react-color-sketch";
+import { Typography } from "@mui/material";
 
 export type ColorPickerFieldProps = {
 	value: any;

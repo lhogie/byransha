@@ -19,9 +19,9 @@ const DateFormField = ({
 	field?: any;
 }) => {
 	// Extract min and max date values from validations if they exist
-	let minDate = undefined;
-	let maxDate = undefined;
-	
+	let minDate;
+	let maxDate;
+
 	if (field?.validations) {
 		if (field.validations.min !== undefined) {
 			minDate = dayjs(field.validations.min);

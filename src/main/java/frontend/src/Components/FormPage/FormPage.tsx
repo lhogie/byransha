@@ -113,9 +113,11 @@ const FormPage = () => {
 						variant="contained"
 						color="primary"
 						sx={{}}
-						onClick={() => searchNodeMutation.mutate({
-							node_id: rootId
-						})}
+						onClick={() =>
+							searchNodeMutation.mutate({
+								node_id: rootId,
+							})
+						}
 					>
 						Rechercher
 					</Button>

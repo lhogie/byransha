@@ -125,10 +125,7 @@ const ViewCard = memo(
 								<View
 									viewId={view.name.replaceAll(" ", "_")}
 									sx={{
-										bgcolor:
-											view.type === "technical"
-												? "#fff9c4"
-												: "#ffffff",
+										bgcolor: view.type === "technical" ? "#fff9c4" : "#ffffff",
 										width: "100%",
 									}}
 								/>
@@ -143,7 +140,9 @@ const ViewCard = memo(
 
 const HomePage = () => {
 	const navigate = useNavigate();
-	const { data, isLoading } = useApiData("endpoints?only_applicable&type=byransha.web.View");
+	const { data, isLoading } = useApiData(
+		"endpoints?only_applicable&type=byransha.web.View",
+	);
 	useTitle("Home");
 
 	const [views, setViews] = useState<any[]>([]);
@@ -177,7 +176,7 @@ const HomePage = () => {
 	React.useEffect(() => {
 		if (data?.data?.results?.[0]?.result?.data) {
 			const filteredViews = showTechnicalViews
-				?data?.data?.results?.[0]?.result?.data
+				? data?.data?.results?.[0]?.result?.data
 				: data?.data?.results?.[0]?.result?.data.filter(
 						(view: any) => view.type !== "technical",
 					);
@@ -271,9 +270,7 @@ const HomePage = () => {
 
 			localStorage.setItem("selectedViewsSaved", JSON.stringify(newSelected));
 
-			const technicalViews = views.filter(
-				(view) => view.type === "technical",
-			);
+			const technicalViews = views.filter((view) => view.type === "technical");
 			const openTechnicalViews = technicalViews.filter((view) =>
 				newSelected.includes(view.name),
 			);
@@ -391,20 +388,13 @@ const HomePage = () => {
 										justifyContent: "space-between",
 										paddingRight: 1,
 										fontSize: "14px",
-										color:
-											view.type === "technical"
-												? "#283593"
-												: "#424242",
+										color: view.type === "technical" ? "#283593" : "#424242",
 										backgroundColor:
-											view.type === "technical"
-												? "#fff9c4"
-												: "transparent",
+											view.type === "technical" ? "#fff9c4" : "transparent",
 										borderRadius: "8px",
 										"&:hover": {
 											backgroundColor:
-												view.type === "technical"
-													? "#fff8b0"
-													: "#e8eaf6",
+												view.type === "technical" ? "#fff8b0" : "#e8eaf6",
 										},
 									}}
 								>
@@ -552,13 +542,9 @@ const HomePage = () => {
 										jumpToId.mutate({
 											node: data?.data?.node_id,
 										});
-										navigate(
-											`/add-node/form/${data?.data?.node_id}`,
-										);
+										navigate(`/add-node/form/${data?.data?.node_id}`);
 									} else
-										navigate(
-											`/information/${view.name.replaceAll(" ", "_")}`,
-										);
+										navigate(`/information/${view.name.replaceAll(" ", "_")}`);
 								}}
 								handleViewToggle={handleViewToggle}
 							/>

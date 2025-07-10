@@ -30,7 +30,9 @@ const MainLayout = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 	const [menuAnchor, setMenuAnchor] = useState<PopoverProps["anchorEl"]>(null);
-	const { data, isLoading, error } = useApiData("endpoints?only_applicable&type=byransha.web.View");
+	const { data, isLoading, error } = useApiData(
+		"endpoints?only_applicable&type=byransha.web.View",
+	);
 	const { data: historyData, isLoading: isHistoryLoading } =
 		useApiData("user_history");
 	const queryClient = useQueryClient();
