@@ -134,7 +134,12 @@ public class ChoiceNode<N extends BNode> extends PersistingNode {
 
     @Override
     public void forEachOut(BiConsumer<String, BNode> consumer) {
-        consumer.accept("Options", new ListNode<>(graph, options));
-        consumer.accept("Selected", new ListNode<>(graph, selected));
+        ListNode<N> optionsList = new ListNode<>(graph);
+        options.forEach(optionsList::add);
+        consumer.accept("Options", optionsList);
+
+        ListNode<N> selectedList = new ListNode<>(graph);
+        selected.forEach(selectedList::add);
+        consumer.accept("Selected", selectedList);
     }
 }

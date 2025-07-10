@@ -40,7 +40,6 @@ import byransha.annotations.Size;
 
 public abstract class BNode {
 	public String comment;
-	private List<InLink> ins;
 	public final BBGraph graph;
 	private final int id;
 	public ColorNode color;
@@ -123,22 +122,8 @@ public abstract class BNode {
         }
     }
 
-	/**
-	 * Gets the incoming references to this node.
-	 * Uses the cached version if available, otherwise gets it from the graph's inverse index.
-	 */
 	public List<InLink> ins() {
-		if (ins == null) {
-			ins = graph.findRefsTO(this);
-		}
-		return new ArrayList<>(ins);
-	}
-	
-	/**
-	 * Invalidates the incoming references cache, forcing a rebuild on next access
-	 */
-	protected void invalidateInsCache() {
-		ins = null;
+		return graph.findRefsTO(this);
 	}
 
 	private static final ConcurrentMap<Class<?>, List<Field>> outNodeFieldsCache = new ConcurrentHashMap<>();
@@ -357,11 +342,7 @@ public abstract class BNode {
 						
 						if (graph != null) {
 							if (oldValue != null) {
-								graph.removeIncomingReference(oldValue, name, this);
-							}
-							
-							if (targetNode != null) {
-								graph.addIncomingReference(targetNode, name, this);
+								
 							}
 						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {

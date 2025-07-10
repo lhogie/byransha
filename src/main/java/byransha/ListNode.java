@@ -19,6 +19,7 @@ import byransha.web.View;
 import byransha.web.WebServer;
 
 import byransha.annotations.ListSettings;
+import toools.reflect.Clazz;
 
 import java.lang.reflect.Field;
 
@@ -70,8 +71,8 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	public void add(N n) {
 		l.add(n);
 		if (n != null && graph != null) {
-			String role = (l.size() - 1) + ". " + n.prettyName();
-			graph.addIncomingReference(n, role, this);
+			String role = "list_member_" + n.id() + "_to_" + this.id();
+			
 
 			invalidateOutsCache();
 		}
@@ -81,8 +82,8 @@ public class ListNode<N extends BNode> extends PersistingNode {
 	public void remove(N p) {
 		int index = l.indexOf(p);
 		if (index != -1 && p != null && graph != null) {
-			String role = index + ". " + p.prettyName();
-			graph.removeIncomingReference(p, role, this);
+			String role = "list_member_" + p.id() + "_to_" + this.id();
+			
 
 			invalidateOutsCache();
 		}
@@ -92,12 +93,8 @@ public class ListNode<N extends BNode> extends PersistingNode {
 
 	public void removeAll(){
 		if (graph != null) {
-			int i = 0;
 			for (N n : l) {
 				if (n != null) {
-					graph.removeIncomingReference(n, i++ + ". " + n.prettyName(), this);
-				} else {
-					i++;
 				}
 			}
 
@@ -125,12 +122,14 @@ public class ListNode<N extends BNode> extends PersistingNode {
 		}
 		
 		for (InLink inLink : ins()) {
-			for (Field field : inLink.source().getClass().getDeclaredFields()) {
-				if (field.getType().isAssignableFrom(ListNode.class)) {
-					ListSettings annotation = field.getAnnotation(ListSettings.class);
-					if (annotation != null) {
-						listSettingsCache.put(id(), annotation);
-						return annotation;
+			for (var c : Clazz.bfs(inLink.source().getClass())) {
+				for (Field field : c.getDeclaredFields()) {
+					if (field.getType().isAssignableFrom(ListNode.class)) {
+						ListSettings annotation = field.getAnnotation(ListSettings.class);
+						if (annotation != null) {
+							listSettingsCache.put(id(), annotation);
+							return annotation;
+						}
 					}
 				}
 			}
