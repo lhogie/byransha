@@ -16,6 +16,7 @@
 		"@rsbuild/plugin-babel": "1.0.5",
 		"@tanstack/react-query": "5.81.5",
 		"@tanstack/react-query-devtools": "5.81.5",
+		"@tanstack/react-virtual": "^3.13.12",
 		"@toolpad/core": "0.16.0",
 		"@types/file-saver": "2.0.7",
 		"@uiw/react-color-sketch": "2.6.0",

@@ -16,6 +16,7 @@
         "@rsbuild/plugin-babel": "1.0.5",
         "@tanstack/react-query": "5.81.5",
         "@tanstack/react-query-devtools": "5.81.5",
+        "@tanstack/react-virtual": "^3.13.12",
         "@toolpad/core": "0.16.0",
         "@types/file-saver": "2.0.7",
         "@uiw/react-color-sketch": "2.6.0",
@@ -807,6 +808,10 @@
     "@tanstack/react-query": ["@tanstack/react-query@5.81.5", "", { "dependencies": { "@tanstack/query-core": "5.81.5" }, "peerDependencies": { "react": "^18 || ^19" } }, "sha512-lOf2KqRRiYWpQT86eeeftAGnjuTR35myTP8MXyvHa81VlomoAWNEd8x5vkcAfQefu0qtYCvyqLropFZqgI2EQw=="],
 
     "@tanstack/react-query-devtools": ["@tanstack/react-query-devtools@5.81.5", "", { "dependencies": { "@tanstack/query-devtools": "5.81.2" }, "peerDependencies": { "@tanstack/react-query": "^5.81.5", "react": "^18 || ^19" } }, "sha512-lCGMu4RX0uGnlrlLeSckBfnW/UV+KMlTBVqa97cwK7Z2ED5JKnZRSjNXwoma6sQBTJrcULvzgx2K6jEPvNUpDw=="],
+
+    "@tanstack/react-virtual": ["@tanstack/react-virtual@3.13.12", "", { "dependencies": { "@tanstack/virtual-core": "3.13.12" }, "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-Gd13QdxPSukP8ZrkbgS2RwoZseTTbQPLnQEn7HY/rqtM+8Zt95f7xKC7N0EsKs7aoz0WzZ+fditZux+F8EzYxA=="],
+
+    "@tanstack/virtual-core": ["@tanstack/virtual-core@3.13.12", "", {}, "sha512-1YBOJfRHV4sXUmWsFSf5rQor4Ss82G8dQWLRbnk3GA4jeP8hQt1hxXh0tmflpC0dz3VgEv/1+qwPyLeWkQuPFA=="],
 
     "@toolpad/core": ["@toolpad/core@0.16.0", "", { "dependencies": { "@babel/runtime": "^7.27.6", "@mui/utils": "^7.1.1", "@mui/x-data-grid": "^8.5.0", "@mui/x-date-pickers": "^8.5.0", "@toolpad/utils": "0.16.0", "client-only": "^0.0.1", "dayjs": "1.11.13", "invariant": "2.2.4", "path-to-regexp": "6.3.0", "prop-types": "15.8.1" }, "peerDependencies": { "@emotion/cache": "^11", "@emotion/react": "^11", "@mui/icons-material": "^7.0.0-beta || ^7.0.0", "@mui/material": "^7.0.0-beta || ^7.0.0", "@tanstack/react-router": "^1", "next": "^14 || ^15", "react": "^18 || ^19", "react-dom": "^18 || ^19", "react-router": "^7" }, "optionalPeers": ["@tanstack/react-router", "next", "react-router"] }, "sha512-/Iiyubp1u8L4DZqIgP1N0mhOxXpk9+I05xg+Hbk7VYUVEMlVmF+x7+FzPxocOWrvgAdeNZfyCZhY9u99SEQbtQ=="],
 
