@@ -708,14 +708,23 @@ public class WebServer extends BNode {
                 }
 
                 if (!inputJson.isEmpty()) {
+                    String endpointNames = resolvedEndpoints
+                        .stream()
+                        .map(endpoint -> endpoint.name())
+                        .collect(java.util.stream.Collectors.joining(", "));
+
                     System.err.println(
-                        "Warning: Parameters unused after processing all endpoints: " +
+                        "Warning: Parameters unused after processing all endpoints [" +
+                        endpointNames +
+                        "]: " +
                         inputJson.toPrettyString()
                     );
                     response.set(
                         "unused_parameters_warning",
                         new TextNode(
-                            "Some request parameters were not used by any executed endpoint: " +
+                            "Some request parameters were not used by any executed endpoint [" +
+                            endpointNames +
+                            "]: " +
                             inputJson.toPrettyString()
                         )
                     );
