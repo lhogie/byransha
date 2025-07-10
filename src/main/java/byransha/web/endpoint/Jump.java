@@ -37,6 +37,7 @@ public class Jump extends NodeEndpoint<BNode> {
 		if (nodeInfoEndpoint == null) {
 			return ErrorResponse.serverError("NodeInfo endpoint not found in the graph.");
 		}
+		in.removeAll();
 
 		return nodeInfoEndpoint.exec(in, user, webServer, exchange, node);
 	}

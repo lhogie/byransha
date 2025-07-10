@@ -122,6 +122,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                             }
                         }
                     } catch (Exception e) {
+                        in.removeAll();
                         e.printStackTrace();
                     }
                 }
@@ -133,6 +134,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                                         .map(option -> option == null ? NullNode.getInstance() : new TextNode(option.toString()))
                                         .collect(Collectors.toList())));
                     } catch (Exception e) {
+                        in.removeAll();
                         e.printStackTrace();
                     }
                 }
@@ -167,9 +169,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 a.add(b);
             }
         });
-
         currentNodeInformation.set("attributes", a);
-
+        in.removeAll();
         return new EndpointJsonResponse(currentNodeInformation, node.prettyName()+'@'+node.id());
     }
 

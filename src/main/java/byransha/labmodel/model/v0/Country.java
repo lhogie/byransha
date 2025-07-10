@@ -76,12 +76,7 @@ public class Country extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		if(name.get() == null || name.get().isEmpty() ||codeNode.get() == null || codeNode.get().isEmpty()) {
-
-				System.err.println("Country with no name and code: " + this);
-				return "Country(unknown)";
-
-		}
+		if(name.get() == null || name.get().isEmpty() ||codeNode.get() == null || codeNode.get().isEmpty()) return "Country(unknown)";
 		return name.get() + "(" + codeNode.get().toUpperCase() + ")";
 	}
 }

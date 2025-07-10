@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import byransha.web.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,12 +25,7 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
-import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
-import byransha.web.EndpointResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.View;
-import byransha.web.WebServer;
 import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
@@ -93,6 +90,7 @@ public abstract class BNode {
 			newCluster.add(this);
 			newCluster.add(graph);
 			if(this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
+			else if(this instanceof Endpoint) newCluster.setColor("#00fff5");
 		}
 	}
 
@@ -465,6 +463,8 @@ public abstract class BNode {
 			var currentVertex = g.ensureHasVertex(n);
 			setVertexProperties(currentVertex, n, "pink");
 			currentVertex.size = 20;
+			var limit = 100;
+			AtomicInteger currentNumberNodes = new AtomicInteger(0);
 
 			if(n.getClass().getSimpleName().equals("BBGraph")){
 				graph.findAll(Cluster.class, c -> {
@@ -477,19 +477,24 @@ public abstract class BNode {
 				});
 			} else{
 				n.forEachOut((role, outNode) -> {
-					if(outNode.canSee(user) && n instanceof Cluster){
-						var outVertex = g.ensureHasVertex(outNode);
-						setVertexProperties(outVertex, outNode, "blue");
-						var arc = g.newArc(currentVertex, outVertex);
-						arc.label = role;
-						arc.color = "red";
-					} else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
-						var outVertex = g.ensureHasVertex(outNode);
-						setVertexProperties(outVertex, outNode, "blue");
-						var arc = g.newArc(currentVertex, outVertex);
-						arc.label = role;
-						arc.color = "red";
+					if(currentNumberNodes.get() <= limit){
+						if(outNode.canSee(user) && n instanceof Cluster){
+							var outVertex = g.ensureHasVertex(outNode);
+							setVertexProperties(outVertex, outNode, "blue");
+							var arc = g.newArc(currentVertex, outVertex);
+							arc.label = role;
+							arc.color = "red";
+							currentNumberNodes.getAndIncrement();
+						} else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
+							var outVertex = g.ensureHasVertex(outNode);
+							setVertexProperties(outVertex, outNode, "blue");
+							var arc = g.newArc(currentVertex, outVertex);
+							arc.label = role;
+							arc.color = "red";
+							currentNumberNodes.getAndIncrement();
+						}
 					}
+
 				});
 
 				n.forEachIn((role, inNode) -> {

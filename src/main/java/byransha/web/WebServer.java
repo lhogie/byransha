@@ -267,7 +267,6 @@ public class WebServer extends BNode {
         n.setSessionStore(sessionStore);
         var l = BNode.create(g, Logout.class);
         l.setSessionStore(sessionStore);
-        BNode.create(g, Nodes.class);
         BNode.create(g, EndpointCallDistributionView.class);
         BNode.create(g, Info.class);
         BNode.create(g, Logs.class);
