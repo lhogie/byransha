@@ -35,6 +35,14 @@ export const BNodeNavigatorDisplay = ({
     })),
   ];
 
+  const parentRef = useRef<HTMLDivElement>(null);
+  const rowVirtualizer = useVirtualizer({
+    count: allNodes.length,
+    estimateSize: () => 56,
+    getScrollElement: () => parentRef.current,
+    overscan: 10,
+  });
+
   if (allNodes.length <= 50) {
     return (
       <Box sx={{ p: 1 }}>
@@ -77,14 +85,6 @@ export const BNodeNavigatorDisplay = ({
       </Box>
     );
   }
-
-  const parentRef = useRef<HTMLDivElement>(null);
-  const rowVirtualizer = useVirtualizer({
-    count: allNodes.length,
-    estimateSize: () => 56,
-    getScrollElement: () => parentRef.current,
-    overscan: 10,
-  });
 
   return (
     <Box
