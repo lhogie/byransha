@@ -463,7 +463,7 @@ public abstract class BNode {
 			var currentVertex = g.ensureHasVertex(n);
 			setVertexProperties(currentVertex, n, "pink");
 			currentVertex.size = 20;
-			var limit = 100;
+			var limit = 99;
 			AtomicInteger currentNumberNodes = new AtomicInteger(0);
 
 			if(n.getClass().getSimpleName().equals("BBGraph")){
@@ -477,7 +477,7 @@ public abstract class BNode {
 				});
 			} else{
 				n.forEachOut((role, outNode) -> {
-					if(currentNumberNodes.get() <= limit){
+					if(currentNumberNodes.get() <= limit || outNode.getClass().getSimpleName().equals("BBGraph")) {
 						if(outNode.canSee(user) && n instanceof Cluster){
 							var outVertex = g.ensureHasVertex(outNode);
 							setVertexProperties(outVertex, outNode, "blue");
