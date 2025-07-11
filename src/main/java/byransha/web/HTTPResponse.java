@@ -79,10 +79,7 @@ class HTTPResponse {
                 e.getResponseHeaders().add("X-XSS-Protection", "1; mode=block");
                 e
                     .getResponseHeaders()
-                    .add(
-                        "Referrer-Policy",
-                        "strict-origin-when-cross-origin"
-                    );
+                    .add("Referrer-Policy", "strict-origin-when-cross-origin");
                 e
                     .getResponseHeaders()
                     .add(
@@ -117,11 +114,11 @@ class HTTPResponse {
                         .set("Cache-Control", "public, max-age=86400");
 
                     String eTag =
-                        """ +
+                        "\"" +
                         Integer.toHexString(
                             java.util.Arrays.hashCode(responseData)
                         ) +
-                        """;
+                        "\"";
                     e.getResponseHeaders().set("ETag", eTag);
 
                     String ifNoneMatch = e
@@ -167,12 +164,12 @@ class HTTPResponse {
                 if (useGzip) {
                     e.getResponseHeaders().set("Content-Encoding", "gzip");
                     e.getResponseHeaders().add("Vary", "Accept-Encoding");
-                    e.sendResponseHeaders(code, 0);
+                    e.sendResponseHeaders(code, 0); // Use chunked encoding
                     try (
                         GZIPOutputStream gzipStream = new GZIPOutputStream(
                             output,
                             8192
-                        )
+                        );
                     ) {
                         gzipStream.write(responseData);
                     }
