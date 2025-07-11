@@ -49,16 +49,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
         r.set("to_string", new TextNode(node.toString()));
         r.set("can read", new TextNode("" + node.canSee(user)));
         r.set("can write", new TextNode("" + node.canSee(user)));
-
-        var outs = new ArrayNode(null);
-        node.forEachOut((name, outNode) -> {
-            if (outNode.canSee(user)) {
-                var out = new ObjectNode(null);
-                out.set(name, new TextNode("" + outNode.id()));
-                outs.add(out);
-            }
-        });
-        r.set("out", new IntNode(outs.size()));
+        r.set("out", new IntNode(node.outDegree()));
         r.set("in", new IntNode(ins().size()));
 
         var availableEndpoints = new ArrayNode(null);
