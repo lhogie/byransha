@@ -21,7 +21,6 @@ import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
-    // Cache for field metadata to avoid repeated reflection
     private static final ConcurrentMap<
         String,
         FieldMetadata
@@ -63,7 +62,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 ? field.getAnnotation(Pattern.class).regex()
                 : null;
 
-            // Cache generic type info
             var genericFieldType = field.getGenericType();
             if (
                 genericFieldType instanceof ParameterizedType parameterizedType
@@ -96,9 +94,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 Field field = current.getDeclaredField(name);
                 field.setAccessible(true);
                 return field;
-            } catch (NoSuchFieldException e) {
-                // Not in current class, try superclass
-            }
+            } catch (NoSuchFieldException e) {}
             current = current.getSuperclass();
         }
         return null;
@@ -120,7 +116,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         HttpsExchange exchange,
         BNode node
     ) throws Throwable {
-        // Performance optimization: add pagination and limits
         int offset = in.has("offset") ? in.get("offset").asInt() : 0;
         int limit = in.has("limit") ? in.get("limit").asInt() : 100;
         boolean skipValidation =
@@ -129,11 +124,9 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         var a = new ArrayNode(null);
         var currentNodeInformation = new ObjectNode(null);
 
-        // Build current node info (optimized)
         var currentNodeInfo = buildCurrentNodeInfo(node);
         currentNodeInformation.set("currentNode", currentNodeInfo);
 
-        // Performance optimization: bulk process attributes
         var processedAttributes = processNodeAttributes(
             node,
             offset,
@@ -208,14 +201,14 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         var processed = new java.util.concurrent.atomic.AtomicInteger(0);
 
         node.forEachOut((name, out) -> {
-            if (out.deleted) return; // Skip deleted nodes early
+            if (out.deleted) return;
 
             if (processed.get() < offset) {
                 processed.incrementAndGet();
                 return;
             }
 
-            if (count.get() >= limit) return; // Stop processing after limit
+            if (count.get() >= limit) return;
 
             var attributeNode = buildAttributeNode(
                 node,
@@ -244,30 +237,24 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         b.set("name", new TextNode(name));
         b.set("type", new TextNode(out.getClass().getSimpleName()));
 
-        // Add business node info
         if (out instanceof BusinessNode bn) {
             b.set("isValid", BooleanNode.valueOf(bn.isValid()));
         }
 
-        // Add valued node info
         if (out instanceof ValuedNode<?> vn) {
             addValuedNodeInfo(b, vn);
         }
 
-        // Add collection node info (optimized)
         addCollectionNodeInfo(b, out);
 
-        // Add generic type info (cached)
         if (isCollectionNode(out)) {
             addGenericTypeInfo(b, node, name);
         }
 
-        // Add radio node options (optimized)
         if (out instanceof RadioNode<?> radioNode) {
             addRadioNodeOptions(b, radioNode);
         }
 
-        // Add validation info (skip if requested for performance)
         if (!skipValidation) {
             addValidationInfo(b, node, name);
         }
@@ -303,7 +290,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 b.set("listNodeType", new TextNode(metadata.genericType));
             }
         } catch (Exception e) {
-            // Log error but don't fail the entire operation
             System.err.println(
                 "Error getting generic type for field " +
                 name +
