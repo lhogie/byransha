@@ -35,7 +35,8 @@ public class BBGraph extends BNode {
 
     private final ConcurrentMap<Integer, BNode> nodesById;
     private final ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
-    
+    private final ConcurrentMap<Integer, Set<InLink>> incomingReferences =
+        new ConcurrentHashMap<>();
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
 
@@ -52,7 +53,7 @@ public class BBGraph extends BNode {
         this.directory = directory;
         this.nodesById = new ConcurrentHashMap<>();
         this.byClass = new ConcurrentHashMap<>();
-        
+
         accept(this); // self accept
         this.setColor("#ff8c00");
     }
@@ -88,20 +89,9 @@ public class BBGraph extends BNode {
     }
 
     public List<InLink> findRefsTO(BNode searchedNode) {
-        var r = new ArrayList<InLink>();
-        forEachNode(n -> {
-            n.forEachOut((role, outNode) -> {
-                if (outNode == searchedNode) {
-                    r.add(new InLink(role, n));
-                }
-            });
-        });
-        return r;
+        Set<InLink> refs = incomingReferences.get(searchedNode.id());
+        return refs != null ? new ArrayList<>(refs) : new ArrayList<>();
     }
-
-    
-
-    
 
     public void loadFromDisk(
         Consumer<BNode> newNodeInstantiated,
@@ -335,6 +325,8 @@ public class BBGraph extends BNode {
             .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
             .add(n);
 
+        buildIncomingReferencesForNode(n);
+
         if (n instanceof NodeEndpoint ne) {
             var alreadyInClass = findEndpoint(ne.getClass());
             if (alreadyInClass != null && alreadyInClass != ne) {
@@ -378,6 +370,41 @@ public class BBGraph extends BNode {
                     e.getMessage()
                 );
             }
+        }
+    }
+
+    private void buildIncomingReferencesForNode(BNode n) {
+        n.forEachOut((role, outNode) -> {
+            if (outNode != null) {
+                addIncomingReference(n, role, outNode);
+            }
+        });
+    }
+
+    private void addIncomingReference(BNode from, String role, BNode to) {
+        incomingReferences
+            .computeIfAbsent(to.id(), k -> ConcurrentHashMap.newKeySet())
+            .add(new InLink(role, from));
+    }
+
+    private void removeIncomingReference(BNode from, String role, BNode to) {
+        Set<InLink> refs = incomingReferences.get(to.id());
+        if (refs != null) {
+            refs.removeIf(
+                link -> link.source().equals(from) && link.role().equals(role)
+            );
+            if (refs.isEmpty()) {
+                incomingReferences.remove(to.id());
+            }
+        }
+    }
+
+    public void updateEdge(BNode from, String role, BNode oldTo, BNode newTo) {
+        if (oldTo != null) {
+            removeIncomingReference(from, role, oldTo);
+        }
+        if (newTo != null) {
+            addIncomingReference(from, role, newTo);
         }
     }
 

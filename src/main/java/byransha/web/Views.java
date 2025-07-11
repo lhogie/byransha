@@ -1,80 +1,119 @@
 package byransha.web;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
+import byransha.BBGraph;
+import byransha.BNode;
+import byransha.User;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
-
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 public class Views extends NodeEndpoint<BNode> implements View {
 
-	public Views(BBGraph db) {
-		super(db);
-	}
+    public Views(BBGraph db) {
+        super(db);
+    }
 
-	public Views(BBGraph db, int id) {
-		super(db, id);
-	}
+    public Views(BBGraph db, int id) {
+        super(db, id);
+    }
 
-	@Override
-	public String whatItDoes() {
-		return "lists views";
-	}
+    @Override
+    public String whatItDoes() {
+        return "lists views";
+    }
 
-	@Override
-	public EndpointJsonResponse exec(ObjectNode inputJson, User user, WebServer webServer, HttpsExchange exchange,
-			BNode currentNode) {
-		ArrayNode viewsNode = new ArrayNode(null);
+    @Override
+    public EndpointJsonResponse exec(
+        ObjectNode inputJson,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode currentNode
+    ) {
+        ArrayNode viewsNode = new ArrayNode(null);
 
-		if (currentNode == null) {
-			currentNode = graph.root();
-		}
+        if (currentNode == null) {
+            currentNode = graph.root();
+        }
 
-		for (var e : graph.endpointsUsableFrom(currentNode)) {
-			if (e.canSee(user) && e.canExec(user)) {
-				var ev = new ObjectNode(null);
-				ev.set("pretty_name", new TextNode(e.prettyName()));
-				ev.set("id", new TextNode("" + e.id()));
-				ev.set("target", new TextNode(e.getTargetNodeType().getName()));
-				ev.set("can read", new TextNode("" + e.canSee(user)));
-				ev.set("can write", new TextNode("" + e.canSee(user)));
-				ev.set("response_type", new TextNode(e.type().name()));
+        for (var e : graph.endpointsUsableFrom(currentNode)) {
+            if (e.canSee(user) && e.canExec(user)) {
+                var ev = new ObjectNode(null);
+                ev.set("pretty_name", new TextNode(e.prettyName()));
+                ev.set("id", new TextNode("" + e.id()));
+                ev.set("target", new TextNode(e.getTargetNodeType().getName()));
+                ev.set("can read", new TextNode("" + e.canSee(user)));
+                ev.set("can write", new TextNode("" + e.canSee(user)));
+                ev.set("response_type", new TextNode(e.type().name()));
 
-				if (e.getClass() != Views.class && e instanceof View v && v.sendContentByDefault()) {
-					try {
-						EndpointResponse result = e.exec(inputJson.deepCopy(), user, webServer, exchange,
-								user.currentNode());
-						ev.set("result", result.toJson());
-					} catch (SecurityException secEx) {
-						ev.set("error", new TextNode("Execution blocked: " + secEx.getMessage()));
-						ev.set("error_type",
-								new TextNode(
-										secEx.getMessage().startsWith("Authentication required") ? "AuthenticationError"
-												: "AuthorizationError"));
-					} catch (Throwable err) {
-						err.printStackTrace();
-						var sw = new StringWriter();
-						err.printStackTrace(new PrintWriter(sw));
-						ev.set("error", new TextNode(sw.toString()));
-						ev.set("error_type", new TextNode("ExecutionError"));
-					}
-				}
+                // Lazy loading: Only execute views when explicitly requested to avoid performance issues
+                boolean shouldExecute = false;
+                if (e.getClass() != Views.class && e instanceof View v) {
+                    // Check if this specific view should be executed
+                    if (
+                        inputJson.has("executeView") &&
+                        inputJson.get("executeView").asText().equals(e.name())
+                    ) {
+                        shouldExecute = true;
+                    }
+                    // Or if it's a lightweight view that sends content by default and user requests all defaults
+                    else if (
+                        v.sendContentByDefault() &&
+                        inputJson.has("executeDefaults") &&
+                        inputJson.get("executeDefaults").asBoolean()
+                    ) {
+                        shouldExecute = true;
+                    }
+                }
 
-				viewsNode.add(ev);
-			}
-		}
+                if (shouldExecute) {
+                    try {
+                        EndpointResponse result = e.exec(
+                            inputJson.deepCopy(),
+                            user,
+                            webServer,
+                            exchange,
+                            user.currentNode()
+                        );
+                        ev.set("result", result.toJson());
+                    } catch (SecurityException secEx) {
+                        ev.set(
+                            "error",
+                            new TextNode(
+                                "Execution blocked: " + secEx.getMessage()
+                            )
+                        );
+                        ev.set(
+                            "error_type",
+                            new TextNode(
+                                secEx
+                                        .getMessage()
+                                        .startsWith("Authentication required")
+                                    ? "AuthenticationError"
+                                    : "AuthorizationError"
+                            )
+                        );
+                    } catch (Throwable err) {
+                        err.printStackTrace();
+                        var sw = new StringWriter();
+                        err.printStackTrace(new PrintWriter(sw));
+                        ev.set("error", new TextNode(sw.toString()));
+                        ev.set("error_type", new TextNode("ExecutionError"));
+                    }
+                }
 
-		return new EndpointJsonResponse(viewsNode, this);
-	}
+                viewsNode.add(ev);
+            }
+        }
 
-	@Override
-	public boolean sendContentByDefault() {
-		return true;
-	}
+        return new EndpointJsonResponse(viewsNode, this);
+    }
+
+    @Override
+    public boolean sendContentByDefault() {
+        return true;
+    }
 }
