@@ -7,34 +7,23 @@ interface BNodeNavigatorDisplayProps {
   jumpToNode: (nodeId: number | string) => void;
 }
 
-export const BNodeNavigatorDisplay = ({
-  content,
-  jumpToNode,
-}: BNodeNavigatorDisplayProps) => {
-  const handleButtonClick = useCallback(
-    (event: React.MouseEvent<HTMLButtonElement>, nodeId: number | string) => {
-      event.stopPropagation();
-      event.preventDefault();
-      jumpToNode(nodeId);
-    },
-    [jumpToNode],
-  );
+interface VirtualNavigatorProps {
+  allNodes: Array<{
+    key: string;
+    id: number | string;
+    type: "in" | "out";
+  }>;
+  handleButtonClick: (
+    event: React.MouseEvent<HTMLButtonElement>,
+    nodeId: number | string,
+  ) => void;
+}
 
-  const inNodes = Object.keys(content.ins || {});
-  const outNodes = Object.keys(content.outs || {});
-  const allNodes = [
-    ...inNodes.map((node) => ({
-      key: node,
-      id: content.ins[node],
-      type: "in" as const,
-    })),
-    ...outNodes.map((node) => ({
-      key: node,
-      id: content.outs[node],
-      type: "out" as const,
-    })),
-  ];
-
+const VirtualNavigator = ({
+  allNodes,
+  handleButtonClick,
+}: VirtualNavigatorProps) => {
+  "use no memo";
   const parentRef = useRef<HTMLDivElement>(null);
   const rowVirtualizer = useVirtualizer({
     count: allNodes.length,
@@ -42,49 +31,6 @@ export const BNodeNavigatorDisplay = ({
     getScrollElement: () => parentRef.current,
     overscan: 10,
   });
-
-  if (allNodes.length <= 50) {
-    return (
-      <Box sx={{ p: 1 }}>
-        <Box sx={{ mb: 2 }}>
-          {inNodes.map((inNode) => (
-            <Button
-              key={inNode}
-              onClick={(e) => handleButtonClick(e, content.ins[inNode])}
-              variant="contained"
-              sx={{
-                bgcolor: "#3949ab",
-                color: "#fff",
-                mr: 1,
-                mb: 1,
-                "&:hover": { bgcolor: "#5c6bc0" },
-              }}
-            >
-              {inNode} ({content.ins[inNode]})
-            </Button>
-          ))}
-        </Box>
-        <Box sx={{ paddingY: "10px" }}>
-          {outNodes.map((outNode) => (
-            <Button
-              key={outNode}
-              onClick={(e) => handleButtonClick(e, content.outs[outNode])}
-              variant="contained"
-              sx={{
-                bgcolor: "#00897b",
-                color: "#fff",
-                mr: 1,
-                mb: 1,
-                "&:hover": { bgcolor: "#26a69a" },
-              }}
-            >
-              {outNode} ({content.outs[outNode]})
-            </Button>
-          ))}
-        </Box>
-      </Box>
-    );
-  }
 
   return (
     <Box
@@ -144,5 +90,84 @@ export const BNodeNavigatorDisplay = ({
         })}
       </Box>
     </Box>
+  );
+};
+
+export const BNodeNavigatorDisplay = ({
+  content,
+  jumpToNode,
+}: BNodeNavigatorDisplayProps) => {
+  const handleButtonClick = useCallback(
+    (event: React.MouseEvent<HTMLButtonElement>, nodeId: number | string) => {
+      event.stopPropagation();
+      event.preventDefault();
+      jumpToNode(nodeId);
+    },
+    [jumpToNode],
+  );
+
+  const inNodes = Object.keys(content.ins || {});
+  const outNodes = Object.keys(content.outs || {});
+  const allNodes = [
+    ...inNodes.map((node) => ({
+      key: node,
+      id: content.ins[node],
+      type: "in" as const,
+    })),
+    ...outNodes.map((node) => ({
+      key: node,
+      id: content.outs[node],
+      type: "out" as const,
+    })),
+  ];
+
+  if (allNodes.length <= 50) {
+    return (
+      <Box sx={{ p: 1 }}>
+        <Box sx={{ mb: 2 }}>
+          {inNodes.map((inNode) => (
+            <Button
+              key={inNode}
+              onClick={(e) => handleButtonClick(e, content.ins[inNode])}
+              variant="contained"
+              sx={{
+                bgcolor: "#3949ab",
+                color: "#fff",
+                mr: 1,
+                mb: 1,
+                "&:hover": { bgcolor: "#5c6bc0" },
+              }}
+            >
+              {inNode} ({content.ins[inNode]})
+            </Button>
+          ))}
+        </Box>
+        <Box sx={{ paddingY: "10px" }}>
+          {outNodes.map((outNode) => (
+            <Button
+              key={outNode}
+              onClick={(e) => handleButtonClick(e, content.outs[outNode])}
+              variant="contained"
+              sx={{
+                bgcolor: "#00897b",
+                color: "#fff",
+                mr: 1,
+                mb: 1,
+                "&:hover": { bgcolor: "#26a69a" },
+              }}
+            >
+              {outNode} ({content.outs[outNode]})
+            </Button>
+          ))}
+        </Box>
+      </Box>
+    );
+  }
+
+  return (
+    <VirtualNavigator
+      allNodes={allNodes}
+      handleButtonClick={handleButtonClick}
+    />
   );
 };

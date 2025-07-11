@@ -111,7 +111,7 @@ export const SearchBar = ({ key }: { key?: string }) => {
     if (scrollElement && scrollPosition > 0) {
       scrollElement.scrollTop = scrollPosition;
     }
-  }, [data, scrollPosition]);
+  }, [scrollPosition]);
 
   // Handle scroll events
   useEffect(() => {
