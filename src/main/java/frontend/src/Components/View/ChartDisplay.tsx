@@ -1,9 +1,9 @@
 import { memo, useMemo, useCallback, Suspense } from "react";
 import ReactECharts from "echarts-for-react";
-import CytoscapeComponent from "react-cytoscapejs";
 import Cytoscape, { type ElementDefinition } from "cytoscape";
 import fcose, { type FcoseLayoutOptions } from "cytoscape-fcose";
 import { Box, CircularProgress } from "@mui/material";
+import { CytoscapeGraph } from "./CytoscapeGraph";
 
 Cytoscape.use(fcose);
 
@@ -148,25 +148,25 @@ const MemoizedNetworkChart = memo(
 		}, [data]);
 
 		const elements = useMemo(
-			() =>
-				CytoscapeComponent.normalizeElements({
-					nodes: processedData.nodes.map((node: any) => ({
-						data: {
-							id: node.id,
-							label: node.label,
-							size: node.size || 30,
-							color: node.color || "#1f77b4",
-							x: node.x,
-							y: node.y,
-						},
-					})),
-					edges: processedData.links.map((link: any) => ({
-						data: {
-							source: link.source,
-							target: link.target,
-						},
-					})),
-				}),
+			() => [
+				...processedData.nodes.map((node: any) => ({
+					data: {
+						id: node.id,
+						label: node.label,
+						size: node.size || 30,
+						color: node.color || "#1f77b4",
+						x: node.x,
+						y: node.y,
+					},
+				})),
+				...processedData.links.map((link: any) => ({
+					data: {
+						id: `${link.source}-${link.target}`,
+						source: link.source,
+						target: link.target,
+					},
+				})),
+			],
 			[processedData],
 		);
 
@@ -207,7 +207,7 @@ const MemoizedNetworkChart = memo(
 
 		return (
 			<Box sx={{ height: "100%", minHeight: "300px", width: "100%" }}>
-				<CytoscapeComponent
+				<CytoscapeGraph
 					elements={elements as ElementDefinition[]}
 					style={{ width: "100%", height: "100%" }}
 					stylesheet={cytoscapeStyles}
@@ -221,26 +221,7 @@ const MemoizedNetworkChart = memo(
 							padding: 30,
 						} as FcoseLayoutOptions
 					}
-					cy={(cy) => {
-						// Store the Cytoscape instance for potential future use
-						cy.on("tap", "node", (event) => {
-							const node = event.target;
-							if (onNodeClick) {
-								onNodeClick({ id: node.id() }, event);
-							}
-						});
-
-						// Add hover events to show/hide labels
-						cy.on("mouseover", "node", (event) => {
-							const node = event.target;
-							node.style("label", node.data("label"));
-						});
-
-						cy.on("mouseout", "node", (event) => {
-							const node = event.target;
-							node.style("label", "");
-						});
-					}}
+					onNodeClick={onNodeClick}
 				/>
 			</Box>
 		);

@@ -1,109 +1,129 @@
 package byransha;
 
-import java.lang.management.ManagementFactory;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.net.httpserver.HttpsExchange;
-
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+import java.lang.management.ManagementFactory;
 import toools.text.TextUtilities;
 
 public class JVMNode extends BNode implements NoLoad {
 
-	public JVMNode(BBGraph db) {
-		super(db);
-	}
+    public JVMNode(BBGraph db) {
+        super(db);
+    }
 
-	public JVMNode(BBGraph db, int id) {
-		super(db, id);
-	}
+    public JVMNode(BBGraph db, int id) {
+        super(db, id);
+    }
 
-	@Override
-	public String prettyName() {
-		return "Java Virtual Machine";
-	}
+    @Override
+    public String prettyName() {
+        return "Java Virtual Machine";
+    }
 
-	@Override
-	public String whatIsThis() {
-		return "represents the server's JVM";
-	}
+    @Override
+    public String whatIsThis() {
+        return "represents the server's JVM";
+    }
 
-	public static class View extends NodeEndpoint<BBGraph> implements TechnicalView {
+    public static class View
+        extends NodeEndpoint<BBGraph>
+        implements TechnicalView {
 
-		public View(BBGraph g) {
-			super(g);
-		}
+        public View(BBGraph g) {
+            super(g);
+        }
 
-		public View(BBGraph g, int id) {
-			super(g, id);
-		}
+        public View(BBGraph g, int id) {
+            super(g, id);
+        }
 
-		@Override
-		public String whatItDoes() {
-			return "describes the server's JVM";
-		}
+        @Override
+        public String whatItDoes() {
+            return "describes the server's JVM";
+        }
 
-		@Override
-		public boolean sendContentByDefault() {
-			return false;
-		}
+        @Override
+        public boolean sendContentByDefault() {
+            return false;
+        }
 
-		@Override
-		public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				BBGraph node) throws Throwable {
-			return new EndpointTextResponse("text/html", doc -> {
-				doc.println("<ul>");
-				doc.println("<li>Heap size: " + TextUtilities
-						.toHumanString(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed()) + "B");
-				doc.println("</ul><hr>System properties:<ul>");
+        @Override
+        public EndpointTextResponse exec(
+            ObjectNode input,
+            User user,
+            WebServer webServer,
+            HttpsExchange exchange,
+            BBGraph node
+        ) throws Throwable {
+            return new EndpointTextResponse("text/html", doc -> {
+                doc.println("<ul>");
+                doc.println(
+                    "<li>Heap size: " +
+                    TextUtilities.toHumanString(
+                        ManagementFactory.getMemoryMXBean()
+                            .getHeapMemoryUsage()
+                            .getUsed()
+                    ) +
+                    "B"
+                );
+                doc.println("</ul><hr>System properties:<ul>");
 
-				for (var e : System.getProperties().entrySet()) {
-					doc.println("<li>" + e.getKey() + "=" + e.getValue());
-				}
+                for (var e : System.getProperties().entrySet()) {
+                    doc.println("<li>" + e.getKey() + "=" + e.getValue());
+                }
 
-				doc.println("</ul>");
-			});
-		}
-	}
+                doc.println("</ul>");
+            });
+        }
+    }
 
-	public static class Kill extends NodeEndpoint<JVMNode> implements Changer {
-		public Kill(BBGraph db) {
-			super(db);
-		}
+    public static class Kill extends NodeEndpoint<JVMNode> implements Changer {
 
-		public Kill(BBGraph db, int id) {
-			super(db, id);
-		}
+        public Kill(BBGraph db) {
+            super(db);
+        }
 
-		@Override
-		public boolean canExec(User user) {
-			return user.name.value.equals("admin");
-		}
+        public Kill(BBGraph db, int id) {
+            super(db, id);
+        }
 
-		@Override
-		public String whatItDoes() {
-			return "kills the JVM";
-		}
+        @Override
+        public boolean canExec(User user) {
+            return user.name.value.equals("admin");
+        }
 
-		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, JVMNode jvm)
-				throws Throwable {
-			new Thread(() -> {
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+        @Override
+        public String whatItDoes() {
+            return "kills the JVM";
+        }
 
-				System.exit(0);
-			}).start();
+        @Override
+        public EndpointResponse exec(
+            ObjectNode in,
+            User user,
+            WebServer webServer,
+            HttpsExchange http,
+            JVMNode jvm
+        ) throws Throwable {
+            new Thread(() -> {
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
 
-			return new EndpointTextResponse("text/plain", doc -> doc.print("exiting..."));
-		}
-	}
+                System.exit(0);
+            })
+                .start();
 
+            return new EndpointTextResponse("text/plain", doc ->
+                doc.print("exiting...")
+            );
+        }
+    }
 }
