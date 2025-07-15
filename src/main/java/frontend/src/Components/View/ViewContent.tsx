@@ -12,6 +12,9 @@ interface ViewContentProps {
 	hexColor: string;
 	onHexColorChange: (color: { hex: string }) => void;
 	viewId: string;
+	fetchNextPage: () => void;
+	hasNextPage: boolean;
+	isFetchingNextPage: boolean;
 }
 
 export const ViewContent = ({
@@ -24,6 +27,9 @@ export const ViewContent = ({
 	hexColor,
 	onHexColorChange,
 	viewId,
+	fetchNextPage,
+	hasNextPage,
+	isFetchingNextPage,
 }: ViewContentProps) => {
 	const resultData = useMemo(
 		() => dataContent?.results?.[0]?.result?.data,
@@ -151,6 +157,9 @@ export const ViewContent = ({
 					hexColor={hexColor}
 					onHexColorChange={onHexColorChange}
 					prettyName={prettyName}
+					fetchNextPage={fetchNextPage}
+					hasNextPage={hasNextPage}
+					isFetchingNextPage={isFetchingNextPage}
 				/>
 			</Box>
 		</Box>

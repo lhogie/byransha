@@ -14,7 +14,7 @@ import {
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { useNavigate } from "react-router";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useInfiniteApiData, useApiMutation } from "@hooks/useApiData";
 import NestedFields from "./FormComponents/NestedFields";
 import { createKey, shortenAndFormatLabel } from "@/utils/utils";
 import DownloadIcon from "@mui/icons-material/Download";
@@ -34,12 +34,15 @@ const FormPage = () => {
 		data: rawApiData,
 		isLoading: loading,
 		error,
-		refetch,
-	} = useApiData(`class_attribute_field`, {
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteApiData(`class_attribute_field`, {
 		node_id: rootId,
 	});
+
 	const pageName =
-		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
+		rawApiData?.pages?.[0]?.data?.results?.[0]?.result?.data?.data?.currentNode?.name;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
 	const searchNodeMutation = useApiMutation("search_node", {
@@ -49,10 +52,10 @@ const FormPage = () => {
 					"apiData",
 					"class_attribute_field",
 					{
-						node_id:
-							rawApiData?.data?.results?.[0]?.result?.data?.attributes?.filter(
-								(attribute: any) => attribute.name === "results",
-							)[0].id,
+																				node_id:
+								rawApiData?.pages?.[0]?.data?.results?.[0]?.result?.data?.data?.attributes?.filter(
+									(attribute: any) => attribute.name === "results",
+								)[0].id,
 					},
 				],
 			});
@@ -107,7 +110,7 @@ const FormPage = () => {
 					}}
 				/>
 
-				{rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type ===
+				{rawApiData?.pages?.[0]?.data?.results?.[0]?.result?.data?.data?.currentNode?.type ===
 				"SearchForm" ? (
 					<Button
 						variant="contained"
@@ -163,7 +166,9 @@ const FormPage = () => {
 								},
 								{
 									onSuccess: async () => {
-										await refetch();
+										queryClient.invalidateQueries({
+											queryKey: ["apiData", "class_attribute_field"],
+										});
 										navigate(-1);
 									},
 								},

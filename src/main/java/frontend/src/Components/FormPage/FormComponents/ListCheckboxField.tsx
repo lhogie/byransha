@@ -1,16 +1,18 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	Checkbox,
+	CircularProgress,
 	FormControl,
 	FormControlLabel,
 	FormGroup,
 	FormHelperText,
 } from "@mui/material";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useInfiniteApiData, useApiMutation } from "@hooks/useApiData";
 import { useDebouncedCallback } from "use-debounce";
 import toast from "react-hot-toast";
 import { shortenAndFormatLabel } from "@/utils/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
 
 const ListCheckboxComponent = ({
 	option,
@@ -88,23 +90,42 @@ const ListCheckboxField = ({
 	error,
 	helperText,
 }: ListCheckboxFieldProps) => {
-	const { data } = useApiData("class_attribute_field", {
-		node_id: field.id,
-	});
+	const { ref, inView } = useInView();
+	const { data, fetchNextPage, hasNextPage, isFetchingNextPage } =
+		useInfiniteApiData("class_attribute_field", {
+			node_id: field.id,
+		});
+
+	useEffect(() => {
+		if (inView && hasNextPage) {
+			fetchNextPage();
+		}
+	}, [inView, hasNextPage, fetchNextPage]);
+
+	const options = useMemo(
+		() =>
+			data?.pages
+				.flatMap((page) => page.data.results[0].result.data.data)
+				.filter(Boolean) || [],
+		[data],
+	);
 
 	return (
 		<FormControl fullWidth error={error}>
 			<FormGroup row>
-				{data?.data?.results?.[0]?.result?.data?.attributes?.map(
-					(option: any, index: any) => (
-						<ListCheckboxComponent
-							key={index}
-							option={option}
-							fieldId={field.id}
-						/>
-					),
-				)}
+				{options.map((option: any, index: any) => (
+					<ListCheckboxComponent
+						key={index}
+						option={option}
+						fieldId={field.id}
+					/>
+				))}
 			</FormGroup>
+			{hasNextPage && (
+				<div ref={ref}>
+					{isFetchingNextPage ? <CircularProgress /> : "Load more"}
+				</div>
+			)}
 			{helperText && <FormHelperText>{helperText}</FormHelperText>}
 		</FormControl>
 	);

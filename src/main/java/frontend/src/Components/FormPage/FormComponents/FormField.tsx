@@ -30,7 +30,7 @@ import {
 	typeComponent,
 	validateFieldValue,
 } from "@/utils/utils";
-import { useApiMutation } from "@hooks/useApiData";
+import { useInfiniteApiData, useApiMutation } from "@hooks/useApiData";
 import DropdownField from "./DropdownField";
 import toast from "react-hot-toast";
 import RadioField from "./RadioField.js";
@@ -71,6 +71,21 @@ const FormField = ({
 	const [error, setError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
 	const queryClient = useQueryClient();
+
+	const {
+		data: rawApiData,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteApiData(
+		`class_attribute_field`,
+		{
+			node_id: id,
+		},
+		{
+			enabled: listField.includes(type),
+		},
+	);
 
 	const setValueMutation = useApiMutation("set_value");
 	const addExistingNodeMutation = useApiMutation("add_existing_node");

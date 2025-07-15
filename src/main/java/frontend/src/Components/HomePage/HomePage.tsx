@@ -23,7 +23,7 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import CloseIcon from "@mui/icons-material/Close";
 import Expand from "@mui/icons-material/AspectRatio";
 import { useTitle } from "@global/useTitle";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useInfiniteApiData, useApiMutation } from "@hooks/useApiData";
 import { View } from "@common/View";
 
 const ViewCard = memo(
@@ -140,7 +140,13 @@ const ViewCard = memo(
 
 const HomePage = () => {
 	const navigate = useNavigate();
-	const { data, isLoading } = useApiData(
+	const {
+		data,
+		isLoading,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteApiData(
 		"endpoints?only_applicable&type=byransha.web.View",
 	);
 	useTitle("Home");
@@ -174,12 +180,13 @@ const HomePage = () => {
 	}, []);
 
 	React.useEffect(() => {
-		if (data?.data?.results?.[0]?.result?.data) {
+		if (data?.pages) {
+			const allViews = data.pages.flatMap(
+				(page) => page.data.results[0].result.data,
+			);
 			const filteredViews = showTechnicalViews
-				? data?.data?.results?.[0]?.result?.data
-				: data?.data?.results?.[0]?.result?.data.filter(
-						(view: any) => view.type !== "technical",
-					);
+				? allViews
+				: allViews.filter((view: any) => view.type !== "technical");
 			setViews(filteredViews);
 			setSelectedViews(() => {
 				const saved = JSON.parse(
@@ -241,7 +248,7 @@ const HomePage = () => {
 		);
 	}
 
-	if (!data || !data.data || !data.data.results) {
+	if (!data || !data.pages) {
 		return (
 			<Box
 				sx={{
@@ -288,9 +295,9 @@ const HomePage = () => {
 			localStorage.setItem("showTechnicalViews", JSON.stringify(newValue));
 
 			const techViews =
-				data?.data?.results?.[0]?.result?.data?.filter(
-					(view: any) => view.type === "technical",
-				) || [];
+				data?.pages
+					.flatMap((page) => page.data.results[0].result.data)
+					.filter((view: any) => view.type === "technical") || [];
 			const techEndpoints = techViews.map((view: any) => view.name);
 
 			setSelectedViews((prevSelected) => {
@@ -540,17 +547,28 @@ const HomePage = () => {
 									if (e.defaultPrevented) return;
 									if (view.name.endsWith("class_attribute_field")) {
 										jumpToId.mutate({
-											node: data?.data?.node_id,
+											node: data?.pages[0].data.node_id,
 										});
-										navigate(`/add-node/form/${data?.data?.node_id}`);
+										navigate(`/add-node/form/${data?.pages[0].data.node_id}`);
 									} else
 										navigate(`/information/${view.name.replaceAll(" ", "_")}`);
 								}}
-								handleViewToggle={handleViewToggle}
+																				handleViewToggle={handleViewToggle}
 							/>
 						</Box>
 					))}
 			</Box>
+			{hasNextPage && (
+				<Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+					<Button
+						variant="contained"
+						onClick={() => fetchNextPage()}
+						disabled={isFetchingNextPage}
+					>
+						{isFetchingNextPage ? <CircularProgress size={24} /> : "Load More"}
+					</Button>
+				</Box>
+			)}
 		</Box>
 	);
 };

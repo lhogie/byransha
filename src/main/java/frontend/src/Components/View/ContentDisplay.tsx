@@ -17,6 +17,9 @@ interface ContentDisplayProps {
 	hexColor: string;
 	onHexColorChange: (color: { hex: string }) => void;
 	prettyName?: string;
+	fetchNextPage: () => void;
+	hasNextPage: boolean;
+	isFetchingNextPage: boolean;
 }
 
 export const ContentDisplay = ({
@@ -28,6 +31,9 @@ export const ContentDisplay = ({
 	hexColor,
 	onHexColorChange,
 	prettyName,
+	fetchNextPage,
+	hasNextPage,
+	isFetchingNextPage,
 }: ContentDisplayProps) => {
 	const graphvizRef = useRef<HTMLDivElement>(null);
 
@@ -51,7 +57,14 @@ export const ContentDisplay = ({
 
 	if (contentType === "application/json") {
 		if (viewId === "class_attribute_field") {
-			return <ClassAttributeFieldDisplay content={content} />;
+			return (
+				<ClassAttributeFieldDisplay
+					content={content}
+					fetchNextPage={fetchNextPage}
+					hasNextPage={hasNextPage}
+					isFetchingNextPage={isFetchingNextPage}
+				/>
+			);
 		} else if (
 			viewId === "char_example_xy" ||
 			viewId.endsWith("_distribution") ||

@@ -1,12 +1,19 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import React, {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
+import { Box, Button, CircularProgress, Stack, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useInfiniteApiData, useApiMutation } from "@hooks/useApiData";
 import ExistingNodeSelector from "./ExistingNodeSelector";
 import { createKey, listField } from "@/utils/utils";
 import { useNavigate } from "react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import FieldRenderer from "./FieldRenderer";
+import { useInView } from "react-intersection-observer";
 
 const NestedFields = ({
 	fieldKey,
@@ -25,8 +32,10 @@ const NestedFields = ({
 		data: rawApiData,
 		isLoading: loading,
 		error,
-		refetch,
-	} = useApiData(
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+	} = useInfiniteApiData(
 		`class_attribute_field`,
 		{
 			node_id:
@@ -36,6 +45,14 @@ const NestedFields = ({
 			enabled: isToggle || isRoot,
 		},
 	);
+
+	const { ref, inView } = useInView();
+
+	useEffect(() => {
+		if (inView && hasNextPage) {
+			fetchNextPage();
+		}
+	}, [inView, hasNextPage, fetchNextPage]);
 
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -109,7 +126,7 @@ const NestedFields = ({
 			const fullName = field?.listNodeType;
 
 			try {
-				const _data = await addNode.mutateAsync(
+				await addNode.mutateAsync(
 					{
 						BNodeClass: fullName,
 						node_id: id,
@@ -210,7 +227,9 @@ const NestedFields = ({
 			} = {};
 
 			const allFields =
-				rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
+				rawApiData?.pages
+					?.flatMap((page: any) => page.data.results?.[0]?.result?.data.data)
+					.filter(Boolean) || [];
 
 			allFields.forEach((field: any) => {
 				if (field.name && field.value !== "null" && field.value !== undefined) {
@@ -222,8 +241,13 @@ const NestedFields = ({
 		}
 	}, [loading, rawApiData]);
 
-	const subfieldData =
-		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
+	const subfieldData = useMemo(
+		() =>
+			rawApiData?.pages
+				?.flatMap((page: any) => page.data.results[0].result.data.data)
+				.filter(Boolean) || [],
+		[rawApiData],
+	);
 
 	return (
 		<React.Fragment>
@@ -295,6 +319,11 @@ const NestedFields = ({
 						</Stack>
 					)}
 				</Box>
+			)}
+			{hasNextPage && (
+				<div ref={ref}>
+					{isFetchingNextPage ? <CircularProgress /> : "Load more"}
+				</div>
 			)}
 			<ExistingNodeSelector
 				show={showExistingNodeCard}
