@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useApiMutation, useInfiniteApiData } from "@hooks/useApiData";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { Box } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { ModalComponent } from "../View/ModalComponent";
@@ -7,7 +7,7 @@ import { ViewContent } from "../View/ViewContent";
 import "./View.css";
 
 export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
-	const { data: rawApiData, isLoading: loading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteApiData(viewId);
+	const { data: rawApiData, isLoading: loading, error } = useApiData(viewId);
 	const queryClient = useQueryClient();
 	const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -34,14 +34,14 @@ export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 		[jumpMutation],
 	);
 
-		const { data: dataContent } = rawApiData?.pages?.[0] ?? { data: undefined };
+	const { data: dataContent } = rawApiData ?? { data: undefined };
 
 	const backgroundColor = useMemo(
 		() => sx?.bgcolor || "transparent",
 		[sx?.bgcolor],
 	);
 
-	const exportData = rawApiData?.pages?.[0]?.data?.results?.[0]?.result?.data;
+	const exportData = rawApiData?.data?.results?.[0]?.result?.data;
 
 	return (
 		<Box
@@ -63,9 +63,6 @@ export const View = ({ viewId, sx }: { viewId: string; sx?: any }) => {
 				hexColor={hex}
 				onHexColorChange={handleHexChange}
 				viewId={viewId}
-				fetchNextPage={fetchNextPage}
-				hasNextPage={hasNextPage}
-				isFetchingNextPage={isFetchingNextPage}
 			/>
 		</Box>
 	);

@@ -1,13 +1,12 @@
-import { useApiData } from "@hooks/useApiData";
 import type React from "react";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import {
 	Autocomplete,
-	CircularProgress,
 	FormControl,
 	FormHelperText,
 	TextField,
 } from "@mui/material";
+import { useApiData } from "@hooks/useApiData";
 
 export type DropdownFieldProps = {
 	field: any;
@@ -22,9 +21,6 @@ export type DropdownFieldProps = {
 	multiple?: boolean;
 	disabled?: boolean;
 	required?: boolean;
-	options?: any[];
-	onLoadMore?: () => void;
-	hasMore?: boolean;
 };
 
 const DropdownField = ({
@@ -38,32 +34,18 @@ const DropdownField = ({
 	error,
 	helperText,
 	multiple = false,
-	options,
-	onLoadMore,
-	hasMore,
 	...rest
 }: DropdownFieldProps) => {
+	const shortName = field.listNodeType.split(".").pop();
+
 	const {
 		data: listData,
 		isLoading,
 		isError,
 		error: apiError,
 	} = useApiData("list_existing_node", {
-		type: field.listNodeType.split(".").pop(),
-		enabled: !options,
+		type: shortName,
 	});
-
-	const observer = useRef<IntersectionObserver | null>(null);
-	const lastOptionRef = (node: HTMLLIElement) => {
-		if (isLoading) return;
-		if (observer.current) observer.current.disconnect();
-		observer.current = new IntersectionObserver((entries) => {
-			if (entries[0].isIntersecting && hasMore && onLoadMore) {
-				onLoadMore();
-			}
-		});
-		if (node) observer.current.observe(node);
-	};
 
 	useEffect(() => {
 		if (
@@ -100,50 +82,50 @@ const DropdownField = ({
 		onFirstChange,
 	]);
 
-	const data = options || listData?.data?.results?.[0]?.result?.data || [];
-
 	return (
 		<FormControl fullWidth error={error}>
 			<Autocomplete
 				disablePortal
 				renderInput={(params) => <TextField {...params} error={error} />}
-				options={data
-					.map((option: any) => {
-						const firstLetter = option.name[0].toUpperCase();
+				options={
+					listData?.data?.results?.[0]?.result?.data
+						.map((option: any) => {
+							const firstLetter = option.name[0].toUpperCase();
 
-						return {
-							label: option.name,
-							value: option.id,
-							firstLetter:
-								option.name === "France(FR)"
-									? " "
-									: /[0-9]/.test(firstLetter)
-										? "0-9"
-										: firstLetter,
-						};
-					})
-					.sort(
-						(
-							a: {
-								label: string;
-								value: string;
-								firstLetter: string;
+							return {
+								label: option.name,
+								value: option.id,
+								firstLetter:
+									option.name === "France(FR)"
+										? " "
+										: /[0-9]/.test(firstLetter)
+											? "0-9"
+											: firstLetter,
+							};
+						})
+						.sort(
+							(
+								a: {
+									label: string;
+									value: string;
+									firstLetter: string;
+								},
+								b: {
+									label: string;
+									value: string;
+									firstLetter: string;
+								},
+							) => {
+								// Sort by firstLetter first to ensure correct grouping
+								// Space " " comes before "0-9" and letters, so France(FR) will be at the top
+								if (a.firstLetter !== b.firstLetter) {
+									return a.firstLetter.localeCompare(b.firstLetter);
+								}
+								// Then sort by label for items within the same group
+								return a.label.localeCompare(b.label);
 							},
-							b: {
-								label: string;
-								value: string;
-								firstLetter: string;
-							},
-						) => {
-							// Sort by firstLetter first to ensure correct grouping
-							// Space " " comes before "0-9" and letters, so France(FR) will be at the top
-							if (a.firstLetter !== b.firstLetter) {
-								return a.firstLetter.localeCompare(b.firstLetter);
-							}
-							// Then sort by label for items within the same group
-							return a.label.localeCompare(b.label);
-						},
-					)}
+						) || []
+				}
 				groupBy={(option) => option.firstLetter}
 				getOptionKey={(option) => option.value ?? ""}
 				getOptionLabel={(option) => option.label ?? ""}
@@ -157,34 +139,6 @@ const DropdownField = ({
 					onChange(newValue);
 				}}
 				multiple={multiple}
-				loading={isLoading}
-				ListboxProps={{
-					onScroll: (event) => {
-						const listboxNode = event.currentTarget;
-						if (
-							listboxNode.scrollTop + listboxNode.clientHeight ===
-							listboxNode.scrollHeight
-						) {
-							if (hasMore && onLoadMore) {
-								onLoadMore();
-							}
-						}
-					},
-				}}
-				renderOption={(props, option, { index }) => {
-					if (index === data.length - 1 && hasMore) {
-						return (
-							<li {...props} ref={lastOptionRef} key={option.value}>
-								{option.label}
-							</li>
-						);
-					}
-					return (
-						<li {...props} key={option.value}>
-							{option.label}
-						</li>
-					);
-				}}
 				{...rest}
 			/>
 			{helperText && <FormHelperText>{helperText}</FormHelperText>}

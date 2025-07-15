@@ -5,47 +5,25 @@ import {
 	CardMedia,
 	Typography,
 	Grid,
-	CircularProgress,
 } from "@mui/material";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import {
-	useRef,
-	useMemo,
-	useCallback,
-	useEffect,
-	useState,
-	Fragment,
-} from "react";
-import { useInView } from "react-intersection-observer";
+import { useRef, useMemo, useCallback, useEffect, useState } from "react";
 
 interface ClassAttributeFieldDisplayProps {
 	content: any;
-	fetchNextPage: () => void;
-	hasNextPage: boolean;
-	isFetchingNextPage: boolean;
 }
 
 export const ClassAttributeFieldDisplay = ({
 	content,
-	fetchNextPage,
-	hasNextPage,
-	isFetchingNextPage,
 }: ClassAttributeFieldDisplayProps) => {
 	const parentRef = useRef<HTMLDivElement>(null);
 	const [containerWidth, setContainerWidth] = useState(0);
-	const { ref, inView } = useInView();
 
 	const filteredAttributes = useMemo(
 		() =>
 			content?.attributes?.filter((node: any) => node.name !== "graph") || [],
 		[content?.attributes],
 	);
-
-	useEffect(() => {
-		if (inView && hasNextPage) {
-			fetchNextPage();
-		}
-	}, [inView, hasNextPage, fetchNextPage]);
 
 	useEffect(() => {
 		const updateWidth = () => {
@@ -226,11 +204,6 @@ export const ClassAttributeFieldDisplay = ({
 					);
 				})}
 			</Box>
-			{hasNextPage && (
-				<div ref={ref}>
-					{isFetchingNextPage ? <CircularProgress /> : "Load more"}
-				</div>
-			)}
 		</Box>
 	);
 };

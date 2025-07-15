@@ -1,6 +1,6 @@
 import type React from "react";
-import { useEffect, useMemo } from "react";
-import { useInfiniteApiData } from "@hooks/useApiData";
+import { useEffect } from "react";
+import { useApiData } from "@hooks/useApiData";
 import DropdownField from "./DropdownField";
 
 export type MultiDropdownFieldProps = {
@@ -29,29 +29,33 @@ const MultiDropdownField = ({
 		data: rawApiData,
 		isLoading,
 		isError,
-		fetchNextPage,
-		hasNextPage,
-	} = useInfiniteApiData(`class_attribute_field`, {
+	} = useApiData(`class_attribute_field`, {
 		node_id: field.id,
 	});
 
-	const options = useMemo(
-		() =>
-			rawApiData?.pages
-				.flatMap((page) => page.data.results[0].result.data.data)
-				.map((data: any) => ({
-					firstLetter: data.name.split(". ")[1][0],
-					label: data.name.split(". ")[1],
-					value: data.id,
-				})) || [],
-		[rawApiData],
-	);
-
 	useEffect(() => {
-		if (!isLoading && !isError && options.length > 0) {
-			onFirstChange(options);
+		if (
+			!isLoading &&
+			!isError &&
+			rawApiData?.data?.results?.[0]?.result?.data?.attributes?.length !== 0
+		) {
+			onFirstChange(
+				rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map(
+					(data: any) => ({
+						firstLetter: data.name.split(". ")[1][0],
+						label: data.name.split(". ")[1],
+						value: data.id,
+					}),
+				),
+			);
 		}
-	}, [isLoading, isError, onFirstChange, options]);
+	}, [
+		isLoading,
+		isError,
+		onFirstChange,
+		rawApiData?.data?.results?.[0]?.result?.data?.attributes?.length,
+		rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map,
+	]);
 
 	return (
 		<DropdownField
@@ -63,9 +67,6 @@ const MultiDropdownField = ({
 			error={error}
 			helperText={helperText}
 			multiple
-			options={options}
-			onLoadMore={fetchNextPage}
-			hasMore={hasNextPage}
 			{...rest}
 		/>
 	);
