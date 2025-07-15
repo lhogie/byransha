@@ -10,7 +10,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class Views extends NodeEndpoint<BNode> implements View {
+public class Views extends NodeEndpoint<BNode> implements TechnicalView {
 
     public Views(BBGraph db) {
         super(db);
