@@ -1,10 +1,19 @@
-# byransha
-Byransha aims to explore the relevance of the graph approach in the context of software development. He is particularly interested in the case of web software, for which graphs can be used, at least, for data structuring, persistence, and user interface organization.
 
-The first use case and initial motivation for this project is to provide the I3S laboratory with an HR dashboard. Rather than opting for a classic design around a relational database and a web framework (such as Spring), we chose to explore recent graph-oriented techniques, something we had started in recent projects, notably through the use of Neo4j.
+
+# byransha
+Byransha is a framework for Web applications which relies on 
+the concept of "graph" everywhere it proves relevant.
+In particular, within Byransha, graphs are used to organize both technical and business data, 
+to implement data persistence, and to drive the workflow of the user interface.
+
+Byransha consists of:
+- a Java backend exposing a set of JSON services
+- a Web (TypeScript/React.js) frontend
+
+The first use case and initial motivation for this project is to provide the I3S laboratory
+with an human resources dashboard.
 
 # Configuration
-
 ## Development frontend
 To run the frontend locally in development mode, ensure you have [Bun](https://bun.sh) installed.
 
