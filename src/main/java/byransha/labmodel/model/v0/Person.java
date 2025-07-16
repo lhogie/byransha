@@ -1,67 +1,79 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.ListOptions;
+import byransha.annotations.ListOptions;
+import byransha.annotations.ListOptions;
 
 public class Person extends BusinessNode {
-	public EtatCivil etatCivil;
-	public SetNode<Position> positions;
-	public ImageNode pics;
-	public BooleanNode hdr;
 
-	public StringNode badgeNumber;
-	public StringNode website;
-	public StringNode faxNumber;
-	public ResearchGroup researchGroup;
-	public DateNode phdDate;
+    public EtatCivil etatCivil;
 
-	public SetNode<StringNode> phoneNumbers;
-	protected SetNode<EmailNode> emailAddresses;
-	public SetNode<Office> offices;
-	protected SetNode<ACMClassifier> topics;
-	public StringNode quotite;
+    @byransha.annotations.ListOptions(
+        type = byransha.annotations.ListOptions.ListType.LIST
+    )
+    public ListNode<Position> positions;
 
-	public Position position;
-	public boolean enposte;
-	public StringNode researchActivity;
+    public ImageNode pics;
+    public BooleanNode hdr;
 
-	@Override
-	public String toString() {
-		if (etatCivil == null) {
-			return "null";
-		}
-		return etatCivil.nomUsuel.get();
-	}
+    public StringNode badgeNumber;
+    public StringNode website;
+    public StringNode faxNumber;
+    public ResearchGroup researchGroup;
+    public DateNode phdDate;
 
-	@Override
-	public String prettyName() {
-		return "Person: " + etatCivil.nomUsuel.get();
-	}
+    public ListNode<StringNode> phoneNumbers;
 
-	public Person(BBGraph g) {
-		super(g);
+    protected ListNode<EmailNode> emailAddresses;
 
-		etatCivil = BNode.create(g, EtatCivil.class); // new EtatCivil(g);
-		positions = BNode.create(g, SetNode.class); // new ListNode<>(g);
-		pics = BNode.create(g, ImageNode.class); // new ImageNode(g);
+    public ListNode<Office> offices;
 
-		hdr = BNode.create(g, BooleanNode.class); // new BooleanNode(g);
+    protected ListNode<ACMClassifier> topics;
 
-		badgeNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		website = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		faxNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
-		phdDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
+    public StringNode quotite;
 
-		phoneNumbers = BNode.create(g, SetNode.class); // new ListNode<>(g);
-		emailAddresses = BNode.create(g, SetNode.class); // new ListNode<>(g);
-		offices = BNode.create(g, SetNode.class); // new ListNode<>(g);
-	}
+    public Position position;
+    public boolean enposte;
+    public StringNode researchActivity;
 
-	public Person(BBGraph g, int id) {
-		super(g, id);
-	}
+    @Override
+    public String toString() {
+        if (etatCivil == null) {
+            return "null";
+        }
+        return etatCivil.nomUsuel.get();
+    }
 
-	@Override
-	public String whatIsThis() {
-		return "a physical person working in the lab";
-	}
+    @Override
+    public String prettyName() {
+        return "Person: " + etatCivil.nomUsuel.get();
+    }
+
+    public Person(BBGraph g) {
+        super(g);
+        etatCivil = BNode.create(g, EtatCivil.class); // new EtatCivil(g);
+        positions = BNode.create(g, ListNode.class); // new ListNode<>(g);
+        pics = BNode.create(g, ImageNode.class); // new ImageNode(g);
+
+        hdr = BNode.create(g, BooleanNode.class); // new BooleanNode(g);
+
+        badgeNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
+        website = BNode.create(g, StringNode.class); // new StringNode(g, null);
+        faxNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
+        phdDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
+
+        phoneNumbers = BNode.create(g, ListNode.class); // new ListNode<>(g);
+        emailAddresses = BNode.create(g, ListNode.class); // new ListNode<>(g);
+        offices = BNode.create(g, ListNode.class); // new ListNode<>(g);
+    }
+
+    public Person(BBGraph g, int id) {
+        super(g, id);
+    }
+
+    @Override
+    public String whatIsThis() {
+        return "a physical person working in the lab";
+    }
 }

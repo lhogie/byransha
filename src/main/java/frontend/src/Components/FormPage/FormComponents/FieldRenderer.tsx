@@ -52,7 +52,7 @@ const FieldRenderer = ({
 
 				{!(
 					typeComponent.includes(type) ||
-					(listField.includes(type) && subField.isDropdown)
+					(listField.includes(type) && subField.listType !== "LIST")
 				) && (
 					<NestedFields
 						fieldKey={subFieldKey}

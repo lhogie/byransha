@@ -18,14 +18,11 @@ import {
 	checkboxField,
 	colorField,
 	dateField,
-	dropdownField,
 	fileField,
 	getErrorMessage,
 	imageField,
 	inputTextField,
-	listCheckboxField,
 	listField,
-	radioField,
 	shortenAndFormatLabel,
 	typeComponent,
 	validateFieldValue,
@@ -43,11 +40,11 @@ import ColorPickerField from "@components/FormPage/FormComponents/ColorPickerFie
 const FormField = ({
 	field,
 	fieldKey,
-	isExpanded, // Changed from expandedFields to isExpanded
+	isExpanded,
 	onToggleField,
 	onChangingForm,
 	parentId,
-	defaultValue = "", // Default value for the field
+	defaultValue = "",
 }: {
 	field: any;
 	fieldKey: string;
@@ -57,16 +54,13 @@ const FormField = ({
 	parentId: string;
 	defaultValue?: any;
 }) => {
-	const { id, name, type, validations, isValid } = field;
+	const { id, name, type, validations, isValid, choices, source } = field;
 	const [value, setValue] = useState(
-		dropdownField.includes(type)
-			? {
-					label: defaultValue,
-					value: defaultValue?.split("@")[1],
-				}
-			: listField.includes(type)
-				? []
-				: defaultValue,
+		listField.includes(type)
+			? field.listType === "RADIO"
+				? field.value
+				: []
+			: defaultValue,
 	);
 	const [error, setError] = useState(false);
 	const [errorMessage, setErrorMessage] = useState("");
@@ -278,7 +272,7 @@ const FormField = ({
 		[field, handleSaveDropdownChanges, validations],
 	);
 
-	const handleDropdownFirstValueChange = useCallback((value: any) => {
+	const handleFirstValueChange = useCallback((value: any) => {
 		setValue(value);
 	}, []);
 
@@ -368,7 +362,7 @@ const FormField = ({
 						</Button>
 						{!(
 							typeComponent.includes(type) ||
-							(listField.includes(type) && field.isDropdown)
+							(listField.includes(type) && field.listType !== "LIST")
 						) && (
 							<Box className="toggle-wrapper" textAlign="right">
 								<IconButton onClick={handleToggleField} size="small">
@@ -380,7 +374,7 @@ const FormField = ({
 				</Grid>
 
 				<Grid size={{ xs: 12, sm: 6 }}>
-					{listCheckboxField.includes(type) && (
+					{listField.includes(type) && field.listType === "CHECKBOX" && (
 						<ListCheckboxField
 							field={field}
 							error={error}
@@ -429,13 +423,13 @@ const FormField = ({
 						/>
 					)}
 
-					{dropdownField.includes(type) && (
+					{listField.includes(type) && field.listType === "DROPDOWN" && (
 						<DropdownField
 							field={field}
 							fieldKey={fieldKey}
 							value={value ?? null}
 							onChange={handleDropdownValueChange}
-							onFirstChange={handleDropdownFirstValueChange}
+							onFirstChange={handleFirstValueChange}
 							defaultValue={defaultValue}
 							error={error}
 							helperText={error ? errorMessage : ""}
@@ -454,12 +448,13 @@ const FormField = ({
 						/>
 					)}
 
-					{radioField.includes(type) && (
+					{listField.includes(type) && field.listType === "RADIO" && (
 						<RadioField
 							field={field}
 							fieldKey={fieldKey}
 							value={value}
 							onChange={handleValueChange}
+							onFirstChange={handleFirstValueChange}
 							defaultValue={defaultValue}
 							error={error}
 							helperText={error ? errorMessage : ""}

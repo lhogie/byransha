@@ -208,7 +208,7 @@ public class BBGraph extends BNode {
                     }
 
                     try {
-                        if (node instanceof ListNode) {
+                        if (node instanceof ListNode<?>) {
                             ((ListNode<BNode>) node).add(targetNode);
                         } else {
                             try {

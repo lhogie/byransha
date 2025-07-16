@@ -14,8 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
-    private static final ConcurrentMap<String, Class<? extends BNode>> classCache = new ConcurrentHashMap<>();
-    
+
+    private static final ConcurrentMap<
+        String,
+        Class<? extends BNode>
+    > classCache = new ConcurrentHashMap<>();
+
     @Override
     public String whatItDoes() {
         return "Adds a new node to the graph.";
@@ -30,7 +34,13 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
     }
 
     @Override
-    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
+    public EndpointJsonResponse exec(
+        ObjectNode in,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode currentNode
+    ) throws Throwable {
         var a = new ObjectNode(null);
         var className = requireParm(in, "BNodeClass").asText();
         System.out.println("Adding node of class: " + className);
@@ -44,33 +54,30 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             classCache.putIfAbsent(className, clazz);
         }
         var node = BNode.create(graph, clazz);
-        if(node != null) {
+        if (node != null) {
             a.put("id", new IntNode(node.id()));
             a.put("name", new TextNode(node.prettyName()));
             a.put("type", new TextNode(node.getClass().getSimpleName()));
-            if(node instanceof ValuedNode<?> vn) {
+            if (node instanceof ValuedNode<?> vn) {
                 a.put("value", new TextNode(vn.getAsString()));
             }
             a.put("class", new TextNode(className));
             a.put("message", new TextNode("Node created successfully"));
 
-            if(currentNode instanceof ListNode<?> listNode) {
+            if (currentNode instanceof ListNode<?> listNode) {
                 @SuppressWarnings("unchecked")
                 ListNode<N> typedListNode = (ListNode<N>) listNode;
                 typedListNode.add(node);
             }
-
-            if(currentNode instanceof SetNode<?> setNode) {
-                @SuppressWarnings("unchecked")
-                SetNode<N> typedSetNode = (SetNode<N>) setNode;
-                typedSetNode.add(node);
-            }
-
         } else {
-            return ErrorResponse.serverError("Failed to create node of class: " + className);
+            return ErrorResponse.serverError(
+                "Failed to create node of class: " + className
+            );
         }
 
-        return new EndpointJsonResponse(a,"Add_node call executed successfully");
+        return new EndpointJsonResponse(
+            a,
+            "Add_node call executed successfully"
+        );
     }
-
 }

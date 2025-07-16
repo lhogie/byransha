@@ -5,8 +5,6 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.Byransha;
 import byransha.JVMNode;
-import byransha.ListNode;
-import byransha.ListNode.ListNodes;
 import byransha.Log;
 import byransha.OSNode;
 import byransha.StringNode;
@@ -295,7 +293,6 @@ public class WebServer extends BNode {
         BNode.create(g, UI.getProperties.class);
         BNode.create(g, Summarizer.class);
         BNode.create(g, LoadImage.class);
-        BNode.create(g, ListNodes.class);
         BNode.create(g, ClassInformation.class);
         BNode.create(g, ClassAttributeField.class);
         BNode.create(g, AddNode.class);
@@ -1156,13 +1153,14 @@ public class WebServer extends BNode {
                         .toList()
                 )
             );
-            r.set(
+            r.put(
                 "active users",
                 new TextNode(
                     "" +
                     n
                         .activeUsers()
-                        .l.stream()
+                        .getElements()
+                        .stream()
                         .map(uu -> uu.name.get())
                         .toList()
                 )

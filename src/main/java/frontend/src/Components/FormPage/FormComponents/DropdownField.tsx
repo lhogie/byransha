@@ -36,19 +36,56 @@ const DropdownField = ({
 	multiple = false,
 	...rest
 }: DropdownFieldProps) => {
-	const shortName = field.listNodeType.split(".").pop();
+	const shortName = field.listNodeType?.split(".").pop();
+
+	const choices = field.choices || [];
+	const hasStaticChoices = choices.length > 0;
+
+	const {
+		data: rawApiData,
+		isLoading: rawApiDataLoading,
+		isError: rawApiDataError,
+	} = useApiData(`class_attribute_field`, {
+		node_id: field.id,
+	});
+
+	useEffect(() => {
+		if (
+			!hasStaticChoices &&
+			!rawApiDataLoading &&
+			!rawApiDataError &&
+			rawApiData?.data?.results?.[0]?.result?.data?.attributes?.length !== 0
+		) {
+			onFirstChange(
+				rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map(
+					(data: any) => ({
+						label: data.name.split(". ")[1],
+						value: data.id,
+					}),
+				)?.[0],
+			);
+		}
+	}, [
+		hasStaticChoices,
+		rawApiDataLoading,
+		rawApiDataError,
+		onFirstChange,
+		rawApiData?.data?.results?.[0]?.result?.data?.attributes?.length,
+		rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map,
+	]);
 
 	const {
 		data: listData,
 		isLoading,
 		isError,
 		error: apiError,
-	} = useApiData("list_existing_node", {
+	} = useApiData(hasStaticChoices ? undefined : "list_existing_node", {
 		type: shortName,
 	});
 
 	useEffect(() => {
 		if (
+			hasStaticChoices &&
 			!isLoading &&
 			!isError &&
 			listData?.data?.results?.[0]?.result?.data?.length !== 0 &&
@@ -73,6 +110,7 @@ const DropdownField = ({
 			}
 		}
 	}, [
+		hasStaticChoices,
 		isLoading,
 		isError,
 		defaultValue,
@@ -88,43 +126,46 @@ const DropdownField = ({
 				disablePortal
 				renderInput={(params) => <TextField {...params} error={error} />}
 				options={
-					listData?.data?.results?.[0]?.result?.data
-						.map((option: any) => {
-							const firstLetter = option.name[0].toUpperCase();
+					hasStaticChoices
+						? choices.map((choice: string) => ({
+								label: choice,
+								value: choice,
+								firstLetter: choice[0].toUpperCase(),
+							}))
+						: listData?.data?.results?.[0]?.result?.data
+								.map((option: any) => {
+									const firstLetter = option.name[0].toUpperCase();
 
-							return {
-								label: option.name,
-								value: option.id,
-								firstLetter:
-									option.name === "France(FR)"
-										? " "
-										: /[0-9]/.test(firstLetter)
-											? "0-9"
-											: firstLetter,
-							};
-						})
-						.sort(
-							(
-								a: {
-									label: string;
-									value: string;
-									firstLetter: string;
-								},
-								b: {
-									label: string;
-									value: string;
-									firstLetter: string;
-								},
-							) => {
-								// Sort by firstLetter first to ensure correct grouping
-								// Space " " comes before "0-9" and letters, so France(FR) will be at the top
-								if (a.firstLetter !== b.firstLetter) {
-									return a.firstLetter.localeCompare(b.firstLetter);
-								}
-								// Then sort by label for items within the same group
-								return a.label.localeCompare(b.label);
-							},
-						) || []
+									return {
+										label: option.name,
+										value: option.id,
+										firstLetter:
+											option.name === "France(FR)"
+												? " "
+												: /[0-9]/.test(firstLetter)
+													? "0-9"
+													: firstLetter,
+									};
+								})
+								.sort(
+									(
+										a: {
+											label: string;
+											value: string;
+											firstLetter: string;
+										},
+										b: {
+											label: string;
+											value: string;
+											firstLetter: string;
+										},
+									) => {
+										if (a.firstLetter !== b.firstLetter) {
+											return a.firstLetter.localeCompare(b.firstLetter);
+										}
+										return a.label.localeCompare(b.label);
+									},
+								) || []
 				}
 				groupBy={(option) => option.firstLetter}
 				getOptionKey={(option) => option.value ?? ""}

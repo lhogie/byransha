@@ -112,11 +112,11 @@ public class AcademiaDB extends BBGraph {
                     );
 
                     if (campus != null && !officeName.isBlank()) {
-                        for (var b : campus.buildings.l) {
+                        for (var b : campus.buildings.getElements()) {
                             var office = b.findOffice(officeName);
 
                             if (office != null) {
-                                p.offices.add(office);
+                                p.offices.add((Office) office);
                             }
                         }
                     }

@@ -30,11 +30,11 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     @Override
     public EndpointJsonResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode currentNode
+        ObjectNode in,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode currentNode
     ) throws Throwable {
         ArrayNode dataArray = new ArrayNode(null);
         String query;
@@ -43,10 +43,8 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         // Handle SearchForm inputs
         if (currentNode instanceof SearchForm && in.isEmpty()) {
             currentNode.forEachOut((name, outNode) -> {
-                if (outNode instanceof RadioNode<?> rn) {
-                    if (rn.getSelectedOption() != null) {
-                        options.put(name, rn.getSelectedOption().toString());
-                    }
+                if (outNode instanceof ListNode<?> rn) {
+                    options.put(name, rn.getSelected());
                 } else if (outNode instanceof ValuedNode vn) {
                     options.put(name, vn.getAsString());
                 }
@@ -60,7 +58,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         }
 
         // Pagination parameters
-        int page     = in.has("page")     ? in.get("page").asInt()     : 1;
+        int page = in.has("page") ? in.get("page").asInt() : 1;
         int pageSize = in.has("pageSize") ? in.get("pageSize").asInt() : 50;
 
         if (page < 1) page = 1;
@@ -71,35 +69,46 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         in.remove("pageSize");
 
         if (query == null || query.isEmpty()) {
-            return ErrorResponse.badRequest("Query parameter is missing or empty.");
+            return ErrorResponse.badRequest(
+                "Query parameter is missing or empty."
+            );
         }
 
         // Search matching nodes
         var nodes = graph.findAll(BusinessNode.class, node -> {
             boolean baseCondition =
-                    !node.deleted &&
-                            !node.getClass().getSimpleName().equals("SearchForm") &&
-                            node.prettyName().toLowerCase().contains(query.toLowerCase());
+                !node.deleted &&
+                !node.getClass().getSimpleName().equals("SearchForm") &&
+                node.prettyName().toLowerCase().contains(query.toLowerCase());
 
-//            if (!options.isEmpty() && baseCondition) {
-//                String classOption = options.get("searchClass");
-//                if (
-//                        classOption != null &&
-//                                !classOption.equalsIgnoreCase("null") &&
-//                                !classOption.equals("") &&
-//                                !node.getClass().getSimpleName().toLowerCase().contains(classOption.toLowerCase())
-//                ) return false;
-//            }
+            if (!options.isEmpty() && baseCondition) {
+                String classOption = options.get("searchClass");
+                if (
+                    classOption != null &&
+                    !classOption.equalsIgnoreCase("null") &&
+                    !classOption.equals("") &&
+                    !node
+                        .getClass()
+                        .getSimpleName()
+                        .toLowerCase()
+                        .contains(classOption.toLowerCase())
+                ) return false;
+            }
 
             return baseCondition;
         });
 
         // Sort by Levenshtein distance
-        nodes.sort(Comparator.comparingInt(node -> {
-            String name = node.prettyName();
-            if (name == null) return Integer.MAX_VALUE;
-            return TextUtilities.computeLevenshteinDistance(name.toLowerCase(), query);
-        }));
+        nodes.sort(
+            Comparator.comparingInt(node -> {
+                String name = node.prettyName();
+                if (name == null) return Integer.MAX_VALUE;
+                return TextUtilities.computeLevenshteinDistance(
+                    name.toLowerCase(),
+                    query
+                );
+            })
+        );
 
         int total = nodes.size();
         int fromIndex = Math.min((page - 1) * pageSize, total);
@@ -121,7 +130,10 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         response.put("total", new IntNode(total));
         response.put("hasNext", BooleanNode.valueOf(toIndex < total));
 
-        return new EndpointJsonResponse(response, "Search results for: " + query);
+        return new EndpointJsonResponse(
+            response,
+            "Search results for: " + query
+        );
     }
 
     private void addNodeInfo(ArrayNode a, BNode node) {
@@ -134,7 +146,10 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         node.forEachOut((name, outNode) -> {
             if (outNode instanceof ImageNode imageNode) {
                 nodeInfo.set("img", new TextNode(imageNode.getAsString()));
-                nodeInfo.set("imgMimeType", new TextNode(imageNode.getMimeType()));
+                nodeInfo.set(
+                    "imgMimeType",
+                    new TextNode(imageNode.getMimeType())
+                );
             }
         });
 

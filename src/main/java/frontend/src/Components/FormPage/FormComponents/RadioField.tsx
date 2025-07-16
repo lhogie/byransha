@@ -1,4 +1,3 @@
-import type React from "react";
 import {
 	FormControl,
 	FormHelperText,
@@ -14,6 +13,7 @@ export type RadioFieldProps = {
 	defaultValue?: string;
 	onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
 	onChange: (value: any) => void;
+	onFirstChange: (value: any) => void;
 	error: boolean;
 	helperText: string;
 };
@@ -27,6 +27,7 @@ const RadioField = ({
 	onChange,
 	error,
 	helperText,
+	onFirstChange,
 	...rest
 }: RadioFieldProps) => {
 	return (
@@ -39,7 +40,7 @@ const RadioField = ({
 				onFocus={onFocus}
 				{...rest}
 			>
-				{field.options.map((option: any, index: any) => (
+				{field.choices?.map((option: any, index: any) => (
 					<FormControlLabel
 						key={index}
 						value={index}

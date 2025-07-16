@@ -62,6 +62,7 @@ public abstract class BNode {
             N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
             if (!nodeClass.getSimpleName().equals("Cluster")) newNode.init();
             g.accept(newNode);
+            newNode.initialized();
             return newNode;
         } catch (Exception e) {
             throw new RuntimeException(
@@ -73,6 +74,10 @@ public abstract class BNode {
 
     protected void init() {
         this.createOrAssignCluster();
+    }
+
+    protected void initialized() {
+        // This method can be overridden by subclasses to perform additional initialization
     }
 
     public void createOrAssignCluster() {
@@ -733,8 +738,8 @@ public abstract class BNode {
                                         >) value).get()).length();
                             } else if (value instanceof ListNode) {
                                 length = ((ListNode<?>) value).size();
-                            } else if (value instanceof SetNode) {
-                                length = ((SetNode<?>) value).size();
+                            } else if (value instanceof ListNode) {
+                                length = ((ListNode<?>) value).size();
                             }
 
                             if (

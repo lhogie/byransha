@@ -26,7 +26,13 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
     }
 
     @Override
-    public EndpointJsonResponse exec (ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
+    public EndpointJsonResponse exec(
+        ObjectNode in,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode currentNode
+    ) throws Throwable {
         var a = new ObjectNode(null);
         int idToLink = requireParm(in, "id").asInt();
         a.put("id of the list to link", new IntNode(currentNode.id()));
@@ -34,9 +40,10 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         var existingNode = graph.findByID(idToLink);
         if (existingNode == null) {
-            return ErrorResponse.notFound("Node with ID " + idToLink + " does not exist in the graph.");
-        }
-        else{
+            return ErrorResponse.notFound(
+                "Node with ID " + idToLink + " does not exist in the graph."
+            );
+        } else {
             a.put("id", new IntNode(existingNode.id()));
             a.put("name", new TextNode(existingNode.prettyName()));
 
@@ -45,20 +52,11 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
                 ListNode<N> typedListNode = (ListNode<N>) listNode;
                 typedListNode.add((N) existingNode);
             }
-
-            if(currentNode instanceof SetNode<?> setNode) {
-                @SuppressWarnings("unchecked")
-                SetNode<N> typedSetNode = (SetNode<N>) setNode;
-                typedSetNode.add((N) existingNode);
-            }
-
-            if(currentNode instanceof DropdownNode<?> dropdownNode) {
-                @SuppressWarnings("unchecked")
-                DropdownNode<N> typedDropdownNode = (DropdownNode<N>) dropdownNode;
-                typedDropdownNode.set((N) existingNode);
-            }
         }
 
-        return new EndpointJsonResponse(a, "Add_existing_node call executed successfully");
+        return new EndpointJsonResponse(
+            a,
+            "Add_existing_node call executed successfully"
+        );
     }
 }

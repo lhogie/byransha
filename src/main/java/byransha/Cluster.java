@@ -1,8 +1,6 @@
 package byransha;
 
-import byransha.labmodel.model.v0.BusinessNode;
-
-public class Cluster extends SetNode<BNode> {
+public class Cluster extends ListNode<BNode> {
 
     public String typeOfCluster;
 

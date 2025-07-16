@@ -1,4 +1,9 @@
-import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
+import {
+	skipToken,
+	useInfiniteQuery,
+	useMutation,
+	useQuery,
+} from "@tanstack/react-query";
 import { Decoder } from "cbor-x/decode";
 import axios from "axios";
 
@@ -6,9 +11,8 @@ const decoder = new Decoder({
 	mapsAsObjects: true,
 });
 
-// Custom hook to fetch API data with TanStack Query
 export const useApiData = (
-	endpoints: string,
+	endpoints?: string,
 	params: any = {},
 	querySettings?: any,
 ) => {
@@ -41,20 +45,23 @@ export const useApiData = (
 		};
 	}>({
 		initialData: undefined,
-		queryKey: ["apiData", endpoints, params], // Unique key for caching
-		queryFn: () =>
-			axios
-				.get(url, {
-					withCredentials: true,
-					headers: {
-						Accept: "application/cbor",
-					},
-					responseType: "arraybuffer",
-				})
-				.then((res) => ({
-					...res,
-					data: decoder.decode(new Uint8Array(res.data)),
-				})),
+		queryKey: ["apiData", endpoints, params],
+		queryFn:
+			endpoints === undefined
+				? skipToken
+				: () =>
+						axios
+							.get(url, {
+								withCredentials: true,
+								headers: {
+									Accept: "application/cbor",
+								},
+								responseType: "arraybuffer",
+							})
+							.then((res) => ({
+								...res,
+								data: decoder.decode(new Uint8Array(res.data)),
+							})),
 		retry: 2,
 		staleTime: 60000,
 		...querySettings,
@@ -62,7 +69,7 @@ export const useApiData = (
 };
 
 export const useInfiniteApiData = (
-	endpoints: string,
+	endpoints?: string,
 	params: any = {},
 	querySettings?: any,
 ) => {
@@ -102,20 +109,23 @@ export const useInfiniteApiData = (
 		};
 	}>({
 		initialData: undefined,
-		queryKey: ["apiData", endpoints, params], // Unique key for caching
-		queryFn: ({ pageParam }: { pageParam: number }) =>
-			axios
-				.get(getUrl(pageParam), {
-					withCredentials: true,
-					headers: {
-						Accept: "application/cbor",
-					},
-					responseType: "arraybuffer",
-				})
-				.then((res) => ({
-					...res,
-					data: decoder.decode(new Uint8Array(res.data)),
-				})),
+		queryKey: ["apiData", endpoints, params],
+		queryFn:
+			endpoints === undefined
+				? skipToken
+				: ({ pageParam }: { pageParam: number }) =>
+						axios
+							.get(getUrl(pageParam), {
+								withCredentials: true,
+								headers: {
+									Accept: "application/cbor",
+								},
+								responseType: "arraybuffer",
+							})
+							.then((res) => ({
+								...res,
+								data: decoder.decode(new Uint8Array(res.data)),
+							})),
 		getNextPageParam: (lastPage, _allPages, _lastPageParam, _allPageParams) =>
 			lastPage.data.results[0].result.data.hasNext
 				? lastPage.data.results[0].result.data.page + 1
@@ -127,24 +137,31 @@ export const useInfiniteApiData = (
 	});
 };
 
-export const useApiMutation = (endpoints: string, options: any = {}) => {
+export const useApiMutation = (endpoints?: string, options: any = {}) => {
 	return useMutation<any, any, any, any>({
-		mutationFn: (data: any) => {
-			return axios
-				.post(`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`, data, {
-					withCredentials: true,
-					headers: {
-						Accept: "application/cbor",
+		mutationFn:
+			endpoints === undefined
+				? skipToken
+				: async (data: any) => {
+						return axios
+							.post(
+								`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}`,
+								data,
+								{
+									withCredentials: true,
+									headers: {
+										Accept: "application/cbor",
+									},
+									responseType: "arraybuffer",
+								},
+							)
+							.then((res) => {
+								return {
+									...res,
+									data: decoder.decode(new Uint8Array(res.data)),
+								};
+							});
 					},
-					responseType: "arraybuffer",
-				})
-				.then((res) => {
-					return {
-						...res,
-						data: decoder.decode(new Uint8Array(res.data)),
-					};
-				});
-		},
 		...options,
 	});
 };

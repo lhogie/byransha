@@ -73,15 +73,6 @@ export const SearchBar = ({ key }: { key?: string }) => {
 	}[] =
 		data?.pages.flatMap((d) => d.data?.results?.[0]?.result?.data?.data) || [];
 
-	console.log("SearchBar Debug:", {
-		query,
-		debounceQuery,
-		isOpen,
-		isLoading,
-		results: results.length,
-		data: data?.pages?.length,
-	});
-
 	const rowVirtualizer = useVirtualizer({
 		count: hasNextPage ? results.length + 1 : results.length,
 		estimateSize: () => 60,

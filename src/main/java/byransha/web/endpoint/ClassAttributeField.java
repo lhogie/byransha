@@ -14,6 +14,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,6 +41,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         final String pattern;
         final boolean hasPattern;
         final String genericType;
+        final ListOptions listOptions;
+        final List<String> choices;
 
         FieldMetadata(Field field) {
             this.field = field;
@@ -61,6 +64,16 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             this.pattern = hasPattern
                 ? field.getAnnotation(Pattern.class).regex()
                 : null;
+
+            // Extract ListOptions and choices
+            this.listOptions = field.getAnnotation(ListOptions.class);
+            this.choices = new ArrayList<>();
+            if (
+                listOptions != null &&
+                listOptions.source() == ListOptions.OptionsSource.STATIC
+            ) {
+                this.choices.addAll(Arrays.asList(listOptions.staticOptions()));
+            }
 
             var genericFieldType = field.getGenericType();
             if (
@@ -251,10 +264,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             addGenericTypeInfo(b, node, name);
         }
 
-        if (out instanceof RadioNode<?> radioNode) {
-            addRadioNodeOptions(b, radioNode);
-        }
-
         if (!skipValidation) {
             addValidationInfo(b, node, name);
         }
@@ -263,31 +272,109 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     }
 
     private void addCollectionNodeInfo(ObjectNode b, BNode out) {
-        if (out instanceof ListNode<?> ln) {
-            b.set("canAddNewNode", BooleanNode.valueOf(ln.canAddNewNode()));
-            b.set("isDropdown", BooleanNode.valueOf(ln.isDropdown()));
-        } else if (out instanceof SetNode<?> sn) {
-            b.set("canAddNewNode", BooleanNode.valueOf(sn.canAddNewNode()));
-            b.set("isDropdown", BooleanNode.valueOf(sn.isDropdown()));
-        } else if (out instanceof DropdownNode<?> dn) {
-            b.set("canAddNewNode", BooleanNode.valueOf(dn.canAddNewNode()));
-            b.set("isDropdown", BooleanNode.valueOf(dn.isDropdown()));
+        if (out instanceof ListNode<?> lc) {
+            b.set("canAddNewNode", BooleanNode.valueOf(lc.canAddNewNode()));
+            b.set("isDropdown", BooleanNode.valueOf(lc.isDropdown()));
+            b.set("allowMultiple", BooleanNode.valueOf(lc.allowMultiple()));
+            b.set("source", new TextNode(lc.getOptionsSource().name()));
         }
     }
 
     private boolean isCollectionNode(BNode out) {
-        return (
-            out instanceof ListNode<?> ||
-            out instanceof SetNode<?> ||
-            out instanceof DropdownNode<?>
-        );
+        return out instanceof ListNode<?>;
     }
 
     private void addGenericTypeInfo(ObjectNode b, BNode node, String name) {
         try {
             FieldMetadata metadata = getFieldMetadata(node.getClass(), name);
-            if (metadata != null && metadata.genericType != null) {
-                b.set("listNodeType", new TextNode(metadata.genericType));
+            if (metadata != null) {
+                if (metadata.genericType != null) {
+                    b.set("listNodeType", new TextNode(metadata.genericType));
+                }
+
+                // Add ListOptions information directly to the attribute
+                if (metadata.listOptions != null) {
+                    b.set(
+                        "listType",
+                        new TextNode(metadata.listOptions.type().name())
+                    );
+                    b.set(
+                        "source",
+                        new TextNode(metadata.listOptions.source().name())
+                    );
+                    b.set(
+                        "allowCreation",
+                        BooleanNode.valueOf(
+                            metadata.listOptions.allowCreation()
+                        )
+                    );
+                    b.set(
+                        "displayAsDropdown",
+                        BooleanNode.valueOf(
+                            metadata.listOptions.displayAsDropdown()
+                        )
+                    );
+                    b.set(
+                        "allowMultiple",
+                        BooleanNode.valueOf(
+                            metadata.listOptions.allowMultiple()
+                        )
+                    );
+                    b.set(
+                        "maxItems",
+                        new IntNode(metadata.listOptions.maxItems())
+                    );
+                    b.set(
+                        "minItems",
+                        new IntNode(metadata.listOptions.minItems())
+                    );
+                    b.set(
+                        "elementType",
+                        new TextNode(metadata.listOptions.elementType().name())
+                    );
+
+                    // If it's a radio we give value which is the index
+                    // of the selected item
+
+                    if (
+                        metadata.listOptions.type() ==
+                        ListOptions.ListType.RADIO
+                    ) {
+                        var out = metadata.field.get(node);
+
+                        if (out instanceof ListNode<?> lc) {
+                            b.set("value", new IntNode(lc.getSelectedIndex()));
+                        }
+                    }
+
+                    // Add choices/options
+                    if (!metadata.choices.isEmpty()) {
+                        ArrayNode choicesArray =
+                            JsonNodeFactory.instance.arrayNode();
+                        for (String choice : metadata.choices) {
+                            choicesArray.add(choice);
+                        }
+                        b.set("choices", choicesArray);
+                    } else if (
+                        metadata.listOptions.source() ==
+                        ListOptions.OptionsSource.PROGRAMMATIC
+                    ) {
+                        var out = metadata.field.get(node);
+
+                        if (out instanceof ListNode<?> lc) {
+                            ArrayNode optionsArray =
+                                JsonNodeFactory.instance.arrayNode();
+                            for (Object option : lc.getOptionsList()) {
+                                if (option == null) {
+                                    optionsArray.add(NullNode.getInstance());
+                                } else {
+                                    optionsArray.add(option.toString());
+                                }
+                            }
+                            b.set("choices", optionsArray);
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             System.err.println(
@@ -295,31 +382,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 name +
                 ": " +
                 e.getMessage()
-            );
-        }
-    }
-
-    private void addRadioNodeOptions(ObjectNode b, RadioNode<?> radioNode) {
-        try {
-            b.set(
-                "options",
-                JsonNodeFactory.instance
-                    .arrayNode()
-                    .addAll(
-                        radioNode
-                            .getOptions()
-                            .stream()
-                            .map(option ->
-                                option == null
-                                    ? NullNode.getInstance()
-                                    : new TextNode(option.toString())
-                            )
-                            .collect(Collectors.toList())
-                    )
-            );
-        } catch (Exception e) {
-            System.err.println(
-                "Error getting radio node options: " + e.getMessage()
             );
         }
     }

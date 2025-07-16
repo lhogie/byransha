@@ -1,36 +1,53 @@
 package byransha;
 
-import byransha.annotations.ListSettings;
+import byransha.annotations.ListOptions;
 import byransha.labmodel.model.v0.BusinessNode;
-
 import java.util.ArrayList;
 
-public class SearchForm extends PersistingNode{
+public class SearchForm extends PersistingNode {
 
     public StringNode searchTerm;
-    public RadioNode<String> searchClass;
+
+    @ListOptions(
+        type = ListOptions.ListType.RADIO,
+        elementType = ListOptions.ElementType.STRING,
+        allowCreation = false,
+        source = ListOptions.OptionsSource.PROGRAMMATIC
+    )
+    public ListNode<StringNode> searchClass;
+
+    @ListOptions(type = ListOptions.ListType.LIST, allowCreation = false)
     public ListNode<BNode> results;
 
     public SearchForm(BBGraph g) {
         super(g);
-
         searchTerm = BNode.create(g, StringNode.class);
-        searchClass = BNode.create(g, RadioNode.class);
+        searchClass = BNode.create(g, ListNode.class);
         results = BNode.create(g, ListNode.class);
-
-        var allClass = new ArrayList<String>();
-        g.forEachNode(node-> {
-            if (node instanceof BusinessNode && allClass.stream().noneMatch(s -> s.equals(node.getClass().getSimpleName()))) {
-                allClass.add(node.getClass().getSimpleName());
-            }
-        });
-
-        allClass.forEach(c -> {searchClass.addOption(c);});
-
     }
 
     public SearchForm(BBGraph g, int id) {
         super(g, id);
+    }
+
+    @Override
+    protected void initialized() {
+        super.initialized();
+
+        var allClass = new ArrayList<String>();
+        graph.forEachNode(node -> {
+            if (
+                node instanceof BusinessNode &&
+                allClass
+                    .stream()
+                    .noneMatch(s -> s.equals(node.getClass().getSimpleName()))
+            ) {
+                allClass.add(node.getClass().getSimpleName());
+            }
+        });
+
+        searchClass.setStaticOptions(allClass);
+        System.out.println("SearchForm initialized with classes: " + allClass);
     }
 
     @Override
@@ -40,7 +57,7 @@ public class SearchForm extends PersistingNode{
 
     @Override
     public String prettyName() {
-        if(searchTerm.get() == null) return "Search Form";
+        if (searchTerm.get() == null) return "Search Form";
         else return searchTerm.get();
     }
 }

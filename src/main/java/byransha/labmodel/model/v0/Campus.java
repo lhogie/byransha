@@ -4,28 +4,32 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
+import byransha.annotations.ListOptions;
+import byransha.annotations.ListOptions;
+import byransha.annotations.ListOptions;
 
 public class Campus extends BusinessNode {
-	public StringNode name;
-	public ListNode<Building> buildings;
 
-	public Campus(BBGraph g) {
-		super(g);
-		name = BNode.create(g, StringNode.class);
-		buildings = BNode.create(g, ListNode.class);
-	}
+    public StringNode name;
+    public ListNode<Building> buildings;
 
-	public Campus(BBGraph g, int id) {
-		super(g, id);
-	}
+    public Campus(BBGraph g) {
+        super(g);
+        name = BNode.create(g, StringNode.class);
+        buildings = BNode.create(g, ListNode.class);
+    }
 
-	@Override
-	public String prettyName() {
-		return "campus";
-	}
+    public Campus(BBGraph g, int id) {
+        super(g, id);
+    }
 
-	@Override
-	public String whatIsThis() {
-		return "Campus: " + name.get();
-	}
+    @Override
+    public String prettyName() {
+        return "campus";
+    }
+
+    @Override
+    public String whatIsThis() {
+        return "Campus: " + name.get();
+    }
 }

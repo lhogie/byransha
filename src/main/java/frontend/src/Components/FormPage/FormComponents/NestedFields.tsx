@@ -53,14 +53,6 @@ const NestedFields = ({
 	const [loadingExistingNodes, setLoadingExistingNodes] =
 		useState<boolean>(false);
 
-	const _stringifyData = useCallback(
-		(data: any, indent: string | number = 2) => {
-			if (!data) return "";
-			return JSON.stringify(data, null, indent === "tab" ? "\t" : indent);
-		},
-		[],
-	);
-
 	// Handle functions - memoized to prevent unnecessary re-renders
 
 	const handleChangingForm = useCallback(
@@ -268,14 +260,14 @@ const NestedFields = ({
 							</Typography>
 						))}
 
-					{listField.includes(type) && isToggle && !field.isDropdown && (
+					{listField.includes(type) && isToggle && field.canAddNewNode && (
 						<Stack
 							direction="row"
 							spacing={2}
 							className="add-new-node"
 							sx={{ mt: 2 }}
 						>
-							{field.canAddNewNode ?? (
+							{field.allowCreation ?? (
 								<Button
 									variant="outlined"
 									startIcon={<AddIcon />}
