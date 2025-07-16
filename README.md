@@ -13,24 +13,38 @@ Byransha consists of:
 The first use case and initial motivation for this project is to provide the I3S laboratory
 with an human resources dashboard.
 
+## the backend
+The backend is a Java process which exposes a graph of both technical and business nodes in a graph.
+The graph is accessible from external processes via a set of JSON Web-services.
+Each web service is defined to apply to a certain class of nodes.
 
-## frontend
+### data persistence
+We have defined a mapping between the graph in-memory and the tree projection on disk. 
+
+
+## the frontend
+The frontend is written in TypeScript and relies on React.js.
+It defines that the user is working on a single node at a time. On that node, many endpoints can be executed, some of
+them providing information of the node, so as to feed a *view* on the frontend.
+The frontend is then organized as a grid of such views for the _current node_.
+There exist technical views and business views.
+
 
 # Configuration for developers
-If you plan to develop Byransha and run it locally, you'll need [Bun](https://bun.sh).
-Then go to the frontend directory  `~\byransha\src\main\java\frontend` and install dependencies
-by running:
+If you plan to develop Byransha and run it locally, you'll need the [Bun](https://bun.sh) on-the-fly compiler.
+Go to the frontend source directory  `~\byransha\src\main\java\frontend` to:
+- install dependencies:
 ```bash
 bun install
 ```
-Then run the TypeScript on-the-fly compiler:
+- run it:
 ```bash
 bun start
 ```
+When you make changes to the frontend directory, [bun] recompiles automatically  and you can view the updates in your browser. No refresh needed.
 
 Run class `byransha.web.WebServer` to start the backend.
 
-When you make changes to the frontend directory, the server will automatically reload. You can view the updates in your browser without needing to refresh the page.
 
 
 # Team
@@ -38,7 +52,7 @@ When you make changes to the frontend directory, the server will automatically r
 - Kishan Turpin (Master 2 student)
 - Quentin Nicolini (Master 1 student)
 
-## Former students
+## former members
 
 - Lamyae Fakir
 - Mathéo BALAZUC
