@@ -6,18 +6,19 @@ The first use case and initial motivation for this project is to provide the I3S
 # Configuration
 
 ## Development frontend
-To run the frontend locally in development mode, ensure you have the following installed:
-- [Node.js](https://nodejs.org/en)
-- [Bun](https://bun.sh)
+To run the frontend locally in development mode, ensure you have [Bun](https://bun.sh) installed.
 
 ### Install Dependencies
-Navigate to the frontend directory located at `~\byransha\src\main\java\frontend` and run the following command:
+Navigate to the frontend directory  `~\byransha\src\main\java\frontend` and run:
 ```bash
 bun install
 ```
 
-### Start the Frontend
-First, run `Webserver.java`. Then, in the same frontend directory, execute the following command:
+### First start the backend
+Run class `byransha.web.WebServer`.
+
+### Then start the Frontend
+In the same frontend directory, execute:
 ```bash
 bun start
 ```
