@@ -1,179 +1,175 @@
-body {
-	background: #ffffff !important;
-}
-
 .container {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	height: 100vh; /* Full viewport height */
-	padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /* Full viewport height */
+  padding: 20px;
 }
 
 .image-container {
-	max-width: 200px;
-	margin: 0 80px;
+  max-width: 200px;
+  margin: 0 80px;
 }
 
 .image-container img {
-	width: 100%;
-	height: auto;
-	border-radius: 10px;
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
 }
 
 .wrapper {
-	width: 400px;
-	background: transparent;
-	backdrop-filter: blur(30px);
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	background-color: #fff;
-	border: 1px solid #ddd;
-	color: rgb(48, 109, 173);
-	border-radius: 10px;
-	padding: 30px 40px;
-	margin-right: 20px;
+  width: 400px;
+  background: transparent;
+  backdrop-filter: blur(30px);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  border: 1px solid #ddd;
+  color: rgb(48, 109, 173);
+  border-radius: 10px;
+  padding: 30px 40px;
+  margin-right: 20px;
 }
 
 .wrapper h1 {
-	font-size: 36px;
-	text-align: center;
+  font-size: 36px;
+  text-align: center;
 }
 
 .wrapper .input-box {
-	position: relative;
-	width: 100%;
-	height: 50px;
-	margin: 30px 0;
-	/*
+  position: relative;
+  width: 100%;
+  height: 50px;
+  margin: 30px 0;
+  /*
     border: 1px solid #ddd;
     border-radius: 10px;*/
 }
 
 .input-field {
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background: none;
-	border: none;
-	outline: none;
-	border-bottom: 1px solid #bbb;
-	padding: 0;
-	font-size: 0.95rem;
-	color: rgb(82, 84, 87);
-	transition: 0.4s;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  border-bottom: 1px solid #bbb;
+  padding: 0;
+  font-size: 0.95rem;
+  color: rgb(82, 84, 87);
+  transition: 0.4s;
 }
 
 .input-box input::placeholder {
-	position: absolute;
-	left: 0;
-	top: 50%;
-	transform: translateY(-5%);
-	font-size: 0.95rem;
-	color: #bbb;
-	pointer-events: none;
-	transition: 0.4s;
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-5%);
+  font-size: 0.95rem;
+  color: #bbb;
+  pointer-events: none;
+  transition: 0.4s;
 }
 
 .input-field.active {
-	border-bottom-color: #151111;
+  border-bottom-color: #151111;
 }
 
 .input-box input:focus::placeholder,
 .input-box.not-empty input::placeholder {
-	top: -1px;
-	font-size: 0.75rem;
-	color: rgb(106, 113, 121);
+  top: -1px;
+  font-size: 0.75rem;
+  color: rgb(106, 113, 121);
 }
 
 .input-box .icon {
-	position: absolute;
-	right: 20px;
-	top: 50%;
-	transform: translateY(-50%);
-	font-size: 16px;
-	color: rgb(48, 109, 173);
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: rgb(48, 109, 173);
 }
 
 .wrapper .remember-forget {
-	display: flex;
-	justify-content: space-between;
-	font-size: 12.5px;
-	margin: -15px 0 15px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  margin: -15px 0 15px;
 }
 
 .remember-forget label input {
-	accent-color: #fff;
-	margin-right: 4px;
+  accent-color: #fff;
+  margin-right: 4px;
 }
 
 .remember-forget a {
-	color: rgb(48, 109, 173);
-	text-decoration: none;
+  color: rgb(48, 109, 173);
+  text-decoration: none;
 }
 
 .remember-forget a:hover {
-	text-decoration: underline;
+  text-decoration: underline;
 }
 
 .wrapper button {
-	position: relative;
-	width: 100%;
-	height: 45px;
-	background: #fff;
-	border: none;
-	outline: none;
-	border-radius: 40px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-	cursor: pointer;
-	font-size: 16px;
-	color: rgb(41, 82, 126);
-	font-weight: 700;
-	overflow: hidden;
-	transition:
-		background-color 250ms ease,
-		color 250ms ease;
+  position: relative;
+  width: 100%;
+  height: 45px;
+  background: #fff;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  font-size: 16px;
+  color: rgb(41, 82, 126);
+  font-weight: 700;
+  overflow: hidden;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
 }
 
 .wrapper button:hover {
-	background-color: rgb(41, 82, 126);
-	color: #fff;
+  background-color: rgb(41, 82, 126);
+  color: #fff;
 }
 
 .wrapper button span {
-	position: relative;
-	z-index: 2;
-	color: inherit;
+  position: relative;
+  z-index: 2;
+  color: inherit;
 }
 
 .wrapper button:hover span {
-	color: #fff;
+  color: #fff;
 }
 
 @media (max-width: 768px) {
-	.container {
-		flex-direction: column;
-	}
+  .container {
+    flex-direction: column;
+  }
 
-	.wrapper {
-		width: 400px;
-		margin: 0 auto;
-	}
+  .wrapper {
+    width: 400px;
+    margin: 0 auto;
+  }
 
-	.image-container {
-		margin: 20px auto;
-	}
+  .image-container {
+    margin: 20px auto;
+  }
 }
 
 @media (max-width: 480px) {
-	.wrapper {
-		padding: 20px;
-	}
+  .wrapper {
+    padding: 20px;
+  }
 
-	.input-box .icon {
-		font-size: 16px;
-	}
+  .input-box .icon {
+    font-size: 16px;
+  }
 
-	.wrapper button {
-		font-size: 14px;
-	}
+  .wrapper button {
+    font-size: 14px;
+  }
 }

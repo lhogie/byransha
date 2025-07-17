@@ -1,62 +1,62 @@
 .home-page {
-	font-family: "IBM Plex Sans", sans-serif;
+  font-family: "IBM Plex Sans", sans-serif;
 }
 
 body {
-	background: #2e3b55 !important;
+  background: #2e3b55 !important;
 }
 
 ul {
-	list-style-type: none;
-	padding: 0;
+  list-style-type: none;
+  padding: 0;
 }
 
 li {
-	margin: 10px 0;
+  margin: 10px 0;
 }
 
 pre {
-	padding: 10px;
-	border-radius: 5px;
-	font-size: 14px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
 }
 
 .erased-card {
-	margin-left: auto;
-	background: none;
-	border: none;
-	font-size: 1.5rem;
-	color: #757575;
-	cursor: pointer;
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #757575;
+  cursor: pointer;
 }
 
 .erased-card:hover {
-	color: #ff0000;
+  color: #ff0000;
 }
 
 .DragHere {
-	width: 100%;
-	text-align: center;
+  width: 100%;
+  text-align: center;
 }
 
 .expand-card {
-	margin-left: auto;
-	background: none;
-	border: none;
-	font-size: 1.5rem;
-	color: #757575;
-	cursor: pointer;
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #757575;
+  cursor: pointer;
 }
 
 .expand-card:hover {
-	color: #ff0000;
+  color: #ff0000;
 }
 
 .add-node {
-	margin-left: auto;
-	background: none;
-	border: none;
-	font-size: 1.5rem;
-	color: #757575;
-	cursor: pointer;
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #757575;
+  cursor: pointer;
 }

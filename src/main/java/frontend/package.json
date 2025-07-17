@@ -1,104 +1,104 @@
 {
-	"name": "login_page",
-	"version": "0.1.0",
-	"private": true,
-	"type": "module",
-	"dependencies": {
-		"@babel/runtime": "7.27.6",
-		"@emotion/react": "11.14.0",
-		"@emotion/styled": "11.14.1",
-		"@hookform/resolvers": "5.1.1",
-		"@mui/icons-material": "7.2.0",
-		"@mui/lab": "7.0.0-beta.14",
-		"@mui/material": "7.2.0",
-		"@mui/x-data-grid": "8.7.0",
-		"@mui/x-date-pickers": "8.7.0",
-		"@rsbuild/plugin-babel": "1.0.5",
-		"@tanstack/react-query": "5.81.5",
-		"@tanstack/react-query-devtools": "5.81.5",
-		"@tanstack/react-virtual": "^3.13.12",
-		"@toolpad/core": "0.16.0",
-		"@types/file-saver": "2.0.7",
-		"@uiw/react-color-sketch": "2.6.0",
-		"axios": "1.10.0",
-		"babel-plugin-react-compiler": "19.1.0-rc.2",
-		"caniuse-lite": "1.0.30001727",
-		"cbor-x": "1.6.0",
-		"cytoscape": "3.32.1",
-		"cytoscape-fcose": "2.2.0",
-		"d3-graphviz": "5.6.0",
-		"dayjs": "1.11.13",
-		"echarts": "5.6.0",
-		"echarts-for-react": "3.0.2",
-		"file-saver": "2.0.5",
-		"jspdf": "3.0.1",
-		"jspdf-autotable": "5.0.2",
-		"pdfjs-dist": "5.3.31",
-		"react": "19.1.0",
-		"react-color": "2.19.3",
-		"react-dom": "19.1.0",
-		"react-hook-form": "7.60.0",
-		"react-hot-toast": "2.5.2",
-		"react-icons": "5.5.0",
-		"react-intersection-observer": "9.16.0",
-		"react-json-view-lite": "2.4.1",
-		"react-pdf": "10.0.1",
-		"react-router": "7.6.3",
-		"react-scripts": "5.0.1",
-		"use-debounce": "10.0.5",
-		"web-vitals": "5.0.3",
-		"yup": "1.6.1"
-	},
-	"scripts": {
-		"start": "rsbuild dev",
-		"build": "rsbuild build",
-		"serve": "rsbuild preview",
-		"lint": "biome ci src/",
-		"lint:fix": "biome format --write ./ && biome lint --write ./",
-		"dev:rsdoctor": "RSDOCTOR=true rsbuild dev",
-		"build:rsdoctor": "RSDOCTOR=true rsbuild build"
-	},
-	"eslintConfig": {
-		"extends": [
-			"react-app",
-			"react-app/jest"
-		]
-	},
-	"browserslist": {
-		"production": [
-			">0.2%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 1 chrome version",
-			"last 1 firefox version",
-			"last 1 safari version"
-		]
-	},
-	"devDependencies": {
-		"@babel/plugin-proposal-private-property-in-object": "7.21.11",
-		"@biomejs/biome": "2.1.1",
-		"@rsbuild/core": "1.4.5",
-		"@rsbuild/plugin-react": "1.3.4",
-		"@rsbuild/plugin-type-check": "1.2.3",
-		"@rsdoctor/rspack-plugin": "1.1.8",
-		"@types/bun": "1.2.18",
-		"@types/cytoscape": "3.21.9",
-		"@types/cytoscape-fcose": "2.2.4",
-		"@types/d3-graphviz": "2.6.10",
-		"@types/react": "19.1.8",
-		"@types/react-color": "3.0.13",
-		"@types/react-cytoscapejs": "1.2.5",
-		"@types/react-dom": "19.1.6",
-		"@vitejs/plugin-react-swc": "3.10.2",
-		"cross-env": "7.0.3",
-		"typescript": "5.8.3"
-	},
-	"trustedDependencies": [
-		"@mui/x-telemetry",
-		"@swc/core",
-		"core-js",
-		"core-js-pure"
-	]
+  "name": "login_page",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@babel/runtime": "7.27.6",
+    "@emotion/react": "11.14.0",
+    "@emotion/styled": "11.14.1",
+    "@hookform/resolvers": "5.1.1",
+    "@mui/icons-material": "7.2.0",
+    "@mui/lab": "7.0.0-beta.14",
+    "@mui/material": "7.2.0",
+    "@mui/x-data-grid": "8.7.0",
+    "@mui/x-date-pickers": "8.7.0",
+    "@rsbuild/plugin-babel": "1.0.5",
+    "@tanstack/react-query": "5.81.5",
+    "@tanstack/react-query-devtools": "5.81.5",
+    "@tanstack/react-virtual": "^3.13.12",
+    "@toolpad/core": "0.16.0",
+    "@types/file-saver": "2.0.7",
+    "@uiw/react-color-sketch": "2.6.0",
+    "axios": "1.10.0",
+    "babel-plugin-react-compiler": "19.1.0-rc.2",
+    "caniuse-lite": "1.0.30001727",
+    "cbor-x": "1.6.0",
+    "cytoscape": "3.32.1",
+    "cytoscape-fcose": "2.2.0",
+    "d3-graphviz": "5.6.0",
+    "dayjs": "1.11.13",
+    "echarts": "5.6.0",
+    "echarts-for-react": "3.0.2",
+    "file-saver": "2.0.5",
+    "jspdf": "3.0.1",
+    "jspdf-autotable": "5.0.2",
+    "pdfjs-dist": "5.3.31",
+    "react": "19.1.0",
+    "react-color": "2.19.3",
+    "react-dom": "19.1.0",
+    "react-hook-form": "7.60.0",
+    "react-hot-toast": "2.5.2",
+    "react-icons": "5.5.0",
+    "react-intersection-observer": "9.16.0",
+    "react-json-view-lite": "2.4.1",
+    "react-pdf": "10.0.1",
+    "react-router": "7.6.3",
+    "react-scripts": "5.0.1",
+    "use-debounce": "10.0.5",
+    "web-vitals": "5.0.3",
+    "yup": "1.6.1"
+  },
+  "scripts": {
+    "start": "rsbuild dev",
+    "build": "rsbuild build",
+    "serve": "rsbuild preview",
+    "lint": "biome ci src/",
+    "lint:fix": "biome format --write ./ && biome lint --write ./",
+    "dev:rsdoctor": "RSDOCTOR=true rsbuild dev",
+    "build:rsdoctor": "RSDOCTOR=true rsbuild build"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "7.21.11",
+    "@biomejs/biome": "2.1.1",
+    "@rsbuild/core": "1.4.5",
+    "@rsbuild/plugin-react": "1.3.4",
+    "@rsbuild/plugin-type-check": "1.2.3",
+    "@rsdoctor/rspack-plugin": "1.1.8",
+    "@types/bun": "1.2.18",
+    "@types/cytoscape": "3.21.9",
+    "@types/cytoscape-fcose": "2.2.4",
+    "@types/d3-graphviz": "2.6.10",
+    "@types/react": "19.1.8",
+    "@types/react-color": "3.0.13",
+    "@types/react-cytoscapejs": "1.2.5",
+    "@types/react-dom": "19.1.6",
+    "@vitejs/plugin-react-swc": "3.10.2",
+    "cross-env": "7.0.3",
+    "typescript": "5.8.3"
+  },
+  "trustedDependencies": [
+    "@mui/x-telemetry",
+    "@swc/core",
+    "core-js",
+    "core-js-pure"
+  ]
 }
