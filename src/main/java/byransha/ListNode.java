@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 
 public class ListNode<T> extends PersistingNode {
 
-    private final Set<T> elements = ConcurrentHashMap.newKeySet();
+    private final Set<T> elements = new LinkedHashSet<>();
     private List<String> staticOptions = new ArrayList<>();
     private ListOptions.ListType listType;
     private ListOptions.OptionsSource optionsSource;
