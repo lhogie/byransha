@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from "react";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import {
 	Box,
 	Card,
@@ -11,7 +11,7 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import React, { useCallback, useMemo, useState } from "react";
 
 export type ExistingNodeSelectorProps = {
 	show: boolean;

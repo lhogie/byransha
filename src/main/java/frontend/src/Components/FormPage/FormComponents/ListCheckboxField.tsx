@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
 import {
 	Checkbox,
 	FormControl,
@@ -6,11 +6,11 @@ import {
 	FormGroup,
 	FormHelperText,
 } from "@mui/material";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { useDebouncedCallback } from "use-debounce";
-import toast from "react-hot-toast";
-import { shortenAndFormatLabel } from "@/utils/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { useDebouncedCallback } from "use-debounce";
+import { shortenAndFormatLabel } from "@/utils/utils";
 
 const ListCheckboxComponent = ({
 	option,

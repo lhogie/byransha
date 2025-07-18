@@ -1,37 +1,37 @@
-import type React from "react";
-import { useRef, useEffect, useCallback, useMemo, Suspense, memo } from "react";
-import {
-	TextField,
-	ListItem,
-	ListItemAvatar,
-	Avatar,
-	ListItemText,
-	Badge,
-	List,
-	Paper,
-	CircularProgress,
-	Box,
-	ClickAwayListener,
-	Fade,
-	ListItemButton,
-	Typography,
-} from "@mui/material";
-import { useApiMutation, useInfiniteApiData } from "@hooks/useApiData";
-import { useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
-import WarningIcon from "@mui/icons-material/Warning";
-import { useVirtualizer } from "@tanstack/react-virtual";
 import ErrorBoundary from "@components/ErrorBoundary";
 import {
 	LoadingStates,
 	useLoadingState,
 } from "@components/Loading/LoadingComponents";
 import {
-	useOptimizedState,
-	useOptimizedDebounce,
 	startTransition,
 	useDeferredValue,
+	useOptimizedDebounce,
+	useOptimizedState,
 } from "@hooks/react19";
+import { useApiMutation, useInfiniteApiData } from "@hooks/useApiData";
+import WarningIcon from "@mui/icons-material/Warning";
+import {
+	Avatar,
+	Badge,
+	Box,
+	CircularProgress,
+	ClickAwayListener,
+	Fade,
+	List,
+	ListItem,
+	ListItemAvatar,
+	ListItemButton,
+	ListItemText,
+	Paper,
+	TextField,
+	Typography,
+} from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { useVirtualizer } from "@tanstack/react-virtual";
+import type React from "react";
+import { memo, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import { useNavigate } from "react-router";
 
 // Memoized SearchResult component
 const SearchResult = memo(

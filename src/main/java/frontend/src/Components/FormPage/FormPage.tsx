@@ -1,5 +1,10 @@
 import { useParams } from "react-router";
 import "./FormPage.css";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
+import AddIcon from "@mui/icons-material/Add";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import DeleteIcon from "@mui/icons-material/Delete";
+import DownloadIcon from "@mui/icons-material/Download";
 import {
 	Box,
 	Button,
@@ -12,16 +17,11 @@ import {
 	SpeedDialIcon,
 	Typography,
 } from "@mui/material";
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { useNavigate } from "react-router";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
-import NestedFields from "./FormComponents/NestedFields";
-import { createKey, shortenAndFormatLabel } from "@/utils/utils";
-import DownloadIcon from "@mui/icons-material/Download";
-import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
-import { saveAs } from "file-saver";
 import { useQueryClient } from "@tanstack/react-query";
+import { saveAs } from "file-saver";
+import { useNavigate } from "react-router";
+import { createKey, shortenAndFormatLabel } from "@/utils/utils";
+import NestedFields from "./FormComponents/NestedFields";
 
 const FormPage = () => {
 	const { rootId: rawRootId } = useParams();

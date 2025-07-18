@@ -1,5 +1,5 @@
-import type { ChangeEvent, MouseEventHandler } from "react";
 import { Box, Button, TextField, type TextFieldProps } from "@mui/material";
+import type { ChangeEvent, MouseEventHandler } from "react";
 
 export type ImageFormFieldProps = {
 	field: any;

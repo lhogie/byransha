@@ -1,20 +1,20 @@
-import { useMemo, useCallback, useEffect, Suspense, memo } from "react";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { Box } from "@mui/material";
-import { useQueryClient } from "@tanstack/react-query";
-import { ModalComponent } from "../View/ModalComponent";
-import { ViewContent } from "../View/ViewContent";
 import ErrorBoundary from "@components/ErrorBoundary";
 import {
 	LoadingStates,
 	useLoadingState,
 } from "@components/Loading/LoadingComponents";
 import {
-	useOptimizedState,
-	useOptimizedDebounce,
 	startTransition,
 	useDeferredValue,
+	useOptimizedDebounce,
+	useOptimizedState,
 } from "@hooks/react19";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { Box } from "@mui/material";
+import { useQueryClient } from "@tanstack/react-query";
+import { memo, Suspense, useCallback, useEffect, useMemo } from "react";
+import { ModalComponent } from "../View/ModalComponent";
+import { ViewContent } from "../View/ViewContent";
 import "./View.css";
 
 interface ViewProps {

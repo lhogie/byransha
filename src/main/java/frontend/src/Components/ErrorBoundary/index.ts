@@ -1,8 +1,7 @@
-export { default } from "./ErrorBoundary";
-export { default as ErrorBoundary } from "./ErrorBoundary";
-export { useErrorBoundary, useAsyncErrorHandler } from "./useErrorBoundary";
+export { default, default as ErrorBoundary } from "./ErrorBoundary";
+export { useAsyncErrorHandler, useErrorBoundary } from "./useErrorBoundary";
 export {
-	withErrorBoundary,
-	ErrorBoundaryDecorator,
 	createErrorBoundary,
+	ErrorBoundaryDecorator,
+	withErrorBoundary,
 } from "./withErrorBoundary";

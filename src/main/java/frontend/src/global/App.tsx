@@ -1,24 +1,24 @@
-import React, {
-	useMemo,
-	useDeferredValue,
-	startTransition,
-	Suspense,
-	memo,
-} from "react";
-import { Outlet } from "react-router";
-import { createTheme } from "@mui/material";
-import { ReactRouterAppProvider } from "@toolpad/core/react-router";
 import { useApiData } from "@hooks/useApiData";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import { createTheme } from "@mui/material";
+import { frFR as corefrFR } from "@mui/material/locale";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { frFR as corefrFR } from "@mui/material/locale";
 import { frFR } from "@mui/x-date-pickers/locales";
+import { ReactRouterAppProvider } from "@toolpad/core/react-router";
+import React, {
+	memo,
+	Suspense,
+	startTransition,
+	useDeferredValue,
+	useMemo,
+} from "react";
+import { Outlet } from "react-router";
 import "dayjs/locale/fr";
-import { Toaster } from "react-hot-toast";
-import type { Navigation } from "@toolpad/core";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { LoadingStates } from "@components/Loading/LoadingComponents";
+import type { Navigation } from "@toolpad/core";
+import { Toaster } from "react-hot-toast";
 
 // Memoized theme to prevent unnecessary re-creation
 const theme = createTheme(

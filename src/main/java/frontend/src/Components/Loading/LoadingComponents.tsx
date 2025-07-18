@@ -1,5 +1,5 @@
-import React, { Suspense } from "react";
 import { Box, CircularProgress, Skeleton, Typography } from "@mui/material";
+import React, { Suspense } from "react";
 
 // Basic loading spinner with customizable size and color
 export const LoadingSpinner = ({

@@ -1,5 +1,5 @@
-import { useMemo } from "react";
 import { Box, CircularProgress } from "@mui/material";
+import { useMemo } from "react";
 import { ContentDisplay } from "./ContentDisplay";
 
 interface ViewContentProps {

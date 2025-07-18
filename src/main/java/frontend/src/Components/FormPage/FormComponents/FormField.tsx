@@ -1,4 +1,7 @@
-import React, { useCallback, useEffect, useState } from "react";
+import ColorPickerField from "@components/FormPage/FormComponents/ColorPickerField";
+import { useApiMutation } from "@hooks/useApiData";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
 	Box,
 	Button,
@@ -7,12 +10,9 @@ import {
 	IconButton,
 	Typography,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import TextFormField from "./TextFormField";
-import DateFormField from "./DateFormField.js";
-import CheckboxFormField from "./CheckboxFormField.js";
-import ImageFormField from "./ImageFormField";
+import { useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
 import {
 	checkboxField,
@@ -27,15 +27,15 @@ import {
 	typeComponent,
 	validateFieldValue,
 } from "@/utils/utils";
-import { useApiMutation } from "@hooks/useApiData";
+import CheckboxFormField from "./CheckboxFormField.js";
+import DateFormField from "./DateFormField.js";
 import DropdownField from "./DropdownField";
-import toast from "react-hot-toast";
-import RadioField from "./RadioField.js";
+import ImageFormField from "./ImageFormField";
 import ListCheckboxField from "./ListCheckboxField.js";
-import { useQueryClient } from "@tanstack/react-query";
-import PdfFormField from "./PdfFormField.js";
 import MultiDropdownField from "./MultiDropdownField.js";
-import ColorPickerField from "@components/FormPage/FormComponents/ColorPickerField";
+import PdfFormField from "./PdfFormField.js";
+import RadioField from "./RadioField.js";
+import TextFormField from "./TextFormField";
 
 const FormField = ({
 	field,

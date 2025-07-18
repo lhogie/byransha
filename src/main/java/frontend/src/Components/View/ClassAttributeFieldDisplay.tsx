@@ -3,11 +3,11 @@ import {
 	Card,
 	CardContent,
 	CardMedia,
-	Typography,
 	Grid,
+	Typography,
 } from "@mui/material";
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useRef, useMemo, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 interface ClassAttributeFieldDisplayProps {
 	content: any;

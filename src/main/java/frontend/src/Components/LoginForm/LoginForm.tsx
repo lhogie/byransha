@@ -1,11 +1,11 @@
 import { type FormEventHandler, useState } from "react";
 import "./LoginForm.css";
-import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
-import logo from "../Assets/i3S_RVB_Couleur.png";
-import { useNavigate } from "react-router";
 import { useTitle } from "@global/useTitle";
 import { useApiMutation } from "@hooks/useApiData";
 import { useQueryClient } from "@tanstack/react-query";
+import { FaEye, FaEyeSlash, FaUser } from "react-icons/fa";
+import { useNavigate } from "react-router";
+import logo from "../Assets/i3S_RVB_Couleur.png";
 
 const LoginForm = () => {
 	const [username, setUsername] = useState<string>("");

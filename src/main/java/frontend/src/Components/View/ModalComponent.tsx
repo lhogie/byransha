@@ -1,19 +1,19 @@
-import {
-	useCallback,
-	type MouseEventHandler,
-	Suspense,
-	useTransition,
-} from "react";
+import CloseIcon from "@mui/icons-material/Close";
+import CodeIcon from "@mui/icons-material/Code";
 import {
 	Box,
+	CircularProgress,
 	IconButton,
 	Modal,
 	Tooltip,
 	Typography,
-	CircularProgress,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
-import CodeIcon from "@mui/icons-material/Code";
+import {
+	type MouseEventHandler,
+	Suspense,
+	useCallback,
+	useTransition,
+} from "react";
 import { JsonView } from "react-json-view-lite";
 
 const modalStyle = {

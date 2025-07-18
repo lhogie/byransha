@@ -1,5 +1,5 @@
-import type { FocusEventHandler } from "react";
 import { Checkbox, FormControlLabel } from "@mui/material";
+import type { FocusEventHandler } from "react";
 
 const CheckboxFormField = ({
 	fieldKey,

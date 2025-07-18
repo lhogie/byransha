@@ -1,41 +1,41 @@
 import React, {
-	useState,
-	memo,
 	type MouseEventHandler,
+	memo,
+	Suspense,
+	startTransition,
 	useCallback,
 	useDeferredValue,
-	startTransition,
 	useMemo,
-	Suspense,
+	useState,
 	useTransition,
 } from "react";
 import "./HomePage.css";
-import { useNavigate } from "react-router";
-import {
-	Box,
-	Button,
-	Card,
-	CardContent,
-	CircularProgress,
-	Typography,
-	Checkbox,
-	ListItemText,
-	Menu,
-	MenuItem,
-} from "@mui/material";
-import AddIcon from "@mui/icons-material/Add";
-import RemoveIcon from "@mui/icons-material/Remove";
-import CloseIcon from "@mui/icons-material/Close";
-import Expand from "@mui/icons-material/AspectRatio";
-import { useTitle } from "@global/useTitle";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
 import { View } from "@common/View";
 import ErrorBoundary from "@components/ErrorBoundary";
 import {
 	LoadingStates,
 	useLoadingState,
 } from "@components/Loading/LoadingComponents";
-import { useOptimizedState, useOptimizedDebounce } from "@hooks/react19";
+import { useTitle } from "@global/useTitle";
+import { useOptimizedDebounce, useOptimizedState } from "@hooks/react19";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
+import AddIcon from "@mui/icons-material/Add";
+import Expand from "@mui/icons-material/AspectRatio";
+import CloseIcon from "@mui/icons-material/Close";
+import RemoveIcon from "@mui/icons-material/Remove";
+import {
+	Box,
+	Button,
+	Card,
+	CardContent,
+	Checkbox,
+	CircularProgress,
+	ListItemText,
+	Menu,
+	MenuItem,
+	Typography,
+} from "@mui/material";
+import { useNavigate } from "react-router";
 
 // Memoized ViewCard component with React 19 optimizations
 const ViewCard = memo(

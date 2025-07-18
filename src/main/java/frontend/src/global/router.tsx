@@ -1,9 +1,9 @@
-import { createBrowserRouter } from "react-router";
-import { lazy, Suspense } from "react";
-import App from "./App.js";
-import MainLayout from "./MainLayout.js";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { LoadingStates } from "@components/Loading/LoadingComponents";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter } from "react-router";
+import App from "./App.js";
+import MainLayout from "./MainLayout.js";
 
 // Lazy load components for better code splitting and performance
 const LoginForm = lazy(() => import("@components/LoginForm/LoginForm"));

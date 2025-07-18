@@ -4,8 +4,8 @@ import {
 	useMutation,
 	useQuery,
 } from "@tanstack/react-query";
-import { Decoder } from "cbor-x/decode";
 import axios from "axios";
+import { Decoder } from "cbor-x/decode";
 
 const decoder = new Decoder({
 	mapsAsObjects: true,

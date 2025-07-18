@@ -1,23 +1,23 @@
-import { useCallback, useEffect, useMemo, Suspense, memo } from "react";
-import { useParams, useNavigate } from "react-router";
-import { Box, IconButton, Typography, Fade, Zoom, Button } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { Box, Button, Fade, IconButton, Typography, Zoom } from "@mui/material";
+import { memo, Suspense, useCallback, useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router";
 import "./InformationPage.css";
-import { useTitle } from "@global/useTitle";
 import { View } from "@common/View";
 import ErrorBoundary from "@components/ErrorBoundary";
 import {
 	LoadingStates,
 	useLoadingState,
 } from "@components/Loading/LoadingComponents";
+import { useTitle } from "@global/useTitle";
 import {
-	useOptimizedState,
-	useOptimizedDebounce,
 	startTransition,
 	useDeferredValue,
+	useOptimizedDebounce,
+	useOptimizedState,
 } from "@hooks/react19";
 
 // Enhanced InformationPage with React 19 optimizations

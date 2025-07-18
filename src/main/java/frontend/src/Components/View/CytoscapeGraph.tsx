@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from "react";
-import Cytoscape, { type ElementDefinition, type Core } from "cytoscape";
+import Cytoscape, { type Core, type ElementDefinition } from "cytoscape";
 import fcose from "cytoscape-fcose";
+import { useCallback, useEffect, useRef } from "react";
 
 Cytoscape.use(fcose);
 

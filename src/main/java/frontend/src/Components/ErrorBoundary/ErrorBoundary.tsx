@@ -1,6 +1,6 @@
-import React, { Component, type ReactNode } from "react";
-import { Box, Typography, Button, Alert, AlertTitle } from "@mui/material";
 import { ErrorOutline, Refresh } from "@mui/icons-material";
+import { Alert, AlertTitle, Box, Button, Typography } from "@mui/material";
+import React, { Component, type ReactNode } from "react";
 
 interface Props {
 	children: ReactNode;
