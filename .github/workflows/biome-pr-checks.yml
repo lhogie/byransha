@@ -1,0 +1,60 @@
+name: Biome PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/main/java/frontend/**'
+  workflow_dispatch:
+
+jobs:
+  biome-check:
+    name: Biome Lint and Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: src/main/java/frontend
+
+      - name: Run Biome CI (lint + format check)
+        run: bun run lint
+        working-directory: src/main/java/frontend
+
+      - name: Check for formatting issues
+        run: |
+          cd src/main/java/frontend
+          if ! bunx @biomejs/biome format --check ./; then
+            echo "❌ Code formatting issues found!"
+            echo "Run 'bun run lint:fix' to fix formatting issues."
+            exit 1
+          else
+            echo "✅ Code formatting is correct!"
+          fi
+
+      - name: Comment PR on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `❌ **Biome checks failed!**
+
+              Please fix the linting and formatting issues by running:
+              \`\`\`bash
+              cd src/main/java/frontend
+              bun run lint:fix
+              \`\`\`
+
+              Then commit and push your changes.`
+            })

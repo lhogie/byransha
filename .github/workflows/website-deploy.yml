@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/main/java/frontend/**'
+      - "src/main/java/frontend/**"
   workflow_dispatch:
 
 jobs:
@@ -13,13 +13,21 @@ jobs:
     name: Build and commit frontend
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install
+        working-directory: src/main/java/frontend
+
+      - name: Run Biome checks
+        run: |
+          echo "🔍 Running Biome lint checks..."
+          bun run lint
+          echo "🎨 Checking code formatting..."
+          bunx @biomejs/biome format --check ./
         working-directory: src/main/java/frontend
 
       - name: Build frontend
