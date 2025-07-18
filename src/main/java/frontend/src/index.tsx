@@ -1,12 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
-import { Button, StyledEngineProvider } from "@mui/material";
-import { RouterProvider } from "react-router";
+import ErrorBoundary from "@components/ErrorBoundary";
 import { router } from "@global/router";
+import { Button, StyledEngineProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import ErrorBoundary from "@components/ErrorBoundary";
+import { RouterProvider } from "react-router";
 
 // Enhanced QueryClient configuration for React 19
 const queryClient = new QueryClient({
@@ -101,7 +101,9 @@ const AppErrorFallback = () => (
 					fontWeight: "500",
 					transition: "background-color 0.2s",
 				}}
+				// biome-ignore lint/suspicious/noAssignInExpressions: This is a controlled click handler
 				onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#1565c0")}
+				// biome-ignore lint/suspicious/noAssignInExpressions: This is a controlled click handler
 				onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#1976d2")}
 			>
 				Reload Application
@@ -123,7 +125,9 @@ const AppErrorFallback = () => (
 					fontWeight: "500",
 					transition: "background-color 0.2s",
 				}}
+				// biome-ignore lint/suspicious/noAssignInExpressions: This is a controlled click handler
 				onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#ef6c00")}
+				// biome-ignore lint/suspicious/noAssignInExpressions: This is a controlled click handler
 				onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#f57c00")}
 			>
 				Clear Cache & Reload

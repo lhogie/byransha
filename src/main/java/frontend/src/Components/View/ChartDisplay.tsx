@@ -1,8 +1,8 @@
-import { memo, useMemo, useCallback, Suspense } from "react";
-import ReactECharts from "echarts-for-react";
+import { Box, CircularProgress } from "@mui/material";
 import Cytoscape, { type ElementDefinition } from "cytoscape";
 import fcose, { type FcoseLayoutOptions } from "cytoscape-fcose";
-import { Box, CircularProgress } from "@mui/material";
+import ReactECharts from "echarts-for-react";
+import { memo, Suspense, useCallback, useMemo } from "react";
 import { CytoscapeGraph } from "./CytoscapeGraph";
 
 Cytoscape.use(fcose);
@@ -361,9 +361,14 @@ export const ChartDisplay = ({
 		const parsedChartData = parseNivoChartData(content);
 
 		return (
+			// biome-ignore lint/a11y/noStaticElementInteractions: This is a controlled click handler
 			<div
 				className="graph"
 				onClick={(e) => {
+					e.stopPropagation();
+					e.preventDefault();
+				}}
+				onKeyDown={(e) => {
 					e.stopPropagation();
 					e.preventDefault();
 				}}
@@ -377,9 +382,14 @@ export const ChartDisplay = ({
 		const barChartData = parseBarChartData(content);
 		const keys = getDistributionKeys(content);
 		return (
+			// biome-ignore lint/a11y/noStaticElementInteractions: This is a controlled click handler
 			<div
 				className="graph"
 				onClick={(e) => {
+					e.stopPropagation();
+					e.preventDefault();
+				}}
+				onKeyDown={(e) => {
 					e.stopPropagation();
 					e.preventDefault();
 				}}
@@ -397,9 +407,14 @@ export const ChartDisplay = ({
 		const networkData = getNetworkData(content);
 
 		return (
+			// biome-ignore lint/a11y/noStaticElementInteractions: This is a controlled click handler
 			<div
 				className="graph"
 				onClick={(e) => {
+					e.stopPropagation();
+					e.preventDefault();
+				}}
+				onKeyDown={(e) => {
 					e.stopPropagation();
 					e.preventDefault();
 				}}

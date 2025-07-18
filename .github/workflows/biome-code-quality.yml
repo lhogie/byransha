@@ -1,0 +1,126 @@
+name: Biome Code Quality
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/main/java/frontend/**"
+  schedule:
+    # Run daily at 2 AM UTC to catch any issues
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  biome-quality:
+    name: Code Quality Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install
+        working-directory: src/main/java/frontend
+
+      - name: Run Biome CI (comprehensive check)
+        run: bun run lint
+        working-directory: src/main/java/frontend
+
+      - name: Run Biome format check
+        run: bun run format:check
+        working-directory: src/main/java/frontend
+
+      - name: Generate Biome report
+        run: |
+          echo "## 📊 Biome Code Quality Report" > biome-report.md
+          echo "" >> biome-report.md
+          echo "### Lint Results" >> biome-report.md
+          bun run lint >> biome-report.md 2>&1 || true
+          echo "" >> biome-report.md
+          echo "### Format Check Results" >> biome-report.md
+          bun run format:check >> biome-report.md 2>&1 || true
+        working-directory: src/main/java/frontend
+
+      - name: Upload Biome report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: biome-quality-report
+          path: src/main/java/frontend/biome-report.md
+          retention-days: 30
+
+      - name: Create issue on failure
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = `🚨 Biome Code Quality Issues Detected`;
+            const body = `## Code Quality Alert
+
+            Biome has detected code quality issues in the main branch.
+
+            **Branch:** main
+            **Workflow:** ${{ github.workflow }}
+            **Run ID:** ${{ github.run_id }}
+
+            ### Next Steps:
+            1. Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details
+            2. Download the Biome report artifact for a detailed analysis
+            3. Fix the issues locally:
+               \`\`\`bash
+               cd src/main/java/frontend
+               bun run lint:fix
+               \`\`\`
+            4. Commit and push the fixes
+
+            This issue will be automatically closed when the issues are resolved.`;
+
+            // Check if an issue already exists
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['biome', 'code-quality'],
+              state: 'open'
+            });
+
+            if (issues.data.length === 0) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['biome', 'code-quality', 'bug']
+              });
+            }
+
+      - name: Close quality issues on success
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: ['biome', 'code-quality'],
+              state: 'open'
+            });
+
+            for (const issue of issues.data) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '✅ Code quality issues have been resolved. Closing this issue automatically.'
+              });
+
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+            }

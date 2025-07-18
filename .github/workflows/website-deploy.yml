@@ -27,7 +27,7 @@ jobs:
           echo "🔍 Running Biome lint checks..."
           bun run lint
           echo "🎨 Checking code formatting..."
-          bunx @biomejs/biome format --check ./
+          bun run format:check
         working-directory: src/main/java/frontend
 
       - name: Build frontend

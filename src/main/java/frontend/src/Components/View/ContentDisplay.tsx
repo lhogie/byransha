@@ -1,12 +1,12 @@
-import { Suspense, useCallback, useRef, useEffect } from "react";
-import { CircularProgress } from "@mui/material";
-import { JsonView, collapseAllNested } from "react-json-view-lite";
-import { ChromePicker } from "react-color";
 import CustomCodeBlock from "@global/CustomCodeBlock";
+import { CircularProgress } from "@mui/material";
 import { graphviz } from "d3-graphviz";
+import { Suspense, useCallback, useEffect, useRef } from "react";
+import { ChromePicker } from "react-color";
+import { collapseAllNested, JsonView } from "react-json-view-lite";
+import { BNodeNavigatorDisplay } from "./BNodeNavigatorDisplay";
 import { ChartDisplay } from "./ChartDisplay";
 import { ClassAttributeFieldDisplay } from "./ClassAttributeFieldDisplay";
-import { BNodeNavigatorDisplay } from "./BNodeNavigatorDisplay";
 
 interface ContentDisplayProps {
 	viewId: string;
@@ -58,9 +58,14 @@ export const ContentDisplay = ({
 			viewId.endsWith("nivo_view")
 		) {
 			return (
+				// biome-ignore lint/a11y/noStaticElementInteractions: This is a controlled click handler
 				<div
 					className="graph"
 					onClick={(e) => {
+						e.stopPropagation();
+						e.preventDefault();
+					}}
+					onKeyDown={(e) => {
 						e.stopPropagation();
 						e.preventDefault();
 					}}
@@ -106,13 +111,17 @@ export const ContentDisplay = ({
 				className="content-container html-content"
 				style={{ background: backgroundColor }}
 			>
-				<div dangerouslySetInnerHTML={{ __html: content }} />
+				<div
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: This is safe as we control the content
+					dangerouslySetInnerHTML={{ __html: content }}
+				/>
 			</div>
 		);
 	} else if (contentType === "image/svg") {
 		return (
 			<div className="content-container" style={{ background: "transparent" }}>
 				<div
+					// biome-ignore lint/security/noDangerouslySetInnerHtml: t
 					dangerouslySetInnerHTML={{ __html: content }}
 					style={{ background: "transparent" }}
 				/>

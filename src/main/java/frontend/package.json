@@ -55,6 +55,7 @@
 		"serve": "rsbuild preview",
 		"lint": "biome ci src/",
 		"lint:fix": "biome format --write ./ && biome lint --write ./",
+		"format:check": "biome format --check ./",
 		"dev:rsdoctor": "RSDOCTOR=true rsbuild dev",
 		"build:rsdoctor": "RSDOCTOR=true rsbuild build"
 	},

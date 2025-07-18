@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'src/main/java/frontend/**'
+      - "src/main/java/frontend/**"
   workflow_dispatch:
 
 jobs:
@@ -30,14 +30,14 @@ jobs:
 
       - name: Check for formatting issues
         run: |
-          cd src/main/java/frontend
-          if ! bunx @biomejs/biome format --check ./; then
+          if ! bun run format:check; then
             echo "❌ Code formatting issues found!"
             echo "Run 'bun run lint:fix' to fix formatting issues."
             exit 1
           else
             echo "✅ Code formatting is correct!"
           fi
+        working-directory: src/main/java/frontend
 
       - name: Comment PR on failure
         if: failure()
