@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { Children, StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { Button, StyledEngineProvider } from "@mui/material";
@@ -12,13 +12,11 @@ import ErrorBoundary from "@components/ErrorBoundary";
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // React 19 optimizations
-      staleTime: 30000, // 30 seconds
-      gcTime: 5 * 60 * 1000, // 5 minutes (formerly cacheTime)
+      staleTime: 30000,
+      gcTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
       refetchOnReconnect: true,
       retry: (failureCount, error) => {
-        // Smart retry logic
         if (failureCount < 3) {
           const delay = Math.min(1000 * 2 ** failureCount, 30000);
           console.log(`Query failed, retrying in ${delay}ms...`);
@@ -30,7 +28,6 @@ const queryClient = new QueryClient({
     },
     mutations: {
       retry: (failureCount, error) => {
-        // Only retry mutations on network errors
         if (failureCount < 2 && error.message.includes("network")) {
           return true;
         }
@@ -41,27 +38,14 @@ const queryClient = new QueryClient({
   },
 });
 
-// Global error handler for unhandled promise rejections
 window.addEventListener("unhandledrejection", (event) => {
   console.error("Unhandled promise rejection:", event.reason);
 
-  // Prevent the default browser behavior
   event.preventDefault();
-
-  // In production, you might want to send this to an error tracking service
-  if (process.env.NODE_ENV === "production") {
-    // Example: Sentry.captureException(event.reason);
-  }
 });
 
-// Global error handler for uncaught errors
 window.addEventListener("error", (event) => {
   console.error("Uncaught error:", event.error);
-
-  // In production, you might want to send this to an error tracking service
-  if (process.env.NODE_ENV === "production") {
-    // Example: Sentry.captureException(event.error);
-  }
 });
 
 // App-level error fallback
