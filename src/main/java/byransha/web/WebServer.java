@@ -29,7 +29,7 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
-import java.awt.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -44,7 +44,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.*;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
@@ -123,6 +122,8 @@ public class WebServer extends BNode {
         new ArrayList<>()
     );
 
+    private final FileCache fileCache;
+
     private final HttpsServer httpsServer;
     public final List<Log> logs = new CopyOnWriteArrayList<>();
 
@@ -130,6 +131,7 @@ public class WebServer extends BNode {
 
     public WebServer(BBGraph g, int port) throws Exception {
         super(g);
+        this.fileCache = new FileCache(g);
         this.sessionStore = new SessionStore();
         createSpecialNodes(g);
         createEndpoints(g);
@@ -316,7 +318,7 @@ public class WebServer extends BNode {
 
     @Override
     public String whatIsThis() {
-        return "serves HTTP requests from the frontend";
+        return "serves HTTP requests";
     }
 
     @Override
@@ -340,93 +342,7 @@ public class WebServer extends BNode {
 
     static final File frontendDir = new File("build/frontend");
 
-    private static final Map<String, CachedFile> fileCache =
-        new ConcurrentHashMap<>();
-    private static final long MAX_CACHE_SIZE = 50 * 1024 * 1024;
-    private static long currentCacheSize = 0;
 
-    private static class CachedFile {
-
-        final byte[] content;
-        final String contentType;
-        final long lastModified;
-        final String eTag;
-        long lastAccessed;
-
-        CachedFile(byte[] content, String contentType, long lastModified) {
-            this.content = content;
-            this.contentType = contentType;
-            this.lastModified = lastModified;
-            this.eTag =
-                "\"" +
-                Integer.toHexString(java.util.Arrays.hashCode(content)) +
-                "\"";
-            this.lastAccessed = System.currentTimeMillis();
-        }
-
-        long size() {
-            return content.length;
-        }
-
-        void updateLastAccessed() {
-            this.lastAccessed = System.currentTimeMillis();
-        }
-    }
-
-    /**
-     * Adds a file to the cache, evicting least recently used files if necessary.
-     *
-     * @param key The cache key (usually the file path)
-     * @param content The file content
-     * @param contentType The content type of the file
-     * @param lastModified The last modified timestamp of the file
-     */
-    private static synchronized void addToCache(
-        String key,
-        byte[] content,
-        String contentType,
-        long lastModified
-    ) {
-        if (content.length > 5 * 1024 * 1024) {
-            return;
-        }
-
-        CachedFile existing = fileCache.remove(key);
-        if (existing != null) {
-            currentCacheSize -= existing.size();
-        }
-
-        CachedFile newEntry = new CachedFile(
-            content,
-            contentType,
-            lastModified
-        );
-
-        while (
-            currentCacheSize + newEntry.size() > MAX_CACHE_SIZE &&
-            !fileCache.isEmpty()
-        ) {
-            String lruKey = null;
-            long oldestAccess = Long.MAX_VALUE;
-
-            for (Map.Entry<String, CachedFile> entry : fileCache.entrySet()) {
-                if (entry.getValue().lastAccessed < oldestAccess) {
-                    oldestAccess = entry.getValue().lastAccessed;
-                    lruKey = entry.getKey();
-                }
-            }
-
-            if (lruKey != null) {
-                CachedFile evicted = fileCache.remove(lruKey);
-                if (evicted != null) {
-                    currentCacheSize -= evicted.size();
-                }
-            }
-        }
-
-        fileCache.put(key, newEntry);
-        currentCacheSize += newEntry.size();
-    }
 
     private HTTPResponse processRequest(HttpsExchange https) {
         User user = null;
@@ -525,11 +441,13 @@ public class WebServer extends BNode {
                         .toList();
                 } else {
                     var specificEndpoint = graph.findEndpoint(endpointName);
+
                     if (specificEndpoint == null) {
                         throw new IllegalArgumentException(
                             "No such endpoint: " + endpointName
                         );
                     }
+
                     resolvedEndpoints = List.of(specificEndpoint);
                 }
 
@@ -738,7 +656,7 @@ public class WebServer extends BNode {
                 );
             } else {
                 String cacheKey = path;
-                CachedFile cachedFile = fileCache.get(cacheKey);
+                FileCache.Entry cachedFile = fileCache.get(cacheKey);
 
                 var file = new File(frontendDir, path);
                 if (!file.exists() || !file.isFile()) {
@@ -765,7 +683,7 @@ public class WebServer extends BNode {
                         byte[] content = Files.readAllBytes(file.toPath());
                         String contentType = mimeType(file.getName());
 
-                        addToCache(
+                        fileCache.add(
                             cacheKey,
                             content,
                             contentType,
