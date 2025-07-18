@@ -1,6 +1,5 @@
 import { defineConfig } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
-import { pluginBabel } from "@rsbuild/plugin-babel";
 import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 
 const isDev = process.env.NODE_ENV === "development";
@@ -81,72 +80,6 @@ export default defineConfig({
           reactDevtools: true,
         },
       }),
-    }),
-    pluginBabel({
-      include: /\.(?:jsx|tsx)$/,
-      babelLoaderOptions(opts) {
-        opts.plugins?.unshift([
-          "babel-plugin-react-compiler",
-          {
-            runtimeModule: "react/compiler-runtime",
-            sources: (filename: string) => {
-              return (
-                filename.includes("src/") &&
-                (filename.endsWith(".tsx") || filename.endsWith(".jsx"))
-              );
-            },
-            enableReactCompilerOptimizations: true,
-            ...(isDev && {
-              logger: {
-                logLevel: "info",
-                logFilename: "react-compiler.log",
-              },
-            }),
-          },
-        ]);
-
-        if (isProd) {
-          opts.plugins?.push([
-            "transform-react-remove-prop-types",
-            {
-              mode: "remove",
-              removeImport: true,
-              additionalLibraries: ["@mui/material"],
-            },
-          ]);
-        }
-
-        opts.presets = [
-          [
-            "@babel/preset-env",
-            {
-              modules: false,
-              targets: {
-                browsers: ["> 1%", "last 2 versions", "not ie <= 11"],
-              },
-              useBuiltIns: "entry",
-              corejs: 3,
-            },
-          ],
-          [
-            "@babel/preset-react",
-            {
-              runtime: "automatic",
-              importSource: "react",
-              development: isDev,
-            },
-          ],
-          [
-            "@babel/preset-typescript",
-            {
-              isTSX: true,
-              allExtensions: true,
-            },
-          ],
-        ];
-
-        return opts;
-      },
     }),
   ],
   dev: {
