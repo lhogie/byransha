@@ -268,48 +268,54 @@ public class ListNode<T> extends PersistingNode {
         for (InLink inLink : ins()) {
             BNode sourceNode = inLink.source();
 
-            for (Field field : sourceNode.getClass().getDeclaredFields()) {
-                if (field.getType().isAssignableFrom(ListNode.class)) {
-                    try {
-                        field.setAccessible(true);
-                        Object fieldValue = field.get(sourceNode);
-                        if (fieldValue == this) {
-                            ListOptions annotation = field.getAnnotation(
-                                ListOptions.class
-                            );
-                            if (annotation != null) {
-                                this.listType = annotation.type();
-                                this.optionsSource = annotation.source();
-                                this.staticOptions = Arrays.asList(
-                                    annotation.staticOptions()
+            // Check fields in the entire class hierarchy
+            Class<?> currentClass = sourceNode.getClass();
+            while (currentClass != null && currentClass != Object.class) {
+                for (Field field : currentClass.getDeclaredFields()) {
+                    if (field.getType().isAssignableFrom(ListNode.class)) {
+                        try {
+                            field.setAccessible(true);
+                            Object fieldValue = field.get(sourceNode);
+                            if (fieldValue == this) {
+                                ListOptions annotation = field.getAnnotation(
+                                    ListOptions.class
                                 );
-                                this.elementType = annotation
-                                    .elementType()
-                                    .getClass();
-                                this.listType = annotation.type();
-                                this.optionsSource = annotation.source();
-                                if (
-                                    annotation.source() ==
-                                    ListOptions.OptionsSource.STATIC
-                                ) {
+                                if (annotation != null) {
+                                    this.listType = annotation.type();
+                                    this.optionsSource = annotation.source();
                                     this.staticOptions = Arrays.asList(
                                         annotation.staticOptions()
                                     );
+                                    this.elementType = annotation
+                                        .elementType()
+                                        .getClass();
+                                    this.listType = annotation.type();
+                                    this.optionsSource = annotation.source();
+                                    if (
+                                        annotation.source() ==
+                                        ListOptions.OptionsSource.STATIC
+                                    ) {
+                                        this.staticOptions = Arrays.asList(
+                                            annotation.staticOptions()
+                                        );
+                                    }
+                                    optionsCache.put(id(), annotation);
+                                    return annotation;
                                 }
-                                optionsCache.put(id(), annotation);
-                                return annotation;
+                            } else {
+                                System.out.println(
+                                    "Skipping field: " +
+                                    field.getName() +
+                                    " in " +
+                                    currentClass.getSimpleName() +
+                                    " (not matching this ListNode)"
+                                );
                             }
-                        } else {
-                            System.out.println(
-                                "Skipping field: " +
-                                field.getName() +
-                                " in " +
-                                sourceNode.getClass().getSimpleName() +
-                                " (not matching this ListNode)"
-                            );
-                        }
-                    } catch (IllegalAccessException e) {}
+                        } catch (IllegalAccessException e) {}
+                    }
                 }
+                // Move to the parent class
+                currentClass = currentClass.getSuperclass();
             }
         }
 
