@@ -47,7 +47,6 @@ public class SearchForm extends PersistingNode {
         });
 
         searchClass.setStaticOptions(allClass);
-        System.out.println("SearchForm initialized with classes: " + allClass);
     }
 
     @Override
