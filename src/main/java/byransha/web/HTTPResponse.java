@@ -4,6 +4,7 @@ import com.sun.net.httpserver.HttpExchange;
 import com.upokecenter.cbor.CBORObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 
 class HTTPResponse {
@@ -101,9 +102,44 @@ class HTTPResponse {
                 String finalContentType = contentType;
 
                 if (supportsCbor && contentType.contains("application/json")) {
-                    var cborObject = CBORObject.FromJSONBytes(content);
-                    responseData = cborObject.EncodeToBytes();
-                    finalContentType = "application/cbor";
+                    try {
+                        // Ensure we're working with properly encoded UTF-8 JSON
+                        String jsonString = new String(
+                            content,
+                            StandardCharsets.UTF_8
+                        );
+                        System.out.println(
+                            "DEBUG: JSON before CBOR conversion: " +
+                            jsonString.substring(
+                                0,
+                                Math.min(200, jsonString.length())
+                            )
+                        );
+
+                        // Re-encode as UTF-8 to ensure proper encoding
+                        byte[] utf8JsonBytes = jsonString.getBytes(
+                            StandardCharsets.UTF_8
+                        );
+                        var cborObject = CBORObject.FromJSONBytes(
+                            utf8JsonBytes
+                        );
+                        responseData = cborObject.EncodeToBytes();
+                        finalContentType = "application/cbor";
+
+                        System.out.println(
+                            "DEBUG: Successfully converted to CBOR, size: " +
+                            responseData.length
+                        );
+                    } catch (Exception ex) {
+                        System.err.println(
+                            "ERROR: Failed to convert JSON to CBOR: " +
+                            ex.getMessage()
+                        );
+                        ex.printStackTrace();
+                        // Fall back to original JSON response
+                        responseData = content;
+                        finalContentType = contentType;
+                    }
                 }
 
                 e.getResponseHeaders().set("Content-type", finalContentType);

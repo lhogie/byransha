@@ -31,7 +31,6 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -39,6 +38,7 @@ import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
@@ -66,6 +66,17 @@ public class WebServer extends BNode {
     );
 
     public static void main(String[] args) throws Exception {
+        // Print charset diagnostics
+        System.out.println("=== CHARSET DIAGNOSTICS ===");
+        System.out.println(
+            "Default Charset: " + java.nio.charset.Charset.defaultCharset()
+        );
+        System.out.println(
+            "file.encoding: " + System.getProperty("file.encoding")
+        );
+        System.out.println("UTF-8 test: Chargé de Recherche");
+        System.out.println("============================");
+
         var argList = List.of(args);
         var argMap = new HashMap<String, String>();
 
@@ -153,7 +164,9 @@ public class WebServer extends BNode {
             System.out.println("writing " + classPathFile);
             Files.write(
                 classPathFile,
-                ClassPath.retrieveSystemClassPath().toString().getBytes()
+                ClassPath.retrieveSystemClassPath()
+                    .toString()
+                    .getBytes(StandardCharsets.UTF_8)
             );
         } catch (IOException err) {
             err.printStackTrace();
@@ -363,8 +376,6 @@ public class WebServer extends BNode {
 
     static final File frontendDir = new File("build/frontend");
 
-
-
     private HTTPResponse processRequest(HttpsExchange https) {
         User user = null;
         SessionStore.SessionData sessionData;
@@ -561,7 +572,9 @@ public class WebServer extends BNode {
                             return new HTTPResponse(
                                 result.getStatusCode(),
                                 result.contentType,
-                                result.toRawText().getBytes()
+                                result
+                                    .toRawText()
+                                    .getBytes(StandardCharsets.UTF_8)
                             );
                         } else {
                             er.set("result", result.toJson());
@@ -586,7 +599,9 @@ public class WebServer extends BNode {
                             return new HTTPResponse(
                                 statusCode,
                                 "text/plain",
-                                authEx.getMessage().getBytes()
+                                authEx
+                                    .getMessage()
+                                    .getBytes(StandardCharsets.UTF_8)
                             );
                         } else {
                             er.set("error", new TextNode(authEx.getMessage()));
@@ -673,7 +688,7 @@ public class WebServer extends BNode {
                 return new HTTPResponse(
                     responseStatusCode,
                     "application/json",
-                    response.toPrettyString().getBytes()
+                    response.toPrettyString().getBytes(StandardCharsets.UTF_8)
                 );
             } else {
                 String cacheKey = path;
@@ -691,7 +706,9 @@ public class WebServer extends BNode {
                             "text/plain",
                             ("Not Found: " +
                                 path +
-                                " and index.html missing").getBytes()
+                                " and index.html missing").getBytes(
+                                StandardCharsets.UTF_8
+                            )
                         );
                     }
                 }
@@ -840,7 +857,7 @@ public class WebServer extends BNode {
             return new HTTPResponse(
                 statusCode,
                 "application/json",
-                n.toPrettyString().getBytes()
+                n.toPrettyString().getBytes(StandardCharsets.UTF_8)
             );
         } catch (Throwable err) {
             err.printStackTrace();
@@ -859,7 +876,7 @@ public class WebServer extends BNode {
             return new HTTPResponse(
                 500,
                 "application/json",
-                n.toPrettyString().getBytes()
+                n.toPrettyString().getBytes(StandardCharsets.UTF_8)
             );
         } finally {
             if (user != null) {
@@ -965,7 +982,8 @@ public class WebServer extends BNode {
                 : new ObjectNode(null);
         } catch (Exception e) {
             System.err.println(
-                "Failed to parse POST body as JSON: " + new String(postData)
+                "Failed to parse POST body as JSON: " +
+                new String(postData, StandardCharsets.UTF_8)
             );
             inputJson = new ObjectNode(null);
         }
