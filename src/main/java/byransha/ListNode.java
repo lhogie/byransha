@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 public class ListNode<T> extends PersistingNode {
 
@@ -13,6 +14,7 @@ public class ListNode<T> extends PersistingNode {
     private ListOptions.ListType listType;
     private ListOptions.OptionsSource optionsSource;
     private Class<?> elementType;
+    private Predicate<String> optionsFilter;
 
     private static final Map<Integer, ListOptions> optionsCache =
         new ConcurrentHashMap<>();
@@ -95,13 +97,14 @@ public class ListNode<T> extends PersistingNode {
     }
 
     public void select(int index) {
-        if (index < 0 || index >= staticOptions.size()) {
+        List<String> filteredOptions = getFilteredStaticOptions();
+        if (index < 0 || index >= filteredOptions.size()) {
             throw new IndexOutOfBoundsException(
                 "Index out of bounds: " + index
             );
         }
 
-        var option = staticOptions.get(index);
+        var option = filteredOptions.get(index);
         var existingElement = elements.stream().findFirst();
 
         if (existingElement.isPresent()) {
@@ -127,7 +130,7 @@ public class ListNode<T> extends PersistingNode {
             .findFirst()
             .orElse(null);
 
-        return staticOptions.indexOf(selected);
+        return getFilteredStaticOptions().indexOf(selected);
     }
 
     public String getSelected() {
@@ -201,6 +204,17 @@ public class ListNode<T> extends PersistingNode {
     }
 
     public List<String> getStaticOptions() {
+        return getFilteredStaticOptions();
+    }
+
+    private List<String> getFilteredStaticOptions() {
+        if (optionsFilter == null) {
+            return List.copyOf(staticOptions);
+        }
+        return staticOptions.stream().filter(optionsFilter).toList();
+    }
+
+    public List<String> getAllStaticOptions() {
         return List.copyOf(staticOptions);
     }
 
@@ -225,7 +239,7 @@ public class ListNode<T> extends PersistingNode {
     }
 
     public List<String> getOptionsList() {
-        return staticOptions;
+        return getFilteredStaticOptions();
     }
 
     public void addString(String value) {
@@ -258,6 +272,18 @@ public class ListNode<T> extends PersistingNode {
             .filter(e -> e instanceof Integer)
             .map(e -> (Integer) e)
             .toList();
+    }
+
+    public void setOptionsFilter(Predicate<String> filter) {
+        this.optionsFilter = filter;
+    }
+
+    public Predicate<String> getOptionsFilter() {
+        return optionsFilter;
+    }
+
+    public void clearOptionsFilter() {
+        this.optionsFilter = null;
     }
 
     private ListOptions getListOptions() {
