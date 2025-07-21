@@ -321,22 +321,7 @@ public class WebServer extends BNode {
         BNode.create(g, ChargeDeRecherche.class);
         BNode.create(g, DirecteurDeRecherche.class);
         BNode.create(g, DREmerite.class);
-
-        var nadia = BNode.create(g, Gestionnaire.class);
-        nadia.name.set("Nadia");
-        nadia.passwordNode.set("nn");
-
-        var option1 = BNode.create(g, StringNode.class);
-        option1.set("MediaCoding");
-
-        var option2 = BNode.create(g, StringNode.class);
-        option2.set("MC3");
-
         createEquipeRecherche(g);
-
-        nadia.listDesFiltres.add(option1);
-        nadia.listDesFiltres.add(option2);
-
         Country.loadCountries(g);
     }
 
@@ -385,6 +370,32 @@ public class WebServer extends BNode {
         Modalis.nom.set("Modalis");
         var Mind = BNode.create(g, Equipe.class);
         Mind.nom.set("Mind");
+
+        var nadia = BNode.create(g, Gestionnaire.class);
+        nadia.name.set("Nadia");
+        nadia.passwordNode.set("nn");
+        var option1 = BNode.create(g, StringNode.class);
+        option1.set(MediaCoding.nom.get());
+        var option2 = BNode.create(g, StringNode.class);
+        option2.set(EPCMorpheme.nom.get());
+        nadia.listDesFiltres.add(option1);
+        nadia.listDesFiltres.add(option2);
+
+        var sabine = BNode.create(g, Gestionnaire.class);
+        sabine.name.set("Sabine");
+        sabine.passwordNode.set("ss");
+        var option3 = BNode.create(g, StringNode.class);
+        option3.set(mc3.nom.get());
+        var option4 = BNode.create(g, StringNode.class);
+        option4.set(CeA.nom.get());
+        var option5 = BNode.create(g, StringNode.class);
+        option5.set(Modalis.nom.get());
+        var option6 = BNode.create(g, StringNode.class);
+        option6.set(Mind.nom.get());
+        sabine.listDesFiltres.add(option3);
+        sabine.listDesFiltres.add(option4);
+        sabine.listDesFiltres.add(option5);
+        sabine.listDesFiltres.add(option6);
     }
 
     public SessionStore getSessionStore() {
