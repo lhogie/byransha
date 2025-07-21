@@ -14,6 +14,8 @@ import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
 import byransha.labmodel.model.v0.*;
+import byransha.labmodel.model.v0.gitMind.EnseignantChercheur.*;
+import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.*;
@@ -308,6 +310,25 @@ public class WebServer extends BNode {
         BNode.create(g, RemoveNode.class);
         BNode.create(g, ColorNodeView.class);
         BNode.create(g, SearchForm.class);
+
+        BNode.create(g, MaitreConference.class);
+        BNode.create(g, Professeur.class);
+        BNode.create(g, PREmerite.class);
+        BNode.create(g, ChargeDeRecherche.class);
+        BNode.create(g, DirecteurDeRecherche.class);
+        BNode.create(g, DREmerite.class);
+
+        var nadia = BNode.create(g, Gestionnaire.class);
+        nadia.name.set("Nadia");
+        nadia.passwordNode.set("nn");
+        var option1 = BNode.create(g, StringNode.class);
+        option1.set("option1");
+
+        var option2 = BNode.create(g, StringNode.class);
+        option2.set("option2");
+
+        nadia.listDesFiltres.add(option1);
+        nadia.listDesFiltres.add(option2);
 
         Country.loadCountries(g);
     }

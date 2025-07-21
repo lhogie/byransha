@@ -46,6 +46,11 @@ public class Logout extends NodeEndpoint<BBGraph> {
         return false;
     }
 
+    @Override
+    public boolean canExec(User user) {
+        return true;
+    }
+
     public void setSessionStore(SessionStore sessionStore) {
         if (sessionStore == null) {
             throw new IllegalArgumentException("SessionStore cannot be null");

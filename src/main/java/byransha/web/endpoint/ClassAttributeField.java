@@ -3,6 +3,7 @@ package byransha.web.endpoint;
 import byransha.*;
 import byransha.annotations.*;
 import byransha.labmodel.model.v0.BusinessNode;
+import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -133,6 +134,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         int limit = in.has("limit") ? in.get("limit").asInt() : 100;
         boolean skipValidation =
             in.has("skipValidation") && in.get("skipValidation").asBoolean();
+
+        if(user instanceof Gestionnaire gest) System.out.println(gest.getFiltres());
 
         var a = new ArrayNode(null);
         var currentNodeInformation = new ObjectNode(null);

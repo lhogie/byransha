@@ -45,6 +45,11 @@ public class Authenticate extends NodeEndpoint<BNode> {
 	}
 
 	@Override
+	public boolean canExec(User user) {
+		return true;
+	}
+
+	@Override
 	public boolean requiresAuthentication() {
 		return false;
 	}
