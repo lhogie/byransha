@@ -41,6 +41,7 @@ public class ListNode<T> extends PersistingNode {
     @Override
     public String prettyName() {
         return switch (getListOptions().type()) {
+            case MULTIDROPDOWN -> "a multi-select dropdown";
             case LIST -> "a list";
             case CHECKBOX -> "a set of checkboxes";
             case DROPDOWN -> "a dropdown";
@@ -70,6 +71,7 @@ public class ListNode<T> extends PersistingNode {
         }
 
         switch (listType) {
+            case MULTIDROPDOWN:
             case LIST:
             case CHECKBOX:
             case DROPDOWN:
@@ -185,10 +187,6 @@ public class ListNode<T> extends PersistingNode {
             options.allowCreation() &&
             options.source() == ListOptions.OptionsSource.DYNAMIC
         );
-    }
-
-    public boolean isDropdown() {
-        return getListOptions().displayAsDropdown();
     }
 
     public boolean allowMultiple() {
@@ -364,11 +362,6 @@ public class ListNode<T> extends PersistingNode {
             @Override
             public boolean allowCreation() {
                 return true;
-            }
-
-            @Override
-            public boolean displayAsDropdown() {
-                return false;
             }
 
             @Override

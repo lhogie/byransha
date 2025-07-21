@@ -12,6 +12,7 @@ public @interface ListOptions {
         LIST, // Ordered list allowing duplicates
         CHECKBOX, // Multiple selection with checkboxes
         DROPDOWN, // Single selection dropdown
+        MULTIDROPDOWN, // Multiple selection dropdown
         RADIO, // Single selection radio buttons
     }
 
@@ -40,9 +41,6 @@ public @interface ListOptions {
 
     // Allow creation of new nodes (only applies to DYNAMIC source)
     boolean allowCreation() default true;
-
-    // Display as dropdown (only applies to LIST types)
-    boolean displayAsDropdown() default false;
 
     // Allow multiple selection (only applies to DROPDOWN type)
     boolean allowMultiple() default false;

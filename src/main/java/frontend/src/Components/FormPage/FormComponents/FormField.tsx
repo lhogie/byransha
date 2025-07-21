@@ -437,7 +437,7 @@ const FormField = ({
 						/>
 					)}
 
-					{listField.includes(type) && field.isDropdown && (
+					{listField.includes(type) && field.listType === "MULTIDROPDOWN" && (
 						<MultiDropdownField
 							field={field}
 							fieldKey={fieldKey}

@@ -284,7 +284,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     private void addCollectionNodeInfo(ObjectNode b, BNode out) {
         if (out instanceof ListNode<?> lc) {
             b.set("canAddNewNode", BooleanNode.valueOf(lc.canAddNewNode()));
-            b.set("isDropdown", BooleanNode.valueOf(lc.isDropdown()));
             b.set("allowMultiple", BooleanNode.valueOf(lc.allowMultiple()));
             b.set("source", new TextNode(lc.getOptionsSource().name()));
         }
@@ -321,12 +320,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                         "allowCreation",
                         BooleanNode.valueOf(
                             metadata.listOptions.allowCreation()
-                        )
-                    );
-                    b.set(
-                        "displayAsDropdown",
-                        BooleanNode.valueOf(
-                            metadata.listOptions.displayAsDropdown()
                         )
                     );
                     b.set(

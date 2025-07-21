@@ -18,8 +18,7 @@ public class EtatCivil extends BusinessNode {
     public DateNode dateDeNaissance;
 
     @ListOptions(
-        type = ListOptions.ListType.LIST,
-        displayAsDropdown = true,
+        type = ListOptions.ListType.MULTIDROPDOWN,
         allowCreation = false,
         allowMultiple = true
     )
