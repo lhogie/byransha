@@ -108,13 +108,6 @@ class HTTPResponse {
                             content,
                             StandardCharsets.UTF_8
                         );
-                        System.out.println(
-                            "DEBUG: JSON before CBOR conversion: " +
-                            jsonString.substring(
-                                0,
-                                Math.min(200, jsonString.length())
-                            )
-                        );
 
                         // Re-encode as UTF-8 to ensure proper encoding
                         byte[] utf8JsonBytes = jsonString.getBytes(
@@ -125,11 +118,6 @@ class HTTPResponse {
                         );
                         responseData = cborObject.EncodeToBytes();
                         finalContentType = "application/cbor";
-
-                        System.out.println(
-                            "DEBUG: Successfully converted to CBOR, size: " +
-                            responseData.length
-                        );
                     } catch (Exception ex) {
                         System.err.println(
                             "ERROR: Failed to convert JSON to CBOR: " +
