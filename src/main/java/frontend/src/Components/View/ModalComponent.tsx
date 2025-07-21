@@ -75,7 +75,6 @@ export const ModalComponent = ({
 	setIsModalOpen,
 }: ModalComponentProps) => {
 	const [_isPending, startTransition] = useTransition();
-	console.log(isModalOpen);
 
 	const handleOpenModal: MouseEventHandler<HTMLButtonElement> = useCallback(
 		(event) => {
