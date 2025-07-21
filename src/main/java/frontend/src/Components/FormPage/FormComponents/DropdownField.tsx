@@ -130,11 +130,11 @@ const DropdownField = ({
 						? choices.map((choice: string) => ({
 								label: choice,
 								value: choice,
-								firstLetter: choice[0].toUpperCase(),
+								firstLetter: choice[0]?.toUpperCase(),
 							}))
 						: listData?.data?.results?.[0]?.result?.data
 								.map((option: any) => {
-									const firstLetter = option.name[0].toUpperCase();
+									const firstLetter = option.name[0]?.toUpperCase();
 
 									return {
 										label: option.name,

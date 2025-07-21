@@ -16,6 +16,8 @@ import byransha.labmodel.I3S;
 import byransha.labmodel.model.v0.*;
 import byransha.labmodel.model.v0.gitMind.EnseignantChercheur.*;
 import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
+import byransha.labmodel.model.v0.gitMind.polerecherche.Equipe;
+import byransha.labmodel.model.v0.gitMind.polerecherche.PoleDeRecherche;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.*;
@@ -323,16 +325,66 @@ public class WebServer extends BNode {
         var nadia = BNode.create(g, Gestionnaire.class);
         nadia.name.set("Nadia");
         nadia.passwordNode.set("nn");
+
         var option1 = BNode.create(g, StringNode.class);
-        option1.set("option1");
+        option1.set("MediaCoding");
 
         var option2 = BNode.create(g, StringNode.class);
-        option2.set("option2");
+        option2.set("MC3");
+
+        createEquipeRecherche(g);
 
         nadia.listDesFiltres.add(option1);
         nadia.listDesFiltres.add(option2);
 
         Country.loadCountries(g);
+    }
+
+    public void createEquipeRecherche(BBGraph g){
+
+        var Admin = BNode.create(g, PoleDeRecherche.class);
+        Admin.nom.set("Admin");
+        var SPARK = BNode.create(g, PoleDeRecherche.class);
+        SPARK.nom.set("SPARK");
+        var SIS = BNode.create(g, PoleDeRecherche.class);
+        SIS.nom.set("SIS");
+        var COMRED = BNode.create(g, PoleDeRecherche.class);
+        COMRED.nom.set("COMRED");
+        var MDSC = BNode.create(g, PoleDeRecherche.class);
+        MDSC.nom.set("MDSC");
+
+        var mc3 = BNode.create(g, Equipe.class);
+        mc3.nom.set("MC3");
+        var CeA = BNode.create(g, Equipe.class);
+        CeA.nom.set("C&A");
+        var MediaCoding = BNode.create(g, Equipe.class);
+        MediaCoding.nom.set("MediaCoding");
+        var EPCMorpheme = BNode.create(g, Equipe.class);
+        EPCMorpheme.nom.set("EPC Morpheme");
+        var Design = BNode.create(g, Equipe.class);
+        Design.nom.set("Design");
+        var Oscar = BNode.create(g, Equipe.class);
+        Oscar.nom.set("Oscar");
+        var Signal = BNode.create(g, Equipe.class);
+        Signal.nom.set("Signal");
+        var SigNet = BNode.create(g, Equipe.class);
+        SigNet.nom.set("SigNet");
+        var Scale = BNode.create(g, Equipe.class);
+        Scale.nom.set("Scale");
+        var BioInfo = BNode.create(g, Equipe.class);
+        BioInfo.nom.set("BioInfo");
+        var EPCKairos = BNode.create(g, Equipe.class);
+        EPCKairos.nom.set("EPC Kairos");
+        var EPCCoati = BNode.create(g, Equipe.class);
+        EPCCoati.nom.set("EPC Coati");
+        var Maasai = BNode.create(g, Equipe.class);
+        Maasai.nom.set("Maasai");
+        var EPCWimmics = BNode.create(g, Equipe.class);
+        EPCWimmics.nom.set("EPC Wimmics");
+        var Modalis = BNode.create(g, Equipe.class);
+        Modalis.nom.set("Modalis");
+        var Mind = BNode.create(g, Equipe.class);
+        Mind.nom.set("Mind");
     }
 
     public SessionStore getSessionStore() {

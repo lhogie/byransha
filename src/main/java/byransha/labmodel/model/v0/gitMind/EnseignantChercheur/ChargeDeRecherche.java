@@ -15,9 +15,7 @@ public class ChargeDeRecherche extends  Chercheur{
         super.initialized();
         List<String> corpsGradeOptions = List.of(
                 "CRCN",
-                "CRHC",
-                "option1",
-                "option2"
+                "CRHC"
         );
         corpsGrade.setStaticOptions(corpsGradeOptions);
     }

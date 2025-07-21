@@ -4,6 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.ValuedNode;
+import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -47,6 +48,15 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
         String query = in.has("query") ? in.get("query").asText().toLowerCase() : null;
 
         var filteredNodes = graph.findAll(nodeClass.get(), node -> {
+            if(user instanceof Gestionnaire g) {
+                if(g.getFiltres() != null) {
+                    for (String filter : g.getFiltres()) {
+                        if(node.prettyName().toLowerCase().contains(filter.toLowerCase())) return true;
+                    }
+                    return false;
+                }
+            }
+            System.out.println("after the loop");
             if (query == null || query.isEmpty()) return true;
             String name = node.prettyName();
             return name != null && name.toLowerCase().contains(query);

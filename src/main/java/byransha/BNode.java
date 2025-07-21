@@ -98,9 +98,8 @@ public abstract class BNode {
             newCluster.setTypeOfCluster(this.getClass().getSimpleName());
             newCluster.add(this);
             newCluster.add(graph);
-            if (
-                this.getClass().getSimpleName().equals("StringNode")
-            ) newCluster.setColor("#9900ff");
+            if (this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
+            else if(this.getClass().getSimpleName().equals("PoleDeRecherche")) newCluster.setColor("#630f09");
             else if (this instanceof Endpoint) newCluster.setColor("#00fff5");
         }
     }
