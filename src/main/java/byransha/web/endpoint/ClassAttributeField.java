@@ -19,6 +19,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
@@ -135,7 +136,9 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         boolean skipValidation =
             in.has("skipValidation") && in.get("skipValidation").asBoolean();
 
-        if(user instanceof Gestionnaire gest) System.out.println(gest.getFiltres());
+        if (user instanceof Gestionnaire gest) System.out.println(
+            gest.getFiltres()
+        );
 
         var a = new ArrayNode(null);
         var currentNodeInformation = new ObjectNode(null);
@@ -147,7 +150,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             node,
             offset,
             limit,
-            skipValidation
+            skipValidation,
+            user
         );
         a.addAll(processedAttributes);
 
@@ -210,7 +214,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         BNode node,
         int offset,
         int limit,
-        boolean skipValidation
+        boolean skipValidation,
+        User user
     ) {
         var attributes = new ArrayList<ObjectNode>();
         var count = new java.util.concurrent.atomic.AtomicInteger(0);
@@ -230,7 +235,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 node,
                 name,
                 out,
-                skipValidation
+                skipValidation,
+                user
             );
             if (attributeNode != null) {
                 attributes.add(attributeNode);
@@ -246,7 +252,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         BNode node,
         String name,
         BNode out,
-        boolean skipValidation
+        boolean skipValidation,
+        User user
     ) {
         var b = new ObjectNode(null);
         b.set("id", new IntNode(out.id()));
@@ -264,7 +271,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         addCollectionNodeInfo(b, out);
 
         if (isCollectionNode(out)) {
-            addGenericTypeInfo(b, node, name);
+            addGenericTypeInfo(b, node, name, user);
         }
 
         if (!skipValidation) {
@@ -287,7 +294,12 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         return out instanceof ListNode<?>;
     }
 
-    private void addGenericTypeInfo(ObjectNode b, BNode node, String name) {
+    private void addGenericTypeInfo(
+        ObjectNode b,
+        BNode node,
+        String name,
+        User user
+    ) {
         try {
             FieldMetadata metadata = getFieldMetadata(node.getClass(), name);
             if (metadata != null) {
@@ -350,11 +362,15 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                         }
                     }
 
-                    // Add choices/options
+                    // Add choices/options with user-based filtering
                     if (!metadata.choices.isEmpty()) {
                         ArrayNode choicesArray =
                             JsonNodeFactory.instance.arrayNode();
-                        for (String choice : metadata.choices) {
+                        List<String> filteredChoices = applyUserFilter(
+                            metadata.choices,
+                            user
+                        );
+                        for (String choice : filteredChoices) {
                             choicesArray.add(choice);
                         }
                         b.set("choices", choicesArray);
@@ -367,11 +383,22 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                         if (out instanceof ListNode<?> lc) {
                             ArrayNode optionsArray =
                                 JsonNodeFactory.instance.arrayNode();
-                            for (Object option : lc.getOptionsList()) {
+                            List<String> originalOptions = lc
+                                .getOptionsList()
+                                .stream()
+                                .map(option ->
+                                    option == null ? null : option.toString()
+                                )
+                                .toList();
+                            List<String> filteredOptions = applyUserFilter(
+                                originalOptions,
+                                user
+                            );
+                            for (String option : filteredOptions) {
                                 if (option == null) {
                                     optionsArray.add(NullNode.getInstance());
                                 } else {
-                                    optionsArray.add(option.toString());
+                                    optionsArray.add(option);
                                 }
                             }
                             b.set("choices", optionsArray);
@@ -436,5 +463,23 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     @Override
     public boolean sendContentByDefault() {
         return false;
+    }
+
+    /**
+     * Apply user-based filtering to options list
+     * Override this method to implement custom filtering logic
+     */
+    protected List<String> applyUserFilter(List<String> options, User user) {
+        if (user instanceof Gestionnaire gestionnaire) {
+            var filtres = gestionnaire.getFiltres();
+            if (filtres != null && !filtres.isEmpty()) {
+                return options
+                    .stream()
+                    .filter(option -> filtres.contains(option))
+                    .toList();
+            }
+        }
+
+        return options;
     }
 }
