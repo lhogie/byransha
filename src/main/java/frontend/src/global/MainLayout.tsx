@@ -327,7 +327,6 @@ const MainLayout = memo(() => {
 		onSuccess: async () => {
 			startTransition(() => {
 				queryClient.clear();
-				navigate("/");
 			});
 		},
 		onError: (error: any) => {
@@ -392,9 +391,13 @@ const MainLayout = memo(() => {
 				await logoutMutation.mutateAsync({});
 			} catch (err) {
 				console.error("Logout failed:", err);
+			} finally {
+				startTransition(() => {
+					navigate("/");
+				});
 			}
 		});
-	}, [logoutMutation, withLoading]);
+	}, [logoutMutation, withLoading, navigate]);
 
 	const handleMoreClick = useCallback(
 		(event: React.MouseEvent<HTMLButtonElement>) => {
