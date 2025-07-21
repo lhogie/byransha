@@ -66,17 +66,6 @@ public class WebServer extends BNode {
     );
 
     public static void main(String[] args) throws Exception {
-        // Print charset diagnostics
-        System.out.println("=== CHARSET DIAGNOSTICS ===");
-        System.out.println(
-            "Default Charset: " + java.nio.charset.Charset.defaultCharset()
-        );
-        System.out.println(
-            "file.encoding: " + System.getProperty("file.encoding")
-        );
-        System.out.println("UTF-8 test: Chargé de Recherche");
-        System.out.println("============================");
-
         var argList = List.of(args);
         var argMap = new HashMap<String, String>();
 
