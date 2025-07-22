@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.gitMind;
+package byransha.labmodel.model.gitMind;
 
 import byransha.*;
 import byransha.labmodel.model.v0.BusinessNode;

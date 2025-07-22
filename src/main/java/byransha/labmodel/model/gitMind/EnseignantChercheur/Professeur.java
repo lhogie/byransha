@@ -1,12 +1,12 @@
-package byransha.labmodel.model.v0.gitMind.EnseignantChercheur;
+package byransha.labmodel.model.gitMind.EnseignantChercheur;
 
 import byransha.BBGraph;
 
 import java.util.List;
 
-public class ChargeDeRecherche extends  Chercheur{
+public class Professeur extends EnseignantChercheur{
 
-    public ChargeDeRecherche(BBGraph g) {
+    public Professeur(BBGraph g) {
         super(g);
     }
 
@@ -14,21 +14,21 @@ public class ChargeDeRecherche extends  Chercheur{
     protected void initialized() {
         super.initialized();
         List<String> corpsGradeOptions = List.of(
-                "CRCN",
-                "CRHC"
+                "PU1",
+                "PU2",
+                "PUCE"
         );
         corpsGrade.setStaticOptions(corpsGradeOptions);
     }
 
     @Override
     public String whatIsThis() {
-        return "Chargé de Recherche";
+        return "Professeur";
     }
 
     @Override
     public String prettyName() {
-        return "Chargé de Recherche";
+        return "Professeur";
     }
-
 
 }

@@ -1,12 +1,11 @@
-package byransha.labmodel.model.v0.gitMind.EnseignantChercheur;
+package byransha.labmodel.model.gitMind.EnseignantChercheur;
 
 import byransha.BBGraph;
 
 import java.util.List;
 
-public class DirecteurDeRecherche extends Chercheur{
-
-    public DirecteurDeRecherche(BBGraph g) {
+public class PREmerite extends EnseignantChercheur{
+    public PREmerite(BBGraph g) {
         super(g);
     }
 
@@ -14,22 +13,20 @@ public class DirecteurDeRecherche extends Chercheur{
     protected void initialized() {
         super.initialized();
         List<String> corpsGradeOptions = List.of(
-                "DR2",
-                "DR1",
-                "DRCE"
+                "PUE1",
+                "PUE2",
+                "PUECE"
         );
         corpsGrade.setStaticOptions(corpsGradeOptions);
     }
 
     @Override
     public String whatIsThis() {
-        return "Directeur de Recherche";
+        return "Professeur Emerite";
     }
 
     @Override
     public String prettyName() {
-        return "Directeur de Recherche";
+        return "Professeur Emerite";
     }
-
-
 }

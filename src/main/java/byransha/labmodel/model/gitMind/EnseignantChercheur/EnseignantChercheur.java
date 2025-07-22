@@ -1,13 +1,12 @@
-package byransha.labmodel.model.v0.gitMind.EnseignantChercheur;
+package byransha.labmodel.model.gitMind.EnseignantChercheur;
 
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.ListNode;
 import byransha.StringNode;
 import byransha.annotations.ListOptions;
-import byransha.labmodel.model.v0.BusinessNode;
 
-public class Chercheur extends EnseignantChercheur_Chercheur {
+public class EnseignantChercheur extends EnseignantChercheur_Chercheur {
     @ListOptions(
             type = ListOptions.ListType.DROPDOWN,
             elementType = ListOptions.ElementType.STRING,
@@ -16,10 +15,18 @@ public class Chercheur extends EnseignantChercheur_Chercheur {
     )
     public ListNode<StringNode> corpsGrade;
 
+    public StringNode AffectationEnseignement;
+    public StringNode DoctoratEtat;
+    public StringNode PEDR;
 
-    public Chercheur(BBGraph g) {
+    public EnseignantChercheur(BBGraph g) {
         super(g);
         corpsGrade = BNode.create(this.graph, ListNode.class);
+
+        AffectationEnseignement = BNode.create(g, StringNode.class);
+        DoctoratEtat = BNode.create(g, StringNode.class);
+        PEDR = BNode.create(g, StringNode.class);
+
     }
 
     @Override

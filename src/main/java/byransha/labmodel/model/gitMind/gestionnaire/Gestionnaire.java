@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.gitMind.gestionnaire;
+package byransha.labmodel.model.gitMind.gestionnaire;
 
 import byransha.*;
 
