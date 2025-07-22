@@ -4,7 +4,7 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.ValuedNode;
-import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
+import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;

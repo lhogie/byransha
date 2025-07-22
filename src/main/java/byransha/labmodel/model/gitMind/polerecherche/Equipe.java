@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.gitMind.polerecherche;
+package byransha.labmodel.model.gitMind.polerecherche;
 
 import byransha.BBGraph;
 import byransha.BNode;

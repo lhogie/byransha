@@ -1,12 +1,12 @@
-package byransha.labmodel.model.v0.gitMind.EnseignantChercheur;
+package byransha.labmodel.model.gitMind.EnseignantChercheur;
 
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.DateNode;
 import byransha.StringNode;
 import byransha.labmodel.model.v0.BusinessNode;
-import byransha.labmodel.model.v0.gitMind.diplome.Doctorat;
-import byransha.labmodel.model.v0.gitMind.diplome.TheseEtat;
+import byransha.labmodel.model.gitMind.diplome.Doctorat;
+import byransha.labmodel.model.gitMind.diplome.TheseEtat;
 
 public class EnseignantChercheur_Chercheur extends BusinessNode {
     public TheseEtat informationTheseEtat;

@@ -3,7 +3,7 @@ package byransha.web.endpoint;
 import byransha.*;
 import byransha.annotations.*;
 import byransha.labmodel.model.v0.BusinessNode;
-import byransha.labmodel.model.v0.gitMind.gestionnaire.Gestionnaire;
+import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -19,8 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 

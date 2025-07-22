@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.gitMind.polerecherche;
+package byransha.labmodel.model.gitMind.polerecherche;
 
 import byransha.BBGraph;
 import byransha.BNode;
@@ -6,9 +6,6 @@ import byransha.ListNode;
 import byransha.StringNode;
 import byransha.annotations.ListOptions;
 import byransha.labmodel.model.v0.BusinessNode;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class PoleDeRecherche extends BusinessNode {
     public StringNode nom;

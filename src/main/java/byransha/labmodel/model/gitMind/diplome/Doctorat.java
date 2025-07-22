@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.gitMind.diplome;
+package byransha.labmodel.model.gitMind.diplome;
 
 import byransha.BBGraph;
 import byransha.BNode;
