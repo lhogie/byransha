@@ -13,11 +13,11 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.I3S;
-import byransha.labmodel.model.v0.*;
 import byransha.labmodel.model.gitMind.EnseignantChercheur.*;
 import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
 import byransha.labmodel.model.gitMind.polerecherche.Equipe;
 import byransha.labmodel.model.gitMind.polerecherche.PoleDeRecherche;
+import byransha.labmodel.model.v0.*;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.*;
@@ -284,6 +284,7 @@ public class WebServer extends BNode {
         BNode.create(g, JVMNode.View.class);
         BNode.create(g, BNode.InOutsNivoView.class);
         BNode.create(g, ModelGraphivzSVGView.class);
+        BNode.create(g, ModelMermaidView.class);
         BNode.create(g, Navigator.class);
         BNode.create(g, OutDegreeDistribution.class);
         BNode.create(g, ClassDistribution.class);
@@ -325,8 +326,7 @@ public class WebServer extends BNode {
         Country.loadCountries(g);
     }
 
-    public void createEquipeRecherche(BBGraph g){
-
+    public void createEquipeRecherche(BBGraph g) {
         var Admin = BNode.create(g, PoleDeRecherche.class);
         Admin.nom.set("Admin");
         var SPARK = BNode.create(g, PoleDeRecherche.class);
@@ -572,7 +572,6 @@ public class WebServer extends BNode {
                     );
                 }
 
-                boolean hasErrors = false;
                 int responseStatusCode = 200;
 
                 for (var endpoint : resolvedEndpoints) {
@@ -639,7 +638,6 @@ public class WebServer extends BNode {
                             }
                         }
                     } catch (SecurityException authEx) {
-                        hasErrors = true;
                         boolean isSpecificRequest = !endpointName.isEmpty();
                         int statusCode = authEx
                                 .getMessage()
@@ -675,7 +673,6 @@ public class WebServer extends BNode {
                             }
                         }
                     } catch (Throwable err) {
-                        hasErrors = true;
                         err.printStackTrace();
                         var sw = new StringWriter();
                         err.printStackTrace(new PrintWriter(sw));

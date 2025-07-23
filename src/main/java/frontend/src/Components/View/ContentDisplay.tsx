@@ -7,6 +7,7 @@ import { collapseAllNested, JsonView } from "react-json-view-lite";
 import { BNodeNavigatorDisplay } from "./BNodeNavigatorDisplay";
 import { ChartDisplay } from "./ChartDisplay";
 import { ClassAttributeFieldDisplay } from "./ClassAttributeFieldDisplay";
+import MermaidDisplay from "./MermaidDisplay";
 
 interface ContentDisplayProps {
 	viewId: string;
@@ -105,6 +106,24 @@ export const ContentDisplay = ({
 				<div ref={graphvizRef} />
 			</div>
 		);
+	} else if (contentType === "text/mermaid") {
+		return (
+			<div
+				className="mermaid-container"
+				style={{
+					background: backgroundColor,
+					width: "100%",
+					height: "600px",
+					overflow: "hidden",
+					position: "relative",
+					padding: 0,
+					margin: 0,
+					borderRadius: "4px",
+				}}
+			>
+				<MermaidDisplay chart={content} />
+			</div>
+		);
 	} else if (contentType === "text/html") {
 		return (
 			<div
@@ -135,15 +154,6 @@ export const ContentDisplay = ({
 					alt="Graphviz"
 					style={{ background: "transparent" }}
 				/>
-			</div>
-		);
-	} else if (contentType === "text/plain") {
-		return (
-			<div
-				className="content-container"
-				style={{ background: backgroundColor }}
-			>
-				<pre>{content}</pre>
 			</div>
 		);
 	} else if (contentType === "image/png" || contentType === "image/jpeg") {
