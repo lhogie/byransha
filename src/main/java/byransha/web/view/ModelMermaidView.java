@@ -2,9 +2,7 @@ package byransha.web.view;
 
 import byransha.BBGraph;
 import byransha.BNode;
-import byransha.ListNode;
 import byransha.User;
-import byransha.ValuedNode;
 import byransha.web.Endpoint;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
@@ -13,7 +11,6 @@ import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.util.function.Predicate;
 import lmu.AssociationRelation;
 import lmu.Attribute;
@@ -21,7 +18,6 @@ import lmu.Entity;
 import lmu.InheritanceRelation;
 import lmu.MermaidWriter;
 import lmu.Model;
-import lmu.Operation;
 import lmu.Visibility;
 import lmu.WriterException;
 

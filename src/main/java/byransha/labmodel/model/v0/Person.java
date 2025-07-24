@@ -1,9 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
 
 public class Person extends BusinessNode {
 

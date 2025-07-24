@@ -3,9 +3,6 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.ListNode;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
 
 public class University extends Structure {
 

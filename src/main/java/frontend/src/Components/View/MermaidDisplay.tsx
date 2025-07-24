@@ -23,8 +23,6 @@ const MermaidDisplay: React.FC<MermaidDisplayProps> = ({ chart }) => {
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-	const [mermaidId, setMermaidId] = useState("");
-
 	useEffect(() => {
 		mermaid.initialize({
 			startOnLoad: false,
@@ -40,7 +38,6 @@ const MermaidDisplay: React.FC<MermaidDisplayProps> = ({ chart }) => {
 			if (mermaidRef.current && chart) {
 				try {
 					const id = `mermaid-${Date.now()}`;
-					setMermaidId(id);
 
 					// Clear previous content
 					mermaidRef.current.innerHTML = "";
