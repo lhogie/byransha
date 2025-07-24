@@ -411,6 +411,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
                     // Add choices/options with user-based filtering
                     if (!metadata.choices.isEmpty()) {
+                        System.out.println("1");
                         ArrayNode choicesArray =
                             JsonNodeFactory.instance.arrayNode();
                         List<String> filteredChoices = applyUserFilter(
@@ -448,7 +449,30 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                                     optionsArray.add(option);
                                 }
                             }
+
                             b.set("choices", optionsArray);
+
+                            if (
+                                metadata.listOptions.elementType() ==
+                                ListOptions.ElementType.STRING
+                            ) {
+                                if (lc.getSelected() != null) {
+                                    b.set(
+                                        "value",
+                                        new TextNode(lc.getSelected())
+                                    );
+                                } else {
+                                    b.set("value", NullNode.getInstance());
+                                }
+                            } else if (
+                                metadata.listOptions.elementType() ==
+                                ListOptions.ElementType.INTEGER
+                            ) {
+                                b.set(
+                                    "value",
+                                    new IntNode(lc.getSelectedIndex())
+                                );
+                            }
                         }
                     }
                 }

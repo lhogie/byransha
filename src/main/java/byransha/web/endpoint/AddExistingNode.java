@@ -1,6 +1,7 @@
 package byransha.web.endpoint;
 
 import byransha.*;
+import byransha.annotations.ListOptions;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -34,29 +35,49 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
         BNode currentNode
     ) throws Throwable {
         var a = new ObjectNode(null);
-        int idToLink = requireParm(in, "id").asInt();
-        a.put("id of the list to link", new IntNode(currentNode.id()));
-        a.put("id of the thing we link", new IntNode(idToLink));
 
-        var existingNode = graph.findByID(idToLink);
-        if (existingNode == null) {
-            return ErrorResponse.notFound(
-                "Node with ID " + idToLink + " does not exist in the graph."
+        if (
+            currentNode instanceof ListNode<?> listNode &&
+            listNode.getElementType() == ListOptions.ElementType.STRING
+        ) {
+            String idToLink = requireParm(in, "id").asText();
+            a.put("id of the list to link", new IntNode(currentNode.id()));
+            a.put("string of the thing we link", new TextNode(idToLink));
+            if (idToLink == null || idToLink.isEmpty()) {
+                return ErrorResponse.badRequest("ID cannot be null or empty.");
+            }
+
+            listNode.select(idToLink);
+
+            return new EndpointJsonResponse(
+                a,
+                "Add_existing_node call executed successfully"
             );
         } else {
-            a.put("id", new IntNode(existingNode.id()));
-            a.put("name", new TextNode(existingNode.prettyName()));
+            int idToLink = requireParm(in, "id").asInt();
+            a.put("id of the list to link", new IntNode(currentNode.id()));
+            a.put("id of the thing we link", new IntNode(idToLink));
 
-            if (currentNode instanceof ListNode<?> listNode) {
-                @SuppressWarnings("unchecked")
-                ListNode<N> typedListNode = (ListNode<N>) listNode;
-                typedListNode.add((N) existingNode);
+            var existingNode = graph.findByID(idToLink);
+            if (existingNode == null) {
+                return ErrorResponse.notFound(
+                    "Node with ID " + idToLink + " does not exist in the graph."
+                );
+            } else {
+                a.put("id", new IntNode(existingNode.id()));
+                a.put("name", new TextNode(existingNode.prettyName()));
+
+                if (currentNode instanceof ListNode<?> listNode) {
+                    @SuppressWarnings("unchecked")
+                    ListNode<N> typedListNode = (ListNode<N>) listNode;
+                    typedListNode.add((N) existingNode);
+                }
             }
-        }
 
-        return new EndpointJsonResponse(
-            a,
-            "Add_existing_node call executed successfully"
-        );
+            return new EndpointJsonResponse(
+                a,
+                "Add_existing_node call executed successfully"
+            );
+        }
     }
 }

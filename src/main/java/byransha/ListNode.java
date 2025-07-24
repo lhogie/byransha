@@ -1,6 +1,7 @@
 package byransha;
 
 import byransha.annotations.ListOptions;
+import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +71,8 @@ public class ListNode<T> extends PersistingNode {
             );
         }
 
+        System.out.println("Adding element: " + element);
+
         switch (listType) {
             case MULTIDROPDOWN:
             case LIST:
@@ -95,6 +98,32 @@ public class ListNode<T> extends PersistingNode {
         if (removed) {
             invalidateOutsCache();
             save(f -> {});
+        }
+    }
+
+    public void select(String option) {
+        if (option == null || option.isEmpty()) {
+            throw new IllegalArgumentException(
+                "Option cannot be null or empty"
+            );
+        }
+
+        List<String> filteredOptions = getFilteredStaticOptions();
+        if (!filteredOptions.contains(option)) {
+            throw new IllegalArgumentException(
+                "Option not found in static options: " + option
+            );
+        }
+
+        var existingElement = elements.stream().findFirst();
+
+        if (existingElement.isPresent()) {
+            StringNode existingNode = (StringNode) existingElement.get();
+            existingNode.set(option);
+        } else {
+            var n = BNode.create(graph, StringNode.class);
+            n.set(option);
+            add((T) n);
         }
     }
 
@@ -147,6 +176,10 @@ public class ListNode<T> extends PersistingNode {
             .map(StringNode::get)
             .findFirst()
             .orElse(null);
+    }
+
+    public ListOptions.ElementType getElementType() {
+        return getListOptions().elementType();
     }
 
     public void removeAll() {

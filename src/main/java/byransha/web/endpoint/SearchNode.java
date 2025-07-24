@@ -1,16 +1,17 @@
 package byransha.web.endpoint;
 
 import byransha.*;
+import byransha.filter.*;
 import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
-import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.*;
-import com.fasterxml.jackson.databind.node.BooleanNode;
-import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
 import java.util.*;
+import java.util.stream.Collectors;
 import toools.text.TextUtilities;
 
 public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
@@ -36,25 +37,16 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         HttpsExchange exchange,
         BNode currentNode
     ) throws Throwable {
-        ArrayNode dataArray = new ArrayNode(null);
-        String query;
-        HashMap<String, String> options = new HashMap<>();
+        ArrayNode dataArray = JsonNodeFactory.instance.arrayNode();
+        FilterChain activeFilterChain = null;
 
-        // Handle SearchForm inputs
+        // Get query and filter chain
+        final String query = getQueryFromInput(currentNode, in);
+        activeFilterChain = getActiveFilterChain(currentNode, in);
+
+        // Clear results if using SearchForm
         if (currentNode instanceof SearchForm && in.isEmpty()) {
-            currentNode.forEachOut((name, outNode) -> {
-                if (outNode instanceof ListNode<?> rn) {
-                    options.put(name, rn.getSelected());
-                } else if (outNode instanceof ValuedNode vn) {
-                    options.put(name, vn.getAsString());
-                }
-            });
-            query = options.get("searchTerm");
-            options.remove("searchTerm");
-
             ((SearchForm) currentNode).results.removeAll();
-        } else {
-            query = requireParm(in, "query").asText();
         }
 
         // Pagination parameters
@@ -67,42 +59,45 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         in.remove("query");
         in.remove("page");
         in.remove("pageSize");
+        in.remove("filters");
 
-        if (query == null || query.isEmpty()) {
-            return ErrorResponse.badRequest(
-                "Query parameter is missing or empty."
-            );
-        }
+        // Allow empty queries - users can search with filters only (handled in getQueryFromInput)
 
-        // Search matching nodes
+        // Search matching nodes with basic query filtering
         var nodes = graph.findAll(BusinessNode.class, node -> {
-            boolean baseCondition =
-                !node.deleted &&
-                !node.getClass().getSimpleName().equals("SearchForm") &&
-                node.prettyName().toLowerCase().contains(query.toLowerCase());
-
-            if (!options.isEmpty() && baseCondition) {
-                String classOption = options.get("searchClass");
-                if (
-                    classOption != null &&
-                    !classOption.equalsIgnoreCase("null") &&
-                    !classOption.equals("") &&
-                    !node
-                        .getClass()
-                        .getSimpleName()
-                        .toLowerCase()
-                        .contains(classOption.toLowerCase())
-                ) return false;
+            if (
+                node.deleted ||
+                node.getClass().getSimpleName().equals("SearchForm")
+            ) {
+                return false;
             }
 
-            return baseCondition;
+            // Apply basic query filter if query is provided and not empty
+            if (!query.isEmpty()) {
+                return node
+                    .prettyName()
+                    .toLowerCase()
+                    .contains(query.toLowerCase());
+            }
+
+            // If no query, include all nodes (filters will handle additional filtering)
+            return true;
         });
+
+        // Apply filter chain if present
+        if (activeFilterChain != null) {
+            nodes = nodes
+                .stream()
+                .filter(activeFilterChain.toPredicate())
+                .collect(Collectors.toList());
+        }
 
         // Sort by Levenshtein distance
         nodes.sort(
             Comparator.comparingInt(node -> {
                 String name = node.prettyName();
                 if (name == null) return Integer.MAX_VALUE;
+                if (query.isEmpty()) return 0; // No distance for empty query
                 return TextUtilities.computeLevenshteinDistance(
                     name.toLowerCase(),
                     query
@@ -123,33 +118,176 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         });
 
         // Wrap in metadata
-        ObjectNode response = new ObjectNode(null);
+        ObjectNode response = JsonNodeFactory.instance.objectNode();
         response.set("data", dataArray);
-        response.put("page", new IntNode(page));
-        response.put("pageSize", new IntNode(pageSize));
-        response.put("total", new IntNode(total));
-        response.put("hasNext", BooleanNode.valueOf(toIndex < total));
+        response.put("page", page);
+        response.put("pageSize", pageSize);
+        response.put("total", total);
+        response.put("hasNext", toIndex < total);
 
-        return new EndpointJsonResponse(
-            response,
-            "Search results for: " + query
-        );
+        String message;
+        if (query.isEmpty() && activeFilterChain == null) {
+            message = "All results";
+        } else if (query.isEmpty()) {
+            message = "Filtered results";
+        } else if (activeFilterChain == null) {
+            message = "Search results for: " + query;
+        } else {
+            message =
+                "Search results for: " + query + " (with filters applied)";
+        }
+
+        return new EndpointJsonResponse(response, message);
+    }
+
+    /**
+     * Extracts the query string from either SearchForm or direct input.
+     */
+    private String getQueryFromInput(BNode currentNode, ObjectNode in) {
+        if (currentNode instanceof SearchForm && in.isEmpty()) {
+            SearchForm searchForm = (SearchForm) currentNode;
+
+            // Get query from searchTerm field for fast search
+            String searchText = searchForm.searchTerm.get();
+            return searchText != null ? searchText.trim() : "";
+        } else {
+            // Make query parameter optional for API calls
+            if (in.has("query")) {
+                String apiQuery = in.get("query").asText();
+                return apiQuery != null ? apiQuery.trim() : "";
+            }
+            return "";
+        }
+    }
+
+    /**
+     * Gets the active FilterChain from either SearchForm or creates one from request.
+     */
+    private FilterChain getActiveFilterChain(BNode currentNode, ObjectNode in)
+        throws Throwable {
+        if (currentNode instanceof SearchForm && in.isEmpty()) {
+            SearchForm searchForm = (SearchForm) currentNode;
+
+            // Use the SearchForm's FilterChain if it's enabled
+            if (
+                searchForm.filterChain != null &&
+                searchForm.filterChain.enabled.get()
+            ) {
+                return searchForm.filterChain;
+            }
+        } else {
+            // Parse custom filters from request and create a FilterChain
+            if (in.has("filters") && in.get("filters").isArray()) {
+                ArrayNode filtersArray = (ArrayNode) in.get("filters");
+                List<FilterNode> customFilters = parseFiltersFromRequest(
+                    filtersArray
+                );
+                if (!customFilters.isEmpty()) {
+                    FilterChain filterChain = BNode.create(
+                        graph,
+                        FilterChain.class
+                    );
+                    filterChain.enabled.set(true);
+                    for (FilterNode filter : customFilters) {
+                        filterChain.addFilter(filter);
+                    }
+                    return filterChain;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Parses filter configurations from the request JSON.
+     *
+     * @param filtersArray JSON array containing filter configurations
+     * @return List of configured FilterNode instances
+     */
+    private List<FilterNode> parseFiltersFromRequest(ArrayNode filtersArray) {
+        List<FilterNode> filters = new ArrayList<>();
+
+        for (JsonNode filterNode : filtersArray) {
+            if (filterNode.isObject()) {
+                ObjectNode filterConfig = (ObjectNode) filterNode;
+                FilterNode filter = createFilterFromConfig(filterConfig);
+                if (filter != null) {
+                    filters.add(filter);
+                }
+            }
+        }
+
+        return filters;
+    }
+
+    /**
+     * Creates a FilterNode instance from JSON configuration.
+     *
+     * @param config The JSON configuration for the filter
+     * @return FilterNode instance or null if creation fails
+     */
+    private FilterNode createFilterFromConfig(ObjectNode config) {
+        if (!config.has("type")) {
+            System.err.println("Filter configuration missing 'type' field");
+            return null;
+        }
+
+        String filterType = config.get("type").asText();
+        FilterNode filter = null;
+
+        try {
+            switch (filterType.toLowerCase()) {
+                case "startswith":
+                    filter = BNode.create(graph, StartsWithFilter.class);
+                    break;
+                case "contains":
+                    filter = BNode.create(graph, ContainsFilter.class);
+                    break;
+                case "class":
+                    filter = BNode.create(graph, ClassFilter.class);
+                    break;
+                case "daterange":
+                    filter = BNode.create(graph, DateRangeFilter.class);
+                    break;
+                case "numericrange":
+                    filter = BNode.create(graph, NumericRangeFilter.class);
+                    break;
+                case "filterchain":
+                    filter = BNode.create(graph, FilterChain.class);
+                    break;
+                default:
+                    System.err.println("Unknown filter type: " + filterType);
+                    return null;
+            }
+
+            // Configure the created filter
+            if (filter != null) {
+                filter.configure(config);
+            }
+
+            return filter;
+        } catch (Exception e) {
+            System.err.println(
+                "Error creating filter of type " +
+                filterType +
+                ": " +
+                e.getMessage()
+            );
+            return null;
+        }
     }
 
     private void addNodeInfo(ArrayNode a, BNode node) {
-        ObjectNode nodeInfo = new ObjectNode(null);
-        nodeInfo.set("id", new IntNode(node.id()));
-        nodeInfo.set("name", new TextNode(node.prettyName()));
-        nodeInfo.set("type", new TextNode(node.getClass().getSimpleName()));
-        nodeInfo.set("isValid", BooleanNode.valueOf(node.isValid()));
+        ObjectNode nodeInfo = JsonNodeFactory.instance.objectNode();
+        nodeInfo.put("id", node.id());
+        nodeInfo.put("name", node.prettyName());
+        nodeInfo.put("type", node.getClass().getSimpleName());
+        nodeInfo.put("isValid", node.isValid());
 
         node.forEachOut((name, outNode) -> {
             if (outNode instanceof ImageNode imageNode) {
-                nodeInfo.set("img", new TextNode(imageNode.getAsString()));
-                nodeInfo.set(
-                    "imgMimeType",
-                    new TextNode(imageNode.getMimeType())
-                );
+                nodeInfo.put("img", imageNode.getAsString());
+                nodeInfo.put("imgMimeType", imageNode.getMimeType());
             }
         });
 

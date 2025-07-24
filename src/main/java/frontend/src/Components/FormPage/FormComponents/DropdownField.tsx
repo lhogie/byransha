@@ -60,12 +60,13 @@ const DropdownField = ({
 				rawApiData?.data?.results?.[0]?.result?.data?.attributes?.map(
 					(data: any) => ({
 						label: data.name.split(". ")[1],
-						value: data.id,
+						value: field.elementType === "STRING" ? data.value : data.id,
 					}),
 				)?.[0],
 			);
 		}
 	}, [
+		field.elementType,
 		hasStaticChoices,
 		rawApiDataLoading,
 		rawApiDataError,
@@ -92,18 +93,26 @@ const DropdownField = ({
 			!multiple
 		) {
 			if (defaultValue) {
-				const id = Number.parseInt(defaultValue.split("@")[1]);
-				const existingOption = listData?.data?.results?.[0]?.result?.data.find(
-					(option: any) => option.id === id,
-				);
+				if (defaultValue.split("@").length === 2) {
+					const id = Number.parseInt(defaultValue.split("@")[1]);
+					const existingOption =
+						listData?.data?.results?.[0]?.result?.data.find(
+							(option: any) => option.id === id,
+						);
 
-				if (existingOption) {
-					onFirstChange({
-						label: existingOption.name,
-						value: existingOption.id,
-					});
+					if (existingOption) {
+						onFirstChange({
+							label: existingOption.name,
+							value: existingOption.id,
+						});
+					} else {
+						onFirstChange(undefined);
+					}
 				} else {
-					onFirstChange(undefined);
+					onFirstChange({
+						label: defaultValue,
+						value: defaultValue,
+					});
 				}
 			} else {
 				onFirstChange(undefined);
