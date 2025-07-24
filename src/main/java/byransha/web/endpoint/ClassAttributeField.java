@@ -2,8 +2,8 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.annotations.*;
-import byransha.labmodel.model.v0.BusinessNode;
 import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
+import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -66,7 +66,59 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 : null;
 
             // Extract ListOptions and choices
-            this.listOptions = field.getAnnotation(ListOptions.class);
+            var annotation = field.getAnnotation(ListOptions.class);
+            if (annotation == null) {
+                this.listOptions = new ListOptions() {
+                    @Override
+                    public Class<
+                        ? extends java.lang.annotation.Annotation
+                    > annotationType() {
+                        return ListOptions.class;
+                    }
+
+                    @Override
+                    public ListType type() {
+                        return ListType.LIST;
+                    }
+
+                    @Override
+                    public OptionsSource source() {
+                        return OptionsSource.STATIC;
+                    }
+
+                    @Override
+                    public String[] staticOptions() {
+                        return new String[0];
+                    }
+
+                    @Override
+                    public boolean allowCreation() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean allowMultiple() {
+                        return false;
+                    }
+
+                    @Override
+                    public int maxItems() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int minItems() {
+                        return 0;
+                    }
+
+                    @Override
+                    public ElementType elementType() {
+                        return ElementType.STRING;
+                    }
+                };
+            } else {
+                this.listOptions = annotation;
+            }
             this.choices = new ArrayList<>();
             if (
                 listOptions != null &&
@@ -220,7 +272,11 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         var processed = new java.util.concurrent.atomic.AtomicInteger(0);
 
         node.forEachOut((name, out) -> {
-            if (out.deleted || !out.isVisible || out.prettyName().equals("graph")) return;
+            if (
+                out.deleted ||
+                !out.isVisible ||
+                out.prettyName().equals("graph")
+            ) return;
 
             if (processed.get() < offset) {
                 processed.incrementAndGet();

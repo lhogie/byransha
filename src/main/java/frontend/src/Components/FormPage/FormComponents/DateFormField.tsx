@@ -1,6 +1,7 @@
 import { FormControl, FormHelperText } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs, { type Dayjs } from "dayjs";
+import { useEffect, useState } from "react";
 
 const DateFormField = ({
 	fieldKey,
@@ -18,7 +19,15 @@ const DateFormField = ({
 	helperText: string;
 	field?: any;
 }) => {
-	// Extract min and max date values from validations if they exist
+	const [internalValue, setInternalValue] = useState<Dayjs | null>(
+		value ? dayjs(value) : null,
+	);
+	const [internalError, setInternalError] = useState<boolean>(false);
+
+	useEffect(() => {
+		setInternalValue(value ? dayjs(value) : null);
+	}, [value]);
+
 	let minDate: Dayjs | undefined;
 	let maxDate: Dayjs | undefined;
 
@@ -31,11 +40,26 @@ const DateFormField = ({
 		}
 	}
 
+	const handleDateChange = (newValue: Dayjs | null, context: any) => {
+		setInternalValue(newValue);
+
+		const hasError = newValue !== null && !newValue.isValid();
+		setInternalError(hasError);
+
+		if (newValue === null || (newValue && newValue.isValid())) {
+			onChange(newValue);
+		}
+	};
+
+	const displayError = error || internalError;
+	const displayHelperText =
+		internalError && !helperText ? "Date invalide" : helperText;
+
 	return (
-		<FormControl fullWidth error={error}>
+		<FormControl fullWidth error={displayError}>
 			<DatePicker
-				value={value ? dayjs(value) : null}
-				onChange={(newValue) => onChange(newValue)}
+				value={internalValue}
+				onChange={handleDateChange}
 				sx={{ width: "100%" }}
 				minDate={minDate}
 				maxDate={maxDate}
@@ -43,11 +67,13 @@ const DateFormField = ({
 				slotProps={{
 					textField: {
 						size: "small",
-						error: error,
+						error: displayError,
 					},
 				}}
 			/>
-			{helperText && <FormHelperText>{helperText}</FormHelperText>}
+			{displayHelperText && (
+				<FormHelperText>{displayHelperText}</FormHelperText>
+			)}
 		</FormControl>
 	);
 };
