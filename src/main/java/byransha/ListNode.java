@@ -71,8 +71,6 @@ public class ListNode<T> extends PersistingNode {
             );
         }
 
-        System.out.println("Adding element: " + element);
-
         switch (listType) {
             case MULTIDROPDOWN:
             case LIST:
