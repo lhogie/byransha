@@ -220,7 +220,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         var processed = new java.util.concurrent.atomic.AtomicInteger(0);
 
         node.forEachOut((name, out) -> {
-            if (out.deleted) return;
+            if (out.deleted || !out.isVisible || out.prettyName().equals("graph")) return;
 
             if (processed.get() < offset) {
                 processed.incrementAndGet();

@@ -39,6 +39,7 @@ public abstract class BNode {
     private final int id;
     public ColorNode color;
     public Boolean deleted = false;
+    public Boolean isVisible = true;
 
     protected BNode(BBGraph g) {
         this(g, g == null ? 0 : g.nextID());

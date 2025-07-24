@@ -2,6 +2,7 @@ package byransha;
 
 public class BooleanNode extends ValuedNode<Boolean> {
 	public String name = "boolean";
+	public BNode nodeToSetVisible;
 
 	public BooleanNode(BBGraph db) {
 		super(db);
@@ -25,6 +26,22 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	@Override
 	public String whatIsThis() {
 		return "a boolean with name : " + name;
+	}
+
+	@Override
+	public void set(Boolean newValue) {
+		this.value = newValue;
+		if(nodeToSetVisible != null) {
+			nodeToSetVisible.isVisible = newValue;
+		}
+		if (directory() != null) {
+			saveValue(BBGraph.sysoutPrinter);
+		}
+	}
+
+	public void setNodeToSetVisible(BNode nodeToSetVisible) {
+		this.nodeToSetVisible = nodeToSetVisible;
+		this.nodeToSetVisible.isVisible = this.get();
 	}
 
 	public void setName(String name) {
