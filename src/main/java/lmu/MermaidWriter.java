@@ -1,7 +1,5 @@
 package lmu;
 
-import java.util.Set;
-
 /*
  * Created for Mermaid class diagram generation
  */

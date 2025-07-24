@@ -306,15 +306,10 @@ public class ListNode<T> extends PersistingNode {
                                 );
                                 if (annotation != null) {
                                     this.listType = annotation.type();
-                                    this.optionsSource = annotation.source();
                                     this.staticOptions = Arrays.asList(
                                         annotation.staticOptions()
                                     );
-                                    this.elementType = annotation
-                                        .elementType()
-                                        .getClass();
                                     this.listType = annotation.type();
-                                    this.optionsSource = annotation.source();
                                     if (
                                         annotation.source() ==
                                         ListOptions.OptionsSource.STATIC

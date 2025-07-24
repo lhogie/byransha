@@ -10,13 +10,13 @@ import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
-
-import java.lang.reflect.Field;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class ClassInformation extends NodeEndpoint<BNode> {
-    private static final ConcurrentMap<String, Class<?>> classCache = new ConcurrentHashMap<>();
+
+    private static final ConcurrentMap<String, Class<?>> classCache =
+        new ConcurrentHashMap<>();
 
     @Override
     public String whatItDoes() {
@@ -32,17 +32,26 @@ public class ClassInformation extends NodeEndpoint<BNode> {
     }
 
     @Override
-    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
-            throws Throwable {
+    public EndpointJsonResponse exec(
+        ObjectNode in,
+        User user,
+        WebServer webServer,
+        HttpsExchange exchange,
+        BNode node
+    ) throws Throwable {
         var result = new ObjectNode(null);
 
         if (!in.has("classForm")) {
-            return ErrorResponse.badRequest("Missing required parameter: 'classForm'");
+            return ErrorResponse.badRequest(
+                "Missing required parameter: 'classForm'"
+            );
         }
 
         String className = in.get("classForm").asText();
         if (className == null || className.isEmpty()) {
-            return ErrorResponse.badRequest("Invalid 'classForm' parameter: cannot be empty");
+            return ErrorResponse.badRequest(
+                "Invalid 'classForm' parameter: cannot be empty"
+            );
         }
 
         try {
@@ -54,7 +63,10 @@ public class ClassInformation extends NodeEndpoint<BNode> {
 
             var current = clazz.getSuperclass();
             while (current != null) {
-                result.put(current.getSimpleName(), new TextNode(current.getName()));
+                result.put(
+                    current.getSimpleName(),
+                    new TextNode(current.getName())
+                );
                 current = current.getSuperclass();
             }
 
@@ -64,13 +76,16 @@ public class ClassInformation extends NodeEndpoint<BNode> {
             }
             in.remove("classForm");
 
-            return new EndpointJsonResponse(result, "Class super and interfaces");
+            return new EndpointJsonResponse(
+                result,
+                "Class super and interfaces"
+            );
         } catch (ClassNotFoundException e) {
             return ErrorResponse.notFound("Class not found: " + className);
         } catch (Exception e) {
-            return ErrorResponse.serverError("Error retrieving class information: " + e.getMessage());
+            return ErrorResponse.serverError(
+                "Error retrieving class information: " + e.getMessage()
+            );
         }
     }
-
-
 }

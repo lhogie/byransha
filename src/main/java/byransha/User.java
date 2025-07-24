@@ -9,7 +9,6 @@ import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
-import java.awt.*;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 

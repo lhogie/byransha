@@ -1,7 +1,6 @@
 package byransha.web.endpoint;
 
 import byransha.*;
-import byransha.labmodel.model.v0.Position;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
