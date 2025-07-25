@@ -33,6 +33,9 @@ public class BooleanNode extends ValuedNode<Boolean> {
 		this.value = newValue;
 		if(nodeToSetVisible != null) {
 			nodeToSetVisible.isVisible = newValue;
+			if(!newValue && nodeToSetVisible instanceof ValuedNode<?>) {
+				((ValuedNode<?>) nodeToSetVisible).set(null);
+			}
 		}
 		if (directory() != null) {
 			saveValue(BBGraph.sysoutPrinter);
