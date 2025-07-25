@@ -333,6 +333,7 @@ public class WebServer extends BNode {
         BNode.create(g, RemoveNode.class);
         BNode.create(g, ColorNodeView.class);
         BNode.create(g, SearchForm.class);
+        BNode.create(g, ListChildClasses.class);
 
         BNode.create(g, MaitreConference.class);
         BNode.create(g, Professeur.class);
