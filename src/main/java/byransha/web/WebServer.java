@@ -22,6 +22,9 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import byransha.web.endpoint.*;
 import byransha.web.view.*;
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.DoubleNode;
@@ -121,6 +124,21 @@ public class WebServer extends BNode {
     }
 
     static final ObjectMapper mapper = new ObjectMapper();
+
+    static {
+        // Configure ObjectMapper for proper UTF-8 handling
+        JsonFactory factory = mapper.getFactory();
+        factory.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, false);
+
+        // Ensure UTF-8 encoding is used
+        factory.setCharacterEscapes(null);
+
+        // Configure the mapper to handle UTF-8 properly
+        mapper.configure(
+            com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS,
+            true
+        );
+    }
 
     final List<User> nbRequestsInProgress = Collections.synchronizedList(
         new ArrayList<>()
@@ -734,10 +752,30 @@ public class WebServer extends BNode {
                     new TextNode("" + (System.nanoTime() - startTimeNs))
                 );
 
+                String jsonString = response.toPrettyString();
+
+                // Debug logging for UTF-8 encoding issues
+                if (
+                    jsonString.contains("Ã") ||
+                    jsonString.contains("â") ||
+                    jsonString.contains("è")
+                ) {
+                    System.err.println(
+                        "DEBUG: Potential UTF-8 encoding issue detected in JSON response:"
+                    );
+                    System.err.println("Raw JSON string: " + jsonString);
+                    System.err.println(
+                        "String bytes: " +
+                        java.util.Arrays.toString(
+                            jsonString.getBytes(StandardCharsets.UTF_8)
+                        )
+                    );
+                }
+
                 return new HTTPResponse(
                     responseStatusCode,
                     "application/json",
-                    response.toPrettyString().getBytes(StandardCharsets.UTF_8)
+                    jsonString.getBytes(StandardCharsets.UTF_8)
                 );
             } else {
                 String cacheKey = path;
@@ -903,10 +941,24 @@ public class WebServer extends BNode {
             var n = new ObjectNode(null);
             n.set("error class", new TextNode(e.getClass().getName()));
             n.set("message", new TextNode(e.getMessage()));
+            String errorJsonString = n.toPrettyString();
+
+            // Debug logging for UTF-8 encoding issues in error responses
+            if (
+                errorJsonString.contains("Ã") ||
+                errorJsonString.contains("â") ||
+                errorJsonString.contains("è")
+            ) {
+                System.err.println(
+                    "DEBUG: Potential UTF-8 encoding issue detected in error response:"
+                );
+                System.err.println("Raw JSON string: " + errorJsonString);
+            }
+
             return new HTTPResponse(
                 statusCode,
                 "application/json",
-                n.toPrettyString().getBytes(StandardCharsets.UTF_8)
+                errorJsonString.getBytes(StandardCharsets.UTF_8)
             );
         } catch (Throwable err) {
             err.printStackTrace();
@@ -922,10 +974,24 @@ public class WebServer extends BNode {
                 a.add(se);
             }
             n.set("stack trace", a);
+            String exceptionJsonString = n.toPrettyString();
+
+            // Debug logging for UTF-8 encoding issues in exception responses
+            if (
+                exceptionJsonString.contains("Ã") ||
+                exceptionJsonString.contains("â") ||
+                exceptionJsonString.contains("è")
+            ) {
+                System.err.println(
+                    "DEBUG: Potential UTF-8 encoding issue detected in exception response:"
+                );
+                System.err.println("Raw JSON string: " + exceptionJsonString);
+            }
+
             return new HTTPResponse(
                 500,
                 "application/json",
-                n.toPrettyString().getBytes(StandardCharsets.UTF_8)
+                exceptionJsonString.getBytes(StandardCharsets.UTF_8)
             );
         } finally {
             if (user != null) {

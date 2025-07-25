@@ -30,7 +30,7 @@ export const ViewContent = ({
 		[dataContent],
 	);
 	const resultContentType = useMemo(
-		() => dataContent?.results?.[0]?.result?.contentType,
+		() => dataContent?.results?.[0]?.result?.contentType?.split(";")?.[0],
 		[dataContent],
 	);
 	const prettyName = useMemo(

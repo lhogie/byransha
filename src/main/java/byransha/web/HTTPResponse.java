@@ -103,19 +103,8 @@ class HTTPResponse {
 
                 if (supportsCbor && contentType.contains("application/json")) {
                     try {
-                        // Ensure we're working with properly encoded UTF-8 JSON
-                        String jsonString = new String(
-                            content,
-                            StandardCharsets.UTF_8
-                        );
-
-                        // Re-encode as UTF-8 to ensure proper encoding
-                        byte[] utf8JsonBytes = jsonString.getBytes(
-                            StandardCharsets.UTF_8
-                        );
-                        var cborObject = CBORObject.FromJSONBytes(
-                            utf8JsonBytes
-                        );
+                        // Parse the JSON string directly from UTF-8 bytes
+                        var cborObject = CBORObject.FromJSONBytes(content);
                         responseData = cborObject.EncodeToBytes();
                         finalContentType = "application/cbor";
                     } catch (Exception ex) {
@@ -130,6 +119,10 @@ class HTTPResponse {
                     }
                 }
 
+                // Ensure JSON responses have proper charset
+                if (finalContentType.equals("application/json")) {
+                    finalContentType = "application/json; charset=utf-8";
+                }
                 e.getResponseHeaders().set("Content-type", finalContentType);
 
                 if (isStaticResource(finalContentType)) {

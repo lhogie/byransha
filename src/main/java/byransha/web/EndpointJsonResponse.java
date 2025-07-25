@@ -14,12 +14,12 @@ public class EndpointJsonResponse extends EndpointResponse<JsonNode> {
     final String dialect;
 
     public EndpointJsonResponse(JsonNode d, String dialect) {
-        super(d, "application/json");
+        super(d, "application/json; charset=utf-8");
         this.dialect = dialect;
     }
 
     public EndpointJsonResponse(JsonNode d, String dialect, int statusCode) {
-        super(d, "application/json", statusCode);
+        super(d, "application/json; charset=utf-8", statusCode);
         this.dialect = dialect;
     }
 
