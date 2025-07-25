@@ -200,6 +200,17 @@ export const ContentDisplay = ({
 				/>
 			</div>
 		);
+	} else if (contentType === "text/plain") {
+		return (
+			<div
+				className="content-container"
+				style={{ background: backgroundColor }}
+			>
+				<Suspense fallback={<CircularProgress />}>
+					<CustomCodeBlock language="plaintext" code={content} />
+				</Suspense>
+			</div>
+		);
 	} else {
 		return (
 			<div className="error-message">
