@@ -221,16 +221,9 @@ class HTTPResponse {
 
                 output.flush();
             } catch (IOException ex) {
-                System.err.println(
-                    "Error sending response: " + ex.getMessage()
-                );
                 throw ex;
             }
-        } catch (IOException ex) {
-            System.err.println(
-                "Error closing output stream: " + ex.getMessage()
-            );
-        }
+        } catch (IOException ex) {}
         // System.out.println("sent: " + code + " content:" + new String(content));
     }
 

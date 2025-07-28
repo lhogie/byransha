@@ -48,7 +48,13 @@
 				<version>3.0.0</version>
 				<configuration>
 					<mainClass>byransha.web.WebServer</mainClass>
-				</configuration>
+					<systemProperties>
+                        <systemProperty>
+                            <key>file.encoding</key>
+                            <value>UTF-8</value>
+                        </systemProperty>
+                    </systemProperties>
+                </configuration>
 			</plugin>
 		</plugins>
 	</build>

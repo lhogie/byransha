@@ -42,7 +42,6 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
     ) throws Throwable {
         var a = new ObjectNode(null);
         var className = requireParm(in, "BNodeClass").asText();
-        System.out.println("Adding node of class: " + className);
 
         Class<N> clazz;
         Class<?> cachedClass = classCache.get(className);

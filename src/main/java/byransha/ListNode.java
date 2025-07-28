@@ -352,14 +352,6 @@ public class ListNode<T> extends PersistingNode {
                                     optionsCache.put(id(), annotation);
                                     return annotation;
                                 }
-                            } else {
-                                System.out.println(
-                                    "Skipping field: " +
-                                    field.getName() +
-                                    " in " +
-                                    currentClass.getSimpleName() +
-                                    " (not matching this ListNode)"
-                                );
                             }
                         } catch (IllegalAccessException e) {}
                     }
