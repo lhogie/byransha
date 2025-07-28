@@ -181,6 +181,13 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         HttpsExchange exchange,
         BNode node
     ) throws Throwable {
+        if (node == null) {
+            return new EndpointJsonResponse(
+                new TextNode("Node not found"),
+                "Node not found"
+            );
+        }
+
         int offset = in.has("offset") ? in.get("offset").asInt() : 0;
         int limit = in.has("limit") ? in.get("limit").asInt() : 100;
         boolean skipValidation =

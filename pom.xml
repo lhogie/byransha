@@ -40,6 +40,7 @@
 					<source>21</source>
 					<target>21</target>
 					<release>21</release>
+					<commandlineArgs>-Dfile.encoding=UTF-8</commandlineArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -48,6 +49,7 @@
 				<version>3.0.0</version>
 				<configuration>
 					<mainClass>byransha.web.WebServer</mainClass>
+					<commandlineArgs>-Dfile.encoding=UTF-8</commandlineArgs>
 					<systemProperties>
                         <systemProperty>
                             <key>file.encoding</key>
