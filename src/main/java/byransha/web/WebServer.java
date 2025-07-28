@@ -530,9 +530,37 @@ public class WebServer extends BNode {
                 }
 
                 List<NodeEndpoint> resolvedEndpoints;
-                BNode contextNode = user.currentNode() != null
-                    ? user.currentNode()
-                    : graph.root();
+                BNode contextNode = user.currentNode();
+
+                // Validate that the current node still exists in the graph
+                if (contextNode != null) {
+                    int originalNodeId = contextNode.id();
+                    BNode validatedNode = graph.findByID(originalNodeId);
+                    if (validatedNode == null) {
+                        // Current node no longer exists in graph
+                        user.stack.clear();
+                        log(
+                            "Error: User " +
+                            user.name.get() +
+                            "'s current node (ID: " +
+                            originalNodeId +
+                            ") no longer exists in graph. Cleared navigation stack."
+                        );
+                        return new HTTPResponse(
+                            404,
+                            "application/json",
+                            ("{\"error\": \"Current node with ID " +
+                                originalNodeId +
+                                " no longer exists in the graph.\", \"error_type\": \"NodeNotFound\"}").getBytes(
+                                StandardCharsets.UTF_8
+                            )
+                        );
+                    } else {
+                        contextNode = validatedNode;
+                    }
+                } else {
+                    contextNode = graph.root();
+                }
 
                 if (endpointName.isEmpty()) {
                     User finalUser = user;
