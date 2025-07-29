@@ -33,7 +33,7 @@ public class HideNode extends ValuedNode<Boolean> {
     public <N extends BNode> N set(Boolean newValue) {
         this.value = newValue;
         if (nodeToSetVisible != null) {
-            nodeToSetVisible.isVisible = !newValue;
+            nodeToSetVisible.isVisible = newValue;
             if (newValue && nodeToSetVisible instanceof ValuedNode<?>) {
                 ((ValuedNode<?>) nodeToSetVisible).set(null);
             }
@@ -46,7 +46,7 @@ public class HideNode extends ValuedNode<Boolean> {
 
     public void setNodeToSetVisible(BNode nodeToSetVisible) {
         this.nodeToSetVisible = nodeToSetVisible;
-        this.nodeToSetVisible.isVisible = !this.get();
+        this.nodeToSetVisible.isVisible = this.get();
     }
 
     public void setName(String name) {
