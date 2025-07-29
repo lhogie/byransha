@@ -193,7 +193,7 @@ export const inputTextField = [
 	"PhoneNumberNode",
 	"IntNode",
 ];
-export const checkboxField = ["BooleanNode"];
+export const checkboxField = ["BooleanNode", "HideNode"];
 export const dateField = ["DateNode"];
 export const imageField = ["ImageNode"];
 export const fileField = ["FileNode"];
