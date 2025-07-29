@@ -259,6 +259,11 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 "value",
                 BooleanNode.valueOf((Boolean) valuedNode.get())
             );
+        } else if (valuedNode instanceof byransha.HideNode) {
+            nodeInfo.set(
+                "value",
+                BooleanNode.valueOf((Boolean) valuedNode.get())
+            );
         } else if (valuedNode instanceof byransha.IntNode) {
             nodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
         } else {
