@@ -61,7 +61,8 @@ public abstract class BNode {
     public static <N extends BNode> N create(BBGraph g, Class<N> nodeClass) {
         try {
             N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
-            if (!nodeClass.getSimpleName().equals("Cluster")) newNode.init();
+            N node = newNode.init(nodeClass.getSimpleName());
+            if(node != null) newNode = node;
             g.accept(newNode);
             newNode.initialized();
             return newNode;
@@ -73,12 +74,29 @@ public abstract class BNode {
         }
     }
 
-    protected void init() {
-        this.createOrAssignCluster();
+    protected <N extends BNode > N init(String className) {
+        switch (className){
+            case "Cluster" : break;
+            case "BooleanNode" : return createBoolean();
+            default: this.createOrAssignCluster();
+        }
+        return null;
     }
 
     protected void initialized() {
         // This method can be overridden by subclasses to perform additional initialization
+    }
+
+    protected <N extends BNode> N createBoolean() {
+        var node = graph.findAll(BooleanNode.class, n -> {return true;});
+        N returnedNode = null;
+        for( var n : node) {
+            if( n.get() == null || n.get().equals(false)) {
+                returnedNode = (N) n;
+                break;
+            }
+        }
+        return returnedNode;
     }
 
     public void createOrAssignCluster() {

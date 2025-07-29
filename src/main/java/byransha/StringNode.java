@@ -31,8 +31,9 @@ public class StringNode extends ValuedNode<String> {
     }
 
     @Override
-    public void set(String newValue) {
+    public <N extends BNode> N set(String newValue) {
         super.set(newValue);
+        return null;
 
         // if (labelFor != null)
         // {
