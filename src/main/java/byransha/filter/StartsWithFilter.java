@@ -13,7 +13,7 @@ public class StartsWithFilter extends FilterNode {
         super(g);
         prefix = BNode.create(g, StringNode.class);
         caseSensitive = BNode.create(g, BooleanNode.class);
-        caseSensitive.set(false);
+        caseSensitive.set("caseSensitive", this, false);
     }
 
     public StartsWithFilter(BBGraph g, int id) {

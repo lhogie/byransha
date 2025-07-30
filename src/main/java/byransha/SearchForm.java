@@ -39,8 +39,8 @@ public class SearchForm extends PersistingNode {
 
         // Add a class filter (replaces searchClass)
         ClassFilter classFilter = BNode.create(graph, ClassFilter.class);
-        classFilter.enabled.set(false); // Start disabled
-        classFilter.includeSubclasses.set(true);
+        classFilter.enabled.set("enabled", classFilter, false); // Start disabled
+        classFilter.includeSubclasses.set("includeSubclasses", classFilter, true);
         filterChain.addFilter(classFilter);
 
         // Add a contains filter for additional text matching
@@ -48,7 +48,7 @@ public class SearchForm extends PersistingNode {
             graph,
             ContainsFilter.class
         );
-        containsFilter.enabled.set(false); // Start disabled
+        containsFilter.enabled.set("enabled", containsFilter, false); // Start disabled
         filterChain.addFilter(containsFilter);
 
         // Add a starts with filter
@@ -56,12 +56,12 @@ public class SearchForm extends PersistingNode {
             graph,
             StartsWithFilter.class
         );
-        startsWithFilter.enabled.set(false); // Start disabled
+        startsWithFilter.enabled.set("enabled", startsWithFilter, false); // Start disabled
         filterChain.addFilter(startsWithFilter);
 
         // Add a date range filter
         DateRangeFilter dateFilter = BNode.create(graph, DateRangeFilter.class);
-        dateFilter.enabled.set(false); // Start disabled
+        dateFilter.enabled.set("enabled", dateFilter,false); // Start disabled
         filterChain.addFilter(dateFilter);
 
         // Add a numeric range filter
@@ -69,7 +69,7 @@ public class SearchForm extends PersistingNode {
             graph,
             NumericRangeFilter.class
         );
-        numericFilter.enabled.set(false); // Start disabled
+        numericFilter.enabled.set("enabled", numericFilter, false); // Start disabled
         filterChain.addFilter(numericFilter);
     }
 

@@ -15,7 +15,7 @@ public abstract class FilterNode extends PersistingNode {
         super(g);
         fieldPath = BNode.create(g, StringNode.class);
         enabled = BNode.create(g, BooleanNode.class);
-        enabled.set(true);
+        enabled.set("enabled", this, true);
     }
 
     protected FilterNode(BBGraph g, int id) {

@@ -27,7 +27,7 @@ public class ClassFilter extends FilterNode {
         super(g);
         targetClass = BNode.create(g, ListNode.class);
         includeSubclasses = BNode.create(g, BooleanNode.class);
-        includeSubclasses.set(true);
+        includeSubclasses.set("includeSubclasses", this, true);
     }
 
     public ClassFilter(BBGraph g, int id) {

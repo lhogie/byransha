@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.lang.reflect.Field;
 import java.util.Base64;
 
 public class SetValue extends NodeEndpoint<BNode> {
@@ -76,6 +78,8 @@ public class SetValue extends NodeEndpoint<BNode> {
         a.set("isValid", BooleanNode.valueOf(node.isValid()));
 
         var value = in.get("value");
+        int parentId = in.get("parentId").asInt();
+        BNode parentNode = graph.findByID(parentId);
 
         try {
             if (node instanceof StringNode sn) {
@@ -84,9 +88,7 @@ public class SetValue extends NodeEndpoint<BNode> {
             } else if (node instanceof byransha.IntNode i) {
                 i.set(value.asInt());
                 a.set("value", new IntNode(value.asInt()));
-            } else if (node instanceof ColorNode c && in.has("parentId")) {
-                int parentId = in.get("parentId").asInt();
-                BNode parentNode = graph.findByID(parentId);
+            } else if (node instanceof ColorNode c) {
                 if (parentNode == null) {
                     return ErrorResponse.notFound(
                         "Parent node with ID " +
@@ -97,7 +99,8 @@ public class SetValue extends NodeEndpoint<BNode> {
                 parentNode.setColor(value.asText());
                 a.set("value", new TextNode(c.getAsString()));
             } else if (node instanceof byransha.BooleanNode b) {
-                b.set(value.asBoolean());
+                Field field = parentNode.getFields(node.id());
+                b.set(field.getName(), parentNode, value.asBoolean());
                 a.set(
                     "value",
                     value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE

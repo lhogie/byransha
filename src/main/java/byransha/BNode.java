@@ -17,11 +17,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.awt.Color;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -337,22 +333,28 @@ public abstract class BNode {
         return false;
     }
 
-    public void getFields(int id) {
-        for (var c : Clazz.bfs(getClass())) {
-            for (var f : c.getDeclaredFields()) {
-                if ((f.getModifiers() & Modifier.STATIC) != 0) {
-                    continue;
+    public Field getFields(int id) {
+        BNode node = graph.findByID(id);
+        for (Map.Entry<String, BNode> entry : this.outs().entrySet()) {
+            if (entry.getValue() == node) {
+                for (var c : Clazz.bfs(getClass())) {
+                    for (var f : c.getDeclaredFields()) {
+                        if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
+                        if (f.getName().equals(entry.getKey())) {
+                            f.setAccessible(true);
+                            return f;
+                        }
+                    }
                 }
-                // a completer
             }
         }
+        return null;
     }
 
-    protected void setField(String name, BNode targetNode) {
+    public void setField(String name, BNode targetNode) {
         for (var c : Clazz.bfs(getClass())) {
             for (var f : c.getDeclaredFields()) {
                 if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
-
                 if (f.getName().equals(name)) {
                     try {
                         f.setAccessible(true);

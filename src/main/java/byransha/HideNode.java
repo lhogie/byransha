@@ -30,18 +30,14 @@ public class HideNode extends ValuedNode<Boolean> {
     }
 
     @Override
-    public <N extends BNode> N set(Boolean newValue) {
-        this.value = newValue;
+    public void set(Boolean newValue) {
+        super.set(newValue);
         if (nodeToSetVisible != null) {
             nodeToSetVisible.isVisible = newValue;
             if (newValue && nodeToSetVisible instanceof ValuedNode<?>) {
                 ((ValuedNode<?>) nodeToSetVisible).set(null);
             }
         }
-        if (directory() != null) {
-            saveValue(BBGraph.sysoutPrinter);
-        }
-        return null;
     }
 
     public void setNodeToSetVisible(BNode nodeToSetVisible) {

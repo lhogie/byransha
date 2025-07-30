@@ -56,7 +56,6 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
                     return false;
                 }
             }
-            System.out.println("after the loop");
             if (query == null || query.isEmpty()) return true;
             String name = node.prettyName();
             return name != null && name.toLowerCase().contains(query);

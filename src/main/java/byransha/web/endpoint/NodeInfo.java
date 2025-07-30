@@ -50,7 +50,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
         r.set("can read", new TextNode("" + node.canSee(user)));
         r.set("can write", new TextNode("" + node.canSee(user)));
         r.set("out", new IntNode(node.outDegree()));
-        r.set("in", new IntNode(ins().size()));
+        r.set("in", new IntNode(node.ins().size()));
 
         var availableEndpoints = new ArrayNode(null);
 

@@ -31,7 +31,7 @@ public class DateRangeFilter extends FilterNode {
         fromDate = BNode.create(g, DateNode.class);
         toDate = BNode.create(g, DateNode.class);
         includeNull = BNode.create(g, BooleanNode.class);
-        includeNull.set(true);
+        includeNull.set("includeNull", this, true);
     }
 
     public DateRangeFilter(BBGraph g, int id) {

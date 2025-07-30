@@ -77,12 +77,11 @@ public abstract class ValuedNode<V> extends PersistingNode {
         return value != null ? value.toString() : "";
     }
 
-    public <N extends BNode> N  set(V newValue) {
+    public void set(V newValue) {
         this.value = newValue;
         if (directory() != null) {
             saveValue(BBGraph.sysoutPrinter);
         }
-        return null;
     }
 
     public void saveValue(Consumer<File> writingFiles) {

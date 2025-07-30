@@ -1,5 +1,7 @@
 package byransha;
 
+import java.lang.reflect.Field;
+
 public class BooleanNode extends ValuedNode<Boolean> {
 	public String name = "boolean";
 
@@ -13,7 +15,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String prettyName() {
-		return name;
+		return name + " : " + (get() == null ? "null" : get().toString());
 	}
 
 	@Override
@@ -27,12 +29,14 @@ public class BooleanNode extends ValuedNode<Boolean> {
 	}
 
 	@Override
-	public <N extends BNode> N set(Boolean newValue) {
-		this.value = newValue;
-		if (directory() != null) {
-			saveValue(BBGraph.sysoutPrinter);
-		}
-		return null;
+	public void set(Boolean newValue) {
+		throw  new UnsupportedOperationException("Cannot use set(Boolean) on BooleanNode directly. Use set(Field, BNode, Boolean) instead.");
+	}
+
+	public void set(String fieldName, BNode parentNode, Boolean newValue) {
+		BooleanNode node = graph.find(BooleanNode.class, n -> {return n.get()!=null && n.get().equals(newValue);});
+		if(node != null) parentNode.setField(fieldName, node);
+		else super.set(newValue);
 	}
 
 	public void setName(String name) {
