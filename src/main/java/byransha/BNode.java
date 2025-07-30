@@ -7,6 +7,7 @@ import byransha.annotations.Required;
 import byransha.annotations.Size;
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
+import byransha.labmodel.model.gitMind.polerecherche.PoleDeRecherche;
 import byransha.web.*;
 import byransha.web.EndpointJsonResponse.dialects;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -87,7 +88,8 @@ public abstract class BNode {
         var node = graph.findAll(BooleanNode.class, n -> {return true;});
         N returnedNode = null;
         for( var n : node) {
-            if( n.get() == null || n.get().equals(false)) {
+            if(n.get() == null) n.set(null, null, false);
+            if(n.get().equals(false)) {
                 returnedNode = (N) n;
                 break;
             }
@@ -113,8 +115,8 @@ public abstract class BNode {
             newCluster.setTypeOfCluster(this.getClass().getSimpleName());
             newCluster.add(this);
             newCluster.add(graph);
-            if (this.getClass().getSimpleName().equals("StringNode")) newCluster.setColor("#9900ff");
-            else if(this.getClass().getSimpleName().equals("PoleDeRecherche")) newCluster.setColor("#630f09");
+            if (this instanceof StringNode) newCluster.setColor("#9900ff");
+            else if(this instanceof PoleDeRecherche) newCluster.setColor("#630f09");
             else if (this instanceof Endpoint) newCluster.setColor("#00fff5");
         }
     }
