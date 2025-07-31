@@ -29,7 +29,8 @@ public class HistoryChangeNode extends StringNode{
     @Override
     public void set(String newValue) {
         System.out.println(this.value);
-        this.value += newValue;
+        if(this.value == null) this.value = newValue;
+        else this.value += "\n" + newValue;
         if (directory() != null) {
             saveValue(BBGraph.sysoutPrinter);
         }

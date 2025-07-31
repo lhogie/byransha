@@ -1,6 +1,7 @@
 package byransha.web.endpoint;
 
 import byransha.*;
+import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -40,6 +41,12 @@ public class SetValue extends NodeEndpoint<BNode> {
     ) throws Throwable {
         var a = new ObjectNode(null);
 
+        String timestamp = java.time.ZonedDateTime.now()
+            .withZoneSameInstant(java.time.ZoneOffset.UTC)
+            .format(java.time.format.DateTimeFormatter.ofPattern(
+                "yyyy-MM-dd HH:mm:ss 'UTC' "
+            ));
+        String previousValue = "";
         if (in.isEmpty()) {
             return ErrorResponse.badRequest(
                 "Request body is empty. Expected 'id' and 'value' parameters."
@@ -82,6 +89,12 @@ public class SetValue extends NodeEndpoint<BNode> {
         BNode parentNode = graph.findByID(parentId);
 
         try {
+            if(node instanceof ValuedNode<?> vn && !(node instanceof ImageNode) && !(node instanceof FileNode)) {
+                previousValue = vn.getAsString();
+                if(parentNode instanceof BusinessNode bn){
+                    bn.history.set(timestamp + "User : " +  user.prettyName() + " changed the field " + node.prettyName() + " from '" + previousValue + "' to '" + value.asText() + "'; ");
+                }
+            }
             if (node instanceof StringNode sn) {
                 sn.set(value.asText());
                 a.set("value", new TextNode(value.asText()));
