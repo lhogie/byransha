@@ -192,6 +192,7 @@ export const inputTextField = [
 	"EmailNode",
 	"PhoneNumberNode",
 	"IntNode",
+	"HistoryChangeNode"
 ];
 export const checkboxField = ["BooleanNode", "HideNode"];
 export const dateField = ["DateNode"];

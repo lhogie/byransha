@@ -29,7 +29,7 @@ public class Cluster extends ListNode<BNode> {
     @Override
     public String prettyName() {
         if (this.size() > 0) {
-            return this.typeOfCluster;
+            return "CL " + this.typeOfCluster;
         }
         return "a cluster empty";
     }

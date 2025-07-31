@@ -37,6 +37,7 @@ public abstract class BNode {
     public ColorNode color;
     public Boolean deleted = false;
     public Boolean isVisible = true;
+    public Cluster cluster;
 
     protected BNode(BBGraph g) {
         this(g, g == null ? 0 : g.nextID());
@@ -106,6 +107,7 @@ public abstract class BNode {
             ) {
                 n.add(this);
                 assigned.set(true);
+                cluster = n;
                 return true;
             }
             return false;
@@ -115,6 +117,7 @@ public abstract class BNode {
             newCluster.setTypeOfCluster(this.getClass().getSimpleName());
             newCluster.add(this);
             newCluster.add(graph);
+            cluster = newCluster;
             if (this instanceof StringNode) newCluster.setColor("#9900ff");
             else if(this instanceof PoleDeRecherche) newCluster.setColor("#630f09");
             else if (this instanceof Endpoint) newCluster.setColor("#00fff5");

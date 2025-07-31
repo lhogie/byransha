@@ -287,7 +287,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             if (
                 out.deleted ||
                 !out.isVisible ||
-                out.prettyName().equals("graph")
+                out instanceof BBGraph || out instanceof Cluster
             ) return;
 
             if (processed.get() < offset) {
@@ -325,6 +325,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         b.set("id", new IntNode(out.id()));
         b.set("name", new TextNode(name));
         b.set("type", new TextNode(out.getClass().getSimpleName()));
+        b.set("canEdit", BooleanNode.valueOf(out.canEdit(user)));
+        b.set("canSee", BooleanNode.valueOf(out.canSee(user)));
 
         if (out instanceof BusinessNode bn) {
             b.set("isValid", BooleanNode.valueOf(bn.isValid()));
