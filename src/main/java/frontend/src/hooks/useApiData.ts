@@ -76,7 +76,7 @@ export const useInfiniteApiData = (
 	const queryParams = new URLSearchParams({ ...params }).toString();
 	const queryString = queryParams ? `?${queryParams}` : "";
 	const getUrl = (page: number) =>
-		`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}${queryString}&page=${page}&pageSize=10`;
+		`${import.meta.env.PUBLIC_API_BASE_URL}/${endpoints}${queryString}&page=${page}&pageSize=25`;
 
 	return useInfiniteQuery<{
 		data: {
