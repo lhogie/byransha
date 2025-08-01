@@ -54,7 +54,7 @@ const FormField = ({
 	parentId: string;
 	defaultValue?: any;
 }) => {
-	const { id, name, type, validations, isValid, choices, source } = field;
+	const { id, name, type, validations, isValid } = field;
 	const [value, setValue] = useState(
 		listField.includes(type)
 			? field.listType === "RADIO"

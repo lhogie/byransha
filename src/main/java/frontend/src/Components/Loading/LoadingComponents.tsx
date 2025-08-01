@@ -170,7 +170,6 @@ export const InlineLoading = ({ text = "Loading..." }: { text?: string }) => (
 export const SuspenseWrapper = ({
 	children,
 	fallback,
-	errorFallback,
 }: {
 	children: React.ReactNode;
 	fallback?: React.ReactNode;

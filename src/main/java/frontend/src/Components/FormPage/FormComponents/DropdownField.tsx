@@ -79,7 +79,6 @@ const DropdownField = ({
 		data: listData,
 		isLoading,
 		isError,
-		error: apiError,
 	} = useApiData(hasStaticChoices ? undefined : "list_existing_node", {
 		type: shortName,
 	});

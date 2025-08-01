@@ -26,12 +26,7 @@ const AddNodePage = () => {
 	useTitle(`Add node`);
 
 	const navigate = useNavigate();
-	const {
-		data: rawApiData,
-		isLoading: loading,
-		error,
-		refetch,
-	} = useApiData("bnode_class_distribution");
+	const { data: rawApiData, refetch } = useApiData("bnode_class_distribution");
 	const queryClient = useQueryClient();
 
 	const [className, setClassName] = useState<string[]>([]);

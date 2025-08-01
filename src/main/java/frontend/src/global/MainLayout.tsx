@@ -31,12 +31,7 @@ import Menu from "@mui/material/Menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@toolpad/core";
 import React, { memo, Suspense, useCallback, useMemo } from "react";
-import {
-	Outlet,
-	Link as RouterLink,
-	useLocation,
-	useNavigate,
-} from "react-router";
+import { Outlet, Link as RouterLink, useNavigate } from "react-router";
 
 // Memoized UserInfo component
 const UserInfo = memo(
@@ -241,7 +236,6 @@ BreadcrumbNav.displayName = "BreadcrumbNav";
 
 const MainLayout = memo(() => {
 	const navigate = useNavigate();
-	const { pathname } = useLocation();
 	const queryClient = useQueryClient();
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
 
@@ -285,7 +279,7 @@ const MainLayout = memo(() => {
 		},
 	);
 
-	const { data: historyData, isLoading: isHistoryLoading } = useApiData(
+	const { data: historyData } = useApiData(
 		"user_history",
 		{},
 		{

@@ -103,7 +103,6 @@ const VirtualizedList = memo(
 		results,
 		focusedIndex,
 		hasNextPage,
-		isFetchingNextPage,
 		onSelectOption,
 		parentRef,
 	}: {
@@ -263,7 +262,6 @@ export const SearchBar = memo(() => {
 	const {
 		isLoading,
 		data,
-		isFetching,
 		isFetchingNextPage,
 		fetchNextPage,
 		hasNextPage,

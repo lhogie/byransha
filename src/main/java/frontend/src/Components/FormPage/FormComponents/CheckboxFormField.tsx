@@ -19,7 +19,7 @@ const CheckboxFormField = ({
 				<Checkbox
 					id={fieldKey}
 					checked={!!value}
-					onChange={(e) => onChange(e.target.checked!)}
+					onChange={(e) => onChange(e.target.checked)}
 					{...rest}
 				/>
 			}

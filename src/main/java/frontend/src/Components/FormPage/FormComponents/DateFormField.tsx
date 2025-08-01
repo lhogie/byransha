@@ -40,13 +40,13 @@ const DateFormField = ({
 		}
 	}
 
-	const handleDateChange = (newValue: Dayjs | null, context: any) => {
+	const handleDateChange = (newValue: Dayjs | null, _context: any) => {
 		setInternalValue(newValue);
 
 		const hasError = newValue !== null && !newValue.isValid();
 		setInternalError(hasError);
 
-		if (newValue === null || (newValue && newValue.isValid())) {
+		if (newValue === null || newValue?.isValid()) {
 			onChange(newValue);
 		}
 	};

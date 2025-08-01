@@ -9,7 +9,6 @@ import ExistingNodeSelector from "./ExistingNodeSelector";
 import FieldRenderer from "./FieldRenderer";
 
 const NestedFields = ({
-	fieldKey,
 	field,
 	rootId,
 	isRoot = false,
@@ -21,12 +20,7 @@ const NestedFields = ({
 	isRoot?: boolean;
 	isToggle?: boolean;
 }) => {
-	const {
-		data: rawApiData,
-		isLoading: loading,
-		error,
-		refetch,
-	} = useApiData(
+	const { data: rawApiData, isLoading: loading } = useApiData(
 		`class_attribute_field`,
 		{
 			node_id:
@@ -68,7 +62,7 @@ const NestedFields = ({
 		[jumpToId, navigate],
 	);
 
-	const { id, type, name } = field;
+	const { type, name } = field;
 
 	// Use a ref to store the expanded fields state to prevent unnecessary rerenders
 	const expandedFieldsRef = useRef(expandedFields);
