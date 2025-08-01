@@ -783,24 +783,6 @@ public class WebServer extends BNode {
 
                 String jsonString = response.toPrettyString();
 
-                // Debug logging for UTF-8 encoding issues
-                if (
-                    jsonString.contains("Ã") ||
-                    jsonString.contains("â") ||
-                    jsonString.contains("è")
-                ) {
-                    System.err.println(
-                        "DEBUG: Potential UTF-8 encoding issue detected in JSON response:"
-                    );
-                    System.err.println("Raw JSON string: " + jsonString);
-                    System.err.println(
-                        "String bytes: " +
-                        java.util.Arrays.toString(
-                            jsonString.getBytes(StandardCharsets.UTF_8)
-                        )
-                    );
-                }
-
                 return new HTTPResponse(
                     responseStatusCode,
                     "application/json",
