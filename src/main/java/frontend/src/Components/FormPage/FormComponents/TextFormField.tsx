@@ -1,4 +1,4 @@
-import { TextField, type TextFieldProps } from "@mui/material";
+import { TextField, type TextFieldProps, Typography } from "@mui/material";
 import type React from "react";
 
 export type TextFormFieldProps = {
@@ -55,6 +55,14 @@ const TextFormField = ({
 				inputProps.maxLength = field.validations.size.max;
 			}
 		}
+	}
+
+	if (field.canEdit === false) {
+		return (
+			<Typography variant="body1" sx={{ py: 1 }}>
+				{value || ""}
+			</Typography>
+		);
 	}
 
 	return (
