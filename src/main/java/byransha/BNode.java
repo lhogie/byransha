@@ -60,7 +60,7 @@ public abstract class BNode {
         try {
             N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
             N node = newNode.init(nodeClass.getSimpleName());
-            if(node != null) newNode = node;
+            if (node != null) newNode = node;
             g.accept(newNode);
             newNode.initialized();
             return newNode;
@@ -72,11 +72,14 @@ public abstract class BNode {
         }
     }
 
-    protected <N extends BNode > N init(String className) {
-        switch (className){
-            case "Cluster" : break;
-            case "BooleanNode" : return createBoolean();
-            default: this.createOrAssignCluster();
+    protected <N extends BNode> N init(String className) {
+        switch (className) {
+            case "Cluster":
+                break;
+            case "BooleanNode":
+                return createBoolean();
+            default:
+                this.createOrAssignCluster();
         }
         return null;
     }
@@ -86,11 +89,13 @@ public abstract class BNode {
     }
 
     protected <N extends BNode> N createBoolean() {
-        var node = graph.findAll(BooleanNode.class, n -> {return true;});
+        var node = graph.findAll(BooleanNode.class, n -> {
+            return true;
+        });
         N returnedNode = null;
-        for( var n : node) {
-            if(n.get() == null) n.set(null, null, false);
-            if(n.get().equals(false)) {
+        for (var n : node) {
+            if (n.get() == null) n.set(null, null, false);
+            if (n.get().equals(false)) {
                 returnedNode = (N) n;
                 break;
             }
@@ -119,7 +124,9 @@ public abstract class BNode {
             newCluster.add(graph);
             cluster = newCluster;
             if (this instanceof StringNode) newCluster.setColor("#9900ff");
-            else if(this instanceof PoleDeRecherche) newCluster.setColor("#630f09");
+            else if (this instanceof PoleDeRecherche) newCluster.setColor(
+                "#630f09"
+            );
             else if (this instanceof Endpoint) newCluster.setColor("#00fff5");
         }
     }
@@ -297,7 +304,7 @@ public abstract class BNode {
     }
 
     public boolean canEdit(User user) {
-        return user.isAdmin();
+        return canSee(user);
     }
 
     public boolean matches(NodeEndpoint v) {
