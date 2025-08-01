@@ -40,7 +40,11 @@ public class SearchForm extends PersistingNode {
         // Add a class filter (replaces searchClass)
         ClassFilter classFilter = BNode.create(graph, ClassFilter.class);
         classFilter.enabled.set("enabled", classFilter, false); // Start disabled
-        classFilter.includeSubclasses.set("includeSubclasses", classFilter, true);
+        classFilter.includeSubclasses.set(
+            "includeSubclasses",
+            classFilter,
+            true
+        );
         filterChain.addFilter(classFilter);
 
         // Add a contains filter for additional text matching
@@ -61,7 +65,7 @@ public class SearchForm extends PersistingNode {
 
         // Add a date range filter
         DateRangeFilter dateFilter = BNode.create(graph, DateRangeFilter.class);
-        dateFilter.enabled.set("enabled", dateFilter,false); // Start disabled
+        dateFilter.enabled.set("enabled", dateFilter, false); // Start disabled
         filterChain.addFilter(dateFilter);
 
         // Add a numeric range filter

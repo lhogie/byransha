@@ -37,6 +37,17 @@ const ListCheckboxComponent = ({
 							onSuccess: async () => {
 								await queryClient.invalidateQueries({
 									queryKey: [
+										"infinite",
+										"apiData",
+										"class_attribute_field",
+										{
+											node_id: Number.parseInt(fieldId),
+										},
+									],
+								});
+
+								await queryClient.invalidateQueries({
+									queryKey: [
 										"apiData",
 										"class_attribute_field",
 										{

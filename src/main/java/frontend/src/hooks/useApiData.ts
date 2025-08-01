@@ -109,7 +109,7 @@ export const useInfiniteApiData = (
 		};
 	}>({
 		initialData: undefined,
-		queryKey: ["apiData", endpoints, params],
+		queryKey: ["infinite", "apiData", endpoints, params],
 		queryFn:
 			endpoints === undefined
 				? skipToken

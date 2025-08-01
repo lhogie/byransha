@@ -11,6 +11,7 @@ import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.*;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -188,8 +189,14 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             );
         }
 
-        int offset = in.has("offset") ? in.get("offset").asInt() : 0;
-        int limit = in.has("limit") ? in.get("limit").asInt() : 100;
+        int page = in.has("page") ? in.get("page").asInt() : 1;
+        int pageSize = in.has("pageSize") ? in.get("pageSize").asInt() : 100;
+
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 100;
+
+        int offset = (page - 1) * pageSize;
+        int limit = pageSize;
         boolean skipValidation =
             in.has("skipValidation") && in.get("skipValidation").asBoolean();
 
@@ -198,7 +205,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         );
 
         var a = new ArrayNode(null);
-        var currentNodeInformation = new ObjectNode(null);
+        var currentNodeInformation = JsonNodeFactory.instance.objectNode();
 
         var currentNodeInfo = buildCurrentNodeInfo(node);
         currentNodeInformation.set("currentNode", currentNodeInfo);
@@ -213,9 +220,12 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         a.addAll(processedAttributes);
 
         currentNodeInformation.set("attributes", a);
-        currentNodeInformation.set(
-            "pagination",
-            createPaginationInfo(offset, limit, node.outDegree())
+        currentNodeInformation.put("page", page);
+        currentNodeInformation.put("pageSize", pageSize);
+        currentNodeInformation.put("total", node.outDegree());
+        currentNodeInformation.put(
+            "hasNext",
+            offset + limit < node.outDegree()
         );
 
         in.removeAll();
@@ -281,17 +291,20 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     ) {
         var attributes = new ArrayList<ObjectNode>();
         var count = new java.util.concurrent.atomic.AtomicInteger(0);
-        var processed = new java.util.concurrent.atomic.AtomicInteger(0);
+        var validItemsProcessed = new java.util.concurrent.atomic.AtomicInteger(
+            0
+        );
 
         node.forEachOut((name, out) -> {
             if (
                 out.deleted ||
                 !out.isVisible ||
-                out instanceof BBGraph || out instanceof Cluster
+                out instanceof BBGraph ||
+                out instanceof Cluster
             ) return;
 
-            if (processed.get() < offset) {
-                processed.incrementAndGet();
+            if (validItemsProcessed.get() < offset) {
+                validItemsProcessed.incrementAndGet();
                 return;
             }
 
@@ -308,7 +321,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 attributes.add(attributeNode);
                 count.incrementAndGet();
             }
-            processed.incrementAndGet();
+            validItemsProcessed.incrementAndGet();
         });
 
         return attributes;
@@ -527,22 +540,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 b.set("validations", validations);
             }
         }
-    }
-
-    private ObjectNode createPaginationInfo(
-        int offset,
-        int limit,
-        int totalCount
-    ) {
-        var pagination = new ObjectNode(null);
-        pagination.set("offset", new IntNode(offset));
-        pagination.set("limit", new IntNode(limit));
-        pagination.set("totalCount", new IntNode(totalCount));
-        pagination.set(
-            "hasMore",
-            BooleanNode.valueOf(offset + limit < totalCount)
-        );
-        return pagination;
     }
 
     @Override

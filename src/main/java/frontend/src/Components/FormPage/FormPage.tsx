@@ -56,6 +56,20 @@ const FormPage = () => {
 					},
 				],
 			});
+
+			await queryClient.invalidateQueries({
+				queryKey: [
+					"infinite",
+					"apiData",
+					"class_attribute_field",
+					{
+						node_id:
+							rawApiData?.data?.results?.[0]?.result?.data?.attributes?.filter(
+								(attribute: any) => attribute.name === "results",
+							)[0].id,
+					},
+				],
+			});
 		},
 	});
 
@@ -116,6 +130,7 @@ const FormPage = () => {
 						onClick={() =>
 							searchNodeMutation.mutate({
 								node_id: rootId,
+								pageSize: 1000,
 							})
 						}
 					>

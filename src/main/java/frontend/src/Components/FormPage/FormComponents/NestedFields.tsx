@@ -1,4 +1,4 @@
-import { useApiData, useApiMutation } from "@hooks/useApiData";
+import { useApiMutation, useInfiniteApiData } from "@hooks/useApiData";
 import AddIcon from "@mui/icons-material/Add";
 import { Box, Button, Stack, Typography } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,7 +20,15 @@ const NestedFields = ({
 	isRoot?: boolean;
 	isToggle?: boolean;
 }) => {
-	const { data: rawApiData, isLoading: loading } = useApiData(
+	const {
+		data: rawApiData,
+		isLoading: loading,
+		fetchNextPage,
+		hasNextPage,
+		isFetchingNextPage,
+		error,
+		isError,
+	} = useInfiniteApiData(
 		`class_attribute_field`,
 		{
 			node_id:
@@ -30,6 +38,8 @@ const NestedFields = ({
 			enabled: isToggle || isRoot,
 		},
 	);
+
+	console.log(hasNextPage);
 
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
@@ -104,6 +114,17 @@ const NestedFields = ({
 						onSuccess: async () => {
 							await queryClient.invalidateQueries({
 								queryKey: [
+									"infinite",
+									"apiData",
+									"class_attribute_field",
+									{
+										node_id: id,
+									},
+								],
+							});
+
+							await queryClient.invalidateQueries({
+								queryKey: [
 									"apiData",
 									"class_attribute_field",
 									{
@@ -118,7 +139,7 @@ const NestedFields = ({
 				console.error("Error adding new node:", error);
 			}
 		},
-		[addNode, queryClient.invalidateQueries],
+		[addNode, queryClient],
 	);
 
 	const handleListExistingNode = useCallback(
@@ -154,6 +175,7 @@ const NestedFields = ({
 						onSuccess: async () => {
 							await queryClient.invalidateQueries({
 								queryKey: [
+									"infinite",
 									"apiData",
 									"class_attribute_field",
 									{
@@ -169,13 +191,7 @@ const NestedFields = ({
 				console.error("Error adding existing node:", error);
 			}
 		},
-		[
-			addExistingNode,
-			jumpToId,
-			rootId,
-			field.id,
-			queryClient.invalidateQueries,
-		],
+		[addExistingNode, jumpToId, rootId, field.id, queryClient],
 	);
 
 	const handleSelectExistingNode = useCallback(
@@ -186,8 +202,25 @@ const NestedFields = ({
 		[handleAddExistingNode],
 	);
 
+	// Flatten paginated data from infinite query
+	const subfieldData = React.useMemo(() => {
+		if (!rawApiData?.pages || rawApiData.pages.length === 0) return [];
+
+		return rawApiData.pages.reduce((acc: any[], page: any) => {
+			try {
+				// Handle the response structure with attributes array
+				const pageData =
+					page?.data?.results?.[0]?.result?.data?.attributes || [];
+				return [...acc, ...pageData];
+			} catch (error) {
+				console.warn("Error extracting page data:", error);
+				return acc;
+			}
+		}, []);
+	}, [rawApiData]);
+
 	useEffect(() => {
-		if (!loading && rawApiData) {
+		if (!loading && rawApiData?.pages && subfieldData.length > 0) {
 			const initialValues: {
 				[key: string]: any;
 			} = {};
@@ -195,10 +228,7 @@ const NestedFields = ({
 				[key: string]: any;
 			} = {};
 
-			const allFields =
-				rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
-
-			allFields.forEach((field: any) => {
+			subfieldData.forEach((field: any) => {
 				if (field.name && field.value !== "null" && field.value !== undefined) {
 					const fieldKey = createKey(field.id, field.name);
 					initialValues[fieldKey] = field.value;
@@ -206,10 +236,7 @@ const NestedFields = ({
 				}
 			});
 		}
-	}, [loading, rawApiData]);
-
-	const subfieldData =
-		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
+	}, [loading, rawApiData?.pages, subfieldData]);
 
 	return (
 		<React.Fragment>
@@ -220,15 +247,35 @@ const NestedFields = ({
 					onSubmit={(e) => e.preventDefault()}
 					sx={{ mt: 3 }}
 				>
-					{subfieldData.length > 0 ? (
-						<FieldRenderer
-							parentId={field.id}
-							fields={subfieldData}
-							expandedFields={expandedFields}
-							toggleField={toggleField}
-							handleChangingForm={handleChangingForm}
-							rootId={rootId}
-						/>
+					{isError ? (
+						<Typography color="error">
+							Error loading fields: {error?.message || "Unknown error"}
+						</Typography>
+					) : loading && subfieldData.length === 0 ? (
+						<Typography>Loading fields...</Typography>
+					) : subfieldData.length > 0 ? (
+						<>
+							<FieldRenderer
+								parentId={field.id}
+								fields={subfieldData}
+								expandedFields={expandedFields}
+								toggleField={toggleField}
+								handleChangingForm={handleChangingForm}
+								rootId={rootId}
+							/>
+							{hasNextPage && (
+								<Box sx={{ mt: 2, textAlign: "center" }}>
+									<Button
+										variant="outlined"
+										onClick={() => fetchNextPage()}
+										disabled={isFetchingNextPage}
+										size="small"
+									>
+										{isFetchingNextPage ? "Loading..." : "Load More Fields"}
+									</Button>
+								</Box>
+							)}
+						</>
 					) : (
 						<Typography>No fields available.</Typography>
 					)}
@@ -239,15 +286,38 @@ const NestedFields = ({
 					sx={{ mt: 2, pl: 2, borderLeft: "1px solid #e0e0e0" }}
 				>
 					{isToggle &&
-						(subfieldData.length > 0 ? (
-							<FieldRenderer
-								parentId={field.id}
-								fields={subfieldData}
-								expandedFields={expandedFields}
-								toggleField={toggleField}
-								handleChangingForm={handleChangingForm}
-								rootId={rootId}
-							/>
+						(isError ? (
+							<Typography variant="body2" color="error">
+								Error loading subfields: {error?.message || "Unknown error"}
+							</Typography>
+						) : loading && subfieldData.length === 0 ? (
+							<Typography variant="body2" color="text.secondary">
+								Loading subfields...
+							</Typography>
+						) : subfieldData.length > 0 ? (
+							<>
+								<FieldRenderer
+									parentId={field.id}
+									fields={subfieldData}
+									expandedFields={expandedFields}
+									toggleField={toggleField}
+									handleChangingForm={handleChangingForm}
+									rootId={rootId}
+								/>
+								{hasNextPage && (
+									<Box sx={{ mt: 1, textAlign: "center" }}>
+										<Button
+											variant="outlined"
+											size="small"
+											onClick={() => fetchNextPage()}
+											disabled={isFetchingNextPage}
+											sx={{ fontSize: "0.75rem" }}
+										>
+											{isFetchingNextPage ? "Loading..." : "Load More"}
+										</Button>
+									</Box>
+								)}
+							</>
 						) : (
 							<Typography variant="body2" color="text.secondary">
 								No subfields available for this.
@@ -301,6 +371,7 @@ export default React.memo(NestedFields, (prevProps, nextProps) => {
 	return (
 		prevProps.fieldKey === nextProps.fieldKey &&
 		prevProps.rootId === nextProps.rootId &&
-		prevProps.isToggle === nextProps.isToggle
+		prevProps.isToggle === nextProps.isToggle &&
+		prevProps.field?.id === nextProps.field?.id
 	);
 });

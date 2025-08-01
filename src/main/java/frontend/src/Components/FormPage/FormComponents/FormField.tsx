@@ -113,6 +113,17 @@ const FormField = ({
 							onSuccess: async () => {
 								await queryClient.invalidateQueries({
 									queryKey: [
+										"infinite",
+										"apiData",
+										"class_attribute_field",
+										{
+											node_id: Number.parseInt(parentId),
+										},
+									],
+								});
+
+								await queryClient.invalidateQueries({
+									queryKey: [
 										"apiData",
 										"class_attribute_field",
 										{
@@ -157,6 +168,17 @@ const FormField = ({
 						},
 						{
 							onSuccess: async () => {
+								await queryClient.invalidateQueries({
+									queryKey: [
+										"infinite",
+										"apiData",
+										"class_attribute_field",
+										{
+											node_id: Number.parseInt(parentId),
+										},
+									],
+								});
+
 								await queryClient.invalidateQueries({
 									queryKey: [
 										"apiData",
@@ -214,6 +236,17 @@ const FormField = ({
 						},
 						{
 							onSuccess: async () => {
+								await queryClient.invalidateQueries({
+									queryKey: [
+										"infinite",
+										"apiData",
+										"class_attribute_field",
+										{
+											node_id: Number.parseInt(parentId),
+										},
+									],
+								});
+
 								await queryClient.invalidateQueries({
 									queryKey: [
 										"apiData",
