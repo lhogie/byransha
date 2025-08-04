@@ -85,14 +85,14 @@ public class DataLake extends BNode {
                 person.positions.add(position);
             }
 
-            //			person.etatCivil.name.set(l.set(1, null));
-            //			person.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
-            //			person.etatCivil.firstName.set(l.set(3, null));
-            //			person.etatCivil.birthDate.set(l.set(4, null));
-            //			person.etatCivil.cityOfBirth.set(l.set(5, null));
-            //person.etatCivil.countryOfBirth.set(l.set(6, null));
-            //person.etatCivil.nationality.set(l.set(7, null));
-            //			person.etatCivil.address.set(l.set(8, null));
+            			person.etatCivil.name.set(l.set(1, null));
+            			person.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
+            			person.etatCivil.firstName.set(l.set(3, null));
+            			person.etatCivil.birthDate.set(l.set(4, null));
+            			person.etatCivil.cityOfBirth.set(l.set(5, null));
+//            person.etatCivil.countryOfBirth.set(l.set(6, null));
+//            person.etatCivil.nationality.set(l.set(7, null));
+            			person.etatCivil.address.set(l.set(8, null));
             var inter = graph.create(StringNode.class);
             inter.set(l.set(9, null));
             person.phoneNumbers.add(inter);

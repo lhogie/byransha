@@ -7,15 +7,18 @@ import byransha.annotations.ListOptions;
 public class EtatCivil extends BusinessNode {
 
     @Size(min = 2)
-    public StringNode nomUsuel;
+    public StringNode name;
 
     @Required
-    public StringNode nomDeJeuneFille, prenom, villeDeNaissance, adressePersonnelle;
+    public StringNode familyNameBeforeMariage, firstName, cityOfBirth, address;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public ListNode<Country> paysDeNaissance;
+    public ListNode<Country> countryOfBirth;
 
-    public DateNode dateDeNaissance;
+    @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
+    public ListNode<Nationality> nationality;
+
+    public DateNode birthDate;
 
     @ListOptions(
         type = ListOptions.ListType.MULTIDROPDOWN,
@@ -34,14 +37,14 @@ public class EtatCivil extends BusinessNode {
 
     public EtatCivil(BBGraph g) {
         super(g);
-        nomUsuel = g.create( StringNode.class);
-        nomDeJeuneFille = g.create( StringNode.class);
-        prenom = g.create( StringNode.class);
-        dateDeNaissance = g.create( DateNode.class);
-        villeDeNaissance = g.create( StringNode.class);
-        paysDeNaissance = g.create( ListNode.class);
+        name = g.create( StringNode.class);
+        familyNameBeforeMariage = g.create( StringNode.class);
+        firstName = g.create( StringNode.class);
+        birthDate = g.create( DateNode.class);
+        cityOfBirth = g.create( StringNode.class);
+        countryOfBirth = g.create( ListNode.class);
         nationalites = g.create( ListNode.class);
-        adressePersonnelle = g.create( StringNode.class);
+        address = g.create( StringNode.class);
         telephone = g.create( PhoneNumberNode.class);
         pic = g.create( ImageNode.class);
         this.setColor("#03fc62");
@@ -62,12 +65,12 @@ public class EtatCivil extends BusinessNode {
     }
 
     private String returnName() {
-        if (nomUsuel.get() != null && prenom.get() != null) {
-            return nomUsuel.get() + " " + prenom.get();
-        } else if (nomUsuel.get() != null && prenom.get() == null) {
-            return nomUsuel.get() + " (pas de prénom)";
-        } else if (prenom.get() != null && nomUsuel.get() == null) {
-            return "(pas de nom) " + prenom.get();
+        if (name.get() != null && firstName.get() != null) {
+            return name.get() + " " + firstName.get();
+        } else if (name.get() != null && firstName.get() == null) {
+            return name.get() + " (pas de prénom)";
+        } else if (firstName.get() != null && name.get() == null) {
+            return "(pas de nom) " + firstName.get();
         }
         return "Etat Civil sans information ";
     }

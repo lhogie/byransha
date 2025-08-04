@@ -38,12 +38,12 @@ public class Person extends BusinessNode {
         if (etatCivil == null) {
             return super.toString();
         }
-        return etatCivil.nomUsuel.get();
+        return etatCivil.name.get();
     }
 
     @Override
     public String prettyName() {
-        return "Person: " + etatCivil.nomUsuel.get();
+        return "Person: " + etatCivil.name.get();
     }
 
     public Person(BBGraph g) {

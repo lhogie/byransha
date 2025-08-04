@@ -17,14 +17,14 @@ public class Agent extends BusinessNode {
     }
 
     private String returnName() {
-        if( etatCivil.nomUsuel.get() != null && etatCivil.prenom.get() != null) {
-            return etatCivil.nomUsuel.get() + " " + etatCivil.prenom.get();
+        if( etatCivil.name.get() != null && etatCivil.firstName.get() != null) {
+            return etatCivil.name.get() + " " + etatCivil.firstName.get();
         }
-        else if( etatCivil.nomUsuel.get() != null && etatCivil.prenom.get() == null) {
-            return etatCivil.nomUsuel.get() + " (pas de prénom)";
+        else if( etatCivil.name.get() != null && etatCivil.firstName.get() == null) {
+            return etatCivil.name.get() + " (pas de prénom)";
         }
-        else if( etatCivil.prenom.get() != null && etatCivil.nomUsuel.get() == null) {
-            return "(pas de nom) " + etatCivil.prenom.get();
+        else if( etatCivil.firstName.get() != null && etatCivil.name.get() == null) {
+            return "(pas de nom) " + etatCivil.firstName.get();
         }
         return "Agent with no civil information ";
     }
