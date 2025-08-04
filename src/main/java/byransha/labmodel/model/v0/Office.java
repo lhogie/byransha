@@ -11,8 +11,8 @@ public class Office extends BusinessNode {
 
     public Office(BBGraph g) {
         super(g);
-        name = BNode.create(g, StringNode.class);
-        users = BNode.create(g, ListNode.class);
+        name = g.create( StringNode.class);
+        users = g.create( ListNode.class);
     }
 
     public Office(BBGraph g, int id) {

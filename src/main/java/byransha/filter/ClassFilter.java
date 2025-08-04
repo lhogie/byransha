@@ -9,6 +9,7 @@ import byransha.annotations.ListOptions;
 import byransha.labmodel.model.v0.BusinessNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public class ClassFilter extends FilterNode {
@@ -19,46 +20,35 @@ public class ClassFilter extends FilterNode {
         allowCreation = false,
         source = ListOptions.OptionsSource.PROGRAMMATIC
     )
+
     public ListNode<StringNode> targetClass;
 
     public BooleanNode includeSubclasses;
 
     public ClassFilter(BBGraph g) {
         super(g);
-        targetClass = BNode.create(g, ListNode.class);
-        includeSubclasses = BNode.create(g, BooleanNode.class);
+        targetClass = g.create( ListNode.class);
+        includeSubclasses = g.create( BooleanNode.class);
         includeSubclasses.set("includeSubclasses", this, true);
+        populateClassOptions();
     }
 
     public ClassFilter(BBGraph g, int id) {
         super(g, id);
     }
 
-    @Override
-    protected void initialized() {
-        super.initialized();
-
-        populateClassOptions();
-    }
-
     private void populateClassOptions() {
-        var allClasses = new ArrayList<String>();
+        var allClasses = new HashSet<Class<? extends BNode>>();
 
         graph.forEachNode(node -> {
-            if (
-                node instanceof BusinessNode &&
-                !node.deleted &&
-                allClasses
-                    .stream()
-                    .noneMatch(s -> s.equals(node.getClass().getSimpleName()))
-            ) {
-                allClasses.add(node.getClass().getSimpleName());
+            if (node instanceof BusinessNode) {
+                allClasses.add(node.getClass());
             }
         });
 
-        allClasses.sort(String::compareToIgnoreCase);
-
-        targetClass.setStaticOptions(allClasses);
+        var l = allClasses.stream().map(e -> e.getSimpleName()).toList();
+        l.sort(String::compareToIgnoreCase);
+        targetClass.setStaticOptions(l);
     }
 
     @Override
@@ -128,7 +118,7 @@ public class ClassFilter extends FilterNode {
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = BNode.create(graph, StringNode.class);
+            StringNode classNode = graph.create( StringNode.class);
             classNode.set(config.get("targetClass").asText());
             targetClass.add(classNode);
         }

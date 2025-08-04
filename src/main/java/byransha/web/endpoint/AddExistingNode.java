@@ -41,8 +41,8 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             listNode.getElementType() == ListOptions.ElementType.STRING
         ) {
             String idToLink = requireParm(in, "id").asText();
-            a.put("id of the list to link", new IntNode(currentNode.id()));
-            a.put("string of the thing we link", new TextNode(idToLink));
+            a.set("id of the list to link", new IntNode(currentNode.id()));
+            a.set("string of the thing we link", new TextNode(idToLink));
             if (idToLink == null || idToLink.isEmpty()) {
                 return ErrorResponse.badRequest("ID cannot be null or empty.");
             }
@@ -55,8 +55,8 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             );
         } else {
             int idToLink = requireParm(in, "id").asInt();
-            a.put("id of the list to link", new IntNode(currentNode.id()));
-            a.put("id of the thing we link", new IntNode(idToLink));
+            a.set("id of the list to link", new IntNode(currentNode.id()));
+            a.set("id of the thing we link", new IntNode(idToLink));
 
             var existingNode = graph.findByID(idToLink);
             if (existingNode == null) {
@@ -64,8 +64,8 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
                     "Node with ID " + idToLink + " does not exist in the graph."
                 );
             } else {
-                a.put("id", new IntNode(existingNode.id()));
-                a.put("name", new TextNode(existingNode.prettyName()));
+                a.set("id", new IntNode(existingNode.id()));
+                a.set("name", new TextNode(existingNode.prettyName()));
 
                 if (currentNode instanceof ListNode<?> listNode) {
                     @SuppressWarnings("unchecked")

@@ -11,8 +11,8 @@ public class StartsWithFilter extends FilterNode {
 
     public StartsWithFilter(BBGraph g) {
         super(g);
-        prefix = BNode.create(g, StringNode.class);
-        caseSensitive = BNode.create(g, BooleanNode.class);
+        prefix = g.create( StringNode.class);
+        caseSensitive = g.create( BooleanNode.class);
         caseSensitive.set("caseSensitive", this, false);
     }
 

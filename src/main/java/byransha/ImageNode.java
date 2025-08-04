@@ -9,12 +9,12 @@ public class ImageNode extends ValuedNode<byte[]> {
 
     public ImageNode(BBGraph g) {
         super(g);
-        title = BNode.create(g, StringNode.class);
+        title = g.create(  StringNode.class);
     }
 
     public ImageNode(BBGraph g, int id) {
         super(g, id);
-        title = BNode.create(g, StringNode.class);
+        title = g.create(  StringNode.class);
     }
 
     @Override

@@ -14,7 +14,7 @@ public class I3S extends Lab {
 
 	public I3S(BBGraph g) {
 		super(g);
-		name = BNode.create(g, StringNode.class);
+		name = g.create(StringNode.class);
 		name.set("I3S");
 	}
 

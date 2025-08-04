@@ -24,8 +24,8 @@ public class FilterChain extends FilterNode {
 
     public FilterChain(BBGraph g) {
         super(g);
-        filters = BNode.create(g, ListNode.class);
-        logicalOperator = BNode.create(g, ListNode.class);
+        filters = g.create( ListNode.class);
+        logicalOperator = g.create( ListNode.class);
     }
 
     public FilterChain(BBGraph g, int id) {
@@ -40,7 +40,7 @@ public class FilterChain extends FilterNode {
         logicalOperator.setStaticOptions(operators);
 
         if (logicalOperator.getSelected() == null) {
-            StringNode andOption = BNode.create(graph, StringNode.class);
+            StringNode andOption = graph.create( StringNode.class);
             andOption.set("AND");
             logicalOperator.add(andOption);
         }
@@ -115,7 +115,7 @@ public class FilterChain extends FilterNode {
 
         if (config.has("logicalOperator")) {
             logicalOperator.removeAll();
-            StringNode operatorNode = BNode.create(graph, StringNode.class);
+            StringNode operatorNode = graph.create( StringNode.class);
             operatorNode.set(config.get("logicalOperator").asText());
             logicalOperator.add(operatorNode);
         }
@@ -149,22 +149,22 @@ public class FilterChain extends FilterNode {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = BNode.create(graph, StartsWithFilter.class);
+                    filter = graph.create( StartsWithFilter.class);
                     break;
                 case "contains":
-                    filter = BNode.create(graph, ContainsFilter.class);
+                    filter = graph.create( ContainsFilter.class);
                     break;
                 case "class":
-                    filter = BNode.create(graph, ClassFilter.class);
+                    filter = graph.create( ClassFilter.class);
                     break;
                 case "daterange":
-                    filter = BNode.create(graph, DateRangeFilter.class);
+                    filter = graph.create( DateRangeFilter.class);
                     break;
                 case "numericrange":
-                    filter = BNode.create(graph, NumericRangeFilter.class);
+                    filter = graph.create( NumericRangeFilter.class);
                     break;
                 case "filterchain":
-                    filter = BNode.create(graph, FilterChain.class);
+                    filter = graph.create( FilterChain.class);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);

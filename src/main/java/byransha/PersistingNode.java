@@ -56,9 +56,10 @@ public abstract class PersistingNode extends BNode {
 				if (symlink.exists()) {
 					symlink.delete();
 				}
-				if(outNode instanceof PersistingNode) {
+
+				if(outNode instanceof PersistingNode pn) {
 					writingFiles.accept(symlink);
-					Files.createSymbolicLink(symlink.toPath(), ((PersistingNode) outNode).directory().toPath());
+					Files.createSymbolicLink(symlink.toPath(), pn.directory().toPath());
 
 				}
 				else{

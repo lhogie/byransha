@@ -10,7 +10,7 @@ public abstract class BusinessNode extends PersistingNode {
 
 	public BusinessNode(BBGraph g) {
 		super(g);
-		history = BNode.create(g, HistoryChangeNode.class);
+		history = g.create( HistoryChangeNode.class);
 	}
 
 	public BusinessNode(BBGraph g, int id) {

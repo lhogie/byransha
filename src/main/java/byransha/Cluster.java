@@ -2,7 +2,7 @@ package byransha;
 
 public class Cluster extends ListNode<BNode> {
 
-    public String typeOfCluster;
+    public Class<? extends BNode> typeOfCluster;
 
     public Cluster(BBGraph g) {
         super(g);
@@ -13,11 +13,11 @@ public class Cluster extends ListNode<BNode> {
         super(g, id);
     }
 
-    public void setTypeOfCluster(String type) {
+    public void setTypeOfCluster(Class<? extends BNode> type) {
         this.typeOfCluster = type;
     }
 
-    public String getTypeOfCluster() {
+    public Class<? extends BNode> getTypeOfCluster() {
         return this.typeOfCluster;
     }
 

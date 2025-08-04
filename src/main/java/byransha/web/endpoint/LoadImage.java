@@ -10,6 +10,8 @@ import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.net.URI;
 import java.util.Base64;
 import java.io.InputStream;
 import java.net.URL;
@@ -39,7 +41,7 @@ public class LoadImage extends NodeEndpoint<BNode> {
         System.out.println("Image URL: " + imageUrl);
 
         var l =  new ObjectNode(null);
-        try (InputStream inputStream = new URL(imageUrl).openStream()) {
+        try (var inputStream = new URI(imageUrl).toURL().openStream()) {
             byte[] imageBytes = inputStream.readAllBytes();
             String base64Image = Base64.getEncoder().encodeToString(imageBytes);
             l.set("base64Image", new TextNode(base64Image));

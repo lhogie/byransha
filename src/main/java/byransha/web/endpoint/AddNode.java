@@ -51,16 +51,16 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             clazz = (Class<N>) Class.forName(className);
             classCache.putIfAbsent(className, clazz);
         }
-        var node = BNode.create(graph, clazz);
+        var node = graph.create( clazz);
         if (node != null) {
-            a.put("id", new IntNode(node.id()));
-            a.put("name", new TextNode(node.prettyName()));
-            a.put("type", new TextNode(node.getClass().getSimpleName()));
+            a.set("id", new IntNode(node.id()));
+            a.set("name", new TextNode(node.prettyName()));
+            a.set("type", new TextNode(node.getClass().getSimpleName()));
             if (node instanceof ValuedNode<?> vn) {
-                a.put("value", new TextNode(vn.getAsString()));
+                a.set("value", new TextNode(vn.getAsString()));
             }
-            a.put("class", new TextNode(className));
-            a.put("message", new TextNode("Node created successfully"));
+            a.set("class", new TextNode(className));
+            a.set("message", new TextNode("Node created successfully"));
 
             if (currentNode instanceof ListNode<?> listNode) {
                 @SuppressWarnings("unchecked")

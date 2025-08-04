@@ -34,16 +34,16 @@ public class EtatCivil extends BusinessNode {
 
     public EtatCivil(BBGraph g) {
         super(g);
-        nomUsuel = BNode.create(g, StringNode.class);
-        nomDeJeuneFille = BNode.create(g, StringNode.class);
-        prenom = BNode.create(g, StringNode.class);
-        dateDeNaissance = BNode.create(g, DateNode.class);
-        villeDeNaissance = BNode.create(g, StringNode.class);
-        paysDeNaissance = BNode.create(g, ListNode.class);
-        nationalites = BNode.create(g, ListNode.class);
-        adressePersonnelle = BNode.create(g, StringNode.class);
-        telephone = BNode.create(g, PhoneNumberNode.class);
-        pic = BNode.create(g, ImageNode.class);
+        nomUsuel = g.create( StringNode.class);
+        nomDeJeuneFille = g.create( StringNode.class);
+        prenom = g.create( StringNode.class);
+        dateDeNaissance = g.create( DateNode.class);
+        villeDeNaissance = g.create( StringNode.class);
+        paysDeNaissance = g.create( ListNode.class);
+        nationalites = g.create( ListNode.class);
+        adressePersonnelle = g.create( StringNode.class);
+        telephone = g.create( PhoneNumberNode.class);
+        pic = g.create( ImageNode.class);
         this.setColor("#03fc62");
     }
 

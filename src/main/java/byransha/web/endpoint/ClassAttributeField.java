@@ -2,7 +2,6 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.annotations.*;
-import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
 import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
@@ -200,10 +199,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         boolean skipValidation =
             in.has("skipValidation") && in.get("skipValidation").asBoolean();
 
-        if (user instanceof Gestionnaire gest) System.out.println(
-            gest.getFiltres()
-        );
-
         var a = new ArrayNode(null);
         var currentNodeInformation = JsonNodeFactory.instance.objectNode();
 
@@ -297,7 +292,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
         node.forEachOut((name, out) -> {
             if (
-                out.deleted ||
                 !out.isVisible ||
                 out instanceof BBGraph ||
                 out instanceof Cluster

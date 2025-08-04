@@ -28,9 +28,9 @@ public class DateRangeFilter extends FilterNode {
 
     public DateRangeFilter(BBGraph g) {
         super(g);
-        fromDate = BNode.create(g, DateNode.class);
-        toDate = BNode.create(g, DateNode.class);
-        includeNull = BNode.create(g, BooleanNode.class);
+        fromDate = g.create( DateNode.class);
+        toDate = g.create( DateNode.class);
+        includeNull = g.create( BooleanNode.class);
         includeNull.set("includeNull", this, true);
     }
 

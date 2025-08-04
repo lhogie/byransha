@@ -15,7 +15,7 @@ public class Lab extends Structure {
     public Lab(BBGraph g) {
         super(g);
         HFDSAvisfds = new HashMap<>();
-        tutelles = BNode.create(g, ListNode.class);
+        tutelles = g.create( ListNode.class);
     }
 
     public Lab(BBGraph g, int id) {

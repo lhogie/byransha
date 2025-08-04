@@ -43,11 +43,11 @@ public class User extends PersistingNode {
 
     public User(BBGraph g) {
         super(g);
-        name = BNode.create(g, StringNode.class);
+        name = g.create(  StringNode.class);
         name.setAsLabelFor(this);
         name.set("not defined");
         stack.push(g.root());
-        passwordNode = BNode.create(g, StringNode.class);
+        passwordNode = g.create(  StringNode.class);
         passwordNode.set("not defined");
         this.setColor("#030bfc");
     }

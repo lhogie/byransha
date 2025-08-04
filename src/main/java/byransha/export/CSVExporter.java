@@ -40,7 +40,7 @@ public class CSVExporter {
         Predicate<BNode> includeRecursiveNodes,
         int maxDepth
     ) throws IOException {
-        try (FileWriter writer = new FileWriter(file)) {
+        try (var writer = new FileWriter(file)) {
             exportToCSV(
                 node,
                 writer,

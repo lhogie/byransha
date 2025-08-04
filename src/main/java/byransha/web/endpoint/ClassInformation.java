@@ -63,7 +63,7 @@ public class ClassInformation extends NodeEndpoint<BNode> {
 
             var current = clazz.getSuperclass();
             while (current != null) {
-                result.put(
+                result.set(
                     current.getSimpleName(),
                     new TextNode(current.getName())
                 );
@@ -72,7 +72,7 @@ public class ClassInformation extends NodeEndpoint<BNode> {
 
             Class<?>[] interfaces = clazz.getInterfaces();
             for (Class<?> i : interfaces) {
-                result.put(i.getSimpleName(), new TextNode(i.getName()));
+                result.set(i.getSimpleName(), new TextNode(i.getName()));
             }
             in.remove("classForm");
 

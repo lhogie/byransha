@@ -6,21 +6,17 @@ import byransha.ListNode;
 import byransha.StringNode;
 
 public class Structure extends BusinessNode {
-
     public StringNode name;
     public ListNode<Structure> subStructures;
-    public ListNode<Person> members;
-    public Person director;
     public ListNode<Status> status;
     public ListNode<Office> offices;
 
     public Structure(BBGraph g) {
         super(g);
-        name = BNode.create(g, StringNode.class);
-        subStructures = BNode.create(g, ListNode.class);
-        members = BNode.create(g, ListNode.class);
-        status = BNode.create(g, ListNode.class);
-        offices = BNode.create(g, ListNode.class);
+        name = g.create(  StringNode.class);
+        subStructures = g.create(  ListNode.class);
+        status = g.create( ListNode.class);
+        offices = g.create(  ListNode.class);
     }
 
     public Structure(BBGraph g, int id) {

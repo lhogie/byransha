@@ -12,9 +12,9 @@ public class ContainsFilter extends FilterNode {
 
     public ContainsFilter(BBGraph g) {
         super(g);
-        searchText = BNode.create(g, StringNode.class);
-        caseSensitive = BNode.create(g, BooleanNode.class);
-        wholeWordsOnly = BNode.create(g, BooleanNode.class);
+        searchText = g.create(StringNode.class);
+        caseSensitive = g.create( BooleanNode.class);
+        wholeWordsOnly = g.create(BooleanNode.class);
 
         caseSensitive.set("caseSensitive", this,false);
         wholeWordsOnly.set("wholeWordsOnly", this, false);

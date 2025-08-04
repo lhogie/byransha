@@ -4,7 +4,6 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.ValuedNode;
-import byransha.labmodel.model.gitMind.gestionnaire.Gestionnaire;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -49,13 +48,14 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
 
         var filteredNodes = graph.findAll(nodeClass.get(), node -> {
             if(user instanceof Gestionnaire g) {
-                if(g.getFiltres() != null) {
+                if (g.getFiltres() != null) {
                     for (String filter : g.getFiltres()) {
-                        if(node.prettyName().toLowerCase().contains(filter.toLowerCase())) return true;
+                        if (node.prettyName().toLowerCase().contains(filter.toLowerCase())) return true;
                     }
                     return false;
                 }
             }
+
             if (query == null || query.isEmpty()) return true;
             String name = node.prettyName();
             return name != null && name.toLowerCase().contains(query);
@@ -77,11 +77,11 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
 
     private void addNodeInfo(ArrayNode a, BNode node) {
         ObjectNode nodeInfo = new ObjectNode(null);
-        nodeInfo.put("id", new IntNode(node.id()));
-        nodeInfo.put("name", new TextNode(node.prettyName()));
-        nodeInfo.put("type", new TextNode(node.getClass().getSimpleName()));
+        nodeInfo.set("id", new IntNode(node.id()));
+        nodeInfo.set("name", new TextNode(node.prettyName()));
+        nodeInfo.set("type", new TextNode(node.getClass().getSimpleName()));
         if(node instanceof ValuedNode<?> vn) {
-            nodeInfo.put("value", new TextNode(vn.getAsString()));
+            nodeInfo.set("value", new TextNode(vn.getAsString()));
         }
         a.add(nodeInfo);
     }

@@ -9,7 +9,7 @@ public class Agent extends BusinessNode {
     public Agent(BBGraph g) {
         super(g);
 
-        etatCivil = BNode.create(g, EtatCivil.class);
+        etatCivil = g.create(EtatCivil.class);
     }
 
     public Agent(BBGraph g, int id) {

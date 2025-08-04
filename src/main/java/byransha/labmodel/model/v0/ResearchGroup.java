@@ -8,7 +8,7 @@ public class ResearchGroup extends Structure {
 
     public ResearchGroup(BBGraph g) {
         super(g);
-        keywords = BNode.create(g, ListNode.class); // new ListNode<>(g);
+        keywords = g.create( ListNode.class); // new ListNode<>(g);
     }
 
     public ResearchGroup(BBGraph g, int id) {

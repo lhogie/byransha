@@ -13,7 +13,7 @@ public class Building extends BusinessNode {
 
     public Building(BBGraph g) {
         super(g);
-        offices = BNode.create(g, ListNode.class);
+        offices = g.create( ListNode.class);
     }
 
     public Building(BBGraph g, int id) {

@@ -7,7 +7,6 @@ import byransha.annotations.Required;
 import byransha.annotations.Size;
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
-import byransha.labmodel.model.gitMind.polerecherche.PoleDeRecherche;
 import byransha.web.*;
 import byransha.web.EndpointJsonResponse.dialects;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -35,7 +34,6 @@ public abstract class BNode {
     public final BBGraph graph;
     private final int id;
     public ColorNode color;
-    public Boolean deleted = false;
     public Boolean isVisible = true;
     public Cluster cluster;
 
@@ -56,78 +54,49 @@ public abstract class BNode {
         }
     }
 
-    public static <N extends BNode> N create(BBGraph g, Class<N> nodeClass) {
-        try {
-            N newNode = nodeClass.getConstructor(BBGraph.class).newInstance(g);
-            N node = newNode.init(nodeClass.getSimpleName());
-            if (node != null) newNode = node;
-            g.accept(newNode);
-            newNode.initialized();
-            return newNode;
-        } catch (Exception e) {
-            throw new RuntimeException(
-                "Failed to add node of class: " + nodeClass.getName(),
-                e
-            );
-        }
-    }
-
-    protected <N extends BNode> N init(String className) {
-        switch (className) {
-            case "Cluster":
-                break;
-            case "BooleanNode":
-                return createBoolean();
-            default:
-                this.createOrAssignCluster();
-        }
-        return null;
-    }
-
     protected void initialized() {
         // This method can be overridden by subclasses to perform additional initialization
     }
 
-    protected <N extends BNode> N createBoolean() {
-        var node = graph.findAll(BooleanNode.class, n -> {
-            return true;
-        });
-        N returnedNode = null;
-        for (var n : node) {
-            if (n.get() == null) n.set(null, null, false);
-            if (n.get().equals(false)) {
-                returnedNode = (N) n;
-                break;
+    protected <N extends BNode> N searchFalseBoolean() {
+        var node = graph.findAll(BooleanNode.class, n -> true);
+
+        if (node == null)
+            return null;
+
+        for( var n : node) {
+            if(n.get() == null) n.set(null, null, false);
+            if(n.get().equals(false)) {
+                return (N) n;
             }
         }
-        return returnedNode;
+
+        throw new RuntimeException();
     }
 
     public void createOrAssignCluster() {
-        AtomicBoolean assigned = new AtomicBoolean(false);
+        AtomicBoolean foundCluster = new AtomicBoolean(false);
+
         graph.findAll(Cluster.class, n -> {
             if (
                 n.getTypeOfCluster() != null &&
-                n.getTypeOfCluster().equals(this.getClass().getSimpleName())
+                n.getTypeOfCluster().equals(this.getClass())
             ) {
                 n.add(this);
-                assigned.set(true);
-                cluster = n;
+                foundCluster.set(true);
+               this. cluster = n;
                 return true;
             }
             return false;
         });
-        if (!assigned.get()) {
-            var newCluster = BNode.create(graph, Cluster.class);
-            newCluster.setTypeOfCluster(this.getClass().getSimpleName());
+
+        if (!foundCluster.get()) {
+            var newCluster = graph.create( Cluster.class);
+            newCluster.setTypeOfCluster(this.getClass());
             newCluster.add(this);
             newCluster.add(graph);
             cluster = newCluster;
-            if (this instanceof StringNode) newCluster.setColor("#9900ff");
-            else if (this instanceof PoleDeRecherche) newCluster.setColor(
-                "#630f09"
-            );
-            else if (this instanceof Endpoint) newCluster.setColor("#00fff5");
+             if (this instanceof Endpoint) newCluster.setColor("#00fff5");
         }
     }
 
@@ -139,11 +108,9 @@ public abstract class BNode {
             }
             return false;
         });
-        if (this.color == null) {
-            this.color = BNode.create(graph, ColorNode.class);
-            this.color.set(newColor);
-        } else if (!this.color.getAsString().equals(newColor)) {
-            this.color = BNode.create(graph, ColorNode.class);
+
+        if (this.color == null || !this.color.getAsString().equals(newColor)) {
+            this.color = graph.create( ColorNode.class);
             this.color.set(newColor);
         }
     }
@@ -282,7 +249,6 @@ public abstract class BNode {
     ) {}
 
     public void remove() {
-        this.deleted = true;
         invalidateOutsCache();
     }
 
@@ -304,7 +270,7 @@ public abstract class BNode {
     }
 
     public boolean canEdit(User user) {
-        return canSee(user);
+        return user.isAdmin();
     }
 
     public boolean matches(NodeEndpoint v) {

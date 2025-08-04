@@ -1,4 +1,4 @@
-package byransha.labmodel.model.v0.datalake;
+package byransha.labmodel.model.v0;
 
 import java.io.File;
 import java.io.IOException;

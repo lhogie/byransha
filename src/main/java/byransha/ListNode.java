@@ -119,7 +119,7 @@ public class ListNode<T> extends PersistingNode {
             StringNode existingNode = (StringNode) existingElement.get();
             existingNode.set(option);
         } else {
-            var n = BNode.create(graph, StringNode.class);
+            var n = graph.create(  StringNode.class);
             n.set(option);
             add((T) n);
         }
@@ -140,7 +140,7 @@ public class ListNode<T> extends PersistingNode {
             StringNode existingNode = (StringNode) existingElement.get();
             existingNode.set(option);
         } else {
-            var n = BNode.create(graph, StringNode.class);
+            var n = graph.create(  StringNode.class);
             n.set(option);
             add((T) n);
         }

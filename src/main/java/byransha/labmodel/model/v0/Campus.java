@@ -12,8 +12,8 @@ public class Campus extends BusinessNode {
 
     public Campus(BBGraph g) {
         super(g);
-        name = BNode.create(g, StringNode.class);
-        buildings = BNode.create(g, ListNode.class);
+        name = g.create( StringNode.class);
+        buildings = g.create( ListNode.class);
     }
 
     public Campus(BBGraph g, int id) {

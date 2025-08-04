@@ -1,14 +1,13 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.ListOptions;
 
 public class Person extends BusinessNode {
 
     public EtatCivil etatCivil;
 
-    @byransha.annotations.ListOptions(
-        type = byransha.annotations.ListOptions.ListType.LIST
-    )
+    @ListOptions(type = ListOptions.ListType.LIST)
     public ListNode<Position> positions;
 
     public ImageNode pics;
@@ -37,7 +36,7 @@ public class Person extends BusinessNode {
     @Override
     public String toString() {
         if (etatCivil == null) {
-            return "null";
+            return super.toString();
         }
         return etatCivil.nomUsuel.get();
     }
@@ -49,20 +48,20 @@ public class Person extends BusinessNode {
 
     public Person(BBGraph g) {
         super(g);
-        etatCivil = BNode.create(g, EtatCivil.class); // new EtatCivil(g);
-        positions = BNode.create(g, ListNode.class); // new ListNode<>(g);
-        pics = BNode.create(g, ImageNode.class); // new ImageNode(g);
+        etatCivil = g.create( EtatCivil.class); // new EtatCivil(g);
+        positions = g.create( ListNode.class); // new ListNode<>(g);
+        pics = g.create( ImageNode.class); // new ImageNode(g);
 
-        hdr = BNode.create(g, BooleanNode.class); // new BooleanNode(g);
+        hdr = g.create( BooleanNode.class); // new BooleanNode(g);
 
-        badgeNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
-        website = BNode.create(g, StringNode.class); // new StringNode(g, null);
-        faxNumber = BNode.create(g, StringNode.class); // new StringNode(g, null);
-        phdDate = BNode.create(g, DateNode.class); // new StringNode(g, null);
+        badgeNumber = g.create( StringNode.class); // new StringNode(g, null);
+        website = g.create( StringNode.class); // new StringNode(g, null);
+        faxNumber = g.create( StringNode.class); // new StringNode(g, null);
+        phdDate = g.create( DateNode.class); // new StringNode(g, null);
 
-        phoneNumbers = BNode.create(g, ListNode.class); // new ListNode<>(g);
-        emailAddresses = BNode.create(g, ListNode.class); // new ListNode<>(g);
-        offices = BNode.create(g, ListNode.class); // new ListNode<>(g);
+        phoneNumbers = g.create( ListNode.class); // new ListNode<>(g);
+        emailAddresses = g.create( ListNode.class); // new ListNode<>(g);
+        offices = g.create( ListNode.class); // new ListNode<>(g);
     }
 
     public Person(BBGraph g, int id) {

@@ -20,7 +20,7 @@ public class Country extends BusinessNode {
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-                var country = BNode.create(g, Country.class);
+                var country = g.create( Country.class);
                 try {
 					country.flag.title.set(countryCodes.get(code).asText());
                     country.setFlagCode(code);
@@ -50,9 +50,9 @@ public class Country extends BusinessNode {
 
 	public Country(BBGraph g) {
         super(g);
-        codeNode = BNode.create(g, StringNode.class);
-		name = BNode.create(g, StringNode.class);
-		flag = BNode.create(g, ImageNode.class);
+        codeNode = g.create( StringNode.class);
+		name = g.create( StringNode.class);
+		flag = g.create( ImageNode.class);
 		this.setColor("#fc0307");
 	}
 
@@ -61,7 +61,7 @@ public class Country extends BusinessNode {
 				.readAllBytes());
 		flag.setMimeType("image/svg+xml");
 		codeNode.set(code);
-		name = BNode.create(graph, StringNode.class); //new StringNode(graph, countryCodes.get(code).asText());
+		name =graph.create( StringNode.class); //new StringNode(graph, countryCodes.get(code).asText());
 		name.set(countryCodes.get(code).asText());
 	}
 

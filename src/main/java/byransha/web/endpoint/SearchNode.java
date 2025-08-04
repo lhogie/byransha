@@ -66,7 +66,6 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         // Search matching nodes with basic query filtering
         var nodes = graph.findAll(BusinessNode.class, node -> {
             if (
-                node.deleted ||
                 node.getClass().getSimpleName().equals("SearchForm")
             ) {
                 return false;
@@ -183,8 +182,8 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
                     filtersArray
                 );
                 if (!customFilters.isEmpty()) {
-                    FilterChain filterChain = BNode.create(
-                        graph,
+                    FilterChain filterChain = graph.create(
+
                         FilterChain.class
                     );
                     filterChain.enabled.set(true);
@@ -238,22 +237,22 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = BNode.create(graph, StartsWithFilter.class);
+                    filter = graph.create( StartsWithFilter.class);
                     break;
                 case "contains":
-                    filter = BNode.create(graph, ContainsFilter.class);
+                    filter = graph.create( ContainsFilter.class);
                     break;
                 case "class":
-                    filter = BNode.create(graph, ClassFilter.class);
+                    filter = graph.create( ClassFilter.class);
                     break;
                 case "daterange":
-                    filter = BNode.create(graph, DateRangeFilter.class);
+                    filter = graph.create( DateRangeFilter.class);
                     break;
                 case "numericrange":
-                    filter = BNode.create(graph, NumericRangeFilter.class);
+                    filter = graph.create( NumericRangeFilter.class);
                     break;
                 case "filterchain":
-                    filter = BNode.create(graph, FilterChain.class);
+                    filter = graph.create( FilterChain.class);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);

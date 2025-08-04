@@ -12,10 +12,10 @@ public class Position extends BNode {
 
 	public Position(BBGraph g) {
 		super(g);
-		employer = BNode.create(g, Structure.class);
-		from = BNode.create(g, DateNode.class);
-		to = BNode.create(g, DateNode.class);
-		status = BNode.create(g, Status.class);
+		employer = g.create(  Structure.class);
+		from = g.create( DateNode.class);
+		to = g.create(  DateNode.class);
+		status = g.create(  Status.class);
 	}
 
 	public Position(BBGraph g, int id) {

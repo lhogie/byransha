@@ -77,13 +77,13 @@ public class PerformanceTestHelper {
             BNode node;
             int nodeType = i % 4;
             switch (nodeType) {
-                case 0 -> node = BNode.create(graph, StringNode.class);
-                case 1 -> node = BNode.create(graph, byransha.IntNode.class);
-                case 2 -> node = BNode.create(
-                    graph,
+                case 0 -> node = graph.create( StringNode.class);
+                case 1 -> node = graph.create( byransha.IntNode.class);
+                case 2 -> node =
+                    graph.create(
                     byransha.BooleanNode.class
                 );
-                default -> node = BNode.create(graph, ColorNode.class);
+                default -> node = graph.create( ColorNode.class);
             }
             nodes.add(node);
 
@@ -177,7 +177,7 @@ public class PerformanceTestHelper {
         );
 
         ClassAttributeField endpoint = new ClassAttributeField(graph);
-        User testUser = BNode.create(graph, User.class);
+        User testUser = graph.create( User.class);
         testUser.setAdmin(true);
 
         List<BNode> testNodes = new ArrayList<>();
@@ -238,7 +238,7 @@ public class PerformanceTestHelper {
         System.out.print("Testing Views performance... ");
 
         Views viewsEndpoint = new Views(graph);
-        User testUser = BNode.create(graph, User.class);
+        User testUser = graph.create( User.class);
         testUser.setAdmin(true);
 
         List<BNode> testNodes = new ArrayList<>();
@@ -289,7 +289,7 @@ public class PerformanceTestHelper {
         System.out.println("=== Direct Pagination Comparison ===");
 
         ClassAttributeField endpoint = new ClassAttributeField(graph);
-        User testUser = BNode.create(graph, User.class);
+        User testUser = graph.create( User.class);
         testUser.setAdmin(true);
 
         // Get a single test node with many attributes
@@ -440,7 +440,7 @@ public class PerformanceTestHelper {
     ) {
         System.out.println("=== Comprehensive Endpoint Performance Test ===");
 
-        User testUser = BNode.create(graph, User.class);
+        User testUser = graph.create( User.class);
         testUser.setAdmin(true);
 
         // Get test nodes

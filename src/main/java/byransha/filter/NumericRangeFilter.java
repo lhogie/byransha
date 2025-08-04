@@ -19,11 +19,11 @@ public class NumericRangeFilter extends FilterNode {
 
     public NumericRangeFilter(BBGraph g) {
         super(g);
-        minValue = BNode.create(g, StringNode.class);
-        maxValue = BNode.create(g, StringNode.class);
-        includeNull = BNode.create(g, BooleanNode.class);
-        includeMin = BNode.create(g, BooleanNode.class);
-        includeMax = BNode.create(g, BooleanNode.class);
+        minValue = g.create( StringNode.class);
+        maxValue = g.create( StringNode.class);
+        includeNull = g.create( BooleanNode.class);
+        includeMin = g.create( BooleanNode.class);
+        includeMax = g.create( BooleanNode.class);
 
         includeNull.set("includeNull", this,true);
         includeMin.set("includeMin", this, true);
