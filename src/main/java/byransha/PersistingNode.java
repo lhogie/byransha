@@ -45,7 +45,7 @@ public abstract class PersistingNode extends BNode {
 
 		forEachOut((name, outNode) -> {
 			try {
-				var symlink = new File(outD, name + id);// + "@" + outNode.id());
+				var symlink = new File(outD, ""+outNode.id());// + "@" + outNode.id());
 
 				for (var e : Objects.requireNonNull(outD.listFiles())) {
 					if (e.getName().equals(symlink.getName())) {

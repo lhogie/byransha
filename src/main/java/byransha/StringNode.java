@@ -20,9 +20,9 @@ public class StringNode extends ValuedNode<String> {
     @Override
     public String prettyName() {
         if (get() == null) {
-            return "a string";
+            return "String with no value";
         }
-        return "a string: " + get();
+        return get();
     }
 
     @Override

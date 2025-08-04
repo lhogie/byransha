@@ -2,6 +2,7 @@
   <configuration default="false" name="Start Backend" type="Application" factoryName="Application">
     <option name="MAIN_CLASS_NAME" value="byransha.web.WebServer" />
     <module name="byransha" />
+    <option name="PROGRAM_PARAMETERS" value="appClass=byransha.labmodel.I3SApplication" />
     <extension name="coverage">
       <pattern>
         <option name="PATTERN" value="byransha.web.*" />

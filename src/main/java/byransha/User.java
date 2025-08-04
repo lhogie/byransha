@@ -17,7 +17,6 @@ public class User extends PersistingNode {
     public StringNode name;
     public StringNode passwordNode;
     public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
-    public Boolean isGestionnaire = false;
 
     public User(BBGraph g, String u, String password) {
         super(g);
@@ -35,10 +34,6 @@ public class User extends PersistingNode {
          * this.saveIns(f -> {}); forEachOut((n, node) -> node.saveIns(f -> {}));
          * forEachIn((n, node) -> node.saveOuts(f -> {}));
          */
-    }
-
-    public void setGestionnaire() {
-        isGestionnaire = !isGestionnaire;
     }
 
     public User(BBGraph g) {
