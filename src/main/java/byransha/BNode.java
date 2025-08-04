@@ -61,17 +61,16 @@ public abstract class BNode {
     protected <N extends BNode> N searchFalseBoolean() {
         var node = graph.findAll(BooleanNode.class, n -> true);
 
-        if (node == null)
-            return null;
+        if (node == null) return null;
 
-        for( var n : node) {
-            if(n.get() == null) n.set(null, null, false);
-            if(n.get().equals(false)) {
+        for (var n : node) {
+            if (n.get() == null) n.set(null, null, false);
+            if (n.get().equals(false)) {
                 return (N) n;
             }
         }
 
-        throw new RuntimeException();
+        return null;
     }
 
     public void createOrAssignCluster() {
@@ -84,19 +83,19 @@ public abstract class BNode {
             ) {
                 n.add(this);
                 foundCluster.set(true);
-               this. cluster = n;
+                this.cluster = n;
                 return true;
             }
             return false;
         });
 
         if (!foundCluster.get()) {
-            var newCluster = graph.create( Cluster.class);
+            var newCluster = graph.create(Cluster.class);
             newCluster.setTypeOfCluster(this.getClass());
             newCluster.add(this);
             newCluster.add(graph);
             cluster = newCluster;
-             if (this instanceof Endpoint) newCluster.setColor("#00fff5");
+            if (this instanceof Endpoint) newCluster.setColor("#00fff5");
         }
     }
 
@@ -110,7 +109,7 @@ public abstract class BNode {
         });
 
         if (this.color == null || !this.color.getAsString().equals(newColor)) {
-            this.color = graph.create( ColorNode.class);
+            this.color = graph.create(ColorNode.class);
             this.color.set(newColor);
         }
     }
