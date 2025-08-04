@@ -8,21 +8,22 @@ import byransha.labmodel.model.v0.Country;
 import byransha.labmodel.model.v0.DataLake;
 import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
-
-import javax.xml.crypto.Data;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 public class I3SApplication extends UserApplication {
 
-    public I3SApplication(BBGraph g){
-super(g);
-        g.create( StructureView.class);
-        g.create( LabView.class);
-        g.create( Agent.class);
+    public I3SApplication(BBGraph g) {
+        super(g);
+        g.create(StructureView.class);
+        g.create(LabView.class);
+        g.create(Agent.class);
         Country.loadCountries(g);
-        var lake = g.create( DataLake.class);
-        lake.inputDir = new File("~/i3s_extraction");
+        var lake = g.create(DataLake.class);
+        lake.inputDir = Paths.get(
+            System.getProperty("user.home"),
+            "i3s_extraction"
+        ).toFile();
 
         try {
             lake.load();
