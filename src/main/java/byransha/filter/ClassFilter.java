@@ -20,15 +20,14 @@ public class ClassFilter extends FilterNode {
         allowCreation = false,
         source = ListOptions.OptionsSource.PROGRAMMATIC
     )
-
     public ListNode<StringNode> targetClass;
 
     public BooleanNode includeSubclasses;
 
     public ClassFilter(BBGraph g) {
         super(g);
-        targetClass = g.create( ListNode.class);
-        includeSubclasses = g.create( BooleanNode.class);
+        targetClass = g.create(ListNode.class);
+        includeSubclasses = g.create(BooleanNode.class);
         includeSubclasses.set("includeSubclasses", this, true);
         populateClassOptions();
     }
@@ -46,7 +45,12 @@ public class ClassFilter extends FilterNode {
             }
         });
 
-        var l = allClasses.stream().map(e -> e.getSimpleName()).toList();
+        var l = new ArrayList<>(
+            allClasses
+                .stream()
+                .map(e -> e.getSimpleName())
+                .toList()
+        );
         l.sort(String::compareToIgnoreCase);
         targetClass.setStaticOptions(l);
     }
@@ -118,7 +122,7 @@ public class ClassFilter extends FilterNode {
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = graph.create( StringNode.class);
+            StringNode classNode = graph.create(StringNode.class);
             classNode.set(config.get("targetClass").asText());
             targetClass.add(classNode);
         }
