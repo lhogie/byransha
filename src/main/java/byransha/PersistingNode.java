@@ -101,8 +101,8 @@ public abstract class PersistingNode extends BNode {
 					}
 
 					writingFiles.accept(symlink);
-					System.err.println(symlink.toPath());
-					System.err.println(pin.directory().toPath());
+//					System.err.println(symlink.toPath());
+//					System.err.println(pin.directory().toPath());
 					Files.createSymbolicLink(symlink.toPath(), pin.directory().toPath());
 				} catch (IOException e) {
 					throw new RuntimeException(e);

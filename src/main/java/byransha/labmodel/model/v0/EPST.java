@@ -4,14 +4,14 @@ import byransha.BBGraph;
 
 public class EPST extends Structure {
 
-	EPST(BBGraph g) {
+	public EPST(BBGraph g) {
 		super(g);
 		status.add(new IR(g));
 		status.add(new CR(g));
 		status.add(new DR(g));
 	}
 
-	EPST(BBGraph g, int id) {
+	public EPST(BBGraph g, int id) {
 		super(g, id);
 	}
 }
