@@ -47,15 +47,6 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
         String query = in.has("query") ? in.get("query").asText().toLowerCase() : null;
 
         var filteredNodes = graph.findAll(nodeClass.get(), node -> {
-            if(user instanceof Gestionnaire g) {
-                if (g.getFiltres() != null) {
-                    for (String filter : g.getFiltres()) {
-                        if (node.prettyName().toLowerCase().contains(filter.toLowerCase())) return true;
-                    }
-                    return false;
-                }
-            }
-
             if (query == null || query.isEmpty()) return true;
             String name = node.prettyName();
             return name != null && name.toLowerCase().contains(query);

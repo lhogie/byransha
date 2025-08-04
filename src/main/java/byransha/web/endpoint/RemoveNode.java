@@ -31,7 +31,7 @@ public class RemoveNode extends NodeEndpoint<BNode> {
         var a = new ArrayNode(null);
         if (
             !node.ins().isEmpty() ||
-            node.getClass().getSimpleName().equals("graph")
+            node instanceof BBGraph
         ) return new EndpointJsonResponse(
             new ObjectNode(null).set(
                 "ins",
@@ -44,10 +44,11 @@ public class RemoveNode extends NodeEndpoint<BNode> {
         AtomicInteger numberOfOutsDeleted = new AtomicInteger(0);
         node.forEachOut((n, outNode) -> {
             var b = new ObjectNode(null);
+
             b.set("outgoing link to", new TextNode(outNode.toString()));
             if (outNode instanceof ListNode<?> ls) ls.removeAll();
             else if (outNode instanceof ListNode<?> ss) ss.removeAll();
-            if (!outNode.getClass().getSimpleName().equals("graph")) {
+            if (!(outNode instanceof BBGraph)){
                 outNode.remove();
                 numberOfOutsDeleted.getAndIncrement();
             }

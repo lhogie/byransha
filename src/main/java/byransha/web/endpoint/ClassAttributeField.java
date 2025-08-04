@@ -546,16 +546,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
      * Override this method to implement custom filtering logic
      */
     protected List<String> applyUserFilter(List<String> options, User user) {
-        if (user instanceof Gestionnaire gestionnaire) {
-            var filtres = gestionnaire.getFiltres();
-            if (filtres != null && !filtres.isEmpty()) {
-                return options
-                    .stream()
-                    .filter(option -> filtres.contains(option))
-                    .toList();
-            }
-        }
-
         return options;
     }
 }
