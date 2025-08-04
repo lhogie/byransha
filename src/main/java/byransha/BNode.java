@@ -269,7 +269,7 @@ public abstract class BNode {
     }
 
     public boolean canEdit(User user) {
-        return user.isAdmin();
+        return canSee(user);
     }
 
     public boolean matches(NodeEndpoint v) {
