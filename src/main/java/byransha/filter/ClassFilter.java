@@ -29,11 +29,16 @@ public class ClassFilter extends FilterNode {
         targetClass = g.create(ListNode.class);
         includeSubclasses = g.create(BooleanNode.class);
         includeSubclasses.set("includeSubclasses", this, true);
-        populateClassOptions();
     }
 
     public ClassFilter(BBGraph g, int id) {
         super(g, id);
+    }
+
+    @Override
+    protected void initialized() {
+        super.initialized();
+        populateClassOptions();
     }
 
     private void populateClassOptions() {
@@ -52,6 +57,7 @@ public class ClassFilter extends FilterNode {
                 .toList()
         );
         l.sort(String::compareToIgnoreCase);
+
         targetClass.setStaticOptions(l);
     }
 

@@ -435,11 +435,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                         System.out.println("1");
                         ArrayNode choicesArray =
                             JsonNodeFactory.instance.arrayNode();
-                        List<String> filteredChoices = applyUserFilter(
-                            metadata.choices,
-                            user
-                        );
-                        for (String choice : filteredChoices) {
+
+                        for (String choice : metadata.choices) {
                             choicesArray.add(choice);
                         }
                         b.set("choices", choicesArray);
@@ -459,11 +456,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                                     option == null ? null : option.toString()
                                 )
                                 .toList();
-                            List<String> filteredOptions = applyUserFilter(
-                                originalOptions,
-                                user
-                            );
-                            for (String option : filteredOptions) {
+
+                            for (String option : originalOptions) {
                                 if (option == null) {
                                     optionsArray.add(NullNode.getInstance());
                                 } else {
@@ -539,13 +533,5 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     @Override
     public boolean sendContentByDefault() {
         return false;
-    }
-
-    /**
-     * Apply user-based filtering to options list
-     * Override this method to implement custom filtering logic
-     */
-    protected List<String> applyUserFilter(List<String> options, User user) {
-        return options;
     }
 }
