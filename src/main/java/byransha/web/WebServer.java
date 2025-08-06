@@ -273,7 +273,6 @@ public class WebServer extends BNode {
         g.create(ColorNodeView.class);
         g.create(SearchForm.class);
         g.create(ListChildClasses.class);
-        g.create(TestA.class);
     }
 
     public SessionStore getSessionStore() {
