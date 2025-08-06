@@ -11,7 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
-public class DateRangeFilter extends FilterNode {
+public class DateRangeFilter extends FieldFilterNode {
 
     public DateNode fromDate;
     public DateNode toDate;
@@ -28,9 +28,9 @@ public class DateRangeFilter extends FilterNode {
 
     public DateRangeFilter(BBGraph g) {
         super(g);
-        fromDate = g.create( DateNode.class);
-        toDate = g.create( DateNode.class);
-        includeNull = g.create( BooleanNode.class);
+        fromDate = g.create(DateNode.class);
+        toDate = g.create(DateNode.class);
+        includeNull = g.create(BooleanNode.class);
         includeNull.set("includeNull", this, true);
     }
 

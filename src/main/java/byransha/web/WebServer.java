@@ -13,6 +13,7 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.model.v0.*;
+import byransha.labmodel.test.TestA;
 import byransha.web.endpoint.*;
 import byransha.web.view.*;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -272,6 +273,7 @@ public class WebServer extends BNode {
         g.create(ColorNodeView.class);
         g.create(SearchForm.class);
         g.create(ListChildClasses.class);
+        g.create(TestA.class);
     }
 
     public SessionStore getSessionStore() {

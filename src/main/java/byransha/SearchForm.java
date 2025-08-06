@@ -14,7 +14,7 @@ public class SearchForm extends PersistingNode {
 
     public SearchForm(BBGraph g) {
         super(g);
-        searchTerm = g.create( StringNode.class);
+        searchTerm = g.create(StringNode.class);
         results = g.create(ListNode.class);
         filterChain = g.create(FilterChain.class);
     }
@@ -38,7 +38,7 @@ public class SearchForm extends PersistingNode {
         filterChain.logicalOperator.add(andOperator);
 
         // Add a class filter (replaces searchClass)
-        ClassFilter classFilter = graph.create( ClassFilter.class);
+        ClassFilter classFilter = graph.create(ClassFilter.class);
         classFilter.enabled.set("enabled", classFilter, false); // Start disabled
         classFilter.includeSubclasses.set(
             "includeSubclasses",
@@ -79,6 +79,11 @@ public class SearchForm extends PersistingNode {
 
     @Override
     public String prettyName() {
-        return filterChain.filters.getElements().size() + " filter(s) - " + results.size() +  " result(s)";
+        return (
+            filterChain.filters.getElements().size() +
+            " filter(s) - " +
+            results.size() +
+            " result(s)"
+        );
     }
 }

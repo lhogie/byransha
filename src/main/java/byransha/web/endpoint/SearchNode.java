@@ -45,7 +45,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         activeFilterChain = getActiveFilterChain(currentNode, in);
 
         // Clear results if using SearchForm
-        if (currentNode instanceof SearchForm && in.isEmpty()) {
+        if (currentNode instanceof SearchForm) {
             ((SearchForm) currentNode).results.removeAll();
         }
 
@@ -65,9 +65,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         // Search matching nodes with basic query filtering
         var nodes = graph.findAll(BusinessNode.class, node -> {
-            if (
-                node.getClass().getSimpleName().equals("SearchForm")
-            ) {
+            if (node.getClass().getSimpleName().equals("SearchForm")) {
                 return false;
             }
 
@@ -182,10 +180,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
                     filtersArray
                 );
                 if (!customFilters.isEmpty()) {
-                    FilterChain filterChain = graph.create(
-
-                        FilterChain.class
-                    );
+                    FilterChain filterChain = graph.create(FilterChain.class);
                     filterChain.enabled.set(true);
                     for (FilterNode filter : customFilters) {
                         filterChain.addFilter(filter);
@@ -237,22 +232,22 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = graph.create( StartsWithFilter.class);
+                    filter = graph.create(StartsWithFilter.class);
                     break;
                 case "contains":
-                    filter = graph.create( ContainsFilter.class);
+                    filter = graph.create(ContainsFilter.class);
                     break;
                 case "class":
-                    filter = graph.create( ClassFilter.class);
+                    filter = graph.create(ClassFilter.class);
                     break;
                 case "daterange":
-                    filter = graph.create( DateRangeFilter.class);
+                    filter = graph.create(DateRangeFilter.class);
                     break;
                 case "numericrange":
-                    filter = graph.create( NumericRangeFilter.class);
+                    filter = graph.create(NumericRangeFilter.class);
                     break;
                 case "filterchain":
-                    filter = graph.create( FilterChain.class);
+                    filter = graph.create(FilterChain.class);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);

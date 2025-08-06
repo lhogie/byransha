@@ -9,7 +9,7 @@ import byransha.ValuedNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
-public class NumericRangeFilter extends FilterNode {
+public class NumericRangeFilter extends FieldFilterNode {
 
     public StringNode minValue;
     public StringNode maxValue;
@@ -19,13 +19,13 @@ public class NumericRangeFilter extends FilterNode {
 
     public NumericRangeFilter(BBGraph g) {
         super(g);
-        minValue = g.create( StringNode.class);
-        maxValue = g.create( StringNode.class);
-        includeNull = g.create( BooleanNode.class);
-        includeMin = g.create( BooleanNode.class);
-        includeMax = g.create( BooleanNode.class);
+        minValue = g.create(StringNode.class);
+        maxValue = g.create(StringNode.class);
+        includeNull = g.create(BooleanNode.class);
+        includeMin = g.create(BooleanNode.class);
+        includeMax = g.create(BooleanNode.class);
 
-        includeNull.set("includeNull", this,true);
+        includeNull.set("includeNull", this, true);
         includeMin.set("includeMin", this, true);
         includeMax.set("includeMax", this, true);
     }

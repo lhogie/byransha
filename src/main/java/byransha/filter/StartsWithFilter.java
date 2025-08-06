@@ -4,15 +4,15 @@ import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
-public class StartsWithFilter extends FilterNode {
+public class StartsWithFilter extends FieldFilterNode {
 
     public StringNode prefix;
     public BooleanNode caseSensitive;
 
     public StartsWithFilter(BBGraph g) {
         super(g);
-        prefix = g.create( StringNode.class);
-        caseSensitive = g.create( BooleanNode.class);
+        prefix = g.create(StringNode.class);
+        caseSensitive = g.create(BooleanNode.class);
         caseSensitive.set("caseSensitive", this, false);
     }
 

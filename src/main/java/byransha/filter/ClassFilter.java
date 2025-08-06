@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-public class ClassFilter extends FilterNode {
+public class ClassFilter extends FieldFilterNode {
 
     @ListOptions(
         type = ListOptions.ListType.DROPDOWN,
@@ -131,6 +131,12 @@ public class ClassFilter extends FilterNode {
             StringNode classNode = graph.create(StringNode.class);
             classNode.set(config.get("targetClass").asText());
             targetClass.add(classNode);
+
+            // Auto-enable when a class is selected
+            String selectedClass = config.get("targetClass").asText();
+            if (selectedClass != null && !selectedClass.trim().isEmpty()) {
+                enabled.set(true);
+            }
         }
 
         if (config.has("includeSubclasses")) {
@@ -165,5 +171,19 @@ public class ClassFilter extends FilterNode {
 
     public void refreshClassOptions() {
         populateClassOptions();
+    }
+
+    public void setTargetClass(String className) {
+        targetClass.removeAll();
+        if (className != null && !className.trim().isEmpty()) {
+            StringNode classNode = graph.create(StringNode.class);
+            classNode.set(className);
+            targetClass.add(classNode);
+            // Auto-enable when a class is selected
+            enabled.set(true);
+        } else {
+            // Auto-disable when no class is selected
+            enabled.set(false);
+        }
     }
 }

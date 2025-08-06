@@ -1,6 +1,6 @@
 package byransha;
 
-public class HistoryChangeNode extends StringNode{
+public class HistoryChangeNode extends StringNode {
 
     public HistoryChangeNode(BBGraph g) {
         super(g);
@@ -29,10 +29,15 @@ public class HistoryChangeNode extends StringNode{
     @Override
     public void set(String newValue) {
         System.out.println(this.value);
-        if(this.value == null) this.value = newValue;
+        if (this.value == null) this.value = newValue;
         else this.value += "\n" + newValue;
         if (directory() != null) {
             saveValue(BBGraph.sysoutPrinter);
         }
+    }
+
+    @Override
+    public boolean canEdit(User user) {
+        return false;
     }
 }

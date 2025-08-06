@@ -4,7 +4,7 @@ import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
-public class ContainsFilter extends FilterNode {
+public class ContainsFilter extends FieldFilterNode {
 
     public StringNode searchText;
     public BooleanNode caseSensitive;
@@ -13,10 +13,10 @@ public class ContainsFilter extends FilterNode {
     public ContainsFilter(BBGraph g) {
         super(g);
         searchText = g.create(StringNode.class);
-        caseSensitive = g.create( BooleanNode.class);
+        caseSensitive = g.create(BooleanNode.class);
         wholeWordsOnly = g.create(BooleanNode.class);
 
-        caseSensitive.set("caseSensitive", this,false);
+        caseSensitive.set("caseSensitive", this, false);
         wholeWordsOnly.set("wholeWordsOnly", this, false);
     }
 

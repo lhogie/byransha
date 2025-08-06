@@ -35,8 +35,6 @@ public class BBGraph extends BNode {
 
     private final ConcurrentMap<Integer, BNode> nodesById;
     private final ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
-    private final ConcurrentMap<Integer, Set<InLink>> incomingReferences =
-        new ConcurrentHashMap<>();
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
 
@@ -46,6 +44,10 @@ public class BBGraph extends BNode {
     @Override
     public String whatIsThis() {
         return "BBGraph: A graph representation for BNodes.";
+    }
+
+    public BBGraph() {
+        this((File) null);
     }
 
     public BBGraph(File directory) {
@@ -89,8 +91,15 @@ public class BBGraph extends BNode {
     }
 
     public List<InLink> findRefsTO(BNode searchedNode) {
-        Set<InLink> refs = incomingReferences.get(searchedNode.id());
-        return refs != null ? new ArrayList<>(refs) : new ArrayList<>();
+        List<InLink> refs = new ArrayList<>();
+        for (BNode node : nodesById.values()) {
+            node.forEachOut((role, target) -> {
+                if (target != null && target.equals(searchedNode)) {
+                    refs.add(new InLink(role, node));
+                }
+            });
+        }
+        return refs;
     }
 
     public void loadFromDisk(
@@ -325,8 +334,6 @@ public class BBGraph extends BNode {
             .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
             .add(n);
 
-        buildIncomingReferencesForNode(n);
-
         if (n instanceof NodeEndpoint ne) {
             var alreadyInClass = findEndpoint(ne.getClass());
             if (alreadyInClass != null && alreadyInClass != ne) {
@@ -373,39 +380,9 @@ public class BBGraph extends BNode {
         }
     }
 
-    private void buildIncomingReferencesForNode(BNode n) {
-        n.forEachOut((role, outNode) -> {
-            if (outNode != null) {
-                addIncomingReference(n, role, outNode);
-            }
-        });
-    }
-
-    private void addIncomingReference(BNode from, String role, BNode to) {
-        incomingReferences
-            .computeIfAbsent(to.id(), k -> ConcurrentHashMap.newKeySet())
-            .add(new InLink(role, from));
-    }
-
-    private void removeIncomingReference(BNode from, String role, BNode to) {
-        Set<InLink> refs = incomingReferences.get(to.id());
-        if (refs != null) {
-            refs.removeIf(
-                link -> link.source().equals(from) && link.role().equals(role)
-            );
-            if (refs.isEmpty()) {
-                incomingReferences.remove(to.id());
-            }
-        }
-    }
-
     public void updateEdge(BNode from, String role, BNode oldTo, BNode newTo) {
-        if (oldTo != null) {
-            removeIncomingReference(from, role, oldTo);
-        }
-        if (newTo != null) {
-            addIncomingReference(from, role, newTo);
-        }
+        // No-op since we removed the incoming references cache
+        // Incoming references are now computed on-demand
     }
 
     public BNode root() {
