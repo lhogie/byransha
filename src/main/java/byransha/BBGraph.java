@@ -312,6 +312,17 @@ public class BBGraph extends BNode {
     synchronized <N extends BNode> void integrate(N n) {
         n.graph = this;
         BNode previous = nodesById.putIfAbsent(n.id(), n);
+
+        if (previous != null && previous != n)
+            throw new IllegalStateException(
+                    "can't add node " +
+                            n +
+                            " because its ID " +
+                            n.id() +
+                            " is already taken by: " +
+                            previous);
+
+
         n.classNode = classNodeFor(n.getClass());
         ((ClassNode<N>) n.classNode).instances().add(n);
     }
@@ -332,15 +343,6 @@ public class BBGraph extends BNode {
             }
         }
 
-
-        if (previous != null && previous != n)
-            throw new IllegalStateException(
-                    "can't add node " +
-                            n +
-                            " because its ID " +
-                            n.id() +
-                            " is already taken by: " +
-                            previous);
 
 
         buildIncomingReferencesForNode(n);
