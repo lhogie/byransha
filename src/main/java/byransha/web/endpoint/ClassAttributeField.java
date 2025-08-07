@@ -141,7 +141,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     @Override
     public String whatItDoes() {
-        return "List the out of the current node.";
+        return "lists the outs of the current node.";
     }
 
     public ClassAttributeField(BBGraph g) {
@@ -264,11 +264,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 "value",
                 BooleanNode.valueOf((Boolean) valuedNode.get())
             );
-        } else if (valuedNode instanceof byransha.HideNode) {
-            nodeInfo.set(
-                "value",
-                BooleanNode.valueOf((Boolean) valuedNode.get())
-            );
         } else if (valuedNode instanceof byransha.IntNode) {
             nodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
         } else {
@@ -292,9 +287,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
         node.forEachOut((name, out) -> {
             if (
-                !out.isVisible ||
                 out instanceof BBGraph ||
-                out instanceof Cluster
+                out instanceof ClassNode
             ) return;
 
             if (validItemsProcessed.get() < offset) {

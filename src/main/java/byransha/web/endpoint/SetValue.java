@@ -118,12 +118,6 @@ public class SetValue extends NodeEndpoint<BNode> {
                     "value",
                     value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE
                 );
-            } else if (node instanceof byransha.HideNode h) {
-                h.set(value.asBoolean());
-                a.set(
-                    "value",
-                    value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE
-                );
             } else if (node instanceof ImageNode im) {
                 try {
                     String base64Image = value.asText();

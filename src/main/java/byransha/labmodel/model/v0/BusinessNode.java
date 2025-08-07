@@ -3,9 +3,8 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.HistoryChangeNode;
-import byransha.PersistingNode;
 
-public abstract class BusinessNode extends PersistingNode {
+public abstract class BusinessNode extends BNode {
 	public HistoryChangeNode history;
 
 	public BusinessNode(BBGraph g) {
@@ -16,5 +15,4 @@ public abstract class BusinessNode extends PersistingNode {
 	public BusinessNode(BBGraph g, int id) {
 		super(g, id);
 	}
-
 }

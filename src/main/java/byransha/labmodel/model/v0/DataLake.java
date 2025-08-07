@@ -173,11 +173,12 @@ public class DataLake extends BNode {
             }
 
             person.enposte = l.set(27, null).equals("en poste");
-            person.position.comment = l.set(28, null);
+            person.position.comment = graph.create(StringNode.class);
+            person.position.comment.set(  l.set(28, null));
             var quotite = graph.create(StringNode.class);
             quotite.set(l.set(29, null));
             person.quotite = quotite; //new StringNode(this, l.set(29, null));
-            comment = l.set(32, null);
+            person.position.comment.set(person.position.comment.get() + "\n"+ l.set(32, null));
             var researchActivity = graph.create(StringNode.class);
             researchActivity.set(l.set(33, null));
             person.researchActivity = researchActivity; //new StringNode(this, l.set(33, null));

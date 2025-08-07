@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import toools.text.TextUtilities;
 
-public abstract class ValuedNode<V> extends PersistingNode {
+public abstract class ValuedNode<V> extends BNode {
 
     V value;
     protected String mimeType = "text/plain";

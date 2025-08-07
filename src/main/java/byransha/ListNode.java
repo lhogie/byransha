@@ -8,15 +8,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-public class ListNode<T> extends PersistingNode {
+public class ListNode<T> extends BNode {
 
     private final Set<T> elements = new LinkedHashSet<>();
-    private List<String> staticOptions = new ArrayList<>();
-    private ListOptions.ListType listType;
-    private ListOptions.OptionsSource optionsSource;
     private Class<?> elementType;
     private Predicate<String> optionsFilter;
 
+    private List<String> staticOptions = new ArrayList<>();
+    private ListOptions.ListType listType;
+    private ListOptions.OptionsSource optionsSource;
     private static final Map<Integer, ListOptions> optionsCache =
         new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
@@ -25,9 +25,7 @@ public class ListNode<T> extends PersistingNode {
         super(db);
     }
 
-    public ListNode(BBGraph db, int id) {
-        super(db, id);
-    }
+
 
     @Override
     public String whatIsThis() {
@@ -79,7 +77,6 @@ public class ListNode<T> extends PersistingNode {
             case RADIO:
                 elements.add(element);
                 invalidateOutsCache();
-                save(f -> {});
                 break;
         }
     }
@@ -95,7 +92,6 @@ public class ListNode<T> extends PersistingNode {
 
         if (removed) {
             invalidateOutsCache();
-            save(f -> {});
         }
     }
 
@@ -183,7 +179,6 @@ public class ListNode<T> extends PersistingNode {
     public void removeAll() {
         elements.clear();
         invalidateOutsCache();
-        save(f -> {});
     }
 
     public List<T> getElements() {
@@ -252,7 +247,6 @@ public class ListNode<T> extends PersistingNode {
             getListOptions().source() == ListOptions.OptionsSource.PROGRAMMATIC
         ) {
             this.staticOptions = new ArrayList<>(options);
-            save(f -> {});
         }
     }
 
@@ -262,7 +256,6 @@ public class ListNode<T> extends PersistingNode {
         ) {
             if (!staticOptions.contains(option)) {
                 staticOptions.add(option);
-                save(f -> {});
             }
         }
     }

@@ -48,9 +48,9 @@ public class FilterChain extends FilterNode {
 
     @Override
     public boolean filter(BNode node) {
-        List<FilterNode> activeFilters = getActiveFilters();
+       var filters = this.filters.getElements();
 
-        if (activeFilters.isEmpty()) {
+        if (filters.isEmpty()) {
             return true;
         }
 
@@ -61,12 +61,12 @@ public class FilterChain extends FilterNode {
 
         switch (operator.toUpperCase()) {
             case "OR":
-                return activeFilters
+                return filters
                     .stream()
                     .anyMatch(filter -> applyFilter(filter, node));
             case "AND":
             default:
-                return activeFilters
+                return filters
                     .stream()
                     .allMatch(filter -> applyFilter(filter, node));
         }
@@ -90,19 +90,6 @@ public class FilterChain extends FilterNode {
         }
     }
 
-    private List<FilterNode> getActiveFilters() {
-        List<FilterNode> activeFilters = new ArrayList<>();
-
-        for (FilterNode filter : filters.getElements()) {
-            if (
-                filter != null && filter.enabled != null && filter.enabled.get()
-            ) {
-                activeFilters.add(filter);
-            }
-        }
-
-        return activeFilters;
-    }
 
     @Override
     public List<Class<? extends BNode>> getSupportedTypes() {
@@ -202,10 +189,6 @@ public class FilterChain extends FilterNode {
     @Override
     public Predicate<BNode> toPredicate() {
         return node -> {
-            if (!enabled.get()) {
-                return true;
-            }
-
             try {
                 return filter(node);
             } catch (Exception e) {
@@ -222,7 +205,7 @@ public class FilterChain extends FilterNode {
 
     @Override
     public String getFilterDescription() {
-        List<FilterNode> activeFilters = getActiveFilters();
+        List<FilterNode> activeFilters = this.filters.getElements();
 
         if (activeFilters.isEmpty()) {
             return "Empty filter chain";
@@ -246,7 +229,7 @@ public class FilterChain extends FilterNode {
 
     @Override
     public String prettyName() {
-        List<FilterNode> activeFilters = getActiveFilters();
+        List<FilterNode> activeFilters = this.filters.getElements();
 
         if (activeFilters.isEmpty()) {
             return "Empty Filter Chain";

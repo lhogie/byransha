@@ -13,7 +13,6 @@ import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
 import byransha.labmodel.model.v0.*;
-import byransha.labmodel.test.TestA;
 import byransha.web.endpoint.*;
 import byransha.web.view.*;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -29,6 +28,7 @@ import com.sun.net.httpserver.HttpsConfigurator;
 import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -50,6 +50,7 @@ import java.util.function.BiConsumer;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
+
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
 
@@ -60,7 +61,7 @@ import toools.text.TextUtilities;
 public class WebServer extends BNode {
 
     public static final File defaultDBDirectory = new File(
-        System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()
+            System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()
     );
 
     private UserApplication application;
@@ -72,36 +73,31 @@ public class WebServer extends BNode {
         int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
         var backend = new WebServer(g, port);
 
-        var appClass = (Class<? extends UserApplication>) Class.forName(
-            argMap.remove("appClass")
-        );
-        backend.application = g.create(appClass);
+        var appClass = (Class<? extends UserApplication>) Class.forName(argMap.remove("appClass"));
+        backend. application = g.create( appClass);
     }
 
     private static Map<String, String> mapArgs(String... args) {
         var r = new HashMap<String, String>();
 
         List.of(args)
-            .stream()
-            .map(a -> a.split("="))
-            .forEach(a -> r.put(a[0], a[1]));
+                .stream()
+                .map(a -> a.split("="))
+                .forEach(a -> r.put(a[0], a[1]));
 
         return r;
     }
 
     public static BBGraph instantiateGraph(Map<String, String> argMap)
-        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
+
         if (defaultDBDirectory.exists()) {
             System.out.println("loading DB from " + defaultDBDirectory);
-
-            // ligne pour version serveur
-            var g = (BBGraph) BBGraph.class.getConstructor(
-                File.class
-            ).newInstance(defaultDBDirectory);
+            var g = new BBGraph(defaultDBDirectory);
 
             g.loadFromDisk(
-                n -> System.out.println("loading node " + n),
-                (n, s) -> System.out.println("loading arc " + n + ", " + s)
+                    n -> System.out.println("loading node " + n),
+                    (n, s) -> System.out.println("loading arc " + n + ", " + s)
             );
             return g;
         } else {
@@ -121,13 +117,13 @@ public class WebServer extends BNode {
 
         // Configure the mapper to handle UTF-8 properly
         mapper.configure(
-            com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS,
-            true
+                com.fasterxml.jackson.core.JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS,
+                true
         );
     }
 
     final List<User> nbRequestsInProgress = Collections.synchronizedList(
-        new ArrayList<>()
+            new ArrayList<>()
     );
 
     private final FileCache fileCache;
@@ -139,6 +135,7 @@ public class WebServer extends BNode {
 
     public WebServer(BBGraph g, int port) throws Exception {
         super(g);
+
         this.fileCache = new FileCache(g);
         this.sessionStore = new SessionStore();
         createSpecialNodes(g);
@@ -153,14 +150,14 @@ public class WebServer extends BNode {
 
         try {
             Path classPathFile = new File(
-                Byransha.class.getPackageName() + "-classpath.lst"
+                    Byransha.class.getPackageName() + "-classpath.lst"
             ).toPath();
             System.out.println("writing " + classPathFile);
             Files.write(
-                classPathFile,
-                ClassPath.retrieveSystemClassPath()
-                    .toString()
-                    .getBytes(StandardCharsets.UTF_8)
+                    classPathFile,
+                    ClassPath.retrieveSystemClassPath()
+                            .toString()
+                            .getBytes(StandardCharsets.UTF_8)
             );
         } catch (IOException err) {
             err.printStackTrace();
@@ -171,50 +168,51 @@ public class WebServer extends BNode {
         int backlog = 100;
         httpsServer = HttpsServer.create(new InetSocketAddress(port), backlog);
         httpsServer.setHttpsConfigurator(
-            new HttpsConfigurator(getSslContext()) {
-                @Override
-                public void configure(HttpsParameters params) {
-                    try {
-                        SSLContext context = getSSLContext();
-                        params.setNeedClientAuth(false);
+                new HttpsConfigurator(getSslContext()) {
+                    @Override
+                    public void configure(HttpsParameters params) {
+                        try {
+                            SSLContext context = getSSLContext();
+                            params.setNeedClientAuth(false);
 
-                        context.getClientSessionContext().setSessionTimeout(60);
+                            context.getClientSessionContext().setSessionTimeout(60);
 
-                        String[] enabledProtocols = { "TLSv1.3", "TLSv1.2" };
-                        params.setProtocols(enabledProtocols);
+                            String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+                            params.setProtocols(enabledProtocols);
 
-                        SSLParameters defaultSSLParameters =
-                            context.getDefaultSSLParameters();
-                        List<String> strongCipherSuites = new ArrayList<>(
-                            List.of(defaultSSLParameters.getCipherSuites())
-                        );
-                        params.setCipherSuites(
-                            strongCipherSuites.toArray(new String[0])
-                        );
-                        params.setSSLParameters(
-                            context.getSupportedSSLParameters()
-                        );
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                            SSLParameters defaultSSLParameters =
+                                    context.getDefaultSSLParameters();
+                            List<String> strongCipherSuites = new ArrayList<>(
+                                    List.of(defaultSSLParameters.getCipherSuites())
+                            );
+                            params.setCipherSuites(
+                                    strongCipherSuites.toArray(new String[0])
+                            );
+                            params.setSSLParameters(
+                                    context.getSupportedSSLParameters()
+                            );
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
-            }
         );
 
         httpsServer.createContext("/", http ->
-            processRequest((HttpsExchange) http).send(http)
+                processRequest((HttpsExchange) http).send(http)
         );
         httpsServer.setExecutor(Executors.newCachedThreadPool());
         httpsServer.start();
     }
 
+
     private void createSpecialNodes(BBGraph g) {
         g.create(JVMNode.class);
-        g.create(Byransha.class);
-        g.create(OSNode.class);
-        var user1 = g.create(User.class);
-        var user2 = g.create(User.class);
-        var user3 = g.create(User.class);
+        g.create( Byransha.class);
+        g.create( OSNode.class);
+        var user1 = g.create( User.class);
+        var user2 = g.create( User.class);
+        var user3 = g.create( User.class);
 
         user1.name.set("user");
         user1.passwordNode.set("test");
@@ -225,55 +223,57 @@ public class WebServer extends BNode {
     }
 
     private void createEndpoints(BBGraph g) {
-        g.create(NodeInfo.class);
-        g.create(Views.class);
-        g.create(Jump.class);
-        g.create(Endpoints.class);
-        g.create(JVMNode.Kill.class);
-        var n = g.create(Authenticate.class);
+        g.create( NodeInfo.class);
+        g.create( Views.class);
+        g.create( Jump.class);
+        g.create( Endpoints.class);
+        g.create( JVMNode.Kill.class);
+        var n = g.create( Authenticate.class);
         n.setSessionStore(sessionStore);
-        var l = g.create(Logout.class);
+        var l = g.create( Logout.class);
         l.setSessionStore(sessionStore);
-        g.create(EndpointCallDistributionView.class);
-        g.create(Info.class);
-        g.create(Logs.class);
-        g.create(BasicView.class);
-        g.create(CharExampleXY.class);
-        g.create(User.UserView.class);
-        g.create(BBGraph.GraphNivoView.class);
-        g.create(OSNode.View.class);
-        g.create(JVMNode.View.class);
-        g.create(BNode.InOutsNivoView.class);
-        g.create(ModelGraphivzSVGView.class);
-        g.create(ModelMermaidView.class);
-        g.create(BNode.Navigator.class);
-        g.create(BNode.OutDegreeDistribution.class);
-        g.create(BNode.ClassDistribution.class);
-        g.create(Picture.V.class);
-        g.create(ModelDOTView.class);
-        g.create(ToStringView.class);
-        g.create(NodeEndpoints.class);
-        g.create(SetValue.class);
-        g.create(AnyGraph.Classes.class);
-        g.create(Edit.class);
-        g.create(History.class);
-        g.create(UI.class);
-        g.create(UI.getProperties.class);
-        g.create(Summarizer.class);
-        g.create(LoadImage.class);
-        g.create(ClassInformation.class);
-        g.create(ClassAttributeField.class);
-        g.create(AddNode.class);
-        g.create(AddExistingNode.class);
-        g.create(ListExistingNode.class);
-        g.create(SearchNode.class);
-        g.create(ExportCSV.class);
-        g.create(RemoveFromList.class);
-        g.create(RemoveNode.class);
-        g.create(ColorNodeView.class);
-        g.create(SearchForm.class);
-        g.create(ListChildClasses.class);
+        g.create( EndpointCallDistributionView.class);
+        g.create( Info.class);
+        g.create( Logs.class);
+        g.create( BasicView.class);
+        g.create( CharExampleXY.class);
+        g.create( User.UserView.class);
+        g.create( BBGraph.GraphNivoView.class);
+        g.create( OSNode.View.class);
+        g.create( JVMNode.View.class);
+        g.create( BNode.InOutsNivoView.class);
+        g.create( ModelGraphivzSVGView.class);
+        g.create( ModelMermaidView.class);
+        g.create( Navigator.class);
+        g.create( OutDegreeDistribution.class);
+        g.create( ClassDistribution.class);
+        g.create( Picture.V.class);
+        g.create( ModelDOTView.class);
+        g.create( ToStringView.class);
+        g.create( NodeEndpoints.class);
+        g.create( SetValue.class);
+        g.create( AnyGraph.Classes.class);
+        g.create( Edit.class);
+        g.create( History.class);
+        g.create( UI.class);
+        g.create( UI.getProperties.class);
+        g.create( Summarizer.class);
+        g.create( LoadImage.class);
+        g.create( ClassInformation.class);
+        g.create( ClassAttributeField.class);
+        g.create( AddNode.class);
+        g.create( AddExistingNode.class);
+        g.create( ListExistingNode.class);
+        g.create( SearchNode.class);
+        g.create( ExportCSV.class);
+        g.create( RemoveFromList.class);
+        g.create( RemoveNode.class);
+        g.create( ColorNodeView.class);
+        g.create( SearchForm.class);
+        g.create( ListChildClasses.class);
+
     }
+
 
     public SessionStore getSessionStore() {
         return sessionStore;
@@ -314,8 +314,8 @@ public class WebServer extends BNode {
         try {
             inputJson = grabInputFromURLandPOST(https);
             final var inputJson2sendBack = (inputJson != null)
-                ? inputJson.deepCopy()
-                : new ObjectNode(null);
+                    ? inputJson.deepCopy()
+                    : new ObjectNode(null);
 
             String sessionToken = null;
             String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
@@ -325,7 +325,7 @@ public class WebServer extends BNode {
                     cookie = cookie.trim();
                     if (cookie.startsWith("session_token=")) {
                         sessionToken = cookie.substring(
-                            "session_token=".length()
+                                "session_token=".length()
                         );
                         break;
                     }
@@ -334,22 +334,22 @@ public class WebServer extends BNode {
 
             if (sessionToken != null) {
                 Optional<SessionStore.SessionData> sessionOpt =
-                    sessionStore.getValidSession(sessionToken);
+                        sessionStore.getValidSession(sessionToken);
                 if (sessionOpt.isPresent()) {
                     sessionData = sessionOpt.get();
                     user = (User) graph.findByID(sessionData.userId());
                     if (user == null) {
                         System.err.println(
-                            "User ID " +
-                            sessionData.userId() +
-                            " from session token " +
-                            sessionToken.substring(0, 8) +
-                            "... not found in graph. Invalidating session."
+                                "User ID " +
+                                        sessionData.userId() +
+                                        " from session token " +
+                                        sessionToken.substring(0, 8) +
+                                        "... not found in graph. Invalidating session."
                         );
                         sessionStore.removeSession(sessionToken);
                         Authenticate.deleteSessionCookie(
-                            https,
-                            "session_token"
+                                https,
+                                "session_token"
                         );
                         sessionData = null;
                     }
@@ -360,10 +360,10 @@ public class WebServer extends BNode {
 
             if (user == null) {
                 user = graph.find(User.class, u ->
-                    u.name.get().equals("guest")
+                        u.name.get().equals("guest")
                 );
                 if (user == null) {
-                    user = graph.create(User.class);
+                    user =graph.create( User.class);
                     user.name.set("guest");
                     user.passwordNode.set("guest");
                     // user.stack.push(graph.root());
@@ -382,8 +382,8 @@ public class WebServer extends BNode {
                 String endpointName = path.substring(5);
                 if (endpointName.endsWith("/")) {
                     endpointName = endpointName.substring(
-                        0,
-                        endpointName.length() - 1
+                            0,
+                            endpointName.length() - 1
                     );
                 }
 
@@ -398,20 +398,20 @@ public class WebServer extends BNode {
                         // Current node no longer exists in graph
                         user.stack.clear();
                         log(
-                            "Error: User " +
-                            user.name.get() +
-                            "'s current node (ID: " +
-                            originalNodeId +
-                            ") no longer exists in graph. Cleared navigation stack."
+                                "Error: User " +
+                                        user.name.get() +
+                                        "'s current node (ID: " +
+                                        originalNodeId +
+                                        ") no longer exists in graph. Cleared navigation stack."
                         );
                         return new HTTPResponse(
-                            404,
-                            "application/json",
-                            ("{\"error\": \"Current node with ID " +
-                                originalNodeId +
-                                " no longer exists in the graph.\", \"error_type\": \"NodeNotFound\"}").getBytes(
-                                StandardCharsets.UTF_8
-                            )
+                                404,
+                                "application/json",
+                                ("{\"error\": \"Current node with ID " +
+                                        originalNodeId +
+                                        " no longer exists in the graph.\", \"error_type\": \"NodeNotFound\"}").getBytes(
+                                        StandardCharsets.UTF_8
+                                )
                         );
                     } else {
                         contextNode = validatedNode;
@@ -423,17 +423,17 @@ public class WebServer extends BNode {
                 if (endpointName.isEmpty()) {
                     User finalUser = user;
                     resolvedEndpoints = graph
-                        .endpointsUsableFrom(contextNode)
-                        .stream()
-                        .filter(e -> e instanceof View)
-                        .filter(e -> e.canSee(finalUser))
-                        .toList();
+                            .endpointsUsableFrom(contextNode)
+                            .stream()
+                            .filter(e -> e instanceof View)
+                            .filter(e -> e.canSee(finalUser))
+                            .toList();
                 } else {
                     var specificEndpoint = graph.findEndpoint(endpointName);
 
                     if (specificEndpoint == null) {
                         throw new IllegalArgumentException(
-                            "No such endpoint: " + endpointName
+                                "No such endpoint: " + endpointName
                         );
                     }
 
@@ -443,25 +443,25 @@ public class WebServer extends BNode {
                 var response = new ObjectNode(null);
                 response.set("backend version", new TextNode(Byransha.VERSION));
                 long uptimeMs =
-                    ManagementFactory.getRuntimeMXBean().getUptime();
+                        ManagementFactory.getRuntimeMXBean().getUptime();
                 response.set(
-                    "uptimeMs",
-                    new TextNode(Duration.ofMillis(uptimeMs).toString())
+                        "uptimeMs",
+                        new TextNode(Duration.ofMillis(uptimeMs).toString())
                 );
                 if (!inputJson2sendBack.isEmpty()) response.set(
-                    "request",
-                    inputJson2sendBack
+                        "request",
+                        inputJson2sendBack
                 );
 
                 response.set("username", new TextNode(user.name.get()));
                 response.set("user_id", new IntNode(user.id()));
                 response.set(
-                    "node_id",
-                    new TextNode(
-                        user.currentNode() == null
-                            ? "N/A"
-                            : "" + user.currentNode().id()
-                    )
+                        "node_id",
+                        new TextNode(
+                                user.currentNode() == null
+                                        ? "N/A"
+                                        : "" + user.currentNode().id()
+                        )
                 );
 
                 var resultsNode = new ArrayNode(null);
@@ -472,8 +472,8 @@ public class WebServer extends BNode {
 
                 if (rawRequest && resolvedEndpoints.size() != 1) {
                     throw new IllegalArgumentException(
-                        "Raw request requires exactly one endpoint, found: " +
-                        resolvedEndpoints.size()
+                            "Raw request requires exactly one endpoint, found: " +
+                                    resolvedEndpoints.size()
                     );
                 }
 
@@ -483,12 +483,12 @@ public class WebServer extends BNode {
                     ObjectNode er = new ObjectNode(null);
                     er.set("endpoint", new TextNode(endpoint.name()));
                     er.set(
-                        "endpoint_class",
-                        new TextNode(endpoint.getClass().getName())
+                            "endpoint_class",
+                            new TextNode(endpoint.getClass().getName())
                     );
                     er.set(
-                        "response_type",
-                        new TextNode(endpoint.type().name())
+                            "response_type",
+                            new TextNode(endpoint.type().name())
                     );
                     er.set("pretty_name", new TextNode(endpoint.prettyName()));
                     er.set("what_is_this", new TextNode(endpoint.whatIsThis()));
@@ -506,38 +506,38 @@ public class WebServer extends BNode {
 
                         if (!endpoint.canExec(user)) {
                             throw new SecurityException(
-                                "User '" +
-                                user.name.get() +
-                                "' is not authorized to execute endpoint: " +
-                                endpoint.name()
+                                    "User '" +
+                                            user.name.get() +
+                                            "' is not authorized to execute endpoint: " +
+                                            endpoint.name()
                             );
                         }
 
                         EndpointResponse result = endpoint.exec(
-                            inputJson,
-                            user,
-                            this,
-                            https
+                                inputJson,
+                                user,
+                                this,
+                                https
                         );
 
                         if (rawRequest) {
                             if (!inputJson.isEmpty()) System.err.println(
-                                "Warning: Parameters potentially unused in raw request: " +
-                                inputJson.toPrettyString()
+                                    "Warning: Parameters potentially unused in raw request: " +
+                                            inputJson.toPrettyString()
                             ); // Log warning
                             return new HTTPResponse(
-                                result.getStatusCode(),
-                                result.contentType,
-                                result
-                                    .toRawText()
-                                    .getBytes(StandardCharsets.UTF_8)
+                                    result.getStatusCode(),
+                                    result.contentType,
+                                    result
+                                            .toRawText()
+                                            .getBytes(StandardCharsets.UTF_8)
                             );
                         } else {
                             er.set("result", result.toJson());
 
                             if (
-                                result.getStatusCode() != 200 &&
-                                responseStatusCode == 200
+                                    result.getStatusCode() != 200 &&
+                                            responseStatusCode == 200
                             ) {
                                 responseStatusCode = result.getStatusCode();
                             }
@@ -547,30 +547,30 @@ public class WebServer extends BNode {
                         int statusCode = authEx
                                 .getMessage()
                                 .startsWith("Authentication required")
-                            ? 401
-                            : 403;
+                                ? 401
+                                : 403;
 
                         if (rawRequest || isSpecificRequest) {
                             return new HTTPResponse(
-                                statusCode,
-                                "text/plain",
-                                authEx
-                                    .getMessage()
-                                    .getBytes(StandardCharsets.UTF_8)
+                                    statusCode,
+                                    "text/plain",
+                                    authEx
+                                            .getMessage()
+                                            .getBytes(StandardCharsets.UTF_8)
                             );
                         } else {
                             er.set("error", new TextNode(authEx.getMessage()));
                             er.set(
-                                "error_type",
-                                new TextNode(
-                                    authEx
-                                            .getMessage()
-                                            .startsWith(
-                                                "Authentication required"
-                                            )
-                                        ? "AuthenticationError"
-                                        : "AuthorizationError"
-                                )
+                                    "error_type",
+                                    new TextNode(
+                                            authEx
+                                                    .getMessage()
+                                                    .startsWith(
+                                                            "Authentication required"
+                                                    )
+                                                    ? "AuthenticationError"
+                                                    : "AuthorizationError"
+                                    )
                             );
 
                             if (responseStatusCode == 200) {
@@ -585,16 +585,16 @@ public class WebServer extends BNode {
 
                         if (rawRequest) {
                             return new HTTPResponse(
-                                500,
-                                "text/plain",
-                                ("Endpoint execution failed: " +
-                                    err.getMessage()).getBytes()
+                                    500,
+                                    "text/plain",
+                                    ("Endpoint execution failed: " +
+                                            err.getMessage()).getBytes()
                             );
                         } else {
                             er.set("error", new TextNode(errorMsg));
                             er.set(
-                                "error_type",
-                                new TextNode("ExecutionError")
+                                    "error_type",
+                                    new TextNode("ExecutionError")
                             );
 
                             if (responseStatusCode == 200) {
@@ -613,56 +613,56 @@ public class WebServer extends BNode {
 
                 if (!inputJson.isEmpty()) {
                     String endpointNames = resolvedEndpoints
-                        .stream()
-                        .map(endpoint -> endpoint.name())
-                        .collect(java.util.stream.Collectors.joining(", "));
+                            .stream()
+                            .map(endpoint -> endpoint.name())
+                            .collect(java.util.stream.Collectors.joining(", "));
 
                     System.err.println(
-                        "Warning: Parameters unused after processing all endpoints [" +
-                        endpointNames +
-                        "]: " +
-                        inputJson.toPrettyString()
+                            "Warning: Parameters unused after processing all endpoints [" +
+                                    endpointNames +
+                                    "]: " +
+                                    inputJson.toPrettyString()
                     );
                     response.set(
-                        "unused_parameters_warning",
-                        new TextNode(
-                            "Some request parameters were not used by any executed endpoint [" +
-                            endpointNames +
-                            "]: " +
-                            inputJson.toPrettyString()
-                        )
+                            "unused_parameters_warning",
+                            new TextNode(
+                                    "Some request parameters were not used by any executed endpoint [" +
+                                            endpointNames +
+                                            "]: " +
+                                            inputJson.toPrettyString()
+                            )
                     );
                 }
 
                 response.set(
-                    "durationNs",
-                    new TextNode("" + (System.nanoTime() - startTimeNs))
+                        "durationNs",
+                        new TextNode("" + (System.nanoTime() - startTimeNs))
                 );
 
                 String jsonString = response.toPrettyString();
 
                 // Debug logging for UTF-8 encoding issues
                 if (
-                    jsonString.contains("Ã") ||
-                    jsonString.contains("â") ||
-                    jsonString.contains("è")
+                        jsonString.contains("Ã") ||
+                                jsonString.contains("â") ||
+                                jsonString.contains("è")
                 ) {
                     System.err.println(
-                        "DEBUG: Potential UTF-8 encoding issue detected in JSON response:"
+                            "DEBUG: Potential UTF-8 encoding issue detected in JSON response:"
                     );
                     System.err.println("Raw JSON string: " + jsonString);
                     System.err.println(
-                        "String bytes: " +
-                        java.util.Arrays.toString(
-                            jsonString.getBytes(StandardCharsets.UTF_8)
-                        )
+                            "String bytes: " +
+                                    java.util.Arrays.toString(
+                                            jsonString.getBytes(StandardCharsets.UTF_8)
+                                    )
                     );
                 }
 
                 return new HTTPResponse(
-                    responseStatusCode,
-                    "application/json",
-                    jsonString.getBytes(StandardCharsets.UTF_8)
+                        responseStatusCode,
+                        "application/json",
+                        jsonString.getBytes(StandardCharsets.UTF_8)
                 );
             } else {
                 String cacheKey = path;
@@ -676,41 +676,41 @@ public class WebServer extends BNode {
 
                     if (!file.exists()) {
                         return new HTTPResponse(
-                            404,
-                            "text/plain",
-                            ("Not Found: " +
-                                path +
-                                " and index.html missing").getBytes(
-                                StandardCharsets.UTF_8
-                            )
+                                404,
+                                "text/plain",
+                                ("Not Found: " +
+                                        path +
+                                        " and index.html missing").getBytes(
+                                        StandardCharsets.UTF_8
+                                )
                         );
                     }
                 }
 
                 if (
-                    cachedFile == null ||
-                    file.lastModified() > cachedFile.lastModified
+                        cachedFile == null ||
+                                file.lastModified() > cachedFile.lastModified
                 ) {
                     try {
                         byte[] content = Files.readAllBytes(file.toPath());
                         String contentType = Utils.mimeType(file.getName());
 
                         fileCache.add(
-                            cacheKey,
-                            content,
-                            contentType,
-                            file.lastModified()
+                                cacheKey,
+                                content,
+                                contentType,
+                                file.lastModified()
                         );
 
                         String rangeHeader = https
-                            .getRequestHeaders()
-                            .getFirst("Range");
+                                .getRequestHeaders()
+                                .getFirst("Range");
                         if (
-                            rangeHeader != null &&
-                            rangeHeader.startsWith("bytes=")
+                                rangeHeader != null &&
+                                        rangeHeader.startsWith("bytes=")
                         ) {
                             String rangeValue = rangeHeader.substring(
-                                "bytes=".length()
+                                    "bytes=".length()
                             );
                             String[] ranges = rangeValue.split("-");
 
@@ -718,25 +718,23 @@ public class WebServer extends BNode {
                                 try {
                                     long rangeStart = Long.parseLong(ranges[0]);
                                     long rangeEnd = ranges[1].isEmpty()
-                                        ? content.length - 1
-                                        : Long.parseLong(ranges[1]);
+                                            ? content.length - 1
+                                            : Long.parseLong(ranges[1]);
 
-                                    if (
-                                        rangeStart >= 0 &&
-                                        rangeEnd < content.length &&
-                                        rangeStart <= rangeEnd
-                                    ) {
+                                    if (rangeStart >= 0 &&
+                                            rangeEnd < content.length &&
+                                            rangeStart <= rangeEnd) {
                                         return new HTTPResponse(
-                                            206,
-                                            contentType,
-                                            content,
-                                            rangeStart,
-                                            rangeEnd
+                                                206,
+                                                contentType,
+                                                content,
+                                                rangeStart,
+                                                rangeEnd
                                         );
                                     }
                                 } catch (NumberFormatException e) {
                                     System.err.println(
-                                        "Invalid range format: " + rangeHeader
+                                            "Invalid range format: " + rangeHeader
                                     );
                                 }
                             }
@@ -745,42 +743,42 @@ public class WebServer extends BNode {
                         return new HTTPResponse(200, contentType, content);
                     } catch (IOException e) {
                         System.err.println(
-                            "Error reading file: " +
-                            file.getPath() +
-                            " - " +
-                            e.getMessage()
+                                "Error reading file: " +
+                                        file.getPath() +
+                                        " - " +
+                                        e.getMessage()
                         );
                         return new HTTPResponse(
-                            500,
-                            "text/plain",
-                            ("Error reading file: " + e.getMessage()).getBytes()
+                                500,
+                                "text/plain",
+                                ("Error reading file: " + e.getMessage()).getBytes()
                         );
                     }
                 } else {
                     cachedFile.updateLastAccessed();
 
                     String ifNoneMatch = https
-                        .getRequestHeaders()
-                        .getFirst("If-None-Match");
+                            .getRequestHeaders()
+                            .getFirst("If-None-Match");
                     if (
-                        ifNoneMatch != null &&
-                        ifNoneMatch.equals(cachedFile.eTag)
+                            ifNoneMatch != null &&
+                                    ifNoneMatch.equals(cachedFile.eTag)
                     ) {
                         return new HTTPResponse(
-                            304,
-                            cachedFile.contentType,
-                            new byte[0]
+                                304,
+                                cachedFile.contentType,
+                                new byte[0]
                         );
                     }
 
                     String rangeHeader = https
-                        .getRequestHeaders()
-                        .getFirst("Range");
+                            .getRequestHeaders()
+                            .getFirst("Range");
                     if (
-                        rangeHeader != null && rangeHeader.startsWith("bytes=")
+                            rangeHeader != null && rangeHeader.startsWith("bytes=")
                     ) {
                         String rangeValue = rangeHeader.substring(
-                            "bytes=".length()
+                                "bytes=".length()
                         );
                         String[] ranges = rangeValue.split("-");
 
@@ -789,41 +787,41 @@ public class WebServer extends BNode {
                                 long rangeStart = Long.parseLong(ranges[0]);
 
                                 long rangeEnd = ranges[1].isEmpty()
-                                    ? cachedFile.content.length - 1
-                                    : Long.parseLong(ranges[1]);
+                                        ? cachedFile.content.length - 1
+                                        : Long.parseLong(ranges[1]);
 
                                 if (
-                                    rangeStart >= 0 &&
-                                    rangeEnd < cachedFile.content.length &&
-                                    rangeStart <= rangeEnd
+                                        rangeStart >= 0 &&
+                                                rangeEnd < cachedFile.content.length &&
+                                                rangeStart <= rangeEnd
                                 ) {
                                     return new HTTPResponse(
-                                        206,
-                                        cachedFile.contentType,
-                                        cachedFile.content,
-                                        rangeStart,
-                                        rangeEnd
+                                            206,
+                                            cachedFile.contentType,
+                                            cachedFile.content,
+                                            rangeStart,
+                                            rangeEnd
                                     );
                                 }
                             } catch (NumberFormatException e) {
                                 System.err.println(
-                                    "Invalid range format: " + rangeHeader
+                                        "Invalid range format: " + rangeHeader
                                 );
                             }
                         }
                     }
 
                     return new HTTPResponse(
-                        200,
-                        cachedFile.contentType,
-                        cachedFile.content
+                            200,
+                            cachedFile.contentType,
+                            cachedFile.content
                     );
                 }
             }
         } catch (IllegalArgumentException | SecurityException e) {
             int statusCode = (e instanceof SecurityException) ? 403 : 400;
             System.err.println(
-                "Request Error (" + statusCode + "): " + e.getMessage()
+                    "Request Error (" + statusCode + "): " + e.getMessage()
             );
             var n = new ObjectNode(null);
             n.set("error class", new TextNode(e.getClass().getName()));
@@ -832,20 +830,20 @@ public class WebServer extends BNode {
 
             // Debug logging for UTF-8 encoding issues in error responses
             if (
-                errorJsonString.contains("Ã") ||
-                errorJsonString.contains("â") ||
-                errorJsonString.contains("è")
+                    errorJsonString.contains("Ã") ||
+                            errorJsonString.contains("â") ||
+                            errorJsonString.contains("è")
             ) {
                 System.err.println(
-                    "DEBUG: Potential UTF-8 encoding issue detected in error response:"
+                        "DEBUG: Potential UTF-8 encoding issue detected in error response:"
                 );
                 System.err.println("Raw JSON string: " + errorJsonString);
             }
 
             return new HTTPResponse(
-                statusCode,
-                "application/json",
-                errorJsonString.getBytes(StandardCharsets.UTF_8)
+                    statusCode,
+                    "application/json",
+                    errorJsonString.getBytes(StandardCharsets.UTF_8)
             );
         } catch (Throwable err) {
             err.printStackTrace();
@@ -865,20 +863,20 @@ public class WebServer extends BNode {
 
             // Debug logging for UTF-8 encoding issues in exception responses
             if (
-                exceptionJsonString.contains("Ã") ||
-                exceptionJsonString.contains("â") ||
-                exceptionJsonString.contains("è")
+                    exceptionJsonString.contains("Ã") ||
+                            exceptionJsonString.contains("â") ||
+                            exceptionJsonString.contains("è")
             ) {
                 System.err.println(
-                    "DEBUG: Potential UTF-8 encoding issue detected in exception response:"
+                        "DEBUG: Potential UTF-8 encoding issue detected in exception response:"
                 );
                 System.err.println("Raw JSON string: " + exceptionJsonString);
             }
 
             return new HTTPResponse(
-                500,
-                "application/json",
-                exceptionJsonString.getBytes(StandardCharsets.UTF_8)
+                    500,
+                    "application/json",
+                    exceptionJsonString.getBytes(StandardCharsets.UTF_8)
             );
         } finally {
             if (user != null) {
@@ -888,8 +886,8 @@ public class WebServer extends BNode {
     }
 
     private List<NodeEndpoint> endpoints(
-        String endpointName,
-        BNode currentNode
+            String endpointName,
+            BNode currentNode
     ) {
         if (endpointName.endsWith("/")) {
             endpointName = endpointName.substring(0, endpointName.length() - 1);
@@ -898,31 +896,31 @@ public class WebServer extends BNode {
         if (endpointName.isEmpty()) {
             if (currentNode == null) {
                 System.err.println(
-                    "Warning: No current node for user, returning endpoints for graph root."
+                        "Warning: No current node for user, returning endpoints for graph root."
                 );
                 currentNode = graph.root();
             }
 
             return graph
-                .endpointsUsableFrom(currentNode)
-                .stream()
-                .filter(e -> e instanceof View)
-                .toList();
+                    .endpointsUsableFrom(currentNode)
+                    .stream()
+                    .filter(e -> e instanceof View)
+                    .toList();
         } else {
             var e = graph.findEndpoint(endpointName);
 
             if (e == null) {
                 throw new IllegalArgumentException(
-                    "no such endpoint: " + endpointName
+                        "no such endpoint: " + endpointName
                 );
             }
 
             if (currentNode != null && !currentNode.matches(e)) {
                 throw new IllegalArgumentException(
-                    "Endpoint " +
-                    endpointName +
-                    " is not applicable to the current node: " +
-                    currentNode
+                        "Endpoint " +
+                                endpointName +
+                                " is not applicable to the current node: " +
+                                currentNode
                 );
             }
 
@@ -930,19 +928,20 @@ public class WebServer extends BNode {
         }
     }
 
+
     private static ObjectNode grabInputFromURLandPOST(HttpExchange http)
-        throws IOException {
+            throws IOException {
         var postData = http.getRequestBody().readAllBytes();
         ObjectNode inputJson = null;
 
         try {
             inputJson = postData.length > 0
-                ? (ObjectNode) mapper.readTree(postData)
-                : new ObjectNode(null);
+                    ? (ObjectNode) mapper.readTree(postData)
+                    : new ObjectNode(null);
         } catch (Exception e) {
             System.err.println(
-                "Failed to parse POST body as JSON: " +
-                new String(postData, StandardCharsets.UTF_8)
+                    "Failed to parse POST body as JSON: " +
+                            new String(postData, StandardCharsets.UTF_8)
             );
             inputJson = new ObjectNode(null);
         }
@@ -954,9 +953,9 @@ public class WebServer extends BNode {
                 finalInputJson.set(key, new TextNode(value));
             } else {
                 System.err.println(
-                    "Warning: URL parameter '" +
-                    key +
-                    "' conflicts with POST data key. POST data takes precedence."
+                        "Warning: URL parameter '" +
+                                key +
+                                "' conflicts with POST data key. POST data takes precedence."
                 );
             }
         });
@@ -974,22 +973,22 @@ public class WebServer extends BNode {
                 if (a.length > 0 && !a[0].isEmpty()) {
                     try {
                         String key = java.net.URLDecoder.decode(
-                            a[0],
-                            java.nio.charset.StandardCharsets.UTF_8
+                                a[0],
+                                java.nio.charset.StandardCharsets.UTF_8
                         );
                         String value = (a.length == 2)
-                            ? java.net.URLDecoder.decode(
+                                ? java.net.URLDecoder.decode(
                                 a[1],
                                 java.nio.charset.StandardCharsets.UTF_8
-                            )
-                            : "";
+                        )
+                                : "";
                         query.put(key, value);
                     } catch (IllegalArgumentException decodeEx) {
                         System.err.println(
-                            "Warning: Failed to decode URL parameter: " +
-                            e +
-                            " - " +
-                            decodeEx.getMessage()
+                                "Warning: Failed to decode URL parameter: " +
+                                        e +
+                                        " - " +
+                                        decodeEx.getMessage()
                         );
                     }
                 }
@@ -1015,14 +1014,14 @@ public class WebServer extends BNode {
         }
 
         var keyManagerFactory = KeyManagerFactory.getInstance(
-            KeyManagerFactory.getDefaultAlgorithm()
+                KeyManagerFactory.getDefaultAlgorithm()
         );
         keyManagerFactory.init(keyStore, password);
         var sslContext = SSLContext.getInstance("TLS");
         sslContext.init(
-            keyManagerFactory.getKeyManagers(),
-            null,
-            new SecureRandom()
+                keyManagerFactory.getKeyManagers(),
+                null,
+                new SecureRandom()
         );
         return sslContext;
     }
@@ -1048,69 +1047,69 @@ public class WebServer extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            WebServer n
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                WebServer n
         ) {
             var r = new ObjectNode(null);
             r.set(
-                "#request NOW",
-                new TextNode("" + n.nbRequestsInProgress.size())
+                    "#request NOW",
+                    new TextNode("" + n.nbRequestsInProgress.size())
             );
             r.set(
-                "#requests",
-                new TextNode(
-                    "" +
-                    n.nbRequestsInProgress
-                        .stream()
-                        .map(uu -> uu.name.get())
-                        .toList()
-                )
+                    "#requests",
+                    new TextNode(
+                            "" +
+                                    n.nbRequestsInProgress
+                                            .stream()
+                                            .map(uu -> uu.name.get())
+                                            .toList()
+                    )
             );
             r.set(
-                "active users",
-                new TextNode(
-                    "" +
-                    n
-                        .activeUsers()
-                        .getElements()
-                        .stream()
-                        .map(uu -> uu.name.get())
-                        .toList()
-                )
+                    "active users",
+                    new TextNode(
+                            "" +
+                                    n
+                                            .activeUsers()
+                                            .getElements()
+                                            .stream()
+                                            .map(uu -> uu.name.get())
+                                            .toList()
+                    )
             );
             r.set(
-                "timeout",
-                new TextNode(
-                    "" +
-                    n.httpsServer
-                        .getHttpsConfigurator()
-                        .getSSLContext()
-                        .getClientSessionContext()
-                        .getSessionTimeout()
-                )
+                    "timeout",
+                    new TextNode(
+                            "" +
+                                    n.httpsServer
+                                            .getHttpsConfigurator()
+                                            .getSSLContext()
+                                            .getClientSessionContext()
+                                            .getSessionTimeout()
+                    )
             );
             r.set(
-                "cache size",
-                new TextNode(
-                    "" +
-                    n.httpsServer
-                        .getHttpsConfigurator()
-                        .getSSLContext()
-                        .getClientSessionContext()
-                        .getSessionCacheSize()
-                )
+                    "cache size",
+                    new TextNode(
+                            "" +
+                                    n.httpsServer
+                                            .getHttpsConfigurator()
+                                            .getSSLContext()
+                                            .getClientSessionContext()
+                                            .getSessionCacheSize()
+                    )
             );
             r.set(
-                "SSL protocol",
-                new TextNode(
-                    n.httpsServer
-                        .getHttpsConfigurator()
-                        .getSSLContext()
-                        .getProtocol()
-                )
+                    "SSL protocol",
+                    new TextNode(
+                            n.httpsServer
+                                    .getHttpsConfigurator()
+                                    .getSSLContext()
+                                    .getProtocol()
+                    )
             );
             return new EndpointJsonResponse(r, "nodeinfo");
         }
@@ -1133,11 +1132,11 @@ public class WebServer extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            WebServer n
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                WebServer n
         ) {
             var r = new ArrayNode(null);
             n.logs.forEach(l -> {
@@ -1151,7 +1150,7 @@ public class WebServer extends BNode {
     }
 
     public static class EndpointCallDistributionView
-        extends NodeEndpoint<WebServer> {
+            extends NodeEndpoint<WebServer> {
 
         @Override
         public String whatItDoes() {
@@ -1168,16 +1167,16 @@ public class WebServer extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            WebServer ws
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                WebServer ws
         ) {
             var d = new Byransha.Distribution();
             graph
-                .findAll(NodeEndpoint.class, e -> true)
-                .forEach(e -> d.addXY(e.name(), e.nbCalls));
+                    .findAll(NodeEndpoint.class, e -> true)
+                    .forEach(e -> d.addXY(e.name(), e.nbCalls));
             return new EndpointJsonResponse(d.toJson(), "logs");
         }
     }

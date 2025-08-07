@@ -6,9 +6,6 @@ public class HistoryChangeNode extends StringNode {
         super(g);
     }
 
-    public HistoryChangeNode(BBGraph g, int id) {
-        super(g, id);
-    }
 
     @Override
     public void fromString(String s) {
