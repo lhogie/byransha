@@ -47,6 +47,10 @@ public abstract class BNode {
             throw new IllegalArgumentException();
 
         this.id = id;
+
+        if(g == null){
+         g = (BBGraph) this;
+        }
         g.integrate(this);
     }
 
