@@ -33,7 +33,7 @@ public abstract class BNode {
     private final int id ;
     public ColorNode color;
     public  ClassNode<? extends BNode> classNode;
-    public boolean persisting = false;
+    public boolean persisting = true;
     public StringNode comment;
 
     // called by a programmer

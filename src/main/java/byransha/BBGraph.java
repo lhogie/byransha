@@ -30,10 +30,10 @@ public class BBGraph extends BNode {
     private final ConcurrentMap<Integer, Set<InLink>> incomingReferences =
             new ConcurrentHashMap<>();
 
-    private  AtomicInteger idSequence;
+    private final AtomicInteger idSequence = new AtomicInteger(1);
 
 //    public final ClassNode<ClassNode<? extends BNode>> classNodeContainer;
-    public  List<ClassNode<? extends BNode>> classNodes ;
+    public final List<ClassNode<? extends BNode>> classNodes = new ArrayList<>();
 
 
     public BBGraph(File directory) {
@@ -45,10 +45,6 @@ public class BBGraph extends BNode {
     }
 
     public <E extends BNode> ClassNode<E> classNodeFor(Class<E> c){
-
-        if (classNodes == null) {
-            classNodes  = new ArrayList<>();
-        }
 
         for (var nc : classNodes){
             if (nc.typeOfCluster == c){
@@ -93,10 +89,6 @@ public class BBGraph extends BNode {
     }
 
     public synchronized int nextID() {
-        if (idSequence == null){
-            idSequence = new AtomicInteger(1);
-        }
-
         int potentialId;
         do {
             potentialId = idSequence.getAndIncrement();
@@ -316,13 +308,18 @@ public class BBGraph extends BNode {
         }
     }
 
+    public static void main(String[] args) {
+        var g = new BBGraph(null);
+    }
+
     synchronized <N extends BNode> void integrate(N n) {
         n.graph = this;
 
-        if(nodesById == null)
-        {
-            nodesById  = new ConcurrentHashMap<>();
+        if(nodesById == null){
+            nodesById = new ConcurrentHashMap<>();
         }
+
+
         BNode previous = nodesById.putIfAbsent(n.id(), n);
 
         if (previous != null && previous != n)
@@ -334,9 +331,10 @@ public class BBGraph extends BNode {
                             " is already taken by: " +
                             previous);
 
-
-        n.classNode = classNodeFor(n.getClass());
-        ((ClassNode<N>) n.classNode).instances().add(n);
+        if(n!= this){
+            n.classNode = classNodeFor(n.getClass());
+            ((ClassNode<N>) n.classNode).instances().add(n);
+        }
     }
 
     synchronized private <N extends BNode> N accept(N n) {
