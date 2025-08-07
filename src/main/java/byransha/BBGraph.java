@@ -52,7 +52,6 @@ public class BBGraph extends BNode {
             }
         }
 
-
         var newCluster = new ClassNode<E>(this, c);
         classNodes.add(newCluster);
         accept(newCluster);
@@ -333,8 +332,10 @@ public class BBGraph extends BNode {
                                 " is already taken by: " +
                                 previous);
 
-            n.classNode = classNodeFor(n.getClass());
-            ((ClassNode<N>) n.classNode).instances().add(n);
+            if (!(n instanceof ClassNode)){
+                n.classNode = classNodeFor(n.getClass());
+                ((ClassNode<N>) n.classNode).instances().add(n);
+            }
         }
     }
 
