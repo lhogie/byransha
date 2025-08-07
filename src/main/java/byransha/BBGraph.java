@@ -52,7 +52,10 @@ public class BBGraph extends BNode {
             }
         }
 
-        var newCluster = accept(new ClassNode<E>(this, c));
+
+        var newCluster = new ClassNode<E>(this, c);
+        classNodes.add(newCluster);
+        accept(newCluster);
 
         if (Endpoint.class.isAssignableFrom(c)){
             newCluster.setColor("#00fff5");}
@@ -315,23 +318,21 @@ public class BBGraph extends BNode {
     synchronized <N extends BNode> void integrate(N n) {
         n.graph = this;
 
-        if(nodesById == null){
+        if(n== this){
             nodesById = new ConcurrentHashMap<>();
-        }
+            nodesById.put(0, n);
+        }else{
+            BNode previous = nodesById.putIfAbsent(n.id(), n);
 
+            if (previous != null && previous != n)
+                throw new IllegalStateException(
+                        "can't add node " +
+                                n +
+                                " because its ID " +
+                                n.id() +
+                                " is already taken by: " +
+                                previous);
 
-        BNode previous = nodesById.putIfAbsent(n.id(), n);
-
-        if (previous != null && previous != n)
-            throw new IllegalStateException(
-                    "can't add node " +
-                            n +
-                            " because its ID " +
-                            n.id() +
-                            " is already taken by: " +
-                            previous);
-
-        if(n!= this){
             n.classNode = classNodeFor(n.getClass());
             ((ClassNode<N>) n.classNode).instances().add(n);
         }
