@@ -9,7 +9,7 @@ public class FieldNode extends ValuedNode<Field> {
     public FieldNode(BBGraph g, Field f) {
         super(g);
         this.field = f;
-        name = g.accept(new StringNode(g, f.getName()));
+        name = new StringNode(g, f.getName());
     }
 
     @Override
