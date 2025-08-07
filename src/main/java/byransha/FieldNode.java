@@ -3,13 +3,12 @@ package byransha;
 import java.lang.reflect.Field;
 
 public class FieldNode extends ValuedNode<Field> {
+
     Field field;
     StringNode name;
 
-    public FieldNode(BBGraph g, Field f) {
+    public FieldNode(BBGraph g) {
         super(g);
-        this.field = f;
-        name = new StringNode(g, f.getName());
     }
 
     @Override

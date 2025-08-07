@@ -1,9 +1,8 @@
 package byransha;
 
-import toools.reflect.Clazz;
-
 import java.lang.reflect.Modifier;
 import java.util.List;
+import toools.reflect.Clazz;
 
 public class ClassNode<T extends BNode> extends BNode {
 
@@ -24,6 +23,8 @@ public class ClassNode<T extends BNode> extends BNode {
                     f.setAccessible(true);
                     var fieldNode = g.create(FieldNode.class);
                     fieldNode.set(f);
+                    fieldNode.name = g.create(StringNode.class);
+                    fieldNode.name.set(f.getName());
                     fields.add(fieldNode);
                 }
             }
@@ -41,9 +42,8 @@ public class ClassNode<T extends BNode> extends BNode {
 
     @Override
     public String prettyName() {
-            return "class " + this.typeOfCluster;
+        return "class " + this.typeOfCluster;
     }
-
 
     public List<T> instances() {
         return instances.getElements();
