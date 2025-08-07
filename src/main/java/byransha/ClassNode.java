@@ -22,7 +22,8 @@ public class ClassNode<T extends BNode> extends BNode {
 
                 if (BNode.class.isAssignableFrom(f.getType())) {
                     f.setAccessible(true);
-                    var fieldNode = g.accept(new FieldNode(g, f));
+                    var fieldNode = g.create(FieldNode.class);
+                    fieldNode.set(f);
                     fields.add(fieldNode);
                 }
             }

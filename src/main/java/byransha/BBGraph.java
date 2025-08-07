@@ -309,10 +309,14 @@ public class BBGraph extends BNode {
         }
     }
 
-    synchronized <N extends BNode> N accept(N n) {
+    synchronized <N extends BNode> void integrate(N n) {
+        n.graph = this;
+        BNode previous = nodesById.putIfAbsent(n.id(), n);
         n.classNode = classNodeFor(n.getClass());
         ((ClassNode<N>) n.classNode).instances().add(n);
+    }
 
+    synchronized private <N extends BNode> N accept(N n) {
         if (n instanceof NodeEndpoint ne) {
             var alreadyInName = findEndpoint(ne.name());
 
@@ -328,7 +332,6 @@ public class BBGraph extends BNode {
             }
         }
 
-        BNode previous = nodesById.putIfAbsent(n.id(), n);
 
         if (previous != null && previous != n)
             throw new IllegalStateException(

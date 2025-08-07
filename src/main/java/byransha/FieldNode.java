@@ -12,7 +12,6 @@ public class FieldNode extends ValuedNode<Field> {
         name = g.accept(new StringNode(g, f.getName()));
     }
 
-
     @Override
     public String whatIsThis() {
         return "a node that represents a field";

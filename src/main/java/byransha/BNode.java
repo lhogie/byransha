@@ -29,7 +29,7 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
-    public final BBGraph graph;
+    public BBGraph graph;
     private final int id ;
     public ColorNode color;
     public  ClassNode<? extends BNode> classNode;
@@ -38,13 +38,7 @@ public abstract class BNode {
 
     // called by a programmer
     protected BNode(BBGraph g) {
-        if (g == null) {
-            this.graph = (BBGraph) this;
-            this.id = 0;
-        } else{
-            this.graph = g;
-            this.id = g.nextID();
-        }
+        this(g, g==null ? 0 : g.nextID());
     }
 
     // called by the disk loader
@@ -52,9 +46,8 @@ public abstract class BNode {
         if(id <0)
             throw new IllegalArgumentException();
 
-        Objects.requireNonNull(g);
-            this.graph = g;
-            this.id = id;
+        this.id = id;
+        g.integrate(this);
     }
 
 
