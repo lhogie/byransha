@@ -34,10 +34,6 @@ public class NumericRangeFilter extends FieldFilterNode {
         super(g, id);
     }
 
-    @Override
-    protected void initialized() {
-        super.initialized();
-    }
 
     @Override
     public boolean filter(BNode node) {

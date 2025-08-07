@@ -25,7 +25,7 @@ public class FilterChain extends FilterNode {
     public FilterChain(BBGraph g) {
         super(g);
         filters = g.create(ListNode.class);
-        logicalOperator = g.create(ListNode.class);
+        logicalOperator = new ListNode(g);
     }
 
     public FilterChain(BBGraph g, int id) {

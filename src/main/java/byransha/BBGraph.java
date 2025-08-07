@@ -336,42 +336,30 @@ public class BBGraph extends BNode {
                 n.classNode = classNodeFor(n.getClass());
                 ((ClassNode<N>) n.classNode).instances().add(n);
             }
+
+            if (n instanceof NodeEndpoint ne) {
+                var alreadyInName = findEndpoint(ne.name());
+
+                if (alreadyInName != null) {
+                    throw new IllegalArgumentException(
+                            "Adding " +
+                                    ne +
+                                    ", endpoint with same name '" +
+                                    ne.name() +
+                                    "' already there: " +
+                                    alreadyInName.getClass().getName()
+                    );
+                }
+            }
+
+            if (n.isPersisting()) {
+                n.directory().mkdirs();
+            }
+
         }
     }
 
-    synchronized private <N extends BNode> N accept(N n) {
-        if (n instanceof NodeEndpoint ne) {
-            var alreadyInName = findEndpoint(ne.name());
-
-            if (alreadyInName != null) {
-                throw new IllegalArgumentException(
-                        "Adding " +
-                                ne +
-                                ", endpoint with same name '" +
-                                ne.name() +
-                                "' already there: " +
-                                alreadyInName.getClass().getName()
-                );
-            }
-        }
-
-
-
-        buildIncomingReferencesForNode(n);
-
-        if (n.isPersisting()) {
-            try {
-                n.saveOuts(BBGraph.sysoutPrinter);
-            } catch (Exception e) {
-                System.err.println(
-                        "Error creating symlinks for node " +
-                                n.id() +
-                                " after accepting: " +
-                                e.getMessage()
-                );
-            }
-        }
-
+    synchronized public <N extends BNode> N accept(N n) {
         n.initialized();
         return n;
     }

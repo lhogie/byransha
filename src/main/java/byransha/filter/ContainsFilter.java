@@ -25,14 +25,6 @@ public class ContainsFilter extends FieldFilterNode {
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
-        if (searchText.get() == null) {
-            searchText.set("");
-        }
-    }
-
-    @Override
     public boolean filter(BNode node) {
         String searchValue = searchText.get();
         if (searchValue == null || searchValue.isEmpty()) {

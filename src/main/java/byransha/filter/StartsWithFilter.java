@@ -20,13 +20,6 @@ public class StartsWithFilter extends FieldFilterNode {
         super(g, id);
     }
 
-    @Override
-    protected void initialized() {
-        super.initialized();
-        if (prefix.get() == null) {
-            prefix.set("");
-        }
-    }
 
     @Override
     public boolean filter(BNode node) {
