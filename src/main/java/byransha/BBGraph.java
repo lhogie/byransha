@@ -26,26 +26,29 @@ public class BBGraph extends BNode {
             System.out.println("writing " + f.getAbsolutePath());
     public final File directory;
 
-    private final ConcurrentMap<Integer, BNode> nodesById;
+    private  ConcurrentMap<Integer, BNode> nodesById;
     private final ConcurrentMap<Integer, Set<InLink>> incomingReferences =
             new ConcurrentHashMap<>();
 
-    private final AtomicInteger idSequence = new AtomicInteger(1);
+    private  AtomicInteger idSequence;
 
 //    public final ClassNode<ClassNode<? extends BNode>> classNodeContainer;
-    public final List<ClassNode<? extends BNode>> classNodes = new ArrayList<>();
+    public  List<ClassNode<? extends BNode>> classNodes ;
 
 
     public BBGraph(File directory) {
         super(null); // The graph has automatically ID 0
         this.directory = directory;
-        this.nodesById = new ConcurrentHashMap<>();
 
         this.setColor("#ff8c00");
         accept(this); // self accept
     }
 
     public <E extends BNode> ClassNode<E> classNodeFor(Class<E> c){
+
+        if (classNodes == null) {
+            classNodes  = new ArrayList<>();
+        }
 
         for (var nc : classNodes){
             if (nc.typeOfCluster == c){
@@ -90,6 +93,10 @@ public class BBGraph extends BNode {
     }
 
     public synchronized int nextID() {
+        if (idSequence == null){
+            idSequence = new AtomicInteger(1);
+        }
+
         int potentialId;
         do {
             potentialId = idSequence.getAndIncrement();
@@ -311,6 +318,11 @@ public class BBGraph extends BNode {
 
     synchronized <N extends BNode> void integrate(N n) {
         n.graph = this;
+
+        if(nodesById == null)
+        {
+            nodesById  = new ConcurrentHashMap<>();
+        }
         BNode previous = nodesById.putIfAbsent(n.id(), n);
 
         if (previous != null && previous != n)
