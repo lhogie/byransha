@@ -32,7 +32,8 @@ public class BBGraph extends BNode {
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
 
-    public final ClassNode<ClassNode<? extends BNode>> classNodeContainer;
+//    public final ClassNode<ClassNode<? extends BNode>> classNodeContainer;
+    public final List<ClassNode<? extends BNode>> classNodes = new ArrayList<>();
 
 
     public BBGraph(File directory) {
@@ -40,14 +41,13 @@ public class BBGraph extends BNode {
         this.directory = directory;
         this.nodesById = new ConcurrentHashMap<>();
 
-        accept(this); // self accept
-        accept(classNodeContainer =new ClassNode(this, ClassNode.class));
-        classNodeContainer.instances().add(classNodeContainer);
         this.setColor("#ff8c00");
+        accept(this); // self accept
     }
 
     public <E extends BNode> ClassNode<E> classNodeFor(Class<E> c){
-        for (var nc : classNodeContainer.instances()){
+
+        for (var nc : classNodes){
             if (nc.typeOfCluster == c){
                 return (ClassNode<E>) nc;
             }
@@ -607,8 +607,7 @@ public class BBGraph extends BNode {
     }
 
     public  HashSet<Class< ? extends BNode>> classes() {
-        var clusters = classNodeContainer.instances();
-        var types = clusters.stream().map(n -> n.typeOfCluster).toList();
+        var types = classNodes.stream().map(n -> n.typeOfCluster).toList();
         return new HashSet<>(types);
     }
 
