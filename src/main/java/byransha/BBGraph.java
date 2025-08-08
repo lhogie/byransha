@@ -31,6 +31,7 @@ public class BBGraph extends BNode {
     private ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
+    private volatile boolean loading = false;
 
     StringNode testString;
     BooleanNode testBoolean;
@@ -46,11 +47,13 @@ public class BBGraph extends BNode {
 
     public BBGraph(File directory) {
         super(null); // The graph has automatically ID 0
-        this.directory = directory;
-        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
-        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
-
+        // Ensure the graph self-node is accepted early
         accept(this); // self accept
+        this.directory = directory;
+
+        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
+
+        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
     }
 
     public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
@@ -95,10 +98,37 @@ public class BBGraph extends BNode {
         return refs;
     }
 
-    public void loadFromDisk(
+    public synchronized void loadFromDisk(
         Consumer<BNode> newNodeInstantiated,
         BiConsumer<BNode, String> setRelation
     ) {
+        this.loading = true;
+        // Pre-scan disk to set the idSequence high enough to avoid collisions
+
+        // if constructors create nodes during loading
+        int maxIdOnDisk = 0;
+        if (directory != null) {
+            File[] classDirs = directory.listFiles();
+            if (classDirs != null) {
+                for (File classDir : classDirs) {
+                    if (!classDir.isDirectory()) continue;
+                    File[] nodeDirs = classDir.listFiles();
+                    if (nodeDirs == null) continue;
+                    for (File nodeDir : nodeDirs) {
+                        if (!nodeDir.isDirectory()) continue;
+                        String dn = nodeDir.getName();
+                        if (dn.length() > 1) {
+                            try {
+                                int id = Integer.parseInt(dn.substring(1));
+                                if (id > maxIdOnDisk) maxIdOnDisk = id;
+                            } catch (NumberFormatException ignore) {}
+                        }
+                    }
+                }
+            }
+        }
+        idSequence.set(maxIdOnDisk + 1);
+
         instantiateNodes(newNodeInstantiated);
 
         nodesById
@@ -109,27 +139,46 @@ public class BBGraph extends BNode {
                 }
             });
 
-        int maxId = nodesById.keySet().stream().max(Integer::compare).orElse(0);
+        int maxId = nodesById
+            .keySet()
+            .stream()
+            .max(Integer::compare)
+            .orElse(maxIdOnDisk);
+
         idSequence.set(maxId + 1);
+
+        this.loading = false;
     }
 
     /*
+
      * Loads all nodes from all class directories from the disk
+
      */
-    private void instantiateNodes(Consumer<BNode> newNodeInstantiated) {
+
+    private synchronized void instantiateNodes(
+        Consumer<? super BNode> newNodeInstantiated
+    ) {
+        if (directory == null) return;
         File[] files = directory.listFiles();
+
         if (files == null) return;
         else {
             for (File classDir : files) {
                 if (!classDir.isDirectory()) continue;
+
                 String className = classDir.getName();
-                var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(
-                    className
-                );
-                if (nodeClass.equals(WebServer.class)) {
+
+                Class<?> foundClass = Clazz.findClassOrFail(className);
+                if (!BNode.class.isAssignableFrom(foundClass)) {
+                    continue;
+                }
+                var nodeClass = (Class<? extends BNode>) foundClass;
+                if (WebServer.class.isAssignableFrom(nodeClass)) {
                     System.err.println(
                         "Skipping WebServer class " + nodeClass.getName()
                     );
+
                     continue;
                 }
 
@@ -137,16 +186,20 @@ public class BBGraph extends BNode {
                     classDir.listFiles()
                 )) {
                     if (!nodeDir.isDirectory()) continue;
+
                     int id = Integer.parseInt(nodeDir.getName().substring(1));
 
                     // don't create the graph node twice!
+
                     if (id != 0) {
                         try {
                             var constructor = nodeClass.getConstructor(
                                 BBGraph.class,
                                 int.class
                             );
+
                             BNode node = constructor.newInstance(graph, id);
+
                             newNodeInstantiated.accept(node);
                         } catch (
                             InstantiationException
@@ -302,13 +355,20 @@ public class BBGraph extends BNode {
     }
 
     synchronized <N extends BNode> void integrate(N n) {
+        // Ensure core maps are initialized even during early construction
+        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
+
+        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
+
         n.graph = this;
 
         if (n == this) {
-            nodesById = new ConcurrentHashMap<>();
             nodesById.put(0, n);
-            byClass = new ConcurrentHashMap<>();
-            byClass.put(BBGraph.class, new ConcurrentLinkedQueue<>(List.of(n)));
+            byClass
+                .computeIfAbsent(BBGraph.class, k ->
+                    new ConcurrentLinkedQueue<>()
+                )
+                .add(n);
             return;
         }
 
@@ -346,7 +406,7 @@ public class BBGraph extends BNode {
             previous
         );
 
-        if (n.isPersisting()) {
+        if (n.isPersisting() && !loading) {
             n.save(BBGraph.sysoutPrinter);
         }
     }
@@ -539,7 +599,6 @@ public class BBGraph extends BNode {
         public GraphNivoView(BBGraph db) {
             super(db);
         }
-
 
         @Override
         public EndpointResponse exec(
