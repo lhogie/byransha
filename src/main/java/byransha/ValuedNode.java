@@ -27,8 +27,6 @@ public abstract class ValuedNode<V> extends BNode {
         saveValue(writingFiles);
     }
 
-
-
     @Override
     public final String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
@@ -106,7 +104,7 @@ public abstract class ValuedNode<V> extends BNode {
 
         this.value = newValue;
 
-        if (!newValue.equals(this.value)) {
+        if (newValue == null || !newValue.equals(this.value)) {
             saveValue(BBGraph.sysoutPrinter);
         }
     }
