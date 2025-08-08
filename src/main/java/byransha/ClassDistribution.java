@@ -12,10 +12,6 @@ public class ClassDistribution
         super(db);
     }
 
-    public ClassDistribution(BBGraph db, int id) {
-        super(db, id);
-    }
-
     @Override
     public String whatItDoes() {
         return "shows distributed for out nodes";

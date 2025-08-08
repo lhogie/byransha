@@ -128,6 +128,7 @@ public class BBGraph extends BNode {
         if (files == null) return;
         else {
             for (File classDir : files) {
+                if (!classDir.isDirectory()) continue;
                 String className = classDir.getName();
                 var nodeClass = (Class<? extends BNode>) Clazz.findClassOrFail(
                     className
@@ -142,6 +143,7 @@ public class BBGraph extends BNode {
                 for (File nodeDir : Objects.requireNonNull(
                     classDir.listFiles()
                 )) {
+                    if(!nodeDir.isDirectory()) continue;
                     int id = Integer.parseInt(nodeDir.getName().substring(1));
 
                     // don't create the graph node twice!

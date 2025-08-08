@@ -25,6 +25,10 @@ public class ListNode<T> extends BNode {
         super(db);
     }
 
+    public ListNode(BBGraph g, int id) {
+        super(g, id);
+    }
+
     @Override
     public String whatIsThis() {
         return (

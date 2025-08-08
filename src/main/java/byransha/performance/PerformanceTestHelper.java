@@ -544,7 +544,7 @@ public class PerformanceTestHelper {
 
         testEndpoint("BasicView", () -> {
             try {
-                BNode.BasicView basicEndpoint = new BNode.BasicView(graph);
+                BasicView basicEndpoint = new BasicView(graph);
                 ObjectNode input = new ObjectNode(null);
                 return basicEndpoint.exec(
                     input,
@@ -560,7 +560,7 @@ public class PerformanceTestHelper {
 
         testEndpoint("Navigator", () -> {
             try {
-                BNode.Navigator navEndpoint = new BNode.Navigator(graph);
+                Navigator navEndpoint = new Navigator(graph);
                 ObjectNode input = new ObjectNode(null);
                 return navEndpoint.exec(input, testUser, null, null, testNode);
             } catch (Throwable e) {
@@ -582,8 +582,8 @@ public class PerformanceTestHelper {
 
         testEndpoint("OutDegreeDistribution", () -> {
             try {
-                BNode.OutDegreeDistribution distEndpoint =
-                    new BNode.OutDegreeDistribution(graph);
+                OutDegreeDistribution distEndpoint =
+                    new OutDegreeDistribution(graph);
                 ObjectNode input = new ObjectNode(null);
                 return distEndpoint.exec(input, testUser, null, null, testNode);
             } catch (Throwable e) {
@@ -593,8 +593,8 @@ public class PerformanceTestHelper {
 
         testEndpoint("ClassDistribution", () -> {
             try {
-                BNode.ClassDistribution classEndpoint =
-                    new BNode.ClassDistribution(graph);
+                ClassDistribution classEndpoint =
+                    new ClassDistribution(graph);
                 ObjectNode input = new ObjectNode(null);
                 return classEndpoint.exec(
                     input,
