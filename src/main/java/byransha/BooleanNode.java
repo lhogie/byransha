@@ -20,7 +20,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public void fromString(String s) {
-		set(Boolean.valueOf(s));
+		set(null, null, Boolean.valueOf(s));
 	}
 
 	@Override
