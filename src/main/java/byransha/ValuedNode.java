@@ -100,8 +100,9 @@ public abstract class ValuedNode<V> extends BNode {
     }
 
     public void set(V newValue) {
-        if (!isPersisting())
-            throw new IllegalStateException();
+        if (!isPersisting()) throw new IllegalStateException(
+            "Cannot set value on a non-persisting node " + this
+        );
 
         this.value = newValue;
 
@@ -135,7 +136,7 @@ public abstract class ValuedNode<V> extends BNode {
         }
     }
 
-    private File valueFile(){
+    private File valueFile() {
         return new File(directory(), "value.txt");
     }
 
