@@ -22,10 +22,6 @@ public class ExportCSV extends NodeEndpoint<BNode> {
         super(db);
     }
 
-    public ExportCSV(BBGraph db, int id) {
-        super(db, id);
-    }
-
     @Override
     public String whatItDoes() {
         return "Exports BusinessNode data to CSV format with customizable field and node inclusion.";

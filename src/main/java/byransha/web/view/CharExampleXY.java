@@ -23,9 +23,7 @@ public class CharExampleXY extends NodeEndpoint<BNode> implements View {
 		super(g);
 	}
 
-	public CharExampleXY(BBGraph g, int id) {
-		super(g, id);
-	}
+
 
 	@Override
 	public boolean sendContentByDefault() {

@@ -17,9 +17,6 @@ public class OutDegreeDistribution
         super(db);
     }
 
-    public OutDegreeDistribution(BBGraph db, int id) {
-        super(db, id);
-    }
 
     @Override
     public EndpointResponse exec(

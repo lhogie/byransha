@@ -19,6 +19,14 @@ public class Logout extends NodeEndpoint<BBGraph> {
 
     public Logout(BBGraph db) {
         super(db);
+
+        WebServer webServerInstance = findWebServerInstance(db);
+        if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
+            this.sessionStore = webServerInstance.getSessionStore();
+        } else {
+            System.err.println("[ERROR] SessionStore not available during persisted endpoint loading for Logout ");
+            throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
+        }
     }
 
     public Logout(BBGraph db, SessionStore sessionStore) {
@@ -29,17 +37,6 @@ public class Logout extends NodeEndpoint<BBGraph> {
         this.sessionStore = sessionStore;
     }
 
-    public Logout(BBGraph db, int id) {
-        super(db, id);
-
-        WebServer webServerInstance = findWebServerInstance(db);
-        if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
-            this.sessionStore = webServerInstance.getSessionStore();
-        } else {
-            System.err.println("[ERROR] SessionStore not available during persisted endpoint loading for Logout ID: " + id);
-            throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
-        }
-    }
 
     @Override
     public boolean requiresAuthentication() {

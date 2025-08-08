@@ -29,9 +29,6 @@ public class ModelMermaidView
         super(db);
     }
 
-    public ModelMermaidView(BBGraph db, int id) {
-        super(db, id);
-    }
 
     @Override
     public boolean sendContentByDefault() {

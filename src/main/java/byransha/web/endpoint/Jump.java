@@ -22,7 +22,6 @@ public class Jump extends NodeEndpoint<BNode> {
 		super(g);
 	}
 
-
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
 			throws Throwable {

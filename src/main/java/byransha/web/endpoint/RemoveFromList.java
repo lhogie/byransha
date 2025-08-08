@@ -17,10 +17,6 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public RemoveFromList(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public EndpointJsonResponse exec(
         ObjectNode input,

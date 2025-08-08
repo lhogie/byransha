@@ -20,9 +20,6 @@ public class ColorNodeView
         super(db);
     }
 
-    public ColorNodeView(BBGraph db, int id) {
-        super(db, id);
-    }
 
     @Override
     public boolean sendContentByDefault() {

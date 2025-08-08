@@ -82,9 +82,6 @@ public class AnyGraph {
             super(db);
         }
 
-        public Classes(BBGraph db, int id) {
-            super(db, id);
-        }
 
         @Override
         public EndpointResponse exec(

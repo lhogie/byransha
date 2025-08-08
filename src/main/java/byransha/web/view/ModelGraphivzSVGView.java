@@ -19,9 +19,6 @@ public class ModelGraphivzSVGView
         super(db);
     }
 
-    public ModelGraphivzSVGView(BBGraph db, int id) {
-        super(db, id);
-    }
 
     @Override
     public boolean sendContentByDefault() {

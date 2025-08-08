@@ -41,10 +41,6 @@ public class OSNode extends BNode {
 			super(g);
 		}
 
-		public View(BBGraph g, int id) {
-			super(g, id);
-		}
-
 		@Override
 		public boolean sendContentByDefault() {
 			return false;

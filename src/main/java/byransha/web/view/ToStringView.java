@@ -17,9 +17,7 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 		super(db);
 	}
 
-	public ToStringView(BBGraph db, int id) {
-		super(db, id);
-	}
+
 
 	@Override
 	public boolean sendContentByDefault() {

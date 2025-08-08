@@ -21,6 +21,16 @@ public class Authenticate extends NodeEndpoint<BNode> {
 
 	public Authenticate(BBGraph db) {
 		super(db);
+
+		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
+
+		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
+			this.sessionStore = webServerInstance.getSessionStore();
+		} else {
+			System.err.println(
+					"[ERROR] SessionStore not available during persisted endpoint loading for Authenticate");
+			throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
+		}
 	}
 
 	public Authenticate(BBGraph db, SessionStore sessionStore) {
@@ -31,18 +41,6 @@ public class Authenticate extends NodeEndpoint<BNode> {
 		this.sessionStore = sessionStore;
 	}
 
-	public Authenticate(BBGraph db, int id) {
-		super(db, id);
-		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
-
-		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
-			this.sessionStore = webServerInstance.getSessionStore();
-		} else {
-			System.err.println(
-					"[ERROR] SessionStore not available during persisted endpoint loading for Authenticate ID: " + id);
-			throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
-		}
-	}
 
 	@Override
 	public boolean canExec(User user) {

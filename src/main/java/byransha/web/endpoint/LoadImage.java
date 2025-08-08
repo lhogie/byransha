@@ -27,9 +27,6 @@ public class LoadImage extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public LoadImage(BBGraph g, int id) {
-        super(g, id);
-    }
 
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)

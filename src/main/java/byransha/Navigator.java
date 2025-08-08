@@ -16,10 +16,6 @@ public class Navigator extends NodeEndpoint<BNode> implements View {
         super(g);
     }
 
-    public Navigator(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public boolean sendContentByDefault() {
         return true;

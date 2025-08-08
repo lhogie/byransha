@@ -44,6 +44,7 @@ public abstract class BNode {
     }
 
     // called by the disk loader
+    // non-persisting nodes should NOT have this constructor
     protected BNode(BBGraph g, int id) {
         if(id <0)
             throw new IllegalArgumentException();
@@ -377,10 +378,6 @@ public abstract class BNode {
             super(db);
         }
 
-        public InOutsNivoView(BBGraph db, int id) {
-            super(db, id);
-        }
-
         @Override
         public boolean sendContentByDefault() {
             return false;
@@ -550,6 +547,18 @@ public abstract class BNode {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    public void save(Consumer<File> writingFiles) {
+        if (!isPersisting())
+            throw new IllegalStateException("can't save a non-persisting node");
+
+        var outD = outsDirectory();
+
+        if (!outD.exists()) {
+            writingFiles.accept(outD);
+            outD.mkdirs();
+        }
     }
 
 

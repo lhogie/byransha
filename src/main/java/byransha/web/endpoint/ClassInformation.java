@@ -27,10 +27,6 @@ public class ClassInformation extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public ClassInformation(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public EndpointJsonResponse exec(
         ObjectNode in,

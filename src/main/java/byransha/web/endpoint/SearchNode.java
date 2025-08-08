@@ -25,9 +25,6 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public SearchNode(BBGraph g, int id) {
-        super(g, id);
-    }
 
     @Override
     public EndpointJsonResponse exec(

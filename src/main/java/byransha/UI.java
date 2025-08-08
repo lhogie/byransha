@@ -40,9 +40,6 @@ public class UI extends BNode {
             super(db);
         }
 
-        public getProperties(BBGraph db, int id) {
-            super(db, id);
-        }
 
         @Override
         public String whatItDoes() {

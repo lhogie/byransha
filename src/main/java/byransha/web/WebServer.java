@@ -1041,9 +1041,7 @@ public class WebServer extends BNode {
             super(db);
         }
 
-        public Info(BBGraph db, int id) {
-            super(db, id);
-        }
+
 
         @Override
         public EndpointResponse exec(
@@ -1125,11 +1123,7 @@ public class WebServer extends BNode {
             super(db);
         }
 
-        public Logs(BBGraph db, int id) {
-            super(db, id);
-        }
-
-        @Override
+       @Override
         public EndpointResponse exec(
             ObjectNode in,
             User user,
@@ -1160,9 +1154,6 @@ public class WebServer extends BNode {
             super(db);
         }
 
-        public EndpointCallDistributionView(BBGraph db, int id) {
-            super(db, id);
-        }
 
         @Override
         public EndpointResponse exec(

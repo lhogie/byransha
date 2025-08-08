@@ -28,10 +28,6 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public ListExistingNode(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
         var a = new ArrayNode(null);

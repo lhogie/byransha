@@ -66,9 +66,7 @@ public class User extends BNode {
             super(g);
         }
 
-        public UserView(BBGraph g, int id) {
-            super(g, id);
-        }
+
 
         @Override
         public String whatItDoes() {
@@ -106,9 +104,6 @@ public class User extends BNode {
             super(g);
         }
 
-        public History(BBGraph g, int id) {
-            super(g, id);
-        }
 
         @Override
         public String whatItDoes() {

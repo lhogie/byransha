@@ -27,10 +27,6 @@ public class SetValue extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public SetValue(BBGraph g, int id) {
-        super(g, id);
-    }
-
     @Override
     public EndpointJsonResponse exec(
         ObjectNode in,

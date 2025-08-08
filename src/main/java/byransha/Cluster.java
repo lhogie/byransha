@@ -9,10 +9,6 @@ public class Cluster extends ListNode<BNode> {
         //this.setColor("#9900ff");
     }
 
-    public Cluster(BBGraph g, int id) {
-        super(g, id);
-    }
-
     public void setTypeOfCluster(Class<? extends BNode> type) {
         this.typeOfCluster = type;
     }

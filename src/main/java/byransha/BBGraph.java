@@ -351,7 +351,7 @@ public class BBGraph extends BNode {
         );
 
         if (n.isPersisting()) {
-            n.directory().mkdirs();
+            n.save(BBGraph.sysoutPrinter);
         }
     }
 
@@ -544,9 +544,6 @@ public class BBGraph extends BNode {
             super(db);
         }
 
-        public GraphNivoView(BBGraph db, int id) {
-            super(db, id);
-        }
 
         @Override
         public EndpointResponse exec(

@@ -22,6 +22,14 @@ public abstract class ValuedNode<V> extends BNode {
     }
 
     @Override
+    public void save(Consumer<File> writingFiles) {
+        super.save(writingFiles);
+        saveValue(writingFiles);
+    }
+
+
+
+    @Override
     public final String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append("(value=\"").append(get()).append("\")");

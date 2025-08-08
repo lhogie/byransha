@@ -34,9 +34,7 @@ public class ModelDOTView
         super(db);
     }
 
-    public ModelDOTView(BBGraph db, int id) {
-        super(db, id);
-    }
+
 
     @Override
     public boolean sendContentByDefault() {

@@ -22,9 +22,6 @@ final public class StructureView extends NodeEndpoint<Structure> {
 		super(g);
 	}
 
-	public StructureView(BBGraph g, int id) {
-		super(g, id);
-	}
 
 	@Override
 	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,

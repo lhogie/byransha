@@ -28,9 +28,6 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
         super(g);
     }
 
-    public AddNode(BBGraph g, int id) {
-        super(g, id);
-    }
 
     @Override
     public EndpointJsonResponse exec(

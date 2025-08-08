@@ -8,7 +8,7 @@ public class CNRS extends EPST {
 		super(g);
 	}
 
-	CNRS(BBGraph g, int id) {
+	public CNRS(BBGraph g, int id) {
 		super(g, id);
 	}
 

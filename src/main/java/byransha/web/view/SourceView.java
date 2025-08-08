@@ -24,9 +24,7 @@ public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
 		super(db);
 	}
 
-	public SourceView(BBGraph db, int id) {
-		super(db, id);
-	}
+
 
 	@Override
 	public boolean sendContentByDefault() {

@@ -17,9 +17,6 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
         super(db);
     }
 
-    public NodeEndpoint(BBGraph db, int id) {
-        super(db, id);
-    }
 
     @Override
     public final EndpointResponse exec(

@@ -34,9 +34,7 @@ public class JVMNode extends BNode {
             super(g);
         }
 
-        public View(BBGraph g, int id) {
-            super(g, id);
-        }
+
 
         @Override
         public String whatItDoes() {
@@ -84,9 +82,6 @@ public class JVMNode extends BNode {
             super(db);
         }
 
-        public Kill(BBGraph db, int id) {
-            super(db, id);
-        }
 
         @Override
         public boolean canExec(User user) {

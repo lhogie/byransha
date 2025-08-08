@@ -148,9 +148,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         super(g);
     }
 
-    public ClassAttributeField(BBGraph g, int id) {
-        super(g, id);
-    }
+
 
     private Field findField(Class<?> clazz, String name) {
         Class<?> current = clazz;
