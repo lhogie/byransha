@@ -12,7 +12,7 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class User extends BNode {
+public class User extends PersistingNode {
 
     public StringNode name;
     public StringNode passwordNode;
@@ -20,11 +20,35 @@ public class User extends BNode {
 
     public User(BBGraph g, String u, String password) {
         super(g);
+        name = new StringNode(g, null);
+        name.setAsLabelFor(this);
+        name.set(u);
         stack.push(g.root());
-        name = new StringNode(g, u);
         passwordNode = new StringNode(g, null);
         passwordNode.set(password);
         this.setColor("#032cfc");
+
+        /*
+         * this.saveOuts(f -> {});
+         *
+         * this.saveIns(f -> {}); forEachOut((n, node) -> node.saveIns(f -> {}));
+         * forEachIn((n, node) -> node.saveOuts(f -> {}));
+         */
+    }
+
+    public User(BBGraph g) {
+        super(g);
+        name = g.create(  StringNode.class);
+        name.setAsLabelFor(this);
+        name.set("not defined");
+        stack.push(g.root());
+        passwordNode = g.create(  StringNode.class);
+        passwordNode.set("not defined");
+        this.setColor("#030bfc");
+    }
+
+    public User(BBGraph g, int id) {
+        super(g, id);
     }
 
     @Override

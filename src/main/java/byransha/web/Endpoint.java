@@ -32,11 +32,9 @@ public abstract class Endpoint extends BNode {
 		super(db);
 	}
 
-	// endpoint are not stored
-	protected Endpoint(BBGraph g, int id) {
-		super(g, id); throw new IllegalStateException();
+	protected Endpoint(BBGraph db, int id) {
+		super(db, id);
 	}
-
 
 	@Override
 	public final String whatIsThis() {

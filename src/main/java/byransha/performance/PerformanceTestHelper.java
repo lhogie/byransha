@@ -109,7 +109,7 @@ public class PerformanceTestHelper {
                 if (targetIndex != i) {
                     BNode targetNode = nodes.get(targetIndex);
                     // This will update the incoming reference index
-                    sourceNode.setField("connection_" + j, targetNode);
+                    sourceNode.setOut("connection_" + j, targetNode);
                 }
             }
 
@@ -544,7 +544,7 @@ public class PerformanceTestHelper {
 
         testEndpoint("BasicView", () -> {
             try {
-                BasicView basicEndpoint = new BasicView(graph);
+                BNode.BasicView basicEndpoint = new BNode.BasicView(graph);
                 ObjectNode input = new ObjectNode(null);
                 return basicEndpoint.exec(
                     input,
@@ -560,7 +560,7 @@ public class PerformanceTestHelper {
 
         testEndpoint("Navigator", () -> {
             try {
-                Navigator navEndpoint = new Navigator(graph);
+                BNode.Navigator navEndpoint = new BNode.Navigator(graph);
                 ObjectNode input = new ObjectNode(null);
                 return navEndpoint.exec(input, testUser, null, null, testNode);
             } catch (Throwable e) {
@@ -582,8 +582,8 @@ public class PerformanceTestHelper {
 
         testEndpoint("OutDegreeDistribution", () -> {
             try {
-                OutDegreeDistribution distEndpoint =
-                    new OutDegreeDistribution(graph);
+                BNode.OutDegreeDistribution distEndpoint =
+                    new BNode.OutDegreeDistribution(graph);
                 ObjectNode input = new ObjectNode(null);
                 return distEndpoint.exec(input, testUser, null, null, testNode);
             } catch (Throwable e) {
@@ -593,8 +593,8 @@ public class PerformanceTestHelper {
 
         testEndpoint("ClassDistribution", () -> {
             try {
-                ClassDistribution classEndpoint =
-                    new ClassDistribution(graph);
+                BNode.ClassDistribution classEndpoint =
+                    new BNode.ClassDistribution(graph);
                 ObjectNode input = new ObjectNode(null);
                 return classEndpoint.exec(
                     input,

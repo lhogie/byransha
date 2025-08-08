@@ -6,6 +6,10 @@ public class EmailNode extends StringNode {
 		super(g, s);
 	}
 
+	public EmailNode(BBGraph g, int id) {
+		super(g, id);
+	}
+
 	public EmailNode(BBGraph g) {
 		super(g, null);
 	}

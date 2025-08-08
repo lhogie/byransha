@@ -4,11 +4,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class FileNode extends ValuedNode<byte[]> {
+
     public StringNode title;
 
     public FileNode(BBGraph g) {
         super(g);
         title = g.create( StringNode.class);
+    }
+
+    public FileNode(BBGraph g, int id) {
+        super(g, id);
+        //title = g.create( StringNode.class);
     }
 
     @Override

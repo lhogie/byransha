@@ -165,7 +165,13 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         if (currentNode instanceof SearchForm && in.isEmpty()) {
             SearchForm searchForm = (SearchForm) currentNode;
 
+            // Use the SearchForm's FilterChain if it's enabled
+            if (
+                searchForm.filterChain != null &&
+                searchForm.filterChain.enabled.get()
+            ) {
                 return searchForm.filterChain;
+            }
         } else {
             // Parse custom filters from request and create a FilterChain
             if (in.has("filters") && in.get("filters").isArray()) {
@@ -175,7 +181,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
                 );
                 if (!customFilters.isEmpty()) {
                     FilterChain filterChain = graph.create(FilterChain.class);
-
+                    filterChain.enabled.set(true);
                     for (FilterNode filter : customFilters) {
                         filterChain.addFilter(filter);
                     }

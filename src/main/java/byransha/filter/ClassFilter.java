@@ -20,7 +20,6 @@ public class ClassFilter extends FieldFilterNode {
         allowCreation = false,
         source = ListOptions.OptionsSource.PROGRAMMATIC
     )
-
     public ListNode<StringNode> targetClass;
 
     public BooleanNode includeSubclasses;
@@ -132,6 +131,12 @@ public class ClassFilter extends FieldFilterNode {
             StringNode classNode = graph.create(StringNode.class);
             classNode.set(config.get("targetClass").asText());
             targetClass.add(classNode);
+
+            // Auto-enable when a class is selected
+            String selectedClass = config.get("targetClass").asText();
+            if (selectedClass != null && !selectedClass.trim().isEmpty()) {
+                enabled.set(true);
+            }
         }
 
         if (config.has("includeSubclasses")) {
@@ -170,11 +175,15 @@ public class ClassFilter extends FieldFilterNode {
 
     public void setTargetClass(String className) {
         targetClass.removeAll();
-
         if (className != null && !className.trim().isEmpty()) {
             StringNode classNode = graph.create(StringNode.class);
             classNode.set(className);
             targetClass.add(classNode);
+            // Auto-enable when a class is selected
+            enabled.set(true);
+        } else {
+            // Auto-disable when no class is selected
+            enabled.set(false);
         }
     }
 }

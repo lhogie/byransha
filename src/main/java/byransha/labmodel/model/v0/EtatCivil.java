@@ -61,6 +61,10 @@ public class EtatCivil extends BusinessNode {
 
     @Override
     public String prettyName() {
+        return returnName();
+    }
+
+    private String returnName() {
         if (name.get() != null && firstName.get() != null) {
             return name.get() + " " + firstName.get();
         } else if (name.get() != null && firstName.get() == null) {

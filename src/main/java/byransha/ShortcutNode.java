@@ -1,7 +1,6 @@
 package byransha;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 
@@ -25,22 +24,46 @@ import java.util.function.Supplier;
 public class ShortcutNode extends BNode {
 
     private Supplier<LinkedHashMap<String, BNode>> outsSupplier;
+    private String shortcutName;
+    private String description;
 
     public ShortcutNode(BBGraph g) {
         super(g);
+        this.shortcutName = "Unnamed Shortcut";
+        this.description = "Dynamic shortcut node";
         this.outsSupplier = LinkedHashMap::new;
     }
 
     public ShortcutNode(BBGraph g, int id) {
         super(g, id);
+        this.shortcutName = "Unnamed Shortcut";
+        this.description = "Dynamic shortcut node";
         this.outsSupplier = LinkedHashMap::new;
     }
 
     public ShortcutNode withOutsSupplier(
-            Supplier<LinkedHashMap<String, BNode>> supplier
+        Supplier<LinkedHashMap<String, BNode>> supplier
     ) {
         this.outsSupplier = supplier != null ? supplier : LinkedHashMap::new;
         return this;
+    }
+
+    @Override
+    public LinkedHashMap<String, BNode> outs() {
+        try {
+            LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
+            return dynamicOuts != null
+                ? new LinkedHashMap<>(dynamicOuts)
+                : new LinkedHashMap<>();
+        } catch (Exception e) {
+            System.err.println(
+                "Error fetching dynamic outs for ShortcutNode " +
+                id() +
+                ": " +
+                e.getMessage()
+            );
+            return new LinkedHashMap<>();
+        }
     }
 
     @Override
@@ -52,26 +75,37 @@ public class ShortcutNode extends BNode {
             }
         } catch (Exception e) {
             System.err.println(
-                    "Error in forEachOut for ShortcutNode " +
-                            id() +
-                            ": " +
-                            e.getMessage()
+                "Error in forEachOut for ShortcutNode " +
+                id() +
+                ": " +
+                e.getMessage()
             );
         }
     }
 
     @Override
-    protected void invalidateOutsCache() {
+    protected void invalidateOutsCache() {}
+
+    @Override
+    public void setOut(String fieldName, BNode newTarget) {
+        throw new UnsupportedOperationException(
+            "ShortcutNode does not support setting individual out fields. " +
+            "Configure the shortcut behavior using withOutsSupplier() method."
+        );
+    }
+
+    @Override
+    public String whatIsThis() {
+        return "ShortcutNode: " + description;
     }
 
     @Override
     public String prettyName() {
-        return "shortcut";
+        return shortcutName;
     }
 
-
     @Override
-    public String whatIsThis() {
-        return "a shortcut";
+    public String toString() {
+        return super.toString() + "(shortcut=\"" + shortcutName + "\")";
     }
 }

@@ -10,10 +10,14 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.lang.management.ManagementFactory;
 import toools.text.TextUtilities;
 
-public class JVMNode extends BNode {
+public class JVMNode extends BNode implements NoLoad {
 
     public JVMNode(BBGraph db) {
         super(db);
+    }
+
+    public JVMNode(BBGraph db, int id) {
+        super(db, id);
     }
 
     @Override

@@ -210,7 +210,7 @@ public class CSVExporter {
                 if (includeFields.test(field)) {
                     try {
                         Object value = field.get(node);
-                        if(value instanceof BNode n ) continue;
+                        if(value instanceof BNode n && !n.isVisible ) continue;
                         String fieldName =
                             prefix +
                             (prefix.isEmpty() ? "" : ".") +

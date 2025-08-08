@@ -3,7 +3,7 @@ package byransha;
 import byransha.annotations.ListOptions;
 import byransha.filter.*;
 
-public class SearchForm extends BNode {
+public class SearchForm extends PersistingNode {
 
     public StringNode searchTerm;
 
@@ -14,7 +14,7 @@ public class SearchForm extends BNode {
 
     public SearchForm(BBGraph g) {
         super(g);
-        searchTerm = g.create( StringNode.class);
+        searchTerm = g.create(StringNode.class);
         results = g.create(ListNode.class);
         filterChain = g.create(FilterChain.class);
     }
@@ -38,7 +38,8 @@ public class SearchForm extends BNode {
         filterChain.logicalOperator.add(andOperator);
 
         // Add a class filter (replaces searchClass)
-        ClassFilter classFilter = graph.create( ClassFilter.class);
+        ClassFilter classFilter = graph.create(ClassFilter.class);
+        classFilter.enabled.set("enabled", classFilter, false); // Start disabled
         classFilter.includeSubclasses.set(
             "includeSubclasses",
             classFilter,
@@ -48,23 +49,26 @@ public class SearchForm extends BNode {
 
         // Add a contains filter for additional text matching
         ContainsFilter containsFilter = graph.create(ContainsFilter.class);
+        containsFilter.enabled.set("enabled", containsFilter, false); // Start disabled
         filterChain.addFilter(containsFilter);
 
         // Add a starts with filter
         StartsWithFilter startsWithFilter = graph.create(
             StartsWithFilter.class
         );
-
+        startsWithFilter.enabled.set("enabled", startsWithFilter, false); // Start disabled
         filterChain.addFilter(startsWithFilter);
 
         // Add a date range filter
         DateRangeFilter dateFilter = graph.create(DateRangeFilter.class);
+        dateFilter.enabled.set("enabled", dateFilter, false); // Start disabled
         filterChain.addFilter(dateFilter);
 
         // Add a numeric range filter
         NumericRangeFilter numericFilter = graph.create(
             NumericRangeFilter.class
         );
+        numericFilter.enabled.set("enabled", numericFilter, false); // Start disabled
         filterChain.addFilter(numericFilter);
     }
 
@@ -75,6 +79,11 @@ public class SearchForm extends BNode {
 
     @Override
     public String prettyName() {
-        return filterChain.filters.getElements().size() + " filter(s) - " + results.size() +  " result(s)";
+        return (
+            filterChain.filters.getElements().size() +
+            " filter(s) - " +
+            results.size() +
+            " result(s)"
+        );
     }
 }

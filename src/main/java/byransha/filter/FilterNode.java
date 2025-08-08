@@ -2,18 +2,26 @@ package byransha.filter;
 
 import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class FilterNode extends BNode {
+public abstract class FilterNode extends PersistingNode {
+
+    public BooleanNode enabled;
 
     protected FilterNode(BBGraph g) {
         super(g);
+        enabled = g.create(BooleanNode.class);
+        enabled.set("enabled", this, true);
     }
 
     protected FilterNode(BBGraph g, int id) {
         super(g, id);
+    }
+
+    @Override
+    protected void initialized() {
+        super.initialized();
     }
 
     public abstract boolean filter(BNode node);
@@ -37,6 +45,10 @@ public abstract class FilterNode extends BNode {
 
     public Predicate<BNode> toPredicate() {
         return node -> {
+            if (!enabled.get()) {
+                return true;
+            }
+
             if (!supportsNodeType(node.getClass())) {
                 return true;
             }
@@ -58,7 +70,9 @@ public abstract class FilterNode extends BNode {
     }
 
     public void configure(ObjectNode config) {
-        // Base implementation - subclasses can override
+        if (config.has("enabled")) {
+            enabled.set(config.get("enabled").asBoolean());
+        }
     }
 
     public abstract String getFilterDescription();
