@@ -9,7 +9,7 @@ public class Nationality extends StringNode {
         super(db);
     }
 
-    public Nationality(BBGraph db, String id) {
+    public Nationality(BBGraph db, int id) {
         super(db, id);
     }
 
