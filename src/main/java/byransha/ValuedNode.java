@@ -102,9 +102,12 @@ public abstract class ValuedNode<V> extends BNode {
             "Cannot set value on a non-persisting node " + this
         );
 
+        V oldValue = this.value;
+
         this.value = newValue;
 
-        if (newValue == null || !newValue.equals(this.value)) {
+
+        if (newValue == null || !newValue.equals(oldValue)) {
             saveValue(BBGraph.sysoutPrinter);
         }
     }
