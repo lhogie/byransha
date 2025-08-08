@@ -3,7 +3,6 @@ package byransha;
 import java.lang.reflect.Field;
 
 public class BooleanNode extends ValuedNode<Boolean> {
-	public String name = "boolean";
 
 	public BooleanNode(BBGraph db) {
 		super(db);
@@ -15,7 +14,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String prettyName() {
-		return name + " : " + (get() == null ? "null" : get().toString());
+		return (get() == null ? "null" : get().toString());
 	}
 
 	@Override
@@ -25,7 +24,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
 	@Override
 	public String whatIsThis() {
-		return "a boolean with name : " + name;
+		return "a boolean ";
 	}
 
 	@Override
@@ -37,9 +36,5 @@ public class BooleanNode extends ValuedNode<Boolean> {
 		BooleanNode node = graph.find(BooleanNode.class, n -> {return n.get()!=null && n.get().equals(newValue);});
 		if(node != null) parentNode.setField(fieldName, node);
 		else super.set(newValue);
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 }
