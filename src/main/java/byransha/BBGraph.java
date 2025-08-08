@@ -33,8 +33,8 @@ public class BBGraph extends BNode {
         System.out.println("writing " + f.getAbsolutePath());
     public final File directory;
 
-    private final ConcurrentMap<Integer, BNode> nodesById;
-    private final ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
+    private ConcurrentMap<Integer, BNode> nodesById;
+    private ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
 
@@ -53,8 +53,8 @@ public class BBGraph extends BNode {
     public BBGraph(File directory) {
         super(null); // The graph has automatically ID 0
         this.directory = directory;
-        this.nodesById = new ConcurrentHashMap<>();
-        this.byClass = new ConcurrentHashMap<>();
+        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
+        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
 
         accept(this); // self accept
         this.setColor("#ff8c00");
@@ -311,7 +311,17 @@ public class BBGraph extends BNode {
         }
     }
 
-    synchronized <N extends BNode> N accept(N n) {
+    synchronized <N extends BNode> void integrate(N n) {
+        n.graph = this;
+
+        if(n== this) {
+            nodesById = new ConcurrentHashMap<>();
+            nodesById.put(0, n);
+            byClass = new ConcurrentHashMap<>();
+            byClass.put(BBGraph.class, new ConcurrentLinkedQueue<>(List.of(n)));
+            return;
+        }
+
         if (n instanceof NodeEndpoint ne) {
             var alreadyInName = findEndpoint(ne.name());
 
@@ -345,18 +355,11 @@ public class BBGraph extends BNode {
                             previous);
 
         if (n.isPersisting()) {
-            try {
-                n.saveOuts(BBGraph.sysoutPrinter);
-            } catch (Exception e) {
-                System.err.println(
-                        "Error creating symlinks for node " +
-                                n.id() +
-                                " after accepting: " +
-                                e.getMessage()
-                );
-            }
+            n.directory().mkdirs();
         }
+    }
 
+    synchronized <N extends BNode> N accept(N n) {
         n.initialized();
         return n;
     }

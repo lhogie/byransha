@@ -32,7 +32,7 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
-    public final BBGraph graph;
+    public BBGraph graph;
     private final int id;
     public ColorNode color;
     public boolean persisting = false;
@@ -40,13 +40,7 @@ public abstract class BNode {
     public StringNode comment;
 
     protected BNode(BBGraph g) {
-        if (g == null) {
-            this.graph = (BBGraph) this;
-            this.id = 0;
-        } else{
-            this.graph = g;
-            this.id = g.nextID();
-        }
+        this(g, g==null ? 0 : g.nextID());
     }
 
     // called by the disk loader
@@ -54,9 +48,12 @@ public abstract class BNode {
         if(id <0)
             throw new IllegalArgumentException();
 
-        Objects.requireNonNull(g);
-        this.graph = g;
         this.id = id;
+
+        if(g == null){
+         g = (BBGraph) this;
+        }
+        g.integrate(this);
     }
 
     protected void initialized() {
@@ -271,7 +268,7 @@ public abstract class BNode {
     }
 
     public boolean canEdit(User user) {
-        return canSee(user);
+        return !isReadOnly();
     }
 
     public boolean matches(NodeEndpoint v) {
@@ -404,7 +401,7 @@ public abstract class BNode {
             var limit = 99;
             AtomicInteger currentNumberNodes = new AtomicInteger(0);
 
-            if (n.getClass().getSimpleName().equals("BBGraph")) {
+            if (n.getClass() == BBGraph.class) {
                 graph.findAll(Cluster.class, c -> {
                     var clusterVertex = g.ensureHasVertex(c);
                     setVertexProperties(clusterVertex, c, "green");
