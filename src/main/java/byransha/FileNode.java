@@ -4,17 +4,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 public class FileNode extends ValuedNode<byte[]> {
+
     public StringNode title;
 
     public FileNode(BBGraph g) {
         super(g);
-        title = g.create( StringNode.class);
+        title = g.create(StringNode.class);
     }
 
     @Override
     public void fromString(String s) {
         System.out.println("FileNode.fromString: " + s);
         set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    @Override
+    protected byte[] toBytes(byte[] v) {
+        return v;
+    }
+
+    @Override
+    protected void fromBytes(byte[] bytes) {
+        set(bytes);
     }
 
     @Override

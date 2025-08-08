@@ -1,5 +1,6 @@
 package byransha;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
@@ -9,12 +10,12 @@ public class ImageNode extends ValuedNode<byte[]> {
 
     public ImageNode(BBGraph g) {
         super(g);
-        title = g.create(  StringNode.class);
+        title = g.create(StringNode.class);
     }
 
     public ImageNode(BBGraph g, int id) {
         super(g, id);
-        title = g.create(  StringNode.class);
+        title = g.create(StringNode.class);
     }
 
     @Override
@@ -36,6 +37,16 @@ public class ImageNode extends ValuedNode<byte[]> {
             return "";
         }
         return Base64.getEncoder().encodeToString(get());
+    }
+
+    @Override
+    protected byte[] toBytes(byte[] v) {
+        return v;
+    }
+
+    @Override
+    protected void fromBytes(byte[] bytes) {
+        set(bytes);
     }
 
     @Override

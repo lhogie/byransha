@@ -34,6 +34,20 @@ public abstract class ValuedNode<V> extends BNode {
 
     public abstract void fromString(String s);
 
+    protected byte[] toBytes(V v) throws IOException {
+        return v == null
+            ? new byte[0]
+            : v.toString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    protected void fromBytes(byte[] bytes) throws IOException {
+        if (bytes == null || bytes.length == 0) {
+            fromString("");
+        } else {
+            fromString(new String(bytes, StandardCharsets.UTF_8));
+        }
+    }
+
     @Override
     public int distanceToSearchString(String searchString) {
         return TextUtilities.computeLevenshteinDistance(
@@ -102,10 +116,7 @@ public abstract class ValuedNode<V> extends BNode {
                     valueFile.delete();
                 }
             } else {
-                Files.write(
-                    valueFile.toPath(),
-                    value.toString().getBytes(StandardCharsets.UTF_8)
-                );
+                Files.write(valueFile.toPath(), toBytes(value));
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -118,7 +129,7 @@ public abstract class ValuedNode<V> extends BNode {
         if (valueFile.exists() && valueFile.isFile()) {
             readingFiles.accept(valueFile);
             byte[] bytes = Files.readAllBytes(valueFile.toPath());
-            fromString(new String(bytes, StandardCharsets.UTF_8));
+            fromBytes(bytes);
         }
     }
 
