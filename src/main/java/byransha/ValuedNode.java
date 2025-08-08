@@ -92,8 +92,12 @@ public abstract class ValuedNode<V> extends BNode {
     }
 
     public void set(V newValue) {
+        if (!isPersisting())
+            throw new IllegalStateException();
+
         this.value = newValue;
-        if (directory() != null) {
+
+        if (!newValue.equals(this.value)) {
             saveValue(BBGraph.sysoutPrinter);
         }
     }
