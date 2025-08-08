@@ -16,6 +16,11 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
     @Override
     public String prettyName() {
+        return (get() == null ? "null" : get().toString());
+    }
+
+    @Override
+    public String prettyName() {
         return name + " : " + (get() == null ? "null" : get().toString());
     }
 
@@ -26,7 +31,7 @@ public class BooleanNode extends ValuedNode<Boolean> {
 
     @Override
     public String whatIsThis() {
-        return "a boolean with name : " + name;
+        return "a boolean";
     }
 
     @Override

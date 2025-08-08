@@ -19,10 +19,6 @@ public class Endpoints extends NodeEndpoint<BNode> {
 		super(db);
 	}
 
-	public Endpoints(BBGraph db, int id) {
-		super(db, id);
-	}
-
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, BNode n) {
 		var data = new ArrayNode(null);

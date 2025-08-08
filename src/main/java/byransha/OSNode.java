@@ -24,9 +24,6 @@ public class OSNode extends BNode {
 		super(db);
 	}
 
-	public OSNode(BBGraph db, int id) {
-		super(db, id);
-	}
 
 	@Override
 	public String prettyName() {

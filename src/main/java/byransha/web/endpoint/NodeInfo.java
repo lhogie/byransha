@@ -19,10 +19,6 @@ public class NodeInfo extends NodeEndpoint<BNode> {
         super(db);
     }
 
-    public NodeInfo(BBGraph db, int id) {
-        super(db, id);
-    }
-
     @Override
     public String whatItDoes() {
         return "info about a node";

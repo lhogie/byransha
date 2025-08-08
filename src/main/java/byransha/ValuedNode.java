@@ -92,14 +92,18 @@ public abstract class ValuedNode<V> extends BNode {
     }
 
     public void set(V newValue) {
+        if (!isPersisting())
+            throw new IllegalStateException();
+
         this.value = newValue;
-        if (directory() != null) {
+
+        if (!newValue.equals(this.value)) {
             saveValue(BBGraph.sysoutPrinter);
         }
     }
 
     public void saveValue(Consumer<File> writingFiles) {
-        var valueFile = new File(directory(), "value.txt");
+        File valueFile = valueFile();
         var dir = valueFile.getParentFile();
 
         if (!dir.exists()) {
@@ -123,8 +127,12 @@ public abstract class ValuedNode<V> extends BNode {
         }
     }
 
+    private File valueFile(){
+        return new File(directory(), "value.txt");
+    }
+
     public void loadValue(Consumer<File> readingFiles) throws IOException {
-        File valueFile = new File(directory(), "value.txt");
+        File valueFile = valueFile();
 
         if (valueFile.exists() && valueFile.isFile()) {
             readingFiles.accept(valueFile);
