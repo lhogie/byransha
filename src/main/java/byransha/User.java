@@ -131,6 +131,7 @@ public class User extends BNode {
 
     @Override
     public String prettyName() {
+        if(name == null || name.get() == null ) {return null;}
         return name.get();
     }
 

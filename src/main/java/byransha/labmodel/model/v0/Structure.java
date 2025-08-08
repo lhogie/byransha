@@ -56,8 +56,8 @@ public class Structure extends BusinessNode {
 
     @Override
     public String prettyName() {
-        if (name.get() == null || name.get().isEmpty()) {
-            return "Unnamed Structure";
+        if (name == null || name.get() == null || name.get().isEmpty()) {
+            return null;
         }
         return name.get();
     }

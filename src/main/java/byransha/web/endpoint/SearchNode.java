@@ -67,7 +67,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             }
 
             // Apply basic query filter if query is provided and not empty
-            if (!query.isEmpty()) {
+            if (!query.isEmpty() && node.prettyName() != null) {
                 return node
                     .prettyName()
                     .toLowerCase()

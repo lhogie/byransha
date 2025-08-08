@@ -93,7 +93,7 @@ public abstract class BNode {
         });
 
         if (!foundCluster.get()) {
-            var newCluster = graph.create(Cluster.class);
+            var newCluster = new Cluster(graph);
             newCluster.setTypeOfCluster(this.getClass());
             newCluster.add(this);
             newCluster.add(graph);
@@ -112,7 +112,7 @@ public abstract class BNode {
         });
 
         if (this.color == null || !this.color.getAsString().equals(newColor)) {
-            this.color = graph.create(ColorNode.class);
+            this.color = new ColorNode(graph);
             this.color.set(newColor);
         }
     }
@@ -235,6 +235,7 @@ public abstract class BNode {
     protected void invalidateOutsCache() {
         outsCacheDirty = true;
     }
+
 
     public int outDegree() {
         return outs().size();
@@ -520,9 +521,8 @@ public abstract class BNode {
     }
 
     public void saveOuts(Consumer<File> writingFiles) {
-        if (!isPersisting()) throw new IllegalStateException(
-            "can't save a non-persisting node"
-        );
+        if (!isPersisting())
+            throw new IllegalStateException("can't save a non-persisting node");
 
         var outD = outsDirectory();
 

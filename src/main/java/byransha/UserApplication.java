@@ -13,7 +13,7 @@ public abstract class UserApplication extends BNode {
 
 
     public String name(){
-        return rootNode.prettyName();
+        return rootNode == null ? null : rootNode.prettyName() == null ? null : rootNode.prettyName();
     }
 
     @Override

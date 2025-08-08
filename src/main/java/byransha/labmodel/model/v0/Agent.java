@@ -17,6 +17,9 @@ public class Agent extends BusinessNode {
     }
 
     private String returnName() {
+        if(etatCivil == null) {
+            return null;
+        }
         if( etatCivil.name.get() != null && etatCivil.firstName.get() != null) {
             return etatCivil.name.get() + " " + etatCivil.firstName.get();
         }

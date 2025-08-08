@@ -2,14 +2,8 @@ package byransha;
 
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
-import byransha.web.EndpointJsonResponse;
+import byransha.web.*;
 import byransha.web.EndpointJsonResponse.dialects;
-import byransha.web.EndpointResponse;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.TechnicalView;
-import byransha.web.View;
-import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 import java.io.File;
@@ -331,9 +325,11 @@ public class BBGraph extends BNode {
                     alreadyInName.getClass().getName()
                 );
             }
+            n.setColor("#00fff5");
         }
 
         Class<? extends BNode> nodeClass = n.getClass();
+        if(!(n instanceof Cluster)) n.createOrAssignCluster();
 
         byClass
             .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())

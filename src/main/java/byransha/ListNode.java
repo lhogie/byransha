@@ -55,7 +55,7 @@ public class ListNode<T> extends BNode {
         int i = 0;
         for (T element : getElements()) {
             if (element instanceof BNode bNode) {
-                consumer.accept(i++ + ". " + bNode.prettyName(), bNode);
+                consumer.accept(i++ + ". " + bNode.id(), bNode);
             }
         }
     }
