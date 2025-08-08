@@ -90,18 +90,15 @@ public class WebServer extends BNode {
     }
 
     public static BBGraph instantiateGraph(Map<String, String> argMap)
-        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
+
         if (defaultDBDirectory.exists()) {
             System.out.println("loading DB from " + defaultDBDirectory);
-
-            // ligne pour version serveur
-            var g = (BBGraph) BBGraph.class.getConstructor(
-                File.class
-            ).newInstance(defaultDBDirectory);
+            var g = new BBGraph(defaultDBDirectory);
 
             g.loadFromDisk(
-                n -> System.out.println("loading node " + n),
-                (n, s) -> System.out.println("loading arc " + n + ", " + s)
+                    n -> System.out.println("loading node " + n),
+                    (n, s) -> System.out.println("loading arc " + n + ", " + s)
             );
             return g;
         } else {
@@ -171,38 +168,38 @@ public class WebServer extends BNode {
         int backlog = 100;
         httpsServer = HttpsServer.create(new InetSocketAddress(port), backlog);
         httpsServer.setHttpsConfigurator(
-            new HttpsConfigurator(getSslContext()) {
-                @Override
-                public void configure(HttpsParameters params) {
-                    try {
-                        SSLContext context = getSSLContext();
-                        params.setNeedClientAuth(false);
+                new HttpsConfigurator(getSslContext()) {
+                    @Override
+                    public void configure(HttpsParameters params) {
+                        try {
+                            SSLContext context = getSSLContext();
+                            params.setNeedClientAuth(false);
 
-                        context.getClientSessionContext().setSessionTimeout(60);
+                            context.getClientSessionContext().setSessionTimeout(60);
 
-                        String[] enabledProtocols = { "TLSv1.3", "TLSv1.2" };
-                        params.setProtocols(enabledProtocols);
+                            String[] enabledProtocols = {"TLSv1.3", "TLSv1.2"};
+                            params.setProtocols(enabledProtocols);
 
-                        SSLParameters defaultSSLParameters =
-                            context.getDefaultSSLParameters();
-                        List<String> strongCipherSuites = new ArrayList<>(
-                            List.of(defaultSSLParameters.getCipherSuites())
-                        );
-                        params.setCipherSuites(
-                            strongCipherSuites.toArray(new String[0])
-                        );
-                        params.setSSLParameters(
-                            context.getSupportedSSLParameters()
-                        );
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
+                            SSLParameters defaultSSLParameters =
+                                    context.getDefaultSSLParameters();
+                            List<String> strongCipherSuites = new ArrayList<>(
+                                    List.of(defaultSSLParameters.getCipherSuites())
+                            );
+                            params.setCipherSuites(
+                                    strongCipherSuites.toArray(new String[0])
+                            );
+                            params.setSSLParameters(
+                                    context.getSupportedSSLParameters()
+                            );
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
-            }
         );
 
         httpsServer.createContext("/", http ->
-            processRequest((HttpsExchange) http).send(http)
+                processRequest((HttpsExchange) http).send(http)
         );
         httpsServer.setExecutor(Executors.newCachedThreadPool());
         httpsServer.start();
@@ -246,9 +243,9 @@ public class WebServer extends BNode {
         g.create(BNode.InOutsNivoView.class);
         g.create(ModelGraphivzSVGView.class);
         g.create(ModelMermaidView.class);
-        g.create(BNode.Navigator.class);
-        g.create(BNode.OutDegreeDistribution.class);
-        g.create(BNode.ClassDistribution.class);
+        g.create(Navigator.class);
+        g.create(OutDegreeDistribution.class);
+        g.create(ClassDistribution.class);
         g.create(Picture.V.class);
         g.create(ModelDOTView.class);
         g.create(ToStringView.class);

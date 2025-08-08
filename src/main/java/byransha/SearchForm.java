@@ -3,7 +3,7 @@ package byransha;
 import byransha.annotations.ListOptions;
 import byransha.filter.*;
 
-public class SearchForm extends PersistingNode {
+public class SearchForm extends BNode {
 
     public StringNode searchTerm;
 

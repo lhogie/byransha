@@ -15,8 +15,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,29 +32,31 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
-
-    public String comment;
     public final BBGraph graph;
     private final int id;
     public ColorNode color;
-    public Boolean isVisible = true;
+    public boolean persisting = false;
     public Cluster cluster;
+    public StringNode comment;
 
     protected BNode(BBGraph g) {
-        this(g, g == null ? 0 : g.nextID());
+        if (g == null) {
+            this.graph = (BBGraph) this;
+            this.id = 0;
+        } else{
+            this.graph = g;
+            this.id = g.nextID();
+        }
     }
 
+    // called by the disk loader
     protected BNode(BBGraph g, int id) {
-        this.id = id;
+        if(id <0)
+            throw new IllegalArgumentException();
 
-        if (g != null) {
-            this.graph = g;
-            // g.accept(this);
-        } else if (this instanceof BBGraph thisGraph) {
-            this.graph = thisGraph;
-        } else {
-            throw new IllegalStateException();
-        }
+        Objects.requireNonNull(g);
+        this.graph = g;
+        this.id = id;
     }
 
     protected void initialized() {
@@ -233,9 +238,6 @@ public abstract class BNode {
         outsCacheDirty = true;
     }
 
-    public void setOut(String fieldName, BNode newTarget) {
-        setField(fieldName, newTarget);
-    }
 
     public int outDegree() {
         return outs().size();
@@ -359,109 +361,6 @@ public abstract class BNode {
         }
     }
 
-    public static class BasicView extends NodeEndpoint<BNode> implements View {
-
-        @Override
-        public String whatItDoes() {
-            return "";
-        }
-
-        public BasicView(BBGraph g) {
-            super(g);
-        }
-
-        public BasicView(BBGraph g, int id) {
-            super(g, id);
-        }
-
-        @Override
-        public EndpointResponse exec(
-            ObjectNode in,
-            User u,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode node
-        ) throws Throwable {
-            var n = new ObjectNode(null);
-            n.set("class", new TextNode(node.getClass().getName()));
-            n.set("id", new TextNode("" + node.id()));
-            n.set("comment", new TextNode(node.comment));
-
-            if (node instanceof PersistingNode p) {
-                var d = p.directory();
-
-                if (d != null) {
-                    n.set("directory", new TextNode(d.getAbsolutePath()));
-                }
-            }
-
-            n.set("out-degree", new TextNode("" + node.outDegree()));
-            n.set(
-                "outs",
-                new TextNode(
-                    node
-                        .outs()
-                        .entrySet()
-                        .stream()
-                        .map(e -> e.getKey() + "=" + e.getValue())
-                        .toList()
-                        .toString()
-                )
-            );
-            //			n.set("in-degree", new TextNode("" + node.ins().size()));
-            //			n.set("ins", new TextNode(node.ins().stream().map(e -> e.toString()).toList().toString()));
-            n.set("canSee", new TextNode("" + node.canSee(u)));
-            n.set("canEdit", new TextNode("" + node.canEdit(u)));
-            return new EndpointJsonResponse(n, this);
-        }
-
-        @Override
-        public boolean sendContentByDefault() {
-            return true;
-        }
-    }
-
-    public static class Navigator extends NodeEndpoint<BNode> implements View {
-
-        @Override
-        public String whatItDoes() {
-            return "navigates the graph";
-        }
-
-        public Navigator(BBGraph g) {
-            super(g);
-        }
-
-        public Navigator(BBGraph g, int id) {
-            super(g, id);
-        }
-
-        @Override
-        public boolean sendContentByDefault() {
-            return true;
-        }
-
-        @Override
-        public EndpointResponse exec(
-            ObjectNode in,
-            User u,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode n
-        ) {
-            var r = new ObjectNode(null);
-            var outs = new ObjectNode(null);
-            n.forEachOut((name, o) ->
-                outs.set(name, new TextNode("" + o.id()))
-            );
-            r.set("outs", outs);
-            var ins = new ObjectNode(null);
-            n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o.id())));
-            r.set("ins", ins);
-            return new EndpointJsonResponse(r, "bnode_nav2");
-        }
-    }
-
     public BVertex toVertex() {
         var v = new BVertex("" + id());
         v.label = toString();
@@ -518,7 +417,7 @@ public abstract class BNode {
                 n.forEachOut((role, outNode) -> {
                     if (
                         currentNumberNodes.get() <= limit ||
-                        outNode.getClass().getSimpleName().equals("BBGraph")
+                        outNode.getClass() == BBGraph.class
                     ) {
                         if (outNode.canSee(user) && n instanceof Cluster) {
                             var outVertex = g.ensureHasVertex(outNode);
@@ -583,80 +482,6 @@ public abstract class BNode {
         }
     }
 
-    public static class OutDegreeDistribution
-        extends NodeEndpoint<BNode>
-        implements View {
-
-        @Override
-        public String whatItDoes() {
-            return "shows distribution for out nodes";
-        }
-
-        public OutDegreeDistribution(BBGraph db) {
-            super(db);
-        }
-
-        public OutDegreeDistribution(BBGraph db, int id) {
-            super(db, id);
-        }
-
-        @Override
-        public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode node
-        ) throws Throwable {
-            var d = new Byransha.Distribution<Integer>();
-            BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.graph;
-            g.forEachNode(n -> d.addOccurence(n.outDegree()));
-            return new EndpointJsonResponse(d.toJson(), dialects.distribution);
-        }
-
-        @Override
-        public boolean sendContentByDefault() {
-            return false;
-        }
-    }
-
-    public static class ClassDistribution
-        extends NodeEndpoint<BNode>
-        implements View {
-
-        public ClassDistribution(BBGraph db) {
-            super(db);
-        }
-
-        public ClassDistribution(BBGraph db, int id) {
-            super(db, id);
-        }
-
-        @Override
-        public String whatItDoes() {
-            return "shows distributed for out nodes";
-        }
-
-        @Override
-        public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode node
-        ) throws Throwable {
-            var d = new Byransha.Distribution<String>();
-            BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.graph;
-            g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
-            return new EndpointJsonResponse(d.toJson(), dialects.distribution);
-        }
-
-        @Override
-        public boolean sendContentByDefault() {
-            return false;
-        }
-    }
-
     public JsonNode toJSONNode() {
         var n = new ObjectNode(null);
         n.set("id", new IntNode(id()));
@@ -670,6 +495,68 @@ public abstract class BNode {
     }
 
     public abstract String prettyName();
+
+    public File directory() {
+        if (graph == null)
+            return null;
+
+        if (graph.directory == null)
+            return null;
+
+        return new File(graph.directory, getClass().getName() + "/." + id());
+    }
+
+    public File outsDirectory() {
+        var d = directory();
+        return d == null ? null : new File(directory(), "outs");
+    }
+
+    public boolean isPersisting(){
+        return hasLoadConstructor() && persisting;
+    }
+
+    public boolean isReadOnly(){
+        return !isPersisting();
+    }
+
+    private boolean hasLoadConstructor(){
+        try {
+            getClass().getConstructor(BBGraph.class, int.class);
+            return true;
+        } catch (NoSuchMethodException e) {
+            return false;
+        }
+    }
+
+
+    public void saveOuts(Consumer<File> writingFiles) {
+        if (!isPersisting())
+            throw new IllegalStateException("can't save a non-persisting node");
+
+        var outD = outsDirectory();
+
+        if (!outD.exists()) {
+            writingFiles.accept(outD);
+            outD.mkdirs();
+        }
+
+
+        forEachOut((name, outNode) -> {
+            try {
+                var symlink = new File(outD, ""+outNode.id());// + "@" + outNode.id());
+
+                if(!symlink.exists()){
+                    writingFiles.accept(symlink);
+                    Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+
+
 
     public boolean isValid() {
         for (var c : Clazz.bfs(getClass())) {

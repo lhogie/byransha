@@ -109,7 +109,7 @@ public class PerformanceTestHelper {
                 if (targetIndex != i) {
                     BNode targetNode = nodes.get(targetIndex);
                     // This will update the incoming reference index
-                    sourceNode.setOut("connection_" + j, targetNode);
+                    sourceNode.setField("connection_" + j, targetNode);
                 }
             }
 

@@ -24,25 +24,19 @@ import java.util.function.Supplier;
 public class ShortcutNode extends BNode {
 
     private Supplier<LinkedHashMap<String, BNode>> outsSupplier;
-    private String shortcutName;
-    private String description;
 
     public ShortcutNode(BBGraph g) {
         super(g);
-        this.shortcutName = "Unnamed Shortcut";
-        this.description = "Dynamic shortcut node";
         this.outsSupplier = LinkedHashMap::new;
     }
 
     public ShortcutNode(BBGraph g, int id) {
         super(g, id);
-        this.shortcutName = "Unnamed Shortcut";
-        this.description = "Dynamic shortcut node";
         this.outsSupplier = LinkedHashMap::new;
     }
 
     public ShortcutNode withOutsSupplier(
-        Supplier<LinkedHashMap<String, BNode>> supplier
+            Supplier<LinkedHashMap<String, BNode>> supplier
     ) {
         this.outsSupplier = supplier != null ? supplier : LinkedHashMap::new;
         return this;
@@ -87,25 +81,13 @@ public class ShortcutNode extends BNode {
     protected void invalidateOutsCache() {}
 
     @Override
-    public void setOut(String fieldName, BNode newTarget) {
-        throw new UnsupportedOperationException(
-            "ShortcutNode does not support setting individual out fields. " +
-            "Configure the shortcut behavior using withOutsSupplier() method."
-        );
+    public String prettyName() {
+        return "shortcut";
     }
+
 
     @Override
     public String whatIsThis() {
-        return "ShortcutNode: " + description;
-    }
-
-    @Override
-    public String prettyName() {
-        return shortcutName;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "(shortcut=\"" + shortcutName + "\")";
+        return "a shortcut";
     }
 }

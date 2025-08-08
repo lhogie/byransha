@@ -2,8 +2,6 @@ package byransha;
 
 public class StringNode extends ValuedNode<String> {
 
-    private PersistingNode labelFor;
-
     public StringNode(BBGraph db) {
         super(db);
     }
@@ -19,10 +17,7 @@ public class StringNode extends ValuedNode<String> {
 
     @Override
     public String prettyName() {
-        if (get() == null) {
-            return "String with no value";
-        }
-        return get();
+        return "string";
     }
 
     @Override
@@ -30,36 +25,9 @@ public class StringNode extends ValuedNode<String> {
         set(s);
     }
 
-    @Override
-    public void set(String newValue) {
-        super.set(newValue);
-
-        // if (labelFor != null)
-        // {
-        // 	File target = labelFor.directory();
-        // 	String oldValue = null;
-        // 	File oldLink = oldValue == null ? null : new File(target.getParentFile(), oldValue);
-        // 	File newLink = newValue == null ? null : new File(target.getParentFile(), newValue);
-
-        // 	if (newLink != null && oldLink != null) {
-        // 		if (!newLink.exists()) {
-        // 			try {
-        // 				Files.createSymbolicLink(newLink.toPath(), target.toPath());
-        // 			} catch (IOException err) {
-        // 				throw new IllegalStateException(err);
-        // 			}
-        // 		}
-
-        // 	}
-        // }
-    }
 
     @Override
     public String whatIsThis() {
-        return "StringNode: " + get();
-    }
-
-    public void setAsLabelFor(PersistingNode n) {
-        labelFor = n;
+        return "a sequence of characters";
     }
 }

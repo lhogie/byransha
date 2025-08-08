@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.function.Predicate;
 
-public abstract class FilterNode extends PersistingNode {
+public abstract class FilterNode extends BNode {
 
     public BooleanNode enabled;
 
