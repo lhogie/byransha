@@ -57,7 +57,6 @@ public class BBGraph extends BNode {
         if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
 
         accept(this); // self accept
-        this.setColor("#ff8c00");
     }
 
     public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
@@ -103,18 +102,18 @@ public class BBGraph extends BNode {
     }
 
     public void loadFromDisk(
-            Consumer<BNode> newNodeInstantiated,
-            BiConsumer<BNode, String> setRelation
+        Consumer<BNode> newNodeInstantiated,
+        BiConsumer<BNode, String> setRelation
     ) {
         instantiateNodes(newNodeInstantiated);
 
         nodesById
-                .values()
-                .forEach(n -> {
-                    if (n.isPersisting()) {
-                        loadOuts(n, setRelation);
-                    }
-                });
+            .values()
+            .forEach(n -> {
+                if (n.isPersisting()) {
+                    loadOuts(n, setRelation);
+                }
+            });
 
         int maxId = nodesById.keySet().stream().max(Integer::compare).orElse(0);
         idSequence.set(maxId + 1);
@@ -143,7 +142,7 @@ public class BBGraph extends BNode {
                 for (File nodeDir : Objects.requireNonNull(
                     classDir.listFiles()
                 )) {
-                    if(!nodeDir.isDirectory()) continue;
+                    if (!nodeDir.isDirectory()) continue;
                     int id = Integer.parseInt(nodeDir.getName().substring(1));
 
                     // don't create the graph node twice!
@@ -177,10 +176,7 @@ public class BBGraph extends BNode {
         }
     }
 
-    private void loadOuts(
-            BNode node,
-            BiConsumer<BNode, String> setRelation
-    ) {
+    private void loadOuts(BNode node, BiConsumer<BNode, String> setRelation) {
         var d = node.outsDirectory();
 
         if (!d.exists()) return;
@@ -300,13 +296,13 @@ public class BBGraph extends BNode {
 
     public <N extends BNode> N create(Class<N> nodeClass) {
         try {
-            return accept(nodeClass
-                    .getConstructor(BBGraph.class)
-                    .newInstance(this));
+            return accept(
+                nodeClass.getConstructor(BBGraph.class).newInstance(this)
+            );
         } catch (Exception e) {
             throw new RuntimeException(
-                    "Failed to add node of class: " + nodeClass.getName(),
-                    e
+                "Failed to add node of class: " + nodeClass.getName(),
+                e
             );
         }
     }
@@ -314,7 +310,7 @@ public class BBGraph extends BNode {
     synchronized <N extends BNode> void integrate(N n) {
         n.graph = this;
 
-        if(n== this) {
+        if (n == this) {
             nodesById = new ConcurrentHashMap<>();
             nodesById.put(0, n);
             byClass = new ConcurrentHashMap<>();
@@ -327,12 +323,12 @@ public class BBGraph extends BNode {
 
             if (alreadyInName != null) {
                 throw new IllegalArgumentException(
-                        "Adding " +
-                                ne +
-                                ", endpoint with same name '" +
-                                ne.name() +
-                                "' already there: " +
-                                alreadyInName.getClass().getName()
+                    "Adding " +
+                    ne +
+                    ", endpoint with same name '" +
+                    ne.name() +
+                    "' already there: " +
+                    alreadyInName.getClass().getName()
                 );
             }
         }
@@ -340,19 +336,19 @@ public class BBGraph extends BNode {
         Class<? extends BNode> nodeClass = n.getClass();
 
         byClass
-                .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
-                .add(n);
+            .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
+            .add(n);
 
         BNode previous = nodesById.putIfAbsent(n.id(), n);
 
-        if (previous != null && previous != n)
-            throw new IllegalStateException(
-                    "can't add node " +
-                            n +
-                            " because its ID " +
-                            n.id() +
-                            " is already taken by: " +
-                            previous);
+        if (previous != null && previous != n) throw new IllegalStateException(
+            "can't add node " +
+            n +
+            " because its ID " +
+            n.id() +
+            " is already taken by: " +
+            previous
+        );
 
         if (n.isPersisting()) {
             n.directory().mkdirs();
@@ -622,11 +618,11 @@ public class BBGraph extends BNode {
 
         @Override
         public EndpointResponse exec(
-                ObjectNode in,
-                User user,
-                WebServer webServer,
-                HttpsExchange exchange,
-                BBGraph g
+            ObjectNode in,
+            User user,
+            WebServer webServer,
+            HttpsExchange exchange,
+            BBGraph g
         ) throws Throwable {
             var d = new Byransha.Distribution<String>();
             g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
@@ -638,6 +634,4 @@ public class BBGraph extends BNode {
             return false;
         }
     }
-
-
 }

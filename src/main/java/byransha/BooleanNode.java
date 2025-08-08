@@ -3,43 +3,46 @@ package byransha;
 import java.lang.reflect.Field;
 
 public class BooleanNode extends ValuedNode<Boolean> {
-	public String name = "boolean";
 
-	public BooleanNode(BBGraph db) {
-		super(db);
-	}
+    public String name = "boolean";
 
-	public BooleanNode(BBGraph db, int id) {
-		super(db, id);
-	}
+    public BooleanNode(BBGraph db) {
+        super(db);
+    }
 
-	@Override
-	public String prettyName() {
-		return name + " : " + (get() == null ? "null" : get().toString());
-	}
+    public BooleanNode(BBGraph db, int id) {
+        super(db, id);
+    }
 
-	@Override
-	public void fromString(String s) {
-		set(null, null, Boolean.valueOf(s));
-	}
+    @Override
+    public String prettyName() {
+        return name + " : " + (get() == null ? "null" : get().toString());
+    }
 
-	@Override
-	public String whatIsThis() {
-		return "a boolean with name : " + name;
-	}
+    @Override
+    public void fromString(String s) {
+        set(Boolean.valueOf(s));
+    }
 
-	@Override
-	public void set(Boolean newValue) {
-		throw  new UnsupportedOperationException("Cannot use set(Boolean) on BooleanNode directly. Use set(Field, BNode, Boolean) instead.");
-	}
+    @Override
+    public String whatIsThis() {
+        return "a boolean with name : " + name;
+    }
 
-	public void set(String fieldName, BNode parentNode, Boolean newValue) {
-		BooleanNode node = graph.find(BooleanNode.class, n -> {return n.get()!=null && n.get().equals(newValue);});
-		if(node != null) parentNode.setField(fieldName, node);
-		else super.set(newValue);
-	}
+    @Override
+    public void set(Boolean newValue) {
+        super.set(newValue);
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void set(String fieldName, BNode parentNode, Boolean newValue) {
+        BooleanNode node = graph.find(BooleanNode.class, n -> {
+            return n.get() != null && n.get().equals(newValue);
+        });
+        if (node != null) parentNode.setField(fieldName, node);
+        else super.set(newValue);
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }
