@@ -325,6 +325,12 @@ public class BBGraph extends BNode {
             }
         }
 
+        Class<? extends BNode> nodeClass = n.getClass();
+
+        byClass
+                .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
+                .add(n);
+
         BNode previous = nodesById.putIfAbsent(n.id(), n);
 
         if (previous != null && previous != n)
