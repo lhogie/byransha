@@ -20,11 +20,6 @@ public class BooleanNode extends ValuedNode<Boolean> {
     }
 
     @Override
-    public String prettyName() {
-        return name + " : " + (get() == null ? "null" : get().toString());
-    }
-
-    @Override
     public void fromString(String s) {
         set(Boolean.valueOf(s));
     }

@@ -32,6 +32,7 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
+
     public BBGraph graph;
     private final int id;
     public ColorNode color;
@@ -40,18 +41,17 @@ public abstract class BNode {
     public StringNode comment;
 
     protected BNode(BBGraph g) {
-        this(g, g==null ? 0 : g.nextID());
+        this(g, g == null ? 0 : g.nextID());
     }
 
     // called by the disk loader
     protected BNode(BBGraph g, int id) {
-        if(id <0)
-            throw new IllegalArgumentException();
+        if (id < 0) throw new IllegalArgumentException();
 
         this.id = id;
 
-        if(g == null){
-         g = (BBGraph) this;
+        if (g == null) {
+            g = (BBGraph) this;
         }
         g.integrate(this);
     }
@@ -234,7 +234,6 @@ public abstract class BNode {
     protected void invalidateOutsCache() {
         outsCacheDirty = true;
     }
-
 
     public int outDegree() {
         return outs().size();
@@ -494,11 +493,9 @@ public abstract class BNode {
     public abstract String prettyName();
 
     public File directory() {
-        if (graph == null)
-            return null;
+        if (graph == null) return null;
 
-        if (graph.directory == null)
-            return null;
+        if (graph.directory == null) return null;
 
         return new File(graph.directory, getClass().getName() + "/." + id());
     }
@@ -508,15 +505,15 @@ public abstract class BNode {
         return d == null ? null : new File(directory(), "outs");
     }
 
-    public boolean isPersisting(){
-        return hasLoadConstructor() && persisting;
+    public boolean isPersisting() {
+        return hasLoadConstructor();
     }
 
-    public boolean isReadOnly(){
+    public boolean isReadOnly() {
         return !isPersisting();
     }
 
-    private boolean hasLoadConstructor(){
+    private boolean hasLoadConstructor() {
         try {
             getClass().getConstructor(BBGraph.class, int.class);
             return true;
@@ -525,10 +522,10 @@ public abstract class BNode {
         }
     }
 
-
     public void saveOuts(Consumer<File> writingFiles) {
-        if (!isPersisting())
-            throw new IllegalStateException("can't save a non-persisting node");
+        if (!isPersisting()) throw new IllegalStateException(
+            "can't save a non-persisting node"
+        );
 
         var outD = outsDirectory();
 
@@ -537,23 +534,22 @@ public abstract class BNode {
             outD.mkdirs();
         }
 
-
         forEachOut((name, outNode) -> {
             try {
-                var symlink = new File(outD, ""+outNode.id());// + "@" + outNode.id());
+                var symlink = new File(outD, "" + outNode.id()); // + "@" + outNode.id());
 
-                if(!symlink.exists()){
+                if (!symlink.exists()) {
                     writingFiles.accept(symlink);
-                    Files.createSymbolicLink(symlink.toPath(), outNode.directory().toPath());
+                    Files.createSymbolicLink(
+                        symlink.toPath(),
+                        outNode.directory().toPath()
+                    );
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
     }
-
-
-
 
     public boolean isValid() {
         for (var c : Clazz.bfs(getClass())) {
