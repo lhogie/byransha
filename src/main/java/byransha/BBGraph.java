@@ -356,21 +356,17 @@ public class BBGraph extends BNode {
 
 
     public void deleteNode(BNode node) {
-        node.forEachOut((name, child) -> {
-            if(child instanceof BBGraph || child instanceof Cluster) return; // Skip graphs, they are not deleted here
-            deleteNode(child);
-            if (child.ins().size() <= 1) {
-                deleteNodeDirectory(child);
-                //TODO remove from graph
-            } else {
-                System.out.println("Keeping folder of " + child.id() + " because it has multiple ins");
-            }
-        });
-
         if (node.ins().size() <= 1) {
             deleteNodeDirectory(node);
-            //TODO remove from graph
-        } else {
+            graph.removeFromGraph(node);
+
+            node.forEachOut((name, child) -> {
+                if (child instanceof BBGraph || child instanceof Cluster)
+                    return;
+                deleteNode(child);
+            });
+        }
+        else {
             System.out.println("Node " + node.id() + " still in use, not deleted.");
         }
     }
@@ -462,9 +458,22 @@ public class BBGraph extends BNode {
         return n;
     }
 
-    public void updateEdge(BNode from, String role, BNode oldTo, BNode newTo) {
-        // No-op since we removed the incoming references cache
-        // Incoming references are now computed on-demand
+    public void removeFromGraph(BNode n) {
+        if (n == null) return;
+        graph.nodesById.remove(n.id());
+        Queue<BNode> classQueue = byClass.get(n.getClass());
+        if (classQueue != null) {
+            classQueue.remove(n);
+            if (classQueue.isEmpty()) {
+                byClass.remove(n.getClass());
+            }
+        }
+        Cluster c  = graph.find(Cluster.class, cl -> cl.typeOfCluster.equals(n.getClass()));
+        if (c != null)
+            c.remove(n);
+        else
+            System.err.println("Warning: No cluster found for node " + n.getClass().getSimpleName());
+//        n.graph = null;
     }
 
     public BNode root() {

@@ -36,6 +36,7 @@ public class RemoveNode extends NodeEndpoint<BNode> {
         boolean delete = requireParm(input, "delete").asBoolean();
         if(delete){
             graph.deleteNode(node);
+            user.stack.add(graph);
             return new EndpointJsonResponse(a, "Node removed from the graph.");
         }
         else{

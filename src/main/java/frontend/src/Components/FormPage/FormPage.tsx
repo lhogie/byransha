@@ -198,7 +198,6 @@ const FormPage = () => {
 												},
 												{
 													onSuccess: async () => {
-														await refetch();
 														navigate(-1);
 													},
 												},

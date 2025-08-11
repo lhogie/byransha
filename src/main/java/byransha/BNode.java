@@ -343,10 +343,6 @@ public abstract class BNode {
                         f.set(this, targetNode);
 
                         invalidateOutsCache();
-
-                        if (graph != null) {
-                            graph.updateEdge(this, name, oldValue, targetNode);
-                        }
                     } catch (
                         IllegalArgumentException
                         | IllegalAccessException e
