@@ -475,7 +475,7 @@ export const SearchBar = memo(() => {
 	return (
 		<ErrorBoundary
 			fallback={
-				<Box sx={{ width: { xs: "100%", sm: 250, md: 300 } }}>
+				<Box sx={{ width: 300 }}>
 					<Alert severity="error" sx={{ fontSize: "0.875rem" }}>
 						Recherche indisponible
 					</Alert>
@@ -489,11 +489,7 @@ export const SearchBar = memo(() => {
 			<ClickAwayListener onClickAway={handleClickAway}>
 				{/* biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility */}
 				<Box
-					sx={{
-						position: "relative",
-						width: { xs: "100%", sm: 250, md: 300 },
-						minWidth: 0,
-					}}
+					sx={{ position: "relative", width: 300 }}
 					role="combobox"
 					aria-expanded={isOpen && debouncedQuery.length > 0}
 					aria-haspopup="listbox"
@@ -555,7 +551,7 @@ export const SearchBar = memo(() => {
 							sx: { pr: 0.5 },
 						}}
 						sx={{
-							width: "100%",
+							display: { xs: "none", md: "inline-block" },
 							"& .MuiOutlinedInput-root": {
 								borderBottomLeftRadius: isOpen ? 0 : undefined,
 								borderBottomRightRadius: isOpen ? 0 : undefined,
