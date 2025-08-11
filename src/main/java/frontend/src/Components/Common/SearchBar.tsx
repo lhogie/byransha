@@ -39,7 +39,6 @@ import type React from "react";
 import { memo, Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router";
 
-// Memoized SearchResult component
 const SearchResult = memo(
 	({
 		result,
@@ -58,6 +57,7 @@ const SearchResult = memo(
 		onSelect: () => void;
 	}) => {
 		return (
+			// biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility
 			<ListItemButton
 				onClick={onSelect}
 				role="option"
@@ -118,7 +118,6 @@ const SearchResult = memo(
 
 SearchResult.displayName = "SearchResult";
 
-// Memoized VirtualizedList component
 const VirtualizedList = memo(
 	({
 		results,
@@ -144,6 +143,7 @@ const VirtualizedList = memo(
 		});
 
 		return (
+			// biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility
 			<Box
 				ref={parentRef}
 				role="listbox"
@@ -230,7 +230,6 @@ export const SearchBar = memo(() => {
 	const theme = useTheme();
 	const { isLoading: isNavigating, withLoading } = useLoadingState();
 
-	// React 19 optimized state management
 	const [query, setQuery, isQueryUpdating] = useOptimizedState("", {
 		transitionUpdates: true,
 	});
@@ -259,17 +258,14 @@ export const SearchBar = memo(() => {
 		},
 	);
 
-	// Debounced search query with React 19 optimization
 	const [debouncedQuery] = useOptimizedDebounce(query, 300);
 
 	const inputRef = useRef<HTMLInputElement>(null);
 	const parentRef = useRef<HTMLDivElement>(null);
 
-	// Enhanced API mutations with error handling
 	const jumpMutation = useApiMutation("jump", {
 		onSuccess: async () => {
 			startTransition(() => {
-				// Only invalidate queries that might be affected by the jump
 				queryClient.invalidateQueries({
 					predicate: (query) => {
 						return !query.queryKey.includes("search_node");
@@ -283,7 +279,6 @@ export const SearchBar = memo(() => {
 		},
 	});
 
-	// Enhanced infinite query with React 19 optimizations
 	const {
 		isLoading,
 		data,
@@ -306,7 +301,6 @@ export const SearchBar = memo(() => {
 		},
 	);
 
-	// Memoized results processing
 	const results = useMemo(() => {
 		try {
 			return (
@@ -322,14 +316,12 @@ export const SearchBar = memo(() => {
 
 	const deferredResults = useDeferredValue(results);
 
-	// Handle search error
 	useEffect(() => {
 		if (searchError) {
 			setError(`Search failed: ${searchError.message}`);
 		}
 	}, [searchError, setError]);
 
-	// Optimized scroll handler with debouncing
 	const handleScroll = useCallback(() => {
 		const scrollElement = parentRef.current;
 		if (!scrollElement) return;
@@ -337,12 +329,10 @@ export const SearchBar = memo(() => {
 		const { scrollTop, scrollHeight, clientHeight } = scrollElement;
 		const scrollPercentage = (scrollTop + clientHeight) / scrollHeight;
 
-		// Update scroll position with transition
 		startTransition(() => {
 			setScrollPosition(scrollTop);
 		});
 
-		// Fetch next page when scrolled to 80%
 		if (scrollPercentage > 0.8 && hasNextPage && !isFetchingNextPage) {
 			fetchNextPage().catch((error) => {
 				console.error("Failed to fetch next page:", error);
@@ -357,7 +347,6 @@ export const SearchBar = memo(() => {
 		setError,
 	]);
 
-	// Restore scroll position after data changes
 	useEffect(() => {
 		const scrollElement = parentRef.current;
 		if (scrollElement && scrollPosition > 0) {
@@ -365,7 +354,6 @@ export const SearchBar = memo(() => {
 		}
 	}, [scrollPosition]);
 
-	// Enhanced scroll event handling
 	useEffect(() => {
 		const scrollElement = parentRef.current;
 		if (!scrollElement) return;
@@ -396,7 +384,6 @@ export const SearchBar = memo(() => {
 		[jumpMutation, setIsOpen, setFocusedIndex, navigate, withLoading],
 	);
 
-	// Enhanced keyboard navigation with React 19 optimizations
 	const handleKeyDown = useCallback(
 		(event: React.KeyboardEvent) => {
 			if (!isOpen || deferredResults.length === 0) return;
@@ -453,7 +440,6 @@ export const SearchBar = memo(() => {
 		[setQuery, setIsOpen, setFocusedIndex, setError],
 	);
 
-	// Optimized focus handler
 	const handleInputFocus = useCallback(() => {
 		if (query.length > 0) {
 			startTransition(() => {
@@ -462,7 +448,6 @@ export const SearchBar = memo(() => {
 		}
 	}, [query.length, setIsOpen]);
 
-	// Optimized click away handler
 	const handleClickAway = useCallback(() => {
 		startTransition(() => {
 			setIsOpen(false);
@@ -470,7 +455,6 @@ export const SearchBar = memo(() => {
 		});
 	}, [setIsOpen, setFocusedIndex]);
 
-	// Clear error after 5 seconds
 	useEffect(() => {
 		if (error) {
 			const timer = setTimeout(() => {
@@ -503,6 +487,7 @@ export const SearchBar = memo(() => {
 			}}
 		>
 			<ClickAwayListener onClickAway={handleClickAway}>
+				{/* biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility */}
 				<Box
 					sx={{ position: "relative", width: 300 }}
 					role="combobox"

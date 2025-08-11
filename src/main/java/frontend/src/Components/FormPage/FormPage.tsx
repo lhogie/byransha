@@ -174,15 +174,20 @@ const FormPage = () => {
 						onClick: async () => {
 							await removeNodeMutation.mutateAsync(
 								{
-									node_id: rootId, delete : false,
+									node_id: rootId,
+									delete: false,
 								},
 								{
-									onSuccess: async (data)=> {
+									onSuccess: async (data) => {
 										await refetch();
 										var li = data?.data?.results?.[0]?.result?.data;
 										var chaine = "Those node will be affected : \n";
-										for(let i = 0; i < data?.data?.results?.[0]?.result?.data.length; i++) {
-											chaine += li[i].id +"@"+li[i].class + ", ";
+										for (
+											let i = 0;
+											i < data?.data?.results?.[0]?.result?.data.length;
+											i++
+										) {
+											chaine += `${li[i].id}@${li[i].class}, `;
 										}
 										chaine += "\n\nAre you sure you want to delete this node ?";
 										if (window.confirm(chaine)) {
@@ -196,7 +201,8 @@ const FormPage = () => {
 														await refetch();
 														navigate(-1);
 													},
-												})
+												},
+											);
 										}
 									},
 								},

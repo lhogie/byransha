@@ -142,7 +142,6 @@ const AddNodePage = () => {
 				});
 				const data = response?.data?.results?.[0]?.result?.data;
 
-				//localStorage.setItem(cacheKey, isPersisting ? 'true' : 'false');
 				return data?.BusinessNode !== undefined;
 			} catch (err) {
 				console.error(`Error fetching info for ${fullName}:`, err);

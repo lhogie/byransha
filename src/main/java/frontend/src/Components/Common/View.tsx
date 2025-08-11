@@ -45,7 +45,6 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 	const queryClient = useQueryClient();
 	const { isLoading: isMutating, withLoading } = useLoadingState();
 
-	// React 19 optimized state management
 	const [isModalOpen, setIsModalOpen, isModalUpdating] = useOptimizedState(
 		false,
 		{
@@ -64,12 +63,10 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 		transitionUpdates: true,
 	});
 
-	// Deferred values for better performance during rapid updates
 	const deferredViewId = useDeferredValue(viewId);
 	const deferredHex = useDeferredValue(hex);
 	const [debouncedColor] = useOptimizedDebounce(hex, 500);
 
-	// Memoized API mutations with error handling
 	const saveColour = useApiMutation("update_colour", {
 		onSuccess: () => {
 			startTransition(() => {

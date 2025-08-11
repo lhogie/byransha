@@ -291,7 +291,6 @@ const FormField = ({
 
 	const handleDropdownValueChange = useCallback(
 		(value: any) => {
-			// Validate immediately for user feedback
 			const isValid = validateFieldValue(field.type, value?.value, validations);
 			setError(!isValid);
 			if (!isValid) {
@@ -518,9 +517,7 @@ const FormField = ({
 	);
 };
 
-// Wrap with React.memo to prevent unnecessary re-renders
 export default React.memo(FormField, (prevProps, nextProps) => {
-	// Only re-render if this specific field's data has changed
 	return (
 		prevProps.fieldKey === nextProps.fieldKey &&
 		prevProps.isExpanded === nextProps.isExpanded &&

@@ -1,232 +1,10 @@
-import { Box, CircularProgress } from "@mui/material";
-import Cytoscape, { type ElementDefinition } from "cytoscape";
-import fcose, { type FcoseLayoutOptions } from "cytoscape-fcose";
-import ReactECharts from "echarts-for-react";
-import { memo, Suspense, useCallback, useMemo } from "react";
-import { CytoscapeGraph } from "./CytoscapeGraph";
-
-Cytoscape.use(fcose);
-
-const MemoizedLineChart = memo(({ data }: { data: any }) => {
-	const option = useMemo(
-		() => ({
-			tooltip: {
-				trigger: "axis",
-				confine: true,
-			},
-			color: [
-				"#5470c6",
-				"#91cc75",
-				"#fac858",
-				"#ee6666",
-				"#73c0de",
-				"#3ba272",
-				"#fc8452",
-				"#9a60b4",
-				"#ea7ccc",
-			],
-			legend: {
-				data: data.map((series: any) => series.id),
-				orient: "vertical",
-				right: 10,
-				top: "center",
-			},
-			grid: {
-				left: "5%",
-				right: "15%",
-				bottom: "10%",
-				top: "10%",
-				containLabel: true,
-			},
-			xAxis: {
-				type: "value",
-				name: "X Axis",
-				nameLocation: "middle",
-				nameGap: 30,
-			},
-			yAxis: {
-				type: "value",
-				name: "Y Axis",
-				min: -1,
-				max: 1,
-				nameLocation: "middle",
-				nameGap: 50,
-			},
-			series: data.map((series: any) => ({
-				name: series.id,
-				type: "line",
-				data: series.data.map((point: any) => [point.x, point.y]),
-				showSymbol: false,
-				symbolSize: 8,
-				emphasis: {
-					focus: "series",
-				},
-				animationDuration: 300,
-			})),
-		}),
-		[data],
-	);
-
-	return (
-		<ReactECharts
-			lazyUpdate
-			option={option}
-			style={{ height: "100%", minHeight: "300px", width: "100%" }}
-		/>
-	);
-});
-
-const MemoizedBarChart = memo(
-	({
-		prettyName,
-		data,
-		keys,
-	}: {
-		prettyName: string | undefined;
-		data: any;
-		keys: string[];
-	}) => {
-		const option = useMemo(
-			() => ({
-				tooltip: {
-					confine: true,
-					trigger: "axis",
-					axisPointer: {
-						type: "shadow",
-					},
-				},
-				grid: {
-					containLabel: false,
-				},
-				xAxis: {
-					data: keys,
-					axisLabel: {
-						rotate: 45,
-						formatter: (value: string) =>
-							value.length > 10 ? `${value.substring(0, 10)}...` : value,
-					},
-				},
-				yAxis: {
-					type: "value",
-				},
-				series: {
-					name: prettyName,
-					type: "bar",
-					data: keys.map((key) => {
-						return data[key];
-					}),
-					emphasis: {
-						focus: "series",
-						blurScope: "coordinateSystem",
-					},
-					animationDuration: 300,
-				},
-			}),
-			[data, keys, prettyName],
-		);
-
-		return (
-			<ReactECharts
-				lazyUpdate
-				option={option}
-				style={{ height: "100%", minHeight: "300px", width: "100%" }}
-			/>
-		);
-	},
-);
-
-const MemoizedNetworkChart = memo(
-	({
-		data,
-		onNodeClick,
-	}: {
-		data: any;
-		onNodeClick: (node: any, event: any) => void;
-	}) => {
-		const processedData = useMemo(() => {
-			return data;
-		}, [data]);
-
-		const elements = useMemo(
-			() => [
-				...processedData.nodes.map((node: any) => ({
-					data: {
-						id: node.id,
-						label: node.label,
-						size: node.size || 30,
-						color: node.color || "#1f77b4",
-						x: node.x,
-						y: node.y,
-					},
-				})),
-				...processedData.links.map((link: any) => ({
-					data: {
-						id: `${link.source}-${link.target}`,
-						source: link.source,
-						target: link.target,
-					},
-				})),
-			],
-			[processedData],
-		);
-
-		// Define styles for nodes and edges
-		const cytoscapeStyles = useMemo(
-			() => [
-				{
-					selector: "node",
-					style: {
-						"background-color": "data(color)",
-						width: "data(size)",
-						height: "data(size)",
-						"text-valign": "top",
-						"text-halign": "center",
-						"text-margin-y": -5,
-						"font-size": "12px",
-						color: "#000000",
-						"text-outline-width": 2,
-						"text-outline-color": "#ffffff",
-						"z-index": 1,
-						// Hide label by default - will be shown on hover via event handlers
-						label: "",
-					},
-				},
-				{
-					selector: "edge",
-					style: {
-						width: 2,
-						"line-color": "#cccccc",
-						"target-arrow-color": "#cccccc",
-						"target-arrow-shape": "triangle",
-						"curve-style": "bezier",
-					},
-				},
-			],
-			[],
-		);
-
-		return (
-			<Box sx={{ height: "100%", minHeight: "300px", width: "100%" }}>
-				<CytoscapeGraph
-					elements={elements as ElementDefinition[]}
-					style={{ width: "100%", height: "100%" }}
-					stylesheet={cytoscapeStyles}
-					layout={
-						{
-							name: processedData.nodes.length > 1000 ? "random" : "fcose",
-							animate: false,
-							samplingType: false,
-							animationDuration: 1500,
-							fit: true,
-							padding: 30,
-						} as FcoseLayoutOptions
-					}
-					onNodeClick={onNodeClick}
-				/>
-			</Box>
-		);
-	},
-);
+import { CircularProgress } from "@mui/material";
+import { Suspense, useCallback } from "react";
+import {
+	MemoizedBarChart,
+	MemoizedLineChart,
+	MemoizedNetworkChart,
+} from "./Charts";
 
 interface ChartDisplayProps {
 	viewId: string;
@@ -295,17 +73,13 @@ export const ChartDisplay = ({
 
 		const uniqueNodesMap = new Map();
 
-		// Process nodes
 		chartContent.nodes.forEach((node: any) => {
-			// Ensure node has an id, fallback to label if id is missing
 			const nodeId = node.id || node.label;
 
 			const transformedNode = {
 				...node,
 				id: nodeId,
-				// Ensure label exists
 				label: node.label || nodeId,
-				// Add default size and color if not present
 				size: node.size || 30,
 				color: node.color || "#1f77b4",
 			};
@@ -315,9 +89,7 @@ export const ChartDisplay = ({
 			}
 		});
 
-		// Process links
 		const transformedLinks = chartContent.links.map((link: any) => {
-			// Handle both object references and direct string references
 			const sourceId =
 				typeof link.source === "object"
 					? link.source.id || link.source.label

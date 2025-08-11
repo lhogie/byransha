@@ -5,10 +5,11 @@ interface ModalComponentProps {
 }
 
 export const ModalComponent = ({
-	dataForModal,
-	isModalOpen,
-	setIsModalOpen,
+	dataForModal: _dataForModal,
+	isModalOpen: _isModalOpen,
+	setIsModalOpen: _setIsModalOpen,
 }: ModalComponentProps) => {
-	// Component disabled - no raw JSON button or modal
 	return null;
 };
+
+export default ModalComponent;

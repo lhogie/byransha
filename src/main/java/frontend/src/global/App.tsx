@@ -20,7 +20,6 @@ import { LoadingStates } from "@components/Loading/LoadingComponents";
 import type { Navigation } from "@toolpad/core";
 import { Toaster } from "react-hot-toast";
 
-// Memoized theme to prevent unnecessary re-creation
 const theme = createTheme(
 	{
 		cssVariables: true,
@@ -30,9 +29,7 @@ const theme = createTheme(
 		typography: {
 			fontFamily: "IBM Plex Sans, sans-serif",
 		},
-		// Enhanced theme for React 19 compatibility
 		transitions: {
-			// Optimized transitions for concurrent features
 			duration: {
 				shortest: 150,
 				shorter: 200,
@@ -54,7 +51,6 @@ const theme = createTheme(
 	corefrFR,
 );
 
-// Memoized branding configuration
 const brandingConfig = {
 	title: "",
 	logo: (
@@ -69,7 +65,6 @@ const brandingConfig = {
 	homeUrl: "/home",
 };
 
-// Navigation component with error boundary
 const NavigationProvider = memo(
 	({
 		children,
@@ -98,7 +93,6 @@ const NavigationProvider = memo(
 
 NavigationProvider.displayName = "NavigationProvider";
 
-// Loading navigation component
 const LoadingNavigation = () => [
 	{
 		kind: "page" as const,
@@ -108,7 +102,6 @@ const LoadingNavigation = () => [
 	},
 ];
 
-// Error navigation component
 const ErrorNavigation = () => [
 	{
 		kind: "page" as const,
@@ -123,13 +116,11 @@ function App() {
 		"endpoints?only_applicable&type=byransha.web.View",
 		{},
 		{
-			// React 19 optimizations
-			staleTime: 60000, // 1 minute
-			gcTime: 5 * 60 * 1000, // 5 minutes
+			staleTime: 60000,
+			gcTime: 5 * 60 * 1000,
 			refetchOnWindowFocus: false,
 			refetchOnReconnect: true,
 			retry: (failureCount: number, _error: any) => {
-				// Smart retry logic
 				if (failureCount < 3) {
 					console.log(`Retrying API call, attempt ${failureCount + 1}`);
 					return true;
@@ -141,12 +132,10 @@ function App() {
 		},
 	);
 
-	// Use deferred values for navigation to prevent blocking
 	const deferredData = useDeferredValue(data);
 	const deferredIsLoading = useDeferredValue(isLoading);
 	const deferredError = useDeferredValue(error);
 
-	// Memoized navigation computation with error handling
 	const navigation = useMemo((): Navigation => {
 		try {
 			if (deferredIsLoading) {
@@ -158,7 +147,6 @@ function App() {
 				return ErrorNavigation();
 			}
 
-			// Transform API data to navigation structure
 			const results = deferredData.data.results;
 			const navigationItems = results.map((view) => ({
 				kind: "page" as const,
@@ -167,7 +155,6 @@ function App() {
 				icon: <MenuOutlinedIcon />,
 			}));
 
-			// Add home navigation if not present
 			const hasHome = navigationItems.some((item) => item.segment === "home");
 			if (!hasHome) {
 				navigationItems.unshift({
@@ -185,14 +172,12 @@ function App() {
 		}
 	}, [deferredData, deferredIsLoading, deferredError]);
 
-	// Optimized retry handler
 	const handleRetry = React.useCallback(() => {
 		startTransition(() => {
 			refetch();
 		});
 	}, [refetch]);
 
-	// Error boundary for the entire app
 	const AppErrorFallback = React.useCallback(
 		() => (
 			<div
@@ -276,10 +261,8 @@ function App() {
 		<ErrorBoundary
 			fallback={<AppErrorFallback />}
 			onError={(error, errorInfo) => {
-				// Log errors for monitoring
 				console.error("App-level error:", error, errorInfo);
 
-				// In production, you could send this to an error tracking service
 				if (process.env.NODE_ENV === "production") {
 					// Example: Sentry.captureException(error, { contexts: { react: errorInfo } });
 				}
