@@ -12,19 +12,27 @@ import {
 	useOptimizedState,
 } from "@hooks/react19";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import TuneIcon from "@mui/icons-material/Tune";
+import {
+	ChevronRight as ChevronRightIcon,
+	Home as HomeIcon,
+	Logout as LogoutIcon,
+	MoreHoriz as MoreHorizIcon,
+	Tune as TuneIcon,
+} from "@mui/icons-material";
 import {
 	Alert,
+	Avatar,
 	Box,
 	Breadcrumbs,
 	Button,
+	Chip,
 	Link,
 	MenuItem,
 	type PopoverProps,
 	Stack,
+	Tooltip,
 	Typography,
+	useTheme,
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
@@ -33,7 +41,7 @@ import { DashboardLayout } from "@toolpad/core";
 import React, { memo, Suspense, useCallback, useMemo } from "react";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router";
 
-// Memoized UserInfo component
+// Memoized UserInfo component with enhanced accessibility
 const UserInfo = memo(
 	({
 		data,
@@ -44,46 +52,89 @@ const UserInfo = memo(
 		isLoading: boolean;
 		error: any;
 	}) => {
+		const _theme = useTheme();
+
 		if (isLoading) {
-			return <LoadingStates.Inline text="Loading user info..." />;
+			return (
+				<LoadingStates.Inline text="Chargement des informations utilisateur..." />
+			);
 		}
 
 		if (error) {
 			return (
-				<Typography sx={{ color: "#f44336", fontSize: "14px" }}>
-					Error loading user
-				</Typography>
+				<Alert severity="error" sx={{ fontSize: "0.75rem" }}>
+					Erreur de chargement utilisateur
+				</Alert>
 			);
 		}
+
+		const username = data?.data?.username || "Utilisateur inconnu";
+		const userId = data?.data?.user_id || "N/A";
+		const version = data?.data["backend version"] || "N/A";
 
 		return (
 			<Box
 				sx={{
 					display: "flex",
 					alignItems: "center",
-					gap: 1,
-					p: "6px 12px",
-					bgcolor: "#f5f7ff",
-					borderRadius: "4px",
-					transition: "background-color 0.2s ease",
-					"&:hover": { bgcolor: "#e8eaf6" },
+					gap: 1.5,
+					p: 1.5,
+					bgcolor: "background.paper",
+					transition: "all 0.2s ease",
 				}}
+				aria-label="Informations utilisateur"
 			>
-				<Typography
+				<Avatar
 					sx={{
-						color: "#306DAD",
-						fontSize: "14px",
-						fontWeight: "500",
+						width: 32,
+						height: 32,
+						bgcolor: "primary.main",
+						fontSize: "0.875rem",
 					}}
+					aria-label={`Avatar de ${username}`}
 				>
-					{data?.data?.username || "Unknown User"}
-				</Typography>
-				<Typography sx={{ color: "#546e7a", fontSize: "14px" }}>
-					({data?.data?.user_id || "N/A"})
-				</Typography>
-				<Typography sx={{ color: "#90a4ae", fontSize: "12px" }}>
-					v{data?.data["backend version"] || "N/A"}
-				</Typography>
+					{username.charAt(0).toUpperCase()}
+				</Avatar>
+				<Box sx={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+					<Typography
+						variant="body2"
+						sx={{
+							fontWeight: 600,
+							color: "text.primary",
+							fontSize: "0.875rem",
+							whiteSpace: "nowrap",
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+						}}
+						title={username}
+					>
+						{username}
+					</Typography>
+					<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+						<Typography
+							variant="caption"
+							sx={{
+								color: "text.secondary",
+								fontSize: "0.75rem",
+							}}
+							title={`ID utilisateur: ${userId}`}
+						>
+							ID: {userId}
+						</Typography>
+						<Chip
+							label={`v${version}`}
+							size="small"
+							variant="outlined"
+							sx={{
+								height: 16,
+								fontSize: "0.6rem",
+								"& .MuiChip-label": {
+									px: 0.5,
+								},
+							}}
+						/>
+					</Box>
+				</Box>
 			</Box>
 		);
 	},
@@ -91,7 +142,7 @@ const UserInfo = memo(
 
 UserInfo.displayName = "UserInfo";
 
-// Memoized BreadcrumbNav component
+// Enhanced BreadcrumbNav component with better accessibility
 const BreadcrumbNav = memo(
 	({
 		history,
@@ -108,6 +159,7 @@ const BreadcrumbNav = memo(
 		menuAnchor: PopoverProps["anchorEl"];
 		onMenuClose: () => void;
 	}) => {
+		const theme = useTheme();
 		const deferredHistory = useDeferredValue(history);
 		const visibleHistory = useMemo(() => {
 			return deferredHistory.length > 3
@@ -117,115 +169,169 @@ const BreadcrumbNav = memo(
 
 		return (
 			<ErrorBoundary
-				fallback={
-					<Typography variant="body2" color="error">
-						Navigation error
-					</Typography>
-				}
+				fallback={<Alert severity="error">Erreur de navigation</Alert>}
 			>
 				<Breadcrumbs
 					separator={
-						<ChevronRightIcon sx={{ color: "#b0bec5", fontSize: "18px" }} />
+						<ChevronRightIcon
+							sx={{ color: "text.disabled", fontSize: "18px" }}
+						/>
 					}
-					aria-label="navigation history"
+					aria-label="Fil d'Ariane de navigation"
 					sx={{
 						bgcolor: "transparent",
-						p: "4px 0",
+						p: 0.5,
 						"& .MuiBreadcrumbs-ol": { alignItems: "center" },
 					}}
 				>
 					<Link
 						component={RouterLink}
+						to="/home"
 						sx={{
-							color: "#546e7a",
-							fontSize: "14px",
+							display: "flex",
+							alignItems: "center",
+							gap: 0.5,
+							color: "text.secondary",
+							fontSize: "0.875rem",
 							textDecoration: "none",
-							p: "4px 8px",
-							borderRadius: "2px",
+							p: 1,
+							borderRadius: 1,
+							transition: "all 0.2s ease",
 							"&:hover": {
-								color: "#306DAD",
-								bgcolor: "#f5f7ff",
+								color: "primary.main",
+								bgcolor: "action.hover",
+							},
+							"&:focus": {
+								outline: `2px solid ${theme.palette.primary.main}`,
+								outlineOffset: "2px",
 							},
 						}}
-						to="/home"
+						aria-label="Retour à l'accueil"
 					>
-						Home
+						<HomeIcon fontSize="small" />
+						Accueil
 					</Link>
 
 					{deferredHistory.length > 3 && (
-						<IconButton
-							onClick={onMoreClick}
-							size="small"
-							sx={{
-								color: "#90a4ae",
-								p: "2px",
-								"&:hover": { color: "#306DAD", bgcolor: "#f5f7ff" },
-							}}
-						>
-							<MoreHorizIcon fontSize="small" />
-						</IconButton>
+						<Tooltip title="Afficher tout l'historique">
+							<IconButton
+								onClick={onMoreClick}
+								size="small"
+								aria-label="Afficher l'historique complet de navigation"
+								aria-expanded={Boolean(menuAnchor)}
+								aria-haspopup="true"
+								sx={{
+									color: "text.disabled",
+									"&:hover": {
+										color: "primary.main",
+										bgcolor: "action.hover",
+									},
+									"&:focus": {
+										outline: `2px solid ${theme.palette.primary.main}`,
+										outlineOffset: "2px",
+									},
+								}}
+							>
+								<MoreHorizIcon fontSize="small" />
+							</IconButton>
+						</Tooltip>
 					)}
 
-					{visibleHistory.map((hist: any) => (
-						<Link
-							key={hist.id}
-							component="button"
-							onClick={() => onHistoryClick(hist)}
-							sx={{
-								color: hist === currentNode ? "#306DAD" : "#546e7a",
-								fontSize: "14px",
-								fontWeight: hist === currentNode ? "500" : "400",
-								textDecoration: "none",
-								p: "4px 8px",
-								borderRadius: "2px",
-								bgcolor: hist === currentNode ? "#e8eaf6" : "transparent",
-								transition: "all 0.2s ease",
-								"&:hover": {
-									color: "#306DAD",
-									bgcolor: "#f5f7ff",
-								},
-							}}
-						>
-							{hist.pretty_name}
-						</Link>
-					))}
+					{visibleHistory.map((hist: any) => {
+						const isCurrentNode = hist === currentNode;
+						return (
+							<Link
+								key={hist.id}
+								component="button"
+								onClick={() => onHistoryClick(hist)}
+								sx={{
+									color: isCurrentNode ? "primary.main" : "text.secondary",
+									fontSize: "0.875rem",
+									fontWeight: isCurrentNode ? 600 : 400,
+									textDecoration: "none",
+									p: 1,
+									borderRadius: 1,
+									bgcolor: isCurrentNode ? "action.selected" : "transparent",
+									transition: "all 0.2s ease",
+									border: "none",
+									cursor: "pointer",
+									maxWidth: 150,
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									whiteSpace: "nowrap",
+									"&:hover": {
+										color: "primary.main",
+										bgcolor: "action.hover",
+									},
+									"&:focus": {
+										outline: `2px solid ${theme.palette.primary.main}`,
+										outlineOffset: "2px",
+									},
+								}}
+								aria-label={`Naviguer vers ${hist.pretty_name}`}
+								aria-current={isCurrentNode ? "page" : undefined}
+								title={hist.pretty_name}
+							>
+								{hist.pretty_name}
+							</Link>
+						);
+					})}
 				</Breadcrumbs>
 
 				<Menu
 					anchorEl={menuAnchor}
 					open={Boolean(menuAnchor)}
 					onClose={onMenuClose}
-					anchorOrigin={{ vertical: "center", horizontal: "center" }}
+					anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
 					transformOrigin={{ vertical: "top", horizontal: "center" }}
+					aria-label="Menu de l'historique de navigation"
 					PaperProps={{
 						sx: {
-							borderRadius: "4px",
-							boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-							mt: "5vh",
-							ml: "18vw",
+							borderRadius: 2,
+							boxShadow: theme.shadows[8],
+							mt: 1,
+							minWidth: 200,
+							maxWidth: 300,
 						},
 					}}
 				>
-					{deferredHistory.map((hist: any) => (
-						<MenuItem
-							key={hist.id}
-							onClick={() => {
-								onHistoryClick(hist);
-								onMenuClose();
-							}}
-							sx={{
-								fontSize: "14px",
-								color: hist === currentNode ? "#306DAD" : "#546e7a",
-								bgcolor: hist === currentNode ? "#f5f7ff" : "transparent",
-								"&:hover": {
-									bgcolor: "#e8eaf6",
-									color: "#306DAD",
-								},
-							}}
-						>
-							{hist.pretty_name}
-						</MenuItem>
-					))}
+					{deferredHistory.map((hist: any) => {
+						const isCurrentNode = hist === currentNode;
+						return (
+							<MenuItem
+								key={hist.id}
+								onClick={() => {
+									onHistoryClick(hist);
+									onMenuClose();
+								}}
+								sx={{
+									fontSize: "0.875rem",
+									color: isCurrentNode ? "primary.main" : "text.primary",
+									bgcolor: isCurrentNode ? "action.selected" : "transparent",
+									"&:hover": {
+										bgcolor: "action.hover",
+										color: "primary.main",
+									},
+									"&:focus": {
+										bgcolor: "action.focus",
+									},
+								}}
+								role="menuitem"
+								aria-current={isCurrentNode ? "page" : undefined}
+							>
+								<Typography
+									variant="body2"
+									sx={{
+										overflow: "hidden",
+										textOverflow: "ellipsis",
+										whiteSpace: "nowrap",
+									}}
+								>
+									{hist.pretty_name}
+								</Typography>
+							</MenuItem>
+						);
+					})}
 				</Menu>
 			</ErrorBoundary>
 		);
@@ -235,6 +341,7 @@ const BreadcrumbNav = memo(
 BreadcrumbNav.displayName = "BreadcrumbNav";
 
 const MainLayout = memo(() => {
+	const theme = useTheme();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
@@ -329,7 +436,7 @@ const MainLayout = memo(() => {
 		},
 	});
 
-	const bnodeClassDistribution = useApiMutation("bnode_class_distribution", {
+	const bnodeClassDistribution = useApiMutation("class_distribution", {
 		onError: (error: any) => {
 			setError(`Failed to load classes: ${error.message}`);
 			setErrorToClear("clear");
@@ -503,106 +610,161 @@ const MainLayout = memo(() => {
 					slots={{
 						appTitle: () => (
 							<ErrorBoundary
-								fallback={
-									<Typography variant="h6" color="error">
-										Navigation Error
-									</Typography>
-								}
+								fallback={<Alert severity="error">Erreur de navigation</Alert>}
 							>
-								<Stack direction="row" alignItems="center" spacing={2}>
+								<Stack
+									direction="row"
+									alignItems="center"
+									spacing={2}
+									sx={{ minWidth: 0, flex: 1 }}
+								>
 									<Box
 										sx={{
-											height: "40px",
+											height: 40,
 											display: "flex",
 											alignItems: "center",
+											flexShrink: 0,
 										}}
 									>
-										<img src="/logo.svg" alt="I3S" style={{ height: "100%" }} />
+										<img
+											src="/logo.svg"
+											alt="Logo I3S"
+											style={{ height: "100%" }}
+										/>
 									</Box>
 
-									<Suspense
-										fallback={
-											<LoadingStates.Inline text="Loading navigation..." />
-										}
-									>
-										<BreadcrumbNav
-											history={deferredHistory}
-											currentNode={currentNode}
-											onHistoryClick={handleHistoryClick}
-											onMoreClick={handleMoreClick}
-											menuAnchor={menuAnchor}
-											onMenuClose={handleMenuClose}
-										/>
-									</Suspense>
+									<Box sx={{ minWidth: 0, flex: 1 }}>
+										<Suspense
+											fallback={
+												<LoadingStates.Inline text="Chargement navigation..." />
+											}
+										>
+											<BreadcrumbNav
+												history={deferredHistory}
+												currentNode={currentNode}
+												onHistoryClick={handleHistoryClick}
+												onMoreClick={handleMoreClick}
+												menuAnchor={menuAnchor}
+												onMenuClose={handleMenuClose}
+											/>
+										</Suspense>
+									</Box>
 								</Stack>
 							</ErrorBoundary>
 						),
 						toolbarActions: () => (
 							<ErrorBoundary
 								fallback={
-									<Typography variant="body2" color="error">
-										Toolbar Error
-									</Typography>
+									<Alert severity="error">Erreur de la barre d'outils</Alert>
 								}
 							>
-								<Stack direction="row" alignItems="center" spacing={2}>
-									<IconButton
-										onClick={handleClickClass}
-										disabled={isPendingAny}
-										sx={{
-											"&:disabled": { opacity: 0.6 },
-										}}
-									>
-										<TuneIcon />
-									</IconButton>
+								<Stack
+									direction="row"
+									alignItems="center"
+									spacing={1.5}
+									sx={{ flexWrap: "wrap", gap: 1 }}
+								>
+									<Tooltip title="Ouvrir la recherche avancée">
+										<span>
+											<IconButton
+												onClick={handleClickClass}
+												disabled={isPendingAny}
+												size="medium"
+												aria-label="Ouvrir la recherche avancée"
+												sx={{
+													"&:disabled": { opacity: 0.6 },
+													"&:focus": {
+														outline: `2px solid ${theme.palette.primary.main}`,
+														outlineOffset: "2px",
+													},
+												}}
+											>
+												<TuneIcon />
+											</IconButton>
+										</span>
+									</Tooltip>
 
-									<Suspense
-										fallback={<LoadingStates.Inline text="Search..." />}
-									>
-										<SearchBar />
-									</Suspense>
+									<Box sx={{ display: { xs: "none", md: "block" } }}>
+										<Suspense
+											fallback={<LoadingStates.Inline text="Recherche..." />}
+										>
+											<SearchBar />
+										</Suspense>
+									</Box>
 
-									<UserInfo
-										data={deferredData}
-										isLoading={isLoading}
-										error={apiError}
-									/>
+									<Box sx={{ display: { xs: "none", sm: "block" } }}>
+										<UserInfo
+											data={deferredData}
+											isLoading={isLoading}
+											error={apiError}
+										/>
+									</Box>
 
-									<Button
-										variant="outlined"
-										size="small"
-										onClick={handleLogout}
-										disabled={isPendingAny}
-										sx={{
-											ml: 2,
-											"&:disabled": { opacity: 0.6 },
-										}}
-									>
-										Se deconnecter
-									</Button>
+									<Tooltip title="Se déconnecter de l'application">
+										<Button
+											variant="outlined"
+											size="small"
+											startIcon={<LogoutIcon />}
+											onClick={handleLogout}
+											disabled={isPendingAny}
+											aria-label="Se déconnecter"
+											sx={{
+												"&:disabled": { opacity: 0.6 },
+												fontSize: { xs: "0.75rem", sm: "0.875rem" },
+												"&:focus": {
+													outline: `2px solid ${theme.palette.primary.main}`,
+													outlineOffset: "2px",
+												},
+											}}
+										>
+											<Box sx={{ display: { xs: "none", sm: "block" } }}>
+												Déconnexion
+											</Box>
+										</Button>
+									</Tooltip>
 								</Stack>
 							</ErrorBoundary>
 						),
 					}}
 				>
 					<Box
+						component="main"
 						sx={{
-							mt: 3,
+							mt: 2,
+							px: { xs: 1, sm: 2 },
 						}}
+						aria-label="Contenu principal"
 					>
 						<ErrorBoundary
 							fallback={
 								<Box sx={{ p: 3, textAlign: "center" }}>
-									<Alert severity="error">
-										Page content failed to load. Please try refreshing.
+									<Alert
+										severity="error"
+										action={
+											<Button
+												color="inherit"
+												size="small"
+												onClick={() => window.location.reload()}
+											>
+												Actualiser
+											</Button>
+										}
+									>
+										<Typography variant="h6" gutterBottom>
+											Erreur de chargement du contenu
+										</Typography>
+										<Typography variant="body2">
+											Le contenu de la page n'a pas pu être chargé. Veuillez
+											actualiser la page.
+										</Typography>
 									</Alert>
 								</Box>
 							}
 						>
 							<Suspense
 								fallback={
-									<Box sx={{ p: 3, textAlign: "center" }}>
-										<LoadingStates.Component message="Loading page content..." />
+									<Box sx={{ p: 3, textAlign: "center" }} aria-live="polite">
+										<LoadingStates.Component message="Chargement du contenu..." />
 									</Box>
 								}
 							>
@@ -612,17 +774,29 @@ const MainLayout = memo(() => {
 					</Box>
 				</DashboardLayout>
 
-				{/* Loading indicator for global operations */}
+				{/* Enhanced loading indicator for global operations */}
 				{isPendingAny && (
 					<Box
 						sx={{
 							position: "fixed",
-							bottom: 16,
-							right: 16,
-							zIndex: 9999,
+							bottom: 24,
+							right: 24,
+							zIndex: theme.zIndex.snackbar,
 						}}
+						aria-live="polite"
+						aria-label="Opération en cours"
 					>
-						<LoadingStates.Inline text="Processing..." />
+						<Alert
+							severity="info"
+							sx={{
+								alignItems: "center",
+								"& .MuiAlert-icon": {
+									mr: 1,
+								},
+							}}
+						>
+							<LoadingStates.Inline text="Traitement en cours..." />
+						</Alert>
 					</Box>
 				)}
 			</Box>
