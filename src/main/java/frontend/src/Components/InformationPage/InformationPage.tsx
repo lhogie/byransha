@@ -1,6 +1,4 @@
 import CloseIcon from "@mui/icons-material/Close";
-import FullscreenIcon from "@mui/icons-material/Fullscreen";
-import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { Box, Button, Fade, IconButton, Typography, Zoom } from "@mui/material";
 import { memo, Suspense, useCallback, useEffect, useMemo } from "react";
@@ -27,10 +25,6 @@ const InformationPage = memo(() => {
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
 
 	// React 19 optimized state management
-	const [isFullscreen, setIsFullscreen, isFullscreenUpdating] =
-		useOptimizedState(false, {
-			transitionUpdates: true,
-		});
 
 	const [isVisible, setIsVisible, isVisibleUpdating] = useOptimizedState(
 		false,
@@ -98,17 +92,7 @@ const InformationPage = memo(() => {
 		});
 	}, [handleNavigation, setIsVisible]);
 
-	// Fullscreen toggle handler with error boundary
-	const handleFullscreenToggle = useCallback(() => {
-		try {
-			startTransition(() => {
-				setIsFullscreen((prev) => !prev);
-			});
-		} catch (_err) {
-			setError("Failed to toggle fullscreen mode");
-			setErrorToClear("clear");
-		}
-	}, [setIsFullscreen, setError, setErrorToClear]);
+	// Fullscreen handler supprimé - inutile dans cette page
 
 	// Refresh handler with loading state
 	const handleRefresh = useCallback(() => {
@@ -134,8 +118,7 @@ const InformationPage = memo(() => {
 						handleClose();
 						break;
 					case "F11":
-						event.preventDefault();
-						handleFullscreenToggle();
+						// Fullscreen désactivé dans cette page
 						break;
 					case "F5":
 						if (event.ctrlKey) {
@@ -165,14 +148,7 @@ const InformationPage = memo(() => {
 			window.removeEventListener("keydown", handleKeyDown);
 			clearTimeout(timer);
 		};
-	}, [
-		handleClose,
-		handleFullscreenToggle,
-		handleRefresh,
-		setIsVisible,
-		setError,
-		setErrorToClear,
-	]);
+	}, [handleClose, handleRefresh, setIsVisible, setError, setErrorToClear]);
 
 	// Redirect if no viewId with error handling
 	useEffect(() => {
@@ -286,11 +262,7 @@ const InformationPage = memo(() => {
 		);
 	}
 
-	const isPendingAny =
-		isTransitioning ||
-		isFullscreenUpdating ||
-		isVisibleUpdating ||
-		isErrorUpdating;
+	const isPendingAny = isTransitioning || isVisibleUpdating || isErrorUpdating;
 
 	return (
 		<ErrorBoundary
@@ -308,7 +280,7 @@ const InformationPage = memo(() => {
 		>
 			<Fade in={isVisible} timeout={300}>
 				<Box
-					className={`information-page ${isFullscreen ? "fullscreen" : ""}`}
+					className="information-page"
 					sx={{
 						height: "100vh",
 						display: "flex",
@@ -388,24 +360,7 @@ const InformationPage = memo(() => {
 								</IconButton>
 							</Zoom>
 
-							<Zoom
-								in={isVisible}
-								timeout={400}
-								style={{ transitionDelay: "200ms" }}
-							>
-								<IconButton
-									onClick={handleFullscreenToggle}
-									aria-label={isFullscreen ? "exit fullscreen" : "fullscreen"}
-									size="small"
-									disabled={isPendingAny}
-									sx={{
-										color: "#666",
-										"&:hover": { color: "#1976d2", backgroundColor: "#e3f2fd" },
-									}}
-								>
-									{isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-								</IconButton>
-							</Zoom>
+							{/* Bouton fullscreen supprimé - inutile dans cette page */}
 
 							<Zoom
 								in={isVisible}

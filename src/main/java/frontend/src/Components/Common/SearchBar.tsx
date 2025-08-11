@@ -10,14 +10,19 @@ import {
 	useOptimizedState,
 } from "@hooks/react19";
 import { useApiMutation, useInfiniteApiData } from "@hooks/useApiData";
-import WarningIcon from "@mui/icons-material/Warning";
 import {
+	Search as SearchIcon,
+	Warning as WarningIcon,
+} from "@mui/icons-material";
+import {
+	Alert,
 	Avatar,
 	Badge,
 	Box,
 	CircularProgress,
 	ClickAwayListener,
 	Fade,
+	InputAdornment,
 	List,
 	ListItem,
 	ListItemAvatar,
@@ -26,6 +31,7 @@ import {
 	Paper,
 	TextField,
 	Typography,
+	useTheme,
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -54,11 +60,20 @@ const SearchResult = memo(
 		return (
 			<ListItemButton
 				onClick={onSelect}
+				role="option"
+				aria-selected={isFocused}
+				tabIndex={isFocused ? 0 : -1}
 				sx={{
 					height: "100%",
 					backgroundColor: isFocused ? "action.hover" : "transparent",
 					"&:hover": {
 						backgroundColor: "action.hover",
+					},
+					"&:focus": {
+						backgroundColor: "action.focus",
+						outline: "2px solid",
+						outlineColor: "primary.main",
+						outlineOffset: "-2px",
 					},
 					transition: "background-color 0.15s ease",
 				}}
@@ -66,7 +81,13 @@ const SearchResult = memo(
 				<ListItemAvatar>
 					<Badge
 						invisible={result.isValid}
-						badgeContent={<WarningIcon color="warning" />}
+						badgeContent={
+							<WarningIcon
+								color="warning"
+								fontSize="small"
+								aria-label="Élément non valide"
+							/>
+						}
 					>
 						<Avatar
 							src={
@@ -74,7 +95,7 @@ const SearchResult = memo(
 									? `data:${result.imgMimeType};base64,${result.img}`
 									: ""
 							}
-							alt={result.name}
+							alt={`Image de ${result.name}`}
 							sx={{ width: 32, height: 32 }}
 						/>
 					</Badge>
@@ -125,6 +146,8 @@ const VirtualizedList = memo(
 		return (
 			<Box
 				ref={parentRef}
+				role="listbox"
+				aria-label="Résultats de recherche"
 				sx={{
 					height: Math.min(400, rowVirtualizer.getTotalSize()),
 					overflowY: "auto",
@@ -137,6 +160,7 @@ const VirtualizedList = memo(
 						position: "relative",
 						p: 0,
 					}}
+					role="presentation"
 				>
 					{rowVirtualizer.getVirtualItems().map((virtualItem) => {
 						const result = deferredResults[virtualItem.index];
@@ -203,6 +227,7 @@ VirtualizedList.displayName = "VirtualizedList";
 export const SearchBar = memo(() => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
+	const theme = useTheme();
 	const { isLoading: isNavigating, withLoading } = useLoadingState();
 
 	// React 19 optimized state management
@@ -467,42 +492,48 @@ export const SearchBar = memo(() => {
 		<ErrorBoundary
 			fallback={
 				<Box sx={{ width: 300 }}>
-					<Typography variant="body2" color="error">
-						Search unavailable
-					</Typography>
+					<Alert severity="error" sx={{ fontSize: "0.875rem" }}>
+						Recherche indisponible
+					</Alert>
 				</Box>
 			}
 			onError={(error, errorInfo) => {
 				console.error("SearchBar error:", error, errorInfo);
-				setError("Search component error");
+				setError("Erreur du composant de recherche");
 			}}
 		>
 			<ClickAwayListener onClickAway={handleClickAway}>
-				<Box sx={{ position: "relative", width: 300 }}>
+				<Box
+					sx={{ position: "relative", width: 300 }}
+					role="combobox"
+					aria-expanded={isOpen && debouncedQuery.length > 0}
+					aria-haspopup="listbox"
+					aria-owns={isOpen ? "search-results" : undefined}
+				>
 					{/* Error display */}
 					{error && (
-						<Box
+						<Alert
+							severity="error"
+							onClose={() => setError(null)}
 							sx={{
 								position: "absolute",
-								top: -30,
+								top: -50,
 								left: 0,
 								right: 0,
-								bgcolor: "error.main",
-								color: "white",
-								px: 1,
-								py: 0.5,
-								borderRadius: 1,
-								fontSize: "0.75rem",
 								zIndex: 1400,
+								fontSize: "0.75rem",
 							}}
+							role="alert"
+							aria-live="polite"
 						>
 							{error}
-						</Box>
+						</Alert>
 					)}
 
 					<TextField
 						ref={inputRef}
 						label="Rechercher"
+						placeholder="Tapez pour rechercher..."
 						variant="outlined"
 						size="small"
 						value={query}
@@ -511,10 +542,26 @@ export const SearchBar = memo(() => {
 						onKeyDown={handleKeyDown}
 						disabled={isPendingAny}
 						fullWidth
+						autoComplete="off"
+						aria-label="Rechercher dans les éléments"
+						aria-describedby={error ? "search-error" : "search-help"}
+						aria-autocomplete="list"
+						aria-controls={isOpen ? "search-results" : undefined}
 						InputProps={{
+							startAdornment: (
+								<InputAdornment position="start">
+									<SearchIcon color="action" />
+								</InputAdornment>
+							),
 							endAdornment:
 								isLoading || isPendingAny ? (
-									<CircularProgress color="inherit" size={20} />
+									<InputAdornment position="end">
+										<CircularProgress
+											color="inherit"
+											size={20}
+											aria-label="Recherche en cours"
+										/>
+									</InputAdornment>
 								) : null,
 							sx: { pr: 0.5 },
 						}}
@@ -525,12 +572,35 @@ export const SearchBar = memo(() => {
 								borderBottomRightRadius: isOpen ? 0 : undefined,
 								opacity: isPendingAny ? 0.7 : 1,
 								transition: "opacity 0.2s ease-in-out",
+								"&:hover fieldset": {
+									borderColor: "primary.main",
+								},
+								"&.Mui-focused fieldset": {
+									borderColor: "primary.main",
+								},
 							},
 						}}
 					/>
 
+					{/* Hidden helper text for screen readers */}
+					<Typography
+						id="search-help"
+						component="div"
+						sx={{
+							position: "absolute",
+							left: -10000,
+							top: "auto",
+							clip: "rect(0 0 0 0)",
+							overflow: "hidden",
+						}}
+					>
+						Utilisez les flèches haut et bas pour naviguer dans les résultats,
+						Entrée pour sélectionner, Échap pour fermer
+					</Typography>
+
 					<Fade in={isOpen && debouncedQuery.length > 0}>
 						<Paper
+							id="search-results"
 							elevation={8}
 							sx={{
 								position: "absolute",
@@ -544,14 +614,16 @@ export const SearchBar = memo(() => {
 								border: "1px solid",
 								borderColor: "divider",
 								borderTop: "none",
+								boxShadow: theme.shadows[8],
 							}}
+							role="presentation"
 						>
 							<ErrorBoundary
 								fallback={
 									<Box sx={{ p: 2, textAlign: "center" }}>
-										<Typography variant="body2" color="error">
-											Search results error
-										</Typography>
+										<Alert severity="error" sx={{ fontSize: "0.875rem" }}>
+											Erreur lors du chargement des résultats
+										</Alert>
 									</Box>
 								}
 							>
@@ -563,8 +635,9 @@ export const SearchBar = memo(() => {
 											alignItems: "center",
 											p: 2,
 										}}
+										aria-live="polite"
 									>
-										<LoadingStates.Inline text="Searching..." />
+										<LoadingStates.Inline text="Recherche en cours..." />
 									</Box>
 								) : deferredResults.length === 0 ? (
 									<Box
@@ -574,16 +647,20 @@ export const SearchBar = memo(() => {
 											alignItems: "center",
 											p: 2,
 										}}
+										aria-live="polite"
 									>
 										<Typography variant="body2" color="text.secondary">
-											No results found
+											Aucun résultat trouvé
 										</Typography>
 									</Box>
 								) : (
 									<Suspense
 										fallback={
-											<Box sx={{ p: 2, textAlign: "center" }}>
-												<LoadingStates.Inline text="Loading results..." />
+											<Box
+												sx={{ p: 2, textAlign: "center" }}
+												aria-live="polite"
+											>
+												<LoadingStates.Inline text="Chargement des résultats..." />
 											</Box>
 										}
 									>

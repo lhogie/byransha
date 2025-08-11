@@ -10,12 +10,11 @@ import {
 	useOptimizedState,
 } from "@hooks/react19";
 import { useApiData, useApiMutation } from "@hooks/useApiData";
-import { Box } from "@mui/material";
+import { Alert, Box, Button, Paper, Typography, useTheme } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
 import { memo, Suspense, useCallback, useEffect, useMemo } from "react";
 import { ModalComponent } from "../View/ModalComponent";
 import { ViewContent } from "../View/ViewContent";
-import "./View.css";
 
 interface ViewProps {
 	viewId: string;
@@ -23,6 +22,7 @@ interface ViewProps {
 }
 
 export const View = memo(({ viewId, sx }: ViewProps) => {
+	const theme = useTheme();
 	const {
 		data: rawApiData,
 		isLoading: loading,
@@ -32,9 +32,8 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 		viewId,
 		{},
 		{
-			// React 19 optimizations
-			staleTime: 30000, // 30 seconds
-			gcTime: 5 * 60 * 1000, // 5 minutes
+			staleTime: 30000,
+			gcTime: 5 * 60 * 1000,
 			refetchOnWindowFocus: false,
 			refetchOnReconnect: true,
 			retry: 3,
@@ -56,7 +55,7 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 
 	const [hex, setHex, isColorUpdating] = useOptimizedState("#ffffff", {
 		transitionUpdates: true,
-		debounceMs: 300, // Debounce color changes
+		debounceMs: 300,
 	});
 
 	const [viewError, setViewError, isViewErrorUpdating] = useOptimizedState<
@@ -73,7 +72,6 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 	// Memoized API mutations with error handling
 	const saveColour = useApiMutation("update_colour", {
 		onSuccess: () => {
-			// Optimistically update without full refetch
 			startTransition(() => {
 				queryClient.setQueryData(["apiData", viewId], (oldData: unknown) => {
 					if (!oldData) return oldData;
@@ -96,7 +94,6 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 			console.error("Failed to save color:", error);
 			startTransition(() => {
 				setViewError("Failed to save color changes");
-				// Revert color on error
 				setHex("#ffffff");
 			});
 		},
@@ -104,7 +101,6 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 
 	const jumpMutation = useApiMutation("jump", {
 		onSuccess: async () => {
-			// Use startTransition for non-urgent updates
 			startTransition(() => {
 				queryClient.invalidateQueries({ queryKey: ["apiData"] });
 				setViewError(null);
@@ -121,7 +117,6 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 	// Optimized color change handler with debouncing
 	const handleHexChange = useCallback(
 		(colour: { hex: string }) => {
-			// Immediate UI update
 			setHex(colour.hex);
 		},
 		[setHex],
@@ -212,75 +207,56 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 			error: Error;
 			resetError: () => void;
 		}) => (
-			<Box
+			<Paper
+				elevation={1}
 				sx={{
 					display: "flex",
 					flexDirection: "column",
 					alignItems: "center",
 					justifyContent: "center",
-					height: "200px",
-					padding: 2,
-					border: "1px solid #e0e0e0",
-					borderRadius: 1,
-					backgroundColor: "#fafafa",
+					minHeight: 200,
+					p: 3,
+					border: `1px solid ${theme.palette.divider}`,
+					borderRadius: 2,
+					bgcolor: "background.paper",
 				}}
 			>
 				<Box sx={{ textAlign: "center", mb: 2 }}>
-					<Box component="span" sx={{ fontSize: "2rem", color: "#f44336" }}>
+					<Typography variant="h2" sx={{ fontSize: "2rem", mb: 1 }}>
 						⚠️
-					</Box>
-					<Box sx={{ mt: 1, color: "#666", fontSize: "0.875rem" }}>
-						Failed to load view: {viewId}
-					</Box>
+					</Typography>
+					<Typography variant="body2" color="text.secondary" gutterBottom>
+						Échec du chargement de la vue: {viewId}
+					</Typography>
 					{process.env.NODE_ENV === "development" && (
-						<Box sx={{ mt: 1, color: "#999", fontSize: "0.75rem" }}>
+						<Typography variant="caption" color="text.disabled" display="block">
 							{errorObj.message}
-						</Box>
+						</Typography>
 					)}
 					{viewError && (
-						<Box sx={{ mt: 1, color: "#f44336", fontSize: "0.75rem" }}>
+						<Alert severity="error" sx={{ mt: 1, fontSize: "0.75rem" }}>
 							{viewError}
-						</Box>
+						</Alert>
 					)}
 				</Box>
 				<Box sx={{ display: "flex", gap: 1 }}>
-					<button
-						type="button"
+					<Button
+						variant="outlined"
 						onClick={() => {
 							resetError();
 							setViewError(null);
 						}}
-						style={{
-							padding: "8px 16px",
-							backgroundColor: "#1976d2",
-							color: "white",
-							border: "none",
-							borderRadius: "4px",
-							cursor: "pointer",
-							fontSize: "0.875rem",
-						}}
+						size="small"
 					>
-						Retry
-					</button>
-					<button
-						type="button"
-						onClick={handleRetry}
-						style={{
-							padding: "8px 16px",
-							backgroundColor: "#f57c00",
-							color: "white",
-							border: "none",
-							borderRadius: "4px",
-							cursor: "pointer",
-							fontSize: "0.875rem",
-						}}
-					>
-						Refetch Data
-					</button>
+						Réessayer
+					</Button>
+					<Button variant="contained" onClick={handleRetry} size="small">
+						Recharger les données
+					</Button>
 				</Box>
-			</Box>
+			</Paper>
 		),
-		[viewId, viewError, handleRetry, setViewError],
+		[viewId, viewError, handleRetry, setViewError, theme.palette.divider],
 	);
 
 	const isPendingAny =
@@ -295,50 +271,55 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 				/>
 			}
 			onError={(error, errorInfo) => {
-				// Log error for debugging
 				console.error(`View ${viewId} error:`, error, errorInfo);
-				setViewError(`Render error: ${error.message}`);
+				setViewError(`Erreur de rendu: ${error.message}`);
 			}}
-			resetKeys={[viewId]} // Reset when viewId changes
+			resetKeys={[viewId]}
 		>
 			<Box
-				className="view-container"
 				sx={{
+					width: "100%",
 					height: "100%",
+					minHeight: 300,
+					position: "relative",
 					display: "flex",
 					flexDirection: "column",
-					position: "relative",
 					opacity: isPendingAny ? 0.8 : 1,
 					transition: "opacity 0.2s ease-in-out",
+					overflow: "hidden",
+					...sx,
 				}}
 			>
 				{/* Error display */}
 				{viewError && (
-					<Box
+					<Alert
+						severity="error"
+						onClose={() => setViewError(null)}
 						sx={{
 							position: "absolute",
 							top: 8,
 							left: "50%",
 							transform: "translateX(-50%)",
 							zIndex: 1000,
-							bgcolor: "error.main",
-							color: "white",
-							px: 2,
-							py: 1,
-							borderRadius: 1,
 							fontSize: "0.75rem",
+							maxWidth: "90%",
 						}}
+						aria-live="polite"
 					>
 						{viewError}
-					</Box>
+					</Alert>
 				)}
 
 				{/* Modal with Suspense boundary */}
 				<ErrorBoundary
-					fallback={<div>Error loading modal</div>}
+					fallback={
+						<Alert severity="warning" sx={{ m: 1 }}>
+							Erreur lors du chargement du modal
+						</Alert>
+					}
 					onError={(error) => {
 						console.error("Modal error:", error);
-						setViewError("Modal failed to load");
+						setViewError("Le modal n'a pas pu être chargé");
 					}}
 				>
 					<Suspense fallback={null}>
@@ -351,38 +332,73 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 				</ErrorBoundary>
 
 				{/* Main content with error boundary and loading states */}
-				<ErrorBoundary
-					fallback={
-						<ViewErrorFallback
-							error={new Error("View content error")}
-							resetError={handleRetry}
-						/>
-					}
-					onError={(error, errorInfo) => {
-						console.error("View content error:", error, errorInfo);
-						setViewError(`Content error: ${error.message}`);
+				<Box
+					sx={{
+						flex: 1,
+						width: "100%",
+						overflow: "auto",
+						position: "relative",
+						display: "flex",
+						flexDirection: "column",
+						scrollbarWidth: "thin",
+						scrollbarColor: `${theme.palette.primary.main} ${theme.palette.grey[200]}`,
+						"&::-webkit-scrollbar": { width: "8px", height: "8px" },
+						"&::-webkit-scrollbar-track": {
+							bgcolor: "grey.100",
+							borderRadius: 1,
+						},
+						"&::-webkit-scrollbar-thumb": {
+							bgcolor: "primary.main",
+							borderRadius: 1,
+							"&:hover": {
+								bgcolor: "primary.dark",
+							},
+						},
 					}}
 				>
-					<Suspense
+					<ErrorBoundary
 						fallback={
-							<LoadingStates.Component
-								message={`Loading ${deferredViewId}...`}
+							<ViewErrorFallback
+								error={new Error("View content error")}
+								resetError={handleRetry}
 							/>
 						}
+						onError={(error, errorInfo) => {
+							console.error("View content error:", error, errorInfo);
+							setViewError(`Erreur de contenu: ${error.message}`);
+						}}
 					>
-						<ViewContent
-							loading={loading}
-							error={error}
-							rawApiData={rawApiData}
-							dataContent={dataContent}
-							backgroundColor={backgroundColor}
-							jumpToNode={jumpToNode}
-							hexColor={deferredHex}
-							onHexColorChange={handleHexChange}
-							viewId={deferredViewId}
-						/>
-					</Suspense>
-				</ErrorBoundary>
+						<Suspense
+							fallback={
+								<Box
+									sx={{
+										display: "flex",
+										justifyContent: "center",
+										alignItems: "center",
+										minHeight: 200,
+										p: 2,
+									}}
+								>
+									<LoadingStates.Component
+										message={`Chargement de ${deferredViewId}...`}
+									/>
+								</Box>
+							}
+						>
+							<ViewContent
+								loading={loading}
+								error={error}
+								rawApiData={rawApiData}
+								dataContent={dataContent}
+								backgroundColor={backgroundColor}
+								jumpToNode={jumpToNode}
+								hexColor={deferredHex}
+								onHexColorChange={handleHexChange}
+								viewId={deferredViewId}
+							/>
+						</Suspense>
+					</ErrorBoundary>
+				</Box>
 
 				{/* Loading indicator for mutations */}
 				{isPendingAny && (
@@ -393,6 +409,8 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 							right: 8,
 							zIndex: 10,
 						}}
+						aria-live="polite"
+						aria-label="Opération en cours"
 					>
 						<LoadingStates.Inline text="" />
 					</Box>

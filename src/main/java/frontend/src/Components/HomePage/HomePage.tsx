@@ -1,3 +1,46 @@
+import { View } from "@common/View";
+import ErrorBoundary from "@components/ErrorBoundary";
+import {
+	LoadingStates,
+	useLoadingState,
+} from "@components/Loading/LoadingComponents";
+import { useTitle } from "@global/useTitle";
+import { useOptimizedDebounce, useOptimizedState } from "@hooks/react19";
+import { useApiData, useApiMutation } from "@hooks/useApiData";
+import {
+	Add as AddIcon,
+	Close as CloseIcon,
+	AspectRatio as ExpandIcon,
+	Remove as RemoveIcon,
+	ViewModule as ViewModuleIcon,
+} from "@mui/icons-material";
+import {
+	Alert,
+	Box,
+	Button,
+	ButtonGroup,
+	Card,
+	CardContent,
+	CardHeader,
+	Checkbox,
+	CircularProgress,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Divider,
+	FormControlLabel,
+	IconButton,
+	ListItemText,
+	Menu,
+	MenuItem,
+	Paper,
+	Skeleton,
+	Stack,
+	Switch,
+	Tooltip,
+	Typography,
+	useTheme,
+} from "@mui/material";
 import React, {
 	type MouseEventHandler,
 	memo,
@@ -9,54 +52,39 @@ import React, {
 	useState,
 	useTransition,
 } from "react";
-import "./HomePage.css";
-import { View } from "@common/View";
-import ErrorBoundary from "@components/ErrorBoundary";
-import {
-	LoadingStates,
-	useLoadingState,
-} from "@components/Loading/LoadingComponents";
-import { useTitle } from "@global/useTitle";
-import { useOptimizedDebounce, useOptimizedState } from "@hooks/react19";
-import { useApiData, useApiMutation } from "@hooks/useApiData";
-import AddIcon from "@mui/icons-material/Add";
-import Expand from "@mui/icons-material/AspectRatio";
-import CloseIcon from "@mui/icons-material/Close";
-import RemoveIcon from "@mui/icons-material/Remove";
-import {
-	Box,
-	Button,
-	Card,
-	CardContent,
-	Checkbox,
-	CircularProgress,
-	ListItemText,
-	Menu,
-	MenuItem,
-	Typography,
-} from "@mui/material";
 import { useNavigate } from "react-router";
 
-// Memoized ViewCard component with React 19 optimizations
+// Memoized ViewCard component with enhanced accessibility
 const ViewCard = memo(
 	({
 		view,
-		onClick,
+		onExpand,
 		handleViewToggle,
 	}: {
 		view: any;
-		onClick: MouseEventHandler<any>;
+		onExpand: (view: any) => void;
 		handleViewToggle: (endpoint: string) => void;
 	}) => {
+		const theme = useTheme();
 		const handleToggle = useCallback(
 			(e: React.MouseEvent) => {
 				e.preventDefault();
-				startTransition(() => {
-					handleViewToggle(view.name);
-				});
+				e.stopPropagation();
+				handleViewToggle(view.name);
 			},
 			[handleViewToggle, view.name],
 		);
+
+		const handleExpand = useCallback(
+			(e: React.MouseEvent) => {
+				e.preventDefault();
+				e.stopPropagation();
+				onExpand(view);
+			},
+			[onExpand, view],
+		);
+
+		const isTechnical = view.type === "technical";
 
 		return (
 			<ErrorBoundary
@@ -64,145 +92,198 @@ const ViewCard = memo(
 					<Card
 						sx={{
 							aspectRatio: "1",
-							border: "1px solid #f44336",
+							border: `1px solid ${theme.palette.error.main}`,
 							borderRadius: 2,
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							bgcolor: "#ffebee",
+							bgcolor: "error.light",
 						}}
+						role="alert"
 					>
-						<Typography color="error">Error loading view</Typography>
+						<Typography color="error" variant="body2">
+							Erreur de chargement de la vue
+						</Typography>
 					</Card>
 				}
 			>
 				<Card
 					sx={{
-						cursor: "pointer",
 						aspectRatio: "1",
-						border: "1px solid #e0e0e0",
+						border: `1px solid ${theme.palette.divider}`,
 						borderRadius: 2,
 						display: "flex",
 						flexDirection: "column",
-						bgcolor: view.type === "technical" ? "#fff9c4" : "#ffffff",
-						transition: "all 0.2s ease-in-out",
+						bgcolor: isTechnical ? "warning.light" : "background.paper",
+						transition:
+							"transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
 						"&:hover": {
 							transform: "translateY(-2px)",
-							boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+							boxShadow: theme.shadows[4],
+						},
+						"&:focus-within": {
+							outline: `2px solid ${theme.palette.primary.main}`,
+							outlineOffset: "2px",
 						},
 					}}
+					aria-label={`Vue ${view.pretty_name}: ${view.description}`}
 				>
-					<Box
+					<CardHeader
 						sx={{
-							height: "40px",
-							width: "100%",
-							bgcolor: view.type === "technical" ? "#fff8b0" : "#f5f5f5",
-							borderBottom: "1px solid #e0e0e0",
-							display: "flex",
-							alignItems: "center",
-							justifyContent: "center",
-							cursor: "grab",
+							height: 60,
+							bgcolor: isTechnical ? "warning.main" : "grey.100",
+							borderBottom: `1px solid ${theme.palette.divider}`,
+							p: 1,
 							position: "relative",
+							"& .MuiCardHeader-content": {
+								overflow: "hidden",
+							},
 						}}
-					>
-						<Typography
-							className="DragHere"
-							variant="caption"
-							sx={{
-								color: "#757575",
-								textAlign: "center",
-								flex: 1,
-								px: 1,
-							}}
-						>
-							{`${view.pretty_name} - ${view.description}`}
-						</Typography>
-						<Box sx={{ display: "flex", position: "absolute", right: 4 }}>
-							<button
-								type="button"
-								className="expand-card"
-								onClick={onClick}
-								aria-label="expand"
-								style={{
-									background: "none",
-									border: "none",
-									cursor: "pointer",
-									padding: "2px",
-									display: "flex",
-									alignItems: "center",
+						title={
+							<Typography
+								variant="caption"
+								sx={{
+									color: isTechnical
+										? "warning.contrastText"
+										: "text.secondary",
+									fontWeight: 500,
+									display: "-webkit-box",
+									WebkitLineClamp: 2,
+									WebkitBoxOrient: "vertical",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
+									lineHeight: 1.2,
 								}}
 							>
-								<Expand fontSize="small" />
-							</button>
-							<button
-								type="button"
-								className="erased-card"
-								onClick={handleToggle}
-								aria-label="close"
-								style={{
-									background: "none",
-									border: "none",
-									cursor: "pointer",
-									padding: "2px",
-									display: "flex",
-									alignItems: "center",
+								{view.pretty_name}
+							</Typography>
+						}
+						subheader={
+							<Typography
+								variant="caption"
+								sx={{
+									color: isTechnical ? "warning.contrastText" : "text.disabled",
+									fontSize: "0.7rem",
+									display: "-webkit-box",
+									WebkitLineClamp: 1,
+									WebkitBoxOrient: "vertical",
+									overflow: "hidden",
+									textOverflow: "ellipsis",
 								}}
 							>
-								<CloseIcon fontSize="small" />
-							</button>
-						</Box>
-					</Box>
+								{view.description}
+							</Typography>
+						}
+						action={
+							<Stack direction="row" spacing={0.5}>
+								<Tooltip title="Agrandir la vue">
+									<IconButton
+										onClick={handleExpand}
+										size="small"
+										aria-label={`Agrandir la vue ${view.pretty_name}`}
+										sx={{
+											color: isTechnical
+												? "warning.contrastText"
+												: "action.active",
+											"&:hover": {
+												bgcolor: "action.hover",
+											},
+											"&:focus": {
+												outline: `2px solid ${theme.palette.primary.main}`,
+												outlineOffset: "1px",
+											},
+										}}
+									>
+										<ExpandIcon fontSize="small" />
+									</IconButton>
+								</Tooltip>
+								<Tooltip title="Fermer la vue">
+									<IconButton
+										onClick={handleToggle}
+										size="small"
+										aria-label={`Fermer la vue ${view.pretty_name}`}
+										sx={{
+											color: isTechnical
+												? "warning.contrastText"
+												: "action.active",
+											"&:hover": {
+												bgcolor: "action.hover",
+											},
+											"&:focus": {
+												outline: `2px solid ${theme.palette.primary.main}`,
+												outlineOffset: "1px",
+											},
+										}}
+									>
+										<CloseIcon fontSize="small" />
+									</IconButton>
+								</Tooltip>
+							</Stack>
+						}
+					/>
 					<CardContent
 						sx={{
-							padding: { xs: "12px", sm: "16px" },
-							height: "calc(100% - 40px)",
+							p: { xs: 1.5, sm: 2 },
+							height: "calc(100% - 60px)",
 							display: "flex",
 							flexDirection: "column",
 							overflow: "hidden",
-							bgcolor: view.type === "technical" ? "#fff9c4" : "#ffffff",
+							bgcolor: isTechnical ? "warning.light" : "background.paper",
+							"&:last-child": { pb: { xs: 1.5, sm: 2 } },
 						}}
 					>
 						<Box
 							sx={{
 								flex: 1,
 								overflow: "auto",
-								color: "#424242",
-								msOverflowStyle: "none",
+								color: "text.primary",
 								scrollbarWidth: "thin",
-								scrollbarColor: "#3f51b5 #e8eaf6",
+								scrollbarColor: `${theme.palette.primary.main} ${theme.palette.grey[200]}`,
 								"&::-webkit-scrollbar": { width: "6px" },
 								"&::-webkit-scrollbar-thumb": {
-									bgcolor: "#3f51b5",
+									bgcolor: "primary.main",
 									borderRadius: "3px",
 								},
-								"&::-webkit-scrollbar-track": { bgcolor: "#e8eaf6" },
+								"&::-webkit-scrollbar-track": {
+									bgcolor: "grey.200",
+								},
 								wordBreak: "break-word",
 								overflowWrap: "break-word",
 								whiteSpace: "pre-wrap",
 								maxWidth: "100%",
 								fontSize: { xs: "0.75rem", sm: "0.875rem" },
 							}}
+							aria-label={`Contenu de la vue ${view.pretty_name}`}
 						>
 							{view.error ? (
-								<Typography color="error" variant="body2">
-									{view.error}
-								</Typography>
+								<Alert severity="error" variant="outlined" sx={{ mt: 1 }}>
+									<Typography variant="body2">{view.error}</Typography>
+								</Alert>
 							) : (
 								<ErrorBoundary
 									fallback={
-										<Typography color="error" variant="body2">
-											Error loading view
-										</Typography>
+										<Alert severity="error" variant="outlined" sx={{ mt: 1 }}>
+											<Typography variant="body2">
+												Erreur de chargement de la vue
+											</Typography>
+										</Alert>
 									}
 								>
 									<Suspense
-										fallback={<LoadingStates.Inline text="Loading view..." />}
+										fallback={
+											<Stack spacing={1} sx={{ mt: 1 }}>
+												<Skeleton variant="text" width="80%" />
+												<Skeleton variant="text" width="60%" />
+												<Skeleton variant="rectangular" height={60} />
+											</Stack>
+										}
 									>
 										<View
 											viewId={view.name.replaceAll(" ", "_")}
 											sx={{
-												bgcolor:
-													view.type === "technical" ? "#fff9c4" : "#ffffff",
+												bgcolor: isTechnical
+													? "warning.light"
+													: "background.paper",
 												width: "100%",
 											}}
 										/>
@@ -217,22 +298,19 @@ const ViewCard = memo(
 	},
 );
 
-ViewCard.displayName = "ViewCard";
-
-// Memoized ViewGrid component using React 19 hooks
 const ViewGrid = memo(
 	({
 		views,
 		selectedViews,
 		columns,
-		onViewClick,
 		onViewToggle,
+		onViewExpand,
 	}: {
 		views: any[];
 		selectedViews: string[];
 		columns: number;
-		onViewClick: (view: any) => void;
 		onViewToggle: (endpoint: string) => void;
+		onViewExpand: (view: any) => void;
 	}) => {
 		// Use regular filtered views
 		const visibleViews = views.filter((view) =>
@@ -251,33 +329,24 @@ const ViewGrid = memo(
 			>
 				<Box
 					sx={{
-						display: "flex",
-						flexWrap: "wrap",
+						display: "grid",
+						gridTemplateColumns: {
+							xs: "1fr",
+							sm: `repeat(${Math.min(columns, 2)}, 1fr)`,
+							md: `repeat(${rowColumns}, 1fr)`,
+						},
 						gap: { xs: 2, sm: 4 },
 						opacity: 1,
 						transition: "opacity 0.2s ease-in-out",
 					}}
 				>
 					{deferredVisibleViews.map((view) => (
-						<Box
+						<ViewCard
 							key={view.name}
-							sx={{
-								width: {
-									xs: "100%",
-									sm: `calc(${100 / Math.min(columns, 2)}% - 16px)`,
-									md: `calc(${100 / rowColumns}% - 32px)`,
-								},
-							}}
-						>
-							<ViewCard
-								view={view}
-								onClick={(e) => {
-									if (e.defaultPrevented) return;
-									onViewClick(view);
-								}}
-								handleViewToggle={onViewToggle}
-							/>
-						</Box>
+							view={view}
+							onExpand={onViewExpand}
+							handleViewToggle={onViewToggle}
+						/>
 					))}
 				</Box>
 			</ErrorBoundary>
@@ -285,9 +354,8 @@ const ViewGrid = memo(
 	},
 );
 
-ViewGrid.displayName = "ViewGrid";
-
 const HomePage = memo(() => {
+	const theme = useTheme();
 	const navigate = useNavigate();
 	const { data, isLoading, error } = useApiData(
 		"endpoints?only_applicable&type=byransha.web.View",
@@ -301,13 +369,23 @@ const HomePage = memo(() => {
 	);
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
 
-	useTitle("Home");
+	// State for expanded view modal with optimization for faster loading
+	const [expandedView, setExpandedView] = useOptimizedState<any>(null, {
+		transitionUpdates: true,
+	});
+	const [isModalOpen, setIsModalOpen] = useState(false);
 
-	// Use React 19 optimized state management
+	useTitle("Accueil");
+
+	// Column management with auto mode toggle
 	const [columns, setColumns, isColumnsUpdating] = useOptimizedState(2, {
 		transitionUpdates: true,
 		deferUpdates: false,
 	});
+
+	const [autoColumns, setAutoColumns] = useState<boolean>(() =>
+		JSON.parse(localStorage.getItem("autoColumns") || "true"),
+	);
 
 	const [selectMenuAnchor, setSelectMenuAnchor, isMenuUpdating] =
 		useOptimizedState<HTMLButtonElement | null>(null, {
@@ -413,19 +491,23 @@ const HomePage = memo(() => {
 		}
 	}, [data, showTechnicalViews]);
 
-	// Effect for handling window resize with startTransition
+	// Effect for handling window resize with auto columns
 	React.useEffect(() => {
 		const handleResize = () => {
-			startTransition(() => {
-				setColumns(getAutoColumnCount());
-			});
+			if (autoColumns) {
+				startTransition(() => {
+					setColumns(getAutoColumnCount());
+				});
+			}
 		};
 
-		window.addEventListener("resize", handleResize);
-		handleResize();
+		if (autoColumns) {
+			window.addEventListener("resize", handleResize);
+			handleResize();
+		}
 
 		return () => window.removeEventListener("resize", handleResize);
-	}, [getAutoColumnCount, setColumns]);
+	}, [getAutoColumnCount, setColumns, autoColumns]);
 
 	// Optimized handlers using React 19 features
 	const handleSelectMenuOpen = useCallback<
@@ -503,7 +585,20 @@ const HomePage = memo(() => {
 		});
 	}, [data]);
 
-	const handleViewClick = useCallback(
+	const handleAutoColumnsToggle = useCallback(() => {
+		const newAutoValue = !autoColumns;
+		setAutoColumns(newAutoValue);
+		localStorage.setItem("autoColumns", JSON.stringify(newAutoValue));
+
+		if (newAutoValue) {
+			// Apply auto sizing immediately when enabling
+			startTransition(() => {
+				setColumns(getAutoColumnCount());
+			});
+		}
+	}, [autoColumns, getAutoColumnCount, setColumns]);
+
+	const handleViewExpand = useCallback(
 		(view: any) => {
 			withLoading(async () => {
 				if (view.name.endsWith("class_attribute_field")) {
@@ -512,12 +607,21 @@ const HomePage = memo(() => {
 					});
 					navigate(`/add-node/form/${data?.data?.node_id}`);
 				} else {
-					navigate(`/information/${view.name.replaceAll(" ", "_")}`);
+					// Pre-open modal immediately for better UX
+					setIsModalOpen(true);
+					// Then set the view data
+					setExpandedView(view);
 				}
 			});
 		},
-		[jumpToId, data, navigate, withLoading],
+		[setExpandedView, withLoading, jumpToId, data, navigate],
 	);
+
+	const handleCloseExpandedView = useCallback(() => {
+		setIsModalOpen(false);
+		// Delay clearing the view to allow modal close animation
+		setTimeout(() => setExpandedView(null), 200);
+	}, [setExpandedView]);
 
 	const incrementColumns = useCallback(() => {
 		startTransition(() => {
@@ -602,225 +706,326 @@ const HomePage = memo(() => {
 				}}
 				className="home-page"
 			>
-				<Box
+				{/* Header avec design amélioré */}
+				<Paper
+					elevation={2}
 					sx={{
-						display: "flex",
-						flexDirection: { xs: "column", sm: "row" },
-						justifyContent: "space-between",
-						alignItems: { xs: "flex-start", sm: "center" },
+						p: { xs: 2, sm: 3 },
 						mb: { xs: 2, sm: 4 },
-						gap: { xs: 2, sm: 0 },
+						borderRadius: 3,
+						bgcolor: "rgba(255, 255, 255, 0.95)",
+						backdropFilter: "blur(10px)",
+						border: "1px solid rgba(255, 255, 255, 0.2)",
 					}}
 				>
 					<Box
 						sx={{
 							display: "flex",
-							flexDirection: { xs: "column", sm: "row" },
-							gap: { xs: 1, sm: 2 },
-							alignItems: { xs: "flex-start", sm: "center" },
-							width: { xs: "100%", sm: "auto" },
+							flexDirection: { xs: "column", lg: "row" },
+							justifyContent: "space-between",
+							alignItems: { xs: "flex-start", lg: "center" },
+							gap: { xs: 2, sm: 3 },
 						}}
 					>
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							<Button
-								variant="outlined"
-								onClick={handleSelectMenuOpen}
-								disabled={isPendingAny}
+						{/* Section gauche - Contrôles principaux */}
+						<Box
+							sx={{
+								display: "flex",
+								flexDirection: { xs: "column", sm: "row" },
+								gap: { xs: 2, sm: 3 },
+								alignItems: { xs: "flex-start", sm: "center" },
+								flex: 1,
+							}}
+						>
+							{/* Sélection des vues */}
+							<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+								<Button
+									variant="outlined"
+									startIcon={<ViewModuleIcon />}
+									onClick={handleSelectMenuOpen}
+									disabled={isPendingAny}
+									sx={{
+										borderColor: "#90caf9",
+										color: "#1976d2",
+										textTransform: "none",
+										borderRadius: 2,
+										"&:hover": {
+											borderColor: "#42a5f5",
+											bgcolor: "rgba(25, 118, 210, 0.04)",
+										},
+									}}
+								>
+									Sélection des vues
+								</Button>
+								<Menu
+									anchorEl={selectMenuAnchor}
+									open={Boolean(selectMenuAnchor)}
+									onClose={handleSelectMenuClose}
+									PaperProps={{
+										sx: {
+											maxHeight: 400,
+											maxWidth: 350,
+											mt: 1,
+											borderRadius: 2,
+											boxShadow: theme.shadows[8],
+										},
+									}}
+								>
+									{filteredViews.map((view) => (
+										<MenuItem
+											key={view.name}
+											sx={{
+												py: 1,
+												px: 2,
+												borderRadius: 1,
+												mx: 1,
+												mb: 0.5,
+												"&:hover": {
+													bgcolor: "primary.50",
+												},
+											}}
+										>
+											<Box
+												sx={{
+													display: "flex",
+													alignItems: "center",
+													width: "100%",
+												}}
+												onClick={() => handleViewToggle(view.name)}
+											>
+												<Checkbox
+													checked={deferredSelectedViews.includes(view.name)}
+													sx={{
+														color: "#90caf9",
+														"&.Mui-checked": { color: "#90caf9" },
+													}}
+												/>
+												<ListItemText
+													primary={view.pretty_name}
+													secondary={
+														view.type === "technical" ? "Technique" : ""
+													}
+												/>
+											</Box>
+										</MenuItem>
+									))}
+								</Menu>
+							</Box>
+
+							{/* Toggle vues techniques */}
+							<FormControlLabel
+								control={
+									<Switch
+										checked={showTechnicalViews}
+										onChange={handleTechnicalViewsToggle}
+										disabled={isPendingAny}
+										color="primary"
+									/>
+								}
+								label="Vues techniques"
 								sx={{
-									minWidth: { xs: 36, sm: 40 },
-									borderWidth: "2px",
-									borderColor: "#90caf9",
-									color: "#90caf9",
-									fontSize: { xs: "0.75rem", sm: "0.875rem" },
-									padding: { xs: "4px 8px", sm: "6px 12px" },
-									"&:hover": {
-										borderColor: "#42a5f5",
-										bgcolor: "#37474f",
-									},
-									"&:disabled": {
-										opacity: 0.6,
+									"& .MuiFormControlLabel-label": {
+										fontSize: { xs: "0.875rem", sm: "1rem" },
+										color: "text.primary",
 									},
 								}}
-							>
-								Views
-							</Button>
-							<Menu
-								anchorEl={selectMenuAnchor}
-								open={Boolean(selectMenuAnchor)}
-								onClose={handleSelectMenuClose}
-								PaperProps={{
-									sx: {
-										maxHeight: 500,
-										maxWidth: 400,
-										overflowY: "auto",
-										width: "auto",
-										padding: 1,
-										borderRadius: "8px",
-									},
-								}}
-							>
-								{filteredViews.map((view) => (
-									<MenuItem
-										key={view.name}
+							/>
+
+							<Divider
+								orientation="vertical"
+								flexItem
+								sx={{ display: { xs: "none", sm: "block" } }}
+							/>
+
+							{/* Contrôles de colonnes améliorés */}
+							<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+								<FormControlLabel
+									control={
+										<Switch
+											checked={autoColumns}
+											onChange={handleAutoColumnsToggle}
+											color="primary"
+										/>
+									}
+									label="Auto colonnes"
+									sx={{
+										"& .MuiFormControlLabel-label": {
+											fontSize: { xs: "0.875rem", sm: "1rem" },
+											color: "text.primary",
+											fontWeight: autoColumns ? 600 : 400,
+										},
+										px: 2,
+										py: 1,
+										borderRadius: 2,
+										bgcolor: autoColumns ? "primary.50" : "grey.50",
+										transition: "all 0.2s ease-in-out",
+									}}
+								/>
+
+								{!autoColumns && (
+									<ButtonGroup
+										variant="outlined"
+										size="small"
+										disabled={isPendingAny}
 										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "space-between",
-											paddingRight: 1,
-											fontSize: "14px",
-											color: view.type === "technical" ? "#283593" : "#424242",
-											backgroundColor:
-												view.type === "technical" ? "#fff9c4" : "transparent",
-											borderRadius: "8px",
-											"&:hover": {
-												backgroundColor:
-													view.type === "technical" ? "#fff8b0" : "#e8eaf6",
+											"& .MuiButton-root": {
+												minWidth: 40,
+												borderColor: "#90caf9",
+												color: "#1976d2",
+												"&:hover": {
+													borderColor: "#42a5f5",
+													bgcolor: "rgba(25, 118, 210, 0.04)",
+												},
 											},
 										}}
 									>
-										<Box
-											sx={{
-												display: "flex",
-												alignItems: "center",
-												flexGrow: 1,
-												borderRadius: "18px",
-											}}
-											onClick={() => handleViewToggle(view.name)}
+										<Button onClick={decrementColumns} disabled={columns === 1}>
+											<RemoveIcon fontSize="small" />
+										</Button>
+										<Button disabled sx={{ cursor: "default" }}>
+											{columns}
+										</Button>
+										<Button
+											onClick={incrementColumns}
+											disabled={columns === filteredViews.length}
 										>
-											<Checkbox
-												checked={deferredSelectedViews.includes(view.name)}
-												sx={{
-													color: "#90caf9",
-													"&.Mui-checked": { color: "#90caf9" },
-												}}
-											/>
-											<ListItemText primary={view.pretty_name} />
-										</Box>
-									</MenuItem>
-								))}
-							</Menu>
+											<AddIcon fontSize="small" />
+										</Button>
+									</ButtonGroup>
+								)}
+							</Box>
 						</Box>
 
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							<Checkbox
-								checked={showTechnicalViews}
-								onChange={handleTechnicalViewsToggle}
-								disabled={isPendingAny}
-								sx={{
-									color: "#90caf9",
-									"&.Mui-checked": { color: "#90caf9" },
-									padding: { xs: "4px", sm: "6px" },
-								}}
-							/>
-							<Typography
-								sx={{
-									color: "#90caf9",
-									fontSize: { xs: "0.75rem", sm: "0.875rem" },
-								}}
-							>
-								Show Technical Views
-							</Typography>
-						</Box>
-
-						<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-							<Button
-								variant="outlined"
-								onClick={decrementColumns}
-								disabled={columns === 1 || isPendingAny}
-								sx={{
-									minWidth: { xs: 36, sm: 40 },
-									borderWidth: "2px",
-									borderColor: "#90caf9",
-									color: "#90caf9",
-									fontSize: { xs: "0.75rem", sm: "0.875rem" },
-									padding: { xs: "4px", sm: "6px" },
-									"&:hover": {
-										borderColor: "#42a5f5",
-										bgcolor: "#37474f",
-									},
-								}}
-							>
-								<RemoveIcon fontSize="small" />
-							</Button>
-							<Typography
-								sx={{
-									color: "#ffffff",
-									fontWeight: "bold",
-									fontSize: { xs: "0.875rem", sm: "1rem" },
-								}}
-							>
-								{columns}
-							</Typography>
-							<Button
-								variant="outlined"
-								onClick={incrementColumns}
-								disabled={columns === filteredViews.length || isPendingAny}
-								sx={{
-									minWidth: { xs: 36, sm: 40 },
-									borderWidth: "2px",
-									borderColor: "#90caf9",
-									color: "#90caf9",
-									fontSize: { xs: "0.75rem", sm: "0.875rem" },
-									padding: { xs: "4px", sm: "6px" },
-									"&:hover": {
-										borderColor: "#42a5f5",
-										bgcolor: "#37474f",
-									},
-								}}
-							>
-								<AddIcon fontSize="small" />
-							</Button>
-						</Box>
+						{/* Bouton Ajouter nouveau noeud */}
+						<Button
+							variant="contained"
+							startIcon={<AddIcon />}
+							onClick={() => navigate("/add-node")}
+							disabled={isPendingAny}
+							sx={{
+								px: 3,
+								py: 1.5,
+								borderRadius: 2,
+								textTransform: "none",
+								fontSize: "1rem",
+								fontWeight: 600,
+								boxShadow: theme.shadows[3],
+								"&:hover": {
+									boxShadow: theme.shadows[6],
+									transform: "translateY(-1px)",
+								},
+								transition: "all 0.2s ease-in-out",
+							}}
+						>
+							Nouveau nœud
+						</Button>
 					</Box>
-
-					<Button
-						variant="outlined"
-						onClick={() => navigate("/add-node")}
-						disabled={isPendingAny}
-						sx={{
-							minWidth: { xs: 36, sm: 40 },
-							borderWidth: "2px",
-							borderColor: "#90caf9",
-							color: "#90caf9",
-							fontSize: { xs: "0.75rem", sm: "0.875rem" },
-							padding: { xs: "4px 8px", sm: "6px 12px" },
-							"&:hover": {
-								borderColor: "#42a5f5",
-								bgcolor: "#37474f",
-							},
-						}}
-					>
-						Add new node
-					</Button>
-				</Box>
+				</Paper>
 
 				<Suspense fallback={<LoadingStates.Grid columns={columns} count={6} />}>
 					<ViewGrid
 						views={filteredViews}
 						selectedViews={deferredSelectedViews}
 						columns={columns}
-						onViewClick={handleViewClick}
 						onViewToggle={handleViewToggle}
+						onViewExpand={handleViewExpand}
 					/>
 				</Suspense>
 
+				{/* Loading Indicator */}
 				{isPendingAny && (
 					<Box
 						sx={{
 							position: "fixed",
-							bottom: 16,
-							right: 16,
-							zIndex: 9999,
+							bottom: 24,
+							right: 24,
+							zIndex: 1400,
 						}}
 					>
-						<CircularProgress size={24} sx={{ color: "#90caf9" }} />
+						<CircularProgress />
 					</Box>
 				)}
+
+				{/* Modal optimisé pour expanded view */}
+				<Dialog
+					open={isModalOpen}
+					onClose={handleCloseExpandedView}
+					maxWidth="lg"
+					fullWidth
+					aria-labelledby="expanded-view-title"
+					PaperProps={{
+						sx: {
+							height: "90vh",
+							maxHeight: "90vh",
+							borderRadius: 3,
+							overflow: "hidden",
+						},
+					}}
+					TransitionProps={{
+						timeout: 300,
+					}}
+				>
+					<DialogTitle
+						id="expanded-view-title"
+						sx={{
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+							borderBottom: "1px solid #e0e0e0",
+							bgcolor: "primary.50",
+							py: 2,
+						}}
+					>
+						<Typography variant="h6" sx={{ fontWeight: 600 }}>
+							{expandedView?.pretty_name || "Vue agrandie"}
+						</Typography>
+						<IconButton
+							onClick={handleCloseExpandedView}
+							aria-label="Fermer la vue agrandie"
+							sx={{
+								"&:hover": {
+									bgcolor: "primary.100",
+								},
+							}}
+						>
+							<CloseIcon />
+						</IconButton>
+					</DialogTitle>
+					<DialogContent sx={{ p: 0, height: "100%" }}>
+						{expandedView && isModalOpen && (
+							<Suspense
+								fallback={
+									<Box
+										sx={{
+											display: "flex",
+											flexDirection: "column",
+											justifyContent: "center",
+											alignItems: "center",
+											height: "100%",
+											gap: 2,
+										}}
+									>
+										<CircularProgress size={48} />
+										<Typography variant="body1" color="text.secondary">
+											Chargement de {expandedView.pretty_name}...
+										</Typography>
+									</Box>
+								}
+							>
+								<View
+									viewId={expandedView.name}
+									sx={{
+										height: "100%",
+										overflow: "auto",
+									}}
+								/>
+							</Suspense>
+						)}
+					</DialogContent>
+				</Dialog>
 			</Box>
 		</ErrorBoundary>
 	);
 });
-
-HomePage.displayName = "HomePage";
 
 export default HomePage;
