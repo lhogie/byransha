@@ -211,7 +211,8 @@ const NestedFields = ({
 				// Handle the response structure with attributes array
 				const pageData =
 					page?.data?.results?.[0]?.result?.data?.attributes || [];
-				return [...acc, ...pageData];
+				acc.push(...pageData);
+				return acc;
 			} catch (error) {
 				console.warn("Error extracting page data:", error);
 				return acc;
