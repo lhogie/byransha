@@ -216,7 +216,7 @@ const AddNodePage = () => {
 						placeholder="Search class name..."
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
-						sx={{ maxWidth: 400 }}
+						sx={{ maxWidth: { xs: "100%", sm: 400 } }}
 						InputProps={{
 							startAdornment: (
 								<InputAdornment position="start">
@@ -259,7 +259,7 @@ const AddNodePage = () => {
 										<Card
 											onClick={() => handleClickClass(short)}
 											sx={{
-												minWidth: 120,
+												minWidth: { xs: 80, sm: 120 },
 												cursor: "pointer",
 												transition: "all 0.2s ease",
 												"&:hover": {
@@ -325,7 +325,7 @@ const AddNodePage = () => {
 							<Grid key={short}>
 								<Card
 									sx={{
-										minWidth: 120,
+										minWidth: { xs: 80, sm: 120 },
 										cursor: "pointer",
 										transition: "all 0.2s ease",
 										"&:hover": {

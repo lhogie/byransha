@@ -69,9 +69,9 @@ const ExistingNodeSelector = ({
 					top: "50%",
 					left: "50%",
 					transform: "translate(-50%, -50%)",
-					width: "80%",
-					maxWidth: 600,
-					maxHeight: "80vh",
+					width: { xs: "95vw", sm: "90%", md: "80%" },
+					maxWidth: { xs: "none", sm: 600 },
+					maxHeight: "90vh",
 					bgcolor: "background.paper",
 					boxShadow: 24,
 					outline: "none",
@@ -79,7 +79,12 @@ const ExistingNodeSelector = ({
 			>
 				<Card
 					className="existing-node-card"
-					sx={{ width: "100%", maxHeight: "80vh", overflow: "auto" }}
+					sx={{
+						width: "100%",
+						maxHeight: { xs: "85vh", sm: "80vh" },
+						overflow: "auto",
+						borderRadius: { xs: 1, sm: 2 },
+					}}
 				>
 					<CardHeader
 						id="existing-node-modal-title"

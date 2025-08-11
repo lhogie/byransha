@@ -130,10 +130,10 @@ const ViewCard = memo(
 				>
 					<CardHeader
 						sx={{
-							height: 60,
+							height: { xs: 50, sm: 60 },
 							bgcolor: isTechnical ? "warning.main" : "grey.100",
 							borderBottom: `1px solid ${theme.palette.divider}`,
-							p: 1,
+							p: { xs: 0.5, sm: 1 },
 							position: "relative",
 							"& .MuiCardHeader-content": {
 								overflow: "hidden",
@@ -763,8 +763,8 @@ const HomePage = memo(() => {
 									onClose={handleSelectMenuClose}
 									PaperProps={{
 										sx: {
-											maxHeight: 400,
-											maxWidth: 350,
+											maxHeight: { xs: 300, sm: 400 },
+											maxWidth: { xs: "90vw", sm: 350 },
 											mt: 1,
 											borderRadius: 2,
 											boxShadow: theme.shadows[8],
@@ -869,7 +869,8 @@ const HomePage = memo(() => {
 										disabled={isPendingAny}
 										sx={{
 											"& .MuiButton-root": {
-												minWidth: 40,
+												minWidth: { xs: 32, sm: 40 },
+												fontSize: { xs: "0.75rem", sm: "0.875rem" },
 												borderColor: "#90caf9",
 												color: "#1976d2",
 												"&:hover": {
