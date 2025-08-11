@@ -174,12 +174,30 @@ const FormPage = () => {
 						onClick: async () => {
 							await removeNodeMutation.mutateAsync(
 								{
-									node_id: rootId,
+									node_id: rootId, delete : false,
 								},
 								{
-									onSuccess: async () => {
+									onSuccess: async (data)=> {
 										await refetch();
-										navigate(-1);
+										var li = data?.data?.results?.[0]?.result?.data;
+										var chaine = "Those node will be affected : \n";
+										for(let i = 0; i < data?.data?.results?.[0]?.result?.data.length; i++) {
+											chaine += li[i].id +"@"+li[i].class + ", ";
+										}
+										chaine += "\n\nAre you sure you want to delete this node ?";
+										if (window.confirm(chaine)) {
+											await removeNodeMutation.mutateAsync(
+												{
+													node_id: rootId,
+													delete: true,
+												},
+												{
+													onSuccess: async () => {
+														await refetch();
+														navigate(-1);
+													},
+												})
+										}
 									},
 								},
 							);

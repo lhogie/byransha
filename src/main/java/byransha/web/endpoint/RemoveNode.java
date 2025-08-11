@@ -5,6 +5,7 @@ import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -25,33 +26,27 @@ public class RemoveNode extends NodeEndpoint<BNode> {
         BNode node
     ) throws Throwable {
         var a = new ArrayNode(null);
-        if (
-            !node.ins().isEmpty() ||
-            node instanceof BBGraph
-        ) return new EndpointJsonResponse(
+        if (node instanceof BBGraph) return new EndpointJsonResponse(
             new ObjectNode(null).set(
-                "ins",
-                new TextNode(node.ins().toString())
+                "id",
+                new IntNode(node.id())
             ),
-            "Node cannot be removed because it has incoming links or it is the graph."
+            "Node cannot be removed because it is the graph."
         );
-
-        var numberOfOuts = node.outs().size();
-        AtomicInteger numberOfOutsDeleted = new AtomicInteger(0);
-        node.forEachOut((n, outNode) -> {
-            var b = new ObjectNode(null);
-
-            b.set("outgoing link to", new TextNode(outNode.toString()));
-            if (outNode instanceof ListNode<?> ls) ls.removeAll();
-            else if (outNode instanceof ListNode<?> ss) ss.removeAll();
-            if (!(outNode instanceof BBGraph)){
-                outNode.remove();
-                numberOfOutsDeleted.getAndIncrement();
+        boolean delete = requireParm(input, "delete").asBoolean();
+        if(delete){
+            graph.deleteNode(node);
+            return new EndpointJsonResponse(a, "Node removed from the graph.");
+        }
+        else{
+            for (BNode allDeleteNode : graph.getAllDeleteNodes(node)) {
+                var b = new ObjectNode(null);
+                b.set("id", new IntNode(allDeleteNode.id()));
+                b.set("class", new TextNode(allDeleteNode.getClass().getSimpleName()));
+                a.add(b);
             }
-            a.add(b);
-        });
-        if (numberOfOutsDeleted.get() == numberOfOuts) node.remove();
-        return new EndpointJsonResponse(a, "Node removed from the graph.");
+            return new EndpointJsonResponse(a, "All those node will be affected.");
+        }
     }
 
     @Override

@@ -354,6 +354,52 @@ public class BBGraph extends BNode {
         }
     }
 
+
+    public void deleteNode(BNode node) {
+        node.forEachOut((name, child) -> {
+            if(child instanceof BBGraph || child instanceof Cluster) return; // Skip graphs, they are not deleted here
+            deleteNode(child);
+            if (child.ins().size() <= 1) {
+                deleteNodeDirectory(child);
+                //TODO remove from graph
+            } else {
+                System.out.println("Keeping folder of " + child.id() + " because it has multiple ins");
+            }
+        });
+
+        if (node.ins().size() <= 1) {
+            deleteNodeDirectory(node);
+            //TODO remove from graph
+        } else {
+            System.out.println("Node " + node.id() + " still in use, not deleted.");
+        }
+    }
+
+    private void deleteNodeDirectory(BNode node) {
+        File dir = node.directory();
+        if (dir != null && dir.exists()) {
+            try {
+                Files.walk(dir.toPath())
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+                System.out.println("Deleted directory " + dir.getAbsolutePath());
+            } catch (IOException e) {
+                System.err.println("Failed to delete " + dir.getAbsolutePath() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    public List<BNode> getAllDeleteNodes(BNode node) {
+        List<BNode> result = new ArrayList<>();
+        node.forEachOut((name, child) -> {
+            if (child instanceof BBGraph || child instanceof Cluster) return; // Skip graphs, they are not deleted here
+            result.add(child);
+            result.addAll(getAllDeleteNodes(child));
+        });
+        return result;
+    }
+
     synchronized <N extends BNode> void integrate(N n) {
         // Ensure core maps are initialized even during early construction
         if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
