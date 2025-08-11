@@ -329,7 +329,7 @@ const MainLayout = memo(() => {
 		},
 	});
 
-	const bnodeClassDistribution = useApiMutation("bnode_class_distribution", {
+	const bnodeClassDistribution = useApiMutation("class_distribution", {
 		onError: (error: any) => {
 			setError(`Failed to load classes: ${error.message}`);
 			setErrorToClear("clear");
