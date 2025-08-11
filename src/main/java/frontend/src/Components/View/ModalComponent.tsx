@@ -1,5 +1,3 @@
-import React from "react";
-
 interface ModalComponentProps {
 	dataForModal: any;
 	isModalOpen: boolean;

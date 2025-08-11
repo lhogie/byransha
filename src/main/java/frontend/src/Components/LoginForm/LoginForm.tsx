@@ -9,7 +9,6 @@ import {
 import { LoadingButton } from "@mui/lab";
 import {
 	Alert,
-	Avatar,
 	Box,
 	Container,
 	IconButton,
@@ -167,7 +166,7 @@ const LoginForm = () => {
 							borderRadius: 1,
 						}}
 					/>
-				</Box>  
+				</Box>
 
 				{/* Error Alert */}
 				{authError && (

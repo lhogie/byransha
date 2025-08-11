@@ -52,7 +52,7 @@ const UserInfo = memo(
 		isLoading: boolean;
 		error: any;
 	}) => {
-		const theme = useTheme();
+		const _theme = useTheme();
 
 		if (isLoading) {
 			return (
