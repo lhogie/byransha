@@ -533,9 +533,9 @@ public abstract class BNode {
 
         forEachOut((name, outNode) -> {
             try {
-                var symlink = new File(outD, "" + outNode.id()); // + "@" + outNode.id());
+                var symlink = new File(outD, outNode.id() + "@" + outNode.getClass().getSimpleName());
 
-                if (!symlink.exists()) {
+                if (!symlink.exists() && outNode.isPersisting()) {
                     writingFiles.accept(symlink);
                     Files.createSymbolicLink(
                         symlink.toPath(),

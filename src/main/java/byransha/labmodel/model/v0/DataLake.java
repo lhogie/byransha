@@ -101,8 +101,12 @@ public class DataLake extends BNode {
 
             for (var campusName : List.of(l.set(10, null), l.set(11, null))) {
                 if (!campusName.isBlank()) {
-                    var campus = graph.find(Campus.class, n ->
-                        n.name.get().equalsIgnoreCase(campusName)
+                    var campus = graph.find(Campus.class, n -> {
+                            if (n.name != null && n.name.get() != null) {
+                                n.name.get().equalsIgnoreCase(campusName);
+                            }
+                                return false;
+                            }
                     );
 
                     if (campus != null && !officeName.isBlank()) {
@@ -133,8 +137,12 @@ public class DataLake extends BNode {
             var email = graph.create(EmailNode.class);
             email.set(l.set(19, null));
             person.emailAddresses.add(email);
-            person.researchGroup = graph.find(ResearchGroup.class, n ->
-                n.name.get().equals(l.set(20, null))
+            person.researchGroup = graph.find(ResearchGroup.class, n ->{
+                    if (n.name != null && n.name.get() != null) {
+                        n.name.get().equals(l.set(20, null));
+                    }
+                    return false;
+                }
             );
             boolean doctor = l.set(21, null).equalsIgnoreCase("oui");
             String phdDate = l.set(22, null);
@@ -151,8 +159,12 @@ public class DataLake extends BNode {
             for (var i : List.of(25, 26)) {
                 var employer = l.set(i, null);
                 person.position = graph.create(Position.class); //new Position(graph);
-                person.position.employer = graph.find(ResearchGroup.class, n ->
-                    n.name.get().equals(employer)
+                person.position.employer = graph.find(ResearchGroup.class, n ->{
+                    if (n.name != null && n.name.get() != null) {
+                        n.name.get().equals(employer);
+                        }
+                    return false;
+                    }
                 );
                 var corps = l.set(i - 2, null);
 //                person.position.status = graph.find(Status.class, s ->
