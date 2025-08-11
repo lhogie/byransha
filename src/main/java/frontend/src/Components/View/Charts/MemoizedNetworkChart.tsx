@@ -87,7 +87,7 @@ export const MemoizedNetworkChart = memo(
 		);
 
 		return (
-			<Box sx={{ height: "100%", minHeight: "300px", width: "100%" }}>
+			<Box sx={{ height: "300px", width: "100%" }}>
 				<CytoscapeGraph
 					elements={elements as ElementDefinition[]}
 					style={{ width: "100%", height: "100%" }}
