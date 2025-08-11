@@ -139,9 +139,9 @@ const LoginForm = () => {
 			<Paper
 				elevation={6}
 				sx={{
-					p: 4,
+					p: { xs: 2, sm: 3, md: 4 },
 					width: "100%",
-					maxWidth: 400,
+					maxWidth: { xs: "90vw", sm: 400 },
 					borderRadius: 2,
 					backgroundColor: "background.paper",
 					border: `1px solid ${theme.palette.divider}`,
@@ -160,7 +160,7 @@ const LoginForm = () => {
 						src={logo}
 						alt="Logo I3S"
 						sx={{
-							maxWidth: 200,
+							maxWidth: { xs: 150, sm: 200 },
 							width: "100%",
 							height: "auto",
 							borderRadius: 1,
