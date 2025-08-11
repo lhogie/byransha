@@ -26,8 +26,143 @@ const theme = createTheme(
 		colorSchemes: {
 			dark: false,
 		},
+		breakpoints: {
+			values: {
+				xs: 0,
+				sm: 600,
+				md: 900,
+				lg: 1200,
+				xl: 1536,
+			},
+		},
 		typography: {
 			fontFamily: "IBM Plex Sans, sans-serif",
+			// Responsive typography scaling
+			h1: {
+				fontSize: "clamp(1.75rem, 4vw, 2.125rem)",
+			},
+			h2: {
+				fontSize: "clamp(1.5rem, 3.5vw, 1.875rem)",
+			},
+			h3: {
+				fontSize: "clamp(1.25rem, 3vw, 1.5rem)",
+			},
+			h4: {
+				fontSize: "clamp(1.125rem, 2.5vw, 1.25rem)",
+			},
+			h5: {
+				fontSize: "clamp(1rem, 2vw, 1.125rem)",
+			},
+			h6: {
+				fontSize: "clamp(0.875rem, 1.5vw, 1rem)",
+			},
+			body1: {
+				fontSize: "clamp(0.875rem, 1.5vw, 1rem)",
+			},
+			body2: {
+				fontSize: "clamp(0.75rem, 1.25vw, 0.875rem)",
+			},
+			caption: {
+				fontSize: "clamp(0.625rem, 1vw, 0.75rem)",
+			},
+		},
+		components: {
+			// Mobile-optimized toolbar
+			MuiToolbar: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						[theme.breakpoints.down("md")]: {
+							minHeight: "56px !important",
+							padding: "8px 12px !important",
+						},
+						[theme.breakpoints.down("sm")]: {
+							minHeight: "48px !important",
+							padding: "6px 8px !important",
+						},
+					}),
+				},
+			},
+			// Mobile-optimized buttons
+			MuiButton: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						[theme.breakpoints.down("sm")]: {
+							fontSize: "0.75rem",
+							padding: "6px 12px",
+							minWidth: "44px",
+							minHeight: "44px",
+						},
+					}),
+				},
+			},
+			// Mobile-optimized icon buttons
+			MuiIconButton: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						[theme.breakpoints.down("sm")]: {
+							padding: "6px",
+							minWidth: "44px",
+							minHeight: "44px",
+						},
+					}),
+				},
+			},
+			// Mobile-optimized text fields
+			MuiTextField: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						[theme.breakpoints.down("sm")]: {
+							"& .MuiInputBase-root": {
+								fontSize: "0.875rem",
+							},
+							"& .MuiInputLabel-root": {
+								fontSize: "0.875rem",
+							},
+						},
+					}),
+				},
+			},
+			// Responsive breadcrumbs
+			MuiBreadcrumbs: {
+				styleOverrides: {
+					root: ({ theme }) => ({
+						[theme.breakpoints.down("md")]: {
+							"& .MuiBreadcrumbs-ol": {
+								flexWrap: "nowrap",
+								overflow: "hidden",
+							},
+							"& .MuiBreadcrumbs-li": {
+								minWidth: 0,
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+							},
+						},
+					}),
+				},
+			},
+			// Mobile-optimized dialogs
+			MuiDialog: {
+				styleOverrides: {
+					paper: ({ theme }) => ({
+						[theme.breakpoints.down("sm")]: {
+							margin: "8px",
+							width: "calc(100% - 16px)",
+							maxWidth: "none",
+						},
+					}),
+				},
+			},
+			// Mobile-optimized drawers
+			MuiDrawer: {
+				styleOverrides: {
+					paper: ({ theme }) => ({
+						[theme.breakpoints.down("sm")]: {
+							width: "100%",
+							maxWidth: "100vw",
+						},
+					}),
+				},
+			},
 		},
 		transitions: {
 			duration: {

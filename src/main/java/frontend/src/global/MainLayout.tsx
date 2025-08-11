@@ -14,9 +14,12 @@ import {
 import { useApiData, useApiMutation } from "@hooks/useApiData";
 import {
 	ChevronRight as ChevronRightIcon,
+	Close as CloseIcon,
 	Home as HomeIcon,
 	Logout as LogoutIcon,
+	Menu as MenuIcon,
 	MoreHoriz as MoreHorizIcon,
+	Search as SearchIcon,
 	Tune as TuneIcon,
 } from "@mui/icons-material";
 import {
@@ -26,22 +29,76 @@ import {
 	Breadcrumbs,
 	Button,
 	Chip,
+	Dialog,
+	DialogContent,
+	DialogTitle,
+	Drawer,
+	IconButton,
 	Link,
 	MenuItem,
 	type PopoverProps,
 	Stack,
 	Tooltip,
 	Typography,
+	useMediaQuery,
 	useTheme,
 } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import { useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@toolpad/core";
-import React, { memo, Suspense, useCallback, useMemo } from "react";
+import React, { memo, Suspense, useCallback, useMemo, useState } from "react";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router";
 
-// Memoized UserInfo component with enhanced accessibility
+// Mobile-optimized UserInfo component
+const MobileUserInfo = memo(
+	({
+		data,
+		isLoading,
+		error,
+	}: {
+		data: any;
+		isLoading: boolean;
+		error: any;
+	}) => {
+		if (isLoading) {
+			return (
+				<Avatar sx={{ width: 32, height: 32, bgcolor: "grey.300" }}>
+					<Typography variant="caption">...</Typography>
+				</Avatar>
+			);
+		}
+
+		if (error) {
+			return (
+				<Avatar sx={{ width: 32, height: 32, bgcolor: "error.main" }}>
+					<Typography variant="caption" color="white">
+						!
+					</Typography>
+				</Avatar>
+			);
+		}
+
+		const username = data?.data?.username || "User";
+
+		return (
+			<Avatar
+				sx={{
+					width: 32,
+					height: 32,
+					bgcolor: "primary.main",
+					fontSize: "0.875rem",
+				}}
+				aria-label={`Avatar de ${username}`}
+			>
+				{username.charAt(0).toUpperCase()}
+			</Avatar>
+		);
+	},
+);
+
+MobileUserInfo.displayName = "MobileUserInfo";
+
+// Full UserInfo component for larger screens
 const UserInfo = memo(
 	({
 		data,
@@ -142,7 +199,44 @@ const UserInfo = memo(
 
 UserInfo.displayName = "UserInfo";
 
-// Enhanced BreadcrumbNav component with better accessibility
+// Mobile Search Dialog
+const MobileSearchDialog = memo(
+	({ open, onClose }: { open: boolean; onClose: () => void }) => {
+		return (
+			<Dialog
+				open={open}
+				onClose={onClose}
+				fullScreen
+				sx={{
+					"& .MuiDialog-paper": {
+						bgcolor: "background.default",
+					},
+				}}
+			>
+				<DialogTitle
+					sx={{
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "space-between",
+						p: 2,
+					}}
+				>
+					<Typography variant="h6">Rechercher</Typography>
+					<IconButton onClick={onClose} aria-label="Fermer">
+						<CloseIcon />
+					</IconButton>
+				</DialogTitle>
+				<DialogContent sx={{ p: 2 }}>
+					<SearchBar />
+				</DialogContent>
+			</Dialog>
+		);
+	},
+);
+
+MobileSearchDialog.displayName = "MobileSearchDialog";
+
+// Responsive BreadcrumbNav component
 const BreadcrumbNav = memo(
 	({
 		history,
@@ -160,12 +254,16 @@ const BreadcrumbNav = memo(
 		onMenuClose: () => void;
 	}) => {
 		const theme = useTheme();
+		const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 		const deferredHistory = useDeferredValue(history);
+
 		const visibleHistory = useMemo(() => {
-			return deferredHistory.length > 3
-				? deferredHistory.slice(-2)
+			// Show fewer items on mobile
+			const maxItems = isMobile ? 1 : 3;
+			return deferredHistory.length > maxItems
+				? deferredHistory.slice(-1) // Show only last item on mobile
 				: deferredHistory;
-		}, [deferredHistory]);
+		}, [deferredHistory, isMobile]);
 
 		return (
 			<ErrorBoundary
@@ -174,14 +272,21 @@ const BreadcrumbNav = memo(
 				<Breadcrumbs
 					separator={
 						<ChevronRightIcon
-							sx={{ color: "text.disabled", fontSize: "18px" }}
+							sx={{
+								color: "text.disabled",
+								fontSize: { xs: "16px", md: "18px" },
+							}}
 						/>
 					}
 					aria-label="Fil d'Ariane de navigation"
 					sx={{
 						bgcolor: "transparent",
 						p: 0.5,
-						"& .MuiBreadcrumbs-ol": { alignItems: "center" },
+						"& .MuiBreadcrumbs-ol": {
+							alignItems: "center",
+							flexWrap: "nowrap",
+							overflow: "hidden",
+						},
 					}}
 				>
 					<Link
@@ -192,11 +297,12 @@ const BreadcrumbNav = memo(
 							alignItems: "center",
 							gap: 0.5,
 							color: "text.secondary",
-							fontSize: "0.875rem",
+							fontSize: { xs: "0.75rem", md: "0.875rem" },
 							textDecoration: "none",
-							p: 1,
+							p: { xs: 0.5, md: 1 },
 							borderRadius: 1,
 							transition: "all 0.2s ease",
+							minWidth: 0,
 							"&:hover": {
 								color: "primary.main",
 								bgcolor: "action.hover",
@@ -209,10 +315,10 @@ const BreadcrumbNav = memo(
 						aria-label="Retour à l'accueil"
 					>
 						<HomeIcon fontSize="small" />
-						Accueil
+						{!isMobile && "Accueil"}
 					</Link>
 
-					{deferredHistory.length > 3 && (
+					{deferredHistory.length > (isMobile ? 1 : 3) && (
 						<Tooltip title="Afficher tout l'historique">
 							<IconButton
 								onClick={onMoreClick}
@@ -222,6 +328,7 @@ const BreadcrumbNav = memo(
 								aria-haspopup="true"
 								sx={{
 									color: "text.disabled",
+									p: { xs: 0.25, md: 0.5 },
 									"&:hover": {
 										color: "primary.main",
 										bgcolor: "action.hover",
@@ -246,19 +353,20 @@ const BreadcrumbNav = memo(
 								onClick={() => onHistoryClick(hist)}
 								sx={{
 									color: isCurrentNode ? "primary.main" : "text.secondary",
-									fontSize: "0.875rem",
+									fontSize: { xs: "0.75rem", md: "0.875rem" },
 									fontWeight: isCurrentNode ? 600 : 400,
 									textDecoration: "none",
-									p: 1,
+									p: { xs: 0.5, md: 1 },
 									borderRadius: 1,
 									bgcolor: isCurrentNode ? "action.selected" : "transparent",
 									transition: "all 0.2s ease",
 									border: "none",
 									cursor: "pointer",
-									maxWidth: 150,
+									maxWidth: { xs: 100, sm: 120, md: 150 },
 									overflow: "hidden",
 									textOverflow: "ellipsis",
 									whiteSpace: "nowrap",
+									minWidth: 0,
 									"&:hover": {
 										color: "primary.main",
 										bgcolor: "action.hover",
@@ -291,7 +399,7 @@ const BreadcrumbNav = memo(
 							boxShadow: theme.shadows[8],
 							mt: 1,
 							minWidth: 200,
-							maxWidth: 300,
+							maxWidth: { xs: "90vw", sm: 300 },
 						},
 					}}
 				>
@@ -340,11 +448,89 @@ const BreadcrumbNav = memo(
 
 BreadcrumbNav.displayName = "BreadcrumbNav";
 
+// Mobile navigation drawer
+const MobileNavDrawer = memo(
+	({
+		open,
+		onClose,
+		data,
+		isLoading,
+		error,
+		onLogout,
+	}: {
+		open: boolean;
+		onClose: () => void;
+		data: any;
+		isLoading: boolean;
+		error: any;
+		onLogout: () => void;
+	}) => {
+		return (
+			<Drawer
+				anchor="right"
+				open={open}
+				onClose={onClose}
+				PaperProps={{
+					sx: {
+						width: { xs: "100%", sm: 320 },
+						maxWidth: "100vw",
+					},
+				}}
+			>
+				<Box sx={{ p: 2 }}>
+					<Box
+						sx={{
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+							mb: 3,
+						}}
+					>
+						<Typography variant="h6">Menu</Typography>
+						<IconButton onClick={onClose} aria-label="Fermer le menu">
+							<CloseIcon />
+						</IconButton>
+					</Box>
+
+					{/* User info section */}
+					<Box
+						sx={{ mb: 3, p: 2, bgcolor: "background.paper", borderRadius: 1 }}
+					>
+						<UserInfo data={data} isLoading={isLoading} error={error} />
+					</Box>
+
+					{/* Navigation actions */}
+					<Stack spacing={2}>
+						<Button
+							variant="outlined"
+							fullWidth
+							startIcon={<LogoutIcon />}
+							onClick={() => {
+								onLogout();
+								onClose();
+							}}
+							aria-label="Se déconnecter"
+						>
+							Déconnexion
+						</Button>
+					</Stack>
+				</Box>
+			</Drawer>
+		);
+	},
+);
+
+MobileNavDrawer.displayName = "MobileNavDrawer";
+
 const MainLayout = memo(() => {
 	const theme = useTheme();
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
+
+	// Media queries for responsive behavior
+	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+	const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
 	// React 19 optimized state management
 	const [menuAnchor, setMenuAnchor, isMenuUpdating] = useOptimizedState<
@@ -359,6 +545,10 @@ const MainLayout = memo(() => {
 			transitionUpdates: true,
 		},
 	);
+
+	// Mobile-specific state
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [searchDialogOpen, setSearchDialogOpen] = useState(false);
 
 	// Debounced error clearing
 	const [errorToClear, setErrorToClear] = useOptimizedState<string | null>(
@@ -597,7 +787,7 @@ const MainLayout = memo(() => {
 							left: "50%",
 							transform: "translateX(-50%)",
 							zIndex: 10000,
-							maxWidth: "500px",
+							maxWidth: { xs: "90vw", sm: "500px" },
 						}}
 					>
 						{error}
@@ -615,12 +805,17 @@ const MainLayout = memo(() => {
 								<Stack
 									direction="row"
 									alignItems="center"
-									spacing={2}
-									sx={{ minWidth: 0, flex: 1 }}
+									spacing={{ xs: 1, md: 2 }}
+									sx={{
+										minWidth: 0,
+										flex: 1,
+										overflow: "hidden",
+									}}
 								>
+									{/* Logo - responsive sizing */}
 									<Box
 										sx={{
-											height: 40,
+											height: { xs: 32, md: 40 },
 											display: "flex",
 											alignItems: "center",
 											flexShrink: 0,
@@ -633,7 +828,8 @@ const MainLayout = memo(() => {
 										/>
 									</Box>
 
-									<Box sx={{ minWidth: 0, flex: 1 }}>
+									{/* Navigation breadcrumbs */}
+									<Box sx={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
 										<Suspense
 											fallback={
 												<LoadingStates.Inline text="Chargement navigation..." />
@@ -661,15 +857,19 @@ const MainLayout = memo(() => {
 								<Stack
 									direction="row"
 									alignItems="center"
-									spacing={1.5}
-									sx={{ flexWrap: "wrap", gap: 1 }}
+									spacing={{ xs: 0.5, md: 1.5 }}
+									sx={{
+										flexWrap: "nowrap",
+										minWidth: 0,
+									}}
 								>
+									{/* Advanced search button */}
 									<Tooltip title="Ouvrir la recherche avancée">
 										<span>
 											<IconButton
 												onClick={handleClickClass}
 												disabled={isPendingAny}
-												size="medium"
+												size={isMobile ? "small" : "medium"}
 												aria-label="Ouvrir la recherche avancée"
 												sx={{
 													"&:disabled": { opacity: 0.6 },
@@ -679,49 +879,129 @@ const MainLayout = memo(() => {
 													},
 												}}
 											>
-												<TuneIcon />
+												<TuneIcon fontSize={isMobile ? "small" : "medium"} />
 											</IconButton>
 										</span>
 									</Tooltip>
 
-									<Box sx={{ display: { xs: "none", md: "block" } }}>
-										<Suspense
-											fallback={<LoadingStates.Inline text="Recherche..." />}
-										>
-											<SearchBar />
-										</Suspense>
-									</Box>
+									{/* Search - different implementations for mobile/desktop */}
+									{isMobile ? (
+										<Tooltip title="Rechercher">
+											<IconButton
+												onClick={() => setSearchDialogOpen(true)}
+												size="small"
+												aria-label="Ouvrir la recherche"
+												sx={{
+													"&:focus": {
+														outline: `2px solid ${theme.palette.primary.main}`,
+														outlineOffset: "2px",
+													},
+												}}
+											>
+												<SearchIcon fontSize="small" />
+											</IconButton>
+										</Tooltip>
+									) : (
+										<Box sx={{ display: { xs: "none", md: "block" } }}>
+											<Suspense
+												fallback={<LoadingStates.Inline text="Recherche..." />}
+											>
+												<SearchBar />
+											</Suspense>
+										</Box>
+									)}
 
-									<Box sx={{ display: { xs: "none", sm: "block" } }}>
-										<UserInfo
-											data={deferredData}
-											isLoading={isLoading}
-											error={apiError}
-										/>
-									</Box>
-
-									<Tooltip title="Se déconnecter de l'application">
-										<Button
-											variant="outlined"
-											size="small"
-											startIcon={<LogoutIcon />}
-											onClick={handleLogout}
-											disabled={isPendingAny}
-											aria-label="Se déconnecter"
-											sx={{
-												"&:disabled": { opacity: 0.6 },
-												fontSize: { xs: "0.75rem", sm: "0.875rem" },
-												"&:focus": {
-													outline: `2px solid ${theme.palette.primary.main}`,
-													outlineOffset: "2px",
-												},
-											}}
-										>
-											<Box sx={{ display: { xs: "none", sm: "block" } }}>
-												Déconnexion
+									{/* User info - different implementations for different screen sizes */}
+									{isMobile ? (
+										<Tooltip title="Menu utilisateur">
+											<IconButton
+												onClick={() => setMobileMenuOpen(true)}
+												size="small"
+												aria-label="Ouvrir le menu utilisateur"
+												sx={{
+													"&:focus": {
+														outline: `2px solid ${theme.palette.primary.main}`,
+														outlineOffset: "2px",
+													},
+												}}
+											>
+												<MobileUserInfo
+													data={deferredData}
+													isLoading={isLoading}
+													error={apiError}
+												/>
+											</IconButton>
+										</Tooltip>
+									) : (
+										<>
+											{/* Tablet: Show avatar + logout */}
+											<Box
+												sx={{ display: { xs: "none", sm: "flex", lg: "none" } }}
+											>
+												<Stack direction="row" alignItems="center" spacing={1}>
+													<MobileUserInfo
+														data={deferredData}
+														isLoading={isLoading}
+														error={apiError}
+													/>
+													<Tooltip title="Se déconnecter de l'application">
+														<IconButton
+															onClick={handleLogout}
+															disabled={isPendingAny}
+															size="small"
+															aria-label="Se déconnecter"
+															sx={{
+																"&:disabled": { opacity: 0.6 },
+																"&:focus": {
+																	outline: `2px solid ${theme.palette.primary.main}`,
+																	outlineOffset: "2px",
+																},
+															}}
+														>
+															<LogoutIcon fontSize="small" />
+														</IconButton>
+													</Tooltip>
+												</Stack>
 											</Box>
-										</Button>
-									</Tooltip>
+
+											{/* Desktop: Full user info + logout button */}
+											<Box sx={{ display: { xs: "none", lg: "block" } }}>
+												<UserInfo
+													data={deferredData}
+													isLoading={isLoading}
+													error={apiError}
+												/>
+											</Box>
+										</>
+									)}
+
+									{/* Logout button for desktop */}
+									{!isMobile && (
+										<Tooltip title="Se déconnecter de l'application">
+											<Button
+												variant="outlined"
+												size="small"
+												startIcon={<LogoutIcon />}
+												onClick={handleLogout}
+												disabled={isPendingAny}
+												aria-label="Se déconnecter"
+												sx={{
+													"&:disabled": { opacity: 0.6 },
+													fontSize: { xs: "0.75rem", sm: "0.875rem" },
+													display: { xs: "none", sm: "flex" },
+													minWidth: { sm: "auto", md: "120px" },
+													"&:focus": {
+														outline: `2px solid ${theme.palette.primary.main}`,
+														outlineOffset: "2px",
+													},
+												}}
+											>
+												<Box sx={{ display: { xs: "none", md: "block" } }}>
+													Déconnexion
+												</Box>
+											</Button>
+										</Tooltip>
+									)}
 								</Stack>
 							</ErrorBoundary>
 						),
@@ -774,13 +1054,29 @@ const MainLayout = memo(() => {
 					</Box>
 				</DashboardLayout>
 
+				{/* Mobile Search Dialog */}
+				<MobileSearchDialog
+					open={searchDialogOpen}
+					onClose={() => setSearchDialogOpen(false)}
+				/>
+
+				{/* Mobile Navigation Drawer */}
+				<MobileNavDrawer
+					open={mobileMenuOpen}
+					onClose={() => setMobileMenuOpen(false)}
+					data={deferredData}
+					isLoading={isLoading}
+					error={apiError}
+					onLogout={handleLogout}
+				/>
+
 				{/* Enhanced loading indicator for global operations */}
 				{isPendingAny && (
 					<Box
 						sx={{
 							position: "fixed",
-							bottom: 24,
-							right: 24,
+							bottom: { xs: 16, md: 24 },
+							right: { xs: 16, md: 24 },
 							zIndex: theme.zIndex.snackbar,
 						}}
 						aria-live="polite"
