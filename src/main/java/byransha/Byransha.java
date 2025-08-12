@@ -11,8 +11,8 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 public class Byransha extends BNode {
 
-	public Byransha(BBGraph g) {
-		super(g);
+	public Byransha(BBGraph g, User creator) {
+		super(g, creator);
 	}
 
 	@Override

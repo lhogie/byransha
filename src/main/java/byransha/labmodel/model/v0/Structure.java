@@ -1,9 +1,6 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import byransha.*;
 
 public class Structure extends BusinessNode {
     public StringNode name;
@@ -11,16 +8,16 @@ public class Structure extends BusinessNode {
     public ListNode<Status> status;
     public ListNode<Office> offices;
 
-    public Structure(BBGraph g) {
-        super(g);
-        name = g.create(  StringNode.class);
-        subStructures = g.create(  ListNode.class);
-        status = g.create( ListNode.class);
-        offices = g.create(  ListNode.class);
+    public Structure(BBGraph g, User creator) {
+        super(g, creator);
+        name = new StringNode(g, creator);
+        subStructures = new ListNode(g, creator);
+        status =new ListNode(g, creator);
+        offices =new ListNode(g, creator);
     }
 
-    public Structure(BBGraph g, int id) {
-        super(g, id);
+    public Structure(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override

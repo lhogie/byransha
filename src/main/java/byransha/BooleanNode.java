@@ -1,13 +1,13 @@
 package byransha;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.util.function.Consumer;
 
-public class BooleanNode extends ValuedNode<Boolean> {
+public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-    public String name = "boolean";
-
-    public BooleanNode(BBGraph db) {
-        super(db);
+    public BooleanNode(BBGraph g, User user) {
+        super(g, user);
     }
 
     public BooleanNode(BBGraph g, User user, int id) {
@@ -19,11 +19,14 @@ public class BooleanNode extends ValuedNode<Boolean> {
         return (get() == null ? "null" : get().toString());
     }
 
+    @Override
+    public void saveValue(ValueHistoryEntry<Boolean> e, Consumer<File> writingFiles){
 
+    }
 
     @Override
-    public void fromString(String s) {
-        set(Boolean.valueOf(s));
+    public void fromString(String s, User user) {
+        set(Boolean.valueOf(s), user);
     }
 
     @Override
@@ -32,19 +35,15 @@ public class BooleanNode extends ValuedNode<Boolean> {
     }
 
     @Override
-    public void set(Boolean newValue) {
-        super.set(newValue);
+    public void set(Boolean newValue, User user) {
+        super.set(newValue, user);
     }
 
-    public void set(String fieldName, BNode parentNode, Boolean newValue) {
+    public void set(String fieldName, BNode parentNode, Boolean newValue, User user) {
         BooleanNode node = graph.find(BooleanNode.class, n -> {
             return n.get() != null && n.get().equals(newValue);
         });
         if (node != null) parentNode.setField(fieldName, node);
-        else super.set(newValue);
-    }
-
-    public void setName(String name) {
-        this.name = name;
+        else super.set(newValue, user);
     }
 }

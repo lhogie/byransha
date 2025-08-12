@@ -8,20 +8,20 @@ public abstract class FieldFilterNode extends FilterNode {
 
     public StringNode fieldPath;
 
-    protected FieldFilterNode(BBGraph g) {
-        super(g);
-        fieldPath = g.create(StringNode.class);
+    protected FieldFilterNode(BBGraph g, User creator) {
+        super(g, creator);
+        fieldPath = new StringNode(g, creator);
     }
 
-    protected FieldFilterNode(BBGraph g, int id) {
-        super(g, id);
+    protected FieldFilterNode(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
+    protected void initialized(User user) {
+        super.initialized(user);
         if (fieldPath.get() == null) {
-            fieldPath.set("");
+            fieldPath.set("", user);
         }
     }
 
@@ -105,10 +105,10 @@ public abstract class FieldFilterNode extends FilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
         if (config.has("fieldPath")) {
-            fieldPath.set(config.get("fieldPath").asText());
+            fieldPath.set(config.get("fieldPath").asText(), user);
         }
     }
 

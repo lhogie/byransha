@@ -4,18 +4,18 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class ImageNode extends ValuedNode<byte[]> {
+public class ImageNode extends PrimitiveValueNode<byte[]> {
 
     public StringNode title;
 
-    public ImageNode(BBGraph g) {
-        super(g);
-        title = g.create(StringNode.class);
+    public ImageNode(BBGraph g, User creator) {
+        super(g, creator);
+        title = new StringNode(g, creator);
     }
 
-    public ImageNode(BBGraph g, int id) {
-        super(g, id);
-        title = g.create(StringNode.class);
+    public ImageNode(BBGraph g, User creator, int id) {
+        super(g, creator, id);
+        title = new StringNode(g, creator);
     }
 
     @Override
@@ -27,8 +27,8 @@ public class ImageNode extends ValuedNode<byte[]> {
     }
 
     @Override
-    public void fromString(String s) {
-        set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)));
+    public void fromString(String s, User user) {
+        set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)), user);
     }
 
     @Override
@@ -45,8 +45,8 @@ public class ImageNode extends ValuedNode<byte[]> {
     }
 
     @Override
-    protected void fromBytes(byte[] bytes) {
-        set(bytes);
+    protected void fromBytes(byte[] bytes, User user) {
+        set(bytes, user);
     }
 
     @Override

@@ -27,14 +27,14 @@ public class EtatCivil extends BusinessNode {
     )
 
     @Size(max = 2)
-    public ListNode<Country> nationalites;
+    public Out<ListNode<Country>> nationalites;
 
     @Pattern(
         regex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
     )
-    public PhoneNumberNode telephone;
+    public Out<PhoneNumberNode> telephone;
 
-    public ImageNode pic;
+    public Out<ImageNode> pic;
 
     public EtatCivil(BBGraph g, User creator) {
         super(g, creator);
@@ -51,8 +51,8 @@ public class EtatCivil extends BusinessNode {
         this.setColor("#03fc62", creator);
     }
 
-    public EtatCivil(BBGraph g, int id) {
-        super(g, id);
+    public EtatCivil(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
@@ -62,13 +62,6 @@ public class EtatCivil extends BusinessNode {
 
     @Override
     public String prettyName() {
-        if (name.get() != null && firstName.get() != null) {
-            return name.get() + " " + firstName.get();
-        } else if (name.get() != null && firstName.get() == null) {
-            return name.get() + " (pas de prénom)";
-        } else if (firstName.get() != null && name.get() == null) {
-            return "(pas de nom) " + firstName.get();
-        }
-        return "Etat Civil sans information ";
+        return  null;
     }
 }

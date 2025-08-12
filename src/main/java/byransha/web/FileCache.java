@@ -19,8 +19,8 @@ public class FileCache extends BNode {
     private  final long MAX_CACHE_SIZE = 50 * 1024 * 1024;
     private  long currentCacheSize = 0;
 
-    protected FileCache(BBGraph g) {
-        super(g);
+    protected FileCache(BBGraph g, User user) {
+        super(g, user);
     }
 
     public Entry get(String cacheKey) {
@@ -64,8 +64,8 @@ public class FileCache extends BNode {
         final String eTag;
         long lastAccessed;
 
-        Entry(byte[] content, String contentType, long lastModified, BBGraph g) {
-            super(g);
+        Entry(byte[] content, String contentType, long lastModified, BBGraph g, User user) {
+            super(g, user);
             this.content = content;
             this.contentType = contentType;
             this.lastModified = lastModified;
@@ -107,7 +107,8 @@ public class FileCache extends BNode {
             String key,
             byte[] content,
             String contentType,
-            long lastModified
+            long lastModified,
+            User user
     ) {
         // do not cache file bigger than 5MB
         if (content.length > 5 * 1024 * 1024) {
@@ -123,7 +124,9 @@ public class FileCache extends BNode {
         Entry newEntry = new Entry(
                 content,
                 contentType,
-                lastModified,graph
+                lastModified,
+                graph,
+                user
         );
 
         while (

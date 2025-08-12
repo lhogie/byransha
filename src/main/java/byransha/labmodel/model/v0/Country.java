@@ -13,17 +13,17 @@ public class Country extends BusinessNode {
 	ImageNode flag;
 	static JsonNode countryCodes;
 
-	public static void loadCountries(BBGraph g) {
+	public static void loadCountries(BBGraph g, User creator) {
 		try {
 			var res = Country.class.getResource("/country_flags/countries.json");
 			var json = new String(res.openStream().readAllBytes());
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-                var country = g.create( Country.class);
+                var country = new Country(g, creator);
                 try {
-					country.flag.title.set(countryCodes.get(code).asText());
-                    country.setFlagCode(code);
+					country.flag.title.set(countryCodes.get(code).asText(), creator);
+                    country.setFlagCode(code, creator);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
@@ -33,40 +33,40 @@ public class Country extends BusinessNode {
 		}
 	}
 
-	public Country(BBGraph g, String code) {
-		super(g);
-		codeNode = new StringNode(g);
-		codeNode.set(code);
-		name = new StringNode(g, countryCodes.get(code).asText());
-		flag = new ImageNode(g);
+	public Country(BBGraph g, String code, User creator) {
+		super(g, creator);
+		codeNode = new StringNode(g, creator);
+		codeNode.set(code, creator);
+		name = new StringNode(g, creator, countryCodes.get(code).asText());
+		flag = new ImageNode(g, creator);
 
 		try {
 			flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
-					.readAllBytes());
+					.readAllBytes(), creator);
 		} catch (IOException err) {
 			err.printStackTrace();
 		}
 	}
 
-	public Country(BBGraph g) {
-        super(g);
-        codeNode = g.create( StringNode.class);
-		name = g.create( StringNode.class);
-		flag = g.create( ImageNode.class);
-		this.setColor("#fc0307");
+	public Country(BBGraph g, User creator) {
+        super(g, creator);
+        codeNode = new  StringNode(g, creator);
+		name = new  StringNode(g, creator);
+		flag = new  ImageNode(g, creator);
+		this.setColor("#fc0307", creator);
 	}
 
-	public void setFlagCode(String code) throws IOException {
+	public void setFlagCode(String code, User user) throws IOException {
 		flag.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
-				.readAllBytes());
+				.readAllBytes(), user);
 		flag.setMimeType("image/svg+xml");
-		codeNode.set(code);
-		name =graph.create( StringNode.class); //new StringNode(graph, countryCodes.get(code).asText());
-		name.set(countryCodes.get(code).asText());
+		codeNode.set(code, user);
+		name =new  StringNode(graph, user); //new StringNode(graph, countryCodes.get(code).asText());
+		name.set(countryCodes.get(code).asText(), user);
 	}
 
-	public Country(BBGraph g, int id) {
-		super(g, id);
+	public Country(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 	@Override

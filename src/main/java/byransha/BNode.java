@@ -47,7 +47,7 @@ public abstract class BNode {
 
     // called by the disk loader
     // non-persisting nodes should NOT have this constructor
-    protected BNode(BBGraph g, int id) {
+    protected BNode(BBGraph g, User creator, int id) {
         if (id < 0) throw new IllegalArgumentException();
 
         this.id = id;
@@ -59,26 +59,11 @@ public abstract class BNode {
         g.integrate(this, creator);
     }
 
-    protected void initialized() {
+    protected void initialized(User creator) {
         // This method can be overridden by subclasses to perform additional initialization
     }
 
-    protected <N extends BNode> N searchFalseBoolean() {
-        var node = graph.findAll(BooleanNode.class, n -> true);
-
-        if (node == null) return null;
-
-        for (var n : node) {
-            if (n.get() == null) n.set(null, null, false);
-            if (n.get().equals(false)) {
-                return (N) n;
-            }
-        }
-
-        return null;
-    }
-
-    public void createOrAssignCluster() {
+    public void createOrAssignCluster(User creator) {
         AtomicBoolean foundCluster = new AtomicBoolean(false);
 
         graph.findAll(Cluster.class, n -> {
@@ -86,7 +71,7 @@ public abstract class BNode {
                 n.getTypeOfCluster() != null &&
                 n.getTypeOfCluster().equals(this.getClass())
             ) {
-                n.add(this);
+                n.add(this, creator);
                 foundCluster.set(true);
                 this.cluster = n;
                 return true;
@@ -97,14 +82,14 @@ public abstract class BNode {
         if (!foundCluster.get()) {
             var newCluster = new Cluster(graph, creator);
             newCluster.setTypeOfCluster(this.getClass());
-            newCluster.add(this);
-            newCluster.add(graph);
+            newCluster.add(this, creator);
+            newCluster.add(graph, creator);
             cluster = newCluster;
-            if (this instanceof Endpoint) newCluster.setColor("#00fff5");
+            if (this instanceof Endpoint) newCluster.setColor("#00fff5", creator);
         }
     }
 
-    public void setColor(String newColor) {
+    public void setColor(String newColor, User creator) {
         graph.findAll(ColorNode.class, n -> {
             if (n.getAsString().equals(newColor.toString())) {
                 this.color = n;

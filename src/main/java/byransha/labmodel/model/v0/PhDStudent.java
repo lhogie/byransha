@@ -3,14 +3,15 @@ package byransha.labmodel.model.v0;
 import java.util.List;
 
 import byransha.BBGraph;
+import byransha.User;
 
 public class PhDStudent extends Position {
-	public PhDStudent(BBGraph g) {
-		super(g);
+	public PhDStudent(BBGraph g, User creator) {
+		super(g, creator);
 	}
 
-	public PhDStudent(BBGraph g, int id) {
-		super(g, id);
+	public PhDStudent(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 	List<Person> directors;

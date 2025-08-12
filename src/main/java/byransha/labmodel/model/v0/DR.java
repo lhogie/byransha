@@ -1,14 +1,15 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.User;
 
 public class DR extends Status {
-	public DR(BBGraph g) {
-		super(g);
-		name.set("Directeur de Recherche");
+	public DR(BBGraph g, User creator) {
+		super(g,  creator);
+		name.set("Directeur de Recherche", creator);
 	}
 
-	public DR(BBGraph g, int id) {
-		super(g, id);
+	public DR(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 }

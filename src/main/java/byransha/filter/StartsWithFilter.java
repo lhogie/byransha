@@ -9,15 +9,15 @@ public class StartsWithFilter extends FieldFilterNode {
     public StringNode prefix;
     public BooleanNode caseSensitive;
 
-    public StartsWithFilter(BBGraph g) {
-        super(g);
-        prefix = g.create(StringNode.class);
-        caseSensitive = g.create(BooleanNode.class);
-        caseSensitive.set("caseSensitive", this, false);
+    public StartsWithFilter(BBGraph g, User creator) {
+        super(g, creator);
+        prefix = new StringNode(g, creator);
+        caseSensitive = new BooleanNode(g, creator);
+        caseSensitive.set("caseSensitive", this, false, creator);
     }
 
-    public StartsWithFilter(BBGraph g, int id) {
-        super(g, id);
+    public StartsWithFilter(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
 
@@ -50,14 +50,14 @@ public class StartsWithFilter extends FieldFilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("prefix")) {
-            prefix.set(config.get("prefix").asText());
+            prefix.set(config.get("prefix").asText(), user);
         }
         if (config.has("caseSensitive")) {
-            caseSensitive.set(config.get("caseSensitive").asBoolean());
+            caseSensitive.set(config.get("caseSensitive").asBoolean(), user);
         }
     }
 

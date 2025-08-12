@@ -1,10 +1,6 @@
 package byransha.filter;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.BooleanNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import byransha.*;
 import byransha.annotations.ListOptions;
 import byransha.labmodel.model.v0.BusinessNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -24,20 +20,20 @@ public class ClassFilter extends FieldFilterNode {
 
     public BooleanNode includeSubclasses;
 
-    public ClassFilter(BBGraph g) {
-        super(g);
-        targetClass = g.create(ListNode.class);
-        includeSubclasses = g.create(BooleanNode.class);
-        includeSubclasses.set("includeSubclasses", this, true);
+    public ClassFilter(BBGraph g, User creator) {
+        super(g, creator);
+        targetClass = new ListNode(g, creator);
+        includeSubclasses = new BooleanNode(g, creator);
+        includeSubclasses.set("includeSubclasses", this, true, creator);
     }
 
-    public ClassFilter(BBGraph g, int id) {
-        super(g, id);
+    public ClassFilter(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
+    protected void initialized(User user) {
+        super.initialized(user);
         populateClassOptions();
     }
 
@@ -123,24 +119,24 @@ public class ClassFilter extends FieldFilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = graph.create(StringNode.class);
-            classNode.set(config.get("targetClass").asText());
-            targetClass.add(classNode);
+            StringNode classNode = new StringNode(graph, creator);
+            classNode.set(config.get("targetClass").asText(), user);
+            targetClass.add(classNode, user);
 
             // Auto-enable when a class is selected
             String selectedClass = config.get("targetClass").asText();
             if (selectedClass != null && !selectedClass.trim().isEmpty()) {
-                enabled.set(true);
+                enabled.set(true, user);
             }
         }
 
         if (config.has("includeSubclasses")) {
-            includeSubclasses.set(config.get("includeSubclasses").asBoolean());
+            includeSubclasses.set(config.get("includeSubclasses").asBoolean(), user);
         }
     }
 
@@ -173,17 +169,17 @@ public class ClassFilter extends FieldFilterNode {
         populateClassOptions();
     }
 
-    public void setTargetClass(String className) {
+    public void setTargetClass(String className, User user) {
         targetClass.removeAll();
         if (className != null && !className.trim().isEmpty()) {
-            StringNode classNode = graph.create(StringNode.class);
-            classNode.set(className);
-            targetClass.add(classNode);
-            // Auto-enable when a class is selected
-            enabled.set(true);
+            StringNode classNode = new StringNode(graph, creator);
+            classNode.set(className, user);
+            targetClass.add(classNode, user);
+            // Auto-enable when ar class is selected
+            enabled.set(true, user);
         } else {
             // Auto-disable when no class is selected
-            enabled.set(false);
+            enabled.set(false, user);
         }
     }
 }

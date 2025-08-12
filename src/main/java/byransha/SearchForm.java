@@ -12,20 +12,20 @@ public class SearchForm extends BNode {
 
     public FilterChain filterChain;
 
-    public SearchForm(BBGraph g) {
-        super(g);
-        searchTerm = g.create(StringNode.class);
-        results = g.create(ListNode.class);
-        filterChain = g.create(FilterChain.class);
+    public SearchForm(BBGraph g, User creator) {
+        super(g, creator);
+        searchTerm = new StringNode(g, creator);
+        results = new ListNode(g, creator);
+        filterChain = new FilterChain(g, creator);
     }
 
-    public SearchForm(BBGraph g, int id) {
-        super(g, id);
+    public SearchForm(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
+    protected void initialized(User creator) {
+        super.initialized(creator);
 
         // Initialize the filter chain with common filters
         initializeDefaultFilterChain();
@@ -33,43 +33,40 @@ public class SearchForm extends BNode {
 
     private void initializeDefaultFilterChain() {
         // Set default logical operator to AND
-        StringNode andOperator = graph.create(StringNode.class);
-        andOperator.set("AND");
-        filterChain.logicalOperator.add(andOperator);
+        StringNode andOperator = new StringNode(graph, creator);
+        andOperator.set("AND", creator);
+        filterChain.logicalOperator.add(andOperator, creator);
 
         // Add a class filter (replaces searchClass)
-        ClassFilter classFilter = graph.create(ClassFilter.class);
-        classFilter.enabled.set("enabled", classFilter, false); // Start disabled
+        ClassFilter classFilter = new ClassFilter(graph, creator);
+        classFilter.enabled.set("enabled", classFilter, false, creator); // Start disabled
         classFilter.includeSubclasses.set(
             "includeSubclasses",
             classFilter,
-            true
+            true,
+                creator
         );
-        filterChain.addFilter(classFilter);
+        filterChain.addFilter(classFilter, creator);
 
         // Add a contains filter for additional text matching
-        ContainsFilter containsFilter = graph.create(ContainsFilter.class);
-        containsFilter.enabled.set("enabled", containsFilter, false); // Start disabled
-        filterChain.addFilter(containsFilter);
+        ContainsFilter containsFilter = new ContainsFilter(graph, creator);
+        containsFilter.enabled.set("enabled", containsFilter, false, creator); // Start disabled
+        filterChain.addFilter(containsFilter, creator);
 
         // Add a starts with filter
-        StartsWithFilter startsWithFilter = graph.create(
-            StartsWithFilter.class
-        );
-        startsWithFilter.enabled.set("enabled", startsWithFilter, false); // Start disabled
-        filterChain.addFilter(startsWithFilter);
+        StartsWithFilter startsWithFilter = new StartsWithFilter(graph, creator);
+        startsWithFilter.enabled.set("enabled", startsWithFilter, false, creator); // Start disabled
+        filterChain.addFilter(startsWithFilter, creator);
 
         // Add a date range filter
-        DateRangeFilter dateFilter = graph.create(DateRangeFilter.class);
-        dateFilter.enabled.set("enabled", dateFilter, false); // Start disabled
-        filterChain.addFilter(dateFilter);
+        DateRangeFilter dateFilter = new DateRangeFilter(graph, creator);
+        dateFilter.enabled.set("enabled", dateFilter, false, creator); // Start disabled
+        filterChain.addFilter(dateFilter, creator);
 
         // Add a numeric range filter
-        NumericRangeFilter numericFilter = graph.create(
-            NumericRangeFilter.class
-        );
-        numericFilter.enabled.set("enabled", numericFilter, false); // Start disabled
-        filterChain.addFilter(numericFilter);
+        NumericRangeFilter numericFilter = new NumericRangeFilter(graph, creator);
+        numericFilter.enabled.set("enabled", numericFilter, false, creator); // Start disabled
+        filterChain.addFilter(numericFilter, creator);
     }
 
     @Override

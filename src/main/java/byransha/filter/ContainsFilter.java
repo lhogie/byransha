@@ -10,18 +10,18 @@ public class ContainsFilter extends FieldFilterNode {
     public BooleanNode caseSensitive;
     public BooleanNode wholeWordsOnly;
 
-    public ContainsFilter(BBGraph g) {
-        super(g);
-        searchText = g.create(StringNode.class);
-        caseSensitive = g.create(BooleanNode.class);
-        wholeWordsOnly = g.create(BooleanNode.class);
+    public ContainsFilter(BBGraph g, User creator) {
+        super(g, creator);
+        searchText = new StringNode(g, creator);
+        caseSensitive = new BooleanNode(g, creator);
+        wholeWordsOnly = new BooleanNode(g, creator);
 
-        caseSensitive.set("caseSensitive", this, false);
-        wholeWordsOnly.set("wholeWordsOnly", this, false);
+        caseSensitive.set("caseSensitive", this, false, creator);
+        wholeWordsOnly.set("wholeWordsOnly", this, false, creator);
     }
 
-    public ContainsFilter(BBGraph g, int id) {
-        super(g, id);
+    public ContainsFilter(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
@@ -68,17 +68,17 @@ public class ContainsFilter extends FieldFilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("searchText")) {
-            searchText.set(config.get("searchText").asText());
+            searchText.set(config.get("searchText").asText(), user);
         }
         if (config.has("caseSensitive")) {
-            caseSensitive.set(config.get("caseSensitive").asBoolean());
+            caseSensitive.set(config.get("caseSensitive").asBoolean(), user);
         }
         if (config.has("wholeWordsOnly")) {
-            wholeWordsOnly.set(config.get("wholeWordsOnly").asBoolean());
+            wholeWordsOnly.set(config.get("wholeWordsOnly").asBoolean(), user);
         }
     }
 

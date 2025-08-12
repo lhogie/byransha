@@ -6,9 +6,14 @@ public abstract class UserApplication extends BNode {
     ImageNode icon = null;
     final BNode rootNode;
 
-    public UserApplication(BBGraph g){
-        super(g);
-        rootNode = g.create(rootNodeClass());
+    public UserApplication(BBGraph g, User user){
+        super(g, user);
+        try {
+            rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class)
+                    .newInstance(g, user);
+        } catch (Throwable err) {
+            throw new RuntimeException(err);
+        }
     }
 
     protected abstract Class<? extends BNode> rootNodeClass() ;

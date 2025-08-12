@@ -1,16 +1,17 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.User;
 
 public class PR extends Status {
 
-	public PR(BBGraph g) {
-		super(g);
-		name.set("Professeur des Universités");
+	public PR(BBGraph g, User creator) {
+		super(g, creator);
+		name.set("Professeur des Universités", creator);
 	}
 
-	public PR(BBGraph g, int id) {
-		super(g, id);
+	public PR(BBGraph g, int id, User creator) {
+		super(g, creator, id);
 	}
 
 }

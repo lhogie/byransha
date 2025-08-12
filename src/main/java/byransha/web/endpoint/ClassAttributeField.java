@@ -243,7 +243,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             );
         }
 
-        if (node instanceof ValuedNode<?> valuedNode) {
+        if (node instanceof PrimitiveValueNode<?> valuedNode) {
             addValuedNodeInfo(currentNodeInfo, valuedNode);
         }
 
@@ -252,7 +252,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     private void addValuedNodeInfo(
         ObjectNode nodeInfo,
-        ValuedNode<?> valuedNode
+        PrimitiveValueNode<?> valuedNode
     ) {
         if (valuedNode.get() == null) {
             nodeInfo.set("value", NullNode.getInstance());
@@ -330,7 +330,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             b.set("isValid", BooleanNode.valueOf(bn.isValid()));
         }
 
-        if (out instanceof ValuedNode<?> vn) {
+        if (out instanceof PrimitiveValueNode<?> vn) {
             addValuedNodeInfo(b, vn);
         }
 

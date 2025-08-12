@@ -38,7 +38,7 @@ public class Person extends BusinessNode {
         if (etatCivil == null) {
             return super.toString();
         }
-        return etatCivil.name.get();
+        return etatCivil.name.get().get();
     }
 
     @Override
@@ -46,26 +46,26 @@ public class Person extends BusinessNode {
         return "Person: " + etatCivil.name.get();
     }
 
-    public Person(BBGraph g) {
-        super(g);
-        etatCivil = g.create( EtatCivil.class); // new EtatCivil(g);
-        positions = g.create( ListNode.class); // new ListNode<>(g);
-        pics = g.create( ImageNode.class); // new ImageNode(g);
+    public Person(BBGraph g, User creator) {
+        super(g, creator);
+        etatCivil = new EtatCivil(g, creator); // new EtatCivil(g);
+        positions = new ListNode(g, creator); // new ListNode<>(g);
+        pics = new ImageNode(g, creator); // new ImageNode(g);
 
-        hdr = g.create( BooleanNode.class); // new BooleanNode(g);
+        hdr = new BooleanNode(g, creator); // new BooleanNode(g);
 
-        badgeNumber = g.create( StringNode.class); // new StringNode(g, null);
-        website = g.create( StringNode.class); // new StringNode(g, null);
-        faxNumber = g.create( StringNode.class); // new StringNode(g, null);
-        phdDate = g.create( DateNode.class); // new StringNode(g, null);
+        badgeNumber = new StringNode(g, creator); // new StringNode(g, null);
+        website = new StringNode(g, creator); // new StringNode(g, null);
+        faxNumber = new StringNode(g, creator); // new StringNode(g, null);
+        phdDate = new DateNode(g, creator); // new StringNode(g, null);
 
-        phoneNumbers = g.create( ListNode.class); // new ListNode<>(g);
-        emailAddresses = g.create( ListNode.class); // new ListNode<>(g);
-        offices = g.create( ListNode.class); // new ListNode<>(g);
+        phoneNumbers = new ListNode(g, creator); // new ListNode<>(g);
+        emailAddresses = new ListNode(g, creator); // new ListNode<>(g);
+        offices = new ListNode(g, creator); // new ListNode<>(g);
     }
 
-    public Person(BBGraph g, int id) {
-        super(g, id);
+    public Person(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override

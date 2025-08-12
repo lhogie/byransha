@@ -6,14 +6,14 @@ public class Agent extends BusinessNode {
 
     public EtatCivil etatCivil;
 
-    public Agent(BBGraph g) {
-        super(g);
+    public Agent(BBGraph g, User creator) {
+        super(g, creator);
 
-        etatCivil = g.create(EtatCivil.class);
+        etatCivil = new EtatCivil(g, creator);
     }
 
-    public Agent(BBGraph g, int id) {
-        super(g, id);
+    public Agent(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     private String returnName() {

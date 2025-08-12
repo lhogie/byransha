@@ -1,23 +1,20 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.ListNode;
-import byransha.StringNode;
+import byransha.*;
 
 public class Campus extends BusinessNode {
 
     public StringNode name;
     public ListNode<Building> buildings;
 
-    public Campus(BBGraph g) {
-        super(g);
-        name = g.create( StringNode.class);
-        buildings = g.create( ListNode.class);
+    public Campus(BBGraph g, User creator) {
+        super(g, creator);
+        name = new  StringNode(g, creator);
+        buildings = new  ListNode(g, creator);
     }
 
-    public Campus(BBGraph g, int id) {
-        super(g, id);
+    public Campus(BBGraph g, int id, User creator) {
+        super(g, creator, id);
     }
 
     @Override

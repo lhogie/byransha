@@ -1,14 +1,15 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.User;
 
 public class CR extends Status {
-	public CR(BBGraph g) {
-		super(g);
-		name.set("Chargé de Recherche");
+	public CR(BBGraph g, User creator) {
+		super(g, creator);
+		name.set("Chargé de Recherche", creator);
 	}
 
-	public CR(BBGraph g, int id) {
-		super(g, id);
+	public CR(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 }

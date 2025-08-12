@@ -226,10 +226,6 @@ public class CSVExporter {
                                 maxDepth,
                                 currentDepth
                             );
-                            case ValuedNode<?> valuedNode -> fieldsToExport.put(
-                                fieldName,
-                                valuedNode.get()
-                            );
                             case ListNode<?> listNode -> handleListNode(
                                 listNode,
                                 fieldName,
@@ -238,6 +234,10 @@ public class CSVExporter {
                                 includeRecursiveNodes,
                                 maxDepth,
                                 currentDepth
+                            );
+                            case ValuedNode<?> valuedNode -> fieldsToExport.put(
+                                fieldName,
+                                valuedNode.get()
                             );
                             case BNode bNode when currentDepth < maxDepth -> {
                                 if (includeRecursiveNodes.test(bNode)) {
@@ -315,7 +315,7 @@ public class CSVExporter {
     ) {
         if (dateNode.get() != null) {
             // Use new date to convert the date in a readable format (it's save with T...)
-            OffsetDateTime odt = OffsetDateTime.parse(dateNode.get());
+            OffsetDateTime odt = dateNode.get();
             Date parsedDate = Date.from(odt.toInstant());
 
             DateFormat excelDateFormat = new SimpleDateFormat("dd/MM/yyyy");

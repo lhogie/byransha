@@ -3,6 +3,7 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
+import byransha.User;
 import byransha.annotations.ListOptions;
 import byransha.annotations.ListOptions;
 import byransha.annotations.ListOptions;
@@ -19,12 +20,12 @@ public class Contract extends BusinessNode {
     ListNode<Person> partners;
     ListNode<Person> misc;
 
-    public Contract(BBGraph g) {
-        super(g);
+    public Contract(BBGraph g, User creator) {
+        super(g, creator);
     }
 
-    public Contract(BBGraph g, int id) {
-        super(g, id);
+    public Contract(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override

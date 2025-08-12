@@ -1,11 +1,6 @@
 package byransha.filter;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.BooleanNode;
-import byransha.IntNode;
-import byransha.StringNode;
-import byransha.ValuedNode;
+import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
@@ -17,21 +12,21 @@ public class NumericRangeFilter extends FieldFilterNode {
     public BooleanNode includeMin;
     public BooleanNode includeMax;
 
-    public NumericRangeFilter(BBGraph g) {
-        super(g);
-        minValue = g.create(StringNode.class);
-        maxValue = g.create(StringNode.class);
-        includeNull = g.create(BooleanNode.class);
-        includeMin = g.create(BooleanNode.class);
-        includeMax = g.create(BooleanNode.class);
+    public NumericRangeFilter(BBGraph g, User creator) {
+        super(g, creator);
+        minValue = new StringNode(g, creator);
+        maxValue = new StringNode(g, creator);
+        includeNull = new BooleanNode(g, creator);
+        includeMin = new BooleanNode(g, creator);
+        includeMax = new BooleanNode(g, creator);
 
-        includeNull.set("includeNull", this, true);
-        includeMin.set("includeMin", this, true);
-        includeMax.set("includeMax", this, true);
+        includeNull.set("includeNull", this, true, creator);
+        includeMin.set("includeMin", this, true, creator);
+        includeMax.set("includeMax", this, true, creator);
     }
 
-    public NumericRangeFilter(BBGraph g, int id) {
-        super(g, id);
+    public NumericRangeFilter(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
 
@@ -94,23 +89,23 @@ public class NumericRangeFilter extends FieldFilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("minValue")) {
-            minValue.set(config.get("minValue").asText());
+            minValue.set(config.get("minValue").asText(), user);
         }
         if (config.has("maxValue")) {
-            maxValue.set(config.get("maxValue").asText());
+            maxValue.set(config.get("maxValue").asText(), user);
         }
         if (config.has("includeNull")) {
-            includeNull.set(config.get("includeNull").asBoolean());
+            includeNull.set(config.get("includeNull").asBoolean(), user);
         }
         if (config.has("includeMin")) {
-            includeMin.set(config.get("includeMin").asBoolean());
+            includeMin.set(config.get("includeMin").asBoolean(), user);
         }
         if (config.has("includeMax")) {
-            includeMax.set(config.get("includeMax").asBoolean());
+            includeMax.set(config.get("includeMax").asBoolean(), user);
         }
     }
 

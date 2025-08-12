@@ -27,12 +27,12 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
 
-    public ListNode(BBGraph db) {
-        super(db);
+    public ListNode(BBGraph db, User creator) {
+        super(db, creator);
     }
 
-    public ListNode(BBGraph g, int id) {
-        super(g, id);
+    public ListNode(BBGraph g, int id, User creator) {
+        super(g, id, creator);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         boolean removed = false;
         switch (listType) {
             default:
-                removed = elements.remove(element);
+                removed = get().remove(element);
         }
 
         if (removed) {
@@ -102,7 +102,7 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         }
     }
 
-    public void select(String option) {
+    public void select(String option, User creator) {
         if (option == null || option.isEmpty()) {
             throw new IllegalArgumentException(
                 "Option cannot be null or empty"
@@ -116,19 +116,18 @@ public class ListNode<T> extends ValuedNode<List<T>> {
             );
         }
 
-        var existingElement = elements.stream().findFirst();
+        var existingElement = get().stream().findFirst();
 
         if (existingElement.isPresent()) {
             StringNode existingNode = (StringNode) existingElement.get();
-            existingNode.set(option);
+            existingNode.set(option, creator);
         } else {
-            var n = graph.create(StringNode.class);
-            n.set(option);
-            add((T) n);
+            var n = new StringNode(graph, creator, option);
+            add((T) n, creator);
         }
     }
 
-    public void select(int index) {
+    public void select(int index, User creator) {
         List<String> filteredOptions = getFilteredStaticOptions();
         if (index < 0 || index >= filteredOptions.size()) {
             throw new IndexOutOfBoundsException(
@@ -137,24 +136,24 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         }
 
         var option = filteredOptions.get(index);
-        var existingElement = elements.stream().findFirst();
+        var existingElement = get().stream().findFirst();
 
         if (existingElement.isPresent()) {
             StringNode existingNode = (StringNode) existingElement.get();
-            existingNode.set(option);
+            existingNode.set(option, creator);
         } else {
-            var n = graph.create(StringNode.class);
-            n.set(option);
-            add((T) n);
+            var n = new StringNode(graph, this.creator);
+            n.set(option, creator);
+            add((T) n, creator);
         }
     }
 
     public int getSelectedIndex() {
-        if (elements.isEmpty()) {
+        if (get().isEmpty()) {
             return -1;
         }
 
-        String selected = elements
+        String selected = get()
             .stream()
             .filter(e -> e instanceof StringNode)
             .map(e -> (StringNode) e)
@@ -166,11 +165,11 @@ public class ListNode<T> extends ValuedNode<List<T>> {
     }
 
     public String getSelected() {
-        if (elements.isEmpty()) {
+        if (get().isEmpty()) {
             return null;
         }
 
-        return elements
+        return get()
             .stream()
             .filter(e -> e instanceof StringNode)
             .map(e -> (StringNode) e)
@@ -184,32 +183,32 @@ public class ListNode<T> extends ValuedNode<List<T>> {
     }
 
     public void removeAll() {
-        elements.clear();
+        get().clear();
         invalidateOutsCache();
     }
 
     public List<T> getElements() {
-        return List.copyOf(elements);
+        return List.copyOf(get());
     }
 
     public int size() {
-        return elements.size();
+        return get().size();
     }
 
     public T get(int index) {
-        if (index < 0 || index >= elements.size()) {
+        if (index < 0 || index >= get().size()) {
             return null;
         }
-        return elements.stream().skip(index).findFirst().orElse(null);
+        return get().stream().skip(index).findFirst().orElse(null);
     }
 
     public T random() {
-        if (elements.isEmpty()) {
+        if (get().isEmpty()) {
             return null;
         }
-        return elements
+        return get()
             .stream()
-            .skip(RANDOM.nextInt(elements.size()))
+            .skip(RANDOM.nextInt(get().size()))
             .findFirst()
             .orElse(null);
     }
@@ -271,24 +270,8 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         return getFilteredStaticOptions();
     }
 
-    public void addString(String value) {
-        add((T) value);
-    }
-
-    public void addInteger(Integer value) {
-        add((T) value);
-    }
-
-    public void addBoolean(Boolean value) {
-        add((T) value);
-    }
-
-    public void addDouble(Double value) {
-        add((T) value);
-    }
-
     public List<String> getStrings() {
-        return elements
+        return get()
             .stream()
             .filter(e -> e instanceof String)
             .map(e -> (String) e)
@@ -296,7 +279,7 @@ public class ListNode<T> extends ValuedNode<List<T>> {
     }
 
     public List<Integer> getIntegers() {
-        return elements
+        return get()
             .stream()
             .filter(e -> e instanceof Integer)
             .map(e -> (Integer) e)

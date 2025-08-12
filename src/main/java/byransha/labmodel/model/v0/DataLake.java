@@ -4,6 +4,8 @@ import byransha.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Objects;
 import toools.io.file.RegularFile;
@@ -12,8 +14,8 @@ public class DataLake extends BNode {
 
     public File inputDir;
 
-    public DataLake(BBGraph g) {
-        super(g);
+    public DataLake(BBGraph g, User creator) {
+        super(g, creator);
     }
 
     @Override
@@ -27,6 +29,9 @@ public class DataLake extends BNode {
     }
 
     public void load() throws IOException {
+
+        User user = new User(graph, null);
+
         if(inputDir == null) {return;}
         else if(!inputDir.exists() || !inputDir.isDirectory()) {
             throw new IOException("Input directory does not exist or not a directory: " + inputDir);
@@ -35,26 +40,26 @@ public class DataLake extends BNode {
         Files.readAllLines(
             new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()
         ).forEach(l -> {
-                var c = graph.create(Nationality.class);
-                c.set(l);
+                var c = new Nationality(graph, user);
+                c.set(l, user);
             });
 
-        Lab i3s = graph.create(Lab.class);
+        Lab i3s = new Lab(graph, user);
 
         for (var n : List.of("CNRS", "Inria")) {
-            var epst = graph.create(EPST.class); //new EPST(graph);
-            epst.name.set(n);
-            i3s.tutelles.add(epst);
+            var epst = new EPST(graph, user); //new EPST(graph);
+            epst.name.set(n, user);
+            i3s.tutelles.add(epst, user);
         }
 
-        var UniCA = graph.create(University.class); //new University(graph);
-        UniCA.name.set("UniCA");
-        i3s.tutelles.add(UniCA);
+        var UniCA = new University(graph, user); //new University(graph);
+        UniCA.name.set("UniCA", user);
+        i3s.tutelles.add(UniCA, user);
 
         for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-            var group = graph.create(ResearchGroup.class); //new ResearchGroup(graph);
-            group.name.set(n);
-            i3s.subStructures.add(group);
+            var group = new ResearchGroup(graph, user); //new ResearchGroup(graph);
+            group.name.set(n, user);
+            i3s.subStructures.add(group, user);
         }
 
         for (var n : List.of(
@@ -66,9 +71,9 @@ public class DataLake extends BNode {
             "Valrose",
             "Fabron"
         )) {
-            var campus = graph.create(Campus.class); //new Campus(graph);
-            campus.name.set(n);
-            UniCA.campuses.add(campus);
+            var campus = new Campus(graph, user); //new Campus(graph);
+            campus.name.set(n, user);
+            UniCA.campuses.add(campus, user);
         }
 
         var upToDateDir = new File(inputDir, "marijo_tableau_de_bord");
@@ -77,25 +82,27 @@ public class DataLake extends BNode {
         var csv = new CSV(new File(oldDir, "TB_personneI3S_IT.csv"), ";");
 
         for (var l : csv) {
-            var person = graph.create(Person.class); //new Person(graph);
+            var person = new Person(graph, user); //new Person(graph);
 
             if (l.set(0, null).equals("member")) {
-                var position = graph.create(Position.class);
+                var position = new Position(graph, user);
                 position.employer = i3s;
-                person.positions.add(position);
+                person.positions.add(position, user);
             }
 
-            			person.etatCivil.name.set(l.set(1, null));
-            			person.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
-            			person.etatCivil.firstName.set(l.set(3, null));
-            			person.etatCivil.birthDate.set(l.set(4, null));
-            			person.etatCivil.cityOfBirth.set(l.set(5, null));
+            var name = new StringNode(graph, user, l.set(1, null));
+            var time = OffsetDateTime.parse(l.set(4, null));
+            person.etatCivil.name.set(name, user);
+            person.etatCivil.familyNameBeforeMariage.get().set(l.set(2, null), user);
+            person.etatCivil.firstName.get().set(l.set(3, null), user);
+            person.etatCivil.birthDate.get().set(time, user);
+            person.etatCivil.cityOfBirth.get().set(l.set(5, null), user);
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
-            			person.etatCivil.address.set(l.set(8, null));
-            var inter = graph.create(StringNode.class);
-            inter.set(l.set(9, null));
-            person.phoneNumbers.add(inter);
+            person.etatCivil.address.get().set(l.set(8, null), user);
+            var inter = new StringNode(graph, user);
+            inter.set(l.set(9, null), user);
+            person.phoneNumbers.add(inter, user);
 
             var officeName = l.set(15, null);
 
@@ -114,7 +121,7 @@ public class DataLake extends BNode {
                             var office = b.findOffice(officeName);
 
                             if (office != null) {
-                                person.offices.add((Office) office);
+                                person.offices.add((Office) office, user);
                             }
                         }
                     }
@@ -126,17 +133,17 @@ public class DataLake extends BNode {
                 l.set(13, null),
                 l.set(14, null)
             )) {
-                var n = graph.create(StringNode.class); //new StringNode(this, phoneNumber);
-                n.set(phoneNumber);
-                person.phoneNumbers.add(n);
+                var n = new StringNode(graph, user); //new StringNode(this, phoneNumber);
+                n.set(phoneNumber, user);
+                person.phoneNumbers.add(n, user);
             }
 
-            person.badgeNumber.set(l.set(16, null));
-            person.website.set(l.set(17, null));
-            person.faxNumber.set(l.set(18, null));
-            var email = graph.create(EmailNode.class);
-            email.set(l.set(19, null));
-            person.emailAddresses.add(email);
+            person.badgeNumber.set(l.set(16, null), user);
+            person.website.set(l.set(17, null), user);
+            person.faxNumber.set(l.set(18, null), user);
+            var email = new EmailNode(graph, user);
+            email.set(l.set(19, null), user);
+            person.emailAddresses.add(email, user);
             person.researchGroup = graph.find(ResearchGroup.class, n ->{
                     if (n.name != null && n.name.get() != null) {
                         n.name.get().equals(l.set(20, null));
@@ -148,9 +155,9 @@ public class DataLake extends BNode {
             String phdDate = l.set(22, null);
 
             if (phdDate != null) {
-                person.phdDate.set(phdDate);
+                person.phdDate.set(OffsetDateTime.parse(phdDate), user);
             } else if (doctor) {
-                person.phdDate.set("unknown");
+                person.phdDate.set(null, user);
             }
             //			System.err.println(l.stream().map(e-> e == null ? "" : "-").toList());
             var startDate = l.set(30, null);
@@ -158,7 +165,7 @@ public class DataLake extends BNode {
 
             for (var i : List.of(25, 26)) {
                 var employer = l.set(i, null);
-                person.position = graph.create(Position.class); //new Position(graph);
+                person.position = new Position(graph, user); //new Position(graph);
                 person.position.employer = graph.find(ResearchGroup.class, n ->{
                     if (n.name != null && n.name.get() != null) {
                         n.name.get().equals(employer);
@@ -167,32 +174,32 @@ public class DataLake extends BNode {
                     }
                 );
                 var corps = l.set(i - 2, null);
-//                person.position.status = graph.find(Status.class, s ->
+//                person.position.status = graph.find(Status(g, user), s ->
 //                    s.name.get().equals(corps)
 //                );
 
                 if (!startDate.isBlank()) {
-                    var startDateNode = graph.create(DateNode.class);
-                    startDateNode.set(startDate);
+                    var startDateNode = new DateNode(graph, user);
+                    startDateNode.set(OffsetDateTime.parse(startDate), user);
                     person.position.from = startDateNode;
                 }
 
                 if (!endDate.isBlank()) {
-                    var endDateNode = graph.create(DateNode.class);
-                    endDateNode.set(endDate);
+                    var endDateNode = new DateNode(graph, user);
+                    endDateNode.set(OffsetDateTime.parse(endDate), user);
                     person.position.to = endDateNode;
                 }
             }
 
             person.enposte = l.set(27, null).equals("en poste");
-            person.position.comment = graph.create(StringNode.class);
-            person.position.comment.set(  l.set(28, null));
-            var quotite = graph.create(StringNode.class);
-            quotite.set(l.set(29, null));
+            person.position.comment = new StringNode(graph, user);
+            person.position.comment.set(  l.set(28, null), user);
+            var quotite = new StringNode(graph, user);
+            quotite.set(l.set(29, null), user);
             person.quotite = quotite; //new StringNode(this, l.set(29, null));
-            person.position.comment.set(person.position.comment.get() + "\n"+ l.set(32, null));
-            var researchActivity = graph.create(StringNode.class);
-            researchActivity.set(l.set(33, null));
+            person.position.comment.set(person.position.comment.get() + "\n"+ l.set(32, null), user);
+            var researchActivity = new StringNode(graph, user);
+            researchActivity.set(l.set(33, null), user);
             person.researchActivity = researchActivity; //new StringNode(this, l.set(33, null));
 
 //            if (

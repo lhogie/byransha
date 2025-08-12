@@ -13,8 +13,8 @@ public abstract class BusinessNode extends BNode {
 		super(g, creator);
 	}
 
-	public BusinessNode(BBGraph g, int id) {
-		super(g, id);
+	public BusinessNode(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 }

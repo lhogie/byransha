@@ -39,7 +39,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         // Get query and filter chain
         final String query = getQueryFromInput(currentNode, in);
-        activeFilterChain = getActiveFilterChain(currentNode, in);
+        activeFilterChain = getActiveFilterChain(currentNode, in, creator);
 
         // Clear results if using SearchForm
         if (currentNode instanceof SearchForm) {
@@ -106,7 +106,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         pageNodes.forEach(node -> {
             if (currentNode instanceof SearchForm sf) {
-                sf.results.add(node);
+                sf.results.add(node, user);
             }
             addNodeInfo(dataArray, node);
         });
@@ -157,7 +157,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
     /**
      * Gets the active FilterChain from either SearchForm or creates one from request.
      */
-    private FilterChain getActiveFilterChain(BNode currentNode, ObjectNode in)
+    private FilterChain getActiveFilterChain(BNode currentNode, ObjectNode in, User creator)
         throws Throwable {
         if (currentNode instanceof SearchForm && in.isEmpty()) {
             SearchForm searchForm = (SearchForm) currentNode;
@@ -177,10 +177,10 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
                     filtersArray
                 );
                 if (!customFilters.isEmpty()) {
-                    FilterChain filterChain = graph.create(FilterChain.class);
-                    filterChain.enabled.set(true);
+                    FilterChain filterChain = new FilterChain(graph, creator);
+                    filterChain.enabled.set(true, creator);
                     for (FilterNode filter : customFilters) {
-                        filterChain.addFilter(filter);
+                        filterChain.addFilter(filter, creator);
                     }
                     return filterChain;
                 }
@@ -229,22 +229,22 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = graph.create(StartsWithFilter.class);
+                    filter = new StartsWithFilter(graph, creator);
                     break;
                 case "contains":
-                    filter = graph.create(ContainsFilter.class);
+                    filter = new ContainsFilter(graph, creator);
                     break;
                 case "class":
-                    filter = graph.create(ClassFilter.class);
+                    filter = new ClassFilter(graph, creator);
                     break;
                 case "daterange":
-                    filter = graph.create(DateRangeFilter.class);
+                    filter = new DateRangeFilter(graph, creator);
                     break;
                 case "numericrange":
-                    filter = graph.create(NumericRangeFilter.class);
+                    filter = new NumericRangeFilter(graph, creator);
                     break;
                 case "filterchain":
-                    filter = graph.create(FilterChain.class);
+                    filter = new FilterChain(graph, creator);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);
@@ -253,7 +253,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
             // Configure the created filter
             if (filter != null) {
-                filter.configure(config);
+                filter.configure(config, creator);
             }
 
             return filter;

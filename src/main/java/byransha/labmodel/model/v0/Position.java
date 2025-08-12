@@ -3,6 +3,7 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.DateNode;
+import byransha.User;
 
 public class Position extends BNode {
 	Structure employer;
@@ -10,16 +11,16 @@ public class Position extends BNode {
 	DateNode to;
 	Status status;
 
-	public Position(BBGraph g) {
-		super(g);
-		employer = g.create(  Structure.class);
-		from = g.create( DateNode.class);
-		to = g.create(  DateNode.class);
-		status = g.create(  Status.class);
+	public Position(BBGraph g, User creator) {
+		super(g, creator);
+		employer = new Structure(g, creator);
+		from = new DateNode(g, creator);
+		to = new DateNode(g, creator);
+		status = new Status(g, creator);
 	}
 
-	public Position(BBGraph g, int id) {
-		super(g, id);
+	public Position(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 	@Override

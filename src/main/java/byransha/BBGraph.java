@@ -42,14 +42,19 @@ public class BBGraph extends BNode {
         return "BBGraph: A graph representation for BNodes.";
     }
 
-    public BBGraph() {
-        this((File) null);
+    public BBGraph(User user) {
+        this((File) null, user);
     }
 
-    public BBGraph(File directory) {
-        super(null); // The graph has automatically ID 0
+    public BBGraph(File directory, User user) {
+        super(null, user); // The graph has automatically ID 0
         // Ensure the graph self-node is accepted early
-        accept(this); // self accept
+
+        if (user!=null)
+            throw new IllegalArgumentException();
+
+        accept(this,user = admin = new User(this, null, "admin", "admin")); // self accept
+        accept(this,user = admin = new User(this, null, "system", "system")); // self accept
         this.directory = directory;
 
         if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
@@ -101,7 +106,8 @@ public class BBGraph extends BNode {
 
     public synchronized void loadFromDisk(
         Consumer<BNode> newNodeInstantiated,
-        BiConsumer<BNode, String> setRelation
+        BiConsumer<BNode, String> setRelation,
+        User user
     ) {
         this.loading = true;
         // Pre-scan disk to set the idSequence high enough to avoid collisions
@@ -136,7 +142,7 @@ public class BBGraph extends BNode {
             .values()
             .forEach(n -> {
                 if (n.isPersisting()) {
-                    loadOuts(n, setRelation);
+                    loadOuts(n, setRelation, user);
                 }
             });
 
@@ -224,7 +230,7 @@ public class BBGraph extends BNode {
         }
     }
 
-    private void loadOuts(BNode node, BiConsumer<BNode, String> setRelation) {
+    private void loadOuts(BNode node, BiConsumer<BNode, String> setRelation, User user) {
         var d = node.outsDirectory();
 
         if (!d.exists()) return;
@@ -264,7 +270,7 @@ public class BBGraph extends BNode {
 
                     try {
                         if (node instanceof ListNode<?>) {
-                            ((ListNode<BNode>) node).add(targetNode);
+                            ((ListNode<BNode>) node).add(targetNode, user);
                         } else {
                             try {
                                 if (node.hasField(symlink.getName())) {
@@ -342,20 +348,6 @@ public class BBGraph extends BNode {
         return nodesById.size();
     }
 
-    public <N extends BNode> N create(Class<N> nodeClass) {
-        try {
-            return accept(
-                nodeClass.getConstructor(BBGraph.class).newInstance(this)
-            );
-        } catch (Exception e) {
-            throw new RuntimeException(
-                "Failed to add node of class: " + nodeClass.getName(),
-                e
-            );
-        }
-    }
-
-
     public void deleteNode(BNode node) {
         if (node.ins().size() <= 1) {
             deleteNodeDirectory(node);
@@ -397,7 +389,7 @@ public class BBGraph extends BNode {
         return result;
     }
 
-    synchronized <N extends BNode> void integrate(N n) {
+    synchronized <N extends BNode> void integrate(N n, User user) {
         // Ensure core maps are initialized even during early construction
         if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
 
@@ -428,11 +420,11 @@ public class BBGraph extends BNode {
                     alreadyInName.getClass().getName()
                 );
             }
-            n.setColor("#00fff5");
+            n.setColor("#00fff5", user);
         }
 
         Class<? extends BNode> nodeClass = n.getClass();
-        if(!(n instanceof Cluster)) n.createOrAssignCluster();
+        if(!(n instanceof Cluster)) n.createOrAssignCluster(user);
 
         byClass
             .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
@@ -454,8 +446,8 @@ public class BBGraph extends BNode {
         }
     }
 
-    synchronized <N extends BNode> N accept(N n) {
-        n.initialized();
+    synchronized <N extends BNode> N accept(N n, User user) {
+        n.initialized(user);
         return n;
     }
 

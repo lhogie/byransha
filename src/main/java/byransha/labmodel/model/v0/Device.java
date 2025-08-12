@@ -2,18 +2,19 @@ package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
 import byransha.StringNode;
+import byransha.User;
 
 public class Device extends BusinessNode {
 	public StringNode serialNumber;
 	public StringNode brand;
 	public StringNode modelName;
 
-	public Device(BBGraph g) {
-		super(g);
+	public Device(BBGraph g, User creator) {
+		super(g,  creator);
 	}
 
-	public Device(BBGraph g, int id) {
-		super(g, id);
+	public Device(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 	@Override

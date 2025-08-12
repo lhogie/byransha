@@ -3,7 +3,7 @@ package byransha;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class FileNode extends ValuedNode<byte[]> {
+public class FileNode extends PrimitiveValueNode<byte[]> {
 
     public StringNode title;
 
@@ -13,9 +13,8 @@ public class FileNode extends ValuedNode<byte[]> {
     }
 
     @Override
-    public void fromString(String s) {
-        System.out.println("FileNode.fromString: " + s);
-        set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)));
+    public void fromString(String s, User user) {
+        set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)), user);
     }
 
     @Override
@@ -24,8 +23,8 @@ public class FileNode extends ValuedNode<byte[]> {
     }
 
     @Override
-    protected void fromBytes(byte[] bytes) {
-        set(bytes);
+    protected void fromBytes(byte[] bytes, User user) {
+        set(bytes, user);
     }
 
     @Override

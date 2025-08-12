@@ -2,6 +2,7 @@ package byransha.labmodel;
 
 import byransha.BBGraph;
 import byransha.BNode;
+import byransha.User;
 import byransha.UserApplication;
 import byransha.labmodel.model.v0.Agent;
 import byransha.labmodel.model.v0.Country;
@@ -13,13 +14,13 @@ import java.nio.file.Paths;
 
 public class I3SApplication extends UserApplication {
 
-    public I3SApplication(BBGraph g) {
-        super(g);
-        g.create(StructureView.class);
-        g.create(LabView.class);
-        g.create(Agent.class);
-        Country.loadCountries(g);
-        var lake = g.create(DataLake.class);
+    public I3SApplication(BBGraph g, User creator) {
+        super(g, creator);
+        new StructureView(g);
+        new LabView(g);
+        new Agent(g, creator);
+        Country.loadCountries(g, creator);
+        var lake = new DataLake(g, creator);
         lake.inputDir = Paths.get(
             System.getProperty("user.home"),
             "i3s_extraction"

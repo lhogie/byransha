@@ -5,8 +5,8 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	public IntNode(BBGraph db, User creator) {
 		super(db, creator);
 	}
-    public IntNode(BBGraph db, int id) {
-        super(db, id);
+    public IntNode(BBGraph db, User creator, int id) {
+        super(db, creator);
     }
 
 	@Override

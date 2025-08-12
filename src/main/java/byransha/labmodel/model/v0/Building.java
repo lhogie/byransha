@@ -3,6 +3,7 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.ListNode;
+import byransha.User;
 
 public class Building extends BusinessNode {
 
@@ -11,13 +12,13 @@ public class Building extends BusinessNode {
     )
     public ListNode<Office> offices;
 
-    public Building(BBGraph g) {
-        super(g);
-        offices = g.create( ListNode.class);
+    public Building(BBGraph g, User creator) {
+        super(g, creator);
+        offices = new ListNode(g, creator);
     }
 
-    public Building(BBGraph g, int id) {
-        super(g, id);
+    public Building(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     public Office findOffice(String name) {

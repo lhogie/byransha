@@ -9,19 +9,19 @@ public abstract class FilterNode extends BNode {
 
     public BooleanNode enabled;
 
-    protected FilterNode(BBGraph g) {
-        super(g);
-        enabled = g.create(BooleanNode.class);
-        enabled.set("enabled", this, true);
+    protected FilterNode(BBGraph g, User creator) {
+        super(g, creator);
+        enabled = new BooleanNode(g, creator);
+        enabled.set("enabled", this, true, creator);
     }
 
-    protected FilterNode(BBGraph g, int id) {
-        super(g, id);
+    protected FilterNode(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
+    protected void initialized(User user) {
+        super.initialized(user);
     }
 
     public abstract boolean filter(BNode node);
@@ -69,9 +69,9 @@ public abstract class FilterNode extends BNode {
         };
     }
 
-    public void configure(ObjectNode config) {
+    public void configure(ObjectNode config, User user) {
         if (config.has("enabled")) {
-            enabled.set(config.get("enabled").asBoolean());
+            enabled.set(config.get("enabled").asBoolean(), user);
         }
     }
 

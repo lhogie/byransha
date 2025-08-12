@@ -45,7 +45,7 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
                 return ErrorResponse.badRequest("ID cannot be null or empty.");
             }
 
-            listNode.select(idToLink);
+            listNode.select(idToLink, user);
 
             return new EndpointJsonResponse(
                 a,
@@ -68,7 +68,7 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
                 if (currentNode instanceof ListNode<?> listNode) {
                     @SuppressWarnings("unchecked")
                     ListNode<N> typedListNode = (ListNode<N>) listNode;
-                    typedListNode.add((N) existingNode);
+                    typedListNode.add((N) existingNode, user);
                 }
             }
 

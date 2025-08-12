@@ -3,6 +3,8 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.ListNode;
+import byransha.User;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,14 +14,14 @@ public class Lab extends Structure {
     Map<Person, HFDSAvisE> HFDSAvisfds;
     ListNode<Structure> tutelles;
 
-    public Lab(BBGraph g) {
-        super(g);
+    public Lab(BBGraph g, User creator) {
+        super(g, creator);
         HFDSAvisfds = new HashMap<>();
-        tutelles = g.create( ListNode.class);
+        tutelles = new ListNode(g, creator);
     }
 
-    public Lab(BBGraph g, int id) {
-        super(g, id);
+    public Lab(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     enum HFDSAvisE {

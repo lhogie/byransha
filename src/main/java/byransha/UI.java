@@ -12,16 +12,16 @@ public class UI extends BNode {
     ColorNode backgroundColor;
     ColorNode textColor;
 
-    public UI(BBGraph db) {
-        super(db);
-        backgroundColor = new ColorNode(db);
-        backgroundColor.set("#A9A9A9");
-        textColor = new ColorNode(db);
-        textColor.set("#000000");
+    public UI(BBGraph db, User creator) {
+        super(db, creator);
+        backgroundColor = new ColorNode(db, creator);
+        backgroundColor.set("#A9A9A9", creator);
+        textColor = new ColorNode(db, creator);
+        textColor.set("#000000", creator);
     }
 
-    public UI(BBGraph db, int id) {
-        super(db, id);
+    public UI(BBGraph db, User creator, int id) {
+        super(db, creator, id);
     }
 
     @Override

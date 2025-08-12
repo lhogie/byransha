@@ -3,6 +3,7 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
+import byransha.User;
 import byransha.annotations.ListOptions;
 import byransha.annotations.ListOptions;
 import byransha.annotations.ListOptions;
@@ -13,19 +14,19 @@ public class Publication extends BusinessNode {
     public ListNode<Person> authors;
     public ACMClassifier acmClassifier;
 
-    public Publication(BBGraph g, StringNode title, ListNode<Person> authors) {
-        super(g);
+    public Publication(BBGraph g, StringNode title, ListNode<Person> authors, User creator) {
+        super(g, creator);
         this.title = title;
         this.authors = authors;
     }
 
-    public Publication(BBGraph g, int id) {
-        super(g, id);
+    public Publication(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
-    public Publication(BBGraph g) {
-        super(g);
-        this.title = new StringNode(g);
+    public Publication(BBGraph g, User creator) {
+        super(g, creator);
+        this.title = new StringNode(g, creator);
     }
 
     @Override

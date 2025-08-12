@@ -17,8 +17,8 @@ public abstract class ValuedNode<V> extends BNode {
         super(g, user);
     }
 
-    public ValuedNode(BBGraph db, int id) {
-        super(db, id);
+    public ValuedNode(BBGraph g, int id, User user) {
+        super(g, user, id);
     }
 
     public V get(){

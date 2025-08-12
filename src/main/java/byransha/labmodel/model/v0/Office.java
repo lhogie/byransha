@@ -9,14 +9,14 @@ public class Office extends BusinessNode {
     public IntNode surface;
     public IntNode capacity;
 
-    public Office(BBGraph g) {
-        super(g);
-        name = g.create( StringNode.class);
-        users = g.create( ListNode.class);
+    public Office(BBGraph g, User creator) {
+        super(g, creator);
+        name = new StringNode(g, creator);
+        users = new ListNode(g, creator);
     }
 
-    public Office(BBGraph g, int id) {
-        super(g, id);
+    public Office(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override

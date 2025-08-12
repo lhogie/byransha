@@ -22,27 +22,27 @@ public class FilterChain extends FilterNode {
     )
     public ListNode<StringNode> logicalOperator;
 
-    public FilterChain(BBGraph g) {
-        super(g);
-        filters = g.create(ListNode.class);
-        logicalOperator = g.create(ListNode.class);
+    public FilterChain(BBGraph g, User creator) {
+        super(g, creator);
+        filters = new ListNode(g, creator);
+        logicalOperator = new ListNode(g, creator);
     }
 
-    public FilterChain(BBGraph g, int id) {
-        super(g, id);
+    public FilterChain(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
     @Override
-    protected void initialized() {
-        super.initialized();
+    protected void initialized(User user) {
+        super.initialized(user);
 
         var operators = List.of("AND", "OR");
         logicalOperator.setStaticOptions(operators);
 
         if (logicalOperator.getSelected() == null) {
-            StringNode andOption = graph.create(StringNode.class);
-            andOption.set("AND");
-            logicalOperator.add(andOption);
+            StringNode andOption = new StringNode(graph, creator);
+            andOption.set("AND", user);
+            logicalOperator.add(andOption, user);
         }
     }
 
@@ -110,14 +110,14 @@ public class FilterChain extends FilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("logicalOperator")) {
             logicalOperator.removeAll();
-            StringNode operatorNode = graph.create(StringNode.class);
-            operatorNode.set(config.get("logicalOperator").asText());
-            logicalOperator.add(operatorNode);
+            StringNode operatorNode = new StringNode(graph, creator);
+            operatorNode.set(config.get("logicalOperator").asText(), user);
+            logicalOperator.add(operatorNode, user);
         }
 
         if (config.has("filters") && config.get("filters").isArray()) {
@@ -128,16 +128,16 @@ public class FilterChain extends FilterNode {
             for (JsonNode filterConfig : filtersArray) {
                 if (filterConfig.isObject()) {
                     ObjectNode filterObj = (ObjectNode) filterConfig;
-                    FilterNode filter = createFilterFromConfig(filterObj);
+                    FilterNode filter = createFilterFromConfig(filterObj, user);
                     if (filter != null) {
-                        filters.add(filter);
+                        filters.add(filter, user);
                     }
                 }
             }
         }
     }
 
-    private FilterNode createFilterFromConfig(ObjectNode config) {
+    private FilterNode createFilterFromConfig(ObjectNode config, User user) {
         if (!config.has("type")) {
             System.err.println("Filter configuration missing 'type' field");
             return null;
@@ -149,22 +149,22 @@ public class FilterChain extends FilterNode {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = graph.create(StartsWithFilter.class);
+                    filter = new StartsWithFilter(graph, creator);
                     break;
                 case "contains":
-                    filter = graph.create(ContainsFilter.class);
+                    filter = new ContainsFilter(graph, creator);
                     break;
                 case "class":
-                    filter = graph.create(ClassFilter.class);
+                    filter = new ClassFilter(graph, creator);
                     break;
                 case "daterange":
-                    filter = graph.create(DateRangeFilter.class);
+                    filter = new DateRangeFilter(graph, creator);
                     break;
                 case "numericrange":
-                    filter = graph.create(NumericRangeFilter.class);
+                    filter = new NumericRangeFilter(graph, creator);
                     break;
                 case "filterchain":
-                    filter = graph.create(FilterChain.class);
+                    filter = new FilterChain(graph, creator);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);
@@ -172,7 +172,7 @@ public class FilterChain extends FilterNode {
             }
 
             if (filter != null) {
-                filter.configure(config);
+                filter.configure(config, user);
             }
 
             return filter;
@@ -187,9 +187,9 @@ public class FilterChain extends FilterNode {
         }
     }
 
-    public void addFilter(FilterNode filter) {
+    public void addFilter(FilterNode filter, User user) {
         if (filter != null) {
-            filters.add(filter);
+            filters.add(filter, user);
         }
     }
 

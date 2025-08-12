@@ -1,15 +1,16 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
+import byransha.User;
 
 public class CNRS extends EPST {
 
-	public CNRS(BBGraph g) {
-		super(g);
+	public CNRS(BBGraph g, User creator) {
+		super(g, creator);
 	}
 
-	public CNRS(BBGraph g, int id) {
-		super(g, id);
+	public CNRS(BBGraph g, User creator, int id) {
+		super(g, creator, id);
 	}
 
 }

@@ -74,7 +74,8 @@ public class WebServer extends BNode {
         var appClass = (Class<? extends UserApplication>) Class.forName(
             argMap.remove("appClass")
         );
-        backend.application = g.create(appClass);
+
+        backend.application = appClass.getConstructor(BBGraph.class, User.class).newInstance(g, g.admin() );
     }
 
     private static Map<String, String> mapArgs(String... args) {
@@ -92,15 +93,16 @@ public class WebServer extends BNode {
         throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
         if (defaultDBDirectory.exists()) {
             System.out.println("loading DB from " + defaultDBDirectory);
-            var g = new BBGraph(defaultDBDirectory);
+            var g = new BBGraph(defaultDBDirectory, null);
 
             g.loadFromDisk(
                 n -> System.out.println("loading node " + n),
-                (n, s) -> System.out.println("loading arc " + n + ", " + s)
+                (n, s) -> System.out.println("loading arc " + n + ", " + s),
+                    null
             );
             return g;
         } else {
-            return new BBGraph(defaultDBDirectory);
+            return new BBGraph(defaultDBDirectory, null);
         }
     }
 
@@ -133,8 +135,8 @@ public class WebServer extends BNode {
     private final SessionStore sessionStore;
 
     public WebServer(BBGraph g, int port) throws Exception {
-        super(g);
-        this.fileCache = new FileCache(g);
+        super(g, null);
+        this.fileCache = new FileCache(g, null);
         this.sessionStore = new SessionStore();
         createSpecialNodes(g);
         createEndpoints(g);
@@ -204,70 +206,60 @@ public class WebServer extends BNode {
     }
 
     private void createSpecialNodes(BBGraph g) {
-        g.create(JVMNode.class);
-        g.create(Byransha.class);
-        g.create(OSNode.class);
-        var user1 = g.create(User.class);
-        var user2 = g.create(User.class);
-        var user3 = g.create(User.class);
-
-        user1.name.set("user");
-        user1.passwordNode.set("test");
-        user2.name.set("toto");
-        user2.passwordNode.set("toto");
-        user3.name.set("admin");
-        user3.passwordNode.set("admin");
+        new JVMNode(g);
+        new Byransha(g, g.systemUser());
+        new OSNode(g);
+        new User(g, g.systemUser(), "user", "test");
     }
 
     private void createEndpoints(BBGraph g) {
-        g.create(NodeInfo.class);
-        g.create(Views.class);
-        g.create(Jump.class);
-        g.create(Endpoints.class);
-        g.create(JVMNode.Kill.class);
-        var n = g.create(Authenticate.class);
+        new NodeInfo(g);
+        new Views(g);
+        new Jump(g);
+        new Endpoints(g);
+        new JVMNode.Kill(g);
+        var n = new Authenticate(g);
         n.setSessionStore(sessionStore);
-        var l = g.create(Logout.class);
+        var l = new Logout(g);
         l.setSessionStore(sessionStore);
-        g.create(EndpointCallDistributionView.class);
-        g.create(Info.class);
-        g.create(Logs.class);
-        g.create(BasicView.class);
-        g.create(CharExampleXY.class);
-        g.create(User.UserView.class);
-        g.create(BBGraph.GraphNivoView.class);
-        g.create(OSNode.View.class);
-        g.create(JVMNode.View.class);
-        g.create(BNode.InOutsNivoView.class);
-        g.create(ModelGraphivzSVGView.class);
-        g.create(ModelMermaidView.class);
-        g.create(Navigator.class);
-        g.create(OutDegreeDistribution.class);
-        g.create(ClassDistribution.class);
-        g.create(Picture.V.class);
-        g.create(ModelDOTView.class);
-        g.create(ToStringView.class);
-        g.create(NodeEndpoints.class);
-        g.create(SetValue.class);
-        g.create(AnyGraph.Classes.class);
-        g.create(Edit.class);
-        g.create(History.class);
-        g.create(UI.class);
-        g.create(UI.getProperties.class);
-        g.create(Summarizer.class);
-        g.create(LoadImage.class);
-        g.create(ClassInformation.class);
-        g.create(ClassAttributeField.class);
-        g.create(AddNode.class);
-        g.create(AddExistingNode.class);
-        g.create(ListExistingNode.class);
-        g.create(SearchNode.class);
-        g.create(ExportCSV.class);
-        g.create(RemoveFromList.class);
-        g.create(RemoveNode.class);
-        g.create(ColorNodeView.class);
-        g.create(SearchForm.class);
-        g.create(ListChildClasses.class);
+        new EndpointCallDistributionView(g);
+        new Info(g);
+        new Logs(g);
+        new BasicView(g);
+        new CharExampleXY(g);
+        new User.UserView(g);
+        new BBGraph.GraphNivoView(g);
+        new OSNode.View(g);
+        new JVMNode.View(g);
+        new BNode.InOutsNivoView(g);
+        new ModelGraphivzSVGView(g);
+        new ModelMermaidView(g);
+        new Navigator(g);
+        new OutDegreeDistribution(g);
+        new ClassDistribution(g);
+        new ModelDOTView(g);
+        new ToStringView(g);
+        new NodeEndpoints(g);
+        new SetValue(g);
+        new AnyGraph.Classes(g);
+        new Edit(g);
+        new History(g);
+        new UI(g, null);
+        new UI.getProperties(g);
+        new Summarizer(g);
+        new LoadImage(g);
+        new ClassInformation(g);
+        new ClassAttributeField(g);
+        new AddNode(g);
+        new AddExistingNode(g);
+        new ListExistingNode(g);
+        new SearchNode(g);
+        new ExportCSV(g);
+        new RemoveFromList(g);
+        new RemoveNode(g);
+        new ColorNodeView(g);
+        new SearchForm(g, g.systemUser());
+        new ListChildClasses(g);
     }
 
     public SessionStore getSessionStore() {
@@ -362,9 +354,9 @@ public class WebServer extends BNode {
                     u.name.get().equals("guest")
                 );
                 if (user == null) {
-                    user = graph.create(User.class);
-                    user.name.set("guest");
-                    user.passwordNode.set("guest");
+                    user = new User(graph, graph.admin());
+                    user.name.set("guest", user);
+                    user.passwordNode.set("guest", user);
                     // user.stack.push(graph.root());
                 }
             }
@@ -698,7 +690,8 @@ public class WebServer extends BNode {
                             cacheKey,
                             content,
                             contentType,
-                            file.lastModified()
+                            file.lastModified(),
+                                user
                         );
 
                         String rangeHeader = https

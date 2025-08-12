@@ -48,7 +48,10 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             clazz = (Class<N>) Class.forName(className);
             classCache.putIfAbsent(className, clazz);
         }
-        var node = graph.create( clazz);
+        var node = clazz.getConstructor(
+            BBGraph.class,
+            User.class
+        ).newInstance(graph, user);
         if (node != null) {
             a.set("id", new IntNode(node.id()));
             a.set("name", new TextNode(node.prettyName()));
@@ -62,7 +65,7 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (currentNode instanceof ListNode<?> listNode) {
                 @SuppressWarnings("unchecked")
                 ListNode<N> typedListNode = (ListNode<N>) listNode;
-                typedListNode.add(node);
+                typedListNode.add(node, user);
             }
         } else {
             return ErrorResponse.serverError(

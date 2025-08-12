@@ -1,12 +1,10 @@
 package byransha.filter;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.BooleanNode;
-import byransha.DateNode;
-import byransha.ValuedNode;
+import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -26,16 +24,16 @@ public class DateRangeFilter extends FieldFilterNode {
         DateTimeFormatter.ofPattern("MM-dd-yyyy"),
     };
 
-    public DateRangeFilter(BBGraph g) {
-        super(g);
-        fromDate = g.create(DateNode.class);
-        toDate = g.create(DateNode.class);
-        includeNull = g.create(BooleanNode.class);
-        includeNull.set("includeNull", this, true);
+    public DateRangeFilter(BBGraph g, User creator) {
+        super(g, creator);
+        fromDate = new DateNode(g, creator);
+        toDate = new DateNode(g, creator);
+        includeNull = new BooleanNode(g, creator);
+        includeNull.set("includeNull", this, true, creator);
     }
 
-    public DateRangeFilter(BBGraph g, int id) {
-        super(g, id);
+    public DateRangeFilter(BBGraph g, User creator, int id) {
+        super(g, creator, id);
     }
 
 
@@ -81,17 +79,17 @@ public class DateRangeFilter extends FieldFilterNode {
     }
 
     @Override
-    public void configure(ObjectNode config) {
-        super.configure(config);
+    public void configure(ObjectNode config, User user) {
+        super.configure(config, user);
 
         if (config.has("fromDate")) {
-            fromDate.set(config.get("fromDate").asText());
+            fromDate.set(OffsetDateTime.parse(config.get("fromDate").asText()), user);
         }
         if (config.has("toDate")) {
-            toDate.set(config.get("toDate").asText());
+            toDate.set(OffsetDateTime.parse(config.get("toDate").asText()), user);
         }
         if (config.has("includeNull")) {
-            includeNull.set(config.get("includeNull").asBoolean());
+            includeNull.set(config.get("includeNull").asBoolean(), user);
         }
     }
 
@@ -102,7 +100,7 @@ public class DateRangeFilter extends FieldFilterNode {
 
         String dateString;
         if (dateValue instanceof DateNode dateNode) {
-            dateString = dateNode.get();
+            dateString = dateNode.getAsString();
         } else if (dateValue instanceof ValuedNode<?> valuedNode) {
             dateString = valuedNode.getAsString();
         } else {
@@ -127,8 +125,8 @@ public class DateRangeFilter extends FieldFilterNode {
 
     @Override
     public String getFilterDescription() {
-        String from = fromDate.get();
-        String to = toDate.get();
+        String from = fromDate.getAsString();
+        String to = toDate.getAsString();
 
         if (from == null && to == null) {
             return "Date range filter (no range set)";
@@ -143,8 +141,8 @@ public class DateRangeFilter extends FieldFilterNode {
 
     @Override
     public String prettyName() {
-        String from = fromDate.get();
-        String to = toDate.get();
+        String from = fromDate.getAsString();
+        String to = toDate.getAsString();
 
         if (from == null && to == null) {
             return "Date Range Filter";

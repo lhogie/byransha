@@ -17,21 +17,16 @@ public class User extends BNode {
     public StringNode passwordNode;
     public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
 
-    public User(BBGraph g) {
-        super(g);
+    public User(BBGraph g, User creator) {
+        super(g,creator);
         stack.push(g.root());
-        name = new StringNode(g, "not defined");
-        passwordNode = new StringNode(g, "not defined");
-        this.setColor("#032cfc");
+        this.setColor("#032cfc", this);
     }
 
-    public User(BBGraph g, String u, String password) {
-        super(g);
-        stack.push(g.root());
-        name = new StringNode(g, u);
-        passwordNode = new StringNode(g, null);
-        passwordNode.set(password);
-        this.setColor("#032cfc");
+    public User(BBGraph g, User creator, String user, String password) {
+        this(g, creator);
+        name = new StringNode(g, creator, user);
+        passwordNode = new StringNode(g, creator,  password);
     }
 
     @Override
@@ -64,8 +59,6 @@ public class User extends BNode {
         public UserView(BBGraph g) {
             super(g);
         }
-
-
 
         @Override
         public String whatItDoes() {
@@ -140,10 +133,10 @@ public class User extends BNode {
 
     public void setAdmin(boolean admin) {
         if (admin) {
-            name.set("admin");
+            name.set("admin", this);
         } else {
             if (name.get().equals("admin")) {
-                name.set("user");
+                name.set("user", this);
             }
         }
     }

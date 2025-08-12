@@ -85,17 +85,11 @@ public class SetValue extends NodeEndpoint<BNode> {
         BNode parentNode = graph.findByID(parentId);
 
         try {
-            if(node instanceof ValuedNode<?> vn && !(node instanceof ImageNode) && !(node instanceof FileNode)) {
-                previousValue = vn.getAsString();
-                if(parentNode instanceof BusinessNode bn){
-                    bn.history.set(timestamp + "User : " +  user.prettyName() + " changed the field " + node.prettyName() + " from '" + previousValue + "' to '" + value.asText() + "'; ");
-                }
-            }
             if (node instanceof StringNode sn) {
-                sn.set(value.asText());
+                sn.set(value.asText(), user);
                 a.set("value", new TextNode(value.asText()));
             } else if (node instanceof byransha.IntNode i) {
-                i.set(value.asInt());
+                i.set(value.asInt(), user);
                 a.set("value", new IntNode(value.asInt()));
             } else if (node instanceof ColorNode c) {
                 if (parentNode == null) {
@@ -105,11 +99,11 @@ public class SetValue extends NodeEndpoint<BNode> {
                         " not found in the graph."
                     );
                 }
-                parentNode.setColor(value.asText());
+                parentNode.setColor(value.asText(), user);
                 a.set("value", new TextNode(c.getAsString()));
             } else if (node instanceof byransha.BooleanNode b) {
                 Field field = parentNode.getFields(node.id());
-                b.set(field.getName(), parentNode, value.asBoolean());
+                b.set(field.getName(), parentNode, value.asBoolean(), user);
                 a.set(
                     "value",
                     value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE
@@ -131,7 +125,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                         mimeType = "image/svg+xml";
                     }
 
-                    im.set(data);
+                    im.set(data, user);
                     im.setMimeType(mimeType);
                     a.set("value", new TextNode(im.get().toString()));
                 } catch (IllegalArgumentException e) {
@@ -151,7 +145,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                     ) {
                         mimeType = "text/plain";
                     }
-                    fn.set(data);
+                    fn.set(data, user);
                     fn.setMimeType(mimeType);
                     a.set("value", new TextNode(fn.get().toString()));
                 } catch (IllegalArgumentException e) {
@@ -168,7 +162,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                             " does not allow multiple values."
                         );
                     }
-                    lc.select(value.asInt());
+                    lc.select(value.asInt(), user);
                     a.set("value", value);
                 } else {
                     if (!value.isArray()) {
@@ -179,7 +173,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                         );
                     }
                     for (JsonNode item : value) {
-                        lc.add(item.asText());
+                        lc.add(item.asText(), user);
                     }
                     a.set("value", value);
                 }
