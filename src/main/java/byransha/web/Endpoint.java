@@ -5,17 +5,14 @@ import java.lang.reflect.ParameterizedType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import byransha.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.Changer;
-import byransha.User;
 import toools.text.TextUtilities;
 
-public abstract class Endpoint extends BNode {
+public abstract class Endpoint extends SystemNode {
 	public static <E extends Endpoint> E create(Class<E> e, BBGraph g) {
 		try {
 			return e.getConstructor(BBGraph.class).newInstance(g);
@@ -28,8 +25,8 @@ public abstract class Endpoint extends BNode {
 	public final AtomicInteger nbCalls = new AtomicInteger(0);
 	public final AtomicLong timeSpentNs = new AtomicLong(0);
 
-	protected Endpoint(BBGraph db) {
-		super(db);
+	protected Endpoint(BBGraph g) {
+		super(g);
 	}
 
 

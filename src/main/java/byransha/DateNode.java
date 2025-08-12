@@ -1,16 +1,21 @@
 package byransha;
 
-public class DateNode extends StringNode {
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
-    public DateNode(BBGraph g, String v) {
-        super(g, v);
+public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
+    private OffsetDateTime date;
+
+    public DateNode(BBGraph g, User user, OffsetDateTime v) {
+        super(g, user);
+        this.date = v;
     }
 
     public DateNode(BBGraph g) {
         super(g);
     }
 
-    public DateNode(BBGraph g, int id) {
-        super(g, id);
+    public DateNode(BBGraph g, User user, int id) {
+        super(g, user, id);
     }
 }

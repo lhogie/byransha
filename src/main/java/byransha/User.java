@@ -13,7 +13,6 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class User extends BNode {
-
     public StringNode name;
     public StringNode passwordNode;
     public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();

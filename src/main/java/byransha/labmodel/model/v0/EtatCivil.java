@@ -7,24 +7,25 @@ import byransha.annotations.ListOptions;
 public class EtatCivil extends BusinessNode {
 
     @Size(min = 2)
-    public StringNode name;
+    public Out<StringNode> name;
 
     @Required
-    public StringNode familyNameBeforeMariage, firstName, cityOfBirth, address;
+    public Out<StringNode> familyNameBeforeMariage, firstName, cityOfBirth, address;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public ListNode<Country> countryOfBirth;
+    public Out<ListNode<Country>> countryOfBirth;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public ListNode<Nationality> nationality;
+    public Out<ListNode<Nationality>> nationality;
 
-    public DateNode birthDate;
+    public Out<DateNode> birthDate;
 
     @ListOptions(
         type = ListOptions.ListType.MULTIDROPDOWN,
         allowCreation = false,
         allowMultiple = true
     )
+
     @Size(max = 2)
     public ListNode<Country> nationalites;
 
@@ -35,19 +36,19 @@ public class EtatCivil extends BusinessNode {
 
     public ImageNode pic;
 
-    public EtatCivil(BBGraph g) {
-        super(g);
-        name = new StringNode(g);
-        familyNameBeforeMariage = new StringNode(g);
-        firstName = new StringNode(g);
-        birthDate = new DateNode(g);
-        cityOfBirth = new StringNode(g);
-        countryOfBirth = new ListNode(g);
-        nationalites = new ListNode(g);
-        address = new StringNode(g);
-        telephone = new PhoneNumberNode(g);
-        pic = new ImageNode(g);
-        this.setColor("#03fc62");
+    public EtatCivil(BBGraph g, User creator) {
+        super(g, creator);
+        name = new Out<StringNode>(g,  creator);
+        familyNameBeforeMariage = new Out<StringNode>(g, creator);
+        firstName = new Out<StringNode>(g, creator);
+        birthDate = new Out< DateNode>(g, creator);
+        cityOfBirth = new Out< StringNode>(g, creator);
+        countryOfBirth = new Out< ListNode<Country>>(g, creator);
+        nationalites = new Out< ListNode<Country>>(g, creator);
+        address = new Out< StringNode>(g, creator);
+        telephone = new Out< PhoneNumberNode>(g,  creator);
+        pic = new Out< ImageNode>(g, creator);
+        this.setColor("#03fc62", creator);
     }
 
     public EtatCivil(BBGraph g, int id) {

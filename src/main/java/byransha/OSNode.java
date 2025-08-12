@@ -13,7 +13,7 @@ import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 
-public class OSNode extends BNode {
+public class OSNode extends SystemNode {
 
 	@Override
 	public String whatIsThis() {

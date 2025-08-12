@@ -1,9 +1,9 @@
 package byransha;
 
-public class IntNode extends ValuedNode<Integer> {
+public class IntNode extends PrimitiveValueNode<Integer> {
 
-	public IntNode(BBGraph db) {
-		super(db);
+	public IntNode(BBGraph db, User creator) {
+		super(db, creator);
 	}
     public IntNode(BBGraph db, int id) {
         super(db, id);
@@ -15,8 +15,8 @@ public class IntNode extends ValuedNode<Integer> {
 	}
 
 	@Override
-	public void fromString(String s) {
-		set(Integer.valueOf(s));
+	public void fromString(String s, User user) {
+		set(Integer.valueOf(s), user);
 	}
 
 	@Override

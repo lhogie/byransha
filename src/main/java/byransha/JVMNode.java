@@ -10,10 +10,10 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.lang.management.ManagementFactory;
 import toools.text.TextUtilities;
 
-public class JVMNode extends BNode {
+public class JVMNode extends SystemNode {
 
-    public JVMNode(BBGraph db) {
-        super(db);
+    public JVMNode(BBGraph g) {
+        super(g);
     }
 
     @Override
@@ -85,7 +85,7 @@ public class JVMNode extends BNode {
 
         @Override
         public boolean canExec(User user) {
-            return user.name.value.equals("admin");
+            return user.name.get().equals("admin");
         }
 
         @Override

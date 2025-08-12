@@ -1,14 +1,14 @@
 package byransha;
 
-public class StringNode extends ValuedNode<String> {
+public class StringNode extends PrimitiveValueNode<String> {
 
-    public StringNode(BBGraph db) {
-        super(db);
+    public StringNode(BBGraph db, User creator) {
+        super(db, creator);
     }
 
-    public StringNode(BBGraph g, String init) {
-        super(g);
-        set(init);
+    public StringNode(BBGraph g, User creator, String init) {
+        super(g, creator);
+        set(init, creator);
     }
 
     public StringNode(BBGraph db, int id) {
@@ -17,12 +17,12 @@ public class StringNode extends ValuedNode<String> {
 
     @Override
     public String prettyName() {
-        return "string";
+        return get();
     }
 
     @Override
-    public void fromString(String s) {
-        set(s);
+    public void fromString(String s, User creator) {
+        set(s, creator);
     }
 
 

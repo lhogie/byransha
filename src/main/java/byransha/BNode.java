@@ -32,16 +32,17 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
-
     public BBGraph graph;
     private final int id;
     public ColorNode color;
     public boolean persisting = false;
     public Cluster cluster;
     public StringNode comment;
+    public User creator;
 
-    protected BNode(BBGraph g) {
-        this(g, g == null ? 0 : g.nextID());
+    protected BNode(BBGraph g, User creator) {
+        this(g, creator, g == null ? 0 : g.nextID());
+        this.creator = creator;
     }
 
     // called by the disk loader
@@ -54,7 +55,8 @@ public abstract class BNode {
         if (g == null) {
             g = (BBGraph) this;
         }
-        g.integrate(this);
+
+        g.integrate(this, creator);
     }
 
     protected void initialized() {
@@ -93,7 +95,7 @@ public abstract class BNode {
         });
 
         if (!foundCluster.get()) {
-            var newCluster = new Cluster(graph);
+            var newCluster = new Cluster(graph, creator);
             newCluster.setTypeOfCluster(this.getClass());
             newCluster.add(this);
             newCluster.add(graph);
@@ -112,8 +114,8 @@ public abstract class BNode {
         });
 
         if (this.color == null || !this.color.getAsString().equals(newColor)) {
-            this.color = new ColorNode(graph);
-            this.color.set(newColor);
+            this.color = new ColorNode(graph, creator);
+            this.color.set(newColor, creator);
         }
     }
 
@@ -154,6 +156,9 @@ public abstract class BNode {
                     if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
 
                     if (BNode.class.isAssignableFrom(f.getType())) {
+
+                        if ((f.getModifiers() & Modifier.PROTECTED) == 0) throw new IllegalStateException("field " + clazz.getName() + "." + f.getName() + " must be private");
+
                         f.setAccessible(true);
                         fields.add(f);
                     }
@@ -487,9 +492,11 @@ public abstract class BNode {
     public abstract String prettyName();
 
     public File directory() {
-        if (graph == null) return null;
+        if (graph == null)
+            return null;
 
-        if (graph.directory == null) return null;
+        if (graph.directory == null)
+            return null;
 
         return new File(graph.directory, getClass().getName() + "/." + id());
     }
@@ -499,15 +506,15 @@ public abstract class BNode {
         return d == null ? null : new File(directory(), "outs");
     }
 
-    public boolean isPersisting() {
-        return hasLoadConstructor();
+    public boolean isPersisting(){
+        return hasLoadConstructor() && persisting;
     }
 
-    public boolean isReadOnly() {
+    public boolean isReadOnly(){
         return !isPersisting();
     }
 
-    private boolean hasLoadConstructor() {
+    private boolean hasLoadConstructor(){
         try {
             getClass().getConstructor(BBGraph.class, int.class);
             return true;
@@ -515,6 +522,7 @@ public abstract class BNode {
             return false;
         }
     }
+
 
     public void saveOuts(Consumer<File> writingFiles) {
         if (!isPersisting())
@@ -526,6 +534,7 @@ public abstract class BNode {
             writingFiles.accept(outD);
             outD.mkdirs();
         }
+
 
         forEachOut((name, outNode) -> {
             try {
@@ -549,13 +558,16 @@ public abstract class BNode {
             "can't save a non-persisting node"
         );
 
-        var outD = outsDirectory();
+        var d = directory();
 
-        if (!outD.exists()) {
-            writingFiles.accept(outD);
-            outD.mkdirs();
+        if (!d.exists()) {
+            writingFiles.accept(d);
+            d.mkdirs();
         }
     }
+
+
+
 
     public boolean isValid() {
         for (var c : Clazz.bfs(getClass())) {

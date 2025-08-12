@@ -1119,8 +1119,8 @@ public class WebServer extends BNode {
             return "providing a view of the logs for the WebServer node";
         }
 
-        public Logs(BBGraph db) {
-            super(db);
+        public Logs(BBGraph g) {
+            super(g);
         }
 
        @Override

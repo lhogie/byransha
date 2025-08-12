@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
 public class MapNode<N extends BNode> extends BNode {
-	public MapNode(BBGraph db) {
-		super(db);
+	public MapNode(BBGraph g, User creator) {
+		super(g, creator);
 	}
 
 	@Override

@@ -35,6 +35,7 @@ public class BBGraph extends BNode {
 
     StringNode testString;
     BooleanNode testBoolean;
+    private User admin, system;
 
     @Override
     public String whatIsThis() {
@@ -587,6 +588,14 @@ public class BBGraph extends BNode {
 
     public NodeEndpoint findEndpoint(String name) {
         return find(NodeEndpoint.class, e -> e.name().equalsIgnoreCase(name));
+    }
+
+    public User admin() {
+        return admin;
+    }
+
+    public User systemUser() {
+        return system;
     }
 
     public static class DBView

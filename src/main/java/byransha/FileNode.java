@@ -7,9 +7,9 @@ public class FileNode extends ValuedNode<byte[]> {
 
     public StringNode title;
 
-    public FileNode(BBGraph g) {
-        super(g);
-        title = g.create(StringNode.class);
+    public FileNode(BBGraph g, User creator) {
+        super(g, creator);
+        title = new StringNode(g, creator);
     }
 
     @Override

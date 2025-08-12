@@ -28,7 +28,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     > fieldMetadataCache = new ConcurrentHashMap<>();
 
     private static class FieldMetadata {
-
         final Field field;
         final boolean hasRequired;
         final double minValue;

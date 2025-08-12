@@ -1,16 +1,22 @@
 package byransha;
 
 import byransha.annotations.ListOptions;
+import toools.io.ser.Serializer;
+
+import java.io.File;
 import java.lang.annotation.ElementType;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ListNode<T> extends BNode {
+public class ListNode<T> extends ValuedNode<List<T>> {
 
-    private final Set<T> elements = new LinkedHashSet<>();
     private Class<?> elementType;
     private Predicate<String> optionsFilter;
 
@@ -27,6 +33,11 @@ public class ListNode<T> extends BNode {
 
     public ListNode(BBGraph g, int id) {
         super(g, id);
+    }
+
+    @Override
+    protected void saveValue(ValueHistoryEntry<List<T>> e, Consumer<File> writingFiles) {
+
     }
 
     @Override
@@ -60,7 +71,7 @@ public class ListNode<T> extends BNode {
         }
     }
 
-    public void add(T element) {
+    public void add(T element, User creator) {
         if (element == null) return;
 
         ListOptions options = getListOptions();
@@ -71,16 +82,10 @@ public class ListNode<T> extends BNode {
             );
         }
 
-        switch (listType) {
-            case MULTIDROPDOWN:
-            case LIST:
-            case CHECKBOX:
-            case DROPDOWN:
-            case RADIO:
-                elements.add(element);
-                invalidateOutsCache();
-                break;
-        }
+        List<T> newL = new ArrayList<>(get());
+        newL.add(element);
+        set(newL, creator);
+        invalidateOutsCache();
     }
 
     public void remove(T element) {

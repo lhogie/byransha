@@ -10,8 +10,8 @@ public class BooleanNode extends ValuedNode<Boolean> {
         super(db);
     }
 
-    public BooleanNode(BBGraph db, int id) {
-        super(db, id);
+    public BooleanNode(BBGraph g, User user, int id) {
+        super(g ,user, id);
     }
 
     @Override

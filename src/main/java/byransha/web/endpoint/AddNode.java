@@ -19,15 +19,15 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
         Class<? extends BNode>
     > classCache = new ConcurrentHashMap<>();
 
-    @Override
-    public String whatItDoes() {
-        return "Adds a new node to the graph.";
-    }
 
     public AddNode(BBGraph g) {
         super(g);
     }
 
+    @Override
+    public String whatItDoes() {
+        return "Adds a new node to the graph.";
+    }
 
     @Override
     public EndpointJsonResponse exec(

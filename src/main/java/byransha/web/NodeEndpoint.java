@@ -13,8 +13,8 @@ import toools.reflect.Clazz;
 
 public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 
-    public NodeEndpoint(BBGraph db) {
-        super(db);
+    public NodeEndpoint(BBGraph g) {
+        super(g);
     }
 
 

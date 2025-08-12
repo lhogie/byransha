@@ -1,5 +1,7 @@
 package byransha;
 
+import java.lang.reflect.InvocationTargetException;
+
 public abstract class UserApplication extends BNode {
     ImageNode icon = null;
     final BNode rootNode;

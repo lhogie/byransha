@@ -1,6 +1,6 @@
 package byransha;
 
-public class ColorNode extends ValuedNode<String> {
+public class ColorNode extends PrimitiveValueNode<String> {
 
     public ColorNode(BBGraph g) {
         super(g);
