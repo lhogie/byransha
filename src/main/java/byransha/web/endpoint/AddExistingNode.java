@@ -20,6 +20,8 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     public AddExistingNode(BBGraph g) {
         super(g);
+        endOfConstructor();
+
     }
 
 

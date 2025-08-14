@@ -20,6 +20,7 @@ final public class StructureView extends NodeEndpoint<Structure> {
 
 	public StructureView(BBGraph g) {
 		super(g);
+		endOfConstructor();
 	}
 
 

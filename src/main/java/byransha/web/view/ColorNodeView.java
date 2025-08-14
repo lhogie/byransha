@@ -18,6 +18,7 @@ public class ColorNodeView
 
     public ColorNodeView(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

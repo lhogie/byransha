@@ -15,6 +15,7 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
 
     public RemoveFromList(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

@@ -18,10 +18,12 @@ public class ContainsFilter extends FieldFilterNode {
 
         caseSensitive.set("caseSensitive", this, false, creator);
         wholeWordsOnly.set("wholeWordsOnly", this, false, creator);
+        endOfConstructor();
     }
 
     public ContainsFilter(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

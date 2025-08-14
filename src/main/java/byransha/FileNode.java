@@ -10,6 +10,12 @@ public class FileNode extends PrimitiveValueNode<byte[]> {
     public FileNode(BBGraph g, User creator) {
         super(g, creator);
         title = new StringNode(g, creator);
+        endOfConstructor();
+    }
+
+    public FileNode(BBGraph g, User creator, int id) {
+        super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

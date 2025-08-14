@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.StringNode;
 import byransha.User;
 
@@ -11,10 +10,12 @@ public class Status extends BusinessNode {
 	public Status(BBGraph g, User creator) {
 		super(g, creator);
 		name = new StringNode(g, creator); //new StringNode(g, null);
+		endOfConstructor();
 	}
 
 	public Status(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 	@Override

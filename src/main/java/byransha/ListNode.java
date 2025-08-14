@@ -1,21 +1,18 @@
 package byransha;
 
 import byransha.annotations.ListOptions;
-import toools.io.ser.Serializer;
 
 import java.io.File;
-import java.lang.annotation.ElementType;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-public class ListNode<T> extends ValuedNode<List<T>> {
+public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
     private Class<?> elementType;
     private Predicate<String> optionsFilter;
@@ -27,17 +24,33 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
 
-    public ListNode(BBGraph db, User creator) {
-        super(db, creator);
+    public ListNode(BBGraph db, User creator, boolean historize) {
+        super(db, creator, historize);
+        set(new ArrayList<>(), creator);
+        endOfConstructor();
     }
 
-    public ListNode(BBGraph g, int id, User creator) {
-        super(g, id, creator);
+    public ListNode(BBGraph db, User creator) {
+        this(db, creator, true);
+        endOfConstructor();
+    }
+
+    public ListNode(BBGraph g, User creator, int id) {
+        super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override
-    protected void saveValue(ValueHistoryEntry<List<T>> e, Consumer<File> writingFiles) {
+    protected void saveValue(ValueHistoryEntry<List<T>> h, Consumer<File> writingFiles) throws IOException {
+        if (this.get() == null) {
+            return;
+        }
 
+        var s = new StringBuilder();
+        getElements().forEach(e ->  s.append(e.id() + "\n"));
+        var file = getValueFile();
+        writingFiles.accept(file);
+        Files.write(file.toPath(), s.toString().getBytes());
     }
 
     @Override
@@ -270,21 +283,7 @@ public class ListNode<T> extends ValuedNode<List<T>> {
         return getFilteredStaticOptions();
     }
 
-    public List<String> getStrings() {
-        return get()
-            .stream()
-            .filter(e -> e instanceof String)
-            .map(e -> (String) e)
-            .toList();
-    }
 
-    public List<Integer> getIntegers() {
-        return get()
-            .stream()
-            .filter(e -> e instanceof Integer)
-            .map(e -> (Integer) e)
-            .toList();
-    }
 
     public void setOptionsFilter(Predicate<String> filter) {
         this.optionsFilter = filter;

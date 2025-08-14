@@ -80,6 +80,7 @@ public class AnyGraph {
 
         public Classes(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
 

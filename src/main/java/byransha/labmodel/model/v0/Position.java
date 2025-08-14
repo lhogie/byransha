@@ -17,10 +17,12 @@ public class Position extends BNode {
 		from = new DateNode(g, creator);
 		to = new DateNode(g, creator);
 		status = new Status(g, creator);
+		endOfConstructor();
 	}
 
 	public Position(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 	@Override

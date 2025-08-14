@@ -35,6 +35,7 @@ public class Logout extends NodeEndpoint<BBGraph> {
             throw new IllegalArgumentException("SessionStore cannot be null");
         }
         this.sessionStore = sessionStore;
+        endOfConstructor();
     }
 
 

@@ -1,6 +1,5 @@
 package byransha;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 

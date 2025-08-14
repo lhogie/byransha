@@ -16,15 +16,16 @@ import toools.text.TextUtilities;
 
 public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
+
+    public SearchNode(BBGraph g) {
+        super(g);
+        endOfConstructor();
+    }
+
     @Override
     public String whatItDoes() {
         return "Searches for existing nodes in the graph by name or type, with pagination support.";
     }
-
-    public SearchNode(BBGraph g) {
-        super(g);
-    }
-
 
     @Override
     public EndpointJsonResponse exec(

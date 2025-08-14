@@ -7,9 +7,11 @@ public class CR extends Status {
 	public CR(BBGraph g, User creator) {
 		super(g, creator);
 		name.set("Chargé de Recherche", creator);
+		endOfConstructor();
 	}
 
 	public CR(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 }

@@ -9,12 +9,12 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoveNode extends NodeEndpoint<BNode> {
 
     public RemoveNode(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

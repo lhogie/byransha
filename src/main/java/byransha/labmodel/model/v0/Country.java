@@ -1,8 +1,6 @@
 package byransha.labmodel.model.v0;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.Base64;
 
 import byransha.*;
 import com.fasterxml.jackson.databind.JsonNode;

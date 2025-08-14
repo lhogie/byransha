@@ -13,21 +13,20 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import java.net.URI;
 import java.util.Base64;
-import java.io.InputStream;
-import java.net.URL;
 
 public class LoadImage extends NodeEndpoint<BNode> {
+
+
+
+    public LoadImage(BBGraph g) {
+        super(g);
+        endOfConstructor();
+    }
 
     @Override
     public String whatItDoes() {
         return "Load image endpoint for navigating to a target node.";
     }
-
-    public LoadImage(BBGraph g) {
-        super(g);
-    }
-
-
     @Override
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode node)
             throws Throwable {

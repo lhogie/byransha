@@ -62,10 +62,12 @@ public class Person extends BusinessNode {
         phoneNumbers = new ListNode(g, creator); // new ListNode<>(g);
         emailAddresses = new ListNode(g, creator); // new ListNode<>(g);
         offices = new ListNode(g, creator); // new ListNode<>(g);
+        endOfConstructor();
     }
 
     public Person(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

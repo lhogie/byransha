@@ -14,6 +14,7 @@ public class JVMNode extends SystemNode {
 
     public JVMNode(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

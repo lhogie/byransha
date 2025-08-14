@@ -1,17 +1,18 @@
 package byransha;
 
 import java.io.File;
-import java.lang.reflect.Field;
 import java.util.function.Consumer;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
     public BooleanNode(BBGraph g, User user) {
         super(g, user);
+        endOfConstructor();
     }
 
     public BooleanNode(BBGraph g, User user, int id) {
         super(g ,user, id);
+        endOfConstructor();
     }
 
     @Override

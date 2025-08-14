@@ -1,7 +1,6 @@
 package byransha.web.endpoint;
 
 import byransha.*;
-import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -18,14 +17,16 @@ import java.util.Base64;
 
 public class SetValue extends NodeEndpoint<BNode> {
 
-    @Override
-    public String whatItDoes() {
-        return "modify the value of valued nodes";
-    }
-
     public SetValue(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
+
+    @Override
+    public String whatItDoes() {
+        return "modifies the value of valued nodes";
+    }
+
 
     @Override
     public EndpointJsonResponse exec(

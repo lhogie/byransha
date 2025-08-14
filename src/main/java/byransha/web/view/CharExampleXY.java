@@ -21,6 +21,7 @@ public class CharExampleXY extends NodeEndpoint<BNode> implements View {
 	}
 	public CharExampleXY(BBGraph g) {
 		super(g);
+		endOfConstructor();
 	}
 
 

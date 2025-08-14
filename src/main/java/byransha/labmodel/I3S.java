@@ -1,7 +1,6 @@
 package byransha.labmodel;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.StringNode;
 import byransha.User;
 import byransha.labmodel.model.v0.Lab;

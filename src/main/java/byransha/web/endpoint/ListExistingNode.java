@@ -26,6 +26,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
 
     public ListExistingNode(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

@@ -22,6 +22,7 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     public AddNode(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

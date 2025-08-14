@@ -23,6 +23,7 @@ public class Edit extends NodeEndpoint<BNode> {
 
     public Edit(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

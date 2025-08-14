@@ -20,6 +20,7 @@ public class ExportCSV extends NodeEndpoint<BNode> {
 
     public ExportCSV(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
     @Override

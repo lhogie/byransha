@@ -11,10 +11,12 @@ public class Device extends BusinessNode {
 
 	public Device(BBGraph g, User creator) {
 		super(g,  creator);
+		endOfConstructor();
 	}
 
 	public Device(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 	@Override

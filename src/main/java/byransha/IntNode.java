@@ -4,9 +4,11 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 
 	public IntNode(BBGraph db, User creator) {
 		super(db, creator);
+		endOfConstructor();
 	}
     public IntNode(BBGraph db, User creator, int id) {
-        super(db, creator);
+		super(db, creator);
+		endOfConstructor();
     }
 
 	@Override

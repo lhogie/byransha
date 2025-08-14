@@ -4,9 +4,6 @@ import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 import byransha.User;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
 
 public class Publication extends BusinessNode {
 
@@ -18,15 +15,18 @@ public class Publication extends BusinessNode {
         super(g, creator);
         this.title = title;
         this.authors = authors;
+        endOfConstructor();
     }
 
     public Publication(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     public Publication(BBGraph g, User creator) {
         super(g, creator);
         this.title = new StringNode(g, creator);
+        endOfConstructor();
     }
 
     @Override

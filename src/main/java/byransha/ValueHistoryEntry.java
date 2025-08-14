@@ -1,33 +1,32 @@
 package byransha;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.io.IOException;
 import java.time.OffsetDateTime;
-import java.util.Date;
 
 public class ValueHistoryEntry<N> extends BNode {
-
     N value;
     DateNode date;
     User user;
 
 
-    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date) {
+    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date) throws IOException {
         super(vn.graph, vn.graph.systemUser());
         this.value = value;
         this.date = new DateNode(graph, creator, date);
-         this.user = creator;
-         vn.saveValue(this, BBGraph.sysoutPrinter);
+        this.user = creator;
+        vn.saveValue(this, BBGraph.sysoutPrinter);
+        endOfConstructor();
     }
 
 
     public ValueHistoryEntry(BBGraph g, User creator, int id) {
         super(g, g.systemUser(), id);
+        endOfConstructor();
     }
 
     @Override
     public String whatIsThis() {
-        return "a history entry";
+        return "an element of history for a given node";
     }
 
     @Override

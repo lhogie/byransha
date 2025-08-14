@@ -3,7 +3,6 @@ package byransha.filter;
 import byransha.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -30,10 +29,12 @@ public class DateRangeFilter extends FieldFilterNode {
         toDate = new DateNode(g, creator);
         includeNull = new BooleanNode(g, creator);
         includeNull.set("includeNull", this, true, creator);
+        endOfConstructor();
     }
 
     public DateRangeFilter(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
 

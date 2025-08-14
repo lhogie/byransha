@@ -17,6 +17,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 
     public NodeInfo(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
     @Override

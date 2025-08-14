@@ -11,10 +11,12 @@ public class Campus extends BusinessNode {
         super(g, creator);
         name = new  StringNode(g, creator);
         buildings = new  ListNode(g, creator);
+        endOfConstructor();
     }
 
     public Campus(BBGraph g, int id, User creator) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

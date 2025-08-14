@@ -26,15 +26,17 @@ public class FilterChain extends FilterNode {
         super(g, creator);
         filters = new ListNode(g, creator);
         logicalOperator = new ListNode(g, creator);
+        endOfConstructor();
     }
 
     public FilterChain(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override
-    protected void initialized(User user) {
-        super.initialized(user);
+    protected void nodeConstructed(User user) {
+        super.nodeConstructed(user);
 
         var operators = List.of("AND", "OR");
         logicalOperator.setStaticOptions(operators);

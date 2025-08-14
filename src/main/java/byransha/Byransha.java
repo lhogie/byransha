@@ -13,6 +13,7 @@ public class Byransha extends BNode {
 
 	public Byransha(BBGraph g, User creator) {
 		super(g, creator);
+		endOfConstructor();
 	}
 
 	@Override

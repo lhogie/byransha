@@ -3,9 +3,7 @@ package byransha.web.endpoint;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -20,6 +18,7 @@ public class ListChildClasses extends NodeEndpoint<BNode> {
 
     public ListChildClasses(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

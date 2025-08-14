@@ -7,9 +7,11 @@ public class IR extends Status {
 	public IR(BBGraph g, User creator) {
 		super(g, creator);
 		name.set("Ingénieur de Recherche", creator);
+		endOfConstructor();
 	}
 
 	public IR(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 }

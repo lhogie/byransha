@@ -17,13 +17,12 @@ public class OSNode extends SystemNode {
 
 	@Override
 	public String whatIsThis() {
-		return "OSNode description";
+		return "information on the operating system";
 	}
 
 	public OSNode(BBGraph db) {
 		super(db);
 	}
-
 
 	@Override
 	public String prettyName() {

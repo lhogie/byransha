@@ -18,10 +18,12 @@ public class ACMClassifier extends BusinessNode {
 
 	public ACMClassifier(BBGraph g, User creator) {
 		super(g, creator);
+		endOfConstructor();
 	}
 
 	public ACMClassifier(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 	@Override

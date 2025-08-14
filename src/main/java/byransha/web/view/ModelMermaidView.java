@@ -27,6 +27,7 @@ public class ModelMermaidView
 
     public ModelMermaidView(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

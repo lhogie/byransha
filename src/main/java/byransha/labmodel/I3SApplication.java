@@ -20,17 +20,21 @@ public class I3SApplication extends UserApplication {
         new LabView(g);
         new Agent(g, creator);
         Country.loadCountries(g, creator);
-        var lake = new DataLake(g, creator);
-        lake.inputDir = Paths.get(
-            System.getProperty("user.home"),
-            "i3s_extraction"
-        ).toFile();
 
-        try {
-            lake.load();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        new Thread(()-> {
+            var lake = new DataLake(g, creator,  Paths.get(
+                    System.getProperty("user.home"),
+                    "i3s_extraction"
+            ).toFile());
+
+            try {
+                lake.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+
+        endOfConstructor();
     }
 
     @Override

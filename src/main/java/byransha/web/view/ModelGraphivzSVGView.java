@@ -17,6 +17,7 @@ public class ModelGraphivzSVGView
 
     public ModelGraphivzSVGView(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

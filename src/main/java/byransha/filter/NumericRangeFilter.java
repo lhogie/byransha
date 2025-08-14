@@ -23,10 +23,12 @@ public class NumericRangeFilter extends FieldFilterNode {
         includeNull.set("includeNull", this, true, creator);
         includeMin.set("includeMin", this, true, creator);
         includeMax.set("includeMax", this, true, creator);
+        endOfConstructor();
     }
 
     public NumericRangeFilter(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
 

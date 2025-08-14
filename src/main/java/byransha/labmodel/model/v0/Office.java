@@ -13,10 +13,12 @@ public class Office extends BusinessNode {
         super(g, creator);
         name = new StringNode(g, creator);
         users = new ListNode(g, creator);
+        endOfConstructor();
     }
 
     public Office(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

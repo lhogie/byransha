@@ -7,12 +7,10 @@ import byransha.Byransha;
 import byransha.JVMNode;
 import byransha.Log;
 import byransha.OSNode;
-import byransha.StringNode;
 import byransha.UI;
 import byransha.User;
 import byransha.User.History;
 import byransha.graph.AnyGraph;
-import byransha.labmodel.model.v0.*;
 import byransha.web.endpoint.*;
 import byransha.web.view.*;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -138,6 +136,7 @@ public class WebServer extends BNode {
         super(g, null);
         this.fileCache = new FileCache(g, null);
         this.sessionStore = new SessionStore();
+        endOfConstructor();
         createSpecialNodes(g);
         createEndpoints(g);
 
@@ -218,10 +217,8 @@ public class WebServer extends BNode {
         new Jump(g);
         new Endpoints(g);
         new JVMNode.Kill(g);
-        var n = new Authenticate(g);
-        n.setSessionStore(sessionStore);
-        var l = new Logout(g);
-        l.setSessionStore(sessionStore);
+        var n = new Authenticate(g, sessionStore);
+        var l = new Logout(g, sessionStore);
         new EndpointCallDistributionView(g);
         new Info(g);
         new Logs(g);
@@ -1032,6 +1029,7 @@ public class WebServer extends BNode {
 
         public Info(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
 

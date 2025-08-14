@@ -7,10 +7,12 @@ public class CNRS extends EPST {
 
 	public CNRS(BBGraph g, User creator) {
 		super(g, creator);
+		endOfConstructor();
 	}
 
 	public CNRS(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 }

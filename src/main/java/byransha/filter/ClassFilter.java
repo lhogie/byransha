@@ -25,15 +25,17 @@ public class ClassFilter extends FieldFilterNode {
         targetClass = new ListNode(g, creator);
         includeSubclasses = new BooleanNode(g, creator);
         includeSubclasses.set("includeSubclasses", this, true, creator);
+        endOfConstructor();
     }
 
     public ClassFilter(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override
-    protected void initialized(User user) {
-        super.initialized(user);
+    protected void nodeConstructed() {
+        super.nodeConstructed();
         populateClassOptions();
     }
 

@@ -4,11 +4,7 @@ import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 import byransha.User;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
-import byransha.annotations.ListOptions;
+
 import java.util.List;
 
 public class Contract extends BusinessNode {
@@ -22,10 +18,12 @@ public class Contract extends BusinessNode {
 
     public Contract(BBGraph g, User creator) {
         super(g, creator);
+        endOfConstructor();
     }
 
     public Contract(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

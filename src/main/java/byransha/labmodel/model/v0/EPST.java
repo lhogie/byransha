@@ -10,9 +10,11 @@ public class EPST extends Structure {
 		status.add(new IR(g, creator), creator);
 		status.add(new CR(g, creator), creator);
 		status.add(new DR(g, creator), creator);
+		endOfConstructor();
 	}
 
 	public EPST(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 }

@@ -8,10 +8,12 @@ import byransha.User;
 public class PhDStudent extends Position {
 	public PhDStudent(BBGraph g, User creator) {
 		super(g, creator);
+		endOfConstructor();
 	}
 
 	public PhDStudent(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 	List<Person> directors;

@@ -8,10 +8,12 @@ public class Nationality extends StringNode {
 
     public Nationality(BBGraph db, User creator) {
         super(db,  creator);
+        endOfConstructor();
     }
 
     public Nationality(BBGraph db,  User creator, int id) {
         super(db, creator, id);
+        endOfConstructor();
     }
 
     @Override

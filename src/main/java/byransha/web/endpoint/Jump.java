@@ -20,6 +20,7 @@ public class Jump extends NodeEndpoint<BNode> {
 
 	public Jump(BBGraph g) {
 		super(g);
+		endOfConstructor();
 	}
 
 	@Override

@@ -4,6 +4,12 @@ public class PhoneNumberNode extends StringNode {
 
     public PhoneNumberNode(BBGraph db, User user ) {
         super(db, user);
+        endOfConstructor();
+    }
+
+    public PhoneNumberNode(BBGraph db, User user, int id ) {
+        super(db, user, id);
+        endOfConstructor();
     }
 
     @Override

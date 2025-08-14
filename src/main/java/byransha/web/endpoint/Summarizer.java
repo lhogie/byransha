@@ -13,13 +13,13 @@ import byransha.web.WebServer;
 
 public class Summarizer extends NodeEndpoint<BNode> {
 
+	public Summarizer(BBGraph g) {
+		super(g);
+	}
+
 	@Override
 	public String whatItDoes() {
 		return "summarize";
-	}
-
-	public Summarizer(BBGraph g) {
-		super(g);
 	}
 
 	@Override

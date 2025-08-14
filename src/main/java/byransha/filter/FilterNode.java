@@ -13,15 +13,17 @@ public abstract class FilterNode extends BNode {
         super(g, creator);
         enabled = new BooleanNode(g, creator);
         enabled.set("enabled", this, true, creator);
+        endOfConstructor();
     }
 
     protected FilterNode(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override
-    protected void initialized(User user) {
-        super.initialized(user);
+    protected void nodeConstructed() {
+        super.nodeConstructed();
     }
 
     public abstract boolean filter(BNode node);

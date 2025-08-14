@@ -10,6 +10,7 @@ public class ClassDistribution
 
     public ClassDistribution(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
     @Override

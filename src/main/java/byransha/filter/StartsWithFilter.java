@@ -14,10 +14,12 @@ public class StartsWithFilter extends FieldFilterNode {
         prefix = new StringNode(g, creator);
         caseSensitive = new BooleanNode(g, creator);
         caseSensitive.set("caseSensitive", this, false, creator);
+        endOfConstructor();
     }
 
     public StartsWithFilter(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
 

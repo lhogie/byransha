@@ -27,8 +27,8 @@ public class BBGraph extends BNode {
         System.out.println("writing " + f.getAbsolutePath());
     public final File directory;
 
-    private ConcurrentMap<Integer, BNode> nodesById;
-    private ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass;
+    ConcurrentMap<Integer, BNode> nodesById  = new ConcurrentHashMap<>();
+    ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass  = new ConcurrentHashMap<>();
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
     private volatile boolean loading = false;
@@ -136,15 +136,19 @@ public class BBGraph extends BNode {
         }
         idSequence.set(maxIdOnDisk + 1);
 
-        instantiateNodes(newNodeInstantiated);
+        if (directory != null) {
+            instantiateNodes(newNodeInstantiated);
 
-        nodesById
-            .values()
-            .forEach(n -> {
-                if (n.isPersisting()) {
-                    loadOuts(n, setRelation, user);
-                }
-            });
+            nodesById
+                    .values()
+                    .forEach(n -> {
+                        if (n.isPersisting()) {
+                            connectOutsToNode(n, setRelation, user);
+                        }
+                    });
+        }
+
+
 
         int maxId = nodesById
             .keySet()
@@ -166,7 +170,6 @@ public class BBGraph extends BNode {
     private synchronized void instantiateNodes(
         Consumer<? super BNode> newNodeInstantiated
     ) {
-        if (directory == null) return;
         File[] files = directory.listFiles();
 
         if (files == null) return;
@@ -178,23 +181,16 @@ public class BBGraph extends BNode {
 
                 Class<?> foundClass = Clazz.findClassOrFail(className);
                 if (!BNode.class.isAssignableFrom(foundClass)) {
-                    continue;
+                    throw new IllegalStateException(foundClass.getName());
                 }
                 var nodeClass = (Class<? extends BNode>) foundClass;
-                if (WebServer.class.isAssignableFrom(nodeClass)) {
-                    System.err.println(
-                        "Skipping WebServer class " + nodeClass.getName()
-                    );
-
-                    continue;
-                }
 
                 for (File nodeDir : Objects.requireNonNull(
                     classDir.listFiles()
                 )) {
-                    if (!nodeDir.isDirectory()) continue;
+                    if (!nodeDir.isDirectory()) continue; // prevents .DSStore
 
-                    int id = Integer.parseInt(nodeDir.getName().substring(1));
+                    int id = Integer.valueOf(nodeDir.getName());
 
                     // don't create the graph node twice!
 
@@ -217,12 +213,8 @@ public class BBGraph extends BNode {
                         ) {
                             throw new RuntimeException(err);
                         } catch (NoSuchMethodException e) {
-                            System.out.println(
-                                "Warning: No constructor found for class " +
-                                nodeClass.getName() +
-                                ": " +
-                                e.getMessage()
-                            );
+                            // persistence constructor not found
+                            throw new IllegalStateException(nodeClass.getName());
                         }
                     }
                 }
@@ -230,102 +222,14 @@ public class BBGraph extends BNode {
         }
     }
 
-    private void loadOuts(BNode node, BiConsumer<BNode, String> setRelation, User user) {
-        var d = node.outsDirectory();
-
-        if (!d.exists()) return;
-
-        File[] files = d.listFiles();
-        if (files == null) {
-            System.err.println(
-                "Warning: Could not list files in directory: " +
-                d.getAbsolutePath()
-            );
-            return;
-        }
-
-        for (var symlink : files) {
-            try {
-                Path targetFile = Files.readSymbolicLink(symlink.toPath());
-                String relationName = targetFile.getFileName().toString();
-                var fn = targetFile.getFileName().toString();
-
-                // Check if the filename contains the expected format
-                //				int atIndex = fn.indexOf("@");
-                //				if (atIndex == -1) {
-                //					System.err.println("Warning: Invalid filename format for symlink: " + fn);
-                //					continue;
-                //				}
-
-                try {
-                    int id = Integer.parseInt(fn.substring(1)); // atIndex + 1
-                    BNode targetNode = findByID(id);
-
-                    if (targetNode == null) {
-                        System.err.println(
-                            "Warning: Could not find node with ID: " + id
-                        );
-                        continue;
-                    }
-
-                    try {
-                        if (node instanceof ListNode<?>) {
-                            ((ListNode<BNode>) node).add(targetNode, user);
-                        } else {
-                            try {
-                                if (node.hasField(symlink.getName())) {
-                                    node.setField(
-                                        symlink.getName(),
-                                        targetNode
-                                    );
-                                }
-                            } catch (Exception e) {
-                                System.err.println(
-                                    "Error setting field " +
-                                    symlink.getName() +
-                                    " for node " +
-                                    node +
-                                    ": " +
-                                    e.getMessage()
-                                );
-                            }
-                        }
-                        setRelation.accept(node, relationName);
-                    } catch (Exception e) {
-                        System.err.println(
-                            "Error setting relation " +
-                            relationName +
-                            " for node " +
-                            node +
-                            ": " +
-                            e.getMessage()
-                        );
-                    }
-                } catch (NumberFormatException e) {
-                    System.err.println(
-                        "Error: Invalid node ID in filename: " +
-                        fn +
-                        ": " +
-                        e.getMessage()
-                    );
-                }
-            } catch (IOException e) {
-                System.err.println(
-                    "Error reading symbolic link: " +
-                    symlink.getPath() +
-                    ": " +
-                    e.getMessage()
-                );
-            } catch (Exception e) {
-                System.err.println(
-                    "Unexpected error processing symlink " +
-                    symlink.getPath() +
-                    ": " +
-                    e.getMessage()
-                );
-                e.printStackTrace();
-            }
-        }
+    private void connectOutsToNode(BNode node, BiConsumer<BNode, String> setRelation, User user) {
+       Files.lines(node.outsFile().toPath()).forEach((l ->{
+            var  a= l.split(":");
+            var field = getClass().getField(a[0]) ;
+            field.setAccessible(true);
+           var target = graph.nodesById.get(Integer.valueOf(a[1]));
+            field.set(this, target);
+       }));
     }
 
     /**
@@ -389,67 +293,6 @@ public class BBGraph extends BNode {
         return result;
     }
 
-    synchronized <N extends BNode> void integrate(N n, User user) {
-        // Ensure core maps are initialized even during early construction
-        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
-
-        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
-
-        n.graph = this;
-
-        if (n == this) {
-            nodesById.put(0, n);
-            byClass
-                .computeIfAbsent(BBGraph.class, k ->
-                    new ConcurrentLinkedQueue<>()
-                )
-                .add(n);
-            return;
-        }
-
-        if (n instanceof NodeEndpoint ne) {
-            var alreadyInName = findEndpoint(ne.name());
-
-            if (alreadyInName != null) {
-                throw new IllegalArgumentException(
-                    "Adding " +
-                    ne +
-                    ", endpoint with same name '" +
-                    ne.name() +
-                    "' already there: " +
-                    alreadyInName.getClass().getName()
-                );
-            }
-            n.setColor("#00fff5", user);
-        }
-
-        Class<? extends BNode> nodeClass = n.getClass();
-        if(!(n instanceof Cluster)) n.createOrAssignCluster(user);
-
-        byClass
-            .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
-            .add(n);
-
-        BNode previous = nodesById.putIfAbsent(n.id(), n);
-
-        if (previous != null && previous != n) throw new IllegalStateException(
-            "can't add node " +
-            n +
-            " because its ID " +
-            n.id() +
-            " is already taken by: " +
-            previous
-        );
-
-        if (n.isPersisting() && !loading) {
-            n.save(BBGraph.sysoutPrinter);
-        }
-    }
-
-    synchronized <N extends BNode> N accept(N n, User user) {
-        n.initialized(user);
-        return n;
-    }
 
     public void removeFromGraph(BNode n) {
         if (n == null) return;
@@ -654,6 +497,8 @@ public class BBGraph extends BNode {
 
         public GraphNivoView(BBGraph db) {
             super(db);
+            endOfConstructor();
+
         }
 
         @Override

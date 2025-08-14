@@ -3,7 +3,6 @@ package byransha.web;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -21,6 +20,7 @@ public class FileCache extends BNode {
 
     protected FileCache(BBGraph g, User user) {
         super(g, user);
+        endOfConstructor();
     }
 
     public Entry get(String cacheKey) {

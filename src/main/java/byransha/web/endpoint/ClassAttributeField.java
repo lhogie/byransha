@@ -145,6 +145,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     public ClassAttributeField(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
 

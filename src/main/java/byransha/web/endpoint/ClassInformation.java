@@ -18,14 +18,17 @@ public class ClassInformation extends NodeEndpoint<BNode> {
     private static final ConcurrentMap<String, Class<?>> classCache =
         new ConcurrentHashMap<>();
 
+    public ClassInformation(BBGraph g) {
+        super(g);
+        endOfConstructor();
+
+    }
+
     @Override
     public String whatItDoes() {
         return "Send back the super and interface of the class.";
     }
 
-    public ClassInformation(BBGraph g) {
-        super(g);
-    }
 
     @Override
     public EndpointJsonResponse exec(

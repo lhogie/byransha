@@ -20,6 +20,7 @@ final public class LabView extends NodeEndpoint<Lab> {
 
 	public LabView(BBGraph db) {
 		super(db);
+		endOfConstructor();
 	}
 
 

@@ -15,6 +15,7 @@ public class OutDegreeDistribution
 
     public OutDegreeDistribution(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

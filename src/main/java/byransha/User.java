@@ -20,7 +20,8 @@ public class User extends BNode {
     public User(BBGraph g, User creator) {
         super(g,creator);
         stack.push(g.root());
-        this.setColor("#032cfc", this);
+        setColor("#032cfc", this);
+        endOfConstructor();
     }
 
     public User(BBGraph g, User creator, String user, String password) {
@@ -58,6 +59,7 @@ public class User extends BNode {
 
         public UserView(BBGraph g) {
             super(g);
+            endOfConstructor();
         }
 
         @Override
@@ -94,6 +96,7 @@ public class User extends BNode {
 
         public History(BBGraph g) {
             super(g);
+            endOfConstructor();
         }
 
 

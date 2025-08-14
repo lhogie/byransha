@@ -14,6 +14,7 @@ public class BasicView extends NodeEndpoint<BNode> implements View {
 
     public BasicView(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

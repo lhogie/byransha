@@ -15,6 +15,7 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 
 	public ToStringView(BBGraph db) {
 		super(db);
+		endOfConstructor();
 	}
 
 

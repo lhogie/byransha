@@ -1,7 +1,6 @@
 package byransha;
 
 public interface ValueHolder<N> {
-    N get();
-    void set(N n);
-
+    N getValue();
+    void setValue(N n, User user);
 }

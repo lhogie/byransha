@@ -32,6 +32,7 @@ public class ModelDOTView
 
     public ModelDOTView(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

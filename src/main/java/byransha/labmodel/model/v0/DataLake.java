@@ -4,17 +4,14 @@ import byransha.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Objects;
-import toools.io.file.RegularFile;
 
 public class DataLake extends BNode {
 
-    public File inputDir;
+    public final File inputDir;
 
-    public DataLake(BBGraph g, User creator) {
+    public DataLake(BBGraph g, User creator, File dir) {
         super(g, creator);
     }
 

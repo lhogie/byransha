@@ -10,10 +10,12 @@ public class Agent extends BusinessNode {
         super(g, creator);
 
         etatCivil = new EtatCivil(g, creator);
+        endOfConstructor();
     }
 
     public Agent(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     private String returnName() {

@@ -5,7 +5,8 @@ public class Cluster extends ListNode<BNode> {
     public Class<? extends BNode> typeOfCluster;
 
     public Cluster(BBGraph g, User creator) {
-        super(g, creator);
+        super(g, creator, false);
+        endOfConstructor();
         //this.setColor("#9900ff");
     }
 

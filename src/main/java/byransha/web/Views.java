@@ -14,6 +14,7 @@ public class Views extends NodeEndpoint<BNode> implements TechnicalView {
 
     public Views(BBGraph db) {
         super(db);
+        endOfConstructor();
     }
 
 

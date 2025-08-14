@@ -14,13 +14,16 @@ import byransha.web.WebServer;
 
 public class NodeEndpoints extends NodeEndpoint<WebServer> {
 
-	@Override
-	public String whatItDoes() {
-		return "NodeEndpoints description";
-	}
 
 	public NodeEndpoints(BBGraph db) {
 		super(db);
+		endOfConstructor();
+	}
+
+
+	@Override
+	public String whatItDoes() {
+		return "NodeEndpoints description";
 	}
 
 	@Override

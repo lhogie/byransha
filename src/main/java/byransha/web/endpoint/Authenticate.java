@@ -19,19 +19,7 @@ public class Authenticate extends NodeEndpoint<BNode> {
 		return "Authenticate endpoint for user login.";
 	}
 
-	public Authenticate(BBGraph db) {
-		super(db);
 
-		WebServer webServerInstance = findWebServerInstance(db); // Helper method needed
-
-		if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
-			this.sessionStore = webServerInstance.getSessionStore();
-		} else {
-			System.err.println(
-					"[ERROR] SessionStore not available during persisted endpoint loading for Authenticate");
-			throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
-		}
-	}
 
 	public Authenticate(BBGraph db, SessionStore sessionStore) {
 		super(db);
@@ -39,6 +27,8 @@ public class Authenticate extends NodeEndpoint<BNode> {
 			throw new IllegalArgumentException("SessionStore cannot be null");
 		}
 		this.sessionStore = sessionStore;
+		endOfConstructor();
+
 	}
 
 
@@ -50,19 +40,6 @@ public class Authenticate extends NodeEndpoint<BNode> {
 	@Override
 	public boolean requiresAuthentication() {
 		return false;
-	}
-
-	public void setSessionStore(SessionStore sessionStore) {
-		if (sessionStore == null) {
-			throw new IllegalArgumentException("SessionStore cannot be null");
-		}
-		this.sessionStore = sessionStore;
-	}
-
-	private WebServer findWebServerInstance(BBGraph graph) {
-		if (graph == null)
-			return null;
-		return graph.find(WebServer.class, ws -> true);
 	}
 
 	public static void setSessionCookie(HttpsExchange https, String name, String value) {

@@ -2,41 +2,24 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import toools.text.TextUtilities;
 
-public abstract class ValuedNode<V> extends BNode {
-    ValueHistory<V> history;
+public abstract class ValuedNode<V> extends BNode  {
+    ValueHolder<V> valueHolder;
 
-    public ValuedNode(BBGraph g, User user) {
+    public ValuedNode(BBGraph g, User user, boolean historize) {
         super(g, user);
+        this.valueHolder = historize ? new ValueHistory<V>(this) : new SimpleValueHolder<>();
+        endOfConstructor();
     }
 
     public ValuedNode(BBGraph g, int id, User user) {
         super(g, user, id);
     }
 
-    public V get(){
-        if (history.size() == 0){
-            return null;
-        }
-        else{
-            return history.getElements().getLast().value;
-//            return history.getAt(graph.date());
-        }
-    }
 
-    public void set(V value, User user){
-        var e = new ValueHistoryEntry<V>(this, value, OffsetDateTime.now());
-        history.add(e, user);
-    }
-
-    protected abstract void saveValue(ValueHistoryEntry<V> e, Consumer<File> writingFiles);
+    protected abstract void saveValue(ValueHistoryEntry<V> e, Consumer<File> writingFiles) throws IOException;
 
 
     @Override
@@ -47,15 +30,15 @@ public abstract class ValuedNode<V> extends BNode {
     @Override
     public final String toString() {
         StringBuilder sb = new StringBuilder(super.toString());
-        sb.append("(value=\"").append(history.get()).append("\")");
+        sb.append("(value=\"").append(get()).append("\")");
         return sb.toString();
     }
 
 
 
     public String getAsString() {
-        V value = get();
-        return value != null ? value.toString() : "";
+        V v = get();
+        return v != null ? valueHolder.toString() : "";
     }
 
     @Override

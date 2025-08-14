@@ -17,6 +17,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 
 	public Endpoints(BBGraph db) {
 		super(db);
+		endOfConstructor();
 	}
 
 	@Override

@@ -1,7 +1,6 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
 import byransha.ListNode;
 import byransha.User;
 
@@ -18,10 +17,12 @@ public class Lab extends Structure {
         super(g, creator);
         HFDSAvisfds = new HashMap<>();
         tutelles = new ListNode(g, creator);
+        endOfConstructor();
     }
 
     public Lab(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     enum HFDSAvisE {
