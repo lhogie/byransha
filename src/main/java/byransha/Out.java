@@ -6,17 +6,22 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
-public  class Out<V extends BNode> extends ValuedNode<V> {
+public  class Out<V extends BNode> extends PrimitiveValueNode<V> {
     Field f;
 
     public Out(BBGraph g, User user) {
-        super(g, user, true);
+        super(g, user);
         endOfConstructor();
     }
 
     public Out(BBGraph g, User user, int id) {
         super(g,  user, id);
         endOfConstructor();
+    }
+
+    @Override
+    public void fromString(String s, User user) {
+        set((V) graph.findByID(Integer.parseInt(s)), user);
     }
 
     @Override

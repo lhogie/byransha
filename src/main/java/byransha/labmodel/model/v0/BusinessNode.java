@@ -15,5 +15,4 @@ public abstract class BusinessNode extends BNode {
 		super(g, creator, id);
 		endOfConstructor();
 	}
-
 }
