@@ -8,7 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.function.Consumer;
 
-public abstract class PrimitiveValueNode<V>  extends ValuedNode<V> implements UpdatableNode {
+public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
 
 
     public PrimitiveValueNode(BBGraph db, User user) {

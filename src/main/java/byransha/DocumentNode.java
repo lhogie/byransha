@@ -23,6 +23,13 @@ public class DocumentNode extends PrimitiveValueNode<byte[]> implements Updatabl
 
     @Override
     public void fromString(String s, User user) {
+        String mimeType = "text/plain";
+        if (s.startsWith("data:image/jpeg;base64,")) {mimeType = "image/jpeg";}
+        else if (s.startsWith("data:image/gif;base64,")){mimeType = "image/gif";}
+        else if (s.startsWith("data:image/svg+xml;base64,")){mimeType = "image/svg+xml";}
+        else if (s.startsWith("data:application/pdf;base64,")) {mimeType = "application/pdf";}
+        this.mimeType.set(mimeType, user);
+
         set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)), user);
     }
 
@@ -54,15 +61,5 @@ public class DocumentNode extends PrimitiveValueNode<byte[]> implements Updatabl
         return Base64.getEncoder().encodeToString(get());
     }
 
-    @Override
-    public void updateValue(String value, User user, BNode parent){
-        String mimeType = "text/plain";
-        if (value.startsWith("data:image/jpeg;base64,")) {mimeType = "image/jpeg";}
-        else if (value.startsWith("data:image/gif;base64,")){mimeType = "image/gif";}
-        else if (value.startsWith("data:image/svg+xml;base64,")){mimeType = "image/svg+xml";}
-        else if (value.startsWith("data:application/pdf;base64,")) {mimeType = "application/pdf";}
-        this.mimeType.set(mimeType, user);
-        this.fromString(value, user);
-    }
 
 }
