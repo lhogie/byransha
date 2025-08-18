@@ -34,8 +34,8 @@ public class ClassFilter extends FieldFilterNode {
     }
 
     @Override
-    protected void nodeConstructed() {
-        super.nodeConstructed();
+    protected void nodeConstructed(User user) {
+        super.nodeConstructed(user);
         populateClassOptions();
     }
 
@@ -126,7 +126,7 @@ public class ClassFilter extends FieldFilterNode {
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = new StringNode(graph, creator);
+            StringNode classNode = new StringNode(graph, user);
             classNode.set(config.get("targetClass").asText(), user);
             targetClass.add(classNode, user);
 
@@ -174,7 +174,7 @@ public class ClassFilter extends FieldFilterNode {
     public void setTargetClass(String className, User user) {
         targetClass.removeAll();
         if (className != null && !className.trim().isEmpty()) {
-            StringNode classNode = new StringNode(graph, creator);
+            StringNode classNode = new StringNode(graph, user);
             classNode.set(className, user);
             targetClass.add(classNode, user);
             // Auto-enable when ar class is selected

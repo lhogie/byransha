@@ -3,7 +3,6 @@ package byransha;
 public class SimpleValueHolder<N> implements ValueHolder<N> {
     N v;
 
-
     @Override
     public N getValue() {
         return v;

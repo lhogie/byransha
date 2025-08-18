@@ -1,7 +1,11 @@
 package byransha;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.OffsetDateTime;
+import java.util.function.Consumer;
 
 public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements ValueHolder<N> {
 
@@ -47,13 +51,24 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
     @Override
     public void setValue(N value, User user){
         try{
-            var e = new ValueHistoryEntry<N>(valuedNode, value, OffsetDateTime.now());
+            var e = new ValueHistoryEntry<N>(valuedNode, value, OffsetDateTime.now(), user);
             add(e, user);
+            save(BBGraph.sysoutPrinter);
         }
         catch (IOException err){
             throw new IllegalStateException(err);
         }
     }
 
+    private Path valueFile(){
+        return new File(directory(),"value").toPath();
+    }
 
+    @Override
+    public void save(Consumer<File> writingFiles) throws IOException {
+        super.save(writingFiles);
+
+        writingFiles.accept(valueFile().toFile());
+        Files.write(valueFile(), valueToBytes(this.get()));
+    }
 }

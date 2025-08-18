@@ -13,7 +13,7 @@ public class ValueHistoryEntry<N> extends BNode {
     private User user;
     private ValuedNode<N> vn;
 
-    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date) throws IOException {
+    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date, User creator) throws IOException {
         super(vn.graph, vn.graph.systemUser());
         this.vn = vn;
         this.value = value;
@@ -22,7 +22,6 @@ public class ValueHistoryEntry<N> extends BNode {
         save(BBGraph.sysoutPrinter);
         endOfConstructor();
     }
-
 
     public ValueHistoryEntry(BBGraph g, User creator, int id) throws IOException {
         super(g, g.systemUser(), id);
@@ -57,7 +56,6 @@ public class ValueHistoryEntry<N> extends BNode {
         }
     }
 
-
     @Override
     public String whatIsThis() {
         return "an element of history for a given node";
@@ -81,7 +79,6 @@ public class ValueHistoryEntry<N> extends BNode {
                 throw new RuntimeException(e);
             }
         }
-
         return value;
     }
 }

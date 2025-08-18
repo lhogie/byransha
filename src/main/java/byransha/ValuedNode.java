@@ -14,8 +14,9 @@ public abstract class ValuedNode<V> extends BNode  {
         endOfConstructor();
     }
 
-    public ValuedNode(BBGraph g, int id, User user) {
+    public ValuedNode(BBGraph g, User user, int id) {
         super(g, user, id);
+        endOfConstructor();
     }
 
     protected abstract byte[] valueToBytes(V v) throws IOException;
@@ -23,7 +24,7 @@ public abstract class ValuedNode<V> extends BNode  {
     protected abstract V bytesToValue(byte[] bytes, User user) throws IOException;
 
     @Override
-    public void save(Consumer<File> writingFiles) {
+    public void save(Consumer<File> writingFiles) throws IOException {
         super.save(writingFiles);
     }
 
@@ -33,8 +34,6 @@ public abstract class ValuedNode<V> extends BNode  {
         sb.append("(value=\"").append(get()).append("\")");
         return sb.toString();
     }
-
-
 
     public String getAsString() {
         V v = get();
@@ -47,5 +46,15 @@ public abstract class ValuedNode<V> extends BNode  {
             searchString,
             get().toString()
         );
+    }
+
+    public V get() {
+        if (valueHolder == null) return null;
+
+        return valueHolder.getValue();
+    }
+
+    public void set(V v, User user) {
+        valueHolder.setValue(v, user);
     }
 }

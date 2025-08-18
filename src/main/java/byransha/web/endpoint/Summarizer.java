@@ -15,6 +15,7 @@ public class Summarizer extends NodeEndpoint<BNode> {
 
 	public Summarizer(BBGraph g) {
 		super(g);
+		endOfConstructor();
 	}
 
 	@Override

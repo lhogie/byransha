@@ -1,7 +1,7 @@
 package byransha;
 
 public abstract class UserApplication extends BNode {
-    ImageNode icon = null;
+    DocumentNode icon = null;
     final BNode rootNode;
 
     public UserApplication(BBGraph g, User user){
@@ -12,6 +12,7 @@ public abstract class UserApplication extends BNode {
         } catch (Throwable err) {
             throw new RuntimeException(err);
         }
+        endOfConstructor();
     }
 
     protected abstract Class<? extends BNode> rootNodeClass() ;

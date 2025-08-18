@@ -37,8 +37,7 @@ public abstract class BNode {
     public ColorNode color;
 //    public boolean persisting = false;
     public Cluster cluster;
-    public StringNode comment;
-    public User creator;
+    //public StringNode comment;
     private CountDownLatch constructionMonitor;
 
     protected BNode(BBGraph g, User creator) {
@@ -61,7 +60,7 @@ public abstract class BNode {
             new Thread(() -> {
                 // waits 1s
                 try {
-                    var confirmed = constructionMonitor.await(1, TimeUnit.SECONDS);
+                    var confirmed = constructionMonitor.await(5, TimeUnit.SECONDS);
 
                     if (confirmed) {
                         if (this instanceof NodeEndpoint ne) {
@@ -103,7 +102,7 @@ public abstract class BNode {
                                         previous
                         );
 
-                        if (isPersisting() && !graph.loading) {
+                        if (isPersisting()) {
                             save(BBGraph.sysoutPrinter);
                         }
 
@@ -180,7 +179,7 @@ public abstract class BNode {
             > outNodeFieldsCache = new ConcurrentHashMap<>();
 
     public void forEachOutNodeField(Consumer<Field> consumer) {
-        List<Field> fields = getOutNodeFields(getClass());
+        List<Field> fields = getOutNodeFields(this);
 
         for (Field f : fields) {
             try {
@@ -197,14 +196,14 @@ public abstract class BNode {
             for (var c : Clazz.bfs(cls)) {
                 for (var f : c.getDeclaredFields()) {
                     if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
+                    f.setAccessible(true);
 
-                    if (Out.class == f.getType()) {
-                        f.setAccessible(true);
-                        fields.add(f);
-                    }
-                    else                    if (BNode.class.isAssignableFrom(f.getType())) {
-                        f.setAccessible(true);
-                        fields.add(f);
+                    try {
+                        if (BNode.class.isAssignableFrom(f.getType()) || f.get(node) instanceof BNode) {
+                            fields.add(f);
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException(e);
                     }
                 }
             }

@@ -40,7 +40,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         // Get query and filter chain
         final String query = getQueryFromInput(currentNode, in);
-        activeFilterChain = getActiveFilterChain(currentNode, in, creator);
+        activeFilterChain = getActiveFilterChain(currentNode, in, user);
 
         // Clear results if using SearchForm
         if (currentNode instanceof SearchForm) {
@@ -175,7 +175,8 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (in.has("filters") && in.get("filters").isArray()) {
                 ArrayNode filtersArray = (ArrayNode) in.get("filters");
                 List<FilterNode> customFilters = parseFiltersFromRequest(
-                    filtersArray
+                    filtersArray,
+                    creator
                 );
                 if (!customFilters.isEmpty()) {
                     FilterChain filterChain = new FilterChain(graph, creator);
@@ -196,13 +197,13 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
      * @param filtersArray JSON array containing filter configurations
      * @return List of configured FilterNode instances
      */
-    private List<FilterNode> parseFiltersFromRequest(ArrayNode filtersArray) {
+    private List<FilterNode> parseFiltersFromRequest(ArrayNode filtersArray, User creator) {
         List<FilterNode> filters = new ArrayList<>();
 
         for (JsonNode filterNode : filtersArray) {
             if (filterNode.isObject()) {
                 ObjectNode filterConfig = (ObjectNode) filterNode;
-                FilterNode filter = createFilterFromConfig(filterConfig);
+                FilterNode filter = createFilterFromConfig(filterConfig, creator);
                 if (filter != null) {
                     filters.add(filter);
                 }
@@ -218,7 +219,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
      * @param config The JSON configuration for the filter
      * @return FilterNode instance or null if creation fails
      */
-    private FilterNode createFilterFromConfig(ObjectNode config) {
+    private FilterNode createFilterFromConfig(ObjectNode config, User creator) {
         if (!config.has("type")) {
             System.err.println("Filter configuration missing 'type' field");
             return null;
@@ -279,7 +280,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         node.forEachOutField((name, outNode) -> {
             if (outNode instanceof DocumentNode imageNode) {
                 nodeInfo.put("img", imageNode.getAsString());
-                nodeInfo.put("imgMimeType", imageNode.getMimeType());
+                nodeInfo.put("imgMimeType", imageNode.mimeType.get());
             }
         });
 

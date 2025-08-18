@@ -17,17 +17,6 @@ public class Logout extends NodeEndpoint<BBGraph> {
         return "Logs the current user out by invalidating their session.";
     }
 
-    public Logout(BBGraph db) {
-        super(db);
-
-        WebServer webServerInstance = findWebServerInstance(db);
-        if (webServerInstance != null && webServerInstance.getSessionStore() != null) {
-            this.sessionStore = webServerInstance.getSessionStore();
-        } else {
-            System.err.println("[ERROR] SessionStore not available during persisted endpoint loading for Logout ");
-            throw new IllegalStateException("SessionStore not available during persisted endpoint loading.");
-        }
-    }
 
     public Logout(BBGraph db, SessionStore sessionStore) {
         super(db);
@@ -47,18 +36,6 @@ public class Logout extends NodeEndpoint<BBGraph> {
     @Override
     public boolean canExec(User user) {
         return true;
-    }
-
-    public void setSessionStore(SessionStore sessionStore) {
-        if (sessionStore == null) {
-            throw new IllegalArgumentException("SessionStore cannot be null");
-        }
-        this.sessionStore = sessionStore;
-    }
-
-    private WebServer findWebServerInstance(BBGraph graph) {
-        if (graph == null) return null;
-        return graph.find(WebServer.class, ws -> true);
     }
 
 

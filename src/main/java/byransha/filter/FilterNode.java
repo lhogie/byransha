@@ -22,8 +22,8 @@ public abstract class FilterNode extends BNode {
     }
 
     @Override
-    protected void nodeConstructed() {
-        super.nodeConstructed();
+    protected void nodeConstructed(User user) {
+        super.nodeConstructed(user);
     }
 
     public abstract boolean filter(BNode node);

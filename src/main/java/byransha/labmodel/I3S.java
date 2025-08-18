@@ -16,10 +16,12 @@ public class I3S extends Lab {
 		super(g, creator);
 		name = new StringNode(g, creator);
 		name.set("I3S", creator);
+		endOfConstructor();
 	}
 
 	public I3S(BBGraph g, User creator, int id) {
 		super(g, creator, id);
+		endOfConstructor();
 	}
 
 }

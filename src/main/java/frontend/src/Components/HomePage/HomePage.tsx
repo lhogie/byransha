@@ -53,6 +53,8 @@ import React, {
 	useTransition,
 } from "react";
 import { useNavigate } from "react-router";
+import { Slider } from "@mui/material";
+import dayjs from "dayjs";
 
 // Memoized ViewCard component with enhanced accessibility
 const ViewCard = memo(
@@ -357,6 +359,12 @@ const ViewGrid = memo(
 const HomePage = memo(() => {
 	const theme = useTheme();
 	const navigate = useNavigate();
+	const [selectedDate, setSelectedDate] = useState<number>(Date.now());
+	const dateRangeStart = new Date("1920-01-01").getTime();
+	const dateRangeEnd = Date.now();
+	const handleDateChange = (_: Event, value: number | number[]) => {
+		setSelectedDate(value as number);
+	};
 	const { data, isLoading, error } = useApiData(
 		"endpoints?only_applicable&type=byransha.web.View",
 		{},
@@ -895,6 +903,81 @@ const HomePage = memo(() => {
 									</ButtonGroup>
 								)}
 							</Box>
+						</Box>
+
+
+						<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+							<FormControlLabel
+								control={
+									<Switch
+										checked={autoColumns}
+										onChange={handleAutoColumnsToggle}
+										color="primary"
+									/>
+								}
+								label="Auto colonnes"
+								sx={{
+									"& .MuiFormControlLabel-label": {
+										fontSize: { xs: "0.875rem", sm: "1rem" },
+										color: "text.primary",
+										fontWeight: autoColumns ? 600 : 400,
+									},
+									px: 2,
+									py: 1,
+									borderRadius: 2,
+									bgcolor: autoColumns ? "primary.50" : "grey.50",
+									transition: "all 0.2s ease-in-out",
+								}}
+							/>
+
+							{/* Date slider */}
+							<Box sx={{ minWidth: 220 }}>
+								<Typography variant="caption" sx={{ display: "block", mb: 0.5 }}>
+									{dayjs(selectedDate).format("YYYY-MM-DD")}
+								</Typography>
+								<Slider
+									size="small"
+									min={dateRangeStart}
+									max={dateRangeEnd}
+									step={1000 * 60 * 60 * 24} // 1 day step
+									value={selectedDate}
+									onChange={handleDateChange}
+									valueLabelDisplay="off"
+								/>
+							</Box>
+
+							{!autoColumns && (
+								<ButtonGroup
+									variant="outlined"
+									size="small"
+									disabled={isPendingAny}
+									sx={{
+										"& .MuiButton-root": {
+											minWidth: { xs: 32, sm: 40 },
+											fontSize: { xs: "0.75rem", sm: "0.875rem" },
+											borderColor: "#90caf9",
+											color: "#1976d2",
+											"&:hover": {
+												borderColor: "#42a5f5",
+												bgcolor: "rgba(25, 118, 210, 0.04)",
+											},
+										},
+									}}
+								>
+									<Button onClick={decrementColumns} disabled={columns === 1}>
+										<RemoveIcon fontSize="small" />
+									</Button>
+									<Button disabled sx={{ cursor: "default" }}>
+										{columns}
+									</Button>
+									<Button
+										onClick={incrementColumns}
+										disabled={columns === filteredViews.length}
+									>
+										<AddIcon fontSize="small" />
+									</Button>
+								</ButtonGroup>
+							)}
 						</Box>
 
 						{/* Bouton Ajouter nouveau noeud */}

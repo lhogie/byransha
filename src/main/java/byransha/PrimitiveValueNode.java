@@ -21,20 +21,5 @@ public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
         endOfConstructor();
     }
 
-    @Override
-    public void updateValue(String value, User user, BNode parent) {
-        throw new UnsupportedOperationException(
-                "Update not implemented for node type: " + this.getClass().getSimpleName()
-        );
-    }
-
     public abstract void fromString(String s, User user);
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
 }

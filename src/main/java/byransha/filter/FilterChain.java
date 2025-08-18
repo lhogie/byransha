@@ -42,7 +42,7 @@ public class FilterChain extends FilterNode {
         logicalOperator.setStaticOptions(operators);
 
         if (logicalOperator.getSelected() == null) {
-            StringNode andOption = new StringNode(graph, creator);
+            StringNode andOption = new StringNode(graph, user);
             andOption.set("AND", user);
             logicalOperator.add(andOption, user);
         }
@@ -117,7 +117,7 @@ public class FilterChain extends FilterNode {
 
         if (config.has("logicalOperator")) {
             logicalOperator.removeAll();
-            StringNode operatorNode = new StringNode(graph, creator);
+            StringNode operatorNode = new StringNode(graph, user);
             operatorNode.set(config.get("logicalOperator").asText(), user);
             logicalOperator.add(operatorNode, user);
         }
@@ -151,22 +151,22 @@ public class FilterChain extends FilterNode {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = new StartsWithFilter(graph, creator);
+                    filter = new StartsWithFilter(graph, user);
                     break;
                 case "contains":
-                    filter = new ContainsFilter(graph, creator);
+                    filter = new ContainsFilter(graph, user);
                     break;
                 case "class":
-                    filter = new ClassFilter(graph, creator);
+                    filter = new ClassFilter(graph, user);
                     break;
                 case "daterange":
-                    filter = new DateRangeFilter(graph, creator);
+                    filter = new DateRangeFilter(graph, user);
                     break;
                 case "numericrange":
-                    filter = new NumericRangeFilter(graph, creator);
+                    filter = new NumericRangeFilter(graph, user);
                     break;
                 case "filterchain":
-                    filter = new FilterChain(graph, creator);
+                    filter = new FilterChain(graph, user);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);

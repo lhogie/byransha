@@ -20,10 +20,10 @@ public abstract class FieldFilterNode extends FilterNode {
     }
 
     @Override
-    protected void nodeConstructed() {
-        super.nodeConstructed();
+    protected void nodeConstructed(User user) {
+        super.nodeConstructed(user);
         if (fieldPath.get() == null) {
-            fieldPath.set("", creator);
+            fieldPath.set("", user);
         }
     }
 

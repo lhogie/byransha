@@ -42,7 +42,7 @@ public  class Out<V extends BNode> extends PrimitiveValueNode<V> {
 
     @Override
     public String prettyName() {
-        return "arc: " + history.get();
+        return "arc: " + get();
     }
 
 }

@@ -18,8 +18,6 @@ public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView
 		endOfConstructor();
 	}
 
-
-
 	@Override
 	public boolean sendContentByDefault() {
 		return true;

@@ -13,7 +13,7 @@ public class PhoneNumberNode extends StringNode {
     }
 
     @Override
-    public String prettyName() {
+     public String prettyName() {
         if( get() == null || get().isEmpty()) {
             return "Phone number (empty)";
         }

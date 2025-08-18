@@ -19,10 +19,11 @@ public class I3SApplication extends UserApplication {
         new StructureView(g);
         new LabView(g);
         new Agent(g, creator);
-        Country.loadCountries(g, creator);
 
         new Thread(()-> {
-            var lake = new DataLake(g, creator,  Paths.get(
+            Country.loadCountries(g, creator);
+
+            var lake = new DataLake(graph, creator,  Paths.get(
                     System.getProperty("user.home"),
                     "i3s_extraction"
             ).toFile());

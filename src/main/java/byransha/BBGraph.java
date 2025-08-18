@@ -33,10 +33,7 @@ public class BBGraph extends BNode {
     ConcurrentMap<Class<? extends BNode>, Queue<BNode>> byClass  = new ConcurrentHashMap<>();
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
-    private volatile boolean loading = false;
 
-    StringNode testString;
-    BooleanNode testBoolean;
     private User admin, system;
 
 
@@ -51,13 +48,19 @@ public class BBGraph extends BNode {
         if (user!=null)
             throw new IllegalArgumentException();
 
-        accept(this,user = admin = new User(this, null, "admin", "admin")); // self accept
-        accept(this,user = admin = new User(this, null, "system", "system")); // self accept
         this.directory = directory;
 
-        if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
+        nodesById.put(0, this);
+        byClass
+                .computeIfAbsent(BBGraph.class, k ->
+                        new ConcurrentLinkedQueue<>()
+                )
+                .add(this);
 
-        if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
+        endOfConstructor();
+
+        admin = new User(this, null, "admin", "admin"); // self accept
+        system = new User(this, null, "system", ""); // self accept
     }
 
     @Override
@@ -112,31 +115,13 @@ public class BBGraph extends BNode {
         BiConsumer<BNode, String> setRelation,
         User user
     ) {
-        this.loading = true;
         // Pre-scan disk to set the idSequence high enough to avoid collisions
 
         // if constructors create nodes during loading
         int maxIdOnDisk = 0;
 
         if (directory != null) {
-            File[] classDirs = directory.listFiles();
-            if (classDirs != null) {
-                for (File classDir : classDirs) {
-                    if (!classDir.isDirectory()) continue;
-                    File[] nodeDirs = classDir.listFiles();
-                    if (nodeDirs == null) continue;
-                    for (File nodeDir : nodeDirs) {
-                        if (!nodeDir.isDirectory()) continue;
-                        String dn = nodeDir.getName();
-                        if (dn.length() > 1) {
-                            try {
-                                int id = Integer.parseInt(dn.substring(1));
-                                if (id > maxIdOnDisk) maxIdOnDisk = id;
-                            } catch (NumberFormatException ignore) {}
-                        }
-                    }
-                }
-            }
+            maxIdOnDisk = findMaxIdInDirectory(directory);
         }
         idSequence.set(maxIdOnDisk + 1);
 
@@ -152,8 +137,6 @@ public class BBGraph extends BNode {
                     });
         }
 
-
-
         int maxId = nodesById
             .keySet()
             .stream()
@@ -161,8 +144,46 @@ public class BBGraph extends BNode {
             .orElse(maxIdOnDisk);
 
         idSequence.set(maxId + 1);
+    }
 
-        this.loading = false;
+    private int findMaxIdInDirectory(File rootDir) {
+        int maxId = 0;
+        File[] classDirectories = rootDir.listFiles();
+
+        if (classDirectories != null) {
+            for (File classDir : classDirectories) {
+                if (classDir.isDirectory()) {
+                    maxId = Math.max(maxId, scanClassDirectory("", classDir));
+                }
+            }
+        }
+
+        return maxId;
+    }
+
+    private int scanClassDirectory(String idPrefix, File dir) {
+        int maxId = 0;
+        File[] files = dir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    String currentId = idPrefix + file.getName();
+
+                    if (new File(file, "outs").exists()) {
+                        try {
+                            maxId = Math.max(maxId, Integer.parseInt(currentId));
+                        } catch (NumberFormatException e) {
+                            // Ignore non-numeric directory names
+                        }
+                    }
+
+                    maxId = Math.max(maxId, scanClassDirectory(currentId, file));
+                }
+            }
+        }
+
+        return maxId;
     }
 
     /*

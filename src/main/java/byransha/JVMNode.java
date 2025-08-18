@@ -33,9 +33,8 @@ public class JVMNode extends SystemNode {
 
         public View(BBGraph g) {
             super(g);
+            endOfConstructor();
         }
-
-
 
         @Override
         public String whatItDoes() {
@@ -81,6 +80,7 @@ public class JVMNode extends SystemNode {
 
         public Kill(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
 

@@ -1,6 +1,23 @@
 package byransha;
 
+import java.lang.reflect.Field;
+
 public class Utils {
+    public static Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        try {
+            var field = clazz.getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException e) {
+            Class<?> superClass = clazz.getSuperclass();
+            if (superClass == null) {
+                throw new NoSuchFieldException(
+                        "Field '" + fieldName + "' not found in class " + clazz.getName()
+                );
+            }
+            return findField(superClass, fieldName);
+        }
+    }
 
    public static String mimeType(String url) {
         if (url == null) return "application/octet-stream";

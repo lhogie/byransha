@@ -34,29 +34,19 @@ public class SetValue extends NodeEndpoint<BNode> {
         BNode target
     ) throws Throwable {
         var a = new ObjectNode(null);
-
-        String timestamp = java.time.ZonedDateTime.now()
-            .withZoneSameInstant(java.time.ZoneOffset.UTC)
-            .format(java.time.format.DateTimeFormatter.ofPattern(
-                "yyyy-MM-dd HH:mm:ss 'UTC' "
-            ));
-        String previousValue = "";
         if (in.isEmpty()) {
             return ErrorResponse.badRequest(
                 "Request body is empty. Expected 'id' and 'value' parameters."
             );
         }
-
         if (!in.has("id")) {
             return ErrorResponse.badRequest("Missing required parameter: 'id'");
         }
-
         if (!in.has("value")) {
             return ErrorResponse.badRequest(
                 "Missing required parameter: 'value'"
             );
         }
-
         int id;
         try {
             id = in.get("id").asInt();
@@ -79,17 +69,14 @@ public class SetValue extends NodeEndpoint<BNode> {
         a.set("isValid", BooleanNode.valueOf(node.isValid()));
 
         var value = in.get("value");
-        int parentId = in.get("parentId").asInt();
-        BNode parentNode = graph.findByID(parentId);
 
         try {
-            if(node instanceof PrimitiveValueNode pv) {
-
-                pv.updateValue(value.asText(), user, parentNode);
+            if(node instanceof PrimitiveValueNode<?> pv) {
+                pv.fromString(value.asText(), user);
                 a.set("value", new TextNode(value.asText()));
             }
             else if (node instanceof ListNode lc) {
-                if (lc.allowMultiple() == false) {
+                if (!lc.allowMultiple()) {
                     if (value.isArray() && value.size() > 1) {
                         return ErrorResponse.badRequest(
                             "ListNode " +
@@ -108,7 +95,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                         );
                     }
                     for (JsonNode item : value) {
-                        lc.add(item.asText(), user);
+                        lc.add(new StringNode(graph, user, item.asText()), user);
                     }
                     a.set("value", value);
                 }

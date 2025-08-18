@@ -14,10 +14,12 @@ public class Structure extends BusinessNode {
         subStructures = new ListNode(g, creator);
         status =new ListNode(g, creator);
         offices =new ListNode(g, creator);
+        endOfConstructor();
     }
 
     public Structure(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

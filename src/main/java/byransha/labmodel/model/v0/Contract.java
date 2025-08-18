@@ -25,7 +25,7 @@ public class Contract extends BusinessNode {
 
     @Override
     public String prettyName() {
-        if (name == null || name.get() == null || name.get().isEmpty()) {
+        if (name == null || name.get() == null || name.get().get().isEmpty()) {
             System.err.println("Contract with no name: " + this);
             return "Contract(unknown)";
         }

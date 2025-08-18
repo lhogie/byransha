@@ -2,13 +2,10 @@ package byransha;
 
 import byransha.annotations.ListOptions;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -21,7 +18,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     private ListOptions.ListType listType;
     private ListOptions.OptionsSource optionsSource;
     private static final Map<Integer, ListOptions> optionsCache =
-        new ConcurrentHashMap<>();
+            new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
 
     public ListNode(BBGraph db, User creator, boolean historize) {
@@ -41,25 +38,34 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     }
 
     @Override
-    protected void saveValue(ValueHistoryEntry<List<T>> h, Consumer<File> writingFiles) throws IOException {
-        if (this.get() == null) {
-            return;
+    protected List<T> bytesToValue(byte[] bytes, User user) throws IOException {
+        if (bytes.length == 0) {
+            return Collections.emptyList();
         }
 
-        var s = new StringBuilder();
-        getElements().forEach(e ->  s.append(e.id() + "\n"));
-        var file = getValueFile();
-        writingFiles.accept(file);
-        Files.write(file.toPath(), s.toString().getBytes());
+       return new String(bytes).lines().map(l -> (T) graph.findByID(Integer.valueOf(l))).toList();
+    }
+
+    @Override
+    protected byte[] valueToBytes(List<T> ts) throws IOException {
+        if (ts.isEmpty()) {
+            return new byte[0];
+        }
+
+        StringBuilder s = new StringBuilder();
+        for (T element : ts) {
+            s.append(element.id()).append('\n');
+        }
+        return s.toString().getBytes();
     }
 
     @Override
     public String whatIsThis() {
         return (
-            getListOptions().type().name().toLowerCase() +
-            " containing " +
-            size() +
-            " elements"
+                getListOptions().type().name().toLowerCase() +
+                        " containing " +
+                        size() +
+                        " elements"
         );
     }
 
@@ -75,40 +81,37 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     }
 
     @Override
-    public void forEachOut(BiConsumer<String, BNode> consumer) {
-        int i = 0;
+    public void forEachOut(Consumer<BNode> consumer) {
+        super.forEachOut(consumer);
+
         for (T element : getElements()) {
             if (element instanceof BNode bNode) {
-                consumer.accept(i++ + ". " + bNode.id(), bNode);
+                consumer.accept(bNode);
             }
         }
     }
 
     public void add(T element, User creator) {
-        if (element == null) return;
+        Objects.requireNonNull(element);
 
         ListOptions options = getListOptions();
 
         if (options.maxItems() > 0 && size() >= options.maxItems())
             throw new IllegalStateException(
-                "Maximum number of items reached: " + options.maxItems()
-            );
-        }
+                    "Maximum number of items reached: " + options.maxItems());
+
 
         List<T> newL = new ArrayList<>(get());
         newL.add(element);
         set(newL, creator);
+
         invalidateOutsCache();
     }
 
     public void remove(T element) {
         if (element == null) return;
 
-        boolean removed = false;
-        switch (listType) {
-            default:
-                removed = get().remove(element);
-        }
+        boolean removed = get().remove(element);
 
         if (removed) {
             invalidateOutsCache();
@@ -118,7 +121,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     public void select(String option, User creator) {
         if (option == null || option.isEmpty()) {
             throw new IllegalArgumentException(
-                "Option cannot be null or empty"
+                    "Option cannot be null or empty"
             );
         }
 
@@ -126,7 +129,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
         if (!filteredOptions.contains(option)) {
             throw new IllegalArgumentException(
-                "Option not found in static options: " + option
+                    "Option not found in static options: " + option
             );
         }
 
@@ -145,7 +148,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
         List<String> filteredOptions = getFilteredStaticOptions();
         if (index < 0 || index >= filteredOptions.size()) {
             throw new IndexOutOfBoundsException(
-                "Index out of bounds: " + index
+                    "Index out of bounds: " + index
             );
         }
 
@@ -156,7 +159,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             StringNode existingNode = (StringNode) existingElement.get();
             existingNode.set(option, creator);
         } else {
-            var n = new StringNode(graph, this.creator);
+            var n = new StringNode(graph, creator);
             n.set(option, creator);
             add((T) n, creator);
         }
@@ -168,12 +171,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
         }
 
         String selected = get()
-            .stream()
-            .filter(e -> e instanceof StringNode)
-            .map(e -> (StringNode) e)
-            .map(StringNode::get)
-            .findFirst()
-            .orElse(null);
+                .stream()
+                .filter(e -> e instanceof StringNode)
+                .map(e -> (StringNode) e)
+                .map(StringNode::get)
+                .findFirst()
+                .orElse(null);
 
         return getFilteredStaticOptions().indexOf(selected);
     }
@@ -184,12 +187,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
         }
 
         return get()
-            .stream()
-            .filter(e -> e instanceof StringNode)
-            .map(e -> (StringNode) e)
-            .map(StringNode::get)
-            .findFirst()
-            .orElse(null);
+                .stream()
+                .filter(e -> e instanceof StringNode)
+                .map(e -> (StringNode) e)
+                .map(StringNode::get)
+                .findFirst()
+                .orElse(null);
     }
 
     public ListOptions.ElementType getElementType() {
@@ -202,6 +205,10 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     }
 
     public List<T> getElements() {
+        if (get() == null) {
+            return Collections.emptyList();
+        }
+
         return List.copyOf(get());
     }
 
@@ -221,17 +228,17 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             return null;
         }
         return get()
-            .stream()
-            .skip(RANDOM.nextInt(get().size()))
-            .findFirst()
-            .orElse(null);
+                .stream()
+                .skip(RANDOM.nextInt(get().size()))
+                .findFirst()
+                .orElse(null);
     }
 
     public boolean canAddNewNode() {
         ListOptions options = getListOptions();
         return (
-            options.allowCreation() &&
-            options.source() == ListOptions.OptionsSource.DYNAMIC
+                options.allowCreation() &&
+                        options.source() == ListOptions.OptionsSource.DYNAMIC
         );
     }
 
@@ -264,7 +271,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
     public void setStaticOptions(List<String> options) {
         if (
-            getListOptions().source() == ListOptions.OptionsSource.PROGRAMMATIC
+                getListOptions().source() == ListOptions.OptionsSource.PROGRAMMATIC
         ) {
             this.staticOptions = new ArrayList<>(options);
         }
@@ -272,7 +279,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
     public void addStaticOption(String option) {
         if (
-            getListOptions().source() == ListOptions.OptionsSource.PROGRAMMATIC
+                getListOptions().source() == ListOptions.OptionsSource.PROGRAMMATIC
         ) {
             if (!staticOptions.contains(option)) {
                 staticOptions.add(option);
@@ -299,7 +306,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     }
 
     private ListOptions getListOptions() {
-        if (this != null && optionsCache.containsKey(id())) {
+        if (optionsCache.containsKey(id())) {
             return optionsCache.get(id());
         }
 
@@ -316,20 +323,20 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
                             Object fieldValue = field.get(sourceNode);
                             if (fieldValue == this) {
                                 ListOptions annotation = field.getAnnotation(
-                                    ListOptions.class
+                                        ListOptions.class
                                 );
                                 if (annotation != null) {
                                     this.listType = annotation.type();
                                     this.staticOptions = Arrays.asList(
-                                        annotation.staticOptions()
+                                            annotation.staticOptions()
                                     );
                                     this.listType = annotation.type();
                                     if (
-                                        annotation.source() ==
-                                        ListOptions.OptionsSource.STATIC
+                                            annotation.source() ==
+                                                    ListOptions.OptionsSource.STATIC
                                     ) {
                                         this.staticOptions = Arrays.asList(
-                                            annotation.staticOptions()
+                                                annotation.staticOptions()
                                         );
                                     }
                                     optionsCache.put(id(), annotation);
@@ -387,8 +394,8 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
             @Override
             public Class<
-                ? extends java.lang.annotation.Annotation
-            > annotationType() {
+                    ? extends java.lang.annotation.Annotation
+                    > annotationType() {
                 return ListOptions.class;
             }
         };

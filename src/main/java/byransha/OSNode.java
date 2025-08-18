@@ -22,6 +22,7 @@ public class OSNode extends SystemNode {
 
 	public OSNode(BBGraph db) {
 		super(db);
+		endOfConstructor();
 	}
 
 	@Override
@@ -38,6 +39,7 @@ public class OSNode extends SystemNode {
 
 		public View(BBGraph g) {
 			super(g);
+			endOfConstructor();
 		}
 
 		@Override

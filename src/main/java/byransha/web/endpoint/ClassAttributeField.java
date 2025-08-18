@@ -267,7 +267,10 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         } else {
             nodeInfo.set("value", new TextNode(valuedNode.getAsString()));
         }
-        nodeInfo.set("mimeType", new TextNode(valuedNode.getMimeType()));
+
+        if (valuedNode instanceof byransha.DocumentNode documentNode) {
+            nodeInfo.set("mimeType", new TextNode(documentNode.mimeType.get()));
+        }
     }
 
     private List<ObjectNode> processNodeAttributes(

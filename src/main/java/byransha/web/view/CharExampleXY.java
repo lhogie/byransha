@@ -24,8 +24,6 @@ public class CharExampleXY extends NodeEndpoint<BNode> implements View {
 		endOfConstructor();
 	}
 
-
-
 	@Override
 	public boolean sendContentByDefault() {
 		return true;

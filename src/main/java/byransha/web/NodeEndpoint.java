@@ -15,6 +15,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 
     public NodeEndpoint(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
 

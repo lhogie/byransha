@@ -17,20 +17,13 @@ public class SearchForm extends BNode {
         searchTerm = new StringNode(g, creator);
         results = new ListNode(g, creator);
         filterChain = new FilterChain(g, creator);
+        initializeDefaultFilterChain(creator);
         endOfConstructor();
     }
 
     public SearchForm(BBGraph g, User creator, int id) {
         super(g, creator, id);
         endOfConstructor();
-    }
-
-    @Override
-    protected void nodeConstructed() {
-        super.nodeConstructed();
-
-        // Initialize the filter chain with common filters
-        initializeDefaultFilterChain();
     }
 
     private void initializeDefaultFilterChain(User creator) {

@@ -18,10 +18,12 @@ public class UI extends BNode {
         backgroundColor.set("#A9A9A9", creator);
         textColor = new ColorNode(db, creator);
         textColor.set("#000000", creator);
+        endOfConstructor();
     }
 
     public UI(BBGraph db, User creator, int id) {
         super(db, creator, id);
+        endOfConstructor();
     }
 
     @Override
@@ -38,6 +40,7 @@ public class UI extends BNode {
 
         public getProperties(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
 

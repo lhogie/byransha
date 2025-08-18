@@ -27,6 +27,7 @@ public abstract class Endpoint extends SystemNode {
 
 	protected Endpoint(BBGraph g) {
 		super(g);
+		endOfConstructor();
 	}
 
 

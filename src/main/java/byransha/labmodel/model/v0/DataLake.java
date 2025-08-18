@@ -4,7 +4,10 @@ import byransha.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class DataLake extends BNode {
@@ -13,6 +16,8 @@ public class DataLake extends BNode {
 
     public DataLake(BBGraph g, User creator, File dir) {
         super(g, creator);
+        inputDir = dir;
+        endOfConstructor();
     }
 
     @Override
@@ -23,6 +28,29 @@ public class DataLake extends BNode {
     @Override
     public String prettyName() {
         return "I3S datalake";
+    }
+
+    public OffsetDateTime parseDate(String date) {
+        if (date == null || date.isBlank() || date.equals("0000-00-00") || date.equals("1999-00-00")) {
+            return null;
+        }
+        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            return LocalDate.parse(date, formatter1)
+                    .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+        } catch (Exception e) {
+            try {
+                return LocalDate.parse(date, formatter2)
+                        .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+            } catch (Exception e2) {
+                if (date.matches("\\d{4}")) {
+                    return LocalDate.parse(date + "-01-01", formatter2)
+                            .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+                }
+                throw new IllegalArgumentException("Invalid date format: " + date, e2);
+            }
+        }
     }
 
     public void load() throws IOException {
@@ -88,15 +116,16 @@ public class DataLake extends BNode {
             }
 
             var name = new StringNode(graph, user, l.set(1, null));
-            var time = OffsetDateTime.parse(l.set(4, null));
             person.etatCivil.name.set(name, user);
-            person.etatCivil.familyNameBeforeMariage.get().set(l.set(2, null), user);
-            person.etatCivil.firstName.get().set(l.set(3, null), user);
-            person.etatCivil.birthDate.get().set(time, user);
-            person.etatCivil.cityOfBirth.get().set(l.set(5, null), user);
+            person.etatCivil.familyNameBeforeMariage.set(new StringNode(graph, user, l.set(2, null)), user);
+            person.etatCivil.firstName.set(new StringNode(graph, user, l.set(3, null)), user);
+            var birthNode = new DateNode(graph, user);
+            birthNode.set(parseDate(l.set(4, null)), user);
+            person.etatCivil.birthDate.set(birthNode, user);
+            person.etatCivil.cityOfBirth.set(new StringNode(graph, user, l.set(5, null)), user);
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
-            person.etatCivil.address.get().set(l.set(8, null), user);
+            person.etatCivil.address.set(new StringNode(graph, user, l.set(8, null)), user);
             var inter = new StringNode(graph, user);
             inter.set(l.set(9, null), user);
             person.phoneNumbers.add(inter, user);
@@ -151,8 +180,8 @@ public class DataLake extends BNode {
             boolean doctor = l.set(21, null).equalsIgnoreCase("oui");
             String phdDate = l.set(22, null);
 
-            if (phdDate != null) {
-                person.phdDate.set(OffsetDateTime.parse(phdDate), user);
+            if (phdDate != null && phdDate != "") {
+                person.phdDate.set(parseDate(phdDate), user);
             } else if (doctor) {
                 person.phdDate.set(null, user);
             }
@@ -177,25 +206,22 @@ public class DataLake extends BNode {
 
                 if (!startDate.isBlank()) {
                     var startDateNode = new DateNode(graph, user);
-                    startDateNode.set(OffsetDateTime.parse(startDate), user);
+                    startDateNode.set(parseDate(startDate), user);
                     person.position.from = startDateNode;
                 }
 
                 if (!endDate.isBlank()) {
                     var endDateNode = new DateNode(graph, user);
-                    endDateNode.set(OffsetDateTime.parse(endDate), user);
+                    endDateNode.set(parseDate(endDate), user);
                     person.position.to = endDateNode;
                 }
             }
 
             person.enposte = l.set(27, null).equals("en poste");
-            person.position.comment = new StringNode(graph, user);
-            person.position.comment.set(  l.set(28, null), user);
             var quotite = new StringNode(graph, user);
             quotite.set(l.set(29, null), user);
             person.quotite = quotite; //new StringNode(this, l.set(29, null));
-            person.position.comment.set(person.position.comment.get() + "\n"+ l.set(32, null), user);
-            var researchActivity = new StringNode(graph, user);
+             var researchActivity = new StringNode(graph, user);
             researchActivity.set(l.set(33, null), user);
             person.researchActivity = researchActivity; //new StringNode(this, l.set(33, null));
 

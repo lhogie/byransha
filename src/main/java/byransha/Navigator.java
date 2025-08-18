@@ -14,6 +14,7 @@ public class Navigator extends NodeEndpoint<BNode> implements View {
 
     public Navigator(BBGraph g) {
         super(g);
+        endOfConstructor();
     }
 
     @Override

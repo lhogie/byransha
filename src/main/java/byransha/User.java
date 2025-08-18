@@ -99,7 +99,6 @@ public class User extends BNode {
             endOfConstructor();
         }
 
-
         @Override
         public String whatItDoes() {
             return "gets the navigation history";

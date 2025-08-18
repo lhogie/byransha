@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 public class MapNode<N extends BNode> extends BNode {
 	public MapNode(BBGraph g, User creator) {
 		super(g, creator);
+		endOfConstructor();
 	}
 
 	@Override

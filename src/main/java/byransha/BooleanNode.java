@@ -1,6 +1,10 @@
 package byransha;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.function.Consumer;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
@@ -21,8 +25,14 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
     }
 
     @Override
-    public void saveValue(ValueHistoryEntry<Boolean> e, Consumer<File> writingFiles){
+    protected Boolean bytesToValue(byte[] bytes, User user) throws IOException {
+        if (bytes.length != 1) throw new IOException("Invalid byte array length for BooleanNode: " + bytes.length);
+        return bytes[0] != 0;
+    }
 
+    @Override
+    protected byte[] valueToBytes(Boolean aBoolean) throws IOException {
+        return new byte[]{(byte) (aBoolean ? 1 : 0)};
     }
 
     @Override

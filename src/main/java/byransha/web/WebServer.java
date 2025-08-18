@@ -1112,6 +1112,7 @@ public class WebServer extends BNode {
 
         public Logs(BBGraph g) {
             super(g);
+            endOfConstructor();
         }
 
        @Override
@@ -1143,6 +1144,7 @@ public class WebServer extends BNode {
 
         public EndpointCallDistributionView(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
 

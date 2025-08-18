@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-public class DocumentNode extends PrimitiveValueNode<byte[]> implements UpdatableNode {
+public class DocumentNode extends PrimitiveValueNode<byte[]>{
     public StringNode title;
     public StringNode mimeType;
 
