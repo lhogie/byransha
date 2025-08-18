@@ -5,8 +5,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
@@ -31,35 +31,52 @@ public class DataLake extends BNode {
     }
 
     public OffsetDateTime parseDate(String date) {
-        if (date == null || date.isBlank() || date.equals("0000-00-00") || date.equals("1999-00-00")) {
+        if (
+            date == null ||
+            date.isBlank() ||
+            date.equals("0000-00-00") ||
+            date.equals("1999-00-00")
+        ) {
             return null;
         }
-        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern(
+            "dd/MM/yyyy"
+        );
+        DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern(
+            "yyyy-MM-dd"
+        );
         try {
             return LocalDate.parse(date, formatter1)
-                    .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+                .atStartOfDay(ZoneId.of("Europe/Paris"))
+                .toOffsetDateTime();
         } catch (Exception e) {
             try {
                 return LocalDate.parse(date, formatter2)
-                        .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+                    .atStartOfDay(ZoneId.of("Europe/Paris"))
+                    .toOffsetDateTime();
             } catch (Exception e2) {
                 if (date.matches("\\d{4}")) {
                     return LocalDate.parse(date + "-01-01", formatter2)
-                            .atStartOfDay(ZoneId.of("Europe/Paris")).toOffsetDateTime();
+                        .atStartOfDay(ZoneId.of("Europe/Paris"))
+                        .toOffsetDateTime();
                 }
-                throw new IllegalArgumentException("Invalid date format: " + date, e2);
+                throw new IllegalArgumentException(
+                    "Invalid date format: " + date,
+                    e2
+                );
             }
         }
     }
 
     public void load() throws IOException {
+        User user = graph.systemUser();
 
-        User user = new User(graph, null);
-
-        if(inputDir == null) {return;}
-        else if(!inputDir.exists() || !inputDir.isDirectory()) {
-            throw new IOException("Input directory does not exist or not a directory: " + inputDir);
+        if (inputDir == null) {
+            return;
+        } else if (!inputDir.exists() || !inputDir.isDirectory()) {
+            throw new IOException(
+                "Input directory does not exist or not a directory: " + inputDir
+            );
         }
 
         Files.readAllLines(
@@ -117,15 +134,27 @@ public class DataLake extends BNode {
 
             var name = new StringNode(graph, user, l.set(1, null));
             person.etatCivil.name.set(name, user);
-            person.etatCivil.familyNameBeforeMariage.set(new StringNode(graph, user, l.set(2, null)), user);
-            person.etatCivil.firstName.set(new StringNode(graph, user, l.set(3, null)), user);
+            person.etatCivil.familyNameBeforeMariage.set(
+                new StringNode(graph, user, l.set(2, null)),
+                user
+            );
+            person.etatCivil.firstName.set(
+                new StringNode(graph, user, l.set(3, null)),
+                user
+            );
             var birthNode = new DateNode(graph, user);
             birthNode.set(parseDate(l.set(4, null)), user);
             person.etatCivil.birthDate.set(birthNode, user);
-            person.etatCivil.cityOfBirth.set(new StringNode(graph, user, l.set(5, null)), user);
-//            person.etatCivil.countryOfBirth.set(l.set(6, null));
-//            person.etatCivil.nationality.set(l.set(7, null));
-            person.etatCivil.address.set(new StringNode(graph, user, l.set(8, null)), user);
+            person.etatCivil.cityOfBirth.set(
+                new StringNode(graph, user, l.set(5, null)),
+                user
+            );
+            //            person.etatCivil.countryOfBirth.set(l.set(6, null));
+            //            person.etatCivil.nationality.set(l.set(7, null));
+            person.etatCivil.address.set(
+                new StringNode(graph, user, l.set(8, null)),
+                user
+            );
             var inter = new StringNode(graph, user);
             inter.set(l.set(9, null), user);
             person.phoneNumbers.add(inter, user);
@@ -135,12 +164,11 @@ public class DataLake extends BNode {
             for (var campusName : List.of(l.set(10, null), l.set(11, null))) {
                 if (!campusName.isBlank()) {
                     var campus = graph.find(Campus.class, n -> {
-                            if (n.name != null && n.name.get() != null) {
-                                n.name.get().equalsIgnoreCase(campusName);
-                            }
-                                return false;
-                            }
-                    );
+                        if (n.name != null && n.name.get() != null) {
+                            n.name.get().equalsIgnoreCase(campusName);
+                        }
+                        return false;
+                    });
 
                     if (campus != null && !officeName.isBlank()) {
                         for (var b : campus.buildings.getElements()) {
@@ -170,13 +198,12 @@ public class DataLake extends BNode {
             var email = new EmailNode(graph, user);
             email.set(l.set(19, null), user);
             person.emailAddresses.add(email, user);
-            person.researchGroup = graph.find(ResearchGroup.class, n ->{
-                    if (n.name != null && n.name.get() != null) {
-                        n.name.get().equals(l.set(20, null));
-                    }
-                    return false;
+            person.researchGroup = graph.find(ResearchGroup.class, n -> {
+                if (n.name != null && n.name.get() != null) {
+                    n.name.get().equals(l.set(20, null));
                 }
-            );
+                return false;
+            });
             boolean doctor = l.set(21, null).equalsIgnoreCase("oui");
             String phdDate = l.set(22, null);
 
@@ -192,17 +219,19 @@ public class DataLake extends BNode {
             for (var i : List.of(25, 26)) {
                 var employer = l.set(i, null);
                 person.position = new Position(graph, user); //new Position(graph);
-                person.position.employer = graph.find(ResearchGroup.class, n ->{
-                    if (n.name != null && n.name.get() != null) {
-                        n.name.get().equals(employer);
+                person.position.employer = graph.find(
+                    ResearchGroup.class,
+                    n -> {
+                        if (n.name != null && n.name.get() != null) {
+                            n.name.get().equals(employer);
                         }
-                    return false;
+                        return false;
                     }
                 );
                 var corps = l.set(i - 2, null);
-//                person.position.status = graph.find(Status(g, user), s ->
-//                    s.name.get().equals(corps)
-//                );
+                //                person.position.status = graph.find(Status(g, user), s ->
+                //                    s.name.get().equals(corps)
+                //                );
 
                 if (!startDate.isBlank()) {
                     var startDateNode = new DateNode(graph, user);
@@ -221,13 +250,13 @@ public class DataLake extends BNode {
             var quotite = new StringNode(graph, user);
             quotite.set(l.set(29, null), user);
             person.quotite = quotite; //new StringNode(this, l.set(29, null));
-             var researchActivity = new StringNode(graph, user);
+            var researchActivity = new StringNode(graph, user);
             researchActivity.set(l.set(33, null), user);
             person.researchActivity = researchActivity; //new StringNode(this, l.set(33, null));
 
-//            if (
-//                l.stream().anyMatch(Objects::nonNull)
-//            ) throw new IllegalStateException("unused columns: " + l);
+            //            if (
+            //                l.stream().anyMatch(Objects::nonNull)
+            //            ) throw new IllegalStateException("unused columns: " + l);
         }
     }
 }

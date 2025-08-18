@@ -13,12 +13,15 @@ import java.util.Deque;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class User extends BNode {
+
     public StringNode name;
     public StringNode passwordNode;
     public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
 
     public User(BBGraph g, User creator) {
-        super(g,creator);
+        super(g, creator);
+        name = new StringNode(g, creator);
+        passwordNode = new StringNode(g, creator);
         stack.push(g.root());
         setColor("#032cfc", this);
         endOfConstructor();
@@ -27,7 +30,7 @@ public class User extends BNode {
     public User(BBGraph g, User creator, String user, String password) {
         this(g, creator);
         name = new StringNode(g, creator, user);
-        passwordNode = new StringNode(g, creator,  password);
+        passwordNode = new StringNode(g, creator, password);
     }
 
     @Override
@@ -125,7 +128,9 @@ public class User extends BNode {
 
     @Override
     public String prettyName() {
-        if(name == null || name.get() == null ) {return null;}
+        if (name == null || name.get() == null) {
+            return null;
+        }
         return name.get();
     }
 

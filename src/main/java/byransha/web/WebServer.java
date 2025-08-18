@@ -73,7 +73,9 @@ public class WebServer extends BNode {
             argMap.remove("appClass")
         );
 
-        backend.application = appClass.getConstructor(BBGraph.class, User.class).newInstance(g, g.admin() );
+        backend.application = appClass
+            .getConstructor(BBGraph.class, User.class)
+            .newInstance(g, g.admin());
     }
 
     private static Map<String, String> mapArgs(String... args) {
@@ -96,7 +98,7 @@ public class WebServer extends BNode {
             g.loadFromDisk(
                 n -> System.out.println("loading node " + n),
                 (n, s) -> System.out.println("loading arc " + n + ", " + s),
-                    null
+                null
             );
             return g;
         } else {
@@ -688,7 +690,7 @@ public class WebServer extends BNode {
                             content,
                             contentType,
                             file.lastModified(),
-                                user
+                            user
                         );
 
                         String rangeHeader = https
@@ -1032,8 +1034,6 @@ public class WebServer extends BNode {
             endOfConstructor();
         }
 
-
-
         @Override
         public EndpointResponse exec(
             ObjectNode in,
@@ -1115,7 +1115,7 @@ public class WebServer extends BNode {
             endOfConstructor();
         }
 
-       @Override
+        @Override
         public EndpointResponse exec(
             ObjectNode in,
             User user,
@@ -1146,7 +1146,6 @@ public class WebServer extends BNode {
             super(db);
             endOfConstructor();
         }
-
 
         @Override
         public EndpointResponse exec(
