@@ -33,7 +33,7 @@ public class SearchForm extends BNode {
         initializeDefaultFilterChain();
     }
 
-    private void initializeDefaultFilterChain() {
+    private void initializeDefaultFilterChain(User creator) {
         // Set default logical operator to AND
         StringNode andOperator = new StringNode(graph, creator);
         andOperator.set("AND", creator);

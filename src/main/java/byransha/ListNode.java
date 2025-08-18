@@ -89,7 +89,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
         ListOptions options = getListOptions();
 
-        if (options.maxItems() > 0 && size() >= options.maxItems()) {
+        if (options.maxItems() > 0 && size() >= options.maxItems())
             throw new IllegalStateException(
                 "Maximum number of items reached: " + options.maxItems()
             );
@@ -123,6 +123,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
         }
 
         List<String> filteredOptions = getFilteredStaticOptions();
+
         if (!filteredOptions.contains(option)) {
             throw new IllegalArgumentException(
                 "Option not found in static options: " + option

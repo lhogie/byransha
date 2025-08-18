@@ -27,7 +27,7 @@ public class Summarizer extends NodeEndpoint<BNode> {
 			BNode node) {
 		var r = new ObjectNode(null);
 
-		forEachOut((name, out) -> {
+		forEachOutField((name, out) -> {
 			if (out instanceof ValuedNode vn) {
 				r.put(name, out.prettyName());
 			}

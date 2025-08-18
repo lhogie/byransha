@@ -31,7 +31,7 @@ public class Navigator extends NodeEndpoint<BNode> implements View {
     ) {
         var r = new ObjectNode(null);
         var outs = new ObjectNode(null);
-        n.forEachOut((name, o) ->
+        n.forEachOutField((name, o) ->
                 outs.set(name, new TextNode("" + o.id()))
         );
         r.set("outs", outs);

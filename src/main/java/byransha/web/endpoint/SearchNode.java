@@ -276,8 +276,8 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         nodeInfo.put("type", node.getClass().getSimpleName());
         nodeInfo.put("isValid", node.isValid());
 
-        node.forEachOut((name, outNode) -> {
-            if (outNode instanceof ImageNode imageNode) {
+        node.forEachOutField((name, outNode) -> {
+            if (outNode instanceof DocumentNode imageNode) {
                 nodeInfo.put("img", imageNode.getAsString());
                 nodeInfo.put("imgMimeType", imageNode.getMimeType());
             }

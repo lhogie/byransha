@@ -18,7 +18,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
+
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
@@ -37,10 +39,6 @@ public class BBGraph extends BNode {
     BooleanNode testBoolean;
     private User admin, system;
 
-    @Override
-    public String whatIsThis() {
-        return "BBGraph: A graph representation for BNodes.";
-    }
 
     public BBGraph(User user) {
         this((File) null, user);
@@ -60,6 +58,11 @@ public class BBGraph extends BNode {
         if (this.nodesById == null) this.nodesById = new ConcurrentHashMap<>();
 
         if (this.byClass == null) this.byClass = new ConcurrentHashMap<>();
+    }
+
+    @Override
+    public String whatIsThis() {
+        return "a graph";
     }
 
     public List<NodeEndpoint> endpointsUsableFrom(BNode n) {
@@ -95,7 +98,7 @@ public class BBGraph extends BNode {
     public List<InLink> findRefsTO(BNode searchedNode) {
         List<InLink> refs = new ArrayList<>();
         for (BNode node : nodesById.values()) {
-            node.forEachOut((role, target) -> {
+            node.forEachOutField((role, target) -> {
                 if (target != null && target.equals(searchedNode)) {
                     refs.add(new InLink(role, node));
                 }
@@ -114,6 +117,7 @@ public class BBGraph extends BNode {
 
         // if constructors create nodes during loading
         int maxIdOnDisk = 0;
+
         if (directory != null) {
             File[] classDirs = directory.listFiles();
             if (classDirs != null) {
@@ -183,53 +187,75 @@ public class BBGraph extends BNode {
                 if (!BNode.class.isAssignableFrom(foundClass)) {
                     throw new IllegalStateException(foundClass.getName());
                 }
+
                 var nodeClass = (Class<? extends BNode>) foundClass;
 
-                for (File nodeDir : Objects.requireNonNull(
-                    classDir.listFiles()
-                )) {
-                    if (!nodeDir.isDirectory()) continue; // prevents .DSStore
+                try {
+                    var constructor = nodeClass.getConstructor(
+                            BBGraph.class,
+                            User.class,
+                            int.class
+                    );
 
-                    int id = Integer.valueOf(nodeDir.getName());
-
-                    // don't create the graph node twice!
-
-                    if (id != 0) {
-                        try {
-                            var constructor = nodeClass.getConstructor(
-                                BBGraph.class,
-                                int.class
-                            );
-
-                            BNode node = constructor.newInstance(graph, id);
-
-                            newNodeInstantiated.accept(node);
-                        } catch (
-                            InstantiationException
-                            | IllegalAccessException
-                            | IllegalArgumentException
-                            | InvocationTargetException
-                            | SecurityException err
-                        ) {
-                            throw new RuntimeException(err);
-                        } catch (NoSuchMethodException e) {
-                            // persistence constructor not found
-                            throw new IllegalStateException(nodeClass.getName());
+                    listNodeDirectories("", classDir, id -> {
+                        // don't create the graph node twice!
+                        if (id != 0) {
+                            try {
+                                BNode node = constructor.newInstance(graph, systemUser(), id);
+                                newNodeInstantiated.accept(node);
+                            } catch (
+                                    InstantiationException
+                                    | IllegalAccessException
+                                    | IllegalArgumentException
+                                    | InvocationTargetException
+                                    | SecurityException err
+                            ) {
+                                throw new RuntimeException(err);
+                            }
                         }
-                    }
+                    });
                 }
+                catch (NoSuchMethodException e) {
+                    throw new IllegalStateException(nodeClass.getName());
+                }
+
+
+
+            }
+        }
+    }
+
+    private void listNodeDirectories(String idPrefix, File classDir, IntConsumer c) {
+        for (File file : classDir.listFiles()) {
+            if (file.isDirectory()) {
+                var id = idPrefix +  file.getName();
+
+                if (new File(file, "outs").exists()){ // we found a node
+                    c.accept(Integer.parseInt(id));
+                }
+
+              listNodeDirectories(id, file, c);
             }
         }
     }
 
     private void connectOutsToNode(BNode node, BiConsumer<BNode, String> setRelation, User user) {
-       Files.lines(node.outsFile().toPath()).forEach((l ->{
-            var  a= l.split(":");
-            var field = getClass().getField(a[0]) ;
-            field.setAccessible(true);
-           var target = graph.nodesById.get(Integer.valueOf(a[1]));
-            field.set(this, target);
-       }));
+        try (var lines = Files.lines(node.outsFile().toPath())) {
+            lines.forEach((l -> {
+                var a = l.split(":");
+
+                try {
+                    var field = Utils.findField(node.getClass(), a[0]);
+                    field.setAccessible(true);
+                    var target = graph.nodesById.get(Integer.valueOf(a[1]));
+                    field.set(node, target);
+                } catch (IllegalAccessException | NoSuchFieldException err) {
+                    throw new RuntimeException("Error setting relation for node " + node + ": " + a[0] + " -> " + a[1], err);
+                }
+            }));
+        } catch (IOException err) {
+            throw new RuntimeException(err);
+        }
     }
 
     /**
@@ -257,7 +283,7 @@ public class BBGraph extends BNode {
             deleteNodeDirectory(node);
             graph.removeFromGraph(node);
 
-            node.forEachOut((name, child) -> {
+            node.forEachOutField((name, child) -> {
                 if (child instanceof BBGraph || child instanceof Cluster)
                     return;
                 deleteNode(child);
@@ -285,7 +311,7 @@ public class BBGraph extends BNode {
 
     public List<BNode> getAllDeleteNodes(BNode node) {
         List<BNode> result = new ArrayList<>();
-        node.forEachOut((name, child) -> {
+        node.forEachOutField((name, child) -> {
             if (child instanceof BBGraph || child instanceof Cluster) return; // Skip graphs, they are not deleted here
             result.add(child);
             result.addAll(getAllDeleteNodes(child));
@@ -524,7 +550,7 @@ public class BBGraph extends BNode {
                 if (v.canSee(user)) {
                     BVertex sourceVertex = vertexCache.get(v.id());
                     if (sourceVertex != null) {
-                        v.forEachOut((s, o) -> {
+                        v.forEachOutField((s, o) -> {
                             if (o.canSee(user)) {
                                 BVertex targetVertex = vertexCache.get(o.id());
                                 if (targetVertex != null) {

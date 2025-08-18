@@ -12,9 +12,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import java.lang.reflect.Field;
-import java.util.Base64;
-
 public class SetValue extends NodeEndpoint<BNode> {
 
     public SetValue(BBGraph g) {
@@ -86,75 +83,12 @@ public class SetValue extends NodeEndpoint<BNode> {
         BNode parentNode = graph.findByID(parentId);
 
         try {
-            if (node instanceof StringNode sn) {
-                sn.set(value.asText(), user);
-                a.set("value", new TextNode(value.asText()));
-            } else if (node instanceof byransha.IntNode i) {
-                i.set(value.asInt(), user);
-                a.set("value", new IntNode(value.asInt()));
-            } else if (node instanceof ColorNode c) {
-                if (parentNode == null) {
-                    return ErrorResponse.notFound(
-                        "Parent node with ID " +
-                        parentId +
-                        " not found in the graph."
-                    );
-                }
-                parentNode.setColor(value.asText(), user);
-                a.set("value", new TextNode(c.getAsString()));
-            } else if (node instanceof byransha.BooleanNode b) {
-                Field field = parentNode.getFields(node.id());
-                b.set(field.getName(), parentNode, value.asBoolean(), user);
-                a.set(
-                    "value",
-                    value.booleanValue() ? BooleanNode.TRUE : BooleanNode.FALSE
-                );
-            } else if (node instanceof ImageNode im) {
-                try {
-                    String base64Image = value.asText();
-                    byte[] data = Base64.getDecoder().decode(base64Image);
-                    String mimeType = "image/png";
-                    if (base64Image.startsWith("data:image/jpeg;base64,")) {
-                        mimeType = "image/jpeg";
-                    } else if (
-                        base64Image.startsWith("data:image/gif;base64,")
-                    ) {
-                        mimeType = "image/gif";
-                    } else if (
-                        base64Image.startsWith("data:image/svg+xml;base64,")
-                    ) {
-                        mimeType = "image/svg+xml";
-                    }
+            if(node instanceof PrimitiveValueNode pv) {
 
-                    im.set(data, user);
-                    im.setMimeType(mimeType);
-                    a.set("value", new TextNode(im.get().toString()));
-                } catch (IllegalArgumentException e) {
-                    return ErrorResponse.badRequest(
-                        "Invalid base64 image data: " + e.getMessage()
-                    );
-                }
-            } else if (node instanceof FileNode fn) {
-                try {
-                    String base64File = value.asText();
-                    byte[] data = Base64.getDecoder().decode(base64File);
-                    String mimeType = "application/octet-stream";
-                    if (base64File.startsWith("data:application/pdf;base64,")) {
-                        mimeType = "application/pdf";
-                    } else if (
-                        base64File.startsWith("data:text/plain;base64,")
-                    ) {
-                        mimeType = "text/plain";
-                    }
-                    fn.set(data, user);
-                    fn.setMimeType(mimeType);
-                    a.set("value", new TextNode(fn.get().toString()));
-                } catch (IllegalArgumentException e) {
-                    return ErrorResponse.badRequest(
-                        "Invalid base64 file data: " + e.getMessage()
-                    );
-                }
-            } else if (node instanceof ListNode lc) {
+                pv.updateValue(value.asText(), user, parentNode);
+                a.set("value", new TextNode(value.asText()));
+            }
+            else if (node instanceof ListNode lc) {
                 if (lc.allowMultiple() == false) {
                     if (value.isArray() && value.size() > 1) {
                         return ErrorResponse.badRequest(

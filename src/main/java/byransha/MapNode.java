@@ -23,7 +23,7 @@ public class MapNode<N extends BNode> extends BNode {
 	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
 
 	@Override
-	public void forEachOut(BiConsumer<String, BNode> consumer) {
+	public void forEachOutField(BiConsumer<String, BNode> consumer) {
 		for (Map.Entry<String, N> e : l.entrySet()) {
 			if (e.getValue() != null) {
 				consumer.accept(e.getKey(), e.getValue());

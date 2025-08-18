@@ -62,7 +62,7 @@ public class ShortcutNode extends BNode {
     }
 
     @Override
-    public void forEachOut(BiConsumer<String, BNode> consumer) {
+    public void forEachOutField(BiConsumer<String, BNode> consumer) {
         try {
             LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
             if (dynamicOuts != null) {

@@ -1,17 +1,14 @@
 package byransha.labmodel.model.v0;
 
-import byransha.BBGraph;
-import byransha.ListNode;
-import byransha.StringNode;
-import byransha.User;
+import byransha.*;
 
 import java.util.List;
 
 public class Contract extends BusinessNode {
 
-    StringNode name;
-    Person holder;
-    List<Person> subHolders;
+    private Out<StringNode> name;
+    private Out<Person> holder;
+    ListNode<Person> subHolders;
     ListNode<Person> coordinators;
     ListNode<Person> partners;
     ListNode<Person> misc;

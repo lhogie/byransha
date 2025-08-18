@@ -34,7 +34,7 @@ public class EtatCivil extends BusinessNode {
     )
     public Out<PhoneNumberNode> telephone;
 
-    public Out<ImageNode> pic;
+    public Out<DocumentNode> pic;
 
     public EtatCivil(BBGraph g, User creator) {
         super(g, creator);
@@ -47,12 +47,14 @@ public class EtatCivil extends BusinessNode {
         nationalites = new Out< ListNode<Country>>(g, creator);
         address = new Out< StringNode>(g, creator);
         telephone = new Out< PhoneNumberNode>(g,  creator);
-        pic = new Out< ImageNode>(g, creator);
+        pic = new Out< DocumentNode>(g, creator);
         this.setColor("#03fc62", creator);
+        endOfConstructor();
     }
 
     public EtatCivil(BBGraph g, User creator, int id) {
         super(g, creator, id);
+        endOfConstructor();
     }
 
     @Override

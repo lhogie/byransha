@@ -55,7 +55,7 @@ public abstract class FieldFilterNode extends FilterNode {
         try {
             if (obj instanceof BNode bnode) {
                 BNode[] outNodes = new BNode[1];
-                bnode.forEachOut((name, outNode) -> {
+                bnode.forEachOutField((name, outNode) -> {
                     if (name.equals(fieldName)) {
                         outNodes[0] = outNode;
                     }

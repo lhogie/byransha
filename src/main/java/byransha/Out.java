@@ -20,12 +20,15 @@ public  class Out<V extends BNode> extends ValuedNode<V> {
     }
 
     @Override
-    protected void saveValue(ValueHistoryEntry<V> e, Consumer<File> writingFiles) throws IOException {
-        var link = new File(e.directory(), "value");
-        var target =get().directory().toPath();
-        writingFiles.accept(link);
-        Files.createSymbolicLink(link.toPath(), target);
+    protected byte[] valueToBytes(V v) throws IOException {
+        return String.valueOf(v.id()).getBytes();
     }
+
+    @Override
+    protected V bytesToValue(byte[] bytes, User user) throws IOException {
+        return (V) graph.findByID(Integer.valueOf(String.valueOf(bytes)));
+    }
+
 
     @Override
     public String whatIsThis() {

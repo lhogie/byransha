@@ -7,6 +7,7 @@ import byransha.annotations.Required;
 import byransha.annotations.Size;
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
+import byransha.labmodel.model.v0.BusinessNode;
 import byransha.web.*;
 import byransha.web.EndpointJsonResponse.dialects;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -34,7 +35,7 @@ public abstract class BNode {
     public BBGraph graph;
     private final int id;
     public ColorNode color;
-    public boolean persisting = false;
+//    public boolean persisting = false;
     public Cluster cluster;
     public StringNode comment;
     public User creator;
@@ -48,6 +49,7 @@ public abstract class BNode {
     // non-persisting nodes should NOT have this constructor
     protected BNode(BBGraph g, User creator, int id) {
         if (id < 0) throw new IllegalArgumentException();
+        this.constructionMonitor = new CountDownLatch(bnodeDepth());
 
         this.id = id;
 
@@ -105,7 +107,7 @@ public abstract class BNode {
                             save(BBGraph.sysoutPrinter);
                         }
 
-                        nodeConstructed();
+                        nodeConstructed(creator);
                     } else {
                         throw new InterruptedException();
                     }
@@ -115,6 +117,10 @@ public abstract class BNode {
                             "Node " + this + " was not initialized properly, construction monitor timed out. Expected " +
                                     bnodeDepth() + " confirmations but got " + (bnodeDepth() - constructionMonitor.getCount())
                     ).printStackTrace();
+                } catch (IOException e) {
+                    throw new RuntimeException(
+                            "Error while saving node " + this + " to disk: " + e.getMessage(), e
+                    );
                 } finally {
                     constructionMonitor = null;
                 }
@@ -122,15 +128,15 @@ public abstract class BNode {
         }
     }
 
-    protected void nodeConstructed() {
+    protected void nodeConstructed(User user) {
         // This method can be overridden by subclasses to perform additional initialization
     }
 
-    public void createOrAssignCluster(User creator) {
-        AtomicBoolean foundCluster = new AtomicBoolean(false);
+    private synchronized Cluster findCluster(User creator) {
+        if (!(this instanceof BusinessNode)) return null;
 
         var cluster = graph.find(Cluster.class, c ->
-             c.getTypeOfCluster() == this.getClass());
+                c.getTypeOfCluster() == this.getClass());
 
         if (cluster == null) {
             cluster = new Cluster(graph, creator);
@@ -169,9 +175,9 @@ public abstract class BNode {
     }
 
     private static final ConcurrentMap<
-        Class<?>,
-        List<Field>
-    > outNodeFieldsCache = new ConcurrentHashMap<>();
+            Class<?>,
+            List<Field>
+            > outNodeFieldsCache = new ConcurrentHashMap<>();
 
     public void forEachOutNodeField(Consumer<Field> consumer) {
         List<Field> fields = getOutNodeFields(getClass());
@@ -185,8 +191,8 @@ public abstract class BNode {
         }
     }
 
-    private static List<Field> getOutNodeFields(Class<?> clazz) {
-        return outNodeFieldsCache.computeIfAbsent(clazz, cls -> {
+    private static List<Field> getOutNodeFields(BNode node) {
+        return outNodeFieldsCache.computeIfAbsent(node.getClass(), cls -> {
             List<Field> fields = new ArrayList<>();
             for (var c : Clazz.bfs(cls)) {
                 for (var f : c.getDeclaredFields()) {
@@ -206,7 +212,7 @@ public abstract class BNode {
         });
     }
 
-    public void forEachOut(BiConsumer<String, BNode> consumer) {
+    public void forEachOutField(BiConsumer<String, BNode> consumer) {
         forEachOutNodeField(f -> {
             try {
                 var outNode = (BNode) f.get(this);
@@ -218,6 +224,10 @@ public abstract class BNode {
                 throw new IllegalStateException(e);
             }
         });
+    }
+
+    public void forEachOut(Consumer<BNode> consumer) {
+        forEachOutField((name, n) -> consumer.accept(n));
     }
 
     public void forEachIn(BiConsumer<String, BNode> consumer) {
@@ -237,8 +247,8 @@ public abstract class BNode {
     }
 
     private void search(
-        Consumer<BNode> consumer,
-        Function<List<BNode>, BNode> producer
+            Consumer<BNode> consumer,
+            Function<List<BNode>, BNode> producer
     ) {
         List<BNode> q = new ArrayList<>();
         BNode c = this;
@@ -248,7 +258,7 @@ public abstract class BNode {
         while (!q.isEmpty()) {
             c = producer.apply(q);
             consumer.accept(c);
-            c.forEachOut((f, n) -> {
+            c.forEachOutField((f, n) -> {
                 if (!visited.contains(n)) {
                     visited.add(n);
                     q.add(n);
@@ -269,7 +279,7 @@ public abstract class BNode {
     public LinkedHashMap<String, BNode> outs() {
         if (outsCacheDirty || outsCache == null) {
             outsCache = new LinkedHashMap<String, BNode>();
-            forEachOut(outsCache::put);
+            forEachOutField(outsCache::put);
             outsCacheDirty = false;
         }
         return new LinkedHashMap<>(outsCache);
@@ -285,9 +295,9 @@ public abstract class BNode {
     }
 
     protected void onEdgeChanged(
-        String fieldName,
-        BNode oldTarget,
-        BNode newTarget
+            String fieldName,
+            BNode oldTarget,
+            BNode newTarget
     ) {}
 
     public void remove() {
@@ -297,7 +307,7 @@ public abstract class BNode {
     public List<SearchResult> search(String query) {
         var r = new ArrayList<SearchResult>();
         bfs(n ->
-            r.add(new SearchResult(query, n, n.distanceToSearchString(query)))
+                r.add(new SearchResult(query, n, n.distanceToSearchString(query)))
         );
         Collections.sort(r);
         return r;
@@ -387,8 +397,8 @@ public abstract class BNode {
 
                         invalidateOutsCache();
                     } catch (
-                        IllegalArgumentException
-                        | IllegalAccessException e
+                            IllegalArgumentException
+                            | IllegalAccessException e
                     ) {
                         throw new IllegalStateException(e);
                     }
@@ -405,8 +415,8 @@ public abstract class BNode {
     }
 
     public static class InOutsNivoView
-        extends NodeEndpoint<BNode>
-        implements View {
+            extends NodeEndpoint<BNode>
+            implements View {
 
         @Override
         public String whatItDoes() {
@@ -415,6 +425,7 @@ public abstract class BNode {
 
         public InOutsNivoView(BBGraph db) {
             super(db);
+            endOfConstructor();
         }
 
         @Override
@@ -424,11 +435,11 @@ public abstract class BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BNode n
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                BNode n
         ) {
             var g = new AnyGraph();
             var currentVertex = g.ensureHasVertex(n);
@@ -447,10 +458,10 @@ public abstract class BNode {
                     return true;
                 });
             } else {
-                n.forEachOut((role, outNode) -> {
+                n.forEachOutField((role, outNode) -> {
                     if (
-                        currentNumberNodes.get() <= limit ||
-                        outNode.getClass() == BBGraph.class
+                            currentNumberNodes.get() <= limit ||
+                                    outNode.getClass() == BBGraph.class
                     ) {
                         if (outNode.canSee(user) && n instanceof Cluster) {
                             var outVertex = g.ensureHasVertex(outNode);
@@ -460,8 +471,8 @@ public abstract class BNode {
                             arc.color = "red";
                             currentNumberNodes.getAndIncrement();
                         } else if (
-                            outNode.canSee(user) &&
-                            !(outNode instanceof ValuedNode<?>)
+                                outNode.canSee(user) &&
+                                        !(outNode instanceof ValuedNode<?>)
                         ) {
                             var outVertex = g.ensureHasVertex(outNode);
                             setVertexProperties(outVertex, outNode, "blue");
@@ -481,8 +492,8 @@ public abstract class BNode {
                         arc.style = "dotted";
                         arc.label = role;
                     } else if (
-                        inNode.canSee(user) &&
-                        !(inNode instanceof ValuedNode<?>)
+                            inNode.canSee(user) &&
+                                    !(inNode instanceof ValuedNode<?>)
                     ) {
                         var inVertex = g.ensureHasVertex(inNode);
                         setVertexProperties(inVertex, inNode, "pink");
@@ -494,15 +505,15 @@ public abstract class BNode {
             }
 
             return new EndpointJsonResponse(
-                g.toNivoJSON(),
-                dialects.nivoNetwork
+                    g.toNivoJSON(),
+                    dialects.nivoNetwork
             );
         }
 
         private void setVertexProperties(
-            BVertex vertex,
-            BNode node,
-            String defaultColor
+                BVertex vertex,
+                BNode node,
+                String defaultColor
         ) {
             if (node.color == null || node.color.get() == null) {
                 vertex.color = defaultColor;
@@ -549,7 +560,7 @@ public abstract class BNode {
     }
 
     public boolean isPersisting(){
-        return hasLoadConstructor() && persisting;
+        return hasLoadConstructor();
     }
 
     public boolean isReadOnly(){
@@ -558,7 +569,7 @@ public abstract class BNode {
 
     private boolean hasLoadConstructor(){
         try {
-            getClass().getConstructor(BBGraph.class, int.class);
+            getClass().getConstructor(BBGraph.class, User.class, int.class);
             return true;
         } catch (NoSuchMethodException e) {
             return false;
@@ -566,25 +577,32 @@ public abstract class BNode {
     }
 
 
-    public void saveOuts(Consumer<File> writingFiles) {
+    private void saveOuts(Consumer<File> writingFiles) {
         if (!isPersisting())
-            throw new IllegalStateException("can't save a non-persisting node");
+            throw new IllegalStateException("can't save non-persisting node " + this);
 
         var s = new StringBuilder();
 
-        forEachOut((name, outNode) ->
-                s.append(name+":" + outNode.id()).append("\n"));
+        forEachOutField((name, outNode) -> {
+                    if (!(outNode instanceof BBGraph)) {
+                        s.append(name+":" + outNode.id()).append("\n");
+                    }
+                }
+        );
 
-        try {
-            Files.write(outsFile().toPath(), s.toString().getBytes());
-        } catch (IOException err) {
-            throw new RuntimeException(err);
-        }
+
+            try {
+                var f = outsFile();
+                writingFiles.accept(f);
+                Files.writeString(f.toPath(), s);
+            } catch (IOException err) {
+                throw new RuntimeException(err);
+            }
     }
 
-    public void save(Consumer<File> writingFiles) {
+    public synchronized void save(Consumer<File> writingFiles) throws IOException {
         if (!isPersisting()) throw new IllegalStateException(
-            "can't save a non-persisting node"
+                "can't save a non-persisting node"
         );
 
         var d = directory();
@@ -595,7 +613,7 @@ public abstract class BNode {
         }
 
         saveOuts(writingFiles);
-
+//        new File(directory(), getClass().getName()).createNewFile();
     }
 
     // called by all node constructors
@@ -606,8 +624,8 @@ public abstract class BNode {
     private int bnodeDepth(){
         int r = 0;
 
-        for (Class c = getClass(); c != BNode.class; c = c.getSuperclass()){
-                r++;
+        for (Class<?> c = getClass(); c != BNode.class; c = c.getSuperclass()){
+            r++;
         }
 
         return r;
@@ -621,10 +639,10 @@ public abstract class BNode {
                     Object value = f.get(this);
 
                     if (
-                        f.isAnnotationPresent(Required.class) &&
-                        (value == null ||
-                            (value instanceof ValuedNode &&
-                                ((ValuedNode) value).get() == null))
+                            f.isAnnotationPresent(Required.class) &&
+                                    (value == null ||
+                                            (value instanceof ValuedNode &&
+                                                    ((ValuedNode) value).get() == null))
                     ) {
                         return false;
                     }
@@ -633,14 +651,14 @@ public abstract class BNode {
                         if (f.isAnnotationPresent(Min.class)) {
                             Min min = f.getAnnotation(Min.class);
                             if (
-                                value instanceof ValuedNode &&
-                                ((ValuedNode<?>) value).get() instanceof Number
+                                    value instanceof ValuedNode &&
+                                            ((ValuedNode<?>) value).get() instanceof Number
                             ) {
                                 if (
-                                    ((Number) ((ValuedNode<
+                                        ((Number) ((ValuedNode<
                                                 ?
-                                            >) value).get()).doubleValue() <
-                                    min.value()
+                                                >) value).get()).doubleValue() <
+                                                min.value()
                                 ) {
                                     return false;
                                 }
@@ -650,14 +668,14 @@ public abstract class BNode {
                         if (f.isAnnotationPresent(Max.class)) {
                             Max max = f.getAnnotation(Max.class);
                             if (
-                                value instanceof ValuedNode &&
-                                ((ValuedNode<?>) value).get() instanceof Number
+                                    value instanceof ValuedNode &&
+                                            ((ValuedNode<?>) value).get() instanceof Number
                             ) {
                                 if (
-                                    ((Number) ((ValuedNode<
+                                        ((Number) ((ValuedNode<
                                                 ?
-                                            >) value).get()).doubleValue() >
-                                    max.value()
+                                                >) value).get()).doubleValue() >
+                                                max.value()
                                 ) {
                                     return false;
                                 }
@@ -669,11 +687,11 @@ public abstract class BNode {
                             int length = -1;
 
                             if (
-                                value instanceof ValuedNode &&
-                                ((ValuedNode<?>) value).get() instanceof String
+                                    value instanceof ValuedNode &&
+                                            ((ValuedNode<?>) value).get() instanceof String
                             ) {
                                 length = ((String) ((ValuedNode<
-                                            ?
+                                        ?
                                         >) value).get()).length();
                             } else if (value instanceof ListNode) {
                                 length = ((ListNode<?>) value).size();
@@ -682,8 +700,8 @@ public abstract class BNode {
                             }
 
                             if (
-                                length != -1 &&
-                                (length < size.min() || length > size.max())
+                                    length != -1 &&
+                                            (length < size.min() || length > size.max())
                             ) {
                                 return false;
                             }
@@ -692,15 +710,15 @@ public abstract class BNode {
                         if (f.isAnnotationPresent(Pattern.class)) {
                             Pattern pattern = f.getAnnotation(Pattern.class);
                             if (
-                                value instanceof ValuedNode &&
-                                ((ValuedNode<?>) value).get() instanceof String
+                                    value instanceof ValuedNode &&
+                                            ((ValuedNode<?>) value).get() instanceof String
                             ) {
                                 if (
-                                    !((String) ((ValuedNode<
+                                        !((String) ((ValuedNode<
                                                 ?
-                                            >) value).get()).matches(
-                                        pattern.regex()
-                                    )
+                                                >) value).get()).matches(
+                                                pattern.regex()
+                                        )
                                 ) {
                                     return false;
                                 }

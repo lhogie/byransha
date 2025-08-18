@@ -283,7 +283,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             0
         );
 
-        node.forEachOut((name, out) -> {
+        node.forEachOutField((name, out) -> {
             if (
                 out instanceof BBGraph ||
                 out instanceof Cluster

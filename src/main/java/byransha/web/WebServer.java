@@ -269,8 +269,8 @@ public class WebServer extends BNode {
     }
 
     @Override
-    public void forEachOut(BiConsumer<String, BNode> consumer) {
-        super.forEachOut(consumer);
+    public void forEachOutField(BiConsumer<String, BNode> consumer) {
+        super.forEachOutField(consumer);
 
         for (var user : activeUsers()) {
             if (user instanceof User u) {

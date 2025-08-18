@@ -39,8 +39,8 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
             return null;
         }
         else{
-            return getElements().getLast().value;
-//            return history.getAt(graph.date());
+            return getElements().getLast().value();
+            //return history.getAt(graph.date());
         }
     }
 

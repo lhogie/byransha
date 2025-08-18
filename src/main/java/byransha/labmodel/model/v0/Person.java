@@ -10,7 +10,7 @@ public class Person extends BusinessNode {
     @ListOptions(type = ListOptions.ListType.LIST)
     public ListNode<Position> positions;
 
-    public ImageNode pics;
+    public DocumentNode pics;
     public BooleanNode hdr;
 
     public StringNode badgeNumber;
@@ -50,7 +50,7 @@ public class Person extends BusinessNode {
         super(g, creator);
         etatCivil = new EtatCivil(g, creator); // new EtatCivil(g);
         positions = new ListNode(g, creator); // new ListNode<>(g);
-        pics = new ImageNode(g, creator); // new ImageNode(g);
+        pics = new DocumentNode(g, creator); // new ImageNode(g);
 
         hdr = new BooleanNode(g, creator); // new BooleanNode(g);
 

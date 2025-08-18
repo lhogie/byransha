@@ -18,9 +18,9 @@ public abstract class ValuedNode<V> extends BNode  {
         super(g, user, id);
     }
 
+    protected abstract byte[] valueToBytes(V v) throws IOException;
 
-    protected abstract void saveValue(ValueHistoryEntry<V> e, Consumer<File> writingFiles) throws IOException;
-
+    protected abstract V bytesToValue(byte[] bytes, User user) throws IOException;
 
     @Override
     public void save(Consumer<File> writingFiles) {

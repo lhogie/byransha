@@ -9,11 +9,8 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.OffsetDateTime;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -288,7 +285,7 @@ public class CSVExporter {
     ) {
         List<String> elements = new ArrayList<>();
 
-        listNode.forEachOut((name, node) -> {
+        listNode.forEachOutField((name, node) -> {
             if (node instanceof ValuedNode) {
                 // For ValuedNode, get the actual value
                 ValuedNode<?> valuedNode = (ValuedNode<?>) node;
