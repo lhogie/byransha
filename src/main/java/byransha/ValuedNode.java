@@ -37,7 +37,7 @@ public abstract class ValuedNode<V> extends BNode  {
 
     public String getAsString() {
         V v = get();
-        return v != null ? valueHolder.toString() : "";
+        return v != null ? v.toString() : "";
     }
 
     @Override

@@ -24,6 +24,8 @@ public class User extends BNode {
         passwordNode = new StringNode(g, creator);
         stack.push(g.root());
         setColor("#032cfc", this);
+        name = new StringNode(g,creator);
+        passwordNode = new StringNode(g, creator);
         endOfConstructor();
     }
 

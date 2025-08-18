@@ -38,7 +38,7 @@ public class Person extends BusinessNode {
         if (etatCivil == null) {
             return super.toString();
         }
-        return etatCivil.name.get().get();
+        return etatCivil.name.get();
     }
 
     @Override

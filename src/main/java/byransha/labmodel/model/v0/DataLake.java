@@ -132,29 +132,16 @@ public class DataLake extends BNode {
                 person.positions.add(position, user);
             }
 
-            var name = new StringNode(graph, user, l.set(1, null));
-            person.etatCivil.name.set(name, user);
-            person.etatCivil.familyNameBeforeMariage.set(
-                new StringNode(graph, user, l.set(2, null)),
-                user
-            );
-            person.etatCivil.firstName.set(
-                new StringNode(graph, user, l.set(3, null)),
-                user
-            );
+            person.etatCivil.name = new StringNode(graph, user, l.set(1, null));
+            person.etatCivil.familyNameBeforeMariage = new StringNode(graph, user, l.set(2, null));
+            person.etatCivil.firstName = new StringNode(graph, user, l.set(3, null));
             var birthNode = new DateNode(graph, user);
             birthNode.set(parseDate(l.set(4, null)), user);
             person.etatCivil.birthDate.set(birthNode, user);
-            person.etatCivil.cityOfBirth.set(
-                new StringNode(graph, user, l.set(5, null)),
-                user
-            );
+            person.etatCivil.cityOfBirth = new StringNode(graph, user, l.set(5, null));
             //            person.etatCivil.countryOfBirth.set(l.set(6, null));
             //            person.etatCivil.nationality.set(l.set(7, null));
-            person.etatCivil.address.set(
-                new StringNode(graph, user, l.set(8, null)),
-                user
-            );
+            person.etatCivil.address = new StringNode(graph, user, l.set(8, null));
             var inter = new StringNode(graph, user);
             inter.set(l.set(9, null), user);
             person.phoneNumbers.add(inter, user);

@@ -6,11 +6,9 @@ import byransha.annotations.ListOptions;
 
 public class EtatCivil extends BusinessNode {
 
-    @Size(min = 2)
-    public Out<StringNode> name;
 
     @Required
-    public Out<StringNode> familyNameBeforeMariage, firstName, cityOfBirth, address;
+    public StringNode name, familyNameBeforeMariage, firstName, cityOfBirth, address;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
     public Out<ListNode<Country>> countryOfBirth;
@@ -38,14 +36,14 @@ public class EtatCivil extends BusinessNode {
 
     public EtatCivil(BBGraph g, User creator) {
         super(g, creator);
-        name = new Out<StringNode>(g,  creator);
-        familyNameBeforeMariage = new Out<StringNode>(g, creator);
-        firstName = new Out<StringNode>(g, creator);
+        name = new StringNode(g,  creator);
+        familyNameBeforeMariage = new StringNode(g, creator);
+        firstName = new StringNode(g, creator);
         birthDate = new Out< DateNode>(g, creator);
-        cityOfBirth = new Out< StringNode>(g, creator);
+        cityOfBirth = new StringNode(g, creator);
         countryOfBirth = new Out< ListNode<Country>>(g, creator);
         nationalites = new Out< ListNode<Country>>(g, creator);
-        address = new Out< StringNode>(g, creator);
+        address = new StringNode(g, creator);
         telephone = new Out< PhoneNumberNode>(g,  creator);
         pic = new Out< DocumentNode>(g, creator);
         this.setColor("#03fc62", creator);
