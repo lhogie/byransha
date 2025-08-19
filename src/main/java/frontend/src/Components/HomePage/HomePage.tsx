@@ -36,7 +36,7 @@ import {
 	Paper,
 	Skeleton,
 	Stack,
-	Switch,
+	Switch, TextField,
 	Tooltip,
 	Typography,
 	useTheme,
@@ -615,10 +615,8 @@ const HomePage = memo(() => {
 					});
 					navigate(`/add-node/form/${data?.data?.node_id}`);
 				} else {
-					// Pre-open modal immediately for better UX
-					setIsModalOpen(true);
-					// Then set the view data
-					setExpandedView(view);
+					navigate(`/home/${view.name}`)
+					console.log("Expanding view:", view.name);
 				}
 			});
 		},
@@ -905,80 +903,38 @@ const HomePage = memo(() => {
 							</Box>
 						</Box>
 
+						<Box sx={{ minWidth: 220 }}>
+							<Typography variant="caption" sx={{ display: "block", mb: 0.5 }}>
+								{dayjs(selectedDate).format("YYYY-MM-DD")}
+							</Typography>
 
-						<Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-							<FormControlLabel
-								control={
-									<Switch
-										checked={autoColumns}
-										onChange={handleAutoColumnsToggle}
-										color="primary"
-									/>
-								}
-								label="Auto colonnes"
-								sx={{
-									"& .MuiFormControlLabel-label": {
-										fontSize: { xs: "0.875rem", sm: "1rem" },
-										color: "text.primary",
-										fontWeight: autoColumns ? 600 : 400,
-									},
-									px: 2,
-									py: 1,
-									borderRadius: 2,
-									bgcolor: autoColumns ? "primary.50" : "grey.50",
-									transition: "all 0.2s ease-in-out",
+							{/* Input manuel */}
+							<TextField
+								type="date"
+								size="small"
+								fullWidth
+								value={dayjs(selectedDate).format("YYYY-MM-DD")}
+								onChange={(e) => {
+									const newDate = dayjs(e.target.value).valueOf();
+									if (!isNaN(newDate)) {
+										setSelectedDate(newDate);
+									}
 								}}
+								sx={{ mb: 1 }}
 							/>
 
-							{/* Date slider */}
-							<Box sx={{ minWidth: 220 }}>
-								<Typography variant="caption" sx={{ display: "block", mb: 0.5 }}>
-									{dayjs(selectedDate).format("YYYY-MM-DD")}
-								</Typography>
-								<Slider
-									size="small"
-									min={dateRangeStart}
-									max={dateRangeEnd}
-									step={1000 * 60 * 60 * 24} // 1 day step
-									value={selectedDate}
-									onChange={handleDateChange}
-									valueLabelDisplay="off"
-								/>
-							</Box>
-
-							{!autoColumns && (
-								<ButtonGroup
-									variant="outlined"
-									size="small"
-									disabled={isPendingAny}
-									sx={{
-										"& .MuiButton-root": {
-											minWidth: { xs: 32, sm: 40 },
-											fontSize: { xs: "0.75rem", sm: "0.875rem" },
-											borderColor: "#90caf9",
-											color: "#1976d2",
-											"&:hover": {
-												borderColor: "#42a5f5",
-												bgcolor: "rgba(25, 118, 210, 0.04)",
-											},
-										},
-									}}
-								>
-									<Button onClick={decrementColumns} disabled={columns === 1}>
-										<RemoveIcon fontSize="small" />
-									</Button>
-									<Button disabled sx={{ cursor: "default" }}>
-										{columns}
-									</Button>
-									<Button
-										onClick={incrementColumns}
-										disabled={columns === filteredViews.length}
-									>
-										<AddIcon fontSize="small" />
-									</Button>
-								</ButtonGroup>
-							)}
+							{/* Slider */}
+							<Slider
+								size="small"
+								min={dateRangeStart}
+								max={dateRangeEnd}
+								step={1000 * 60 * 60 * 24}
+								value={selectedDate}
+								onChange={handleDateChange}
+								valueLabelDisplay="off"
+							/>
 						</Box>
+
 
 						{/* Bouton Ajouter nouveau noeud */}
 						<Button

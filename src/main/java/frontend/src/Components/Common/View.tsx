@@ -386,6 +386,7 @@ export const View = memo(({ viewId, sx }: ViewProps) => {
 								loading={loading}
 								error={error}
 								rawApiData={rawApiData}
+								refetch={refetch}
 								dataContent={dataContent}
 								backgroundColor={backgroundColor}
 								jumpToNode={jumpToNode}

@@ -13,6 +13,7 @@ const LoginForm = lazy(() => import("@components/LoginForm/LoginForm"));
 const HomePage = lazy(() => import("@components/HomePage/HomePage"));
 const AddNodePage = lazy(() => import("@components/AddNode/AddNodePage"));
 const FormPage = lazy(() => import("@components/FormPage/FormPage"));
+const Expand = lazy(() => import("@components/Common/Expand"));
 
 export const router = createBrowserRouter([
 	{
@@ -42,6 +43,18 @@ export const router = createBrowserRouter([
 								errorMessage="Failed to load home page"
 							>
 								<HomePage />
+							</LazyComponentWrapper>
+						),
+					},
+
+					{
+						path: "/home/:typeEndpoint",
+						element: (
+							<LazyComponentWrapper
+								fallback={<LoadingStates.Grid columns={2} count={4} />}
+								errorMessage="Failed to load the endpoint page"
+							>
+								<Expand />
 							</LazyComponentWrapper>
 						),
 					},

@@ -6,12 +6,15 @@ import { ChromePicker } from "react-color";
 import { collapseAllNested, JsonView } from "react-json-view-lite";
 import { BNodeNavigatorDisplay } from "./BNodeNavigatorDisplay";
 import { ChartDisplay } from "./ChartDisplay";
-import { ClassAttributeFieldDisplay } from "./ClassAttributeFieldDisplay";
 import MermaidDisplay from "./MermaidDisplay";
+import { useApiData } from "@hooks/useApiData";
+import {Form} from "@components/FormPage/FormComponents/Form";
 
 interface ContentDisplayProps {
 	viewId: string;
-	content: any;
+	content: ReturnType<typeof useApiData>['data']['data']['results'][number]['result']['data'];
+	rawApiData: ReturnType<typeof useApiData>['data'];
+	refetch: ReturnType<typeof useApiData>['refetch'];
 	contentType: string;
 	backgroundColor: string;
 	jumpToNode: (nodeId: number | string) => void;
@@ -21,15 +24,17 @@ interface ContentDisplayProps {
 }
 
 export const ContentDisplay = ({
-	viewId,
-	content,
-	contentType,
-	backgroundColor,
-	jumpToNode,
-	hexColor,
-	onHexColorChange,
-	prettyName,
-}: ContentDisplayProps) => {
+								   viewId,
+								   content,
+								   rawApiData,
+								   refetch,
+								   contentType,
+								   backgroundColor,
+								   jumpToNode,
+								   hexColor,
+								   onHexColorChange,
+								   prettyName,
+							   }: ContentDisplayProps) => {
 	const graphvizRef = useRef<HTMLDivElement>(null);
 
 	const renderGraphviz = useCallback(() => {
@@ -52,7 +57,7 @@ export const ContentDisplay = ({
 
 	if (contentType === "application/json") {
 		if (viewId === "class_attribute_field") {
-			return <ClassAttributeFieldDisplay content={content} />;
+			return <Form rawApiData={rawApiData} loading={false} error={null} refetch={refetch} />;
 		} else if (
 			viewId === "char_example_xy" ||
 			viewId.endsWith("_distribution") ||

@@ -174,17 +174,16 @@ const AddNodePage = () => {
 
 	return (
 		<Fade in={!exitAnim} timeout={300}>
+			<Box sx={{padding: { xs: "8px", sm: "16px", md: "40px" },}}>
 			<Container
 				component={Paper}
 				elevation={3}
+				maxWidth={false}
 				sx={{
 					p: 4,
 					position: "relative",
-					bgcolor: "#f8f9fa",
-					maxWidth: "100%",
-					width: "100%",
-					minHeight: "80vh",
-					overflow: "hidden",
+					minHeight: "85vh",
+					overflow: "auto",
 				}}
 			>
 				<Typography
@@ -411,6 +410,7 @@ const AddNodePage = () => {
 					</IconButton>
 				</Box>
 			</Container>
+			</Box>
 		</Fade>
 	);
 };

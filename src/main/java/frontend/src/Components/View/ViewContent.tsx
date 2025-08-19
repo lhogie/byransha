@@ -1,11 +1,13 @@
 import { Box, CircularProgress } from "@mui/material";
 import { useMemo } from "react";
 import { ContentDisplay } from "./ContentDisplay";
+import {useApiData} from "@hooks/useApiData";
 
 interface ViewContentProps {
-	loading: boolean;
-	error: Error | null;
-	rawApiData: any;
+	loading: ReturnType<typeof useApiData>['isLoading'];
+	error: ReturnType<typeof useApiData>['error'];
+	rawApiData: ReturnType<typeof useApiData>['data'];
+	refetch: ReturnType<typeof useApiData>['refetch'];
 	dataContent: any;
 	backgroundColor: string;
 	jumpToNode: (nodeId: number | string) => void;
@@ -17,8 +19,9 @@ interface ViewContentProps {
 export const ViewContent = ({
 	loading,
 	error,
-	rawApiData,
 	dataContent,
+	refetch,
+	rawApiData,
 	backgroundColor,
 	jumpToNode,
 	hexColor,
@@ -145,6 +148,8 @@ export const ViewContent = ({
 				<ContentDisplay
 					viewId={viewId}
 					content={resultData}
+					refetch={refetch}
+					rawApiData={rawApiData}
 					contentType={resultContentType}
 					backgroundColor={backgroundColor}
 					jumpToNode={jumpToNode}
