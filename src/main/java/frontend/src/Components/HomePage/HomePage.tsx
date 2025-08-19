@@ -55,6 +55,7 @@ import React, {
 import { useNavigate } from "react-router";
 import { Slider } from "@mui/material";
 import dayjs from "dayjs";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 
 // Memoized ViewCard component with enhanced accessibility
 const ViewCard = memo(
@@ -904,18 +905,13 @@ const HomePage = memo(() => {
 						</Box>
 
 						<Box sx={{ minWidth: 220 }}>
-							<Typography variant="caption" sx={{ display: "block", mb: 0.5 }}>
-								{dayjs(selectedDate).format("YYYY-MM-DD")}
-							</Typography>
 
 							{/* Input manuel */}
-							<TextField
-								type="date"
-								size="small"
-								fullWidth
-								value={dayjs(selectedDate).format("YYYY-MM-DD")}
-								onChange={(e) => {
-									const newDate = dayjs(e.target.value).valueOf();
+							<DatePicker
+								disableFuture
+								value={dayjs(selectedDate)}
+								onChange={(value) => {
+									const newDate = dayjs(value).valueOf();
 									if (!isNaN(newDate)) {
 										setSelectedDate(newDate);
 									}
