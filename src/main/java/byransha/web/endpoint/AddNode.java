@@ -15,9 +15,9 @@ import java.util.concurrent.ConcurrentMap;
 public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     private static final ConcurrentMap<
-        String,
-        Class<? extends BNode>
-    > classCache = new ConcurrentHashMap<>();
+            String,
+            Class<? extends BNode>
+            > classCache = new ConcurrentHashMap<>();
 
 
     public AddNode(BBGraph g) {
@@ -32,11 +32,11 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     @Override
     public EndpointJsonResponse exec(
-        ObjectNode in,
-        User user,
-        WebServer webServer,
-        HttpsExchange exchange,
-        BNode currentNode
+            ObjectNode in,
+            User user,
+            WebServer webServer,
+            HttpsExchange exchange,
+            BNode currentNode
     ) throws Throwable {
         var a = new ObjectNode(null);
         var className = requireParm(in, "BNodeClass").asText();
@@ -50,9 +50,10 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             classCache.putIfAbsent(className, clazz);
         }
         var node = clazz.getConstructor(
-            BBGraph.class,
-            User.class
-        ).newInstance(g, user);
+                BBGraph.class,
+                User.class,
+                InstantiationInfo.class
+        ).newInstance(g, user, InstantiationInfo.persisting);
         if (node != null) {
             a.set("id", new IntNode(node.id()));
             a.set("name", new TextNode(node.prettyName()));
@@ -70,13 +71,13 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             }
         } else {
             return ErrorResponse.serverError(
-                "Failed to create node of class: " + className
+                    "Failed to create node of class: " + className
             );
         }
 
         return new EndpointJsonResponse(
-            a,
-            "Add_node call executed successfully"
+                a,
+                "Add_node call executed successfully"
         );
     }
 }

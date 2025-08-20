@@ -13,7 +13,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 
     @Override
     protected void createOuts(User creator) {
-
+        super.createOuts(creator);
     }
 
     public DateNode(BBGraph g, User user, InstantiationInfo ii, boolean historize) {

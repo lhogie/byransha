@@ -72,6 +72,7 @@ public class BBGraph extends BNode {
                         new ConcurrentLinkedQueue<>()
                 )
                 .add(this);
+
         loadFromDisk(
                 n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
                 (n, s) -> System.out.println("loading arc " + n + ", " + s),
@@ -81,9 +82,6 @@ public class BBGraph extends BNode {
         this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
         int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
         this.webServer = new WebServer(this, port);
-
-
-
 
         createEndpoints(g);
         new JVMNode(g);
@@ -327,11 +325,11 @@ public class BBGraph extends BNode {
                     });
                 }
                 catch (NoSuchMethodException e) {
-                    throw new IllegalStateException(nodeClass.getName());
+                    throw new IllegalStateException(
+                            "Class " + className + " does not have the required constructor",
+                            e
+                    );
                 }
-
-
-
             }
         }
     }

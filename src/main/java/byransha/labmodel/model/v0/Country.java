@@ -15,7 +15,6 @@ public class Country extends BusinessNode {
 
 	public Country(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
-		this.setColor("#fc0307", creator);
 		endOfConstructor();
 	}
 
@@ -24,6 +23,7 @@ public class Country extends BusinessNode {
 		codeNode = new StringNode(g, creator, InstantiationInfo.persisting);
 		name = new StringNode(g, creator, InstantiationInfo.persisting);
 		flag = new Out<>(g, creator, InstantiationInfo.persisting);
+		this.setColor("#fc0307", creator);
 	}
 
 	public void setFlagCode(String code, User user) throws IOException {

@@ -10,7 +10,7 @@ public class ByteNode extends ValuedNode<byte[]> {
 
     @Override
     protected void createOuts(User creator) {
-
+        super.createOuts(creator);
     }
 
     @Override

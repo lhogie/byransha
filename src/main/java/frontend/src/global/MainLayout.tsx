@@ -19,7 +19,7 @@ import {
 	Logout as LogoutIcon,
 	MoreHoriz as MoreHorizIcon,
 	Search as SearchIcon,
-	Tune as TuneIcon,
+	ManageSearchRounded as TuneIcon,
 } from "@mui/icons-material";
 import {
 	Alert,
@@ -35,7 +35,7 @@ import {
 	IconButton,
 	Link,
 	MenuItem,
-	type PopoverProps,
+	type PopoverProps, Slider,
 	Stack,
 	Tooltip,
 	Typography,
@@ -47,6 +47,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@toolpad/core";
 import React, { memo, Suspense, useCallback, useMemo, useState } from "react";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router";
+import {DatePicker} from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 // Mobile-optimized UserInfo component
 const MobileUserInfo = memo(
@@ -510,7 +512,6 @@ const MobileNavDrawer = memo(
 							}}
 							aria-label="Se déconnecter"
 						>
-							Déconnexion
 						</Button>
 					</Stack>
 				</Box>
@@ -526,6 +527,13 @@ const MainLayout = memo(() => {
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
+
+	const [selectedDate, setSelectedDate] = useState<number>(Date.now());
+	const dateRangeStart = new Date("1920-01-01").getTime();
+	const dateRangeEnd = Date.now();
+	const handleDateChange = (_: Event, value: number | number[]) => {
+		setSelectedDate(value as number);
+	};
 
 	// Media queries for responsive behavior
 	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -862,30 +870,22 @@ const MainLayout = memo(() => {
 										minWidth: 0,
 									}}
 								>
-									{/* Advanced search button */}
-									<Tooltip title="Ouvrir la recherche avancée">
-										<span>
-											<IconButton
-												onClick={handleClickClass}
-												disabled={isPendingAny}
-												size={isMobile ? "small" : "medium"}
-												aria-label="Ouvrir la recherche avancée"
-												sx={{
-													"&:disabled": { opacity: 0.6 },
-													"&:focus": {
-														outline: `2px solid ${theme.palette.primary.main}`,
-														outlineOffset: "2px",
-													},
-												}}
-											>
-												<TuneIcon fontSize={isMobile ? "small" : "medium"} />
-											</IconButton>
-										</span>
-									</Tooltip>
 
-									{/* Search - different implementations for mobile/desktop */}
+									{/* DatePicker adapté mobile/desktop */}
+
+										<DatePicker
+											disableFuture
+											value={dayjs(selectedDate)}
+											onChange={(value) => {
+												const newDate = dayjs(value).valueOf();
+												if (!isNaN(newDate)) setSelectedDate(newDate);
+											}}
+											sx={{ mb: 1 }}
+										/>
+
+									{/* Barre de recherche + bouton avancé */}
 									{isMobile ? (
-										<Tooltip title="Rechercher">
+										<Tooltip title="Rechercher / Options avancées">
 											<IconButton
 												onClick={() => setSearchDialogOpen(true)}
 												size="small"
@@ -901,14 +901,42 @@ const MainLayout = memo(() => {
 											</IconButton>
 										</Tooltip>
 									) : (
-										<Box sx={{ display: { xs: "none", md: "block" } }}>
-											<Suspense
-												fallback={<LoadingStates.Inline text="Recherche..." />}
-											>
+										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+											<Suspense fallback={<LoadingStates.Inline text="Recherche..." />}>
 												<SearchBar />
 											</Suspense>
+											<Tooltip title="Recherche avancée">
+												<IconButton
+													onClick={handleClickClass}
+													size="medium"
+													aria-label="Ouvrir la recherche avancée"
+													sx={{
+														"&:focus": {
+															outline: `2px solid ${theme.palette.primary.main}`,
+															outlineOffset: "2px",
+														},
+													}}
+												>
+													<TuneIcon />
+												</IconButton>
+											</Tooltip>
 										</Box>
 									)}
+
+									{/* Dialog mobile pour recherche et avancée */}
+									<Dialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} fullWidth>
+										<DialogContent>
+											<Suspense fallback={<LoadingStates.Inline text="Recherche..." />}>
+												<SearchBar />
+												<Box mt={2}>
+													<IconButton onClick={handleClickClass}>
+														<TuneIcon /> Options avancées
+													</IconButton>
+												</Box>
+											</Suspense>
+										</DialogContent>
+									</Dialog>
+
 
 									{/* User info - different implementations for different screen sizes */}
 									{isMobile ? (
@@ -988,7 +1016,7 @@ const MainLayout = memo(() => {
 													"&:disabled": { opacity: 0.6 },
 													fontSize: { xs: "0.75rem", sm: "0.875rem" },
 													display: { xs: "none", sm: "flex" },
-													minWidth: { sm: "auto", md: "120px" },
+													minWidth: { sm: "auto", md: "auto" },
 													"&:focus": {
 														outline: `2px solid ${theme.palette.primary.main}`,
 														outlineOffset: "2px",
@@ -996,7 +1024,6 @@ const MainLayout = memo(() => {
 												}}
 											>
 												<Box sx={{ display: { xs: "none", md: "block" } }}>
-													Déconnexion
 												</Box>
 											</Button>
 										</Tooltip>

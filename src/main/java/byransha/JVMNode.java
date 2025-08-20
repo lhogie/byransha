@@ -24,7 +24,6 @@ public class JVMNode extends SystemNode {
 
     @Override
     protected void createOuts(User creator) {
-
     }
 
     @Override

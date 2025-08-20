@@ -43,6 +43,10 @@ public class Person extends BusinessNode {
 
     @Override
     public String prettyName() {
+        if (etatCivil == null || etatCivil.name.get() == null) {
+            return "Person with no civil information";
+        }
+
         return "Person: " + etatCivil.name.get();
     }
 

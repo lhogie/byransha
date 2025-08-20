@@ -15,6 +15,7 @@ public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
 
     @Override
     protected void createOuts(User creator) {
-    // primitives nodes have no specific outs
+        super.createOuts(creator);
+        // primitives nodes have no specific outs
     }
 }

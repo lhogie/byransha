@@ -45,8 +45,8 @@ public abstract class BNode {
         record IDInfo(int value) implements InstantiationInfo {}
         record PersistenceInfo(boolean value) implements InstantiationInfo {}
 
-       PersistenceInfo persisting = new PersistenceInfo(true);
-           PersistenceInfo notPersisting = new PersistenceInfo(false);
+        PersistenceInfo persisting = new PersistenceInfo(true);
+        PersistenceInfo notPersisting = new PersistenceInfo(false);
     }
 
     protected BNode(BBGraph g, User creator, InstantiationInfo parms) {
@@ -192,32 +192,33 @@ public abstract class BNode {
         return g.findRefsTO(this);
     }
 
-    private static final ConcurrentMap<
-            Class<?>,
-            List<Field>
-            > outNodeFieldsCache = new ConcurrentHashMap<>();
-
-
     private static List<Field> getOutNodeFields(BNode node) {
-        return outNodeFieldsCache.computeIfAbsent(node.getClass(), cls -> {
-            List<Field> fields = new ArrayList<>();
-            ;
-            for (Class c = cls; BNode.class.isAssignableFrom(c); c = c.getSuperclass()) {
-                for (var f : c.getDeclaredFields()) {
-                    if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
-                    f.setAccessible(true);
+        List<Field> fields = new ArrayList<>();
 
-                    try {
-                        if (BNode.class.isAssignableFrom(f.getType()) || f.get(node) instanceof BNode) {
-                            fields.add(f);
-                        }
-                    } catch (IllegalAccessException e) {
-                        throw new RuntimeException(e);
+        for (var c : Clazz.bfs(cls)) {
+            System.out.println("0. Checking class: " + c.getName());
+            for (var f : c.getDeclaredFields()) {
+                System.out.println("1. Checking field: " + f.getName() + " in " + c.getName());
+                if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
+                f.setAccessible(true);
+
+                try {
+                    System.out.println("2. Checking field: " + f.getName() + " in " + c.getName());
+                    if (Out.class == f.getType()) {
+                        f.setAccessible(true);
+                        fields.add(f);
                     }
+                    else if (BNode.class.isAssignableFrom(f.getType()) || f.get(node) instanceof BNode) {
+                        f.setAccessible(true);
+                        fields.add(f);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
             }
-            return Collections.unmodifiableList(fields);
-        });
+        }
+
+        return Collections.unmodifiableList(fields);
     }
 
     public void forEachOutField(BiConsumer<String, BNode> consumer) {

@@ -2,19 +2,25 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.function.Consumer;
 
 import toools.text.TextUtilities;
 
 public abstract class ValuedNode<V> extends BNode  {
-    final ValueHolder<V> valueHolder;
+    ValueHolder<V> valueHolder;
+    private final boolean historize;
 
     protected ValuedNode(BBGraph g, User user, InstantiationInfo ii, boolean historize) {
         super(g, user, ii);
-        this.valueHolder = historize ? new ValueHistory<V>(this) : new SimpleValueHolder<>();
+        this.historize = historize;
         endOfConstructor();
     }
 
+    @Override
+    protected void createOuts(User creator) {
+        this.valueHolder = historize ? new ValueHistory<V>(this) : new SimpleValueHolder<>();
+    }
 
     protected abstract byte[] valueToBytes(V v) throws IOException;
 

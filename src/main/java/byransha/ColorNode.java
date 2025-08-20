@@ -13,6 +13,11 @@ public class ColorNode extends PrimitiveValueNode<String> {
     }
 
     @Override
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
+    }
+
+    @Override
     public void fromString(String s, User creator) {
         set(s, creator);
     }

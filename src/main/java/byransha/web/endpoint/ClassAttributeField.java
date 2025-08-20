@@ -237,6 +237,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 BooleanNode.valueOf(businessNode.isValid())
             );
         }
+        currentNodeInfo.set("out", new TextNode(node.outs().toString()));
 
         if (node instanceof PrimitiveValueNode<?> valuedNode) {
             addValuedNodeInfo(currentNodeInfo, valuedNode);

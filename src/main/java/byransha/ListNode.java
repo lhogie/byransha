@@ -22,19 +22,18 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
     public ListNode(BBGraph db, User creator, InstantiationInfo ii) {
         super(db, creator, ii, true);
-        set(new ArrayList<>(), creator);
         endOfConstructor();
     }
 
     public ListNode(BBGraph db, User creator, InstantiationInfo ii, boolean historize) {
         super(db, creator, ii, historize);
-        set(new ArrayList<>(), creator);
         endOfConstructor();
     }
 
     @Override
     protected void createOuts(User creator) {
-
+        super.createOuts(creator);
+        set(new ArrayList<>(), creator);
     }
 
     @Override

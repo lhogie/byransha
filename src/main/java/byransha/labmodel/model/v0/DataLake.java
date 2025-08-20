@@ -22,7 +22,6 @@ public class DataLake extends BNode {
 
     @Override
     protected void createOuts(User creator) {
-
     }
 
     @Override

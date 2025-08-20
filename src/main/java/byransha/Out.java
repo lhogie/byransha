@@ -18,7 +18,7 @@ public  class Out<V extends NotPrimitiveNode> extends PrimitiveValueNode<V> {
 
     @Override
     protected void createOuts(User creator) {
-        // no OUTS !!!
+        super.createOuts(creator);
     }
 
     @Override

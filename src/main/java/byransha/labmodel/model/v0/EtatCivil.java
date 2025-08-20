@@ -38,8 +38,13 @@ public class EtatCivil extends BusinessNode {
 
     public EtatCivil(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
-        this.setColor("#03fc62", creator);
         endOfConstructor();
+    }
+
+    @Override
+    protected void nodeConstructed(User user) {
+        super.nodeConstructed(user);
+        System.out.println("EtatCivil created with creator: " + user);
     }
 
     @Override
@@ -54,6 +59,7 @@ public class EtatCivil extends BusinessNode {
         address = new StringNode(g, creator, InstantiationInfo.persisting);
         telephone = new PhoneNumberNode(g,  creator, InstantiationInfo.persisting);
         pic = new Out<>(g, creator, InstantiationInfo.persisting);
+        this.setColor("#03fc62", creator);
     }
 
     @Override
