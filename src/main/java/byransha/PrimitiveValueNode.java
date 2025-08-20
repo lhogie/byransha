@@ -2,7 +2,7 @@ package byransha;
 
 public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
     protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii) {
-        this(db, user, ii, false);
+        this(db, user, ii, true);
     }
 
     protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii, boolean historize) {

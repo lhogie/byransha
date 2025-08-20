@@ -42,12 +42,6 @@ public class EtatCivil extends BusinessNode {
     }
 
     @Override
-    protected void nodeConstructed(User user) {
-        super.nodeConstructed(user);
-        System.out.println("EtatCivil created with creator: " + user);
-    }
-
-    @Override
     protected void createOuts(User creator) {
         name = new StringNode(g,  creator, InstantiationInfo.persisting);
         familyNameBeforeMariage = new  StringNode(g, creator, InstantiationInfo.persisting);

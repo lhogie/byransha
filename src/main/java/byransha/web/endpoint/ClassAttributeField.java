@@ -278,7 +278,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         );
 
         node.forEachOutField((name, out) -> {
-            if (out instanceof BBGraph || out instanceof Cluster) return;
+            if (out instanceof BBGraph || out instanceof Cluster || out instanceof ValueHolder) return;
 
             if (validItemsProcessed.get() < offset) {
                 validItemsProcessed.incrementAndGet();

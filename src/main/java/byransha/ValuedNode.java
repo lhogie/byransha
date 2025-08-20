@@ -11,15 +11,19 @@ public abstract class ValuedNode<V> extends BNode  {
     ValueHolder<V> valueHolder;
     private final boolean historize;
 
+    public ValuedNode(BBGraph g, User user, InstantiationInfo ii) {
+        this(g, user, ii, true);
+    }
+
     protected ValuedNode(BBGraph g, User user, InstantiationInfo ii, boolean historize) {
-        super(g, user, ii);
         this.historize = historize;
+        super(g, user, ii);
         endOfConstructor();
     }
 
     @Override
     protected void createOuts(User creator) {
-        this.valueHolder = historize ? new ValueHistory<V>(this) : new SimpleValueHolder<>();
+        this.valueHolder = historize ? new ValueHistory<>(this) : new SimpleValueHolder<>();
     }
 
     protected abstract byte[] valueToBytes(V v) throws IOException;

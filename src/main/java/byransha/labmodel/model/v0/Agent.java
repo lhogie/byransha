@@ -19,11 +19,6 @@ public class Agent extends BusinessNode {
     }
 
     @Override
-    protected void nodeConstructed(User user) {
-        System.out.println("Agent created with creator: " + user);
-    }
-
-    @Override
     public String prettyName() {
         if(etatCivil == null || etatCivil.get() == null) {
             return "Agent with no civil information";

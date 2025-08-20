@@ -12,6 +12,11 @@ public class ValueHistoryEntry<N> extends BNode {
     private User user;
     private ValuedNode<N> vn;
 
+    public ValueHistoryEntry(BBGraph g, User user, InstantiationInfo ii) throws IOException {
+        super(g, user, ii);
+        endOfConstructor();
+    }
+
     public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date, User creator, InstantiationInfo ii) throws IOException {
         super(vn.g, vn.g.systemUser(), ii);
         this.vn = vn;
