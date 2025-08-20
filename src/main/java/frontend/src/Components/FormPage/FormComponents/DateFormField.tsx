@@ -47,7 +47,7 @@ const DateFormField = ({
 		setInternalError(hasError);
 
 		if (newValue === null || newValue?.isValid()) {
-			onChange(newValue);
+			onChange(newValue?.toISOString());
 		}
 	};
 

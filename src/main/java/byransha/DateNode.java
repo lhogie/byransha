@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
-    private OffsetDateTime date;
-
     public DateNode(BBGraph g, User user, InstantiationInfo ii) {
         super(g, user, ii);
         endOfConstructor();
@@ -58,7 +56,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
     @Override
     public void fromString(String s, User user) {
         try {
-            this.date = OffsetDateTime.parse(s);
+            this.set(OffsetDateTime.parse(s), user);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid date format: " + s, e);
         }
