@@ -17,7 +17,6 @@ import {
 	Close as CloseIcon,
 	Home as HomeIcon,
 	Logout as LogoutIcon,
-	Menu as MenuIcon,
 	MoreHoriz as MoreHorizIcon,
 	Search as SearchIcon,
 	Tune as TuneIcon,
@@ -530,7 +529,7 @@ const MainLayout = memo(() => {
 
 	// Media queries for responsive behavior
 	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-	const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
+	const _isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
 	// React 19 optimized state management
 	const [menuAnchor, setMenuAnchor, isMenuUpdating] = useOptimizedState<

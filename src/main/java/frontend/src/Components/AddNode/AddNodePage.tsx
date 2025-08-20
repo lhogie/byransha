@@ -174,242 +174,244 @@ const AddNodePage = () => {
 
 	return (
 		<Fade in={!exitAnim} timeout={300}>
-			<Box sx={{padding: { xs: "8px", sm: "16px", md: "40px" },}}>
-			<Container
-				component={Paper}
-				elevation={3}
-				maxWidth={false}
-				sx={{
-					p: 4,
-					position: "relative",
-					minHeight: "85vh",
-					overflow: "auto",
-				}}
-			>
-				<Typography
-					variant="h3"
-					component="h1"
-					gutterBottom
+			<Box sx={{ padding: { xs: "8px", sm: "16px", md: "40px" } }}>
+				<Container
+					component={Paper}
+					elevation={3}
+					maxWidth={false}
 					sx={{
-						color: "#2c3e50",
-						textAlign: "center",
-						fontWeight: 600,
-						pb: 2,
-						borderBottom: "3px solid #3498db",
+						p: 4,
+						position: "relative",
+						minHeight: "85vh",
+						overflow: "auto",
 					}}
 				>
-					Add a new node
-				</Typography>
-
-				<Box
-					sx={{
-						display: "flex",
-						justifyContent: "center",
-						mb: 3,
-						width: "100%",
-					}}
-				>
-					<TextField
-						fullWidth
-						variant="outlined"
-						placeholder="Search class name..."
-						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
-						sx={{ maxWidth: { xs: "100%", sm: 400 } }}
-						InputProps={{
-							startAdornment: (
-								<InputAdornment position="start">
-									<SearchIcon />
-								</InputAdornment>
-							),
+					<Typography
+						variant="h3"
+						component="h1"
+						gutterBottom
+						sx={{
+							color: "#2c3e50",
+							textAlign: "center",
+							fontWeight: 600,
+							pb: 2,
+							borderBottom: "3px solid #3498db",
 						}}
-					/>
-				</Box>
+					>
+						Add a new node
+					</Typography>
 
-				{favorites.length > 0 && (
-					<>
-						<Typography
-							variant="h4"
-							component="h2"
-							sx={{
-								color: "#34495e",
-								my: 3,
-								fontWeight: 500,
+					<Box
+						sx={{
+							display: "flex",
+							justifyContent: "center",
+							mb: 3,
+							width: "100%",
+						}}
+					>
+						<TextField
+							fullWidth
+							variant="outlined"
+							placeholder="Search class name..."
+							value={searchTerm}
+							onChange={(e) => setSearchTerm(e.target.value)}
+							sx={{ maxWidth: { xs: "100%", sm: 400 } }}
+							InputProps={{
+								startAdornment: (
+									<InputAdornment position="start">
+										<SearchIcon />
+									</InputAdornment>
+								),
 							}}
-						>
-							Favorites (Persistent Only)
-						</Typography>
-						<Grid
-							container
-							spacing={2}
-							sx={{ mt: 2, justifyContent: "center" }}
-						>
-							{favorites
-								.map((name) => {
-									const fullName = fullClassName.find((f) => f.endsWith(name));
-									return { short: name, full: fullName };
-								})
-								.filter(({ full }) => full && persistingClasses.has(full))
-								.filter(({ short }) =>
-									short.toLowerCase().includes(searchTerm.toLowerCase()),
-								)
-								.map(({ short }) => (
-									<Grid key={short}>
-										<Card
-											onClick={() => handleClickClass(short)}
-											sx={{
-												minWidth: { xs: 80, sm: 120 },
-												cursor: "pointer",
-												transition: "all 0.2s ease",
-												"&:hover": {
-													bgcolor: "#f0f8ff",
-													transform: "translateY(-2px)",
-													boxShadow: 3,
-												},
-											}}
-										>
-											<CardContent
+						/>
+					</Box>
+
+					{favorites.length > 0 && (
+						<>
+							<Typography
+								variant="h4"
+								component="h2"
+								sx={{
+									color: "#34495e",
+									my: 3,
+									fontWeight: 500,
+								}}
+							>
+								Favorites (Persistent Only)
+							</Typography>
+							<Grid
+								container
+								spacing={2}
+								sx={{ mt: 2, justifyContent: "center" }}
+							>
+								{favorites
+									.map((name) => {
+										const fullName = fullClassName.find((f) =>
+											f.endsWith(name),
+										);
+										return { short: name, full: fullName };
+									})
+									.filter(({ full }) => full && persistingClasses.has(full))
+									.filter(({ short }) =>
+										short.toLowerCase().includes(searchTerm.toLowerCase()),
+									)
+									.map(({ short }) => (
+										<Grid key={short}>
+											<Card
+												onClick={() => handleClickClass(short)}
 												sx={{
-													display: "flex",
-													alignItems: "center",
-													justifyContent: "flex-start",
-													p: 2,
-													"&:last-child": { pb: 2 },
+													minWidth: { xs: 80, sm: 120 },
+													cursor: "pointer",
+													transition: "all 0.2s ease",
+													"&:hover": {
+														bgcolor: "#f0f8ff",
+														transform: "translateY(-2px)",
+														boxShadow: 3,
+													},
 												}}
 											>
-												<Box
-													onClick={(e) => {
-														e.stopPropagation();
-														toggleFavorite(short);
-													}}
+												<CardContent
 													sx={{
-														mr: 1,
-														display: "inline-flex",
-														cursor: "pointer",
+														display: "flex",
+														alignItems: "center",
+														justifyContent: "flex-start",
+														p: 2,
+														"&:last-child": { pb: 2 },
 													}}
 												>
-													<StarIcon sx={{ color: "#f1c40f" }} />
-												</Box>
-												<Box>{short}</Box>
-											</CardContent>
-										</Card>
-									</Grid>
-								))}
-						</Grid>
-					</>
-				)}
+													<Box
+														onClick={(e) => {
+															e.stopPropagation();
+															toggleFavorite(short);
+														}}
+														sx={{
+															mr: 1,
+															display: "inline-flex",
+															cursor: "pointer",
+														}}
+													>
+														<StarIcon sx={{ color: "#f1c40f" }} />
+													</Box>
+													<Box>{short}</Box>
+												</CardContent>
+											</Card>
+										</Grid>
+									))}
+							</Grid>
+						</>
+					)}
 
-				<Typography
-					variant="h4"
-					component="h2"
-					sx={{
-						color: "#34495e",
-						my: 3,
-						fontWeight: 500,
-					}}
-				>
-					All persisting classes
-				</Typography>
-				<Grid container spacing={2} sx={{ mt: 2, justifyContent: "center" }}>
-					{className
-						.map((name, index) => ({
-							short: name,
-							full: fullClassName[index],
-						}))
-						.filter(({ full }) => persistingClasses.has(full))
-						.filter(({ short }) =>
-							short.toLowerCase().includes(searchTerm.toLowerCase()),
-						)
-						.map(({ short }) => (
-							<Grid key={short}>
-								<Card
-									sx={{
-										minWidth: { xs: 80, sm: 120 },
-										cursor: "pointer",
-										transition: "all 0.2s ease",
-										"&:hover": {
-											bgcolor: "#f0f8ff",
-											transform: "translateY(-2px)",
-											boxShadow: 3,
-										},
-									}}
-								>
-									<CardContent
-										onClick={() => handleClickClass(short)}
+					<Typography
+						variant="h4"
+						component="h2"
+						sx={{
+							color: "#34495e",
+							my: 3,
+							fontWeight: 500,
+						}}
+					>
+						All persisting classes
+					</Typography>
+					<Grid container spacing={2} sx={{ mt: 2, justifyContent: "center" }}>
+						{className
+							.map((name, index) => ({
+								short: name,
+								full: fullClassName[index],
+							}))
+							.filter(({ full }) => persistingClasses.has(full))
+							.filter(({ short }) =>
+								short.toLowerCase().includes(searchTerm.toLowerCase()),
+							)
+							.map(({ short }) => (
+								<Grid key={short}>
+									<Card
 										sx={{
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "flex-start",
-											p: 2,
-											"&:last-child": { pb: 2 },
+											minWidth: { xs: 80, sm: 120 },
+											cursor: "pointer",
+											transition: "all 0.2s ease",
+											"&:hover": {
+												bgcolor: "#f0f8ff",
+												transform: "translateY(-2px)",
+												boxShadow: 3,
+											},
 										}}
 									>
-										<Box
-											onClick={(e) => {
-												e.stopPropagation();
-												toggleFavorite(short);
-											}}
+										<CardContent
+											onClick={() => handleClickClass(short)}
 											sx={{
-												mr: 1,
-												display: "inline-flex",
-												cursor: "pointer",
+												display: "flex",
+												alignItems: "center",
+												justifyContent: "flex-start",
+												p: 2,
+												"&:last-child": { pb: 2 },
 											}}
 										>
-											{favorites.includes(short) ? (
-												<StarIcon sx={{ color: "#f1c40f" }} />
-											) : (
-												<StarBorderIcon sx={{ color: "#ccc" }} />
-											)}
-										</Box>
-										<Box>{short}</Box>
-									</CardContent>
-								</Card>
-							</Grid>
-						))}
-				</Grid>
+											<Box
+												onClick={(e) => {
+													e.stopPropagation();
+													toggleFavorite(short);
+												}}
+												sx={{
+													mr: 1,
+													display: "inline-flex",
+													cursor: "pointer",
+												}}
+											>
+												{favorites.includes(short) ? (
+													<StarIcon sx={{ color: "#f1c40f" }} />
+												) : (
+													<StarBorderIcon sx={{ color: "#ccc" }} />
+												)}
+											</Box>
+											<Box>{short}</Box>
+										</CardContent>
+									</Card>
+								</Grid>
+							))}
+					</Grid>
 
-				<Box
-					sx={{
-						position: "absolute",
-						top: 10,
-						right: 10,
-						display: "flex",
-						gap: 1,
-						zIndex: 1000,
-					}}
-				>
-					<IconButton
-						onClick={() => {
-							Object.keys(localStorage)
-								.filter((key) => key.startsWith("persisting:"))
-								.forEach((key) => localStorage.removeItem(key));
-							setPersistingClasses(new Set());
-							refetch();
-						}}
-						aria-label="reload"
-						title="Reload all classes"
+					<Box
 						sx={{
-							"&:hover": {
-								color: "#3498db",
-							},
+							position: "absolute",
+							top: 10,
+							right: 10,
+							display: "flex",
+							gap: 1,
+							zIndex: 1000,
 						}}
 					>
-						<ReloadIcon />
-					</IconButton>
-					<IconButton
-						onClick={handleClose}
-						aria-label="close"
-						title="Close"
-						sx={{
-							"&:hover": {
-								color: "#e74c3c",
-							},
-						}}
-					>
-						<CloseIcon />
-					</IconButton>
-				</Box>
-			</Container>
+						<IconButton
+							onClick={() => {
+								Object.keys(localStorage)
+									.filter((key) => key.startsWith("persisting:"))
+									.forEach((key) => localStorage.removeItem(key));
+								setPersistingClasses(new Set());
+								refetch();
+							}}
+							aria-label="reload"
+							title="Reload all classes"
+							sx={{
+								"&:hover": {
+									color: "#3498db",
+								},
+							}}
+						>
+							<ReloadIcon />
+						</IconButton>
+						<IconButton
+							onClick={handleClose}
+							aria-label="close"
+							title="Close"
+							sx={{
+								"&:hover": {
+									color: "#e74c3c",
+								},
+							}}
+						>
+							<CloseIcon />
+						</IconButton>
+					</Box>
+				</Container>
 			</Box>
 		</Fade>
 	);

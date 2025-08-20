@@ -35,12 +35,15 @@ import {
 	MenuItem,
 	Paper,
 	Skeleton,
+	Slider,
 	Stack,
-	Switch, TextField,
+	Switch,
 	Tooltip,
 	Typography,
 	useTheme,
 } from "@mui/material";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 import React, {
 	type MouseEventHandler,
 	memo,
@@ -53,9 +56,6 @@ import React, {
 	useTransition,
 } from "react";
 import { useNavigate } from "react-router";
-import { Slider } from "@mui/material";
-import dayjs from "dayjs";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 
 // Memoized ViewCard component with enhanced accessibility
 const ViewCard = memo(
@@ -616,12 +616,12 @@ const HomePage = memo(() => {
 					});
 					navigate(`/add-node/form/${data?.data?.node_id}`);
 				} else {
-					navigate(`/home/${view.name}`)
+					navigate(`/home/${view.name}`);
 					console.log("Expanding view:", view.name);
 				}
 			});
 		},
-		[setExpandedView, withLoading, jumpToId, data, navigate],
+		[withLoading, jumpToId, data, navigate],
 	);
 
 	const handleCloseExpandedView = useCallback(() => {
@@ -905,14 +905,13 @@ const HomePage = memo(() => {
 						</Box>
 
 						<Box sx={{ minWidth: 220 }}>
-
 							{/* Input manuel */}
 							<DatePicker
 								disableFuture
 								value={dayjs(selectedDate)}
 								onChange={(value) => {
 									const newDate = dayjs(value).valueOf();
-									if (!isNaN(newDate)) {
+									if (!Number.isNaN(newDate)) {
 										setSelectedDate(newDate);
 									}
 								}}
@@ -930,7 +929,6 @@ const HomePage = memo(() => {
 								valueLabelDisplay="off"
 							/>
 						</Box>
-
 
 						{/* Bouton Ajouter nouveau noeud */}
 						<Button

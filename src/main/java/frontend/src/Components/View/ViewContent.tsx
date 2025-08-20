@@ -1,13 +1,13 @@
+import type { useApiData } from "@hooks/useApiData";
 import { Box, CircularProgress } from "@mui/material";
 import { useMemo } from "react";
 import { ContentDisplay } from "./ContentDisplay";
-import {useApiData} from "@hooks/useApiData";
 
 interface ViewContentProps {
-	loading: ReturnType<typeof useApiData>['isLoading'];
-	error: ReturnType<typeof useApiData>['error'];
-	rawApiData: ReturnType<typeof useApiData>['data'];
-	refetch: ReturnType<typeof useApiData>['refetch'];
+	loading: ReturnType<typeof useApiData>["isLoading"];
+	error: ReturnType<typeof useApiData>["error"];
+	rawApiData: ReturnType<typeof useApiData>["data"];
+	refetch: ReturnType<typeof useApiData>["refetch"];
 	dataContent: any;
 	backgroundColor: string;
 	jumpToNode: (nodeId: number | string) => void;
