@@ -71,8 +71,6 @@ public abstract class BNode {
                 );
             }
 
-            this.g = g;
-
             if (this instanceof NodeEndpoint ne) {
                 var alreadyInName = this.g.findEndpoint(ne.name());
 
@@ -195,15 +193,12 @@ public abstract class BNode {
     private static List<Field> getOutNodeFields(BNode node) {
         List<Field> fields = new ArrayList<>();
 
-        for (var c : Clazz.bfs(cls)) {
-            System.out.println("0. Checking class: " + c.getName());
+        for (var c : Clazz.bfs(node.getClass())) {
             for (var f : c.getDeclaredFields()) {
-                System.out.println("1. Checking field: " + f.getName() + " in " + c.getName());
                 if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                 f.setAccessible(true);
 
                 try {
-                    System.out.println("2. Checking field: " + f.getName() + " in " + c.getName());
                     if (Out.class == f.getType()) {
                         f.setAccessible(true);
                         fields.add(f);

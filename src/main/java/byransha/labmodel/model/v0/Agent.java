@@ -14,7 +14,8 @@ public class Agent extends BusinessNode {
     @Override
     protected void createOuts(User creator) {
         etatCivil = new Out<>(g, creator);
-        etatCivil.set(new EtatCivil(g, creator, InstantiationInfo.persisting), creator);
+        var newEtatCivil = new EtatCivil(g, creator, InstantiationInfo.persisting);
+        etatCivil.set(newEtatCivil, creator);
     }
 
     @Override

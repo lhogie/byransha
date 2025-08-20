@@ -287,6 +287,14 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
             if (count.get() >= limit) return;
 
+            if (out instanceof Out o) {
+                out = (BNode) o.get();
+            }
+
+            if (out == null) {
+                return;
+            }
+
             var attributeNode = buildAttributeNode(
                 node,
                 name,
