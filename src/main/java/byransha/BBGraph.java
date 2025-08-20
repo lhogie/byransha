@@ -90,6 +90,7 @@ public class BBGraph extends BNode {
         this.admin = new User(this, null, InstantiationInfo.notPersisting, "admin", "admin"); // self accept
         this.system = new User(this, null, InstantiationInfo.notPersisting, "system", ""); // self accept
         new User(g, systemUser(), InstantiationInfo.notPersisting, "user", "test");
+        new SearchForm(g, systemUser(), InstantiationInfo.notPersisting );
         endOfConstructor();
 
         logger.accept(LOGTYPE.FILE_READ, "loading DB from " + directory);

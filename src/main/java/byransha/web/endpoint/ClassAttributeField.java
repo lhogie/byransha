@@ -260,7 +260,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         } else if (valuedNode instanceof byransha.IntNode) {
             nodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
         } else {
-            nodeInfo.set("value", new TextNode(valuedNode.getAsString()));
+            nodeInfo.set("value", new TextNode(valuedNode.get().toString()));
         }
     }
 

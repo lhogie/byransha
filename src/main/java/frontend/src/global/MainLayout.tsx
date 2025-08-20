@@ -871,17 +871,15 @@ const MainLayout = memo(() => {
 									}}
 								>
 
-									{/* DatePicker adapté mobile/desktop */}
-
-										<DatePicker
-											disableFuture
-											value={dayjs(selectedDate)}
-											onChange={(value) => {
-												const newDate = dayjs(value).valueOf();
-												if (!isNaN(newDate)) setSelectedDate(newDate);
-											}}
-											sx={{ mb: 1 }}
-										/>
+								<DatePicker
+									disableFuture
+									value={dayjs(selectedDate)}
+									onChange={(value) => {
+										const newDate = dayjs(value).valueOf();
+										if (!isNaN(newDate)) setSelectedDate(newDate);
+									}}
+									sx={{ mb: 1 }}
+								/>
 
 									{/* Barre de recherche + bouton avancé */}
 									{isMobile ? (
@@ -1005,10 +1003,8 @@ const MainLayout = memo(() => {
 									{/* Logout button for desktop */}
 									{!isMobile && (
 										<Tooltip title="Se déconnecter de l'application">
-											<Button
-												variant="outlined"
+											<IconButton
 												size="small"
-												startIcon={<LogoutIcon />}
 												onClick={handleLogout}
 												disabled={isPendingAny}
 												aria-label="Se déconnecter"
@@ -1023,9 +1019,8 @@ const MainLayout = memo(() => {
 													},
 												}}
 											>
-												<Box sx={{ display: { xs: "none", md: "block" } }}>
-												</Box>
-											</Button>
+												<LogoutIcon />
+											</IconButton>
 										</Tooltip>
 									)}
 								</Stack>
