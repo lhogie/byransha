@@ -96,11 +96,6 @@ public abstract class BNode {
 
             BNode previous = this.g.nodesById.putIfAbsent(this.id(), this);
 
-            System.out.println(
-                    "Adding node " + this + " with ID " + this.id() + " to graph " + g + " on thread " + Thread.currentThread().getName() + " trace: " + Arrays.toString(Thread.currentThread().getStackTrace())
-            );
-
-
             if (previous != null && previous != this) throw new IllegalStateException(
                     "can't add node " +
                             this +

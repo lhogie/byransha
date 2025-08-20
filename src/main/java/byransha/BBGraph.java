@@ -66,16 +66,24 @@ public class BBGraph extends BNode {
         if (directory.exists())
             directory.mkdirs();
 
-        this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
-        int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
-        this.webServer = new WebServer(this, port);
-
         nodesById.put(0, this);
         byClass
                 .computeIfAbsent(BBGraph.class, k ->
                         new ConcurrentLinkedQueue<>()
                 )
                 .add(this);
+        loadFromDisk(
+                n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
+                (n, s) -> System.out.println("loading arc " + n + ", " + s),
+                null
+        );
+
+        this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
+        int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
+        this.webServer = new WebServer(this, port);
+
+
+
 
         createEndpoints(g);
         new JVMNode(g);
@@ -88,11 +96,7 @@ public class BBGraph extends BNode {
 
         logger.accept(LOGTYPE.FILE_READ, "loading DB from " + directory);
 
-        loadFromDisk(
-                n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
-                (n, s) -> System.out.println("loading arc " + n + ", " + s),
-                null
-        );
+
     }
 
 
