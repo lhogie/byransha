@@ -51,7 +51,7 @@ public class NodeInfo extends NodeEndpoint<BNode> {
 
         var availableEndpoints = new ArrayNode(null);
 
-        for (var e : graph.endpointsUsableFrom(node)) {
+        for (var e : g.endpointsUsableFrom(node)) {
             if (e.canSee(user)) {
                 if (e.canExec(user)) {
                     availableEndpoints.add(new TextNode(e.name()));

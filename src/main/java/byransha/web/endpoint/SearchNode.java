@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import toools.text.TextUtilities;
 
 public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
-
-
     public SearchNode(BBGraph g) {
         super(g);
         endOfConstructor();
@@ -62,7 +60,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         // Allow empty queries - users can search with filters only (handled in getQueryFromInput)
 
         // Search matching nodes with basic query filtering
-        var nodes = graph.findAll(BusinessNode.class, node -> {
+        var nodes = g.findAll(BusinessNode.class, node -> {
             if (node.getClass().getSimpleName().equals("SearchForm")) {
                 return false;
             }
@@ -179,7 +177,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
                     creator
                 );
                 if (!customFilters.isEmpty()) {
-                    FilterChain filterChain = new FilterChain(graph, creator);
+                    FilterChain filterChain = new FilterChain(g, creator, InstantiationInfo.persisting);
                     filterChain.enabled.set(true, creator);
                     for (FilterNode filter : customFilters) {
                         filterChain.addFilter(filter, creator);
@@ -231,22 +229,22 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = new StartsWithFilter(graph, creator);
+                    filter = new StartsWithFilter(g, creator, InstantiationInfo.persisting);
                     break;
                 case "contains":
-                    filter = new ContainsFilter(graph, creator);
+                    filter = new ContainsFilter(g, creator, InstantiationInfo.persisting);
                     break;
                 case "class":
-                    filter = new ClassFilter(graph, creator);
+                    filter = new ClassFilter(g, creator, InstantiationInfo.persisting);
                     break;
                 case "daterange":
-                    filter = new DateRangeFilter(graph, creator);
+                    filter = new DateRangeFilter(g, creator, InstantiationInfo.persisting);
                     break;
                 case "numericrange":
-                    filter = new NumericRangeFilter(graph, creator);
+                    filter = new NumericRangeFilter(g, creator, InstantiationInfo.persisting);
                     break;
                 case "filterchain":
-                    filter = new FilterChain(graph, creator);
+                    filter = new FilterChain(g, creator, InstantiationInfo.persisting);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);
@@ -279,7 +277,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         node.forEachOutField((name, outNode) -> {
             if (outNode instanceof DocumentNode imageNode) {
-                nodeInfo.put("img", imageNode.getAsString());
+                nodeInfo.put("img", imageNode.data.getAsString());
                 nodeInfo.put("imgMimeType", imageNode.mimeType.get());
             }
         });

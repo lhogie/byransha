@@ -12,8 +12,13 @@ import com.fasterxml.jackson.databind.node.TextNode;
 public class Byransha extends BNode {
 
 	public Byransha(BBGraph g, User creator) {
-		super(g, creator);
+		super(g, creator, InstantiationInfo.notPersisting);
 		endOfConstructor();
+	}
+
+	@Override
+	protected void createOuts(User creator) {
+
 	}
 
 	@Override

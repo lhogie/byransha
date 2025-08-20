@@ -11,18 +11,17 @@ public class Position extends BNode {
 	DateNode to;
 	Status status;
 
-	public Position(BBGraph g, User creator) {
-		super(g, creator);
-		employer = new Structure(g, creator);
-		from = new DateNode(g, creator);
-		to = new DateNode(g, creator);
-		status = new Status(g, creator);
+	public Position(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 
-	public Position(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
+	@Override
+	protected void createOuts(User creator) {
+		employer = new Structure(g, creator, InstantiationInfo.persisting);
+		from = new DateNode(g, creator, InstantiationInfo.persisting);
+		to = new DateNode(g, creator, InstantiationInfo.persisting);
+		status = new Status(g, creator, InstantiationInfo.persisting);
 	}
 
 	@Override

@@ -30,7 +30,7 @@ public class Jump extends NodeEndpoint<BNode> {
 			user.stack.add(node);
 		}
 
-		NodeInfo nodeInfoEndpoint = graph.findEndpoint(NodeInfo.class);
+		NodeInfo nodeInfoEndpoint = g.findEndpoint(NodeInfo.class);
 		if (nodeInfoEndpoint == null) {
 			return ErrorResponse.serverError("NodeInfo endpoint not found in the graph.");
 		}

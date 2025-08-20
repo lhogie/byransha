@@ -13,15 +13,10 @@ public class Lab extends Structure {
     Map<Person, HFDSAvisE> HFDSAvisfds;
     ListNode<Structure> tutelles;
 
-    public Lab(BBGraph g, User creator) {
-        super(g, creator);
+    public Lab(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         HFDSAvisfds = new HashMap<>();
-        tutelles = new ListNode(g, creator);
-        endOfConstructor();
-    }
-
-    public Lab(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+        tutelles = new ListNode(g, creator, InstantiationInfo.persisting);
         endOfConstructor();
     }
 

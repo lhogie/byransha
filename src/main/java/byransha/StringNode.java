@@ -5,19 +5,15 @@ import java.nio.charset.StandardCharsets;
 
 public class StringNode extends PrimitiveValueNode<String> {
 
-    public StringNode(BBGraph db, User creator) {
-        super(db, creator);
+    public StringNode(BBGraph db, User creator, InstantiationInfo ii) {
+        super(db, creator, ii, true);
         endOfConstructor();
     }
 
-    public StringNode(BBGraph g, User creator, String init) {
-        super(g, creator);
+
+    public StringNode(BBGraph g, User creator, InstantiationInfo ii, String init) {
+        super(g, creator, ii, true);
         set(init, creator);
-        endOfConstructor();
-    }
-
-    public StringNode(BBGraph db, User creator, int id) {
-        super(db, creator, id);
         endOfConstructor();
     }
 

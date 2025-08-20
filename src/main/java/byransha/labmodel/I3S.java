@@ -12,16 +12,15 @@ import byransha.labmodel.model.v0.Lab;
 
 public class I3S extends Lab {
 
-	public I3S(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator);
+	public I3S(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
+		endOfConstructor();
+	}
+
+	@Override
+	protected void createOuts(User creator) {
+		super.createOuts(creator);
+		name = new StringNode(g, creator, InstantiationInfo.persisting);
 		name.set("I3S", creator);
-		endOfConstructor();
 	}
-
-	public I3S(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
-	}
-
 }

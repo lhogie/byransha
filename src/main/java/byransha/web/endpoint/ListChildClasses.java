@@ -29,7 +29,7 @@ public class ListChildClasses extends NodeEndpoint<BNode> {
 
         List<String> classes = new ArrayList<>();
 
-        graph.forEachNode(node -> {
+        g.forEachNode(node -> {
             if (isChildOfClass(node.getClass(), classeName)) {
                 if(!classes.contains(node.getClass().getSimpleName())) classes.add(node.getClass().getSimpleName());
             }

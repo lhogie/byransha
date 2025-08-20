@@ -44,7 +44,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
             BNode currentNode = user.currentNode();
             if (currentNode != null) {
                 // Validate that the current node still exists in the graph
-                BNode validatedNode = graph.findByID(currentNode.id());
+                BNode validatedNode = g.findByID(currentNode.id());
                 if (validatedNode == null) {
                     throw new NodeNotFoundException(
                         "Current node with ID " +
@@ -76,7 +76,7 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
     ) throws Throwable;
 
     public BNode node(int id) throws NodeNotFoundException {
-        BNode node = graph.findByID(id);
+        BNode node = g.findByID(id);
         if (node == null) {
             throw new NodeNotFoundException(
                 "Node with ID " + id + " does not exist in the graph."

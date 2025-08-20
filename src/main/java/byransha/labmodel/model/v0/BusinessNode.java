@@ -1,18 +1,19 @@
 package byransha.labmodel.model.v0;
 
 import byransha.BBGraph;
-import byransha.BNode;
+import byransha.NotPrimitiveNode;
 import byransha.User;
 
-public abstract class BusinessNode extends BNode {
+public abstract class BusinessNode extends NotPrimitiveNode {
 
-	public BusinessNode(BBGraph g, User creator) {
-		super(g, creator);
+	public BusinessNode(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 
-	public BusinessNode(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
+
+	@Override
+	public String toString() {
+		return prettyName();
 	}
 }

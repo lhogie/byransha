@@ -94,7 +94,7 @@ public class AnyGraph {
         ) throws Throwable {
             var a = new ArrayNode(null);
             var classes = new HashSet<Class>();
-            graph.forEachNode(n -> classes.add(n.getClass()));
+            g.forEachNode(n -> classes.add(n.getClass()));
             classes.forEach(c -> a.add(new TextNode(c.getName())));
             return new EndpointJsonResponse(a, this);
         }

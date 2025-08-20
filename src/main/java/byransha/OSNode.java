@@ -21,8 +21,13 @@ public class OSNode extends SystemNode {
 	}
 
 	public OSNode(BBGraph db) {
-		super(db);
+		super(db, InstantiationInfo.notPersisting);
 		endOfConstructor();
+	}
+
+	@Override
+	protected void createOuts(User creator) {
+
 	}
 
 	@Override

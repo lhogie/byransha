@@ -1,25 +1,20 @@
 package byransha;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.util.function.Consumer;
-
 public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
-
-
-    public PrimitiveValueNode(BBGraph db, User user) {
-        super(db, user, true);
-        endOfConstructor();
+    protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii) {
+        this(db, user, ii, false);
     }
 
-    public PrimitiveValueNode(BBGraph db, User user, int id) {
-        super(db, user, id);
+    protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii, boolean historize) {
+        super(db, user, ii, historize);
         endOfConstructor();
     }
 
     public abstract void fromString(String s, User user);
+
+
+    @Override
+    protected void createOuts(User creator) {
+    // primitives nodes have no specific outs
+    }
 }

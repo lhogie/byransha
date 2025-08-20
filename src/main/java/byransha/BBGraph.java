@@ -4,6 +4,8 @@ import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
 import byransha.web.*;
 import byransha.web.EndpointJsonResponse.dialects;
+import byransha.web.endpoint.*;
+import byransha.web.view.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 import java.io.File;
@@ -25,8 +27,20 @@ import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
 
-    public static final Consumer<File> sysoutPrinter = f ->
-        System.out.println("writing " + f.getAbsolutePath());
+    public enum LOGTYPE {FILE_WRITE, FILE_READ, WARNING, ERROR}
+
+    public static class Logger implements BiConsumer<LOGTYPE, String> {
+        public boolean stdout = false;
+
+        @Override
+        public void accept(LOGTYPE logtype, String s) {
+            if (stdout){
+                System.out.println(logtype.name() + "\t" + s);
+            }
+        }
+    }
+
+    public static Logger logger = new Logger();
     public final File directory;
 
     ConcurrentMap<Integer, BNode> nodesById  = new ConcurrentHashMap<>();
@@ -34,21 +48,27 @@ public class BBGraph extends BNode {
 
     private final AtomicInteger idSequence = new AtomicInteger(1);
 
-    private User admin, system;
+    private final User admin, system;
+    public UserApplication application;
+    private final WebServer webServer;
 
 
-    public BBGraph(User user) {
-        this((File) null, user);
-    }
+    public BBGraph(File directory, Map<String, String> argMap)
+            throws Exception {
+        super(null, null, InstantiationInfo.notPersisting);
 
-    public BBGraph(File directory, User user) {
-        super(null, user); // The graph has automatically ID 0
-        // Ensure the graph self-node is accepted early
-
-        if (user!=null)
-            throw new IllegalArgumentException();
+        var appClass = (Class<? extends UserApplication>) Class.forName(
+                argMap.remove("appClass")
+        );
 
         this.directory = directory;
+
+        if (directory.exists())
+            directory.mkdirs();
+
+        this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
+        int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
+        this.webServer = new WebServer(this, port);
 
         nodesById.put(0, this);
         byClass
@@ -57,10 +77,74 @@ public class BBGraph extends BNode {
                 )
                 .add(this);
 
+        createEndpoints(g);
+        new JVMNode(g);
+        new Byransha(g, systemUser());
+        new OSNode(g);
+        this.admin = new User(this, null, InstantiationInfo.notPersisting, "admin", "admin"); // self accept
+        this.system = new User(this, null, InstantiationInfo.notPersisting, "system", ""); // self accept
+        new User(g, systemUser(), InstantiationInfo.notPersisting, "user", "test");
         endOfConstructor();
 
-        admin = new User(this, null, "admin", "admin"); // self accept
-        system = new User(this, null, "system", ""); // self accept
+        logger.accept(LOGTYPE.FILE_READ, "loading DB from " + directory);
+
+        loadFromDisk(
+                n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
+                (n, s) -> System.out.println("loading arc " + n + ", " + s),
+                null
+        );
+    }
+
+
+    private void createEndpoints(BBGraph g) {
+        new NodeInfo(this);
+        new Views(this);
+        new Jump(this);
+        new Endpoints(this);
+        new JVMNode.Kill(this);
+        var n = new Authenticate(g, webServer.sessionStore);
+        var l = new Logout(g, webServer.sessionStore);
+        new WebServer.EndpointCallDistributionView(this);
+        new WebServer.Info(this);
+        new WebServer.Logs(this);
+        new BasicView(this);
+        new CharExampleXY(this);
+        new User.UserView(this);
+        new BBGraph.GraphNivoView(this);
+        new OSNode.View(this);
+        new JVMNode.View(this);
+        new BNode.InOutsNivoView(this);
+        new ModelGraphivzSVGView(this);
+        new ModelMermaidView(this);
+        new Navigator(this);
+        new OutDegreeDistribution(this);
+        new byransha.ClassDistribution(this);
+        new ModelDOTView(this);
+        new ToStringView(this);
+        new NodeEndpoints(this);
+        new SetValue(this);
+        new AnyGraph.Classes(this);
+        new Edit(this);
+        new User.History(this);
+        new UI(g, g.systemUser(), InstantiationInfo.notPersisting);
+        new UI.getProperties(this);
+        new Summarizer(this);
+        new LoadImage(this);
+        new ClassInformation(this);
+        new ClassAttributeField(this);
+        new AddNode(this);
+        new AddExistingNode(this);
+        new ListExistingNode(this);
+        new SearchNode(this);
+        new ExportCSV(this);
+        new RemoveFromList(this);
+        new RemoveNode(this);
+        new ColorNodeView(this);
+        new ListChildClasses(this);
+    }
+
+    @Override
+    protected void createOuts(User creator) {
     }
 
     @Override
@@ -95,6 +179,7 @@ public class BBGraph extends BNode {
         do {
             potentialId = idSequence.getAndIncrement();
         } while (potentialId == 0 || nodesById.containsKey(potentialId));
+
         return potentialId;
     }
 
@@ -102,7 +187,7 @@ public class BBGraph extends BNode {
         List<InLink> refs = new ArrayList<>();
         for (BNode node : nodesById.values()) {
             node.forEachOutField((role, target) -> {
-                if (target != null && target.equals(searchedNode)) {
+                if (target != null && target == searchedNode) {
                     refs.add(new InLink(role, node));
                 }
             });
@@ -111,19 +196,18 @@ public class BBGraph extends BNode {
     }
 
     public synchronized void loadFromDisk(
-        Consumer<BNode> newNodeInstantiated,
-        BiConsumer<BNode, String> setRelation,
-        User user
+            Consumer<BNode> newNodeInstantiated,
+            BiConsumer<BNode, String> setRelation,
+            User user
     ) {
         // Pre-scan disk to set the idSequence high enough to avoid collisions
 
         // if constructors create nodes during loading
-        int maxIdOnDisk = 0;
+        int maxIdOnDisk = findMaxIdInDirectory(directory);
 
-        if (directory != null) {
-            maxIdOnDisk = findMaxIdInDirectory(directory);
+        if (idSequence.get() < maxIdOnDisk) {
+            idSequence.set(maxIdOnDisk + 1);
         }
-        idSequence.set(maxIdOnDisk + 1);
 
         if (directory != null) {
             instantiateNodes(newNodeInstantiated);
@@ -138,12 +222,14 @@ public class BBGraph extends BNode {
         }
 
         int maxId = nodesById
-            .keySet()
-            .stream()
-            .max(Integer::compare)
-            .orElse(maxIdOnDisk);
+                .keySet()
+                .stream()
+                .max(Integer::compare)
+                .orElse(maxIdOnDisk);
 
-        idSequence.set(maxId + 1);
+        if (idSequence.get() < maxId) {
+            idSequence.set(maxId + 1);
+        }
     }
 
     private int findMaxIdInDirectory(File rootDir) {
@@ -193,7 +279,7 @@ public class BBGraph extends BNode {
      */
 
     private synchronized void instantiateNodes(
-        Consumer<? super BNode> newNodeInstantiated
+            Consumer<? super BNode> newNodeInstantiated
     ) {
         File[] files = directory.listFiles();
 
@@ -215,14 +301,14 @@ public class BBGraph extends BNode {
                     var constructor = nodeClass.getConstructor(
                             BBGraph.class,
                             User.class,
-                            int.class
+                            InstantiationInfo.class
                     );
 
                     listNodeDirectories("", classDir, id -> {
                         // don't create the graph node twice!
                         if (id != 0) {
                             try {
-                                BNode node = constructor.newInstance(graph, systemUser(), id);
+                                BNode node = constructor.newInstance(g, systemUser(), new InstantiationInfo.IDInfo(id));
                                 newNodeInstantiated.accept(node);
                             } catch (
                                     InstantiationException
@@ -247,7 +333,7 @@ public class BBGraph extends BNode {
     }
 
     private void listNodeDirectories(String idPrefix, File classDir, IntConsumer c) {
-        for (File file : classDir.listFiles()) {
+        for (File file : Objects.requireNonNull(classDir.listFiles())) {
             if (file.isDirectory()) {
                 var id = idPrefix +  file.getName();
 
@@ -255,7 +341,7 @@ public class BBGraph extends BNode {
                     c.accept(Integer.parseInt(id));
                 }
 
-              listNodeDirectories(id, file, c);
+                listNodeDirectories(id, file, c);
             }
         }
     }
@@ -268,7 +354,7 @@ public class BBGraph extends BNode {
                 try {
                     var field = Utils.findField(node.getClass(), a[0]);
                     field.setAccessible(true);
-                    var target = graph.nodesById.get(Integer.valueOf(a[1]));
+                    var target = g.nodesById.get(Integer.valueOf(a[1]));
                     field.set(node, target);
                 } catch (IllegalAccessException | NoSuchFieldException err) {
                     throw new RuntimeException("Error setting relation for node " + node + ": " + a[0] + " -> " + a[1], err);
@@ -302,7 +388,7 @@ public class BBGraph extends BNode {
     public void deleteNode(BNode node) {
         if (node.ins().size() <= 1) {
             deleteNodeDirectory(node);
-            graph.removeFromGraph(node);
+            g.removeFromGraph(node);
 
             node.forEachOutField((name, child) -> {
                 if (child instanceof BBGraph || child instanceof Cluster)
@@ -343,7 +429,7 @@ public class BBGraph extends BNode {
 
     public void removeFromGraph(BNode n) {
         if (n == null) return;
-        graph.nodesById.remove(n.id());
+        g.nodesById.remove(n.id());
         Queue<BNode> classQueue = byClass.get(n.getClass());
         if (classQueue != null) {
             classQueue.remove(n);
@@ -351,7 +437,7 @@ public class BBGraph extends BNode {
                 byClass.remove(n.getClass());
             }
         }
-        Cluster c  = graph.find(Cluster.class, cl -> cl.typeOfCluster.equals(n.getClass()));
+        Cluster c  = g.find(Cluster.class, cl -> cl.typeOfCluster.equals(n.getClass()));
         if (c != null)
             c.remove(n);
         else
@@ -376,8 +462,8 @@ public class BBGraph extends BNode {
                 }
             } else {
                 System.err.println(
-                    "Warning: Could not list files in directory: " +
-                    d.getAbsolutePath()
+                        "Warning: Could not list files in directory: " +
+                                d.getAbsolutePath()
                 );
             }
         }
@@ -386,7 +472,7 @@ public class BBGraph extends BNode {
         boolean success = d.delete();
         if (!success) {
             System.err.println(
-                "Warning: Failed to delete " + d.getAbsolutePath()
+                    "Warning: Failed to delete " + d.getAbsolutePath()
             );
             // Try to determine why deletion failed
             if (!d.exists()) {
@@ -394,9 +480,9 @@ public class BBGraph extends BNode {
             } else if (!d.canWrite()) {
                 System.err.println("  File is not writable");
             } else if (
-                d.isDirectory() &&
-                d.list() != null &&
-                Objects.requireNonNull(d.list()).length > 0
+                    d.isDirectory() &&
+                            d.list() != null &&
+                            Objects.requireNonNull(d.list()).length > 0
             ) {
                 System.err.println("  Directory is not empty");
             }
@@ -408,16 +494,16 @@ public class BBGraph extends BNode {
     }
 
     public synchronized <C extends BNode> C find(
-        Class<C> nodeClass,
-        Predicate<C> p
+            Class<C> nodeClass,
+            Predicate<C> p
     ) {
         List<C> l = findAll(nodeClass, p);
         return l.isEmpty() ? null : l.getFirst();
     }
 
     public <C extends BNode> List<C> findAll(
-        Class<C> nodeClass,
-        Predicate<C> p
+            Class<C> nodeClass,
+            Predicate<C> p
     ) {
         List<C> r = new ArrayList<>();
 
@@ -433,12 +519,12 @@ public class BBGraph extends BNode {
 
         if (nodeClass != BNode.class) {
             for (Map.Entry<
-                Class<? extends BNode>,
-                Queue<BNode>
-            > entry : byClass.entrySet()) {
+                    Class<? extends BNode>,
+                    Queue<BNode>
+                    > entry : byClass.entrySet()) {
                 if (
-                    entry.getKey() != nodeClass &&
-                    nodeClass.isAssignableFrom(entry.getKey())
+                        entry.getKey() != nodeClass &&
+                                nodeClass.isAssignableFrom(entry.getKey())
                 ) {
                     for (BNode node : entry.getValue()) {
                         C nn = nodeClass.cast(node);
@@ -455,15 +541,15 @@ public class BBGraph extends BNode {
 
     public List<User> users() {
         return nodesById
-            .values()
-            .stream()
-            .filter(User.class::isInstance)
-            .map(User.class::cast)
-            .toList();
+                .values()
+                .stream()
+                .filter(User.class::isInstance)
+                .map(User.class::cast)
+                .toList();
     }
 
     public <N extends BNode, NE extends NodeEndpoint<N>> NE findEndpoint(
-        Class<NE> c
+            Class<NE> c
     ) {
         return find(c, e -> true);
     }
@@ -481,8 +567,8 @@ public class BBGraph extends BNode {
     }
 
     public static class DBView
-        extends NodeEndpoint<BBGraph>
-        implements TechnicalView {
+            extends NodeEndpoint<BBGraph>
+            implements TechnicalView {
 
         @Override
         public String whatItDoes() {
@@ -495,35 +581,35 @@ public class BBGraph extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode input,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BBGraph node
+                ObjectNode input,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                BBGraph node
         ) throws Throwable {
             return new EndpointTextResponse("text/html", pw -> {
                 pw.println("<ul>");
 
-                pw.println("<li>" + graph.countNodes() + " nodes");
+                pw.println("<li>" + g.countNodes() + " nodes");
 
                 Set<String> classNames = new HashSet<>();
-                graph.forEachNode(n -> classNames.add(n.getClass().getName()));
+                g.forEachNode(n -> classNames.add(n.getClass().getName()));
                 pw.println("<li>Node classes: <ul>");
                 classNames
-                    .stream()
-                    .sorted()
-                    .forEach(cn -> pw.println("<li>" + cn + "</li>"));
+                        .stream()
+                        .sorted()
+                        .forEach(cn -> pw.println("<li>" + cn + "</li>"));
                 pw.println("</ul></li>");
 
-                var users = graph.users();
+                var users = g.users();
                 pw.println(
-                    "<li>" +
-                    users.size() +
-                    " users: " +
-                    users
-                        .stream()
-                        .map(u -> u.name.get())
-                        .toList()
+                        "<li>" +
+                                users.size() +
+                                " users: " +
+                                users
+                                        .stream()
+                                        .map(u -> u.name.get())
+                                        .toList()
                 );
                 pw.println("</ul>");
             });
@@ -550,11 +636,11 @@ public class BBGraph extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BBGraph db
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                BBGraph db
         ) {
             var g = new AnyGraph();
 
@@ -576,8 +662,8 @@ public class BBGraph extends BNode {
                                 BVertex targetVertex = vertexCache.get(o.id());
                                 if (targetVertex != null) {
                                     var arc = g.newArc(
-                                        sourceVertex,
-                                        targetVertex
+                                            sourceVertex,
+                                            targetVertex
                                     );
                                     arc.label = s;
                                 }
@@ -588,8 +674,8 @@ public class BBGraph extends BNode {
             });
 
             return new EndpointJsonResponse(
-                g.toNivoJSON(),
-                dialects.nivoNetwork
+                    g.toNivoJSON(),
+                    dialects.nivoNetwork
             );
         }
     }
@@ -604,8 +690,8 @@ public class BBGraph extends BNode {
     }
 
     public static class ClassDistribution
-        extends NodeEndpoint<BBGraph>
-        implements View {
+            extends NodeEndpoint<BBGraph>
+            implements View {
 
         public ClassDistribution(BBGraph db) {
             super(db);
@@ -618,11 +704,11 @@ public class BBGraph extends BNode {
 
         @Override
         public EndpointResponse exec(
-            ObjectNode in,
-            User user,
-            WebServer webServer,
-            HttpsExchange exchange,
-            BBGraph g
+                ObjectNode in,
+                User user,
+                WebServer webServer,
+                HttpsExchange exchange,
+                BBGraph g
         ) throws Throwable {
             var d = new Byransha.Distribution<String>();
             g.forEachNode(n -> d.addOccurence(n.getClass().getName()));

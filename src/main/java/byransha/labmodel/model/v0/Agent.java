@@ -4,29 +4,23 @@ import byransha.*;
 
 public class Agent extends BusinessNode {
 
-    public Out<EtatCivil> etatCivil;
+    private Out<EtatCivil> etatCivil;
 
-    public Agent(BBGraph g, User creator) {
-        super(g, creator);
-
-        etatCivil = new Out<>(g, creator);
-        endOfConstructor();
-    }
-
-    public Agent(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+    public Agent(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
     @Override
-    public String toString() {
-        return prettyName();
+    protected void createOuts(User creator) {
+        etatCivil = new Out<>(g, creator);
     }
+
 
     @Override
     public String prettyName() {
-        if(etatCivil == null) {
-            return null;
+        if(etatCivil == null || etatCivil.get() == null) {
+            return "Agent with no civil information";
         }
         if( etatCivil.get().name.get() != null && etatCivil.get().firstName.get() != null) {
             return etatCivil.get().name.get() + " " + etatCivil.get().firstName.get();

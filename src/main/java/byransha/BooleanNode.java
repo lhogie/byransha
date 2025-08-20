@@ -1,21 +1,11 @@
 package byransha;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
-import java.io.File;
 import java.io.IOException;
-import java.util.function.Consumer;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-    public BooleanNode(BBGraph g, User user) {
-        super(g, user);
-        endOfConstructor();
-    }
-
-    public BooleanNode(BBGraph g, User user, int id) {
-        super(g ,user, id);
+    public BooleanNode(BBGraph g, User user, InstantiationInfo ii) {
+        super(g, user, ii);
         endOfConstructor();
     }
 
@@ -51,7 +41,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
     }
 
     public void set(String fieldName, BNode parentNode, Boolean newValue, User user) {
-        BooleanNode node = graph.find(BooleanNode.class, n -> {
+        BooleanNode node = g.find(BooleanNode.class, n -> {
             return n.get() != null && n.get().equals(newValue);
         });
         if (node != null) parentNode.setField(fieldName, node);

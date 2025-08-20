@@ -1,36 +1,34 @@
 package byransha.filter;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
 public class NumericRangeFilter extends FieldFilterNode {
-
     public StringNode minValue;
     public StringNode maxValue;
     public BooleanNode includeNull;
     public BooleanNode includeMin;
     public BooleanNode includeMax;
 
-    public NumericRangeFilter(BBGraph g, User creator) {
-        super(g, creator);
-        minValue = new StringNode(g, creator);
-        maxValue = new StringNode(g, creator);
-        includeNull = new BooleanNode(g, creator);
-        includeMin = new BooleanNode(g, creator);
-        includeMax = new BooleanNode(g, creator);
+    public NumericRangeFilter(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        minValue = new StringNode(g, creator, InstantiationInfo.persisting);
+        maxValue = new StringNode(g, creator, InstantiationInfo.persisting);
+        includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        includeMin = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        includeMax = new BooleanNode(g, creator, InstantiationInfo.persisting);
 
         includeNull.set("includeNull", this, true, creator);
         includeMin.set("includeMin", this, true, creator);
         includeMax.set("includeMax", this, true, creator);
-        endOfConstructor();
     }
-
-    public NumericRangeFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
-    }
-
 
     @Override
     public boolean filter(BNode node) {

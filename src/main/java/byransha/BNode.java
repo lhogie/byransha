@@ -32,30 +32,90 @@ import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
 public abstract class BNode {
-    public BBGraph graph;
+    public BBGraph g;
     private final int id;
     public ColorNode color;
-//    public boolean persisting = false;
+    //    public boolean persisting = false;
     public Cluster cluster;
     //public StringNode comment;
     private CountDownLatch constructionMonitor;
+    private boolean persisting ;
 
-    protected BNode(BBGraph g, User creator) {
-        this(g, creator, g == null ? 0 : g.nextID());
+    public sealed interface InstantiationInfo permits InstantiationInfo.IDInfo, InstantiationInfo.PersistenceInfo {
+        record IDInfo(int value) implements InstantiationInfo {}
+        record PersistenceInfo(boolean value) implements InstantiationInfo {}
+
+       PersistenceInfo persisting = new PersistenceInfo(true);
+           PersistenceInfo notPersisting = new PersistenceInfo(false);
     }
 
-    // called by the disk loader
-    // non-persisting nodes should NOT have this constructor
-    protected BNode(BBGraph g, User creator, int id) {
-        if (id < 0) throw new IllegalArgumentException();
+    protected BNode(BBGraph g, User creator, InstantiationInfo parms) {
         this.constructionMonitor = new CountDownLatch(bnodeDepth());
 
-        this.id = id;
-
         if (g == null) {
-            graph = (BBGraph) this;
+            this.id = 0;
+            this.g = (BBGraph) this;
         } else {
-            graph = g;
+            this.g = g;
+
+            if (parms instanceof InstantiationInfo.IDInfo i) {
+                this.id = i.value();
+                this.persisting = true;
+            } else if (parms instanceof InstantiationInfo.PersistenceInfo i) {
+                this.id = g.nextID();
+                this.persisting = i.value();
+                createOuts(creator);
+            } else {
+                throw new IllegalArgumentException(
+                        "InstantiationInfo must be either IDInfo or PersistenceInfo, got: " + parms.getClass().getName()
+                );
+            }
+
+            this.g = g;
+
+            if (this instanceof NodeEndpoint ne) {
+                var alreadyInName = this.g.findEndpoint(ne.name());
+
+                if (alreadyInName != null) {
+                    throw new IllegalArgumentException(
+                            "Adding " +
+                                    ne +
+                                    ", endpoint with same name '" +
+                                    ne.name() +
+                                    "' already there: " +
+                                    alreadyInName.getClass().getName()
+                    );
+                }
+                this.setColor("#00fff5", creator);
+            }
+
+            Class<? extends BNode> nodeClass = this.getClass();
+            this.g.byClass
+                    .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
+                    .add(this);
+
+            BNode previous = this.g.nodesById.putIfAbsent(this.id(), this);
+
+            System.out.println(
+                    "Adding node " + this + " with ID " + this.id() + " to graph " + g + " on thread " + Thread.currentThread().getName() + " trace: " + Arrays.toString(Thread.currentThread().getStackTrace())
+            );
+
+
+            if (previous != null && previous != this) throw new IllegalStateException(
+                    "can't add node " +
+                            this +
+                            " because its ID " +
+                            this.id() +
+                            " is already taken by: " +
+                            previous
+            );
+
+            var cluster = findCluster(creator);
+
+            if (cluster != null){
+                this.cluster = cluster;
+                cluster.add(this, creator);
+            }
 
             new Thread(() -> {
                 // waits 1s
@@ -63,47 +123,8 @@ public abstract class BNode {
                     var confirmed = constructionMonitor.await(5, TimeUnit.SECONDS);
 
                     if (confirmed) {
-                        if (this instanceof NodeEndpoint ne) {
-                            var alreadyInName = graph.findEndpoint(ne.name());
-
-                            if (alreadyInName != null) {
-                                throw new IllegalArgumentException(
-                                        "Adding " +
-                                                ne +
-                                                ", endpoint with same name '" +
-                                                ne.name() +
-                                                "' already there: " +
-                                                alreadyInName.getClass().getName()
-                                );
-                            }
-                            this.setColor("#00fff5", creator);
-                        }
-
-                        Class<? extends BNode> nodeClass = this.getClass();
-                        var cluster = findCluster(creator);
-
-                        if (cluster != null){
-                            this.cluster = cluster;
-                            cluster.add(this, creator);
-                        }
-
-                        graph.byClass
-                                .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
-                                .add(this);
-
-                        BNode previous = graph.nodesById.putIfAbsent(this.id(), this);
-
-                        if (previous != null && previous != this) throw new IllegalStateException(
-                                "can't add node " +
-                                        this +
-                                        " because its ID " +
-                                        this.id() +
-                                        " is already taken by: " +
-                                        previous
-                        );
-
                         if (isPersisting()) {
-                            save(BBGraph.sysoutPrinter);
+                            save();
                         }
 
                         nodeConstructed(creator);
@@ -113,8 +134,8 @@ public abstract class BNode {
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     new Exception(
-                            "Node " + this + " was not initialized properly, construction monitor timed out. Expected " +
-                                    bnodeDepth() + " confirmations but got " + (bnodeDepth() - constructionMonitor.getCount())
+                            "Node " + BNode.this + " was not initialized properly, construction monitor timed out. Expected " +
+                                    bnodeDepth() + " confirmations but got " + (bnodeDepth() - constructionMonitor.getCount()) +  ". Did you explicitely call endOfConstructor() ?????"
                     ).printStackTrace();
                 } catch (IOException e) {
                     throw new RuntimeException(
@@ -123,9 +144,12 @@ public abstract class BNode {
                 } finally {
                     constructionMonitor = null;
                 }
-            }).start();
+            })
+                    .start();
         }
     }
+
+    protected abstract void createOuts(User creator);
 
     protected void nodeConstructed(User user) {
         // This method can be overridden by subclasses to perform additional initialization
@@ -134,11 +158,11 @@ public abstract class BNode {
     private synchronized Cluster findCluster(User creator) {
         if (!(this instanceof BusinessNode)) return null;
 
-        var cluster = graph.find(Cluster.class, c ->
+        var cluster = g.find(Cluster.class, c ->
                 c.getTypeOfCluster() == this.getClass());
 
         if (cluster == null) {
-            cluster = new Cluster(graph, creator);
+            cluster = new Cluster(g, creator, InstantiationInfo.notPersisting);
             cluster.setTypeOfCluster(this.getClass());
         }
 
@@ -146,7 +170,7 @@ public abstract class BNode {
     }
 
     public void setColor(String newColor, User creator) {
-        graph.findAll(ColorNode.class, n -> {
+        g.findAll(ColorNode.class, n -> {
             if (n.getAsString().equals(newColor.toString())) {
                 this.color = n;
                 return true;
@@ -155,7 +179,7 @@ public abstract class BNode {
         });
 
         if (this.color == null || !this.color.getAsString().equals(newColor)) {
-            this.color = new ColorNode(graph, creator);
+            this.color = new ColorNode(g, creator, InstantiationInfo.persisting);
             this.color.set(newColor, creator);
         }
     }
@@ -170,7 +194,7 @@ public abstract class BNode {
     }
 
     public List<InLink> ins() {
-        return graph.findRefsTO(this);
+        return g.findRefsTO(this);
     }
 
     private static final ConcurrentMap<
@@ -178,22 +202,12 @@ public abstract class BNode {
             List<Field>
             > outNodeFieldsCache = new ConcurrentHashMap<>();
 
-    public void forEachOutNodeField(Consumer<Field> consumer) {
-        List<Field> fields = getOutNodeFields(this);
-
-        for (Field f : fields) {
-            try {
-                consumer.accept(f);
-            } catch (IllegalArgumentException err) {
-                throw new IllegalStateException(err);
-            }
-        }
-    }
 
     private static List<Field> getOutNodeFields(BNode node) {
         return outNodeFieldsCache.computeIfAbsent(node.getClass(), cls -> {
             List<Field> fields = new ArrayList<>();
-            for (var c : Clazz.bfs(cls)) {
+            ;
+            for (Class c = cls; BNode.class.isAssignableFrom(c); c = c.getSuperclass()) {
                 for (var f : c.getDeclaredFields()) {
                     if ((f.getModifiers() & Modifier.STATIC) != 0) continue;
                     f.setAccessible(true);
@@ -212,7 +226,7 @@ public abstract class BNode {
     }
 
     public void forEachOutField(BiConsumer<String, BNode> consumer) {
-        forEachOutNodeField(f -> {
+        getOutNodeFields(this).forEach(f -> {
             try {
                 var outNode = (BNode) f.get(this);
 
@@ -344,8 +358,7 @@ public abstract class BNode {
 
     @Override
     public final boolean equals(Object obj) {
-        if (!(obj instanceof BNode)) return false;
-        return this.hashCode() == obj.hashCode();
+        return this == obj;
     }
 
     protected boolean hasField(String name) {
@@ -363,7 +376,7 @@ public abstract class BNode {
     }
 
     public Field getFields(int id) {
-        BNode node = graph.findByID(id);
+        BNode node = g.findByID(id);
         for (Map.Entry<String, BNode> entry : this.outs().entrySet()) {
             if (entry.getValue() == node) {
                 for (var c : Clazz.bfs(getClass())) {
@@ -448,7 +461,7 @@ public abstract class BNode {
             AtomicInteger currentNumberNodes = new AtomicInteger(0);
 
             if (n.getClass() == BBGraph.class) {
-                graph.findAll(Cluster.class, c -> {
+                this.g.findAll(Cluster.class, c -> {
                     var clusterVertex = g.ensureHasVertex(c);
                     setVertexProperties(clusterVertex, c, "green");
                     var arc = g.newArc(currentVertex, clusterVertex);
@@ -540,9 +553,7 @@ public abstract class BNode {
     public abstract String prettyName();
 
     public File directory() {
-        if (graph == null || graph.directory == null)
-            return null;
-
+        Objects.requireNonNull(g.directory);
         var s = new StringBuilder();
         var ids = String.valueOf(id);
 
@@ -551,7 +562,7 @@ public abstract class BNode {
             s.append('/');
         }
 
-        return new File(graph.directory, getClass().getName() + "/" + s);
+        return new File(g.directory, getClass().getName() + "/" + s);
     }
 
     public File outsFile() {
@@ -559,24 +570,15 @@ public abstract class BNode {
     }
 
     public boolean isPersisting(){
-        return hasLoadConstructor();
+        return persisting;
     }
 
     public boolean isReadOnly(){
         return !isPersisting();
     }
 
-    private boolean hasLoadConstructor(){
-        try {
-            getClass().getConstructor(BBGraph.class, User.class, int.class);
-            return true;
-        } catch (NoSuchMethodException e) {
-            return false;
-        }
-    }
 
-
-    private void saveOuts(Consumer<File> writingFiles) {
+    private void saveOuts() {
         if (!isPersisting())
             throw new IllegalStateException("can't save non-persisting node " + this);
 
@@ -590,28 +592,28 @@ public abstract class BNode {
         );
 
 
-            try {
-                var f = outsFile();
-                writingFiles.accept(f);
-                Files.writeString(f.toPath(), s);
-            } catch (IOException err) {
-                throw new RuntimeException(err);
-            }
+        try {
+            var f = outsFile();
+            g.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, f.getAbsolutePath());
+            Files.writeString(f.toPath(), s);
+        } catch (IOException err) {
+            throw new RuntimeException(err);
+        }
     }
 
-    public synchronized void save(Consumer<File> writingFiles) throws IOException {
+    public synchronized void save() throws IOException {
         if (!isPersisting()) throw new IllegalStateException(
-                "can't save a non-persisting node"
+                "can't save a non-persisting node " + getClass().getName()
         );
 
         var d = directory();
 
         if (!d.exists()) {
-            writingFiles.accept(d);
+            g.logger.accept(BBGraph.LOGTYPE.FILE_READ, d.getAbsolutePath());
             d.mkdirs();
         }
 
-        saveOuts(writingFiles);
+        saveOuts();
 //        new File(directory(), getClass().getName()).createNewFile();
     }
 

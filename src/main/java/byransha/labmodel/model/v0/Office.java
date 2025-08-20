@@ -9,16 +9,15 @@ public class Office extends BusinessNode {
     public IntNode surface;
     public IntNode capacity;
 
-    public Office(BBGraph g, User creator) {
-        super(g, creator);
-        name = new StringNode(g, creator);
-        users = new ListNode(g, creator);
+    public Office(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public Office(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        name = new StringNode(g, creator, InstantiationInfo.persisting);
+        users = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

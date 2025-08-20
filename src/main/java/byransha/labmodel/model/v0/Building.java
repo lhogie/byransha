@@ -11,15 +11,14 @@ public class Building extends BusinessNode {
     )
     public ListNode<Office> offices;
 
-    public Building(BBGraph g, User creator) {
-        super(g, creator);
-        offices = new ListNode(g, creator);
+    public Building(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public Building(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        offices = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 
     public Office findOffice(String name) {

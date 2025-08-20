@@ -7,13 +7,8 @@ import java.nio.charset.StandardCharsets;
 
 public class ColorNode extends PrimitiveValueNode<String> {
 
-    public ColorNode(BBGraph g, User creator) {
-        super(g, creator);
-        endOfConstructor();
-    }
-
-    public ColorNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+    public ColorNode(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 

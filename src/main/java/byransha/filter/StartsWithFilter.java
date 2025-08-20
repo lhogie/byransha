@@ -1,6 +1,7 @@
 package byransha.filter;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
@@ -9,19 +10,17 @@ public class StartsWithFilter extends FieldFilterNode {
     public StringNode prefix;
     public BooleanNode caseSensitive;
 
-    public StartsWithFilter(BBGraph g, User creator) {
-        super(g, creator);
-        prefix = new StringNode(g, creator);
-        caseSensitive = new BooleanNode(g, creator);
+    public StartsWithFilter(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        prefix = new StringNode(g, creator, InstantiationInfo.persisting);
+        caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
         caseSensitive.set("caseSensitive", this, false, creator);
-        endOfConstructor();
     }
-
-    public StartsWithFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
-    }
-
 
     @Override
     public boolean filter(BNode node) {
@@ -78,6 +77,10 @@ public class StartsWithFilter extends FieldFilterNode {
 
     @Override
     public String prettyName() {
+        if (prefix == null) {
+            return "Starts With Filter";
+        }
+
         String prefixValue = prefix.get();
         if (prefixValue == null || prefixValue.isEmpty()) {
             return "Starts With Filter";

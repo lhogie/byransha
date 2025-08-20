@@ -1,46 +1,24 @@
 package byransha;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import byransha.labmodel.model.v0.NodeBuilder;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.function.Function;
 
-public class DocumentNode extends PrimitiveValueNode<byte[]>{
+public class DocumentNode extends NotPrimitiveNode {
+    public ByteNode data;
     public StringNode title;
-    public StringNode mimeType;
+    public MimeTypeNode mimeType;
 
-    public DocumentNode(BBGraph g, User creator) {
-        super(g, creator);
-        title = new StringNode(g, creator);
-        mimeType = new StringNode(g, creator);
-        endOfConstructor();
-    }
-
-    public DocumentNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+    public DocumentNode(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
     @Override
-    public void fromString(String s, User user) {
-        String mimeType = "text/plain";
-        if (s.startsWith("data:image/jpeg;base64,")) {mimeType = "image/jpeg";}
-        else if (s.startsWith("data:image/gif;base64,")){mimeType = "image/gif";}
-        else if (s.startsWith("data:image/svg+xml;base64,")){mimeType = "image/svg+xml";}
-        else if (s.startsWith("data:application/pdf;base64,")) {mimeType = "application/pdf";}
-        this.mimeType.set(mimeType, user);
-
-        set(Base64.getDecoder().decode(s.getBytes(StandardCharsets.UTF_8)), user);
-    }
-
-    @Override
-    protected byte[] valueToBytes(byte[] v) {
-        return v;
-    }
-
-    @Override
-    protected byte[] bytesToValue(byte[] bytes, User user) {
-        return bytes;
+    protected void createOuts(User creator) {
+        data = new ByteNode(g, creator, InstantiationInfo.persisting);
+        title = new StringNode(g, creator, InstantiationInfo.persisting);
+        mimeType = new MimeTypeNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override
@@ -53,13 +31,6 @@ public class DocumentNode extends PrimitiveValueNode<byte[]>{
         return "document " + title.get();
     }
 
-    @Override
-    public String getAsString() {
-        if (get() == null) {
-            return "";
-        }
-        return Base64.getEncoder().encodeToString(get());
-    }
 
 
 }

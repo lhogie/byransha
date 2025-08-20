@@ -24,7 +24,7 @@ public abstract class ModelJSONDOTView extends NodeEndpoint<BBGraph> implements 
 	public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BBGraph n)
 			throws Throwable {
 		String dialect = requireParm(in, "dialect").asText();
-		var dot = new ModelDOTView(graph).exec(in, user, webServer, exchange, n).data.getBytes();
+		var dot = new ModelDOTView(g).exec(in, user, webServer, exchange, n).data.getBytes();
 		var stdout = Proces.exec("dot", dot, "-T" + dialect);
 		return new EndpointJsonResponse(mapper.readTree(new String(stdout)), dialect);
 	}

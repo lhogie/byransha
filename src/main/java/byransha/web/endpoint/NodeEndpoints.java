@@ -35,7 +35,7 @@ public class NodeEndpoints extends NodeEndpoint<WebServer> {
 		}
 
 		var data = new ArrayNode(null);
-		graph.findAll(NodeEndpoint.class, e -> true).stream()
+		g.findAll(NodeEndpoint.class, e -> true).stream()
 				.filter(currentNode::matches)
 				.filter(e -> e.canExec(user))
 				.forEach(e -> data.add(new TextNode(e.name())));

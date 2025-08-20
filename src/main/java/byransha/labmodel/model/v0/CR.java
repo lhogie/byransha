@@ -4,14 +4,9 @@ import byransha.BBGraph;
 import byransha.User;
 
 public class CR extends Status {
-	public CR(BBGraph g, User creator) {
-		super(g, creator);
+	public CR(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		name.set("Chargé de Recherche", creator);
-		endOfConstructor();
-	}
-
-	public CR(BBGraph g, User creator, int id) {
-		super(g, creator, id);
 		endOfConstructor();
 	}
 }

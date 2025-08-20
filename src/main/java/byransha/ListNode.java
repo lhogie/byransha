@@ -10,7 +10,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
-
     private Class<?> elementType;
     private Predicate<String> optionsFilter;
 
@@ -21,20 +20,21 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             new ConcurrentHashMap<>();
     private static final Random RANDOM = new Random();
 
-    public ListNode(BBGraph db, User creator, boolean historize) {
-        super(db, creator, historize);
+    public ListNode(BBGraph db, User creator, InstantiationInfo ii) {
+        super(db, creator, ii, true);
         set(new ArrayList<>(), creator);
         endOfConstructor();
     }
 
-    public ListNode(BBGraph db, User creator) {
-        this(db, creator, true);
+    public ListNode(BBGraph db, User creator, InstantiationInfo ii, boolean historize) {
+        super(db, creator, ii, historize);
+        set(new ArrayList<>(), creator);
         endOfConstructor();
     }
 
-    public ListNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+
     }
 
     @Override
@@ -43,7 +43,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             return Collections.emptyList();
         }
 
-       return new String(bytes).lines().map(l -> (T) graph.findByID(Integer.valueOf(l))).toList();
+       return new String(bytes).lines().map(l -> (T) g.findByID(Integer.valueOf(l))).toList();
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             StringNode existingNode = (StringNode) existingElement.get();
             existingNode.set(option, creator);
         } else {
-            var n = new StringNode(graph, creator, option);
+            var n = new StringNode(g, creator, InstantiationInfo.persisting);
             add((T) n, creator);
         }
     }
@@ -159,7 +159,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
             StringNode existingNode = (StringNode) existingElement.get();
             existingNode.set(option, creator);
         } else {
-            var n = new StringNode(graph, creator);
+            var n = new StringNode(g, creator, InstantiationInfo.persisting);
             n.set(option, creator);
             add((T) n, creator);
         }

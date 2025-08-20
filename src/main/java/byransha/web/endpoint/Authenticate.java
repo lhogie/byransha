@@ -28,7 +28,6 @@ public class Authenticate extends NodeEndpoint<BNode> {
 		}
 		this.sessionStore = sessionStore;
 		endOfConstructor();
-
 	}
 
 
@@ -82,6 +81,6 @@ public class Authenticate extends NodeEndpoint<BNode> {
 	}
 
 	private User auth(String username, String password) {
-		return graph.find(User.class, u -> u.name != null && u.passwordNode != null && u.accept(username, password));
+		return g.find(User.class, u -> u.name != null && u.passwordNode != null && u.accept(username, password));
 	}
 }

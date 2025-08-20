@@ -35,12 +35,12 @@ public class RemoveNode extends NodeEndpoint<BNode> {
         );
         boolean delete = requireParm(input, "delete").asBoolean();
         if(delete){
-            graph.deleteNode(node);
-            user.stack.add(graph);
+            g.deleteNode(node);
+            user.stack.add(g);
             return new EndpointJsonResponse(a, "Node removed from the graph.");
         }
         else{
-            for (BNode allDeleteNode : graph.getAllDeleteNodes(node)) {
+            for (BNode allDeleteNode : g.getAllDeleteNodes(node)) {
                 var b = new ObjectNode(null);
                 b.set("id", new IntNode(allDeleteNode.id()));
                 b.set("class", new TextNode(allDeleteNode.getClass().getSimpleName()));

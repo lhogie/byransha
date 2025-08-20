@@ -5,14 +5,9 @@ import byransha.BBGraph;
 import byransha.User;
 
 public class Software extends Publication {
-	public Software(BBGraph g, User creator) {
-		super(g, creator);
-		openSource = new BooleanNode(g, creator); //new BooleanNode(g);
-		endOfConstructor();
-	}
-
-	public Software(BBGraph g, User creator, int id) {
-		super(g, creator, id);
+	public Software(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
+		openSource = new BooleanNode(g, creator, InstantiationInfo.persisting); //new BooleanNode(g);
 		endOfConstructor();
 	}
 

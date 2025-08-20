@@ -5,20 +5,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.function.Consumer;
 
 public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements ValueHolder<N> {
 
     private  ValuedNode<N> valuedNode;
 
     public ValueHistory(ValuedNode<N> vn) {
-        super(vn.graph, vn.graph.systemUser(), false);
+        super(vn.g, vn.g.systemUser(), InstantiationInfo.persisting, false);
         this.valuedNode = vn;
-        endOfConstructor();
-    }
-
-    public ValueHistory(BBGraph g, User user, int id) {
-        super(g,  user, id);
         endOfConstructor();
     }
 
@@ -51,9 +45,9 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
     @Override
     public void setValue(N value, User user){
         try{
-            var e = new ValueHistoryEntry<N>(valuedNode, value, OffsetDateTime.now(), user);
+            var e = new ValueHistoryEntry<N>(valuedNode, value, OffsetDateTime.now(), user, InstantiationInfo.persisting);
             add(e, user);
-            save(BBGraph.sysoutPrinter);
+            save();
         }
         catch (IOException err){
             throw new IllegalStateException(err);
@@ -65,10 +59,9 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
     }
 
     @Override
-    public void save(Consumer<File> writingFiles) throws IOException {
-        super.save(writingFiles);
-
-        writingFiles.accept(valueFile().toFile());
+    public void save() throws IOException {
+        super.save();
+        g.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, valueFile().toString());
         Files.write(valueFile(), valueToBytes(this.get()));
     }
 }

@@ -13,13 +13,18 @@ import toools.text.TextUtilities;
 public class JVMNode extends SystemNode {
 
     public JVMNode(BBGraph g) {
-        super(g);
+        super(g, InstantiationInfo.notPersisting);
         endOfConstructor();
     }
 
     @Override
     public String prettyName() {
         return "Java Virtual Machine";
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+
     }
 
     @Override

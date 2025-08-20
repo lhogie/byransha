@@ -20,17 +20,16 @@ public class ClassFilter extends FieldFilterNode {
 
     public BooleanNode includeSubclasses;
 
-    public ClassFilter(BBGraph g, User creator) {
-        super(g, creator);
-        targetClass = new ListNode(g, creator);
-        includeSubclasses = new BooleanNode(g, creator);
-        includeSubclasses.set("includeSubclasses", this, true, creator);
+    public ClassFilter(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public ClassFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        targetClass = new ListNode(g, creator, InstantiationInfo.persisting);
+        includeSubclasses = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        includeSubclasses.set("includeSubclasses", this, true, creator);
     }
 
     @Override
@@ -42,7 +41,7 @@ public class ClassFilter extends FieldFilterNode {
     private void populateClassOptions() {
         var allClasses = new HashSet<Class<? extends BNode>>();
 
-        graph.forEachNode(node -> {
+        g.forEachNode(node -> {
             if (node instanceof BusinessNode) {
                 allClasses.add(node.getClass());
             }
@@ -126,7 +125,7 @@ public class ClassFilter extends FieldFilterNode {
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = new StringNode(graph, user);
+            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
             classNode.set(config.get("targetClass").asText(), user);
             targetClass.add(classNode, user);
 
@@ -158,6 +157,10 @@ public class ClassFilter extends FieldFilterNode {
 
     @Override
     public String prettyName() {
+        if (targetClass == null) {
+            return "Class Filter (unconfigured)";
+        }
+
         String selectedClass = targetClass.getSelected();
 
         if (selectedClass == null || selectedClass.trim().isEmpty()) {
@@ -174,7 +177,7 @@ public class ClassFilter extends FieldFilterNode {
     public void setTargetClass(String className, User user) {
         targetClass.removeAll();
         if (className != null && !className.trim().isEmpty()) {
-            StringNode classNode = new StringNode(graph, user);
+            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
             classNode.set(className, user);
             targetClass.add(classNode, user);
             // Auto-enable when ar class is selected

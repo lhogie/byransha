@@ -12,18 +12,17 @@ public class UI extends BNode {
     ColorNode backgroundColor;
     ColorNode textColor;
 
-    public UI(BBGraph db, User creator) {
-        super(db, creator);
-        backgroundColor = new ColorNode(db, creator);
-        backgroundColor.set("#A9A9A9", creator);
-        textColor = new ColorNode(db, creator);
-        textColor.set("#000000", creator);
+    public UI(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public UI(BBGraph db, User creator, int id) {
-        super(db, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        backgroundColor = new ColorNode(g, creator, InstantiationInfo.persisting);
+        backgroundColor.set("#A9A9A9", creator);
+        textColor = new ColorNode(g, creator, InstantiationInfo.persisting);
+        textColor.set("#000000", creator);
     }
 
     @Override
@@ -58,7 +57,7 @@ public class UI extends BNode {
             BNode node
         ) {
             var r = new ObjectNode(null);
-            UI ui = graph.find(UI.class, e -> true);
+            UI ui = g.find(UI.class, e -> true);
             r.set("bg_color", new TextNode(ui.backgroundColor.get()));
             r.set("text_color", new TextNode(ui.backgroundColor.get()));
             return new EndpointJsonResponse(r, this);

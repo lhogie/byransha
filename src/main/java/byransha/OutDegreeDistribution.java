@@ -28,7 +28,7 @@ public class OutDegreeDistribution
             BNode node
     ) throws Throwable {
         var d = new Byransha.Distribution<Integer>();
-        BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.graph;
+        BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.g;
         g.forEachNode(n -> d.addOccurence(n.outDegree()));
         return new EndpointJsonResponse(d.toJson(), EndpointJsonResponse.dialects.distribution);
     }

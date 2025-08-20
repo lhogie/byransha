@@ -6,11 +6,15 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
 public class MapNode<N extends BNode> extends BNode {
-	public MapNode(BBGraph g, User creator) {
-		super(g, creator);
+	public MapNode(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 
+	@Override
+	protected void createOuts(User creator) {
+
+	}
 	@Override
 	public String prettyName() {
 		return "a map";

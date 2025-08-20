@@ -5,14 +5,8 @@ import byransha.User;
 
 public class CNRS extends EPST {
 
-	public CNRS(BBGraph g, User creator) {
-		super(g, creator);
+	public CNRS(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
-
-	public CNRS(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
-	}
-
 }

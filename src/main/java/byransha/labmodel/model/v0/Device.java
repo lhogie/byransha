@@ -9,14 +9,16 @@ public class Device extends BusinessNode {
 	public StringNode brand;
 	public StringNode modelName;
 
-	public Device(BBGraph g, User creator) {
-		super(g,  creator);
+	public Device(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g,  creator, ii);
 		endOfConstructor();
 	}
 
-	public Device(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
+	@Override
+	protected void createOuts(User creator) {
+		serialNumber = new StringNode(g, creator, InstantiationInfo.persisting);
+		brand = new StringNode(g, creator, InstantiationInfo.persisting);
+		modelName = new StringNode(g, creator, InstantiationInfo.persisting);
 	}
 
 	@Override

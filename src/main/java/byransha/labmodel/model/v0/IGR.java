@@ -4,14 +4,9 @@ import byransha.BBGraph;
 import byransha.User;
 
 public class IGR extends Status {
-	public IGR(BBGraph g, User creator) {
-		super(g, creator);
+	public IGR(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		name.set("Ingénieur de Recherche Université", creator);
-		endOfConstructor();
-	}
-
-	public IGR(BBGraph g, int id, User creator) {
-		super(g, creator, id);
 		endOfConstructor();
 	}
 }

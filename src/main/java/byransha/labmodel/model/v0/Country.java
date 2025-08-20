@@ -10,46 +10,32 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class Country extends BusinessNode {
 	static JsonNode countryCodes;
 
-	private Out<StringNode> name, codeNode;
+	private StringNode name, codeNode;
 	private Out<DocumentNode> flag;
 
-	public Country(BBGraph g, String code, User creator) {
-		super(g, creator);
-		codeNode = new Out<>(g, creator);
-		codeNode.get().set(code, creator);
-		name = new Out<>(g, creator);
-		name.fromString(countryCodes.get(code).asText(), creator);
-		flag = new Out<>(g, creator);
-
-		try {
-			flag.get().set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
-					.readAllBytes(), creator);
-		} catch (IOException err) {
-			err.printStackTrace();
-		}
-
-		endOfConstructor();
-	}
-
-	public Country(BBGraph g, User creator) {
-        super(g, creator);
-        codeNode = new Out<>(g, creator);
-		name = new Out<>(g, creator);
-		flag = new  Out<>(g, creator);
+	public Country(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
 		this.setColor("#fc0307", creator);
 		endOfConstructor();
 	}
 
-	public void setFlagCode(String code, User user) throws IOException {
-		flag.get().set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
-				.readAllBytes(), user);
-		codeNode.get().set(code, user);
-		name.get().set(countryCodes.get(code).asText(), user);
+	@Override
+	protected void createOuts(User creator) {
+		codeNode = new StringNode(g, creator, InstantiationInfo.persisting);
+		name = new StringNode(g, creator, InstantiationInfo.persisting);
+		flag = new Out<>(g, creator, InstantiationInfo.persisting);
 	}
 
-	public Country(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
+	public void setFlagCode(String code, User user) throws IOException {
+		codeNode.set(code, user);
+		name.set(countryCodes.get(code).asText(), user);
+
+		try {
+			flag.get().data.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
+					.readAllBytes(), user);
+		} catch (IOException err) {
+			err.printStackTrace();
+		}
 	}
 
 	public static void loadCountries(BBGraph g, User creator) {
@@ -61,9 +47,13 @@ public class Country extends BusinessNode {
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-				var country = new Country(g, creator);
+				var country = new Country(g, creator,  InstantiationInfo.persisting);
+
 				try {
-					country.flag.get().title.set(countryCodes.get(code).asText(), creator);
+					var countryCode = countryCodes.get(code).asText();
+					var doc = new DocumentNode(g, creator, InstantiationInfo.persisting);
+					country.flag.set(doc, creator);
+					country.flag.get().title.set(countryCode, creator);
 					country.setFlagCode(code, creator);
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
@@ -81,7 +71,7 @@ public class Country extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		if(name == null || name.get().get().isEmpty() ||codeNode.get() == null || codeNode.get().get().isEmpty()) return "Country(unknown)";
-		return name.get() + "(" + codeNode.get().get().toUpperCase() + ")";
+		if(name == null || name.get() == null || name.get().isEmpty() ||codeNode.get() == null || codeNode.get().isEmpty()) return "Country(unknown)";
+		return name.get() + "(" + codeNode.get().toUpperCase() + ")";
 	}
 }

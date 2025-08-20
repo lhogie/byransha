@@ -1,6 +1,7 @@
 package byransha.filter;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
@@ -10,20 +11,20 @@ public class ContainsFilter extends FieldFilterNode {
     public BooleanNode caseSensitive;
     public BooleanNode wholeWordsOnly;
 
-    public ContainsFilter(BBGraph g, User creator) {
-        super(g, creator);
-        searchText = new StringNode(g, creator);
-        caseSensitive = new BooleanNode(g, creator);
-        wholeWordsOnly = new BooleanNode(g, creator);
+    public ContainsFilter(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
 
-        caseSensitive.set("caseSensitive", this, false, creator);
-        wholeWordsOnly.set("wholeWordsOnly", this, false, creator);
         endOfConstructor();
     }
 
-    public ContainsFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        searchText = new StringNode(g, creator, InstantiationInfo.persisting);
+        caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        wholeWordsOnly = new BooleanNode(g, creator, InstantiationInfo.persisting);
+
+        caseSensitive.set("caseSensitive", this, false, creator);
+        wholeWordsOnly.set("wholeWordsOnly", this, false, creator);
     }
 
     @Override
