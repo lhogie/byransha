@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -31,6 +30,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     > fieldMetadataCache = new ConcurrentHashMap<>();
 
     private static class FieldMetadata {
+
         final Field field;
         final boolean hasRequired;
         final double minValue;
@@ -69,58 +69,56 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
             // Extract ListOptions and choices
             var annotation = field.getAnnotation(ListOptions.class);
-            this.listOptions = Objects.requireNonNullElseGet(annotation, () -> new ListOptions() {
-                @Override
-                public Class<
-                        ? extends Annotation
-                        > annotationType() {
-                    return ListOptions.class;
-                }
+            this.listOptions = Objects.requireNonNullElseGet(annotation, () ->
+                new ListOptions() {
+                    @Override
+                    public Class<? extends Annotation> annotationType() {
+                        return ListOptions.class;
+                    }
 
-                @Override
-                public ListType type() {
-                    return ListType.LIST;
-                }
+                    @Override
+                    public ListType type() {
+                        return ListType.LIST;
+                    }
 
-                @Override
-                public OptionsSource source() {
-                    return OptionsSource.STATIC;
-                }
+                    @Override
+                    public OptionsSource source() {
+                        return OptionsSource.STATIC;
+                    }
 
-                @Override
-                public String[] staticOptions() {
-                    return new String[0];
-                }
+                    @Override
+                    public String[] staticOptions() {
+                        return new String[0];
+                    }
 
-                @Override
-                public boolean allowCreation() {
-                    return false;
-                }
+                    @Override
+                    public boolean allowCreation() {
+                        return false;
+                    }
 
-                @Override
-                public boolean allowMultiple() {
-                    return false;
-                }
+                    @Override
+                    public boolean allowMultiple() {
+                        return false;
+                    }
 
-                @Override
-                public int maxItems() {
-                    return Integer.MAX_VALUE;
-                }
+                    @Override
+                    public int maxItems() {
+                        return Integer.MAX_VALUE;
+                    }
 
-                @Override
-                public int minItems() {
-                    return 0;
-                }
+                    @Override
+                    public int minItems() {
+                        return 0;
+                    }
 
-                @Override
-                public ElementType elementType() {
-                    return ElementType.STRING;
+                    @Override
+                    public ElementType elementType() {
+                        return ElementType.STRING;
+                    }
                 }
-            });
+            );
             this.choices = new ArrayList<>();
-            if (
-                    listOptions.source() == ListOptions.OptionsSource.STATIC
-            ) {
+            if (listOptions.source() == ListOptions.OptionsSource.STATIC) {
                 this.choices.addAll(Arrays.asList(listOptions.staticOptions()));
             }
 
@@ -146,8 +144,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         endOfConstructor();
     }
 
-
-
     private Field findField(Class<?> clazz, String name) {
         Class<?> current = clazz;
         while (current != null && current != Object.class) {
@@ -155,7 +151,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 Field field = current.getDeclaredField(name);
                 field.setAccessible(true);
                 return field;
-            } catch (NoSuchFieldException _) {}
+            } catch (NoSuchFieldException e) {}
             current = current.getSuperclass();
         }
         return null;
@@ -281,10 +277,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         );
 
         node.forEachOutField((name, out) -> {
-            if (
-                out instanceof BBGraph ||
-                out instanceof Cluster
-            ) return;
+            if (out instanceof BBGraph || out instanceof Cluster) return;
 
             if (validItemsProcessed.get() < offset) {
                 validItemsProcessed.incrementAndGet();
