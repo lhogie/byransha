@@ -35,7 +35,7 @@ public abstract class BNode {
     public BBGraph g;
     private final int id;
     public ColorNode color;
-//    public boolean persisting = false;
+    //    public boolean persisting = false;
     public Cluster cluster;
     //public StringNode comment;
     private CountDownLatch constructionMonitor;
@@ -51,8 +51,6 @@ public abstract class BNode {
 
     protected BNode(BBGraph g, User creator, InstantiationInfo parms) {
         this.constructionMonitor = new CountDownLatch(bnodeDepth());
-
-        this.id = id;
 
         if (g == null) {
             this.id = 0;
@@ -146,7 +144,8 @@ public abstract class BNode {
                 } finally {
                     constructionMonitor = null;
                 }
-            }).start();
+            })
+                    .start();
         }
     }
 
@@ -593,13 +592,13 @@ public abstract class BNode {
         );
 
 
-            try {
-                var f = outsFile();
-                writingFiles.accept(f);
-                Files.writeString(f.toPath(), s);
-            } catch (IOException err) {
-                throw new RuntimeException(err);
-            }
+        try {
+            var f = outsFile();
+            g.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, f.getAbsolutePath());
+            Files.writeString(f.toPath(), s);
+        } catch (IOException err) {
+            throw new RuntimeException(err);
+        }
     }
 
     public synchronized void save() throws IOException {

@@ -22,16 +22,15 @@ public class FilterChain extends FilterNode {
     )
     public ListNode<StringNode> logicalOperator;
 
-    public FilterChain(BBGraph g, User creator) {
-        super(g, creator);
-        filters = new ListNode(g, creator);
-        logicalOperator = new ListNode(g, creator);
+    public FilterChain(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public FilterChain(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        filters = new ListNode(g, creator, InstantiationInfo.persisting);
+        logicalOperator = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override
@@ -151,22 +150,22 @@ public class FilterChain extends FilterNode {
         try {
             switch (filterType.toLowerCase()) {
                 case "startswith":
-                    filter = new StartsWithFilter(graph, user);
+                    filter = new StartsWithFilter(g, user, InstantiationInfo.persisting);
                     break;
                 case "contains":
-                    filter = new ContainsFilter(graph, user);
+                    filter = new ContainsFilter(g, user, InstantiationInfo.persisting);
                     break;
                 case "class":
-                    filter = new ClassFilter(graph, user);
+                    filter = new ClassFilter(g, user, InstantiationInfo.persisting);
                     break;
                 case "daterange":
-                    filter = new DateRangeFilter(graph, user);
+                    filter = new DateRangeFilter(g, user, InstantiationInfo.persisting);
                     break;
                 case "numericrange":
-                    filter = new NumericRangeFilter(graph, user);
+                    filter = new NumericRangeFilter(g, user, InstantiationInfo.persisting);
                     break;
                 case "filterchain":
-                    filter = new FilterChain(graph, user);
+                    filter = new FilterChain(g, user, InstantiationInfo.persisting);
                     break;
                 default:
                     System.err.println("Unknown filter type: " + filterType);

@@ -7,11 +7,6 @@ public class PhoneNumberNode extends StringNode {
         endOfConstructor();
     }
 
-    public PhoneNumberNode(BBGraph db, User user, int id ) {
-        super(db, user, id);
-        endOfConstructor();
-    }
-
     @Override
      public String prettyName() {
         if( get() == null || get().isEmpty()) {

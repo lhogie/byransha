@@ -12,14 +12,19 @@ public class Contract extends BusinessNode {
     ListNode<Person> partners;
     ListNode<Person> misc;
 
-    public Contract(BBGraph g, User creator) {
-        super(g, creator);
+    public Contract(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 
-    public Contract(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        holder = new Out<>(g, creator, InstantiationInfo.persisting);
+        name = new StringNode(g, creator, InstantiationInfo.persisting);
+        subHolders = new ListNode<>(g, creator, InstantiationInfo.persisting);
+        coordinators = new ListNode<>(g, creator, InstantiationInfo.persisting);
+        partners = new ListNode<>(g, creator, InstantiationInfo.persisting);
+        misc = new ListNode<>(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

@@ -14,8 +14,8 @@ public class DataLake extends BNode {
 
     public final File inputDir;
 
-    public DataLake(BBGraph g, User creator, File dir) {
-        super(g, creator);
+    public DataLake(BBGraph g, User creator,File dir) {
+        super(g, creator, InstantiationInfo.notPersisting);
         inputDir = dir;
         endOfConstructor();
     }
@@ -59,24 +59,21 @@ public class DataLake extends BNode {
     }
 
     public void load() throws IOException {
-        User user = graph.systemUser();
+        User user = g.systemUser();
 
-        if (inputDir == null) {
-            return;
-        } else if (!inputDir.exists() || !inputDir.isDirectory()) {
-            throw new IOException(
-                "Input directory does not exist or not a directory: " + inputDir
-            );
+        if(inputDir == null) {return;}
+        else if(!inputDir.exists() || !inputDir.isDirectory()) {
+            throw new IOException("Input directory does not exist or not a directory: " + inputDir);
         }
 
         Files.readAllLines(
             new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()
         ).forEach(l -> {
-                var c = new Nationality(graph, user);
+                var c = new Nationality(g, user, InstantiationInfo.persisting);
                 c.set(l, user);
             });
 
-        Lab i3s = new Lab(graph, user);
+        Lab i3s = new Lab(g, user, InstantiationInfo.persisting);
 
         for (var n : List.of("CNRS", "Inria")) {
             var epst = new EPST(g, user, InstantiationInfo.persisting); //new EPST(graph);

@@ -11,14 +11,9 @@ public class StringNode extends PrimitiveValueNode<String> {
     }
 
 
-    public StringNode(BBGraph g, User creator, String init) {
-        super(g, creator);
+    public StringNode(BBGraph g, User creator, InstantiationInfo ii, String init) {
+        super(g, creator, ii, true);
         set(init, creator);
-        endOfConstructor();
-    }
-
-    public StringNode(BBGraph db, User creator, int id) {
-        super(db, creator, id);
         endOfConstructor();
     }
 

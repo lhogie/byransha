@@ -10,14 +10,14 @@ import byransha.User;
 public class ACMClassifier extends BusinessNode {
 	public String code, descr;
 
-	public ACMClassifier(BBGraph g, String code, String descr, User user) {
-		super(g, user);
+	public ACMClassifier(BBGraph g, String code, InstantiationInfo ii, String descr, User user) {
+		super(g, user, ii);
 		this.code = code;
 		this.descr = descr;
 	}
 
-	public ACMClassifier(BBGraph g, User creator) {
-		super(g, creator);
+	public ACMClassifier(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 

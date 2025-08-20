@@ -16,15 +16,14 @@ public class ValueHistoryEntry<N> extends BNode {
         super(vn.g, vn.g.systemUser(), ii);
         this.vn = vn;
         this.value = value;
-        this.date = new DateNode(graph, creator, date);
         this.user = creator;
         save();
         endOfConstructor();
     }
 
-    public ValueHistoryEntry(BBGraph g, User creator, int id) throws IOException {
-        super(g, g.systemUser(), id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        this.date = new DateNode(g, creator, InstantiationInfo.persisting, false);
     }
 
     private Path valueFile(){

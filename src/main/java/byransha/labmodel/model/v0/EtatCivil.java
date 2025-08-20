@@ -13,12 +13,12 @@ public class EtatCivil extends BusinessNode {
     public StringNode familyNameBeforeMariage, firstName, cityOfBirth, address;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public Out<ListNode<Country>> countryOfBirth;
+    public ListNode<Country> countryOfBirth;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public Out<ListNode<Nationality>> nationality;
+    public ListNode<Nationality> nationality;
 
-    public Out<DateNode> birthDate;
+    public DateNode birthDate;
 
     @ListOptions(
         type = ListOptions.ListType.MULTIDROPDOWN,
@@ -27,34 +27,33 @@ public class EtatCivil extends BusinessNode {
     )
 
     @Size(max = 2)
-    public Out<ListNode<Country>> nationalites;
+    public ListNode<Country> nationalites;
 
     @Pattern(
         regex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
     )
-    public Out<PhoneNumberNode> telephone;
+    public PhoneNumberNode telephone;
 
     public Out<DocumentNode> pic;
 
-    public EtatCivil(BBGraph g, User creator) {
-        super(g, creator);
-        name = new StringNode(g,  creator);
-        familyNameBeforeMariage = new StringNode(g, creator);
-        firstName = new StringNode(g, creator);
-        birthDate = new Out< DateNode>(g, creator);
-        cityOfBirth = new StringNode(g, creator);
-        countryOfBirth = new Out< ListNode<Country>>(g, creator);
-        nationalites = new Out< ListNode<Country>>(g, creator);
-        address = new StringNode(g, creator);
-        telephone = new Out< PhoneNumberNode>(g,  creator);
-        pic = new Out< DocumentNode>(g, creator);
+    public EtatCivil(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         this.setColor("#03fc62", creator);
         endOfConstructor();
     }
 
-    public EtatCivil(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        name = new StringNode(g,  creator, InstantiationInfo.persisting);
+        familyNameBeforeMariage = new  StringNode(g, creator, InstantiationInfo.persisting);
+        firstName = new StringNode(g, creator, InstantiationInfo.persisting);
+        birthDate = new DateNode(g, creator, InstantiationInfo.persisting);
+        cityOfBirth = new StringNode(g, creator, InstantiationInfo.persisting);
+        countryOfBirth = new ListNode<Country>(g, creator, InstantiationInfo.persisting);
+        nationalites = new ListNode<Country>(g, creator, InstantiationInfo.persisting);
+        address = new StringNode(g, creator, InstantiationInfo.persisting);
+        telephone = new PhoneNumberNode(g,  creator, InstantiationInfo.persisting);
+        pic = new Out<>(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

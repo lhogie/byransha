@@ -4,11 +4,12 @@ public abstract class UserApplication extends BNode {
     DocumentNode icon = null;
     final BNode rootNode;
 
-    public UserApplication(BBGraph g, User user){
-        super(g, user);
+    public UserApplication(BBGraph g, User user, InstantiationInfo ii){
+        super(g, user, ii);
+
         try {
-            rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class)
-                    .newInstance(g, user);
+            rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class, InstantiationInfo.class)
+                    .newInstance(g, user, InstantiationInfo.PersistenceInfo.notPersisting);
         } catch (Throwable err) {
             throw new RuntimeException(err);
         }

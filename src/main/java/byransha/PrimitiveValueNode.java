@@ -1,15 +1,12 @@
 package byransha;
 
 public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {
-
-
-    public PrimitiveValueNode(BBGraph db, User user) {
-        super(db, user, true);
-        endOfConstructor();
+    protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii) {
+        this(db, user, ii, false);
     }
 
-    public PrimitiveValueNode(BBGraph db, User user, int id) {
-        super(db, user, id);
+    protected PrimitiveValueNode(BBGraph db, User user, InstantiationInfo ii, boolean historize) {
+        super(db, user, ii, historize);
         endOfConstructor();
     }
 

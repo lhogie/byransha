@@ -4,9 +4,9 @@ import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 import byransha.User;
+import byransha.web.NodeEndpoint;
 
 public class Publication extends BusinessNode {
-
     public StringNode title;
     public ListNode<Person> authors;
     public ACMClassifier acmClassifier;
@@ -14,6 +14,13 @@ public class Publication extends BusinessNode {
     public Publication(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
         endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        this.title = new StringNode(g, creator, InstantiationInfo.persisting);
+        this.authors = new ListNode<>(g, creator, InstantiationInfo.persisting);
+        this.acmClassifier = new ACMClassifier(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

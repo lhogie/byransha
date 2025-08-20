@@ -11,9 +11,9 @@ public class Agent extends BusinessNode {
         endOfConstructor();
     }
 
-    public Agent(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        etatCivil = new Out<>(g, creator);
     }
 
 

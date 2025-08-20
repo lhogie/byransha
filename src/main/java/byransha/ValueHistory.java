@@ -16,11 +16,6 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
         endOfConstructor();
     }
 
-    public ValueHistory(BBGraph g, User user, int id) {
-        super(g,  user, id);
-        endOfConstructor();
-    }
-
     @Override
     public String whatIsThis() {
         return "value history for a specific (valued) node";

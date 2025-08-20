@@ -13,7 +13,7 @@ import toools.text.TextUtilities;
 public class JVMNode extends SystemNode {
 
     public JVMNode(BBGraph g) {
-        super(g);
+        super(g, InstantiationInfo.notPersisting);
         endOfConstructor();
     }
 

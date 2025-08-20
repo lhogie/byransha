@@ -2,18 +2,13 @@ package byransha;
 
 public class EmailNode extends StringNode {
 
-	public EmailNode(BBGraph g, User creator, String s) {
-		super(g, creator, s);
+	public EmailNode(BBGraph g, User creator, InstantiationInfo ii, String s) {
+		super(g, creator, ii, s);
 		endOfConstructor();
 	}
 
 	public EmailNode(BBGraph g, User creator, InstantiationInfo ii) {
 		super(g, creator, ii);
-		endOfConstructor();
-	}
-
-	public EmailNode(BBGraph g, User creator, int id) {
-		super(g, creator, id);
 		endOfConstructor();
 	}
 

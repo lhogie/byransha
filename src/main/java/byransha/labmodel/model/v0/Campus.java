@@ -12,9 +12,10 @@ public class Campus extends BusinessNode {
         endOfConstructor();
     }
 
-    public Campus(BBGraph g, int id, User creator) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        name = new  StringNode(g, creator, InstantiationInfo.persisting);
+        buildings = new  ListNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

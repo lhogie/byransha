@@ -12,9 +12,9 @@ public class Status extends BusinessNode {
 		endOfConstructor();
 	}
 
-	public Status(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
+	@Override
+	protected void createOuts(User creator) {
+		name = new StringNode(g, creator, InstantiationInfo.persisting);
 	}
 
 	@Override
