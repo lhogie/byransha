@@ -7,10 +7,8 @@ public class Campus extends BusinessNode {
     public StringNode name;
     public ListNode<Building> buildings;
 
-    public Campus(BBGraph g, User creator) {
-        super(g, creator);
-        name = new  StringNode(g, creator);
-        buildings = new  ListNode(g, creator);
+    public Campus(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 

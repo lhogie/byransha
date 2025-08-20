@@ -34,10 +34,10 @@ public class Views extends NodeEndpoint<BNode> implements TechnicalView {
         ArrayNode viewsNode = new ArrayNode(null);
 
         if (currentNode == null) {
-            currentNode = graph.root();
+            currentNode = g.root();
         }
 
-        for (var e : graph.endpointsUsableFrom(currentNode)) {
+        for (var e : g.endpointsUsableFrom(currentNode)) {
             if (e.canSee(user) && e.canExec(user)) {
                 var ev = new ObjectNode(null);
                 ev.set("pretty_name", new TextNode(e.prettyName()));

@@ -21,20 +21,22 @@ public class ACMClassifier extends BusinessNode {
 		endOfConstructor();
 	}
 
-	public ACMClassifier(BBGraph g, User creator, int id) {
-		super(g, creator, id);
-		endOfConstructor();
-	}
-
 	@Override
-	public String prettyName() {
-		return "ACM classification";
+	protected void createOuts(User creator) {
+
 	}
 
 	@Override
 	public String toString() {
+		return prettyName();
+	}
+
+
+	@Override
+	public String prettyName() {
 		return code + ": " + descr;
 	}
+
 
 	@Override
 	public String whatIsThis() {

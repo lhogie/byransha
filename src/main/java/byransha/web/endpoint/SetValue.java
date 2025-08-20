@@ -56,7 +56,7 @@ public class SetValue extends NodeEndpoint<BNode> {
             );
         }
 
-        var node = graph.findByID(id);
+        var node = g.findByID(id);
         if (node == null) {
             return ErrorResponse.notFound(
                 "Node with ID " + id + " not found in the graph."
@@ -95,7 +95,7 @@ public class SetValue extends NodeEndpoint<BNode> {
                         );
                     }
                     for (JsonNode item : value) {
-                        lc.add(new StringNode(graph, user, item.asText()), user);
+                        lc.add(new StringNode(g, user, InstantiationInfo.persisting, item.asText()), user);
                     }
                     a.set("value", value);
                 }

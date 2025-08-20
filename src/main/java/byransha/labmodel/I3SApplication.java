@@ -11,19 +11,26 @@ import byransha.labmodel.model.v0.view.LabView;
 import byransha.labmodel.model.v0.view.StructureView;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class I3SApplication extends UserApplication {
 
-    public I3SApplication(BBGraph g, User creator) {
-        super(g, creator);
+    public I3SApplication(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        Objects.requireNonNull(g);
         new StructureView(g);
         new LabView(g);
-        new Agent(g, creator);
+        new Agent(g, creator, InstantiationInfo.persisting);
 
         new Thread(()-> {
             Country.loadCountries(g, creator);
 
-            var lake = new DataLake(graph, creator,  Paths.get(
+            var lake = new DataLake(this.g, creator, Paths.get(
                     System.getProperty("user.home"),
                     "i3s_extraction"
             ).toFile());
@@ -34,8 +41,6 @@ public class I3SApplication extends UserApplication {
                 throw new RuntimeException(e);
             }
         }).start();
-
-        endOfConstructor();
     }
 
     @Override

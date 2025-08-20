@@ -60,22 +60,10 @@ public class WebServer extends BNode {
         System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()
     );
 
-    private UserApplication application;
 
     public static void main(String[] args) throws Exception {
         var argMap = mapArgs(args);
-        BBGraph g = instantiateGraph(argMap);
-
-        int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
-        var backend = new WebServer(g, port);
-
-        var appClass = (Class<? extends UserApplication>) Class.forName(
-            argMap.remove("appClass")
-        );
-
-        backend.application = appClass
-            .getConstructor(BBGraph.class, User.class)
-            .newInstance(g, g.admin());
+        BBGraph g = new BBGraph(defaultDBDirectory, argMap);
     }
 
     private static Map<String, String> mapArgs(String... args) {
@@ -87,23 +75,6 @@ public class WebServer extends BNode {
             .forEach(a -> r.put(a[0], a[1]));
 
         return r;
-    }
-
-    public static BBGraph instantiateGraph(Map<String, String> argMap)
-        throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException, ClassNotFoundException, IOException {
-        if (defaultDBDirectory.exists()) {
-            System.out.println("loading DB from " + defaultDBDirectory);
-            var g = new BBGraph(defaultDBDirectory, null);
-
-            g.loadFromDisk(
-                n -> System.out.println("loading node " + n),
-                (n, s) -> System.out.println("loading arc " + n + ", " + s),
-                null
-            );
-            return g;
-        } else {
-            return new BBGraph(defaultDBDirectory, null);
-        }
     }
 
     static final ObjectMapper mapper = new ObjectMapper();
@@ -132,15 +103,13 @@ public class WebServer extends BNode {
     private final HttpsServer httpsServer;
     public final List<Log> logs = new CopyOnWriteArrayList<>();
 
-    private final SessionStore sessionStore;
+    public final SessionStore sessionStore;
 
     public WebServer(BBGraph g, int port) throws Exception {
-        super(g, null);
-        this.fileCache = new FileCache(g, null);
+        super(g, g.systemUser(), InstantiationInfo.notPersisting);
+        this.fileCache = new FileCache();
         this.sessionStore = new SessionStore();
         endOfConstructor();
-        createSpecialNodes(g);
-        createEndpoints(g);
 
         //var dot = ModelDOTView.toDot(g, c -> !Endpoint.class.isAssignableFrom(c));
         //var svg = ModelGraphivzSVGView.gen(dot, "fdp");
@@ -206,63 +175,15 @@ public class WebServer extends BNode {
         httpsServer.start();
     }
 
-    private void createSpecialNodes(BBGraph g) {
-        new JVMNode(g);
-        new Byransha(g, g.systemUser());
-        new OSNode(g);
-        new User(g, g.systemUser(), "user", "test");
-    }
 
-    private void createEndpoints(BBGraph g) {
-        new NodeInfo(g);
-        new Views(g);
-        new Jump(g);
-        new Endpoints(g);
-        new JVMNode.Kill(g);
-        var n = new Authenticate(g, sessionStore);
-        var l = new Logout(g, sessionStore);
-        new EndpointCallDistributionView(g);
-        new Info(g);
-        new Logs(g);
-        new BasicView(g);
-        new CharExampleXY(g);
-        new User.UserView(g);
-        new BBGraph.GraphNivoView(g);
-        new OSNode.View(g);
-        new JVMNode.View(g);
-        new BNode.InOutsNivoView(g);
-        new ModelGraphivzSVGView(g);
-        new ModelMermaidView(g);
-        new Navigator(g);
-        new OutDegreeDistribution(g);
-        new ClassDistribution(g);
-        new ModelDOTView(g);
-        new ToStringView(g);
-        new NodeEndpoints(g);
-        new SetValue(g);
-        new AnyGraph.Classes(g);
-        new Edit(g);
-        new History(g);
-        new UI(g, null);
-        new UI.getProperties(g);
-        new Summarizer(g);
-        new LoadImage(g);
-        new ClassInformation(g);
-        new ClassAttributeField(g);
-        new AddNode(g);
-        new AddExistingNode(g);
-        new ListExistingNode(g);
-        new SearchNode(g);
-        new ExportCSV(g);
-        new RemoveFromList(g);
-        new RemoveNode(g);
-        new ColorNodeView(g);
-        new SearchForm(g, g.systemUser());
-        new ListChildClasses(g);
-    }
 
     public SessionStore getSessionStore() {
         return sessionStore;
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+
     }
 
     @Override
@@ -284,7 +205,7 @@ public class WebServer extends BNode {
     public List<User> activeUsers() {
         List<User> activeUsers = new ArrayList<>();
 
-        graph.forEachNode(n -> {
+        g.forEachNode(n -> {
             if (n instanceof User u) {
                 activeUsers.add(u);
             }
@@ -327,7 +248,7 @@ public class WebServer extends BNode {
                     sessionStore.getValidSession(sessionToken);
                 if (sessionOpt.isPresent()) {
                     sessionData = sessionOpt.get();
-                    user = (User) graph.findByID(sessionData.userId());
+                    user = (User) g.findByID(sessionData.userId());
                     if (user == null) {
                         System.err.println(
                             "User ID " +
@@ -349,11 +270,11 @@ public class WebServer extends BNode {
             }
 
             if (user == null) {
-                user = graph.find(User.class, u ->
+                user = g.find(User.class, u ->
                     u.name.get().equals("guest")
                 );
                 if (user == null) {
-                    user = new User(graph, graph.admin());
+                    user = new User(g, g.admin(), InstantiationInfo.notPersisting);
                     user.name.set("guest", user);
                     user.passwordNode.set("guest", user);
                     // user.stack.push(graph.root());
@@ -383,7 +304,7 @@ public class WebServer extends BNode {
                 // Validate that the current node still exists in the graph
                 if (contextNode != null) {
                     int originalNodeId = contextNode.id();
-                    BNode validatedNode = graph.findByID(originalNodeId);
+                    BNode validatedNode = g.findByID(originalNodeId);
                     if (validatedNode == null) {
                         // Current node no longer exists in graph
                         user.stack.clear();
@@ -407,19 +328,19 @@ public class WebServer extends BNode {
                         contextNode = validatedNode;
                     }
                 } else {
-                    contextNode = graph.root();
+                    contextNode = g.root();
                 }
 
                 if (endpointName.isEmpty()) {
                     User finalUser = user;
-                    resolvedEndpoints = graph
+                    resolvedEndpoints = g
                         .endpointsUsableFrom(contextNode)
                         .stream()
                         .filter(e -> e instanceof View)
                         .filter(e -> e.canSee(finalUser))
                         .toList();
                 } else {
-                    var specificEndpoint = graph.findEndpoint(endpointName);
+                    var specificEndpoint = g.findEndpoint(endpointName);
 
                     if (specificEndpoint == null) {
                         throw new IllegalArgumentException(
@@ -690,7 +611,7 @@ public class WebServer extends BNode {
                             content,
                             contentType,
                             file.lastModified(),
-                            user
+                                user
                         );
 
                         String rangeHeader = https
@@ -891,16 +812,16 @@ public class WebServer extends BNode {
                 System.err.println(
                     "Warning: No current node for user, returning endpoints for graph root."
                 );
-                currentNode = graph.root();
+                currentNode = g.root();
             }
 
-            return graph
+            return g
                 .endpointsUsableFrom(currentNode)
                 .stream()
                 .filter(e -> e instanceof View)
                 .toList();
         } else {
-            var e = graph.findEndpoint(endpointName);
+            var e = g.findEndpoint(endpointName);
 
             if (e == null) {
                 throw new IllegalArgumentException(
@@ -1034,6 +955,8 @@ public class WebServer extends BNode {
             endOfConstructor();
         }
 
+
+
         @Override
         public EndpointResponse exec(
             ObjectNode in,
@@ -1115,7 +1038,7 @@ public class WebServer extends BNode {
             endOfConstructor();
         }
 
-        @Override
+       @Override
         public EndpointResponse exec(
             ObjectNode in,
             User user,
@@ -1147,6 +1070,7 @@ public class WebServer extends BNode {
             endOfConstructor();
         }
 
+
         @Override
         public EndpointResponse exec(
             ObjectNode in,
@@ -1156,7 +1080,7 @@ public class WebServer extends BNode {
             WebServer ws
         ) {
             var d = new Byransha.Distribution();
-            graph
+            g
                 .findAll(NodeEndpoint.class, e -> true)
                 .forEach(e -> d.addXY(e.name(), e.nbCalls));
             return new EndpointJsonResponse(d.toJson(), "logs");

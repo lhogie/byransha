@@ -2,8 +2,8 @@ package byransha;
 
 public class PhoneNumberNode extends StringNode {
 
-    public PhoneNumberNode(BBGraph db, User user ) {
-        super(db, user);
+    public PhoneNumberNode(BBGraph db, User user, InstantiationInfo ii) {
+        super(db, user, ii);
         endOfConstructor();
     }
 

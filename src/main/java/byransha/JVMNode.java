@@ -23,6 +23,11 @@ public class JVMNode extends SystemNode {
     }
 
     @Override
+    protected void createOuts(User creator) {
+
+    }
+
+    @Override
     public String whatIsThis() {
         return "represents the server's JVM";
     }

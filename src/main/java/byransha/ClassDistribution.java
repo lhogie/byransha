@@ -27,7 +27,7 @@ public class ClassDistribution
             BNode node
     ) throws Throwable {
         var d = new Byransha.Distribution<String>();
-        BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.graph;
+        BBGraph g = (node instanceof BBGraph) ? (BBGraph) node : node.g;
         g.forEachNode(n -> d.addOccurence(n.getClass().getName()));
         return new EndpointJsonResponse(d.toJson(), EndpointJsonResponse.dialects.distribution);
     }

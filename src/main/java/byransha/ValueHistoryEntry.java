@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.OffsetDateTime;
-import java.util.function.Consumer;
 
 public class ValueHistoryEntry<N> extends BNode {
     private N value;
@@ -13,13 +12,13 @@ public class ValueHistoryEntry<N> extends BNode {
     private User user;
     private ValuedNode<N> vn;
 
-    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date, User creator) throws IOException {
-        super(vn.graph, vn.graph.systemUser());
+    public ValueHistoryEntry(ValuedNode<N> vn, N value, OffsetDateTime date, User creator, InstantiationInfo ii) throws IOException {
+        super(vn.g, vn.g.systemUser(), ii);
         this.vn = vn;
         this.value = value;
         this.date = new DateNode(graph, creator, date);
         this.user = creator;
-        save(BBGraph.sysoutPrinter);
+        save();
         endOfConstructor();
     }
 
@@ -34,15 +33,15 @@ public class ValueHistoryEntry<N> extends BNode {
 
     public void load() throws IOException {
         if (Files.exists(valueFile())) {
-            this.value = vn.bytesToValue(Files.readAllBytes(valueFile()), graph.systemUser());
+            this.value = vn.bytesToValue(Files.readAllBytes(valueFile()), g.systemUser());
         } else {
             this.value = null;
         }
     }
 
     @Override
-    public  void save(Consumer<File> writingFiles) throws IOException {
-        super.save(writingFiles);
+    public  void save() throws IOException {
+        super.save();
 
         if (value == null) {
             Path filePath = valueFile();
@@ -51,7 +50,7 @@ public class ValueHistoryEntry<N> extends BNode {
                 Files.delete(filePath);
             }
         } else {
-            writingFiles.accept(valueFile().toFile());
+            BBGraph.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, valueFile().toString());
             Files.write(valueFile(), vn.valueToBytes(value));
         }
     }

@@ -23,20 +23,19 @@ public class DateRangeFilter extends FieldFilterNode {
         DateTimeFormatter.ofPattern("MM-dd-yyyy"),
     };
 
-    public DateRangeFilter(BBGraph g, User creator) {
-        super(g, creator);
-        fromDate = new DateNode(g, creator);
-        toDate = new DateNode(g, creator);
-        includeNull = new BooleanNode(g, creator);
+    public DateRangeFilter(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        fromDate = new DateNode(g, creator, InstantiationInfo.persisting);
+        toDate = new DateNode(g, creator, InstantiationInfo.persisting);
+        includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);
         includeNull.set("includeNull", this, true, creator);
-        endOfConstructor();
-    }
 
-    public DateRangeFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
     }
-
 
     @Override
     public boolean filter(BNode node) {

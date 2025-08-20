@@ -7,9 +7,8 @@ import byransha.User;
 public class Status extends BusinessNode {
 	StringNode name;
 
-	public Status(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator); //new StringNode(g, null);
+	protected Status(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 

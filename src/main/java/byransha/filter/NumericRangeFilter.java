@@ -26,11 +26,18 @@ public class NumericRangeFilter extends FieldFilterNode {
         endOfConstructor();
     }
 
-    public NumericRangeFilter(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
-    }
+    @Override
+    protected void createOuts(User creator) {
+        minValue = new StringNode(g, creator, InstantiationInfo.persisting);
+        maxValue = new StringNode(g, creator, InstantiationInfo.persisting);
+        includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        includeMin = new BooleanNode(g, creator, InstantiationInfo.persisting);
+        includeMax = new BooleanNode(g, creator, InstantiationInfo.persisting);
 
+        includeNull.set("includeNull", this, true, creator);
+        includeMin.set("includeMin", this, true, creator);
+        includeMax.set("includeMax", this, true, creator);
+    }
 
     @Override
     public boolean filter(BNode node) {

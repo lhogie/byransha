@@ -4,14 +4,9 @@ import byransha.BBGraph;
 import byransha.User;
 
 public class MCF extends Status {
-	public MCF(BBGraph g, User creator) {
-		super(g, creator);
+	public MCF(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		name.set("Maitre de Conference", creator);
-		endOfConstructor();
-	}
-
-	public MCF(BBGraph g, User creator, int id) {
-		super(g, creator, id);
 		endOfConstructor();
 	}
 }

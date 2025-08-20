@@ -52,7 +52,7 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
         var node = clazz.getConstructor(
             BBGraph.class,
             User.class
-        ).newInstance(graph, user);
+        ).newInstance(g, user);
         if (node != null) {
             a.set("id", new IntNode(node.id()));
             a.set("name", new TextNode(node.prettyName()));

@@ -24,7 +24,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange http, BNode n) {
 		var data = new ArrayNode(null);
 
-		graph.findAll(NodeEndpoint.class, e -> true).stream()
+		g.findAll(NodeEndpoint.class, e -> true).stream()
 				.filter(e -> e.canExec(user))
 				.filter(e -> {
 					if (in.has("type")) {

@@ -27,7 +27,7 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
         BNode node
     ) throws Throwable {
         int nodeId = requireParm(input, "id").asInt();
-        var nodeToRemove = graph.findByID(nodeId);
+        var nodeToRemove = g.findByID(nodeId);
 
         if (nodeToRemove == null) {
             StringBuilder errorMsg = new StringBuilder("Node with ID ");

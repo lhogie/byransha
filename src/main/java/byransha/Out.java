@@ -1,27 +1,29 @@
 package byransha;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.util.function.Consumer;
 
-public  class Out<V extends BNode> extends PrimitiveValueNode<V> {
+public  class Out<V extends NotPrimitiveNode> extends PrimitiveValueNode<V> {
     Field f;
 
-    public Out(BBGraph g, User user) {
-        super(g, user);
+    public Out(BBGraph g, User user, InstantiationInfo ii) {
+        super(g, user, ii, true);
         endOfConstructor();
     }
 
-    public Out(BBGraph g, User user, int id) {
-        super(g,  user, id);
-        endOfConstructor();
+    public Out(BBGraph g, User user) {
+        this(g, user, InstantiationInfo.persisting);
+    }
+
+
+    @Override
+    protected void createOuts(User creator) {
+        // no OUTS !!!
     }
 
     @Override
     public void fromString(String s, User user) {
-        set((V) graph.findByID(Integer.parseInt(s)), user);
+        set((V) g.findByID(Integer.parseInt(s)), user);
     }
 
     @Override
@@ -31,7 +33,7 @@ public  class Out<V extends BNode> extends PrimitiveValueNode<V> {
 
     @Override
     protected V bytesToValue(byte[] bytes, User user) throws IOException {
-        return (V) graph.findByID(Integer.valueOf(String.valueOf(bytes)));
+        return (V) g.findByID(Integer.valueOf(String.valueOf(bytes)));
     }
 
 

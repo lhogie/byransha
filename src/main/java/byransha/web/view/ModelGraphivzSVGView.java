@@ -39,7 +39,7 @@ public class ModelGraphivzSVGView
         HttpsExchange exchange,
         BBGraph db
     ) throws Throwable {
-        var dot = graph
+        var dot = g
             .findEndpoint(ModelDOTView.class)
             .exec(in, u, webServer, exchange, db)
             .data;

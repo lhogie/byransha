@@ -58,7 +58,7 @@ public class UI extends BNode {
             BNode node
         ) {
             var r = new ObjectNode(null);
-            UI ui = graph.find(UI.class, e -> true);
+            UI ui = g.find(UI.class, e -> true);
             r.set("bg_color", new TextNode(ui.backgroundColor.get()));
             r.set("text_color", new TextNode(ui.backgroundColor.get()));
             return new EndpointJsonResponse(r, this);

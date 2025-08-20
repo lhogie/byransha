@@ -25,16 +25,15 @@ public class ShortcutNode extends BNode {
 
     private Supplier<LinkedHashMap<String, BNode>> outsSupplier;
 
-    public ShortcutNode(BBGraph g, User creator) {
-        super(g, creator);
+    public ShortcutNode(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         this.outsSupplier = LinkedHashMap::new;
         endOfConstructor();
     }
 
-    public ShortcutNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        this.outsSupplier = LinkedHashMap::new;
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+
     }
 
     public ShortcutNode withOutsSupplier(

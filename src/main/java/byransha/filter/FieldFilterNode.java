@@ -1,6 +1,7 @@
 package byransha.filter;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.lang.reflect.Field;
 
@@ -8,14 +9,9 @@ public abstract class FieldFilterNode extends FilterNode {
 
     public StringNode fieldPath;
 
-    protected FieldFilterNode(BBGraph g, User creator) {
-        super(g, creator);
-        fieldPath = new StringNode(g, creator);
-        endOfConstructor();
-    }
-
-    protected FieldFilterNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+    protected FieldFilterNode(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        fieldPath = new StringNode(g, creator, InstantiationInfo.persisting);
         endOfConstructor();
     }
 

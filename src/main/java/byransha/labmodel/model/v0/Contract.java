@@ -5,8 +5,7 @@ import byransha.*;
 import java.util.List;
 
 public class Contract extends BusinessNode {
-
-    private Out<StringNode> name;
+    private StringNode name;
     private Out<Person> holder;
     ListNode<Person> subHolders;
     ListNode<Person> coordinators;
@@ -25,7 +24,7 @@ public class Contract extends BusinessNode {
 
     @Override
     public String prettyName() {
-        if (name == null || name.get() == null || name.get().get().isEmpty()) {
+        if (name == null || name.get() == null || name.get().isEmpty()) {
             System.err.println("Contract with no name: " + this);
             return "Contract(unknown)";
         }

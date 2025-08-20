@@ -58,7 +58,7 @@ public class AddExistingNode<N extends BNode> extends NodeEndpoint<BNode> {
             a.set("id of the list to link", new IntNode(currentNode.id()));
             a.set("id of the thing we link", new IntNode(idToLink));
 
-            var existingNode = graph.findByID(idToLink);
+            var existingNode = g.findByID(idToLink);
             if (existingNode == null) {
                 return ErrorResponse.notFound(
                     "Node with ID " + idToLink + " does not exist in the graph."

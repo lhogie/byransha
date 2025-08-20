@@ -42,7 +42,7 @@ public class FilterChain extends FilterNode {
         logicalOperator.setStaticOptions(operators);
 
         if (logicalOperator.getSelected() == null) {
-            StringNode andOption = new StringNode(graph, user);
+            StringNode andOption = new StringNode(g, user, InstantiationInfo.persisting);
             andOption.set("AND", user);
             logicalOperator.add(andOption, user);
         }
@@ -117,7 +117,7 @@ public class FilterChain extends FilterNode {
 
         if (config.has("logicalOperator")) {
             logicalOperator.removeAll();
-            StringNode operatorNode = new StringNode(graph, user);
+            StringNode operatorNode = new StringNode(g, user, InstantiationInfo.persisting);
             operatorNode.set(config.get("logicalOperator").asText(), user);
             logicalOperator.add(operatorNode, user);
         }

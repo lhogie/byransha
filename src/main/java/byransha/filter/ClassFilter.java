@@ -42,7 +42,7 @@ public class ClassFilter extends FieldFilterNode {
     private void populateClassOptions() {
         var allClasses = new HashSet<Class<? extends BNode>>();
 
-        graph.forEachNode(node -> {
+        g.forEachNode(node -> {
             if (node instanceof BusinessNode) {
                 allClasses.add(node.getClass());
             }
@@ -126,7 +126,7 @@ public class ClassFilter extends FieldFilterNode {
 
         if (config.has("targetClass")) {
             targetClass.removeAll();
-            StringNode classNode = new StringNode(graph, user);
+            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
             classNode.set(config.get("targetClass").asText(), user);
             targetClass.add(classNode, user);
 
@@ -174,7 +174,7 @@ public class ClassFilter extends FieldFilterNode {
     public void setTargetClass(String className, User user) {
         targetClass.removeAll();
         if (className != null && !className.trim().isEmpty()) {
-            StringNode classNode = new StringNode(graph, user);
+            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
             classNode.set(className, user);
             targetClass.add(classNode, user);
             // Auto-enable when ar class is selected

@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -26,8 +27,13 @@ public abstract class Endpoint extends SystemNode {
 	public final AtomicLong timeSpentNs = new AtomicLong(0);
 
 	protected Endpoint(BBGraph g) {
-		super(g);
+		super(g, InstantiationInfo.notPersisting);
 		endOfConstructor();
+	}
+
+	@Override
+	protected final void createOuts(User creator){
+		// endpoints have NO outs
 	}
 
 

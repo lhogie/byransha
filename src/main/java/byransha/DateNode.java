@@ -4,19 +4,20 @@ import java.io.IOException;
 import java.time.OffsetDateTime;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
-    public DateNode(BBGraph g, User creator, OffsetDateTime v) {
-        super(g, creator);
-        this.set(v, creator);
+    private OffsetDateTime date;
+
+    public DateNode(BBGraph g, User user, InstantiationInfo ii) {
+        super(g, user, ii);
         endOfConstructor();
     }
 
-    public DateNode(BBGraph g, User creator) {
-        super(g, creator);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+
     }
 
-    public DateNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
+    public DateNode(BBGraph g, User user, InstantiationInfo ii, boolean historize) {
+        super(g, user, ii, historize);
         endOfConstructor();
     }
 
@@ -57,7 +58,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
     @Override
     public void fromString(String s, User user) {
         try {
-            this.set(OffsetDateTime.parse(s), user);
+            this.date = OffsetDateTime.parse(s);
         } catch (Exception e) {
             throw new IllegalArgumentException("Invalid date format: " + s, e);
         }

@@ -33,7 +33,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
     public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
         var a = new ArrayNode(null);
 
-        var nodeClass = graph.classes().stream()
+        var nodeClass = g.classes().stream()
                 .filter(c -> c.getSimpleName().equals(in.get("type").asText()))
                 .findFirst();
 
@@ -43,7 +43,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
 
         String query = in.has("query") ? in.get("query").asText().toLowerCase() : null;
 
-        var filteredNodes = graph.findAll(nodeClass.get(), node -> {
+        var filteredNodes = g.findAll(nodeClass.get(), node -> {
             if (query == null || query.isEmpty()) return true;
             String name = node.prettyName();
             return name != null && name.toLowerCase().contains(query);

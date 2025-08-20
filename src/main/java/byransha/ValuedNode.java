@@ -3,30 +3,22 @@ package byransha;
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
+
 import toools.text.TextUtilities;
 
 public abstract class ValuedNode<V> extends BNode  {
-    ValueHolder<V> valueHolder;
+    final ValueHolder<V> valueHolder;
 
-    public ValuedNode(BBGraph g, User user, boolean historize) {
-        super(g, user);
+    protected ValuedNode(BBGraph g, User user, InstantiationInfo ii, boolean historize) {
+        super(g, user, ii);
         this.valueHolder = historize ? new ValueHistory<V>(this) : new SimpleValueHolder<>();
         endOfConstructor();
     }
 
-    public ValuedNode(BBGraph g, User user, int id) {
-        super(g, user, id);
-        endOfConstructor();
-    }
 
     protected abstract byte[] valueToBytes(V v) throws IOException;
 
     protected abstract V bytesToValue(byte[] bytes, User user) throws IOException;
-
-    @Override
-    public void save(Consumer<File> writingFiles) throws IOException {
-        super.save(writingFiles);
-    }
 
     @Override
     public final String toString() {
@@ -37,7 +29,7 @@ public abstract class ValuedNode<V> extends BNode  {
 
     public String getAsString() {
         V v = get();
-        return v != null ? v.toString() : "";
+        return v != null ? valueHolder.toString() : "";
     }
 
     @Override

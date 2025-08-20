@@ -7,8 +7,8 @@ public class EmailNode extends StringNode {
 		endOfConstructor();
 	}
 
-	public EmailNode(BBGraph g, User creator) {
-		super(g, creator);
+	public EmailNode(BBGraph g, User creator, InstantiationInfo ii) {
+		super(g, creator, ii);
 		endOfConstructor();
 	}
 

@@ -1,6 +1,7 @@
 package byransha.filter;
 
 import byransha.*;
+import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,15 +10,10 @@ public abstract class FilterNode extends BNode {
 
     public BooleanNode enabled;
 
-    protected FilterNode(BBGraph g, User creator) {
-        super(g, creator);
-        enabled = new BooleanNode(g, creator);
+    protected FilterNode(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
+        enabled = new BooleanNode(g, creator, InstantiationInfo.persisting);
         enabled.set("enabled", this, true, creator);
-        endOfConstructor();
-    }
-
-    protected FilterNode(BBGraph g, User creator, int id) {
-        super(g, creator, id);
         endOfConstructor();
     }
 

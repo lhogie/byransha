@@ -5,7 +5,6 @@ import byransha.*;
 public class Structure extends BusinessNode {
     public StringNode name;
     public ListNode<Structure> subStructures;
-    public ListNode<Status> status;
     public ListNode<Office> offices;
 
     public Structure(BBGraph g, User creator) {
@@ -17,10 +16,13 @@ public class Structure extends BusinessNode {
         endOfConstructor();
     }
 
-    public Structure(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
+    @Override
+    protected void createOuts(User creator) {
+        name = new StringNode(g, creator, InstantiationInfo.persisting);
+        subStructures = new ListNode(g, creator, InstantiationInfo.persisting);
+        offices =new ListNode(g, creator, InstantiationInfo.persisting);
     }
+
 
     @Override
     public String whatIsThis() {

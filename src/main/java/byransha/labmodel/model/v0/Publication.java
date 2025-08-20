@@ -11,21 +11,8 @@ public class Publication extends BusinessNode {
     public ListNode<Person> authors;
     public ACMClassifier acmClassifier;
 
-    public Publication(BBGraph g, StringNode title, ListNode<Person> authors, User creator) {
-        super(g, creator);
-        this.title = title;
-        this.authors = authors;
-        endOfConstructor();
-    }
-
-    public Publication(BBGraph g, User creator, int id) {
-        super(g, creator, id);
-        endOfConstructor();
-    }
-
-    public Publication(BBGraph g, User creator) {
-        super(g, creator);
-        this.title = new StringNode(g, creator);
+    public Publication(BBGraph g, User creator, InstantiationInfo ii) {
+        super(g, creator, ii);
         endOfConstructor();
     }
 

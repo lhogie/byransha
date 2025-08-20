@@ -6,14 +6,10 @@ import java.io.IOException;
 
 public class IntNode extends PrimitiveValueNode<Integer>{
 
-	public IntNode(BBGraph db, User creator) {
-		super(db, creator);
+	public IntNode(BBGraph db, User creator, InstantiationInfo ii) {
+		super(db, creator, ii);
 		endOfConstructor();
 	}
-    public IntNode(BBGraph db, User creator, int id) {
-		super(db, creator);
-		endOfConstructor();
-    }
 
 	@Override
 	public String prettyName() {

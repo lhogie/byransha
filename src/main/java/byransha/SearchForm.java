@@ -28,7 +28,7 @@ public class SearchForm extends BNode {
 
     private void initializeDefaultFilterChain(User creator) {
         // Set default logical operator to AND
-        StringNode andOperator = new StringNode(graph, creator);
+        StringNode andOperator = new StringNode(g, creator, InstantiationInfo.persisting);
         andOperator.set("AND", creator);
         filterChain.logicalOperator.add(andOperator, creator);
 
@@ -54,7 +54,7 @@ public class SearchForm extends BNode {
         filterChain.addFilter(startsWithFilter, creator);
 
         // Add a date range filter
-        DateRangeFilter dateFilter = new DateRangeFilter(graph, creator);
+        DateRangeFilter dateFilter = new DateRangeFilter(g, creator, InstantiationInfo.persisting);
         dateFilter.enabled.set("enabled", dateFilter, false, creator); // Start disabled
         filterChain.addFilter(dateFilter, creator);
 

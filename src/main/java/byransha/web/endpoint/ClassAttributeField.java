@@ -12,11 +12,14 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -66,62 +69,57 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
             // Extract ListOptions and choices
             var annotation = field.getAnnotation(ListOptions.class);
-            if (annotation == null) {
-                this.listOptions = new ListOptions() {
-                    @Override
-                    public Class<
-                        ? extends java.lang.annotation.Annotation
-                    > annotationType() {
-                        return ListOptions.class;
-                    }
+            this.listOptions = Objects.requireNonNullElseGet(annotation, () -> new ListOptions() {
+                @Override
+                public Class<
+                        ? extends Annotation
+                        > annotationType() {
+                    return ListOptions.class;
+                }
 
-                    @Override
-                    public ListType type() {
-                        return ListType.LIST;
-                    }
+                @Override
+                public ListType type() {
+                    return ListType.LIST;
+                }
 
-                    @Override
-                    public OptionsSource source() {
-                        return OptionsSource.STATIC;
-                    }
+                @Override
+                public OptionsSource source() {
+                    return OptionsSource.STATIC;
+                }
 
-                    @Override
-                    public String[] staticOptions() {
-                        return new String[0];
-                    }
+                @Override
+                public String[] staticOptions() {
+                    return new String[0];
+                }
 
-                    @Override
-                    public boolean allowCreation() {
-                        return false;
-                    }
+                @Override
+                public boolean allowCreation() {
+                    return false;
+                }
 
-                    @Override
-                    public boolean allowMultiple() {
-                        return false;
-                    }
+                @Override
+                public boolean allowMultiple() {
+                    return false;
+                }
 
-                    @Override
-                    public int maxItems() {
-                        return Integer.MAX_VALUE;
-                    }
+                @Override
+                public int maxItems() {
+                    return Integer.MAX_VALUE;
+                }
 
-                    @Override
-                    public int minItems() {
-                        return 0;
-                    }
+                @Override
+                public int minItems() {
+                    return 0;
+                }
 
-                    @Override
-                    public ElementType elementType() {
-                        return ElementType.STRING;
-                    }
-                };
-            } else {
-                this.listOptions = annotation;
-            }
+                @Override
+                public ElementType elementType() {
+                    return ElementType.STRING;
+                }
+            });
             this.choices = new ArrayList<>();
             if (
-                listOptions != null &&
-                listOptions.source() == ListOptions.OptionsSource.STATIC
+                    listOptions.source() == ListOptions.OptionsSource.STATIC
             ) {
                 this.choices.addAll(Arrays.asList(listOptions.staticOptions()));
             }
@@ -157,7 +155,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 Field field = current.getDeclaredField(name);
                 field.setAccessible(true);
                 return field;
-            } catch (NoSuchFieldException e) {}
+            } catch (NoSuchFieldException _) {}
             current = current.getSuperclass();
         }
         return null;
@@ -253,7 +251,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     private void addValuedNodeInfo(
         ObjectNode nodeInfo,
-        PrimitiveValueNode<?> valuedNode
+        ValuedNode<?> valuedNode
     ) {
         if (valuedNode.get() == null) {
             nodeInfo.set("value", NullNode.getInstance());
@@ -266,10 +264,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             nodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
         } else {
             nodeInfo.set("value", new TextNode(valuedNode.getAsString()));
-        }
-
-        if (valuedNode instanceof byransha.DocumentNode documentNode) {
-            nodeInfo.set("mimeType", new TextNode(documentNode.mimeType.get()));
         }
     }
 
@@ -306,10 +300,8 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                 skipValidation,
                 user
             );
-            if (attributeNode != null) {
-                attributes.add(attributeNode);
-                count.incrementAndGet();
-            }
+            attributes.add(attributeNode);
+            count.incrementAndGet();
             validItemsProcessed.incrementAndGet();
         });
 
@@ -447,9 +439,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
                             List<String> originalOptions = lc
                                 .getOptionsList()
                                 .stream()
-                                .map(option ->
-                                    option == null ? null : option.toString()
-                                )
                                 .toList();
 
                             for (String option : originalOptions) {
@@ -519,7 +508,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             if (metadata.hasPattern) {
                 validations.set("pattern", new TextNode(metadata.pattern));
             }
-            if (validations.size() > 0) {
+            if (!validations.isEmpty()) {
                 b.set("validations", validations);
             }
         }

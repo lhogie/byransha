@@ -11,61 +11,27 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FileCache extends BNode {
+public class FileCache {
 
     private  final Map<String, Entry> map =
             new ConcurrentHashMap<>();
     private  final long MAX_CACHE_SIZE = 50 * 1024 * 1024;
     private  long currentCacheSize = 0;
 
-    protected FileCache(BBGraph g, User user) {
-        super(g, user);
-        endOfConstructor();
-    }
 
     public Entry get(String cacheKey) {
         return map.get(cacheKey);
     }
 
-    @Override
-    public String whatIsThis() {
-        return "a cache for small files served by the web server";
-    }
 
-    @Override
-    public String prettyName() {
-        return "file cache";
-    }
-
-    public static class V extends NodeEndpoint<FileCache>{
-
-        public V(BBGraph db) {
-            super(db);
-        }
-
-        @Override
-        public EndpointJsonResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, FileCache node) throws Throwable {
-            var n = new ObjectNode(null);
-            n.set("size", new TextNode(""+node.currentCacheSize));
-            n.set("#entries", new IntNode(node.map.size()));
-            return new EndpointJsonResponse(n, this);
-        }
-
-        @Override
-        public String whatItDoes() {
-            return "";
-        }
-    }
-
-    static class Entry  extends BNode{
+    static class Entry {
         final byte[] content;
         final String contentType;
         final long lastModified;
         final String eTag;
         long lastAccessed;
 
-        Entry(byte[] content, String contentType, long lastModified, BBGraph g, User user) {
-            super(g, user);
+        Entry(byte[] content, String contentType, long lastModified) {
             this.content = content;
             this.contentType = contentType;
             this.lastModified = lastModified;
@@ -82,16 +48,6 @@ public class FileCache extends BNode {
 
         void updateLastAccessed() {
             this.lastAccessed = System.currentTimeMillis();
-        }
-
-        @Override
-        public String whatIsThis() {
-            return "";
-        }
-
-        @Override
-        public String prettyName() {
-            return "";
         }
     }
 
@@ -124,9 +80,7 @@ public class FileCache extends BNode {
         Entry newEntry = new Entry(
                 content,
                 contentType,
-                lastModified,
-                graph,
-                user
+                lastModified
         );
 
         while (
