@@ -12,9 +12,13 @@ public abstract class FilterNode extends BNode {
 
     protected FilterNode(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
         enabled = new BooleanNode(g, creator, InstantiationInfo.persisting);
         enabled.set("enabled", this, true, creator);
-        endOfConstructor();
     }
 
     @Override

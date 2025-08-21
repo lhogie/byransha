@@ -29,8 +29,9 @@ public class FilterChain extends FilterNode {
 
     @Override
     protected void createOuts(User creator) {
-        filters = new ListNode(g, creator, InstantiationInfo.persisting);
-        logicalOperator = new ListNode(g, creator, InstantiationInfo.persisting);
+        super.createOuts(creator);
+        filters = new ListNode<>(g, creator, InstantiationInfo.persisting);
+        logicalOperator = new ListNode<>(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

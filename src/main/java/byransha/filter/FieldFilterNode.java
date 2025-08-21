@@ -11,8 +11,13 @@ public abstract class FieldFilterNode extends FilterNode {
 
     protected FieldFilterNode(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
-        fieldPath = new StringNode(g, creator, InstantiationInfo.persisting);
         endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
+        fieldPath = new StringNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

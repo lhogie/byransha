@@ -27,6 +27,7 @@ public class ClassFilter extends FieldFilterNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         targetClass = new ListNode(g, creator, InstantiationInfo.persisting);
         includeSubclasses = new BooleanNode(g, creator, InstantiationInfo.persisting);
         includeSubclasses.set("includeSubclasses", this, true, creator);
@@ -86,13 +87,6 @@ public class ClassFilter extends FieldFilterNode {
                 );
             }
         }
-
-        System.out.println(
-            "Checking class: " +
-            nodeClassName +
-            " against target: " +
-            selectedClass
-        );
 
         return nodeClassName.equalsIgnoreCase(selectedClass);
     }

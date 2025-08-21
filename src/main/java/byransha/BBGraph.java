@@ -76,7 +76,7 @@ public class BBGraph extends BNode {
         loadFromDisk(
                 n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
                 (n, s) -> System.out.println("loading arc " + n + ", " + s),
-                null
+                systemUser()
         );
 
         this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
@@ -94,8 +94,6 @@ public class BBGraph extends BNode {
         endOfConstructor();
 
         logger.accept(LOGTYPE.FILE_READ, "loading DB from " + directory);
-
-
     }
 
 
@@ -203,9 +201,6 @@ public class BBGraph extends BNode {
             BiConsumer<BNode, String> setRelation,
             User user
     ) {
-        // Pre-scan disk to set the idSequence high enough to avoid collisions
-
-        // if constructors create nodes during loading
         int maxIdOnDisk = findMaxIdInDirectory(directory);
 
         if (idSequence.get() < maxIdOnDisk) {
@@ -220,6 +215,14 @@ public class BBGraph extends BNode {
                     .forEach(n -> {
                         if (n.isPersisting()) {
                             connectOutsToNode(n, setRelation, user);
+                        }
+                    });
+
+            nodesById
+                    .values()
+                    .forEach(n -> {
+                        if (n.isPersisting()) {
+                            n.nodeConstructed(user);
                         }
                     });
         }
@@ -320,7 +323,10 @@ public class BBGraph extends BNode {
                                     | InvocationTargetException
                                     | SecurityException err
                             ) {
-                                throw new RuntimeException(err);
+                                throw new RuntimeException(
+                                        "Error instantiating node of class " + className + " with ID " + id,
+                                        err
+                                );
                             }
                         }
                     });

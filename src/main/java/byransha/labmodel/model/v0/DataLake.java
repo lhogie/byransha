@@ -220,10 +220,10 @@ public class DataLake extends BNode {
             person.enposte = l.set(27, null).equals("en poste");
             var quotite = new StringNode(g, user, InstantiationInfo.persisting);
             quotite.set(l.set(29, null), user);
-            person.quotite = quotite; //new StringNode(this, l.set(29, null));
+            person.quotite = quotite;
              var researchActivity = new StringNode(g, user, InstantiationInfo.persisting);
             researchActivity.set(l.set(33, null), user);
-            person.researchActivity = researchActivity; //new StringNode(this, l.set(33, null));
+            person.researchActivity = researchActivity;
 
 //            if (
 //                l.stream().anyMatch(Objects::nonNull)

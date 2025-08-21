@@ -8,7 +8,7 @@ import java.time.OffsetDateTime;
 
 public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements ValueHolder<N> {
 
-    private  ValuedNode<N> valuedNode;
+    private ValuedNode<N> valuedNode;
 
     public ValueHistory(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii, false);
@@ -59,17 +59,8 @@ public class ValueHistory<N> extends ListNode<ValueHistoryEntry<N>> implements V
         }
     }
 
-    private Path valueFile(){
-        return new File(directory(),"value").toPath();
-    }
-
     @Override
     public void save() throws IOException {
-        if (valuedNode == null) {
-            return;
-        }
         super.save();
-        g.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, valueFile().toString());
-        Files.write(valueFile(), valueToBytes(this.get()));
     }
 }

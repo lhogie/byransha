@@ -16,6 +16,6 @@ public class University extends Structure {
     @Override
     protected void createOuts(User creator) {
         super.createOuts(creator);
-        campuses = new ListNode(g, creator, InstantiationInfo.persisting); // new ListNode<>(g);
+        campuses = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 }

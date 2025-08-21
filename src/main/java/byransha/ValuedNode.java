@@ -23,7 +23,7 @@ public abstract class ValuedNode<V> extends BNode  {
 
     @Override
     protected void createOuts(User creator) {
-        this.valueHolder = historize ? new ValueHistory<>(this) : new SimpleValueHolder<>();
+        this.valueHolder = historize ? new ValueHistory<>(this) : new SimpleValueHolder<>(this);
     }
 
     protected abstract byte[] valueToBytes(V v) throws IOException;
@@ -32,6 +32,9 @@ public abstract class ValuedNode<V> extends BNode  {
 
     @Override
     public final String toString() {
+        if (valueHolder == null) {
+            return super.toString() + "(value=null)";
+        }
         StringBuilder sb = new StringBuilder(super.toString());
         sb.append("(value=\"").append(get()).append("\")");
         return sb.toString();
@@ -51,7 +54,9 @@ public abstract class ValuedNode<V> extends BNode  {
     }
 
     public V get() {
-        if (valueHolder == null) return null;
+        if (valueHolder == null) {
+            throw new IllegalStateException("ValueHolder is not initialized.");
+        }
 
         return valueHolder.getValue();
     }

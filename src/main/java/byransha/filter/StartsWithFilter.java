@@ -17,6 +17,7 @@ public class StartsWithFilter extends FieldFilterNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         prefix = new StringNode(g, creator, InstantiationInfo.persisting);
         caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
         caseSensitive.set("caseSensitive", this, false, creator);

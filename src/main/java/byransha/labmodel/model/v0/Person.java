@@ -57,20 +57,20 @@ public class Person extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
-        etatCivil = new EtatCivil(g, creator, InstantiationInfo.persisting); // new EtatCivil(g);
-        positions = new ListNode(g, creator, InstantiationInfo.persisting); // new ListNode<>(g);
-        pics = new DocumentNode(g, creator, InstantiationInfo.persisting); // new ImageNode(g);
+        etatCivil = new EtatCivil(g, creator, InstantiationInfo.persisting);
+        positions = new ListNode(g, creator, InstantiationInfo.persisting);
+        pics = new DocumentNode(g, creator, InstantiationInfo.persisting);
 
-        hdr = new BooleanNode(g, creator, InstantiationInfo.persisting); // new BooleanNode(g);
+        hdr = new BooleanNode(g, creator, InstantiationInfo.persisting);
 
-        badgeNumber = new StringNode(g, creator, InstantiationInfo.persisting); // new StringNode(g, null);
-        website = new StringNode(g, creator, InstantiationInfo.persisting); // new StringNode(g, null);
-        faxNumber = new StringNode(g, creator, InstantiationInfo.persisting); // new StringNode(g, null);
-        phdDate = new DateNode(g, creator, InstantiationInfo.persisting); // new StringNode(g, null);
+        badgeNumber = new StringNode(g, creator, InstantiationInfo.persisting);
+        website = new StringNode(g, creator, InstantiationInfo.persisting);
+        faxNumber = new StringNode(g, creator, InstantiationInfo.persisting);
+        phdDate = new DateNode(g, creator, InstantiationInfo.persisting);
 
-        phoneNumbers = new ListNode(g, creator, InstantiationInfo.persisting); // new ListNode<>(g);
-        emailAddresses = new ListNode(g, creator, InstantiationInfo.persisting); // new ListNode<>(g);
-        offices = new ListNode(g, creator, InstantiationInfo.persisting); // new ListNode<>(g);
+        phoneNumbers = new ListNode(g, creator, InstantiationInfo.persisting);
+        emailAddresses = new ListNode(g, creator, InstantiationInfo.persisting);
+        offices = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

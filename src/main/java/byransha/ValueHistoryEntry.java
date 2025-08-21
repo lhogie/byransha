@@ -31,6 +31,21 @@ public class ValueHistoryEntry<N> extends BNode {
         this.date = new DateNode(g, creator, InstantiationInfo.persisting, false);
     }
 
+    @Override
+    public String whatIsThis() {
+        return "an element of history for a given node";
+    }
+
+    @Override
+    public String prettyName() {
+        return value.toString();
+    }
+
+    @Override
+    public boolean canEdit(User user) {
+        return false;
+    }
+
     private Path valueFile(){
         return new File(directory(),"value").toPath();
     }
@@ -59,20 +74,6 @@ public class ValueHistoryEntry<N> extends BNode {
         }
     }
 
-    @Override
-    public String whatIsThis() {
-        return "an element of history for a given node";
-    }
-
-    @Override
-    public String prettyName() {
-        return value.toString();
-    }
-
-    @Override
-    public boolean canEdit(User user) {
-        return false;
-    }
 
     public N value() {
         if( value == null ){

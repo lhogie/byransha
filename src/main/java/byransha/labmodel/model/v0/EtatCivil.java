@@ -46,7 +46,7 @@ public class EtatCivil extends BusinessNode {
         name = new StringNode(g,  creator, InstantiationInfo.persisting);
         familyNameBeforeMariage = new  StringNode(g, creator, InstantiationInfo.persisting);
         firstName = new StringNode(g, creator, InstantiationInfo.persisting);
-        birthDate = new DateNode(g, creator, InstantiationInfo.persisting);
+        birthDate = new DateNode(g, creator, InstantiationInfo.persisting, true);
         cityOfBirth = new StringNode(g, creator, InstantiationInfo.persisting);
         countryOfBirth = new ListNode<Country>(g, creator, InstantiationInfo.persisting);
         nationalites = new ListNode<Country>(g, creator, InstantiationInfo.persisting);

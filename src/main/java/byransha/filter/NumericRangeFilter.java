@@ -19,6 +19,7 @@ public class NumericRangeFilter extends FieldFilterNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         minValue = new StringNode(g, creator, InstantiationInfo.persisting);
         maxValue = new StringNode(g, creator, InstantiationInfo.persisting);
         includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);

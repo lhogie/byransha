@@ -116,11 +116,13 @@ public abstract class BNode {
                     var confirmed = constructionMonitor.await(5, TimeUnit.SECONDS);
 
                     if (confirmed) {
-                        if (isPersisting()) {
-                            save();
-                        }
+                        if (parms instanceof InstantiationInfo.PersistenceInfo i) {
+                            if (isPersisting()) {
+                                save();
+                            }
 
-                        nodeConstructed(creator);
+                            nodeConstructed(creator);
+                        }
                     } else {
                         throw new InterruptedException();
                     }
@@ -576,7 +578,7 @@ public abstract class BNode {
         var s = new StringBuilder();
 
         forEachOutField((name, outNode) -> {
-                    if (!(outNode instanceof BBGraph)) {
+                    if (!(outNode instanceof BBGraph) && outNode.persisting) {
                         s.append(name+":" + outNode.id()).append("\n");
                     }
                 }
@@ -605,7 +607,6 @@ public abstract class BNode {
         }
 
         saveOuts();
-//        new File(directory(), getClass().getName()).createNewFile();
     }
 
     // called by all node constructors

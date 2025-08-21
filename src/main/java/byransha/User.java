@@ -20,7 +20,6 @@ public class User extends BNode {
     public User(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
         stack.push(g.application.rootNode);
-        setColor("#032cfc", this);
         endOfConstructor();
     }
 
@@ -28,6 +27,7 @@ public class User extends BNode {
     protected void createOuts(User creator) {
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         passwordNode = new StringNode(g, creator, InstantiationInfo.persisting);
+        setColor("#032cfc", this);
     }
 
     public User(BBGraph g, User creator, InstantiationInfo ii, String user, String password) {

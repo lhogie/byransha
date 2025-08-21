@@ -30,6 +30,7 @@ public class DateRangeFilter extends FieldFilterNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         fromDate = new DateNode(g, creator, InstantiationInfo.persisting);
         toDate = new DateNode(g, creator, InstantiationInfo.persisting);
         includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);

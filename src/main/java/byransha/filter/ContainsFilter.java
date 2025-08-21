@@ -19,6 +19,7 @@ public class ContainsFilter extends FieldFilterNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         searchText = new StringNode(g, creator, InstantiationInfo.persisting);
         caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
         wholeWordsOnly = new BooleanNode(g, creator, InstantiationInfo.persisting);
