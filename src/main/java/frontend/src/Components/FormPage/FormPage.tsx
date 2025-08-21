@@ -66,5 +66,4 @@ const FormPage = () => {
 	);
 };
 
-// @ts-expect-error
 export default FormPage;
