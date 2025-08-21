@@ -232,8 +232,8 @@ public abstract class BNode {
         });
     }
 
-    public void forEachOut(Consumer<BNode> consumer) {
-        forEachOutField((name, n) -> consumer.accept(n));
+    public void forEachOut(BiConsumer<String, BNode> consumer) {
+        forEachOutField(consumer);
     }
 
     public void forEachIn(BiConsumer<String, BNode> consumer) {

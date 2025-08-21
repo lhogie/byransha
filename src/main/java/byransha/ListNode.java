@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -80,12 +81,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     }
 
     @Override
-    public void forEachOut(Consumer<BNode> consumer) {
+    public void forEachOut(BiConsumer<String, BNode> consumer) {
         super.forEachOut(consumer);
 
         for (T element : getElements()) {
             if (element instanceof BNode bNode) {
-                consumer.accept(bNode);
+                consumer.accept(bNode.id() + ". " + bNode, bNode);
             }
         }
     }
