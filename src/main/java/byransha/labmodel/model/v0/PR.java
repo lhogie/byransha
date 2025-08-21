@@ -7,8 +7,12 @@ public class PR extends Status {
 
 	public PR(BBGraph g, User creator, InstantiationInfo ii) {
 		super(g, creator, ii);
-		name.set("Professeur des Universités", creator);
 		endOfConstructor();
 	}
 
+	@Override
+	protected void createOuts(User creator) {
+		super.createOuts(creator);
+		name.set("Professeur des Universités", creator);
+	}
 }

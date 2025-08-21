@@ -1,9 +1,5 @@
 package byransha;
 
-import byransha.labmodel.model.v0.NodeBuilder;
-
-import java.util.function.Function;
-
 public class DocumentNode extends NotPrimitiveNode {
     public ByteNode data;
     public StringNode title;

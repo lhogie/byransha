@@ -18,6 +18,8 @@ public class Office extends BusinessNode {
     protected void createOuts(User creator) {
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         users = new ListNode(g, creator, InstantiationInfo.persisting);
+        surface = new IntNode(g, creator, InstantiationInfo.persisting);
+        capacity = new IntNode(g, creator, InstantiationInfo.persisting);
     }
 
     @Override

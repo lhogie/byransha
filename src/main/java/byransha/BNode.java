@@ -547,15 +547,18 @@ public abstract class BNode {
 
     public File directory() {
         Objects.requireNonNull(g.directory);
-        var s = new StringBuilder();
-        var ids = String.valueOf(id);
 
-        for (int i = 0; i < ids.length(); i++) {
-            s.append(ids.charAt(i));
-            s.append('/');
-        }
+        return new File(g.directory, getClass().getName() + "/" + id);
 
-        return new File(g.directory, getClass().getName() + "/" + s);
+//        var s = new StringBuilder();
+//        var ids = String.valueOf(id);
+//
+//        for (int i = 0; i < ids.length(); i++) {
+//            s.append(ids.charAt(i));
+//            s.append('/');
+//        }
+//
+//        return new File(g.directory, getClass().getName() + "/" + s);
     }
 
     public File outsFile() {

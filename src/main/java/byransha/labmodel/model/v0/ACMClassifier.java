@@ -11,7 +11,7 @@ public class ACMClassifier extends BusinessNode {
 	public String code, descr;
 
 	public ACMClassifier(BBGraph g, String code, InstantiationInfo ii, String descr, User user) {
-		super(g, user, ii);
+		this(g, user, ii);
 		this.code = code;
 		this.descr = descr;
 	}

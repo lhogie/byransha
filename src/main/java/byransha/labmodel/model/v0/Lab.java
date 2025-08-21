@@ -15,9 +15,14 @@ public class Lab extends Structure {
 
     public Lab(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
+        endOfConstructor();
+    }
+
+    @Override
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
         HFDSAvisfds = new HashMap<>();
         tutelles = new ListNode(g, creator, InstantiationInfo.persisting);
-        endOfConstructor();
     }
 
     enum HFDSAvisE {

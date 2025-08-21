@@ -6,7 +6,12 @@ import byransha.User;
 public class CR extends Status {
 	public CR(BBGraph g, User creator, InstantiationInfo ii) {
 		super(g, creator, ii);
-		name.set("Chargé de Recherche", creator);
 		endOfConstructor();
+	}
+
+	@Override
+	protected void createOuts(User creator) {
+		super.createOuts(creator);
+		name.set("Chargé de Recherche", creator);
 	}
 }

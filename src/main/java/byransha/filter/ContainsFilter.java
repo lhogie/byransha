@@ -1,7 +1,6 @@
 package byransha.filter;
 
 import byransha.*;
-import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 
@@ -13,7 +12,6 @@ public class ContainsFilter extends FieldFilterNode {
 
     public ContainsFilter(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
-
         endOfConstructor();
     }
 

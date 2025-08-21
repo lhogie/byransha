@@ -63,7 +63,7 @@ public class BBGraph extends BNode {
 
         this.directory = directory;
 
-        if (directory.exists())
+        if (!directory.exists())
             directory.mkdirs();
 
         nodesById.put(0, this);
@@ -245,38 +245,51 @@ public class BBGraph extends BNode {
         if (classDirectories != null) {
             for (File classDir : classDirectories) {
                 if (classDir.isDirectory()) {
-                    maxId = Math.max(maxId, scanClassDirectory("", classDir));
+                    //maxId = Math.max(maxId, scanClassDirectory("", classDir));
+
+                    maxId = Math.max(maxId,
+                            Arrays.stream(Objects.requireNonNull(classDir.listFiles())).map(
+                                            f -> {
+                                                if (f.isDirectory() && f.getName().matches("\\d+")) {
+                                                    return Integer.parseInt(f.getName());
+                                                }
+                                                return 0;
+                                            }
+                                    )
+                                    .max(Integer::compare)
+                                    .orElse(0)
+                    );
                 }
             }
         }
 
         return maxId;
     }
-
-    private int scanClassDirectory(String idPrefix, File dir) {
-        int maxId = 0;
-        File[] files = dir.listFiles();
-
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    String currentId = idPrefix + file.getName();
-
-                    if (new File(file, "outs").exists()) {
-                        try {
-                            maxId = Math.max(maxId, Integer.parseInt(currentId));
-                        } catch (NumberFormatException e) {
-                            // Ignore non-numeric directory names
-                        }
-                    }
-
-                    maxId = Math.max(maxId, scanClassDirectory(currentId, file));
-                }
-            }
-        }
-
-        return maxId;
-    }
+//
+//    private int scanClassDirectory(String idPrefix, File dir) {
+//        int maxId = 0;
+//        File[] files = dir.listFiles();
+//
+//        if (files != null) {
+//            for (File file : files) {
+//                if (file.isDirectory()) {
+//                    String currentId = idPrefix + file.getName();
+//
+//                    if (new File(file, "outs").exists()) {
+//                        try {
+//                            maxId = Math.max(maxId, Integer.parseInt(currentId));
+//                        } catch (NumberFormatException e) {
+//                            // Ignore non-numeric directory names
+//                        }
+//                    }
+//
+//                    maxId = Math.max(maxId, scanClassDirectory(currentId, file));
+//                }
+//            }
+//        }
+//
+//        return maxId;
+//    }
 
     /*
 
@@ -350,7 +363,7 @@ public class BBGraph extends BNode {
                     c.accept(Integer.parseInt(id));
                 }
 
-                listNodeDirectories(id, file, c);
+                //listNodeDirectories(id, file, c);
             }
         }
     }

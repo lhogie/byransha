@@ -1,7 +1,6 @@
 package byransha.filter;
 
 import byransha.*;
-import byransha.labmodel.model.v0.NodeBuilder;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.List;
 import java.util.function.Predicate;
