@@ -75,3 +75,6 @@ coverage/
 bun.lock
 
 build/frontend/
+
+*.svg
+*.json

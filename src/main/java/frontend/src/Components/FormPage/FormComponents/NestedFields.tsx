@@ -32,7 +32,7 @@ const NestedFields = ({
 		`class_attribute_field`,
 		{
 			node_id:
-				typeof field.id === "string" ? Number.parseInt(field.id) : field.id,
+				typeof field.id === "string" ? Number.parseInt(field.id, 10) : field.id,
 		},
 		{
 			enabled: isToggle || isRoot,

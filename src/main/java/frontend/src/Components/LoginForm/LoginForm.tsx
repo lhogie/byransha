@@ -198,7 +198,6 @@ const LoginForm = () => {
 								margin="normal"
 								required
 								fullWidth
-								id="username"
 								label="Identifiant"
 								name="username"
 								autoComplete="username"
@@ -242,7 +241,6 @@ const LoginForm = () => {
 								name="password"
 								label="Mot de passe"
 								type={passwordVisible ? "text" : "password"}
-								id="password"
 								autoComplete="current-password"
 								disabled={isLoading}
 								error={!!errors.password}

@@ -10,7 +10,7 @@ import { shortenAndFormatLabel } from "@/utils/utils";
 const FormPage = () => {
 	const { rootId: rawRootId } = useParams();
 	const navigate = useNavigate();
-	const rootId = rawRootId ? parseInt(rawRootId) : 0;
+	const rootId = rawRootId ? parseInt(rawRootId, 10) : 0;
 
 	const {
 		data: rawApiData,
@@ -66,5 +66,5 @@ const FormPage = () => {
 	);
 };
 
-// @ts-ignore
+// @ts-expect-error
 export default FormPage;

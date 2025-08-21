@@ -36,7 +36,7 @@ import {
 	Paper,
 	Skeleton,
 	Stack,
-	Switch, TextField,
+	Switch,
 	Tooltip,
 	Typography,
 	useTheme,
@@ -50,12 +50,9 @@ import React, {
 	useDeferredValue,
 	useMemo,
 	useState,
-	useTransition, useRef,
+	useTransition,
 } from "react";
 import { useNavigate } from "react-router";
-import { Slider } from "@mui/material";
-import dayjs from "dayjs";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
 
 // Memoized ViewCard component with enhanced accessibility
 const ViewCard = memo(
@@ -360,10 +357,10 @@ const ViewGrid = memo(
 const HomePage = memo(() => {
 	const theme = useTheme();
 	const navigate = useNavigate();
-	const [selectedDate, setSelectedDate] = useState<number>(Date.now());
-	const dateRangeStart = new Date("1920-01-01").getTime();
-	const dateRangeEnd = Date.now();
-	const handleDateChange = (_: Event, value: number | number[]) => {
+	const [_selectedDate, setSelectedDate] = useState<number>(Date.now());
+	const _dateRangeStart = new Date("1920-01-01").getTime();
+	const _dateRangeEnd = Date.now();
+	const _handleDateChange = (_: Event, value: number | number[]) => {
 		setSelectedDate(value as number);
 	};
 	const { data, isLoading, error } = useApiData(
@@ -386,8 +383,7 @@ const HomePage = memo(() => {
 
 	useTitle("Accueil");
 
-	const nodeInfo = useApiMutation("node_info");
-
+	const _nodeInfo = useApiMutation("node_info");
 
 	// const handleViewExpand = useCallback(
 	// 	(view: any) => {
@@ -636,12 +632,12 @@ const HomePage = memo(() => {
 					});
 					navigate(`/add-node/form/${data?.data?.node_id}`);
 				} else {
-					navigate(`/home/${view.name}`)
+					navigate(`/home/${view.name}`);
 					console.log("Expanding view:", view.name);
 				}
 			});
 		},
-		[setExpandedView, withLoading, jumpToId, data, navigate],
+		[withLoading, jumpToId, data, navigate],
 	);
 
 	const handleCloseExpandedView = useCallback(() => {
@@ -994,7 +990,6 @@ const HomePage = memo(() => {
 					}}
 				>
 					<DialogTitle
-						id="expanded-view-title"
 						sx={{
 							display: "flex",
 							justifyContent: "space-between",

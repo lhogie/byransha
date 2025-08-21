@@ -47,7 +47,7 @@ const ImageFormField = ({
 				Upload New Image
 				<TextField
 					type="file"
-					// @ts-ignore
+					// @ts-expect-error
 					accept="image/*"
 					sx={{ display: "none" }}
 					onClick={onFocus}

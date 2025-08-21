@@ -41,7 +41,7 @@ const ListCheckboxComponent = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(fieldId),
+											node_id: Number.parseInt(fieldId, 10),
 										},
 									],
 								});
@@ -51,7 +51,7 @@ const ListCheckboxComponent = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(fieldId),
+											node_id: Number.parseInt(fieldId, 10),
 										},
 									],
 								});

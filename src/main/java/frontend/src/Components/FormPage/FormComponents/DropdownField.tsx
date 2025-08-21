@@ -93,7 +93,7 @@ const DropdownField = ({
 		) {
 			if (defaultValue) {
 				if (defaultValue.split("@").length === 2) {
-					const id = Number.parseInt(defaultValue.split("@")[1]);
+					const id = Number.parseInt(defaultValue.split("@")[1], 10);
 					const existingOption =
 						listData?.data?.results?.[0]?.result?.data.find(
 							(option: any) => option.id === id,

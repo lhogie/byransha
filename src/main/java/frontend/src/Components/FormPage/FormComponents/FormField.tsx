@@ -117,7 +117,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});
@@ -127,7 +127,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});
@@ -174,7 +174,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});
@@ -184,7 +184,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});
@@ -242,7 +242,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});
@@ -252,7 +252,7 @@ const FormField = ({
 										"apiData",
 										"class_attribute_field",
 										{
-											node_id: Number.parseInt(parentId),
+											node_id: Number.parseInt(parentId, 10),
 										},
 									],
 								});

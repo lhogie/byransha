@@ -87,7 +87,6 @@ const ExistingNodeSelector = ({
 					}}
 				>
 					<CardHeader
-						id="existing-node-modal-title"
 						title="Select Existing Node"
 						action={
 							<IconButton onClick={handleClose} aria-label="close">

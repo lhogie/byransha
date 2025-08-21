@@ -35,7 +35,7 @@ import {
 	IconButton,
 	Link,
 	MenuItem,
-	type PopoverProps, Slider,
+	type PopoverProps,
 	Stack,
 	Tooltip,
 	Typography,
@@ -43,12 +43,12 @@ import {
 	useTheme,
 } from "@mui/material";
 import Menu from "@mui/material/Menu";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@toolpad/core";
+import dayjs from "dayjs";
 import React, { memo, Suspense, useCallback, useMemo, useState } from "react";
 import { Outlet, Link as RouterLink, useNavigate } from "react-router";
-import {DatePicker} from "@mui/x-date-pickers/DatePicker";
-import dayjs from "dayjs";
 
 // Mobile-optimized UserInfo component
 const MobileUserInfo = memo(
@@ -511,8 +511,7 @@ const MobileNavDrawer = memo(
 								onClose();
 							}}
 							aria-label="Se déconnecter"
-						>
-						</Button>
+						></Button>
 					</Stack>
 				</Box>
 			</Drawer>
@@ -529,9 +528,9 @@ const MainLayout = memo(() => {
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
 
 	const [selectedDate, setSelectedDate] = useState<number>(Date.now());
-	const dateRangeStart = new Date("1920-01-01").getTime();
-	const dateRangeEnd = Date.now();
-	const handleDateChange = (_: Event, value: number | number[]) => {
+	const _dateRangeStart = new Date("1920-01-01").getTime();
+	const _dateRangeEnd = Date.now();
+	const _handleDateChange = (_: Event, value: number | number[]) => {
 		setSelectedDate(value as number);
 	};
 
@@ -870,16 +869,15 @@ const MainLayout = memo(() => {
 										minWidth: 0,
 									}}
 								>
-
-								<DatePicker
-									disableFuture
-									value={dayjs(selectedDate)}
-									onChange={(value) => {
-										const newDate = dayjs(value).valueOf();
-										if (!isNaN(newDate)) setSelectedDate(newDate);
-									}}
-									sx={{ mb: 1 }}
-								/>
+									<DatePicker
+										disableFuture
+										value={dayjs(selectedDate)}
+										onChange={(value) => {
+											const newDate = dayjs(value).valueOf();
+											if (!Number.isNaN(newDate)) setSelectedDate(newDate);
+										}}
+										sx={{ mb: 1 }}
+									/>
 
 									{/* Barre de recherche + bouton avancé */}
 									{isMobile ? (
@@ -899,8 +897,10 @@ const MainLayout = memo(() => {
 											</IconButton>
 										</Tooltip>
 									) : (
-										<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-											<Suspense fallback={<LoadingStates.Inline text="Recherche..." />}>
+										<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+											<Suspense
+												fallback={<LoadingStates.Inline text="Recherche..." />}
+											>
 												<SearchBar />
 											</Suspense>
 											<Tooltip title="Recherche avancée">
@@ -922,9 +922,15 @@ const MainLayout = memo(() => {
 									)}
 
 									{/* Dialog mobile pour recherche et avancée */}
-									<Dialog open={searchDialogOpen} onClose={() => setSearchDialogOpen(false)} fullWidth>
+									<Dialog
+										open={searchDialogOpen}
+										onClose={() => setSearchDialogOpen(false)}
+										fullWidth
+									>
 										<DialogContent>
-											<Suspense fallback={<LoadingStates.Inline text="Recherche..." />}>
+											<Suspense
+												fallback={<LoadingStates.Inline text="Recherche..." />}
+											>
 												<SearchBar />
 												<Box mt={2}>
 													<IconButton onClick={handleClickClass}>
@@ -934,7 +940,6 @@ const MainLayout = memo(() => {
 											</Suspense>
 										</DialogContent>
 									</Dialog>
-
 
 									{/* User info - different implementations for different screen sizes */}
 									{isMobile ? (

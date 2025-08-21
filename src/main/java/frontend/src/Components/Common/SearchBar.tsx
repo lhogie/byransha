@@ -57,7 +57,6 @@ const SearchResult = memo(
 		onSelect: () => void;
 	}) => {
 		return (
-			// biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility
 			<ListItemButton
 				onClick={onSelect}
 				role="option"
@@ -143,7 +142,6 @@ const VirtualizedList = memo(
 		});
 
 		return (
-			// biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility
 			<Box
 				ref={parentRef}
 				role="listbox"
@@ -487,7 +485,6 @@ export const SearchBar = memo(() => {
 			}}
 		>
 			<ClickAwayListener onClickAway={handleClickAway}>
-				{/* biome-ignore lint/a11y/useSemanticElements: Custom search component requires ARIA roles for accessibility */}
 				<Box
 					sx={{
 						position: "relative",
@@ -573,7 +570,6 @@ export const SearchBar = memo(() => {
 
 					{/* Hidden helper text for screen readers */}
 					<Typography
-						id="search-help"
 						component="div"
 						sx={{
 							position: "absolute",
@@ -589,7 +585,6 @@ export const SearchBar = memo(() => {
 
 					<Fade in={isOpen && debouncedQuery.length > 0}>
 						<Paper
-							id="search-results"
 							elevation={8}
 							sx={{
 								position: "absolute",

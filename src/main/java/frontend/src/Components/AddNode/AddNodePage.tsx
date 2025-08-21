@@ -384,7 +384,9 @@ const AddNodePage = () => {
 							onClick={() => {
 								Object.keys(localStorage)
 									.filter((key) => key.startsWith("persisting:"))
-									.forEach((key) => localStorage.removeItem(key));
+									.forEach((key) => {
+										localStorage.removeItem(key);
+									});
 								setPersistingClasses(new Set());
 								refetch();
 							}}

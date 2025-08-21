@@ -14,7 +14,7 @@
 
 body {
 	font-family: "IBM Plex Sans", sans-serif;
-	background: #2e3b55 !important;
+	background: #2e3b55;
 }
 
 .content {
@@ -51,57 +51,57 @@ body {
 
 	/* Optimize toolbar spacing on mobile */
 	[data-toolpad-core="DashboardLayout"] [role="banner"] {
-		padding: 8px 12px !important;
-		min-height: 56px !important;
+		padding: 8px 12px;
+		min-height: 56px;
 	}
 
 	/* Mobile breadcrumb optimizations */
 	.MuiBreadcrumbs-root {
-		overflow: hidden !important;
+		overflow: hidden;
 	}
 
 	.MuiBreadcrumbs-ol {
-		flex-wrap: nowrap !important;
-		overflow: hidden !important;
+		flex-wrap: nowrap;
+		overflow: hidden;
 	}
 
 	/* Mobile search optimizations */
 	.MuiTextField-root {
-		min-width: 0 !important;
+		min-width: 0;
 	}
 
 	/* Stack toolbar items properly on mobile */
 	[data-toolpad-core="DashboardLayout"] [role="banner"] > div {
-		gap: 4px !important;
+		gap: 4px;
 	}
 }
 
 @media (max-width: 600px) {
 	/* Extra small mobile devices */
 	[data-toolpad-core="DashboardLayout"] [role="banner"] {
-		padding: 6px 8px !important;
-		min-height: 48px !important;
+		padding: 6px 8px;
+		min-height: 48px;
 	}
 
 	/* Reduce font sizes on very small screens */
 	.MuiTypography-body2 {
-		font-size: 0.75rem !important;
+		font-size: 0.75rem;
 	}
 
 	.MuiButton-root {
-		font-size: 0.7rem !important;
-		padding: 4px 8px !important;
+		font-size: 0.7rem;
+		padding: 4px 8px;
 	}
 }
 
 /* Ensure proper touch targets on mobile */
 @media (hover: none) and (pointer: coarse) {
 	.MuiIconButton-root {
-		min-height: 44px !important;
-		min-width: 44px !important;
+		min-height: 44px;
+		min-width: 44px;
 	}
 
 	.MuiButton-root {
-		min-height: 44px !important;
+		min-height: 44px;
 	}
 }

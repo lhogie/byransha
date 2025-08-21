@@ -47,7 +47,7 @@ export const ChartDisplay = ({
 			const result = {};
 			for (const value of Object.values(chartContent)) {
 				for (const key of Object.keys(value)) {
-					// @ts-ignore
+					// @ts-expect-error
 					result[key] = value?.[key] || {};
 				}
 			}
@@ -61,7 +61,9 @@ export const ChartDisplay = ({
 			if (!chartContent || Object.values(chartContent).length === 0) return [];
 			const keySet = new Set<string>();
 			Object.values(chartContent).forEach((obj: string) => {
-				Object.keys(obj).forEach((key) => keySet.add(key));
+				Object.keys(obj).forEach((key) => {
+					keySet.add(key);
+				});
 			});
 			return Array.from(keySet).sort();
 		},
