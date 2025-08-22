@@ -196,13 +196,13 @@ export const inputTextField = [
 	"MimeTypeNode",
 ];
 export const checkboxField = ["BooleanNode", "HideNode"];
+export const documentField = ["DocumentNode"];
 export const dateField = ["DateNode"];
-export const byteField = ["ByteNode"];
 export const listField = ["ListNode"];
 export const colorField = ["ColorNode"];
 export const typeComponent = [
 	...inputTextField,
-	...byteField,
+	...documentField,
 	...checkboxField,
 	...dateField,
 	...colorField,

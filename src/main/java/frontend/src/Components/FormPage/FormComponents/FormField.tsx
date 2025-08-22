@@ -1,4 +1,5 @@
 import ColorPickerField from "@components/FormPage/FormComponents/ColorPickerField";
+import DocumentField from "@components/FormPage/FormComponents/DocumentField";
 import { useApiMutation } from "@hooks/useApiData";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -15,10 +16,10 @@ import React, { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
 import {
-	byteField,
 	checkboxField,
 	colorField,
 	dateField,
+	documentField,
 	getErrorMessage,
 	inputTextField,
 	listField,
@@ -29,10 +30,8 @@ import {
 import CheckboxFormField from "./CheckboxFormField.js";
 import DateFormField from "./DateFormField.js";
 import DropdownField from "./DropdownField";
-import ImageFormField from "./ImageFormField";
 import ListCheckboxField from "./ListCheckboxField.js";
 import MultiDropdownField from "./MultiDropdownField.js";
-import PdfFormField from "./PdfFormField.js";
 import RadioField from "./RadioField.js";
 import TextFormField from "./TextFormField";
 
@@ -147,68 +146,6 @@ const FormField = ({
 		},
 		500,
 		{ maxWait: 2000 },
-	);
-
-	const handleFileChange = useCallback(
-		async (fileData: string) => {
-			if (!fileData) {
-				setValue(null);
-				return;
-			}
-
-			setValue(fileData);
-
-			try {
-				await toast.promise(
-					setValueMutation.mutateAsync(
-						{
-							id: field.id,
-							value: fileData,
-						},
-						{
-							onSuccess: async () => {
-								await queryClient.invalidateQueries({
-									queryKey: [
-										"infinite",
-										"apiData",
-										"class_attribute_field",
-										{
-											node_id: Number.parseInt(parentId, 10),
-										},
-									],
-								});
-
-								await queryClient.invalidateQueries({
-									queryKey: [
-										"apiData",
-										"class_attribute_field",
-										{
-											node_id: Number.parseInt(parentId, 10),
-										},
-									],
-								});
-							},
-						},
-					),
-					{
-						loading: `Enregistrement de ${shortenAndFormatLabel(field.name)}...`,
-						success: `Changements enregistrés pour ${shortenAndFormatLabel(field.name)}`,
-						error: `Erreur lors de l'enregistrement des changements pour ${shortenAndFormatLabel(field.name)}`,
-					},
-				);
-			} catch (error: any) {
-				console.error("Error saving changes:", error);
-				setError(true);
-				setErrorMessage(`Error saving changes: ${error.message}`);
-			}
-		},
-		[
-			field.id,
-			field.name,
-			parentId,
-			queryClient.invalidateQueries,
-			setValueMutation.mutateAsync,
-		],
 	);
 
 	const handleSaveDropdownChanges = useDebouncedCallback(
@@ -445,14 +382,8 @@ const FormField = ({
 						/>
 					)}
 
-					{byteField.includes(type) && (
-						<ImageFormField
-							field={field}
-							fieldKey={fieldKey}
-							value={value}
-							onChange={handleValueChange}
-							size="small"
-						/>
+					{documentField.includes(type) && (
+						<DocumentField field={field} parentId={parentId} />
 					)}
 
 					{listField.includes(type) && field.listType === "DROPDOWN" && (
@@ -490,15 +421,6 @@ const FormField = ({
 							defaultValue={defaultValue}
 							error={error}
 							helperText={error ? errorMessage : ""}
-						/>
-					)}
-
-					{byteField.includes(type) && (
-						<PdfFormField
-							value={value}
-							onChange={handleFileChange}
-							error={error}
-							helperText={errorMessage}
 						/>
 					)}
 
