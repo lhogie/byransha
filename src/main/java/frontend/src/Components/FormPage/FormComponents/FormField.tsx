@@ -15,11 +15,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useDebouncedCallback } from "use-debounce";
 import {
+	byteField,
 	checkboxField,
 	colorField,
 	dateField,
 	getErrorMessage,
-	byteField,
 	inputTextField,
 	listField,
 	shortenAndFormatLabel,
