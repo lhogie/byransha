@@ -5,4 +5,9 @@ public abstract class SystemNode extends BNode {
         super(g, g.systemUser(), ii);
         endOfConstructor();
     }
+
+    @Override
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
+    }
 }

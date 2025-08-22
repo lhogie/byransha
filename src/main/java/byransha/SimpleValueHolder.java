@@ -44,7 +44,9 @@ public class SimpleValueHolder<N> extends BNode implements ValueHolder<N> {
     }
 
     @Override
-    protected void createOuts(User creator) {}
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
+    }
 
     @Override
     public String whatIsThis() {

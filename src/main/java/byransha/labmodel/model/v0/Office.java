@@ -16,6 +16,7 @@ public class Office extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         users = new ListNode(g, creator, InstantiationInfo.persisting);
         surface = new IntNode(g, creator, InstantiationInfo.persisting);

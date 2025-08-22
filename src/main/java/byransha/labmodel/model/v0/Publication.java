@@ -18,6 +18,7 @@ public class Publication extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         this.title = new StringNode(g, creator, InstantiationInfo.persisting);
         this.authors = new ListNode<>(g, creator, InstantiationInfo.persisting);
         this.acmClassifier = new ACMClassifier(g, creator, InstantiationInfo.persisting);

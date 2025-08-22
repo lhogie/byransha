@@ -31,19 +31,19 @@ public class CSVExporter {
      * @throws IOException If an I/O error occurs
      */
     public static void exportToCSV(
-        BusinessNode node,
-        File file,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth
+            BusinessNode node,
+            File file,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth
     ) throws IOException {
         try (var writer = new FileWriter(file)) {
             exportToCSV(
-                node,
-                writer,
-                includeFields,
-                includeRecursiveNodes,
-                maxDepth
+                    node,
+                    writer,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth
             );
         }
     }
@@ -59,22 +59,22 @@ public class CSVExporter {
      * @throws IOException If an I/O error occurs
      */
     public static void exportToCSV(
-        BusinessNode node,
-        Writer writer,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth
+            BusinessNode node,
+            Writer writer,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth
     ) throws IOException {
         // Collect all fields to export
         Map<String, Object> fieldsToExport = new LinkedHashMap<>();
         collectFields(
-            node,
-            "",
-            fieldsToExport,
-            includeFields,
-            includeRecursiveNodes,
-            maxDepth,
-            0
+                node,
+                "",
+                fieldsToExport,
+                includeFields,
+                includeRecursiveNodes,
+                maxDepth,
+                0
         );
 
         // Write header row
@@ -99,19 +99,19 @@ public class CSVExporter {
      * @throws IOException If an I/O error occurs
      */
     public static void exportToCSV(
-        List<BusinessNode> nodes,
-        File file,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth
+            List<BusinessNode> nodes,
+            File file,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth
     ) throws IOException {
         try (FileWriter writer = new FileWriter(file)) {
             exportToCSV(
-                nodes,
-                writer,
-                includeFields,
-                includeRecursiveNodes,
-                maxDepth
+                    nodes,
+                    writer,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth
             );
         }
     }
@@ -127,11 +127,11 @@ public class CSVExporter {
      * @throws IOException If an I/O error occurs
      */
     public static void exportToCSV(
-        List<BusinessNode> nodes,
-        Writer writer,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth
+            List<BusinessNode> nodes,
+            Writer writer,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth
     ) throws IOException {
         if (nodes == null || nodes.isEmpty()) {
             return;
@@ -144,13 +144,13 @@ public class CSVExporter {
         for (BusinessNode node : nodes) {
             Map<String, Object> fieldsToExport = new LinkedHashMap<>();
             collectFields(
-                node,
-                "",
-                fieldsToExport,
-                includeFields,
-                includeRecursiveNodes,
-                maxDepth,
-                0
+                    node,
+                    "",
+                    fieldsToExport,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth,
+                    0
             );
             allNodeFields.add(fieldsToExport);
             allFields.addAll(fieldsToExport.keySet());
@@ -182,13 +182,13 @@ public class CSVExporter {
      * @param currentDepth The current depth in the traversal
      */
     private static void collectFields(
-        Object node,
-        String prefix,
-        Map<String, Object> fieldsToExport,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth,
-        int currentDepth
+            Object node,
+            String prefix,
+            Map<String, Object> fieldsToExport,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth,
+            int currentDepth
     ) {
         if (node == null || currentDepth > maxDepth) {
             return;
@@ -207,59 +207,87 @@ public class CSVExporter {
                 if (includeFields.test(field)) {
                     try {
                         Object value = field.get(node);
-                        if(value instanceof BNode n ) continue;
                         String fieldName =
-                            prefix +
-                            (prefix.isEmpty() ? "" : ".") +
-                            field.getName();
+                                prefix +
+                                        (prefix.isEmpty() ? "" : ".") +
+                                        field.getName();
 
-                        switch (value) {
-                            case DateNode dateNode -> handleDateNode(
-                                dateNode,
+                        handleNode(
+                                value,
                                 fieldName,
                                 fieldsToExport,
                                 includeFields,
                                 includeRecursiveNodes,
                                 maxDepth,
                                 currentDepth
-                            );
-                            case ListNode<?> listNode -> handleListNode(
-                                listNode,
-                                fieldName,
-                                fieldsToExport,
-                                includeFields,
-                                includeRecursiveNodes,
-                                maxDepth,
-                                currentDepth
-                            );
-                            case ValuedNode<?> valuedNode -> fieldsToExport.put(
-                                fieldName,
-                                valuedNode.get()
-                            );
-                            case BNode bNode when currentDepth < maxDepth -> {
-                                if (includeRecursiveNodes.test(bNode)) {
-                                    collectFields(
-                                        value,
-                                        fieldName,
-                                        fieldsToExport,
-                                        includeFields,
-                                        includeRecursiveNodes,
-                                        maxDepth,
-                                        currentDepth + 1
-                                    );
-                                }
-                            }
-                            case null, default -> fieldsToExport.put(
-                                fieldName,
-                                value
-                            );
-                        }
+                        );
                     } catch (IllegalAccessException e) {
                         // Skip fields that can't be accessed
                     }
                 }
             }
             clazz = clazz.getSuperclass();
+        }
+    }
+
+    private static void handleNode(
+            Object value,
+            String fieldName,
+            Map<String, Object> fieldsToExport,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth,
+            int currentDepth
+    ) {
+        switch (value) {
+            case Out<?> outNode -> handleNode(
+                    outNode.get(),
+                    fieldName,
+                    fieldsToExport,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth,
+                    currentDepth
+            );
+            case DateNode dateNode -> handleDateNode(
+                    dateNode,
+                    fieldName,
+                    fieldsToExport,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth,
+                    currentDepth
+            );
+            case ListNode<?> listNode -> handleListNode(
+                    listNode,
+                    fieldName,
+                    fieldsToExport,
+                    includeFields,
+                    includeRecursiveNodes,
+                    maxDepth,
+                    currentDepth
+            );
+            case ValuedNode<?> valuedNode -> fieldsToExport.put(
+                    fieldName,
+                    valuedNode.get()
+            );
+            case BNode bNode when currentDepth < maxDepth -> {
+                if (includeRecursiveNodes.test(bNode)) {
+                    collectFields(
+                            value,
+                            fieldName,
+                            fieldsToExport,
+                            includeFields,
+                            includeRecursiveNodes,
+                            maxDepth,
+                            currentDepth + 1
+                    );
+                }
+            }
+            case null, default -> fieldsToExport.put(
+                    fieldName,
+                    value
+            );
         }
     }
 
@@ -275,17 +303,19 @@ public class CSVExporter {
      * @param currentDepth The current depth in the traversal
      */
     private static void handleListNode(
-        ListNode<?> listNode,
-        String fieldName,
-        Map<String, Object> fieldsToExport,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth,
-        int currentDepth
+            ListNode<?> listNode,
+            String fieldName,
+            Map<String, Object> fieldsToExport,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth,
+            int currentDepth
     ) {
         List<String> elements = new ArrayList<>();
 
-        listNode.forEachOutField((name, node) -> {
+        listNode.forEachOut((name, node) -> {
+            if (node instanceof BBGraph || node instanceof ValueHolder) return;
+
             if (node instanceof ValuedNode) {
                 // For ValuedNode, get the actual value
                 ValuedNode<?> valuedNode = (ValuedNode<?>) node;
@@ -302,13 +332,13 @@ public class CSVExporter {
     }
 
     private static void handleDateNode(
-        DateNode dateNode,
-        String fieldName,
-        Map<String, Object> fieldsToExport,
-        Predicate<Field> includeFields,
-        Predicate<BNode> includeRecursiveNodes,
-        int maxDepth,
-        int currentDepth
+            DateNode dateNode,
+            String fieldName,
+            Map<String, Object> fieldsToExport,
+            Predicate<Field> includeFields,
+            Predicate<BNode> includeRecursiveNodes,
+            int maxDepth,
+            int currentDepth
     ) {
         if (dateNode.get() != null) {
             // Use new date to convert the date in a readable format (it's save with T...)
@@ -338,9 +368,9 @@ public class CSVExporter {
 
         // Escape quotes and wrap in quotes if contains comma or quote
         if (
-            stringValue.contains(",") ||
-            stringValue.contains("\"") ||
-            stringValue.contains("\n")
+                stringValue.contains(",") ||
+                        stringValue.contains("\"") ||
+                        stringValue.contains("\n")
         ) {
             stringValue = stringValue.replace("\"", "\"\"");
             stringValue = "\"" + stringValue + "\"";
@@ -366,7 +396,7 @@ public class CSVExporter {
      */
     public static Predicate<Field> excludeFields(String... excludedFieldNames) {
         Set<String> excludedFields = new HashSet<>(
-            Arrays.asList(excludedFieldNames)
+                Arrays.asList(excludedFieldNames)
         );
         return field -> !excludedFields.contains(field.getName());
     }
@@ -378,10 +408,10 @@ public class CSVExporter {
      * @return A predicate that includes only the specified fields
      */
     public static Predicate<Field> includeOnlyFields(
-        String... includedFieldNames
+            String... includedFieldNames
     ) {
         Set<String> includedFields = new HashSet<>(
-            Arrays.asList(includedFieldNames)
+                Arrays.asList(includedFieldNames)
         );
         return field -> includedFields.contains(field.getName());
     }
@@ -403,10 +433,10 @@ public class CSVExporter {
      */
     @SafeVarargs
     public static Predicate<BNode> includeOnlyNodeTypes(
-        Class<? extends BNode>... nodeTypes
+            Class<? extends BNode>... nodeTypes
     ) {
         Set<Class<? extends BNode>> includedTypes = new HashSet<>(
-            Arrays.asList(nodeTypes)
+                Arrays.asList(nodeTypes)
         );
         return node -> {
             for (Class<? extends BNode> type : includedTypes) {

@@ -28,6 +28,8 @@ public class ValueHistoryEntry<N> extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
+
         this.date = new DateNode(g, creator, InstantiationInfo.persisting, false);
     }
 

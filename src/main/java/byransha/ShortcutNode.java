@@ -33,6 +33,7 @@ public class ShortcutNode extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
     }
 
     public ShortcutNode withOutsSupplier(

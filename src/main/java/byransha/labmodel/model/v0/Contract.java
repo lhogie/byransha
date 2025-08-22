@@ -19,6 +19,7 @@ public class Contract extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         holder = new Out<>(g, creator, InstantiationInfo.persisting);
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         subHolders = new ListNode<>(g, creator, InstantiationInfo.persisting);

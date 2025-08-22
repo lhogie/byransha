@@ -26,7 +26,4 @@ public class DocumentNode extends NotPrimitiveNode {
     public String prettyName() {
         return "document " + title.get();
     }
-
-
-
 }

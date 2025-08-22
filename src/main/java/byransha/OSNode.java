@@ -27,7 +27,7 @@ public class OSNode extends SystemNode {
 
 	@Override
 	protected void createOuts(User creator) {
-
+		super.createOuts(creator);
 	}
 
 	@Override

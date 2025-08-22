@@ -20,6 +20,7 @@ public class Country extends BusinessNode {
 
 	@Override
 	protected void createOuts(User creator) {
+		super.createOuts(creator);
 		codeNode = new StringNode(g, creator, InstantiationInfo.persisting);
 		name = new StringNode(g, creator, InstantiationInfo.persisting);
 		flag = new Out<>(g, creator, InstantiationInfo.persisting);

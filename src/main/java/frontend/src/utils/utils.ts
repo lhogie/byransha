@@ -193,16 +193,16 @@ export const inputTextField = [
 	"PhoneNumberNode",
 	"IntNode",
 	"HistoryChangeNode",
+	"MimeTypeNode"
 ];
 export const checkboxField = ["BooleanNode", "HideNode"];
 export const dateField = ["DateNode"];
-export const imageField = ["ImageNode"];
-export const fileField = ["FileNode"];
+export const byteField = ["ByteNode"];
 export const listField = ["ListNode"];
 export const colorField = ["ColorNode"];
 export const typeComponent = [
 	...inputTextField,
-	...fileField,
+	...byteField,
 	...checkboxField,
 	...dateField,
 	...colorField,

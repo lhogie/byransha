@@ -15,19 +15,13 @@ public class EtatCivil extends BusinessNode {
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
     public ListNode<Country> countryOfBirth;
 
-    @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
-    public ListNode<Nationality> nationality;
+    @ListOptions(
+            type = ListOptions.ListType.MULTIDROPDOWN,
+            allowCreation = false,
+            allowMultiple = true
+    )    public ListNode<Nationality> nationality;
 
     public DateNode birthDate;
-
-    @ListOptions(
-        type = ListOptions.ListType.MULTIDROPDOWN,
-        allowCreation = false,
-        allowMultiple = true
-    )
-
-    @Size(max = 2)
-    public ListNode<Country> nationalites;
 
     @Pattern(
         regex = "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{4,6}$"
@@ -43,13 +37,14 @@ public class EtatCivil extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         name = new StringNode(g,  creator, InstantiationInfo.persisting);
         familyNameBeforeMariage = new  StringNode(g, creator, InstantiationInfo.persisting);
         firstName = new StringNode(g, creator, InstantiationInfo.persisting);
         birthDate = new DateNode(g, creator, InstantiationInfo.persisting, true);
         cityOfBirth = new StringNode(g, creator, InstantiationInfo.persisting);
         countryOfBirth = new ListNode<Country>(g, creator, InstantiationInfo.persisting);
-        nationalites = new ListNode<Country>(g, creator, InstantiationInfo.persisting);
+        nationality = new ListNode<Nationality>(g, creator, InstantiationInfo.persisting);
         address = new StringNode(g, creator, InstantiationInfo.persisting);
         telephone = new PhoneNumberNode(g,  creator, InstantiationInfo.persisting);
         pic = new Out<>(g, creator, InstantiationInfo.persisting);
@@ -63,6 +58,16 @@ public class EtatCivil extends BusinessNode {
 
     @Override
     public String prettyName() {
-        return  null;
+        String prettyName = "";
+        if(name != null && name.get() != null && !name.get().isBlank()) {
+            prettyName = name.get();
+        }
+        if(firstName != null && firstName.get() != null && !firstName.get().isBlank()) {
+            prettyName += " "+firstName.get();
+        }
+        if(prettyName.isBlank()) {
+            prettyName = null;
+        }
+        return prettyName;
     }
 }

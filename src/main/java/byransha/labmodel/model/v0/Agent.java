@@ -13,6 +13,7 @@ public class Agent extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         etatCivil = new Out<>(g, creator);
         var newEtatCivil = new EtatCivil(g, creator, InstantiationInfo.persisting);
         etatCivil.set(newEtatCivil, creator);

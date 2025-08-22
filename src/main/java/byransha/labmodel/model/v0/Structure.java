@@ -14,6 +14,7 @@ public class Structure extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         subStructures = new ListNode(g, creator, InstantiationInfo.persisting);
         offices =new ListNode(g, creator, InstantiationInfo.persisting);

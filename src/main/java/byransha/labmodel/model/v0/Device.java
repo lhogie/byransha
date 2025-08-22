@@ -16,6 +16,7 @@ public class Device extends BusinessNode {
 
 	@Override
 	protected void createOuts(User creator) {
+		super.createOuts(creator);
 		serialNumber = new StringNode(g, creator, InstantiationInfo.persisting);
 		brand = new StringNode(g, creator, InstantiationInfo.persisting);
 		modelName = new StringNode(g, creator, InstantiationInfo.persisting);

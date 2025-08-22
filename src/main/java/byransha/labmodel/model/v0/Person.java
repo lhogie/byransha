@@ -57,6 +57,7 @@ public class Person extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         etatCivil = new EtatCivil(g, creator, InstantiationInfo.persisting);
         positions = new ListNode(g, creator, InstantiationInfo.persisting);
         pics = new DocumentNode(g, creator, InstantiationInfo.persisting);

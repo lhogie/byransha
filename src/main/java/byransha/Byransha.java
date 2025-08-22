@@ -18,7 +18,7 @@ public class Byransha extends BNode {
 
 	@Override
 	protected void createOuts(User creator) {
-
+		super.createOuts(creator);
 	}
 
 	@Override

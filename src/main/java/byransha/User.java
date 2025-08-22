@@ -25,6 +25,7 @@ public class User extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         name = new StringNode(g, creator, InstantiationInfo.persisting);
         passwordNode = new StringNode(g, creator, InstantiationInfo.persisting);
         setColor("#032cfc", this);

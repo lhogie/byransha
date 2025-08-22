@@ -19,6 +19,8 @@ public class SearchForm extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
+
         searchTerm = new StringNode(g, creator, InstantiationInfo.persisting);
         results = new ListNode(g, creator, InstantiationInfo.persisting);
         filterChain = new FilterChain(g, creator, InstantiationInfo.persisting);

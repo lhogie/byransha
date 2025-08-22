@@ -8,6 +8,8 @@ import byransha.web.endpoint.*;
 import byransha.web.view.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -26,16 +28,33 @@ import java.util.function.Predicate;
 import toools.reflect.Clazz;
 
 public class BBGraph extends BNode {
-
-    public enum LOGTYPE {FILE_WRITE, FILE_READ, WARNING, ERROR}
+    public enum LOGTYPE { FILE_WRITE, FILE_READ, WARNING, ERROR };
 
     public static class Logger implements BiConsumer<LOGTYPE, String> {
         public boolean stdout = false;
+        static File logFile = new File("./log.txt");
+        static BufferedWriter finalWriter;
+
+        static {
+            try {
+                finalWriter = new BufferedWriter(
+                        Files.newBufferedWriter(logFile.toPath(), java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.APPEND)
+                );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         @Override
         public void accept(LOGTYPE logtype, String s) {
             if (stdout){
-                System.out.println(logtype.name() + "\t" + s);
+                //System.out.println(logtype.name() + "\t" + s);
+                try {
+                    finalWriter.write(logtype.name() + "\t" + s + "\n");
+                    finalWriter.flush();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -51,7 +70,7 @@ public class BBGraph extends BNode {
     private final User admin, system;
     public UserApplication application;
     private final WebServer webServer;
-
+    public volatile boolean isLoading;
 
     public BBGraph(File directory, Map<String, String> argMap)
             throws Exception {
@@ -146,6 +165,7 @@ public class BBGraph extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
     }
 
     @Override
@@ -201,31 +221,30 @@ public class BBGraph extends BNode {
             BiConsumer<BNode, String> setRelation,
             User user
     ) {
+        isLoading = true;
         int maxIdOnDisk = findMaxIdInDirectory(directory);
 
         if (idSequence.get() < maxIdOnDisk) {
             idSequence.set(maxIdOnDisk + 1);
         }
 
-        if (directory != null) {
-            instantiateNodes(newNodeInstantiated);
+        instantiateNodes(newNodeInstantiated);
 
-            nodesById
-                    .values()
-                    .forEach(n -> {
-                        if (n.isPersisting()) {
-                            connectOutsToNode(n, setRelation, user);
-                        }
-                    });
+        nodesById
+                .values()
+                .forEach(n -> {
+                    if (n.isPersisting()) {
+                        connectOutsToNode(n, setRelation, user);
+                    }
+                });
 
-            nodesById
-                    .values()
-                    .forEach(n -> {
-                        if (n.isPersisting()) {
-                            n.nodeConstructed(user);
-                        }
-                    });
-        }
+        nodesById
+                .values()
+                .forEach(n -> {
+                    if (n.isPersisting()) {
+                        n.nodeConstructed(user);
+                    }
+                });
 
         int maxId = nodesById
                 .keySet()
@@ -236,6 +255,8 @@ public class BBGraph extends BNode {
         if (idSequence.get() < maxId) {
             idSequence.set(maxId + 1);
         }
+
+        isLoading = false;
     }
 
     private int findMaxIdInDirectory(File rootDir) {
@@ -323,20 +344,19 @@ public class BBGraph extends BNode {
                             InstantiationInfo.class
                     );
 
+
                     listNodeDirectories("", classDir, id -> {
                         // don't create the graph node twice!
                         if (id != 0) {
                             try {
+                                this.logger.accept(LOGTYPE.FILE_READ, "Instantiating node of class " + className + " with ID " + id + "\n");
                                 BNode node = constructor.newInstance(g, systemUser(), new InstantiationInfo.IDInfo(id));
                                 newNodeInstantiated.accept(node);
                             } catch (
-                                    InstantiationException
-                                    | IllegalAccessException
-                                    | IllegalArgumentException
-                                    | InvocationTargetException
-                                    | SecurityException err
+                                    InstantiationException | IllegalAccessException | IllegalArgumentException |
+                                    InvocationTargetException | SecurityException err
                             ) {
-                                throw new RuntimeException(
+                                    throw new RuntimeException(
                                         "Error instantiating node of class " + className + " with ID " + id,
                                         err
                                 );

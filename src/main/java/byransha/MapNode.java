@@ -13,8 +13,9 @@ public class MapNode<N extends BNode> extends BNode {
 
 	@Override
 	protected void createOuts(User creator) {
-
+		super.createOuts(creator);
 	}
+
 	@Override
 	public String prettyName() {
 		return "a map";

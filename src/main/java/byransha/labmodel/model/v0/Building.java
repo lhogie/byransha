@@ -18,6 +18,7 @@ public class Building extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         offices = new ListNode(g, creator, InstantiationInfo.persisting);
     }
 

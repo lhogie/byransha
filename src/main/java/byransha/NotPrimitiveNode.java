@@ -7,4 +7,9 @@ public abstract class NotPrimitiveNode extends BNode {
         super(g, creator, ii);
         endOfConstructor();
     }
+
+    @Override
+    protected void createOuts(User creator) {
+        super.createOuts(creator);
+    }
 }

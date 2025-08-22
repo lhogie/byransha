@@ -14,6 +14,7 @@ public class Campus extends BusinessNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
         name = new  StringNode(g, creator, InstantiationInfo.persisting);
         buildings = new  ListNode(g, creator, InstantiationInfo.persisting);
     }

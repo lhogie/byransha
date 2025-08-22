@@ -18,6 +18,7 @@ public class Position extends BNode {
 
 	@Override
 	protected void createOuts(User creator) {
+		super.createOuts(creator);
 		employer = new Structure(g, creator, InstantiationInfo.persisting);
 		from = new DateNode(g, creator, InstantiationInfo.persisting);
 		to = new DateNode(g, creator, InstantiationInfo.persisting);

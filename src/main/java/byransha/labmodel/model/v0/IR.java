@@ -11,6 +11,7 @@ public class IR extends Status {
 
 	@Override
 	protected void createOuts(User creator) {
+		super.createOuts(creator);
 		name.set("Ingénieur de Recherche", creator);
 	}
 }

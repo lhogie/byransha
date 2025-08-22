@@ -23,7 +23,7 @@ public class ACMClassifier extends BusinessNode {
 
 	@Override
 	protected void createOuts(User creator) {
-
+		super.createOuts(creator);
 	}
 
 	@Override

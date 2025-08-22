@@ -2,7 +2,7 @@ package byransha;
 
 import java.util.Base64;
 
-public class ByteNode extends ValuedNode<byte[]> {
+public class ByteNode extends PrimitiveValueNode<byte[]> {
     public ByteNode(BBGraph g, User user, InstantiationInfo ii) {
         super(g, user, ii, false);
         endOfConstructor();
@@ -22,6 +22,16 @@ public class ByteNode extends ValuedNode<byte[]> {
     protected byte[] bytesToValue(byte[] bytes, User user) {
         return bytes;
     }
+
+    @Override
+    public void fromString(String s, User user) {
+        if (s == null || s.isEmpty()) {
+            set(null, user);
+            return;
+        }
+        set(Base64.getDecoder().decode(s), user);
+    }
+
     @Override
     public String getAsString() {
         if (get() == null) {
@@ -30,7 +40,6 @@ public class ByteNode extends ValuedNode<byte[]> {
         return Base64.getEncoder().encodeToString(get());
     }
 
-
     @Override
     public String whatIsThis() {
         return "raw data";
@@ -38,6 +47,7 @@ public class ByteNode extends ValuedNode<byte[]> {
 
     @Override
     public String prettyName() {
+        if (get() == null) return "0 bytes";
         return get().length +  " bytes";
     }
 }

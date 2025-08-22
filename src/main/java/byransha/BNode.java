@@ -57,11 +57,16 @@ public abstract class BNode {
             this.g = (BBGraph) this;
         } else {
             this.g = g;
-
             if (parms instanceof InstantiationInfo.IDInfo i) {
                 this.id = i.value();
                 this.persisting = true;
             } else if (parms instanceof InstantiationInfo.PersistenceInfo i) {
+                if (g.isLoading) {
+                    throw new RuntimeException(
+                            "Creating node " + this + " while graph is loading is not allowed"
+                    );
+                }
+
                 this.id = g.nextID();
                 this.persisting = i.value();
                 createOuts(creator);
@@ -103,13 +108,6 @@ public abstract class BNode {
                             previous
             );
 
-            var cluster = findCluster(creator);
-
-            if (cluster != null){
-                this.cluster = cluster;
-                cluster.add(this, creator);
-            }
-
             new Thread(() -> {
                 // waits 1s
                 try {
@@ -144,7 +142,14 @@ public abstract class BNode {
         }
     }
 
-    protected abstract void createOuts(User creator);
+    protected void createOuts(User creator) {
+        var cluster = findCluster(creator);
+
+        if (cluster != null){
+            this.cluster = cluster;
+            cluster.add(this, creator);
+        }
+    }
 
     protected void nodeConstructed(User user) {
         // This method can be overridden by subclasses to perform additional initialization

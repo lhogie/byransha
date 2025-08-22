@@ -18,9 +18,8 @@ import {
 	checkboxField,
 	colorField,
 	dateField,
-	fileField,
 	getErrorMessage,
-	imageField,
+	byteField,
 	inputTextField,
 	listField,
 	shortenAndFormatLabel,
@@ -446,7 +445,7 @@ const FormField = ({
 						/>
 					)}
 
-					{imageField.includes(type) && isExpanded && (
+					{byteField.includes(type) && (
 						<ImageFormField
 							field={field}
 							fieldKey={fieldKey}
@@ -494,7 +493,7 @@ const FormField = ({
 						/>
 					)}
 
-					{fileField.includes(type) && (
+					{byteField.includes(type) && (
 						<PdfFormField
 							value={value}
 							onChange={handleFileChange}

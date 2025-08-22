@@ -19,6 +19,8 @@ public class UI extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
+
         backgroundColor = new ColorNode(g, creator, InstantiationInfo.persisting);
         backgroundColor.set("#A9A9A9", creator);
         textColor = new ColorNode(g, creator, InstantiationInfo.persisting);

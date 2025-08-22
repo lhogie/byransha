@@ -22,6 +22,7 @@ public class DataLake extends BNode {
 
     @Override
     protected void createOuts(User creator) {
+        super.createOuts(creator);
     }
 
     @Override
@@ -58,6 +59,7 @@ public class DataLake extends BNode {
     }
 
     public void load() throws IOException {
+        System.out.println("Loading datalake from " + inputDir);
         User user = g.systemUser();
 
         if(inputDir == null) {return;}
@@ -229,5 +231,7 @@ public class DataLake extends BNode {
 //                l.stream().anyMatch(Objects::nonNull)
 //            ) throw new IllegalStateException("unused columns: " + l);
         }
+
+        System.out.println("Finished loading datalake");
     }
 }

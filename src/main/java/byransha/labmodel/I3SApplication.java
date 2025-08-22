@@ -35,11 +35,11 @@ public class I3SApplication extends UserApplication {
                     "i3s_extraction"
             ).toFile());
 
-//            try {
-//                lake.load();
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
+            try {
+                lake.load();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }).start();
     }
 
