@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -93,7 +95,12 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
                     @Override
                     public boolean allowCreation() {
-                        return false;
+                        return true;
+                    }
+
+                    @Override
+                    public boolean allowAdd() {
+                        return true;
                     }
 
                     @Override
@@ -243,6 +250,16 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             addValuedNodeInfo(currentNodeInfo, valuedNode);
         }
 
+        if (isCollectionNode(node)) {
+            // get parent node and field name
+            var parentNodeWithField = node.getParentNodeWithField();
+            if (parentNodeWithField != null) {
+                var parentNode = parentNodeWithField.getLeft();
+                var fieldName = parentNodeWithField.getRight();
+                addGenericTypeInfo(currentNodeInfo, parentNode, fieldName.getName(), null);
+            }
+        }
+
         return currentNodeInfo;
     }
 
@@ -348,6 +365,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     private void addCollectionNodeInfo(ObjectNode b, BNode out) {
         if (out instanceof ListNode<?> lc) {
             b.set("canAddNewNode", BooleanNode.valueOf(lc.canAddNewNode()));
+            b.set("allowCreation", BooleanNode.valueOf(lc.canCreateNewNode()));
             b.set("allowMultiple", BooleanNode.valueOf(lc.allowMultiple()));
             b.set("source", new TextNode(lc.getOptionsSource().name()));
         }

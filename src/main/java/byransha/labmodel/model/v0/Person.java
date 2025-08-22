@@ -19,12 +19,16 @@ public class Person extends BusinessNode {
     public ResearchGroup researchGroup;
     public DateNode phdDate;
 
+    @ListOptions(type = ListOptions.ListType.LIST)
     public ListNode<StringNode> phoneNumbers;
 
+    @ListOptions(type = ListOptions.ListType.LIST)
     protected ListNode<EmailNode> emailAddresses;
 
+    @ListOptions(type = ListOptions.ListType.LIST)
     public ListNode<Office> offices;
 
+    @ListOptions(type = ListOptions.ListType.LIST)
     protected ListNode<ACMClassifier> topics;
 
     public StringNode quotite;

@@ -236,6 +236,14 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
     public boolean canAddNewNode() {
         ListOptions options = getListOptions();
         return (
+                options.allowAdd() &&
+                        options.source() == ListOptions.OptionsSource.DYNAMIC
+        );
+    }
+
+    public boolean canCreateNewNode() {
+        ListOptions options = getListOptions();
+        return (
                 options.allowCreation() &&
                         options.source() == ListOptions.OptionsSource.DYNAMIC
         );
@@ -368,6 +376,11 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
             @Override
             public boolean allowCreation() {
+                return true;
+            }
+
+            @Override
+            public boolean allowAdd() {
                 return true;
             }
 

@@ -1,10 +1,6 @@
 package byransha;
 
-import byransha.annotations.Max;
-import byransha.annotations.Min;
-import byransha.annotations.Pattern;
-import byransha.annotations.Required;
-import byransha.annotations.Size;
+import byransha.annotations.*;
 import byransha.graph.AnyGraph;
 import byransha.graph.BVertex;
 import byransha.labmodel.model.v0.BusinessNode;
@@ -28,6 +24,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.apache.commons.lang3.tuple.Pair;
 import toools.gui.Utilities;
 import toools.reflect.Clazz;
 
@@ -630,6 +627,34 @@ public abstract class BNode {
         }
 
         return r;
+    }
+
+    public Pair<BNode, Field> getParentNodeWithField() {
+        for (InLink inLink : ins()) {
+            BNode sourceNode = inLink.source();
+
+            // Check fields in the entire class hierarchy
+            Class<?> currentClass = sourceNode.getClass();
+            while (currentClass != null && currentClass != Object.class) {
+                for (Field field : currentClass.getDeclaredFields()) {
+                    if ((field.getModifiers() & Modifier.STATIC) != 0) continue;
+                    field.setAccessible(true);
+
+                    try {
+                        if (field.get(sourceNode) == this) {
+                            Pair<BNode, Field> result = Pair.of(sourceNode, field);
+                            return result;
+                        }
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Error accessing field: " + e.getMessage(), e);
+                    }
+                }
+                // Move to the parent class
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+
+        return null;
     }
 
     public boolean isValid() {

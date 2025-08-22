@@ -39,6 +39,8 @@ public @interface ListOptions {
     // For STATIC source - provide option values
     String[] staticOptions() default {};
 
+    boolean allowAdd() default true;
+
     // Allow creation of new nodes (only applies to DYNAMIC source)
     boolean allowCreation() default true;
 

@@ -39,8 +39,6 @@ const NestedFields = ({
 		},
 	);
 
-	console.log(hasNextPage);
-
 	const navigate = useNavigate();
 	const queryClient = useQueryClient();
 
@@ -332,7 +330,7 @@ const NestedFields = ({
 							className="add-new-node"
 							sx={{ mt: 2 }}
 						>
-							{field.allowCreation ?? (
+							{field.allowCreation && (
 								<Button
 									variant="outlined"
 									startIcon={<AddIcon />}
