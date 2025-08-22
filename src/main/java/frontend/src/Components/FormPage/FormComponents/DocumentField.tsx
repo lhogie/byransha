@@ -85,8 +85,6 @@ const DocumentField = ({
 		}
 	};
 
-	console.log(data, title, mimeType);
-
 	return (
 		<Box sx={{ mb: 2 }}>
 			<Stack spacing={2}>

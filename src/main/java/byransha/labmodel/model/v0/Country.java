@@ -34,6 +34,8 @@ public class Country extends BusinessNode {
 		try {
 			flag.get().data.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
 					.readAllBytes(), user);
+			flag.get().mimeType.set("image/svg+xml", user);
+			flag.get().title.set(name.get() + ".svg", user);
 		} catch (IOException err) {
 			err.printStackTrace();
 		}
@@ -54,7 +56,6 @@ public class Country extends BusinessNode {
 					var countryCode = countryCodes.get(code).asText();
 					var doc = new DocumentNode(g, creator, InstantiationInfo.persisting);
 					country.flag.set(doc, creator);
-					country.flag.get().title.set(countryCode, creator);
 					country.setFlagCode(code, creator);
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);

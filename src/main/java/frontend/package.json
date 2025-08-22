@@ -34,7 +34,7 @@
 		"jspdf": "3.0.1",
 		"jspdf-autotable": "5.0.2",
 		"mermaid": "^11.10.0",
-		"pdfjs-dist": "5.4.54",
+		"pdfjs-dist": "5.3.93",
 		"react": "19.1.1",
 		"react-color": "2.19.3",
 		"react-dom": "19.1.1",
