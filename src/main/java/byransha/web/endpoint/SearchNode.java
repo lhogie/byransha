@@ -278,15 +278,20 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         node.forEachOutField((name, outNode) -> {
             if (outNode instanceof Out<?> docOut) {
                 if (docOut.get() instanceof DocumentNode documentNode) {
-                    nodeInfo.put("img", documentNode.data.getAsString());
-                    nodeInfo.put("imgMimeType", documentNode.mimeType.get());
+                    addImageInfo(nodeInfo, documentNode);
                 }
             } else if (outNode instanceof DocumentNode imageNode) {
-                nodeInfo.put("img", imageNode.data.getAsString());
-                nodeInfo.put("imgMimeType", imageNode.mimeType.get());
+                addImageInfo(nodeInfo, imageNode);
             }
         });
 
         a.add(nodeInfo);
+    }
+
+    private void addImageInfo(ObjectNode nodeInfo, DocumentNode node) {
+        if (node != null && node.data.get() != null && node.mimeType.get() != null && node.mimeType.get().startsWith("image/")) {
+            nodeInfo.put("img", node.data.getAsString());
+            nodeInfo.put("imgMimeType", node.mimeType.get());
+        }
     }
 }
