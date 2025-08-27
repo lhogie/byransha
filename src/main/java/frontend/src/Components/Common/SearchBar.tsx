@@ -354,7 +354,14 @@ export const SearchBar = memo(() => {
 
 	useEffect(() => {
 		const scrollElement = parentRef.current;
-		if (!scrollElement) return;
+		if (!scrollElement) {
+			const timer = setTimeout(() => {
+				if (parentRef.current) {
+					parentRef.current.addEventListener("scroll", handleScroll, { passive: true });
+				}
+			}, 100);
+			return () => clearTimeout(timer);
+		}
 
 		scrollElement.addEventListener("scroll", handleScroll, { passive: true });
 		return () => scrollElement.removeEventListener("scroll", handleScroll);

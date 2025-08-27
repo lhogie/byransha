@@ -7,7 +7,6 @@ public class Cluster extends ListNode<BNode> {
     public Cluster(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii, false);
         endOfConstructor();
-        //this.setColor("#9900ff");
     }
 
     public void setTypeOfCluster(Class<? extends BNode> type) {
@@ -26,7 +25,7 @@ public class Cluster extends ListNode<BNode> {
     @Override
     public String prettyName() {
         if (this.size() > 0) {
-            return "CL " + this.typeOfCluster;
+            return this.typeOfCluster.getSimpleName();
         }
         return "a cluster empty";
     }

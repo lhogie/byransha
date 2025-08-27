@@ -192,7 +192,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 100;
-
         int offset = (page - 1) * pageSize;
         int limit = pageSize;
         boolean skipValidation =
@@ -217,10 +216,18 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         currentNodeInformation.put("page", page);
         currentNodeInformation.put("pageSize", pageSize);
         currentNodeInformation.put("total", node.outDegree());
-        currentNodeInformation.put(
-            "hasNext",
-            offset + limit < node.outDegree()
-        );
+        if(node instanceof ListNode<?> ls){
+            currentNodeInformation.put(
+                    "hasNext",
+                    offset + limit < ls.get().size()
+            );
+        }
+        else{
+            currentNodeInformation.put(
+                    "hasNext",
+                    offset + limit < node.outs().size()
+            );
+        }
 
         in.removeAll();
         return new EndpointJsonResponse(

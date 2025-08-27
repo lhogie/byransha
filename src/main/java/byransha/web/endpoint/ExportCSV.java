@@ -116,7 +116,7 @@ public class ExportCSV extends NodeEndpoint<BNode> {
                 // If the current node is a ListNode or SetNode containing BusinessNodes
                 if (node instanceof ListNode) {
                     ListNode<?> listNode = (ListNode<?>) node;
-                    listNode.forEachOutField((name, n) -> {
+                    listNode.forEachOut((name, n) -> {
                         if (n instanceof BusinessNode) {
                             nodesToExport.add((BusinessNode) n);
                         }
