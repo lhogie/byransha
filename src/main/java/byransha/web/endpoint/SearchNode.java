@@ -38,12 +38,10 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
 
         // Get query and filter chain
         final String query = getQueryFromInput(currentNode, in);
-        activeFilterChain = getActiveFilterChain(currentNode, in, user);
-
-        // Clear results if using SearchForm
-        if (currentNode instanceof SearchForm) {
-            ((SearchForm) currentNode).results.removeAll();
-        }
+//        activeFilterChain = getActiveFilterChain(currentNode, in, user);
+        String searchTerm = getSearchTerm(currentNode);
+        Class<? extends BNode> searchClass = getClassFilter(currentNode);
+        System.out.println("Searching for class : " + searchClass);
 
         // Pagination parameters
         int page = in.has("page") ? in.get("page").asInt() : 1;
@@ -64,39 +62,28 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (node.getClass().getSimpleName().equals("SearchForm")) {
                 return false;
             }
-
-            // Apply basic query filter if query is provided and not empty
-            if (!query.isEmpty() && node.prettyName() != null) {
-                return node
-                    .prettyName()
-                    .toLowerCase()
-                    .contains(query.toLowerCase());
+            if( searchTerm != null && !searchTerm.isEmpty()) {
+                return basicSearch(node, searchTerm);
             }
-
-            // If no query, include all nodes (filters will handle additional filtering)
+            else if(!query.isEmpty()) {
+                return basicSearch(node, query);
+            }
             return true;
         });
 
-        // Apply filter chain if present
-        if (activeFilterChain != null) {
-            nodes = nodes
-                .stream()
-                .filter(activeFilterChain.toPredicate())
+        // Apply class filter if specified
+        if (searchClass != null) {
+            nodes = nodes.stream()
+                .filter(node -> searchClass.equals(node.getClass()))
                 .collect(Collectors.toList());
         }
 
         // Sort by Levenshtein distance
-        nodes.sort(
-            Comparator.comparingInt(node -> {
-                String name = node.prettyName();
-                if (name == null) return Integer.MAX_VALUE;
-                if (query.isEmpty()) return 0; // No distance for empty query
-                return TextUtilities.computeLevenshteinDistance(
-                    name.toLowerCase(),
-                    query
-                );
-            })
-        );
+        if(searchTerm != null && !searchTerm.isEmpty()) {
+            levenshteinSearch(searchTerm, nodes);
+        } else if(!query.isEmpty()) {
+            levenshteinSearch(query, nodes);
+        }
 
         int total = nodes.size();
         int fromIndex = Math.min((page - 1) * pageSize, total);
@@ -162,12 +149,12 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             SearchForm searchForm = (SearchForm) currentNode;
 
             // Use the SearchForm's FilterChain if it's enabled
-            if (
-                searchForm.filterChain != null &&
-                searchForm.filterChain.enabled.get()
-            ) {
-                return searchForm.filterChain;
-            }
+//            if (
+//                searchForm.filterChain != null &&
+//                searchForm.filterChain.enabled.get()
+//            ) {
+//                return searchForm.filterChain;
+//            }
         } else {
             // Parse custom filters from request and create a FilterChain
             if (in.has("filters") && in.get("filters").isArray()) {
@@ -293,5 +280,53 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             nodeInfo.put("img", node.data.getAsString());
             nodeInfo.put("imgMimeType", node.mimeType.get());
         }
+    }
+
+    private String getSearchTerm(BNode currentNode) {
+        if (currentNode instanceof SearchForm) {
+            SearchForm searchForm = (SearchForm) currentNode;
+            String searchText = searchForm.searchTerm.get();
+            searchForm.results.removeAll();
+            return searchText != null ? searchText.trim() : null;
+        }
+        return null;
+    }
+
+    private Class<? extends BNode> getClassFilter(BNode currentNode) {
+        if (currentNode instanceof SearchForm) {
+            SearchForm searchForm = (SearchForm) currentNode;
+            if (searchForm.classFilter.size() > 0) {
+                Cluster cluster = searchForm.classFilter.get(0);
+                if (cluster != null && cluster.getTypeOfCluster() != null) {
+                    return cluster.getTypeOfCluster();
+                }
+            }
+        }
+        return null;
+    }
+
+    private Boolean basicSearch(BNode node, String query) {
+        if (!query.isEmpty() && node.prettyName() != null) {
+            return node
+                    .prettyName()
+                    .toLowerCase()
+                    .contains(query.toLowerCase());
+        }
+        return false;
+    }
+
+    private void levenshteinSearch(String query, List<? extends BNode> nodes) {
+        nodes.sort(
+                Comparator.comparingInt(node -> {
+                    String name = node.prettyName();
+                    if (name == null) return Integer.MAX_VALUE;
+                    if (query.isEmpty()) return 0; // No distance for empty query
+                    return TextUtilities.computeLevenshteinDistance(
+                            name.toLowerCase(),
+                            query
+                    );
+                })
+        );
+
     }
 }

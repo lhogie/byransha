@@ -101,6 +101,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 
         List<T> newL = new ArrayList<>(get());
+        if(!options.allowMultiple()){newL.clear();}
         newL.add(element);
         set(newL, creator);
 
@@ -109,7 +110,6 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
     public void remove(T element) {
         if (element == null) return;
-
         boolean removed = get().remove(element);
 
         if (removed) {

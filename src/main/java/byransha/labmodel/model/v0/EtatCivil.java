@@ -7,10 +7,9 @@ import byransha.annotations.ListOptions;
 public class EtatCivil extends BusinessNode {
 
     @Size(min = 2)
-    public StringNode name;
+    public StringNode name, firstName;
 
-    @Required
-    public StringNode familyNameBeforeMariage, firstName, cityOfBirth, address;
+    public StringNode familyNameBeforeMariage, cityOfBirth, address;
 
     @ListOptions(type = ListOptions.ListType.DROPDOWN, allowCreation = false)
     public ListNode<Country> countryOfBirth;
