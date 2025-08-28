@@ -56,6 +56,7 @@ public class Endpoints extends NodeEndpoint<BNode> {
 					data.add(nn);
 				});
 
+		in.removeAll();
 		return new EndpointJsonResponse(data, this);
 	}
 }

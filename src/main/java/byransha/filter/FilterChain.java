@@ -11,7 +11,7 @@ import java.util.function.Predicate;
 
 public class FilterChain extends FilterNode {
 
-    @ListOptions(type = ListOptions.ListType.LIST, allowCreation = true)
+    @ListOptions(type = ListOptions.ListType.LIST, allowCreation = false, allowAdd = false, allowMultiple = true)
     public ListNode<FilterNode> filters;
 
     @ListOptions(

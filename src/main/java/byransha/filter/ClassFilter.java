@@ -12,11 +12,9 @@ public class ClassFilter extends FieldFilterNode {
 
     @ListOptions(
         type = ListOptions.ListType.DROPDOWN,
-        elementType = ListOptions.ElementType.STRING,
-        allowCreation = false,
-        source = ListOptions.OptionsSource.PROGRAMMATIC
+        allowCreation = false
     )
-    public ListNode<StringNode> targetClass;
+    public ListNode<Cluster> targetClass;
 
     public BooleanNode includeSubclasses;
 
@@ -61,10 +59,11 @@ public class ClassFilter extends FieldFilterNode {
 
     @Override
     public boolean filter(BNode node) {
-        String selectedClass = targetClass.getSelected();
+        Cluster cl = targetClass.get(0);
+        String selectedClass= cl != null ? cl.typeOfCluster.getSimpleName() : null;
 
-        if (selectedClass == null || selectedClass.trim().isEmpty()) {
-            System.out.println("No class selected, allowing all nodes.");
+        if ( selectedClass == null || selectedClass.trim().isEmpty()) {
+//            System.out.println("No class selected, allowing all nodes.");
             return true;
         }
 
@@ -118,10 +117,6 @@ public class ClassFilter extends FieldFilterNode {
         super.configure(config, user);
 
         if (config.has("targetClass")) {
-            targetClass.removeAll();
-            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
-            classNode.set(config.get("targetClass").asText(), user);
-            targetClass.add(classNode, user);
 
             // Auto-enable when a class is selected
             String selectedClass = config.get("targetClass").asText();
@@ -171,9 +166,6 @@ public class ClassFilter extends FieldFilterNode {
     public void setTargetClass(String className, User user) {
         targetClass.removeAll();
         if (className != null && !className.trim().isEmpty()) {
-            StringNode classNode = new StringNode(g, user, InstantiationInfo.persisting);
-            classNode.set(className, user);
-            targetClass.add(classNode, user);
             // Auto-enable when ar class is selected
             enabled.set(true, user);
         } else {

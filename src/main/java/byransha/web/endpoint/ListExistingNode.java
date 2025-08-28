@@ -58,6 +58,7 @@ public class ListExistingNode extends NodeEndpoint<BNode> {
         }
 
         filteredNodes.forEach(node -> addNodeInfo(a, node));
+        in.removeAll();
 
         return new EndpointJsonResponse(a, "List_existing_node call executed successfully");
     }

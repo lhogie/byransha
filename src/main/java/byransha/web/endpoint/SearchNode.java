@@ -35,14 +35,11 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
     ) throws Throwable {
         ArrayNode dataArray = JsonNodeFactory.instance.arrayNode();
         FilterChain activeFilterChain = null;
+        String searchTerm = getSearchTerm(currentNode);
 
         // Get query and filter chain
         final String query = getQueryFromInput(currentNode, in);
-//        activeFilterChain = getActiveFilterChain(currentNode, in, user);
-        String searchTerm = getSearchTerm(currentNode);
-        Class<? extends BNode> searchClass = getClassFilter(currentNode);
-        System.out.println("Searching for class : " + searchClass);
-
+        activeFilterChain = getActiveFilterChain(currentNode, in, user);
         // Pagination parameters
         int page = in.has("page") ? in.get("page").asInt() : 1;
         int pageSize = in.has("pageSize") ? in.get("pageSize").asInt() : 50;
@@ -71,11 +68,12 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             return true;
         });
 
-        // Apply class filter if specified
-        if (searchClass != null) {
-            nodes = nodes.stream()
-                .filter(node -> searchClass.equals(node.getClass()))
-                .collect(Collectors.toList());
+        // Apply filter chain if present
+        if (activeFilterChain != null && query.isEmpty()) {
+            nodes = nodes
+                    .stream()
+                    .filter(activeFilterChain.toPredicate())
+                    .collect(Collectors.toList());
         }
 
         // Sort by Levenshtein distance
@@ -145,16 +143,15 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
      */
     private FilterChain getActiveFilterChain(BNode currentNode, ObjectNode in, User creator)
         throws Throwable {
-        if (currentNode instanceof SearchForm && in.isEmpty()) {
+        if (currentNode instanceof SearchForm) {
             SearchForm searchForm = (SearchForm) currentNode;
-
-            // Use the SearchForm's FilterChain if it's enabled
-//            if (
-//                searchForm.filterChain != null &&
-//                searchForm.filterChain.enabled.get()
-//            ) {
-//                return searchForm.filterChain;
-//            }
+//             Use the SearchForm's FilterChain if it's enabled
+            if (
+                searchForm.filterChain != null &&
+                searchForm.filterChain.enabled.get()
+            ) {
+                return searchForm.filterChain;
+            }
         } else {
             // Parse custom filters from request and create a FilterChain
             if (in.has("filters") && in.get("filters").isArray()) {
@@ -288,19 +285,6 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             String searchText = searchForm.searchTerm.get();
             searchForm.results.removeAll();
             return searchText != null ? searchText.trim() : null;
-        }
-        return null;
-    }
-
-    private Class<? extends BNode> getClassFilter(BNode currentNode) {
-        if (currentNode instanceof SearchForm) {
-            SearchForm searchForm = (SearchForm) currentNode;
-            if (searchForm.classFilter.size() > 0) {
-                Cluster cluster = searchForm.classFilter.get(0);
-                if (cluster != null && cluster.getTypeOfCluster() != null) {
-                    return cluster.getTypeOfCluster();
-                }
-            }
         }
         return null;
     }
