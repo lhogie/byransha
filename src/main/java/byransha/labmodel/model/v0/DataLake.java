@@ -111,6 +111,10 @@ public class DataLake extends BNode {
 
         var csv = new CSV(new File(oldDir, "TB_personneI3S_IT.csv"), ";");
 
+        int total = csv.size();
+        int barLength = 40;
+        int count = 0;;
+
         for (var l : csv) {
             var person = new Person(g, user, InstantiationInfo.persisting); //new Person(graph);
 
@@ -230,8 +234,16 @@ public class DataLake extends BNode {
 //            if (
 //                l.stream().anyMatch(Objects::nonNull)
 //            ) throw new IllegalStateException("unused columns: " + l);
+
+            // ---- Progression ----
+            count++;
+            int percent = (count * 100) / total;
+            int filled = (count * barLength) / total;
+
+            String bar = "[" + "=".repeat(filled) + " ".repeat(barLength - filled) + "]";
+            System.out.print("\r" + bar + " " + percent + "% (" + count + "/" + total + ")");
         }
 
-        System.out.println("Finished loading datalake");
+        System.out.println(" Finished loading datalake");
     }
 }

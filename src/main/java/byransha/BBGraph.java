@@ -92,11 +92,13 @@ public class BBGraph extends BNode {
                 )
                 .add(this);
 
+        System.out.println("Starting to load DB from " + directory);
         loadFromDisk(
                 n -> logger.accept(LOGTYPE.FILE_READ, "loading node " + n),
                 (n, s) -> System.out.println("loading arc " + n + ", " + s),
                 systemUser()
         );
+        System.out.println("DB loaded, " + nodesById.size() + " nodes in memory.");
 
         this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
         int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
@@ -110,6 +112,12 @@ public class BBGraph extends BNode {
         this.system = new User(this, null, InstantiationInfo.notPersisting, "system", ""); // self accept
         new User(g, systemUser(), InstantiationInfo.notPersisting, "user", "test");
         new SearchForm(g, systemUser(), InstantiationInfo.notPersisting );
+
+        g.forEachNode(node -> {
+            node.findCluster(system);
+        });
+        System.out.println("Cluster done");
+
         endOfConstructor();
 
         logger.accept(LOGTYPE.FILE_READ, "loading DB from " + directory);

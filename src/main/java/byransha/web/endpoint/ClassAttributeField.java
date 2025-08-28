@@ -215,14 +215,16 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         currentNodeInformation.set("attributes", a);
         currentNodeInformation.put("page", page);
         currentNodeInformation.put("pageSize", pageSize);
-        currentNodeInformation.put("total", node.outDegree());
+
         if(node instanceof ListNode<?> ls){
+            currentNodeInformation.put("total", ls.get().size());
             currentNodeInformation.put(
                     "hasNext",
                     offset + limit < ls.get().size()
             );
         }
         else{
+            currentNodeInformation.put("total", node.outDegree());
             currentNodeInformation.put(
                     "hasNext",
                     offset + limit < node.outs().size()

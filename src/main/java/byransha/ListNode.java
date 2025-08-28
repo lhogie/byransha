@@ -85,7 +85,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
         for (T element : getElements()) {
             if (element instanceof BNode bNode) {
-                consumer.accept(bNode.id() + ". " + bNode, bNode);
+                consumer.accept(bNode.id() + ". " + bNode.prettyName(), bNode);
             }
         }
     }
@@ -101,7 +101,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 
         List<T> newL = new ArrayList<>(get());
-        if(!options.allowMultiple()){newL.clear();}
+        if(!options.allowMultiple() && options.type().equals(ListOptions.ListType.DROPDOWN)){newL.clear();}
         newL.add(element);
         set(newL, creator);
 

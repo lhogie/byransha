@@ -34,7 +34,7 @@ const FormPage = () => {
 			>
 				<IconButton
 					className="close-button"
-					onClick={() => navigate(-1)}
+					onClick={() => navigate(`/home`)}
 					aria-label="close"
 					sx={{ position: "absolute", top: 16, right: 16 }}
 				>

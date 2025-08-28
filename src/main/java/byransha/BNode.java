@@ -32,9 +32,8 @@ public abstract class BNode {
     public BBGraph g;
     private final int id;
     public ColorNode color;
-    //    public boolean persisting = false;
+
     public Cluster cluster;
-    //public StringNode comment;
     private CountDownLatch constructionMonitor;
     private boolean persisting ;
 
@@ -140,20 +139,15 @@ public abstract class BNode {
     }
 
     protected void createOuts(User creator) {
-        var cluster = findCluster(creator);
-
-        if (cluster != null){
-            this.cluster = cluster;
-            cluster.add(this, creator);
-        }
+        this.findCluster(creator);
     }
 
     protected void nodeConstructed(User user) {
         // This method can be overridden by subclasses to perform additional initialization
     }
 
-    private synchronized Cluster findCluster(User creator) {
-        if (!(this instanceof BusinessNode)) return null;
+    public synchronized void findCluster(User creator) {
+        if (!(this instanceof BusinessNode)) return;
 
         var cluster = g.find(Cluster.class, c ->
                 c.getTypeOfCluster() == this.getClass());
@@ -163,7 +157,9 @@ public abstract class BNode {
             cluster.setTypeOfCluster(this.getClass());
         }
 
-        return cluster;
+        if(this.cluster != null && this.cluster == cluster) return;
+        cluster.add(this, creator);
+        this.cluster = cluster;
     }
 
     public void setColor(String newColor, User creator) {

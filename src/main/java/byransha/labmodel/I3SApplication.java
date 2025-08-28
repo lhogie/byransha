@@ -4,7 +4,6 @@ import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
 import byransha.UserApplication;
-import byransha.labmodel.model.v0.Agent;
 import byransha.labmodel.model.v0.Country;
 import byransha.labmodel.model.v0.DataLake;
 import byransha.labmodel.model.v0.view.LabView;
@@ -25,7 +24,6 @@ public class I3SApplication extends UserApplication {
         Objects.requireNonNull(g);
         new StructureView(g);
         new LabView(g);
-        new Agent(g, creator, InstantiationInfo.persisting);
 
         new Thread(()-> {
             Country.loadCountries(g, creator);
