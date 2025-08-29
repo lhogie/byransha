@@ -17,7 +17,7 @@ public abstract class FilterNode extends BNode {
     @Override
     protected void createOuts(User creator) {
         enabled = new BooleanNode(g, creator, InstantiationInfo.persisting);
-        enabled.set("enabled", this, true, creator);
+        enabled.set( true, creator);
     }
 
     @Override

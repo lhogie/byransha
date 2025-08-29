@@ -22,8 +22,8 @@ public class ContainsFilter extends FieldFilterNode {
         caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
         wholeWordsOnly = new BooleanNode(g, creator, InstantiationInfo.persisting);
 
-        caseSensitive.set("caseSensitive", this, false, creator);
-        wholeWordsOnly.set("wholeWordsOnly", this, false, creator);
+        caseSensitive.set(false, creator);
+        wholeWordsOnly.set(false, creator);
     }
 
     @Override

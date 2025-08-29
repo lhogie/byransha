@@ -28,7 +28,7 @@ public class ClassFilter extends FieldFilterNode {
         super.createOuts(creator);
         targetClass = new ListNode(g, creator, InstantiationInfo.persisting);
         includeSubclasses = new BooleanNode(g, creator, InstantiationInfo.persisting);
-        includeSubclasses.set("includeSubclasses", this, true, creator);
+        includeSubclasses.set(true, creator);
     }
 
     @Override

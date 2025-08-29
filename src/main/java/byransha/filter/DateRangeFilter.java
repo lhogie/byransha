@@ -34,7 +34,7 @@ public class DateRangeFilter extends FieldFilterNode {
         fromDate = new DateNode(g, creator, InstantiationInfo.persisting);
         toDate = new DateNode(g, creator, InstantiationInfo.persisting);
         includeNull = new BooleanNode(g, creator, InstantiationInfo.persisting);
-        includeNull.set("includeNull", this, true, creator);
+        includeNull.set(true, creator);
 
     }
 

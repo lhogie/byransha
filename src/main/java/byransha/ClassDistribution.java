@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpsExchange;
 
 public class ClassDistribution
         extends NodeEndpoint<BNode>
-        implements View {
+        implements TechnicalView {
 
     public ClassDistribution(BBGraph db) {
         super(db);

@@ -1,19 +1,15 @@
 package byransha.web.view;
 
+import byransha.web.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.User;
-import byransha.web.DevelopmentView;
-import byransha.web.NodeEndpoint;
-import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointResponse;
-import byransha.web.WebServer;
 import toools.extern.Proces;
 
-public abstract class ModelJSONDOTView extends NodeEndpoint<BBGraph> implements DevelopmentView {
+public abstract class ModelJSONDOTView extends NodeEndpoint<BBGraph> implements TechnicalView {
 	public ModelJSONDOTView(BBGraph db) {
 		super(db);
 	}

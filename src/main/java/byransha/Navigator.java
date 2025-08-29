@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-public class Navigator extends NodeEndpoint<BNode> implements View {
+public class Navigator extends NodeEndpoint<BNode> implements TechnicalView {
 
     @Override
     public String whatItDoes() {

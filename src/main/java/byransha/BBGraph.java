@@ -152,7 +152,6 @@ public class BBGraph extends BNode {
         new NodeEndpoints(this);
         new SetValue(this);
         new AnyGraph.Classes(this);
-        new Edit(this);
         new User.History(this);
         new UI(g, g.systemUser(), InstantiationInfo.notPersisting);
         new UI.getProperties(this);

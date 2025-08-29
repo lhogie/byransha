@@ -25,9 +25,9 @@ public class NumericRangeFilter extends FieldFilterNode {
         includeMin = new BooleanNode(g, creator, InstantiationInfo.persisting);
         includeMax = new BooleanNode(g, creator, InstantiationInfo.persisting);
 
-        includeNull.set("includeNull", this, true, creator);
-        includeMin.set("includeMin", this, true, creator);
-        includeMax.set("includeMax", this, true, creator);
+        includeNull.set(true, creator);
+        includeMin.set(true, creator);
+        includeMax.set(true, creator);
     }
 
     @Override

@@ -39,12 +39,4 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
     public void set(Boolean newValue, User user) {
         super.set(newValue, user);
     }
-
-    public void set(String fieldName, BNode parentNode, Boolean newValue, User user) {
-        BooleanNode node = g.find(BooleanNode.class, n -> {
-            return n.get() != null && n.get().equals(newValue);
-        });
-        if (node != null) parentNode.setField(fieldName, node);
-        else super.set(newValue, user);
-    }
 }

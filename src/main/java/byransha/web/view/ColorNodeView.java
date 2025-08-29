@@ -3,18 +3,14 @@ package byransha.web.view;
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.DevelopmentView;
-import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.WebServer;
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 public class ColorNodeView
     extends NodeEndpoint<BNode>
-    implements DevelopmentView {
+    implements TechnicalView {
 
     public ColorNodeView(BBGraph db) {
         super(db);

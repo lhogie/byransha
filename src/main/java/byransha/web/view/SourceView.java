@@ -1,19 +1,15 @@
 package byransha.web.view;
 
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.DevelopmentView;
-import byransha.web.EndpointResponse;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.WebServer;
 import toools.src.Source;
 
-public class SourceView extends NodeEndpoint<BNode> implements DevelopmentView {
+public class SourceView extends NodeEndpoint<BNode> implements TechnicalView {
 
 	@Override
 	public String whatItDoes() {

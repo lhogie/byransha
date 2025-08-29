@@ -1,17 +1,14 @@
 package byransha.web.view;
 
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.BBGraph;
 import byransha.BNode;
 import byransha.User;
-import byransha.web.DevelopmentView;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.WebServer;
 
-public class ToStringView extends NodeEndpoint<BNode> implements DevelopmentView {
+public class ToStringView extends NodeEndpoint<BNode> implements TechnicalView {
 
 	public ToStringView(BBGraph db) {
 		super(db);

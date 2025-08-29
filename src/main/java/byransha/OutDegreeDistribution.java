@@ -6,7 +6,7 @@ import com.sun.net.httpserver.HttpsExchange;
 
 public class OutDegreeDistribution
         extends NodeEndpoint<BNode>
-        implements View {
+        implements TechnicalView {
 
     @Override
     public String whatItDoes() {

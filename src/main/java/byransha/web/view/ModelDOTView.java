@@ -5,10 +5,7 @@ import byransha.BNode;
 import byransha.ListNode;
 import byransha.User;
 import byransha.ValuedNode;
-import byransha.web.DevelopmentView;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.WebServer;
+import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Modifier;
@@ -23,7 +20,7 @@ import lmu.WriterException;
 
 public class ModelDOTView
     extends NodeEndpoint<BBGraph>
-    implements DevelopmentView {
+    implements TechnicalView {
 
     @Override
     public String whatItDoes() {
