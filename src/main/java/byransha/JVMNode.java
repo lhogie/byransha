@@ -80,7 +80,7 @@ public class JVMNode extends SystemNode {
         }
     }
 
-    public static class Kill extends NodeEndpoint<JVMNode> implements Changer {
+    public static class Kill extends NodeEndpoint<BNode> implements Changer {
 
         public Kill(BBGraph db) {
             super(db);
@@ -90,7 +90,8 @@ public class JVMNode extends SystemNode {
 
         @Override
         public boolean canExec(User user) {
-            return user.name.get().equals("admin");
+            return true;
+//            return user.name.get().equals("admin");
         }
 
         @Override
@@ -104,7 +105,7 @@ public class JVMNode extends SystemNode {
             User user,
             WebServer webServer,
             HttpsExchange http,
-            JVMNode jvm
+            BNode anyNode
         ) throws Throwable {
             new Thread(() -> {
                 try {

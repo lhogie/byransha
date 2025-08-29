@@ -8,11 +8,15 @@ rsync --progress -a --delete --delete-excluded --exclude-from deploy.exclude.lst
 echo "restarting service"
 echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080/api?endpoint=kill')
 
-
 exit
+
+
 mkdir -p /tmp/byransha/bin/
 echo "coping to tmp"
 rsync -a --delete --copy-links $(cat byransha-classpath.lst) /tmp/byransha/bin/
+
+
+
 
 echo Releasing to I3S website
 N=byransha-$(date | tr ' ' '_').tgz

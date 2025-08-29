@@ -10,8 +10,7 @@ public abstract class BusinessNode extends NotPrimitiveNode {
 		super(g, creator, ii);
 		endOfConstructor();
 	}
-
-
+	
 	@Override
 	public String toString() {
 		return prettyName();

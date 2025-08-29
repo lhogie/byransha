@@ -29,6 +29,7 @@ public abstract class FieldFilterNode extends FilterNode {
 
     protected Object getFieldValue(BNode node) {
         String path = fieldPath.get();
+
         if (path == null || path.trim().isEmpty()) {
             return node;
         }

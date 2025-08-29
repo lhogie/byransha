@@ -60,7 +60,6 @@ public class WebServer extends BNode {
         System.getProperty("user.home") + "/." + BBGraph.class.getPackageName()
     );
 
-
     public static void main(String[] args) throws Exception {
         var argMap = mapArgs(args);
         BBGraph g = new BBGraph(defaultDBDirectory, argMap);
@@ -119,7 +118,7 @@ public class WebServer extends BNode {
         //System.out.println("   done");
 
         try {
-            Path classPathFile = new File(
+            Path classPathFile = new File(System.getProperty("user.dir"),
                 Byransha.class.getPackageName() + "-classpath.lst"
             ).toPath();
             System.out.println("writing " + classPathFile);

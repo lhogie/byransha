@@ -116,7 +116,8 @@ public class BBGraph extends BNode {
         g.forEachNode(node -> {
             node.findCluster(system);
         });
-        System.out.println("Cluster done");
+
+        System.out.println("Clustering done");
 
         endOfConstructor();
 
