@@ -60,10 +60,12 @@ const ViewCard = memo(
 		view,
 		onExpand,
 		handleViewToggle,
+		nbViewVisible,
 	}: {
 		view: any;
 		onExpand: (view: any) => void;
 		handleViewToggle: (endpoint: string) => void;
+		nbViewVisible: number;
 	}) => {
 		const theme = useTheme();
 		const handleToggle = useCallback(
@@ -91,7 +93,7 @@ const ViewCard = memo(
 				fallback={
 					<Card
 						sx={{
-							aspectRatio: "1",
+							...(nbViewVisible > 1 && { aspectRatio: "1" }),
 							border: `1px solid ${theme.palette.error.main}`,
 							borderRadius: 2,
 							display: "flex",
@@ -109,7 +111,7 @@ const ViewCard = memo(
 			>
 				<Card
 					sx={{
-						aspectRatio: "1",
+						...(nbViewVisible > 1 && { aspectRatio: "1" }),
 						border: `1px solid ${theme.palette.divider}`,
 						borderRadius: 2,
 						display: "flex",
@@ -346,6 +348,7 @@ const ViewGrid = memo(
 							view={view}
 							onExpand={onViewExpand}
 							handleViewToggle={onViewToggle}
+							nbViewVisible={deferredVisibleViews.length}
 						/>
 					))}
 				</Box>
@@ -384,23 +387,6 @@ const HomePage = memo(() => {
 	useTitle("Accueil");
 
 	const _nodeInfo = useApiMutation("node_info");
-
-	// const handleViewExpand = useCallback(
-	// 	(view: any) => {
-	// 		withLoading(async () => {
-	// 			if (view.name.endsWith("class_attribute_field")) {
-	// 				await jumpToId.mutateAsync({
-	// 					node: data?.data?.node_id,
-	// 				});
-	// 				navigate(`/add-node/form/${data?.data?.node_id}`);
-	// 			} else {
-	// 				navigate(`/home/${view.name}`)
-	// 				console.log("Expanding view:", view.name);
-	// 			}
-	// 		});
-	// 	},
-	// 	[setExpandedView, withLoading, jumpToId, data, navigate],
-	// );
 
 	// Column management with auto mode toggle
 	const [columns, setColumns, isColumnsUpdating] = useOptimizedState(2, {
