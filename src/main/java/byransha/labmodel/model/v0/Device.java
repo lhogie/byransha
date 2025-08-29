@@ -29,10 +29,27 @@ public class Device extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		if(brand == null || brand.get() == null || brand.get().isEmpty()) {
-			System.err.println("Device with no brand: " + this);
-			return "Device(unknown)";
+		if(brand != null || serialNumber != null || modelName != null) {
+			String pretty = "";
+			if(brand != null && brand.get() != null && !brand.get().isBlank()) {
+				pretty += brand.get();
+			}
+			if(modelName != null && modelName.get() != null && !modelName.get().isBlank()) {
+				if(!pretty.isBlank()) {
+					pretty += " ";
+				}
+				pretty += modelName.get();
+			}
+			if(serialNumber != null && serialNumber.get() != null && !serialNumber.get().isBlank()) {
+				if (!pretty.isBlank()) {
+					pretty += " ";
+				}
+				pretty += "(" + serialNumber.get() + ")";
+			}
+			if(!pretty.isBlank()) {
+				return pretty;
+			}
 		}
-		return brand.get() + " " + modelName.get() + "(S/N: " + serialNumber.get() + ")";
+		return null;
 	}
 }

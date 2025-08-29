@@ -4,11 +4,16 @@ import byransha.BBGraph;
 import byransha.ListNode;
 import byransha.StringNode;
 import byransha.User;
+import byransha.annotations.Required;
 import byransha.web.NodeEndpoint;
 
 public class Publication extends BusinessNode {
+    @Required
     public StringNode title;
+
+    @Required
     public ListNode<Person> authors;
+
     public ACMClassifier acmClassifier;
 
     public Publication(BBGraph g, User creator, InstantiationInfo ii) {
@@ -39,6 +44,7 @@ public class Publication extends BusinessNode {
 
     @Override
     public String prettyName() {
-        return "publication " + title.get();
+        if(title != null && title.get() != null) return title.get();
+        return null;
     }
 }

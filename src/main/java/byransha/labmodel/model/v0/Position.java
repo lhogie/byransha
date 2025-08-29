@@ -27,7 +27,8 @@ public class Position extends BNode {
 
 	@Override
 	public String prettyName() {
-		return "position";
+		if(status != null) return "Position with status: " + status.prettyName();
+		return null;
 	}
 
 	@Override

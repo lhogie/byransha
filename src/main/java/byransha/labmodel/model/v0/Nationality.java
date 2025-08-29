@@ -19,6 +19,6 @@ public class Nationality extends StringNode {
 
     @Override
     public String prettyName() {
-        return get() != null ? "" + get() : "Nationality (unknown)";
+        return get() != null ? null + get() : null;
     }
 }

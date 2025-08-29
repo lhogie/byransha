@@ -1,10 +1,13 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.Required;
 
 public class Campus extends BusinessNode {
 
+    @Required
     public StringNode name;
+
     public ListNode<Building> buildings;
 
     public Campus(BBGraph g, User creator, InstantiationInfo ii) {
@@ -21,7 +24,10 @@ public class Campus extends BusinessNode {
 
     @Override
     public String prettyName() {
-        return "campus";
+        if(name != null && name.get() != null && !name.get().isBlank()) {
+            return "Campus : " + name.get();
+        }
+        return null;
     }
 
     @Override

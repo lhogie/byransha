@@ -3,8 +3,11 @@ package byransha.labmodel.model.v0;
 import byransha.BBGraph;
 import byransha.StringNode;
 import byransha.User;
+import byransha.annotations.Required;
 
 public class Status extends BusinessNode {
+
+	@Required
 	StringNode name;
 
 	public Status(BBGraph g, User creator, InstantiationInfo ii) {
@@ -25,9 +28,7 @@ public class Status extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		if(name == null || name.get() == null || name.get().isEmpty()) {
-			return "Unnamed Status";
-		}
-		return name.get();
+		if(name != null && name.get() != null) return name.get();
+		return null;
 	}
 }

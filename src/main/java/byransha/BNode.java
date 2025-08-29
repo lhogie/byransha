@@ -419,7 +419,7 @@ public abstract class BNode {
 
     public static class InOutsNivoView
             extends NodeEndpoint<BNode>
-            implements View {
+            implements TechnicalView {
 
         @Override
         public String whatItDoes() {

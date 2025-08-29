@@ -1,11 +1,14 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.Required;
 
 import java.util.List;
 
 public class Contract extends BusinessNode {
+    @Required
     private StringNode name;
+
     private Out<Person> holder;
     ListNode<Person> subHolders;
     ListNode<Person> coordinators;
@@ -31,8 +34,7 @@ public class Contract extends BusinessNode {
     @Override
     public String prettyName() {
         if (name == null || name.get() == null || name.get().isEmpty()) {
-            System.err.println("Contract with no name: " + this);
-            return "Contract(unknown)";
+            return null;
         }
         return name.get() + "(" + holder.prettyName() + ")";
     }

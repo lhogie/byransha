@@ -1,13 +1,17 @@
 package byransha.labmodel.model.v0;
 
 import byransha.*;
+import byransha.annotations.Required;
 
 public class Office extends BusinessNode {
 
+    @Required
     public StringNode name;
+
     public ListNode<Person> users;
-    public IntNode surface;
-    public IntNode capacity;
+
+    @Required
+    public IntNode surface, capacity;
 
     public Office(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
@@ -30,11 +34,10 @@ public class Office extends BusinessNode {
 
     @Override
     public String prettyName() {
-        if (name.get() == null || name.get().isEmpty()) {
-            return "Unnamed Office";
+        if (name != null) {
+            return "Office: " + name.get();
         }
-
-        return "Office: " + (name != null ? name.get() : "Unnamed");
+        return null;
     }
 
     public double occupationRatio() {

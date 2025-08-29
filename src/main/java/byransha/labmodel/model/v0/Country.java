@@ -73,7 +73,18 @@ public class Country extends BusinessNode {
 
 	@Override
 	public String prettyName() {
-		if(name == null || name.get() == null || name.get().isEmpty() ||codeNode.get() == null || codeNode.get().isEmpty()) return "Country(unknown)";
-		return name.get() + "(" + codeNode.get().toUpperCase() + ")";
+		if(name != null || codeNode != null ) {
+			String pretty = "";
+			if(name != null && name.get() != null && !name.get().isBlank()) {
+				pretty += name.get();
+			}
+			if(codeNode != null && codeNode.get() != null && !codeNode.get().isBlank()) {
+				if(!pretty.isBlank()) { pretty += " "; }
+				pretty += "(" + codeNode.get().toUpperCase() + ")";
+			}
+			if(!pretty.isBlank()) { return pretty; }
+		}
+		return null;
+
 	}
 }
