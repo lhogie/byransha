@@ -30,20 +30,65 @@ The frontend is then organized as a grid of such views for the _current node_.
 There exist technical views and business views.
 
 
-# Configuration for developers
-If you plan to develop Byransha and run it locally, you'll need the [Bun](https://bun.sh) on-the-fly compiler.
-Go to the frontend source directory  `~\byransha\src\main\java\frontend` to:
-- install dependencies:
+# Developer Setup
+
+## Prerequisites
+
+The project requires:
+- **Java 23+** ([Download](https://adoptium.net/))
+- **Maven 3.9+** ([Download](https://maven.apache.org/download.cgi))
+- **Node.js 20+** ([Download](https://nodejs.org/))
+- **Bun** ([Download](https://bun.sh))
+
+### Check Requirements
+
+A script is provided to verify all prerequisites are installed:
+
+**Linux/Mac:**
 ```bash
-bun install
+bash checkRequirements.sh
 ```
-- run it:
+
+**Windows:**
 ```bash
+# Install Git Bash first: https://git-scm.com/downloads/win
+bash checkRequirements.sh
+```
+
+The script will automatically detect missing tools and provide installation instructions.
+
+## Quick Start
+
+### Option : Using IntelliJ IDEA
+
+1. Open the project in IntelliJ IDEA
+2. A shared run configuration **"Start Backend"** is available in the toolbar
+3. For the frontend, navigate to `src/main/java/frontend/` and run:
+   ```bash
+   bun install
+   bun start
+   ```
+
+### Option 2: Manual Setup
+
+**Backend:**
+```bash
+mvn clean compile
+mvn exec:java -Dexec.mainClass=byransha.web.WebServer
+```
+
+**Frontend:**
+```bash
+cd src/main/java/frontend
+bun install
 bun start
 ```
-When you make changes to the frontend directory, [bun] recompiles automatically  and you can view the updates in your browser. No refresh needed.
 
-Run class `byransha.web.WebServer` to start the backend.
+## Development
+
+- **Backend** runs on `http://localhost:8080`
+- **Frontend** runs on `http://localhost:3000` (or another port if 3000 is busy)
+- Frontend has hot-reload: changes are reflected automatically, no browser refresh needed
 
 
 
