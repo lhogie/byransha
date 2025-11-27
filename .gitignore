@@ -67,7 +67,11 @@ deploy.exclude.lst
 # Clés ou variables d'environnement
 .env
 .env.*
-.idea
+
+# IntelliJ IDEA - Exclure tout sauf Start_Backend configuration
+.idea/
+!.idea/runConfigurations/
+!.idea/runConfigurations/Start_Backend.xml
 
 # Si tu génères un coverage local ou si tu utilises Jacoco
 coverage/
