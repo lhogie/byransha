@@ -37,7 +37,12 @@ public class DateRangeFilter extends FieldFilterNode {
         includeNull.set(true, creator);
 
     }
-
+   
+    @Override
+    public boolean hasFilledValues() {
+        return fromDate.get() != null || toDate.get() != null;
+    }
+    
     @Override
     public boolean filter(BNode node) {
         Object fieldValue = getFieldValue(node);

@@ -59,6 +59,11 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (node.getClass().getSimpleName().equals("SearchForm")) {
                 return false;
             }
+            // Exclure les ShortcutNodes pour éviter les doublons
+            if (node.getClass().getSimpleName().equals("ShortcutNode")) {
+                return false;
+            }
+            
             if( searchTerm != null && !searchTerm.isEmpty()) {
                 return basicSearch(node, searchTerm);
             }
@@ -83,10 +88,25 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
             levenshteinSearch(query, nodes);
         }
 
+        //  Dédupliquer par nom + classe pour éviter les résultats en doublon
+        Map<String, BusinessNode> deduplicatedMap = new LinkedHashMap<>();
+        for (BusinessNode node : nodes) {
+            String deduplicationKey = node.prettyName() + "|" + node.getClass().getSimpleName();
+            deduplicatedMap.putIfAbsent(deduplicationKey, node);
+        }
+        nodes = new ArrayList<>(deduplicatedMap.values());
+        
+
         int total = nodes.size();
         int fromIndex = Math.min((page - 1) * pageSize, total);
         int toIndex = Math.min(fromIndex + pageSize, total);
         List<BusinessNode> pageNodes = nodes.subList(fromIndex, toIndex);
+
+        //  fontionnement laisse a desirer
+        if (currentNode instanceof SearchForm sf) {
+            sf.results.removeAll();
+        }
+        // 
 
         pageNodes.forEach(node -> {
             if (currentNode instanceof SearchForm sf) {
@@ -283,7 +303,7 @@ public class SearchNode<N extends BNode> extends NodeEndpoint<BNode> {
         if (currentNode instanceof SearchForm) {
             SearchForm searchForm = (SearchForm) currentNode;
             String searchText = searchForm.searchTerm.get();
-            searchForm.results.removeAll();
+           // searchForm.resultsa.removeAll();
             return searchText != null ? searchText.trim() : null;
         }
         return null;

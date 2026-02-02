@@ -16,6 +16,7 @@ import { saveAs } from "file-saver";
 import { useNavigate } from "react-router";
 import { createKey } from "@/utils/utils";
 import NestedFields from "./NestedFields";
+import { SearchFormView } from "./SearchFormView"; // ajout Dylan
 
 export const Form = ({
 	rawApiData,
@@ -33,6 +34,7 @@ export const Form = ({
 	const navigate = useNavigate();
 	const pageName =
 		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
+	const currentNodeType = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.type; // ajout Dylan
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
 	const searchNodeMutation = useApiMutation("search_node", {
@@ -83,6 +85,12 @@ export const Form = ({
 				Error loading form fields: {error.message || "Unknown error"}
 			</Typography>
 		);
+		// Ajout Dylan
+	// Utiliser la vue spéciale pour SearchForm
+	if (currentNodeType === "SearchForm") {
+		return <SearchFormView rootId={rootId} rawApiData={rawApiData} refetch={refetch} />;
+	}
+	// Fin ajout Dylan
 
 	return (
 		<Box>
@@ -94,25 +102,8 @@ export const Form = ({
 					id: rootId,
 				}}
 			/>
+			
 
-			{rawApiData?.data?.results?.[0]?.result?.data.currentNode?.type ===
-			"SearchForm" ? (
-				<Button
-					variant="contained"
-					color="primary"
-					sx={{}}
-					onClick={() =>
-						searchNodeMutation.mutate({
-							node_id: rootId,
-							pageSize: 1000,
-						})
-					}
-				>
-					Rechercher
-				</Button>
-			) : (
-				""
-			)}
 			<SpeedDial
 				ariaLabel="SpeedDial playground example"
 				sx={{ position: "absolute", bottom: 16, right: 16 }}

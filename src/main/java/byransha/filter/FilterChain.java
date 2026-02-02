@@ -47,6 +47,18 @@ public class FilterChain extends FilterNode {
             logicalOperator.add(andOption, user);
         }
     }
+    
+    @Override
+    public boolean hasFilledValues() {
+        // Une FilterChain a des valeurs si au moins un de ses filtres a des valeurs
+        for (FilterNode filter : filters.getElements()) {
+            if (filter != null && filter.hasFilledValues()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
 
     @Override
     public boolean filter(BNode node) {

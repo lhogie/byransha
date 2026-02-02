@@ -21,6 +21,13 @@ public class StartsWithFilter extends FieldFilterNode {
         caseSensitive = new BooleanNode(g, creator, InstantiationInfo.persisting);
         caseSensitive.set(false, creator);
     }
+    
+    @Override
+    public boolean hasFilledValues() {
+        String prefixValue = prefix.get();
+        return prefixValue != null && !prefixValue.isEmpty();
+    }
+    
 
     @Override
     public boolean filter(BNode node) {
