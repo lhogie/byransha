@@ -17,7 +17,7 @@ public abstract class FilterNode extends BNode {
     @Override
     protected void createOuts(User creator) {
         enabled = new BooleanNode(g, creator, InstantiationInfo.persisting);
-        enabled.set( true, creator);
+        enabled.set(true, creator); // Activer par défaut (les filtres vides retournent true)
     }
 
     @Override
@@ -27,9 +27,16 @@ public abstract class FilterNode extends BNode {
 
     public abstract boolean filter(BNode node);
 
+    
+    //  Vérifie si ce filtre a des valeurs remplies (non vides)
+     // Retourne true si le filtre contient des critères de recherche
+     
+    public abstract boolean hasFilledValues();
+
     public List<Class<? extends BNode>> getSupportedTypes() {
         return List.of();
     }
+    
 
     public boolean supportsNodeType(Class<? extends BNode> nodeClass) {
         List<Class<? extends BNode>> supportedTypes = getSupportedTypes();

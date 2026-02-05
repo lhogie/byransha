@@ -1,8 +1,14 @@
 package byransha;
 
+import byransha.BNode.InstantiationInfo;
 import byransha.annotations.ListOptions;
-import byransha.filter.*;
-import byransha.labmodel.model.v0.Country;
+import byransha.filter.ClassFilter;
+import byransha.filter.ContainsFilter;
+import byransha.filter.DateRangeFilter;
+import byransha.filter.FilterChain;
+import byransha.filter.FilterNode; // ajout Dylan
+import byransha.filter.NumericRangeFilter;
+import byransha.filter.StartsWithFilter;
 
 public class SearchForm extends BNode {
 
@@ -35,28 +41,23 @@ public class SearchForm extends BNode {
 
         // Add a class filter (replaces searchClass)
         ClassFilter classFilter = new ClassFilter(g, creator, InstantiationInfo.persisting);
-        classFilter.enabled.set(false, creator);
         classFilter.includeSubclasses.set(true, creator);
         filterChain.addFilter(classFilter, creator);
 
         // Add a contains filter for additional text matching
         ContainsFilter containsFilter = new ContainsFilter(g, creator, InstantiationInfo.persisting);
-        containsFilter.enabled.set(false, creator); // Start disabled
         filterChain.addFilter(containsFilter, creator);
 
         // Add a starts with filter
         StartsWithFilter startsWithFilter = new StartsWithFilter(g, creator, InstantiationInfo.persisting);
-        startsWithFilter.enabled.set( false, creator);
         filterChain.addFilter(startsWithFilter, creator);
 
         // Add a date range filter
         DateRangeFilter dateFilter = new DateRangeFilter(g, creator, InstantiationInfo.persisting);
-        dateFilter.enabled.set(false, creator); // Start disabled
         filterChain.addFilter(dateFilter, creator);
 
         // Add a numeric range filter
         NumericRangeFilter numericFilter = new NumericRangeFilter(g, creator, InstantiationInfo.persisting);
-        numericFilter.enabled.set(false, creator); // Start disabled
         filterChain.addFilter(numericFilter, creator);
     }
 
@@ -67,11 +68,22 @@ public class SearchForm extends BNode {
 
     @Override
     public String prettyName() {
+        
+        long filledFiltersCount = filterChain.filters.getElements().stream()
+            .filter(filter -> {
+                if (filter instanceof FilterNode) {
+                    return ((FilterNode) filter).hasFilledValues();
+                }
+                return false;
+            })
+            .count();
+        
+
         return (
-            filterChain.filters.getElements().size() +
-            " filter(s) - " +
-            results.size() +
-            " result(s)"
+            // filterChain.filters.getElements().size() + " filter(s) - " + + results.size() + " result(s)"
+            
+            filledFiltersCount +" filter(s) active - " + results.size() + " result(s)"
+
         );
     }
 }

@@ -301,10 +301,17 @@ export const SearchBar = memo(() => {
 
 	const results = useMemo(() => {
 		try {
-			return (
+			// Dylan Deb ajout verification
+			const allResults =
 				data?.pages.flatMap((d) => d.data?.results?.[0]?.result?.data?.data) ||
-				[]
+				[];
+			
+			// Dédupliquer les résultats par ID
+			const uniqueResults = Array.from(
+				new Map(allResults.map((item) => [item?.id, item])).values()
 			);
+			return uniqueResults;
+			// Dylan Fin
 		} catch (error) {
 			console.error("Error processing search results:", error);
 			setError("Error processing search results");

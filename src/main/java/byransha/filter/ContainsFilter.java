@@ -25,6 +25,13 @@ public class ContainsFilter extends FieldFilterNode {
         caseSensitive.set(false, creator);
         wholeWordsOnly.set(false, creator);
     }
+   
+    @Override
+    public boolean hasFilledValues() {
+        String searchValue = searchText.get();
+        return searchValue != null && !searchValue.isEmpty();
+    }
+    
 
     @Override
     public boolean filter(BNode node) {

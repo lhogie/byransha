@@ -20,6 +20,7 @@ import {
 	MoreHoriz as MoreHorizIcon,
 	Search as SearchIcon,
 	ManageSearchRounded as TuneIcon,
+	AccountTree as TreeIcon,
 } from "@mui/icons-material";
 import {
 	Alert,
@@ -36,6 +37,7 @@ import {
 	Link,
 	MenuItem,
 	type PopoverProps,
+	Snackbar,
 	Stack,
 	Tooltip,
 	Typography,
@@ -256,7 +258,15 @@ const BreadcrumbNav = memo(
 	}) => {
 		const theme = useTheme();
 		const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-		const deferredHistory = useDeferredValue(history);
+		
+		// Filtrer les SearchForm de l'historique pour l'affichage
+		const filteredHistory = useMemo(() => 
+			history.filter((item: any) => item.type !== 'SearchForm'),
+			[history]
+		);
+		
+		const deferredHistory = useDeferredValue(filteredHistory); // history au lieu de filteredHistory pour revenir a la version d'avant
+		
 
 		const visibleHistory = useMemo(() => {
 			// Show fewer items on mobile
@@ -290,35 +300,6 @@ const BreadcrumbNav = memo(
 						},
 					}}
 				>
-					<Link
-						component={RouterLink}
-						to="/home"
-						sx={{
-							display: "flex",
-							alignItems: "center",
-							gap: 0.5,
-							color: "text.secondary",
-							fontSize: { xs: "0.75rem", md: "0.875rem" },
-							textDecoration: "none",
-							p: { xs: 0.5, md: 1 },
-							borderRadius: 1,
-							transition: "all 0.2s ease",
-							minWidth: 0,
-							"&:hover": {
-								color: "primary.main",
-								bgcolor: "action.hover",
-							},
-							"&:focus": {
-								outline: `2px solid ${theme.palette.primary.main}`,
-								outlineOffset: "2px",
-							},
-						}}
-						aria-label="Retour à l'accueil"
-					>
-						<HomeIcon fontSize="small" />
-						{!isMobile && "Accueil"}
-					</Link>
-
 					{deferredHistory.length > (isMobile ? 1 : 3) && (
 						<Tooltip title="Afficher tout l'historique">
 							<IconButton
@@ -347,6 +328,7 @@ const BreadcrumbNav = memo(
 
 					{visibleHistory.map((hist: any) => {
 						const isCurrentNode = hist === currentNode;
+						const hasImage = hist.image_url || hist.image;
 						return (
 							<Link
 								key={hist.id}
@@ -368,6 +350,9 @@ const BreadcrumbNav = memo(
 									textOverflow: "ellipsis",
 									whiteSpace: "nowrap",
 									minWidth: 0,
+									display: "flex",
+									alignItems: "center",
+									gap: 0.5,
 									"&:hover": {
 										color: "primary.main",
 										bgcolor: "action.hover",
@@ -381,7 +366,33 @@ const BreadcrumbNav = memo(
 								aria-current={isCurrentNode ? "page" : undefined}
 								title={hist.pretty_name}
 							>
-								{hist.pretty_name}
+								{hasImage ? (
+									<>
+										<Box
+											component="img"
+											src={hist.image_url || `data:${hist.mime_type};base64,${hist.image}`}
+											alt={hist.pretty_name}
+											sx={{
+												width: { xs: 20, md: 24 },
+												height: { xs: 20, md: 24 },
+												borderRadius: 1,
+												objectFit: "cover",
+											}}
+										/>
+										<Box
+											component="span"
+											sx={{
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
+											}}
+										>
+											{hist.pretty_name}
+										</Box>
+									</>
+								) : (
+									hist.pretty_name
+								)}
 							</Link>
 						);
 					})}
@@ -556,6 +567,17 @@ const MainLayout = memo(() => {
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 	const [searchDialogOpen, setSearchDialogOpen] = useState(false);
 
+	// Historique en branches (tree-based navigation)
+	const [historyBranches, setHistoryBranches] = useState<Array<{
+		id: string;
+		name: string;
+		timestamp: string;
+		history: any[];
+	}>>([]);
+	const [currentBranchId, setCurrentBranchId] = useState<string | null>(null);
+	const [branchMenuAnchor, setBranchMenuAnchor] = useState<null | HTMLElement>(null);
+	const [branchSavedSnackbar, setBranchSavedSnackbar] = useState(false);
+
 	// Debounced error clearing
 	const [errorToClear, setErrorToClear] = useOptimizedState<string | null>(
 		null,
@@ -682,6 +704,79 @@ const MainLayout = memo(() => {
 		[jumpToNode],
 	);
 
+	// Gestion des branches d'historique
+	const createNewBranch = useCallback(() => {
+		if (history.length === 0) return;
+
+		const now = new Date();
+		const timestamp = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+		
+		// Filtrer les SearchForm de l'historique avant de créer la branche
+		const filteredHistory = history.filter((item: any) => 
+			item.type !== 'SearchForm'
+		);
+		
+		if (filteredHistory.length === 0) return;
+		
+		
+		// Nom de la branche: dernier(s) nœud(s) + timestamp
+		const lastNodes = filteredHistory.slice(-2);  // history au lieu de filteredHistory pour revenir a la version d'avant
+		const branchName = lastNodes.length === 1
+			? `${lastNodes[0].pretty_name} (${timestamp})`
+			: `${lastNodes[0].pretty_name} • ${lastNodes[1].pretty_name} (${timestamp})`;
+
+		const newBranch = {
+			id: `branch-${Date.now()}`,
+			name: branchName,
+			timestamp,
+			history: filteredHistory
+		};
+
+		setHistoryBranches(prev => {
+			const updated = [newBranch, ...prev];
+			// Limiter à 10 branches
+			return updated.slice(0, 10);
+		});
+
+		setCurrentBranchId(newBranch.id);
+	}, [history]);
+
+	const switchToBranch = useCallback((branchId: string) => {
+		const branch = historyBranches.find(b => b.id === branchId);
+		if (branch) {
+			setHistory(branch.history);
+			setCurrentBranchId(branchId);
+			setBranchMenuAnchor(null);
+			
+			// Naviguer vers le dernier nœud de la branche
+			if (branch.history.length > 0) {
+				const lastNode = branch.history[branch.history.length - 1];
+				jumpToNode(lastNode.id);
+			}
+		}
+	}, [historyBranches, setHistory, jumpToNode]);
+
+	const handleLogoClick = useCallback((e: React.MouseEvent) => {
+		e.preventDefault();
+		// Créer une nouvelle branche avant de retourner à l'accueil
+		if (history.length > 1) { // Plus d'un élément = on a navigué
+			createNewBranch();
+			setBranchSavedSnackbar(true);
+		}
+		// Reset l'historique pour repartir à zéro
+		setHistory([]);
+		setCurrentBranchId(null);
+		navigate("/home");
+	}, [history, createNewBranch, setHistory, navigate]);
+
+	const handleBranchMenuOpen = useCallback((event: React.MouseEvent<HTMLElement>) => {
+		setBranchMenuAnchor(event.currentTarget);
+	}, []);
+
+	const handleBranchMenuClose = useCallback(() => {
+		setBranchMenuAnchor(null);
+	}, []);
+
 	const handleLogout = useCallback(async () => {
 		await withLoading(async () => {
 			try {
@@ -784,7 +879,7 @@ const MainLayout = memo(() => {
 			>
 				{/* Error display */}
 				{error && (
-					<Alert
+		 				<Alert
 						severity="error"
 						onClose={() => setError(null)}
 						sx={{
@@ -818,21 +913,54 @@ const MainLayout = memo(() => {
 										overflow: "hidden",
 									}}
 								>
-									{/* Logo - responsive sizing */}
-									<Box
+									{/* Logo responsive sizing */}
+									<Link
+										component={RouterLink}
+										to="/home"
+										onClick={handleLogoClick}
 										sx={{
 											height: { xs: 32, md: 40 },
 											display: "flex",
 											alignItems: "center",
 											flexShrink: 0,
+											textDecoration: "none",
+											transition: "opacity 0.2s ease",
+											"&:hover": {
+												opacity: 0.8,
+											},
+											"&:focus": {
+												outline: `2px solid ${theme.palette.primary.main}`,
+												outlineOffset: "2px",
+											},
 										}}
+										aria-label="Retour à l'accueil"
 									>
 										<img
 											src="/logo.svg"
 											alt="Logo I3S"
 											style={{ height: "100%" }}
 										/>
-									</Box>
+									</Link>
+
+									{/* Bouton branches */}
+									{historyBranches.length > 0 && (
+										<Tooltip title="Historique des branches">
+											<IconButton
+												onClick={handleBranchMenuOpen}
+												size="small"
+												sx={{
+													color: "text.secondary",
+													ml: 1,
+													"&:hover": {
+														color: "primary.main",
+													},
+												}}
+												aria-label="Afficher l'historique des branches"
+											>
+												<Box component="span" sx={{ fontSize: "1.2rem" }}>⎇</Box>
+											</IconButton>
+										</Tooltip>
+									)}
 
 									{/* Navigation breadcrumbs */}
 									<Box sx={{ minWidth: 0, flex: 1, overflow: "hidden" }}>
@@ -852,6 +980,76 @@ const MainLayout = memo(() => {
 										</Suspense>
 									</Box>
 								</Stack>
+
+								{/* branches menu */}
+								<Menu
+									anchorEl={branchMenuAnchor}
+									open={Boolean(branchMenuAnchor)}
+									onClose={handleBranchMenuClose}
+									anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+									transformOrigin={{ vertical: "top", horizontal: "left" }}
+									PaperProps={{
+										sx: {
+											borderRadius: 2,
+											boxShadow: 3,
+											mt: 1,
+											minWidth: 280,
+											maxWidth: 400,
+										},
+									}}
+								>
+									<Box sx={{ px: 2, py: 1, borderBottom: 1, borderColor: "divider" }}>
+										<Typography variant="subtitle2" fontWeight={600}>
+											Historique des branches ({historyBranches.length}/10)
+										</Typography>
+									</Box>
+									{historyBranches.map((branch) => (
+										<MenuItem
+											key={branch.id}
+											onClick={() => switchToBranch(branch.id)}
+											selected={branch.id === currentBranchId}
+											sx={{
+												py: 1.5,
+												px: 2,
+												"&.Mui-selected": {
+													bgcolor: "action.selected",
+												},
+											}}
+										>
+											<Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
+												<Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+													<Box component="span" sx={{ fontSize: "1rem" }}>⎇</Box>
+													<Typography variant="body2" noWrap sx={{ flex: 1 }}>
+														{branch.name}
+													</Typography>
+													{branch.id === currentBranchId && (
+														<Chip label="Actuelle" size="small" color="primary" />
+													)}
+												</Box>
+												<Typography variant="caption" color="text.secondary" sx={{ ml: 3 }}>
+													{branch.history.length} nœud{branch.history.length > 1 ? 's' : ''}
+												</Typography>
+											</Box>
+										</MenuItem>
+									))}
+								</Menu>
+
+								{/* Snackbar confirmation */}
+								<Snackbar
+									open={branchSavedSnackbar}
+									autoHideDuration={3000}
+									onClose={() => setBranchSavedSnackbar(false)}
+									anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+								>
+									<Alert 
+										onClose={() => setBranchSavedSnackbar(false)} 
+										severity="success" 
+										sx={{ width: "100%" }}
+									>
+										Branche sauvegardée dans l'historique
+									</Alert>
+								</Snackbar>
+
 							</ErrorBoundary>
 						),
 						toolbarActions: () => (

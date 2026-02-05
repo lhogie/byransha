@@ -29,6 +29,14 @@ public class NumericRangeFilter extends FieldFilterNode {
         includeMin.set(true, creator);
         includeMax.set(true, creator);
     }
+    
+    @Override
+    public boolean hasFilledValues() {
+        String minVal = minValue.get();
+        String maxVal = maxValue.get();
+        return (minVal != null && !minVal.isEmpty()) || (maxVal != null && !maxVal.isEmpty());
+    }
+    
 
     @Override
     public boolean filter(BNode node) {

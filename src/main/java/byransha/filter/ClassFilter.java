@@ -56,6 +56,21 @@ public class ClassFilter extends FieldFilterNode {
 
         targetClass.setStaticOptions(l);
     }
+    
+    @Override
+    public boolean hasFilledValues() {
+        try {
+            if (targetClass.size() == 0) {
+                return false;
+            }
+            Cluster cl = targetClass.get(0);
+            String selectedClass = cl != null ? cl.typeOfCluster.getSimpleName() : null;
+            return selectedClass != null && !selectedClass.trim().isEmpty();
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
 
     @Override
     public boolean filter(BNode node) {

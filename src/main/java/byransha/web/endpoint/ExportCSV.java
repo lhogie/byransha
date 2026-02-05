@@ -109,7 +109,35 @@ public class ExportCSV extends NodeEndpoint<BNode> {
         StringWriter writer = new StringWriter();
 
         try {
-            if (exportMultiple || node instanceof ListNode) {
+            // if (exportMultiple || node instanceof ListNode) {
+            //Dylan début
+            // Special handling for SearchForm: export its results instead
+            if (node instanceof SearchForm) {
+                SearchForm searchForm = (SearchForm) node;
+                List<BusinessNode> nodesToExport = new ArrayList<>();
+                
+                // Get all results from the SearchForm
+                searchForm.results.forEachOut((name, n) -> {
+                    if (n instanceof BusinessNode) {
+                        nodesToExport.add((BusinessNode) n);
+                    }
+                });
+                
+                if (nodesToExport.isEmpty()) {
+                    return ErrorResponse.badRequest(
+                        "No results to export. Please perform a search first."
+                    );
+                }
+                
+                CSVExporter.exportToCSV(
+                    nodesToExport,
+                    writer,
+                    fieldPredicate,
+                    nodePredicate,
+                    maxDepth
+                );
+            } else if (exportMultiple || node instanceof ListNode) {
+                // Dylan fin
                 // Get the list of nodes to export
                 List<BusinessNode> nodesToExport = new ArrayList<>();
 
