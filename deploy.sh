@@ -16,7 +16,7 @@ rsync -a --delete --copy-links $(cat byransha-classpath.lst) bin/
 echo "rsync to dronic"
 rsync --progress -a --delete --delete-excluded --exclude-from deploy.exclude.lst ./ byransha@dronic.i3s.unice.fr:backend/
 echo "killing server, the SystemV service will restart by automatically"
-echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080/api?endpoint=kill')
+echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080/api/kill')
 
 exit
 
