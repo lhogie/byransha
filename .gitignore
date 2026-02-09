@@ -82,3 +82,6 @@ build/frontend/
 
 *.svg
 *.json
+
+# Ignorer le frontend déplacé (Java)
+src/main/java/frontend/
