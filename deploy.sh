@@ -1,12 +1,22 @@
 set -e
 
 
+# build frontend
+pushd .
+cd src/main/java/frontend
+npm install
+rm -rf node_modules
+bun install
+bun run build
+popd
+
+# 
 rsync -a --delete --copy-links $(cat byransha-classpath.lst) bin/
 
 echo "rsync to dronic"
 rsync --progress -a --delete --delete-excluded --exclude-from deploy.exclude.lst ./ byransha@dronic.i3s.unice.fr:backend/
-echo "restarting service"
-echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080/api?endpoint=kill')
+echo "killing server, the SystemV service will restart by automatically"
+echo response from server : $(curl -k 'https://dronic.i3s.unice.fr:8080/api/kill')
 
 exit
 

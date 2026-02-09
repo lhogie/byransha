@@ -30,7 +30,7 @@ public class I3SApplication extends UserApplication {
 
             var lake = new DataLake(this.g, creator, Paths.get(
                     System.getProperty("user.home"),
-                    "i3s_extraction"
+                    "data_lake"
             ).toFile());
 
             try {

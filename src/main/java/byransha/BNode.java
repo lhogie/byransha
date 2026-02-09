@@ -11,39 +11,36 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
-import java.awt.Color;
+import org.apache.commons.lang3.tuple.Pair;
+import toools.gui.Utilities;
+import toools.reflect.Clazz;
+
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.apache.commons.lang3.tuple.Pair;
-import toools.gui.Utilities;
-import toools.reflect.Clazz;
-
 public abstract class BNode {
-    public BBGraph g;
     private final int id;
+    public BBGraph g;
     public ColorNode color;
 
     public Cluster cluster;
     private CountDownLatch constructionMonitor;
-    private boolean persisting ;
-
-    public sealed interface InstantiationInfo permits InstantiationInfo.IDInfo, InstantiationInfo.PersistenceInfo {
-        record IDInfo(int value) implements InstantiationInfo {}
-        record PersistenceInfo(boolean value) implements InstantiationInfo {}
-
-        PersistenceInfo persisting = new PersistenceInfo(true);
-        PersistenceInfo notPersisting = new PersistenceInfo(false);
-    }
+    private boolean persisting;
+    private LinkedHashMap<String, BNode> outsCache;
+    private boolean outsCacheDirty = true;
 
     protected BNode(BBGraph g, User creator, InstantiationInfo parms) {
         this.constructionMonitor = new CountDownLatch(bnodeDepth());
@@ -53,59 +50,40 @@ public abstract class BNode {
             this.g = (BBGraph) this;
         } else {
             this.g = g;
-            if (parms instanceof InstantiationInfo.IDInfo i) {
-                this.id = i.value();
+
+            if (parms instanceof InstantiationInfo.IDInfo(int value)) {
+                this.id = value;
                 this.persisting = true;
-            } else if (parms instanceof InstantiationInfo.PersistenceInfo i) {
+            } else if (parms instanceof InstantiationInfo.PersistenceInfo(boolean value)) {
                 if (g.isLoading) {
-                    throw new RuntimeException(
-                            "Creating node " + this + " while graph is loading is not allowed"
-                    );
+                    throw new RuntimeException("Creating node " + this + " while graph is loading is not allowed");
                 }
 
                 this.id = g.nextID();
-                this.persisting = i.value();
+                this.persisting = value;
                 createOuts(creator);
             } else {
-                throw new IllegalArgumentException(
-                        "InstantiationInfo must be either IDInfo or PersistenceInfo, got: " + parms.getClass().getName()
-                );
+                throw new IllegalArgumentException("InstantiationInfo must be either IDInfo or PersistenceInfo, got: " + parms.getClass().getName());
             }
 
             if (this instanceof NodeEndpoint ne) {
                 var alreadyInName = this.g.findEndpoint(ne.name());
 
                 if (alreadyInName != null) {
-                    throw new IllegalArgumentException(
-                            "Adding " +
-                                    ne +
-                                    ", endpoint with same name '" +
-                                    ne.name() +
-                                    "' already there: " +
-                                    alreadyInName.getClass().getName()
-                    );
+                    throw new IllegalArgumentException("Adding " + ne + ", endpoint with same name '" + ne.name() + "' already there: " + alreadyInName.getClass().getName());
                 }
                 this.setColor("#00fff5", creator);
             }
 
             Class<? extends BNode> nodeClass = this.getClass();
-            this.g.byClass
-                    .computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>())
-                    .add(this);
+            this.g.byClass.computeIfAbsent(nodeClass, k -> new ConcurrentLinkedQueue<>()).add(this);
 
             BNode previous = this.g.nodesById.putIfAbsent(this.id(), this);
 
-            if (previous != null && previous != this) throw new IllegalStateException(
-                    "can't add node " +
-                            this +
-                            " because its ID " +
-                            this.id() +
-                            " is already taken by: " +
-                            previous
-            );
+            if (previous != null && previous != this)
+                throw new IllegalStateException("can't add node " + this + " because its ID " + this.id() + " is already taken by: " + previous);
 
             new Thread(() -> {
-                // waits 1s
                 try {
                     var confirmed = constructionMonitor.await(5, TimeUnit.SECONDS);
 
@@ -122,72 +100,17 @@ public abstract class BNode {
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    new Exception(
-                            "Node " + BNode.this + " was not initialized properly, construction monitor timed out. Expected " +
-                                    bnodeDepth() + " confirmations but got " + (bnodeDepth() - constructionMonitor.getCount()) +  ". Did you explicitely call endOfConstructor() ?????"
-                    ).printStackTrace();
+                    new Exception("Node " + BNode.this
+                            + " was not initialized properly, construction monitor timed out. Expected " + bnodeDepth()
+                            + " confirmations but got " + (bnodeDepth() - constructionMonitor.getCount())
+                                + ". Did you explicitely call endOfConstructor() ?????").printStackTrace();
                 } catch (IOException e) {
-                    throw new RuntimeException(
-                            "Error while saving node " + this + " to disk: " + e.getMessage(), e
-                    );
+                    throw new RuntimeException("Error while saving node " + this + " to disk: " + e.getMessage(), e);
                 } finally {
                     constructionMonitor = null;
                 }
-            })
-                    .start();
+            }).start();
         }
-    }
-
-    protected void createOuts(User creator) {
-        this.findCluster(creator);
-    }
-
-    protected void nodeConstructed(User user) {
-        // This method can be overridden by subclasses to perform additional initialization
-    }
-
-    public synchronized void findCluster(User creator) {
-        if (!(this instanceof BusinessNode)) return;
-
-        var cluster = g.find(Cluster.class, c ->
-                c.getTypeOfCluster() == this.getClass());
-
-        if (cluster == null) {
-            cluster = new Cluster(g, creator, InstantiationInfo.notPersisting);
-            cluster.setTypeOfCluster(this.getClass());
-        }
-
-        if(this.cluster != null && this.cluster == cluster) return;
-        cluster.add(this, creator);
-        this.cluster = cluster;
-    }
-
-    public void setColor(String newColor, User creator) {
-        g.findAll(ColorNode.class, n -> {
-            if (n.getAsString().equals(newColor.toString())) {
-                this.color = n;
-                return true;
-            }
-            return false;
-        });
-
-        if (this.color == null || !this.color.getAsString().equals(newColor)) {
-            this.color = new ColorNode(g, creator, InstantiationInfo.persisting);
-            this.color.set(newColor, creator);
-        }
-    }
-
-    public abstract String whatIsThis();
-
-    public record InLink(String role, BNode source) {
-        @Override
-        public String toString() {
-            return source + "." + role;
-        }
-    }
-
-    public List<InLink> ins() {
-        return g.findRefsTO(this);
     }
 
     private static List<Field> getOutNodeFields(BNode node) {
@@ -202,8 +125,7 @@ public abstract class BNode {
                     if (Out.class == f.getType()) {
                         f.setAccessible(true);
                         fields.add(f);
-                    }
-                    else if (BNode.class.isAssignableFrom(f.getType()) || f.get(node) instanceof BNode) {
+                    } else if (BNode.class.isAssignableFrom(f.getType()) || f.get(node) instanceof BNode) {
                         f.setAccessible(true);
                         fields.add(f);
                     }
@@ -214,6 +136,50 @@ public abstract class BNode {
         }
 
         return Collections.unmodifiableList(fields);
+    }
+
+    protected void createOuts(User creator) {
+        this.findCluster(creator);
+    }
+
+    protected void nodeConstructed(User user) {
+        // This method can be overridden by subclasses to perform additional initialization
+    }
+
+    public synchronized void findCluster(User creator) {
+        if (!(this instanceof BusinessNode)) return;
+
+        var cluster = g.find(Cluster.class, c -> c.getTypeOfCluster() == this.getClass());
+
+        if (cluster == null) {
+            cluster = new Cluster(g, creator, InstantiationInfo.notPersisting);
+            cluster.setTypeOfCluster(this.getClass());
+        }
+
+        if (this.cluster != null && this.cluster == cluster) return;
+        cluster.add(this, creator);
+        this.cluster = cluster;
+    }
+
+    public void setColor(String newColor, User creator) {
+        g.findAll(ColorNode.class, n -> {
+            if (n.getAsString().equals(newColor)) {
+                this.color = n;
+                return true;
+            }
+            return false;
+        });
+
+        if (this.color == null || !this.color.getAsString().equals(newColor)) {
+            this.color = new ColorNode(g, creator, InstantiationInfo.persisting);
+            this.color.set(newColor, creator);
+        }
+    }
+
+    public abstract String whatIsThis();
+
+    public List<InLink> ins() {
+        return g.findRefsTO(this);
     }
 
     public void forEachOutField(BiConsumer<String, BNode> consumer) {
@@ -250,17 +216,14 @@ public abstract class BNode {
         search(consumer, List::removeLast);
     }
 
-    private void search(
-            Consumer<BNode> consumer,
-            Function<List<BNode>, BNode> producer
-    ) {
+    private void search(Consumer<BNode> consumer, Function<List<BNode>, BNode> listExtractor) {
         List<BNode> q = new ArrayList<>();
         BNode c = this;
         q.add(c);
         var visited = new HashSet<BNode>();
 
         while (!q.isEmpty()) {
-            c = producer.apply(q);
+            c = listExtractor.apply(q);
             consumer.accept(c);
             c.forEachOutField((f, n) -> {
                 if (!visited.contains(n)) {
@@ -277,9 +240,6 @@ public abstract class BNode {
         return r;
     }
 
-    private LinkedHashMap<String, BNode> outsCache;
-    private boolean outsCacheDirty = true;
-
     public LinkedHashMap<String, BNode> outs() {
         if (outsCacheDirty || outsCache == null) {
             outsCache = new LinkedHashMap<String, BNode>();
@@ -293,16 +253,12 @@ public abstract class BNode {
         outsCacheDirty = true;
     }
 
-
     public int outDegree() {
         return outs().size();
     }
 
-    protected void onEdgeChanged(
-            String fieldName,
-            BNode oldTarget,
-            BNode newTarget
-    ) {}
+    protected void onEdgeChanged(String fieldName, BNode oldTarget, BNode newTarget) {
+    }
 
     public void remove() {
         invalidateOutsCache();
@@ -310,9 +266,7 @@ public abstract class BNode {
 
     public List<SearchResult> search(String query) {
         var r = new ArrayList<SearchResult>();
-        bfs(n ->
-                r.add(new SearchResult(query, n, n.distanceToSearchString(query)))
-        );
+        bfs(n -> r.add(new SearchResult(query, n, n.distanceToSearchString(query))));
         Collections.sort(r);
         return r;
     }
@@ -394,15 +348,13 @@ public abstract class BNode {
                         BNode oldValue = null;
                         try {
                             oldValue = (BNode) f.get(this);
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
 
                         f.set(this, targetNode);
 
                         invalidateOutsCache();
-                    } catch (
-                            IllegalArgumentException
-                            | IllegalAccessException e
-                    ) {
+                    } catch (IllegalArgumentException | IllegalAccessException e) {
                         throw new IllegalStateException(e);
                     }
                     return;
@@ -415,118 +367,6 @@ public abstract class BNode {
         var v = new BVertex("" + id());
         v.label = toString();
         return v;
-    }
-
-    public static class InOutsNivoView
-            extends NodeEndpoint<BNode>
-            implements TechnicalView {
-
-        @Override
-        public String whatItDoes() {
-            return "generates a NIVO description of the graph";
-        }
-
-        public InOutsNivoView(BBGraph db) {
-            super(db);
-            endOfConstructor();
-        }
-
-        @Override
-        public boolean sendContentByDefault() {
-            return false;
-        }
-
-        @Override
-        public EndpointResponse exec(
-                ObjectNode in,
-                User user,
-                WebServer webServer,
-                HttpsExchange exchange,
-                BNode n
-        ) {
-            var g = new AnyGraph();
-            var currentVertex = g.ensureHasVertex(n);
-            setVertexProperties(currentVertex, n, "pink");
-            currentVertex.size = 20;
-            var limit = 99;
-            AtomicInteger currentNumberNodes = new AtomicInteger(0);
-
-            if (n.getClass() == BBGraph.class) {
-                this.g.findAll(Cluster.class, c -> {
-                    var clusterVertex = g.ensureHasVertex(c);
-                    setVertexProperties(clusterVertex, c, "green");
-                    var arc = g.newArc(currentVertex, clusterVertex);
-                    arc.style = "dashed";
-                    arc.label = c.prettyName();
-                    return true;
-                });
-            } else {
-                n.forEachOutField((role, outNode) -> {
-                    if (
-                            currentNumberNodes.get() <= limit ||
-                                    outNode.getClass() == BBGraph.class
-                    ) {
-                        if (outNode.canSee(user) && n instanceof Cluster) {
-                            var outVertex = g.ensureHasVertex(outNode);
-                            setVertexProperties(outVertex, outNode, "blue");
-                            var arc = g.newArc(currentVertex, outVertex);
-                            arc.label = role;
-                            arc.color = "red";
-                            currentNumberNodes.getAndIncrement();
-                        } else if (
-                                outNode.canSee(user) &&
-                                        !(outNode instanceof ValuedNode<?>)
-                        ) {
-                            var outVertex = g.ensureHasVertex(outNode);
-                            setVertexProperties(outVertex, outNode, "blue");
-                            var arc = g.newArc(currentVertex, outVertex);
-                            arc.label = role;
-                            arc.color = "red";
-                            currentNumberNodes.getAndIncrement();
-                        }
-                    }
-                });
-
-                n.forEachIn((role, inNode) -> {
-                    if (inNode.canSee(user) && n instanceof Cluster) {
-                        var inVertex = g.ensureHasVertex(inNode);
-                        setVertexProperties(inVertex, inNode, "pink");
-                        var arc = g.newArc(inVertex, currentVertex);
-                        arc.style = "dotted";
-                        arc.label = role;
-                    } else if (
-                            inNode.canSee(user) &&
-                                    !(inNode instanceof ValuedNode<?>)
-                    ) {
-                        var inVertex = g.ensureHasVertex(inNode);
-                        setVertexProperties(inVertex, inNode, "pink");
-                        var arc = g.newArc(inVertex, currentVertex);
-                        arc.style = "dotted";
-                        arc.label = role;
-                    }
-                });
-            }
-
-            return new EndpointJsonResponse(
-                    g.toNivoJSON(),
-                    dialects.nivoNetwork
-            );
-        }
-
-        private void setVertexProperties(
-                BVertex vertex,
-                BNode node,
-                String defaultColor
-        ) {
-            if (node.color == null || node.color.get() == null) {
-                vertex.color = defaultColor;
-            } else {
-                vertex.color = node.color.getAsString();
-            }
-            vertex.label = node.prettyName();
-            vertex.whatIsThis = node.whatIsThis();
-            vertex.className = node.getClass().getName();
-        }
     }
 
     public JsonNode toJSONNode() {
@@ -563,32 +403,29 @@ public abstract class BNode {
         return new File(directory(), "outs");
     }
 
-    public boolean isPersisting(){
+    public boolean isPersisting() {
         return persisting;
     }
 
-    public boolean isReadOnly(){
+    public boolean isReadOnly() {
         return !isPersisting();
     }
 
-
     private void saveOuts() {
-        if (!isPersisting())
-            throw new IllegalStateException("can't save non-persisting node " + this);
+        if (!isPersisting()) throw new IllegalStateException("can't save non-persisting node " + this);
 
         var s = new StringBuilder();
 
         forEachOutField((name, outNode) -> {
-                    if (!(outNode instanceof BBGraph) && outNode.persisting) {
-                        s.append(name+":" + outNode.id()).append("\n");
-                    }
-                }
-        );
+            if (!(outNode instanceof BBGraph) && outNode.persisting) {
+                s.append(name + ":" + outNode.id()).append("\n");
+            }
+        });
 
 
         try {
             var f = outsFile();
-            g.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, f.getAbsolutePath());
+            BBGraph.logger.accept(BBGraph.LOGTYPE.FILE_WRITE, f.getAbsolutePath());
             Files.writeString(f.toPath(), s);
         } catch (IOException err) {
             throw new RuntimeException(err);
@@ -596,14 +433,13 @@ public abstract class BNode {
     }
 
     public synchronized void save() throws IOException {
-        if (!isPersisting()) throw new IllegalStateException(
-                "can't save a non-persisting node " + getClass().getName()
-        );
+        if (!isPersisting())
+            throw new IllegalStateException("can't save a non-persisting node " + getClass().getName());
 
         var d = directory();
 
         if (!d.exists()) {
-            g.logger.accept(BBGraph.LOGTYPE.FILE_READ, d.getAbsolutePath());
+            BBGraph.logger.accept(BBGraph.LOGTYPE.FILE_READ, d.getAbsolutePath());
             d.mkdirs();
         }
 
@@ -611,14 +447,14 @@ public abstract class BNode {
     }
 
     // called by all node constructors
-    protected void endOfConstructor(){
+    protected void endOfConstructor() {
         constructionMonitor.countDown();
     }
 
-    private int bnodeDepth(){
+    private int bnodeDepth() {
         int r = 0;
 
-        for (Class<?> c = getClass(); c != BNode.class; c = c.getSuperclass()){
+        for (Class<?> c = getClass(); c != BNode.class; c = c.getSuperclass()) {
             r++;
         }
 
@@ -660,28 +496,15 @@ public abstract class BNode {
                     f.setAccessible(true);
                     Object value = f.get(this);
 
-                    if (
-                            f.isAnnotationPresent(Required.class) &&
-                                    (value == null ||
-                                            (value instanceof ValuedNode &&
-                                                    ((ValuedNode) value).get() == null))
-                    ) {
+                    if (f.isAnnotationPresent(Required.class) && (value == null || (value instanceof ValuedNode && ((ValuedNode) value).get() == null))) {
                         return false;
                     }
 
                     if (value != null) {
                         if (f.isAnnotationPresent(Min.class)) {
                             Min min = f.getAnnotation(Min.class);
-                            if (
-                                    value instanceof ValuedNode &&
-                                            ((ValuedNode<?>) value).get() instanceof Number
-                            ) {
-                                if (
-                                        ((Number) ((ValuedNode<
-                                                ?
-                                                >) value).get()).doubleValue() <
-                                                min.value()
-                                ) {
+                            if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof Number) {
+                                if (((Number) ((ValuedNode<?>) value).get()).doubleValue() < min.value()) {
                                     return false;
                                 }
                             }
@@ -689,16 +512,8 @@ public abstract class BNode {
 
                         if (f.isAnnotationPresent(Max.class)) {
                             Max max = f.getAnnotation(Max.class);
-                            if (
-                                    value instanceof ValuedNode &&
-                                            ((ValuedNode<?>) value).get() instanceof Number
-                            ) {
-                                if (
-                                        ((Number) ((ValuedNode<
-                                                ?
-                                                >) value).get()).doubleValue() >
-                                                max.value()
-                                ) {
+                            if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof Number) {
+                                if (((Number) ((ValuedNode<?>) value).get()).doubleValue() > max.value()) {
                                     return false;
                                 }
                             }
@@ -708,40 +523,23 @@ public abstract class BNode {
                             Size size = f.getAnnotation(Size.class);
                             int length = -1;
 
-                            if (
-                                    value instanceof ValuedNode &&
-                                            ((ValuedNode<?>) value).get() instanceof String
-                            ) {
-                                length = ((String) ((ValuedNode<
-                                        ?
-                                        >) value).get()).length();
+                            if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof String) {
+                                length = ((String) ((ValuedNode<?>) value).get()).length();
                             } else if (value instanceof ListNode) {
                                 length = ((ListNode<?>) value).size();
                             } else if (value instanceof ListNode) {
                                 length = ((ListNode<?>) value).size();
                             }
 
-                            if (
-                                    length != -1 &&
-                                            (length < size.min() || length > size.max())
-                            ) {
+                            if (length != -1 && (length < size.min() || length > size.max())) {
                                 return false;
                             }
                         }
 
                         if (f.isAnnotationPresent(Pattern.class)) {
                             Pattern pattern = f.getAnnotation(Pattern.class);
-                            if (
-                                    value instanceof ValuedNode &&
-                                            ((ValuedNode<?>) value).get() instanceof String
-                            ) {
-                                if (
-                                        !((String) ((ValuedNode<
-                                                ?
-                                                >) value).get()).matches(
-                                                pattern.regex()
-                                        )
-                                ) {
+                            if (value instanceof ValuedNode && ((ValuedNode<?>) value).get() instanceof String) {
+                                if (!((String) ((ValuedNode<?>) value).get()).matches(pattern.regex())) {
                                     return false;
                                 }
                             }
@@ -753,6 +551,112 @@ public abstract class BNode {
             }
         }
         return true;
+    }
+
+    public sealed interface InstantiationInfo permits InstantiationInfo.IDInfo, InstantiationInfo.PersistenceInfo {
+        PersistenceInfo persisting = new PersistenceInfo(true);
+        PersistenceInfo notPersisting = new PersistenceInfo(false);
+
+        record IDInfo(int value) implements InstantiationInfo {
+        }
+
+        record PersistenceInfo(boolean value) implements InstantiationInfo {
+        }
+    }
+
+    public record InLink(String role, BNode source) {
+        @Override
+        public String toString() {
+            return source + "." + role;
+        }
+    }
+
+    public static class InOutsNivoView extends NodeEndpoint<BNode> implements TechnicalView {
+
+        public InOutsNivoView(BBGraph db) {
+            super(db);
+            endOfConstructor();
+        }
+
+        @Override
+        public String whatItDoes() {
+            return "generates a NIVO description of the graph";
+        }
+
+        @Override
+        public boolean sendContentByDefault() {
+            return false;
+        }
+
+        @Override
+        public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
+            var g = new AnyGraph();
+            var currentVertex = g.ensureHasVertex(n);
+            setVertexProperties(currentVertex, n, "pink");
+            currentVertex.size = 20;
+            var limit = 99;
+            AtomicInteger currentNumberNodes = new AtomicInteger(0);
+
+            if (n.getClass() == BBGraph.class) {
+                this.g.findAll(Cluster.class, c -> {
+                    var clusterVertex = g.ensureHasVertex(c);
+                    setVertexProperties(clusterVertex, c, "green");
+                    var arc = g.newArc(currentVertex, clusterVertex);
+                    arc.style = "dashed";
+                    arc.label = c.prettyName();
+                    return true;
+                });
+            } else {
+                n.forEachOutField((role, outNode) -> {
+                    if (currentNumberNodes.get() <= limit || outNode.getClass() == BBGraph.class) {
+                        if (outNode.canSee(user) && n instanceof Cluster) {
+                            var outVertex = g.ensureHasVertex(outNode);
+                            setVertexProperties(outVertex, outNode, "blue");
+                            var arc = g.newArc(currentVertex, outVertex);
+                            arc.label = role;
+                            arc.color = "red";
+                            currentNumberNodes.getAndIncrement();
+                        } else if (outNode.canSee(user) && !(outNode instanceof ValuedNode<?>)) {
+                            var outVertex = g.ensureHasVertex(outNode);
+                            setVertexProperties(outVertex, outNode, "blue");
+                            var arc = g.newArc(currentVertex, outVertex);
+                            arc.label = role;
+                            arc.color = "red";
+                            currentNumberNodes.getAndIncrement();
+                        }
+                    }
+                });
+
+                n.forEachIn((role, inNode) -> {
+                    if (inNode.canSee(user) && n instanceof Cluster) {
+                        var inVertex = g.ensureHasVertex(inNode);
+                        setVertexProperties(inVertex, inNode, "pink");
+                        var arc = g.newArc(inVertex, currentVertex);
+                        arc.style = "dotted";
+                        arc.label = role;
+                    } else if (inNode.canSee(user) && !(inNode instanceof ValuedNode<?>)) {
+                        var inVertex = g.ensureHasVertex(inNode);
+                        setVertexProperties(inVertex, inNode, "pink");
+                        var arc = g.newArc(inVertex, currentVertex);
+                        arc.style = "dotted";
+                        arc.label = role;
+                    }
+                });
+            }
+
+            return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
+        }
+
+        private void setVertexProperties(BVertex vertex, BNode node, String defaultColor) {
+            if (node.color == null || node.color.get() == null) {
+                vertex.color = defaultColor;
+            } else {
+                vertex.color = node.color.getAsString();
+            }
+            vertex.label = node.prettyName();
+            vertex.whatIsThis = node.whatIsThis();
+            vertex.className = node.getClass().getName();
+        }
     }
 
     /*

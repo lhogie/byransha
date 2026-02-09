@@ -15,6 +15,7 @@ public abstract class Event<N extends BNode> implements Serializable, Comparable
 
 	public abstract void undo(N system);
 
+	@Override
 	public int compareTo(Event<N> e) {
 		return date.compareTo(e.date);
 	}

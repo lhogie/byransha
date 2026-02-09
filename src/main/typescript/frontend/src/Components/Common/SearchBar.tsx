@@ -364,7 +364,9 @@ export const SearchBar = memo(() => {
 		if (!scrollElement) {
 			const timer = setTimeout(() => {
 				if (parentRef.current) {
-					parentRef.current.addEventListener("scroll", handleScroll, { passive: true });
+					parentRef.current.addEventListener("scroll", handleScroll, {
+						passive: true,
+					});
 				}
 			}, 100);
 			return () => clearTimeout(timer);
