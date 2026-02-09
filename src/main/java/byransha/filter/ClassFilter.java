@@ -162,16 +162,16 @@ public class ClassFilter extends FieldFilterNode {
     @Override
     public String prettyName() {
         if (targetClass == null) {
-            return "Class Filter (unconfigured)";
+            return "Nature du dossier (unconfigured)";
         }
 
         String selectedClass = targetClass.getSelected();
 
         if (selectedClass == null || selectedClass.trim().isEmpty()) {
-            return "Class Filter";
+            return "Nature du dossier";
         }
 
-        return "Class: " + selectedClass;
+        return "dossier: " + selectedClass;
     }
 
     public void refreshClassOptions() {

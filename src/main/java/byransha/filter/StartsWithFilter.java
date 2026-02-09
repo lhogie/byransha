@@ -85,13 +85,13 @@ public class StartsWithFilter extends FieldFilterNode {
     @Override
     public String prettyName() {
         if (prefix == null) {
-            return "Starts With Filter";
+            return "Initiale / Début de nom";
         }
 
         String prefixValue = prefix.get();
         if (prefixValue == null || prefixValue.isEmpty()) {
-            return "Starts With Filter";
+            return "Initiale / Début de nom";
         }
-        return "Starts with: " + prefixValue;
+        return "Initiale / Début de nom: " + prefixValue;
     }
 }

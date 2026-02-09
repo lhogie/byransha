@@ -117,7 +117,7 @@ public class ContainsFilter extends FieldFilterNode {
     public String prettyName() {
         String searchValue = searchText.get();
         if (searchValue == null || searchValue.isEmpty()) {
-            return "Contains Filter";
+            return "Recherche textuelle";
         }
 
         String prefix = wholeWordsOnly.get() ? "Word: " : "Contains: ";

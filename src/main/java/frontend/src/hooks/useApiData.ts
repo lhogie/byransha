@@ -150,6 +150,7 @@ export const useApiMutation = (endpoints?: string, options: any = {}) => {
 								{
 									withCredentials: true,
 									headers: {
+										"Content-Type": "application/json",
 										Accept: "application/cbor",
 									},
 									responseType: "arraybuffer",

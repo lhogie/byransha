@@ -71,6 +71,7 @@ public class BBGraph extends BNode {
     public UserApplication application;
     private final WebServer webServer;
     public volatile boolean isLoading;
+    private byransha.event.EventBus eventBus; // EventBus pour l'audit
 
     public BBGraph(File directory, Map<String, String> argMap)
             throws Exception {
@@ -99,6 +100,16 @@ public class BBGraph extends BNode {
                 systemUser()
         );
         System.out.println("DB loaded, " + nodesById.size() + " nodes in memory.");
+
+        // Initialiser l'EventBus après le chargement de la DB
+        this.eventBus = new byransha.event.EventBus(this);
+        System.out.println("EventBus initialized");
+        
+        // Exemple: S'abonner aux événements de création de filtres
+        eventBus.subscribe(byransha.event.EventType.FILTER_CREATED, event -> {
+            System.out.println("[EventBus Listener] New filter created: " + 
+                              (event.targetNode != null ? event.targetNode.prettyName() : "null"));
+        });
 
         this.application = appClass.getConstructor(BBGraph.class, User.class, InstantiationInfo.class).newInstance(this, admin(), InstantiationInfo.notPersisting);
         int port = Integer.parseInt(argMap.getOrDefault("-port", "8080"));
@@ -169,6 +180,8 @@ public class BBGraph extends BNode {
         new RemoveNode(this);
         new ColorNodeView(this);
         new ListChildClasses(this);
+        new AddProgressiveFilter(this);
+        new ApplyProgressiveFilter(this);
     }
 
     @Override
@@ -614,6 +627,13 @@ public class BBGraph extends BNode {
 
     public User systemUser() {
         return system;
+    }
+
+    /**
+     * Récupérer l'EventBus pour publier/écouter des événements
+     */
+    public byransha.event.EventBus getEventBus() {
+        return eventBus;
     }
 
     public static class DBView

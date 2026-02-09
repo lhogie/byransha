@@ -39,14 +39,25 @@ export const SearchFormView = ({
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 	const [showFilters, setShowFilters] = useState(false);
+	const [appliedFilters, setAppliedFilters] = useState<Array<{ 
+		id: number; 
+		filterChainId: number; 
+		resultsId: number;
+		pairId: number; // ID du FilterResultPair backend
+		filterType?: string;
+		filterValue?: string;
+		filterLabel?: string;
+		capturedResults?: any;
+	}>>([]);
 	const [searchValue, setSearchValue] = useState("");
 
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
 	const setValueMutation = useApiMutation("set_value");
+	const addProgressiveFilterMutation = useApiMutation("add_progressive_filter");
+	const applyProgressiveFilterMutation = useApiMutation("apply_progressive_filter");
 	
-	const pageName =
-		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
+	const pageName = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
 
 	const searchNodeMutation = useApiMutation("search_node", {
 		onSuccess: async () => {
@@ -79,7 +90,7 @@ export const SearchFormView = ({
 			});
 		},
 	});
-
+	
 	// Récupérer les attributs du SearchForm
 	const attributes =
 		rawApiData?.data?.results?.[0]?.result?.data?.attributes || [];
@@ -101,24 +112,14 @@ export const SearchFormView = ({
 	// Recherche automatique avec debounce
 	useEffect(() => {
 		const timer = setTimeout(async () => {
-			// Invalider d'abord le cache du SearchForm pour obtenir les dernières valeurs des filtres
-			await queryClient.invalidateQueries({
-				queryKey: [
-					"infinite",
-					"apiData",
-					"class_attribute_field",
-					{
-						node_id: rootId,
-					},
-				],
-			});
-
-			// Ensuite déclencher la recherche
-			searchNodeMutation.mutate({
-				node_id: rootId,
-				pageSize: 1000,
-			});
-		}, 1500); // Augmenter le délai pour laisser le temps aux mutations de se terminer
+			// Ne pas lancer la recherche si la valeur est vide et qu'aucun filtre n'est appliqué
+			if (!searchValue && appliedFilters.length === 0) return;
+            
+            searchNodeMutation.mutate({
+                node_id: rootId,
+                pageSize: 1000,
+            });
+        }, 1000); // 1 seconde de délai
 
 		return () => clearTimeout(timer);
 	}, [searchValue]); // Déclencher uniquement quand searchValue change
@@ -126,6 +127,65 @@ export const SearchFormView = ({
 	const handleFilterToggle = useCallback(() => {
 		setShowFilters((prev) => !prev);
 	}, []);
+
+	const addNewFilter = useCallback(async () => {
+        // Appeler le backend pour créer une nouvelle paire FilterChain/Results
+        const response = await addProgressiveFilterMutation.mutateAsync({
+            node_id: rootId,
+        });
+        
+        const newId = Date.now();
+        const backendData = response?.data?.results?.[0]?.result?.data;
+        
+        if (backendData?.filterChainId && backendData?.resultsId && backendData?.pairId) {
+            setAppliedFilters(prev => [
+                ...prev,
+                {
+                    id: newId,
+                    filterChainId: backendData.filterChainId,
+                    resultsId: backendData.resultsId,
+                    pairId: backendData.pairId,
+                },
+            ]);
+            
+            // Invalider le cache pour que NestedFields charge les filtres de la nouvelle FilterChain
+            await queryClient.invalidateQueries({
+                queryKey: ["apiData", "class_attribute_field"],
+            });
+        }
+    }, [rootId, addProgressiveFilterMutation, queryClient])
+
+	const removeAppliedFilter = useCallback((filterId: number) => {
+        setAppliedFilters(prev => prev.filter((f) => f.id !== filterId));
+    }, []);
+
+	const updateFilterInfo = (filterId: number, value: string) => {
+        setAppliedFilters(prev => prev.map(f => f.id === filterId ? { ...f, filterValue: value } : f));
+    };
+
+	const applySpecificFilter = async (filterId: number, index: number) => {
+        const filter = appliedFilters.find(f => f.id === filterId);
+        if (!filter) return;
+        
+        // Appeler le backend pour appliquer ce filtre spécifique
+        const response = await applyProgressiveFilterMutation.mutateAsync({
+            node_id: rootId,
+            pairId: filter.pairId.toString(),
+        });
+        
+        // Mise à jour du label
+        setAppliedFilters(prev => prev.map(f => 
+            f.id === filterId ? { 
+                ...f, 
+                filterLabel: `Filtre ${index + 1} appliqué - ${response?.data?.results?.[0]?.result?.data?.resultsCount || 0} résultat(s)`
+            } : f
+        ));
+        
+        // Invalider le cache pour rafraîchir l'affichage
+        await queryClient.invalidateQueries({
+            queryKey: ["infinite", "apiData", "class_attribute_field", { node_id: filter.resultsId }],
+        });
+    };
 
 	return (
 		<Box sx={{ p: 2 }}>
@@ -137,12 +197,11 @@ export const SearchFormView = ({
 					placeholder="Rechercher..."
 					value={searchValue}
 					onChange={(e) => {
-						const newValue = e.target.value;
-						setSearchValue(newValue);
+						setSearchValue(e.target.value);
 						if (searchTermAttr?.id) {
 							setValueMutation.mutate({
 								id: searchTermAttr.id,
-								value: newValue,
+								value: e.target.value,
 							});
 						}
 					}}
@@ -177,84 +236,131 @@ export const SearchFormView = ({
 			<Collapse in={showFilters}>
 				<Paper elevation={1} sx={{ p: 2, mb: 2 }}>
 					<Typography variant="h6" gutterBottom>
-						Filtres avancés
-					</Typography>
-					{filterChainAttr && (
-						<NestedFields
-							fieldKey={createKey(filterChainAttr.id, filterChainAttr.name)}
-							rootId={rootId}
-							isRoot={false}
-							isToggle={true}
-							field={filterChainAttr}
-						/>
-					)}
-					<Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-						<Button
-							variant="contained"
-							onClick={async () => {
-								// Invalider le cache du SearchForm
-								await queryClient.invalidateQueries({
-									queryKey: [
-										"infinite",
-										"apiData",
-										"class_attribute_field",
-										{
-											node_id: rootId,
-										},
-									],
-								});
+					Recherche avancée
+				</Typography>
+				
+				{/* Bouton pour ajouter un filtre */}
+				<Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+					<Button 
+						onClick={addNewFilter} 
+						startIcon={<AddIcon />} 
+						variant="contained"
+					>
+						Ajouter un filtre
+					</Button>
+					<Button
+						startIcon={<DownloadIcon />}
+						variant="outlined"
+						onClick={async () => {
+							const response = await exportCSVMutation.mutateAsync({
+								node_id: rootId,
+								includeAllFields: true,
+								maxDepth: 4,
+							});
 
-								// Invalider aussi le cache du filterChain pour obtenir les dernières valeurs
-								if (filterChainAttr?.id) {
-									await queryClient.invalidateQueries({
-										queryKey: [
-											"infinite",
-											"apiData",
-											"class_attribute_field",
-											{
-												node_id: filterChainAttr.id,
-											},
-										],
-									});
-								}
+							const blob = new Blob(
+								[response?.data?.results?.[0]?.result?.data],
+								{ type: "text/csv" },
+							);
+							saveAs(blob, `${pageName}.csv`);
+						}}
+					>
+						Extraction
+					</Button>
+				</Box>
 
-								// Appeler refetch pour forcer le rechargement
-								await refetch();
+				{/* Affichage des filtres appliqués */}
+				{appliedFilters.map((filter, index) => {
+					// Chaque filtre utilise sa propre FilterChain et Results créés côté backend
+                        const filterChainId = filter.filterChainId;
+                        const resultsId = filter.resultsId;
+                        
+                        // Récupérer les filtres précédents (tous les filtres avant celui-ci)
+                        const previousFilters = appliedFilters.slice(0, index);
+						return (
+					<Paper 
+						key={filter.id} 
+						elevation={2} 
+						sx={{ p: 2, mb: 2, backgroundColor: "#f5f5f5" }}
+					>
+						<Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+							<Box>
+								<Typography variant="subtitle1" fontWeight="bold">
+									Filtre {index + 1}
+								</Typography>
+								{filter.filterLabel && (
+									<Typography variant="caption" color="success.main" sx={{ display: "block", mt: 0.5 }}>
+										{filter.filterLabel}
+										{filter.filterValue && `: "${filter.filterValue}"`}
+									</Typography>
+								)}
+							</Box>
+							<IconButton 
+								onClick={() => removeAppliedFilter(filter.id)} 
+								size="small"
+								color="error"
+							>
+								<DeleteIcon />
+							</IconButton>
+						</Box>
 
-								// Attendre que les données se rechargent complètement
-								setTimeout(() => {
-									searchNodeMutation.mutate({
-										node_id: rootId,
-										pageSize: 1000,
-									});
-								}, 1000);
-							}}
-						>
-							Appliquer les filtres
-						</Button>
-					</Box>
-				</Paper>
-			</Collapse>
-			
+						{/* Afficher les filtres précédents appliqués */}
+						{previousFilters.length > 0 && (
+							<Box sx={{ mb: 2, p: 1.5, backgroundColor: "#e8e8e8", borderRadius: 1 }}>
+								<Typography variant="caption" fontWeight="bold" gutterBottom>
+									Filtres précédents appliqués :
+								</Typography>
+								{previousFilters.map((prevFilter, prevIndex) => (
+									<Typography key={prevFilter.id} variant="caption" sx={{ display: "block", color: "text.secondary" }}>
+										• Filtre {prevIndex + 1}
+										{prevFilter.filterValue && `: "${prevFilter.filterValue}"`}
+									</Typography>
+								))}
+							</Box>
+						)}
 
-			{/* Résultats en temps réel */}
-			{resultsAttr && (
-				<Paper elevation={1} sx={{ p: 2 }}>
-					<Typography variant="h6" gutterBottom>
-						Résultats
-					</Typography>
-					<NestedFields
-						fieldKey={createKey(resultsAttr.id, resultsAttr.name)}
-						rootId={rootId}
-						isRoot={false}
-						isToggle={true}
-						field={resultsAttr}
-					/>
-				</Paper>
-			)}
+						<Box sx={{ mb: 2 }}>
+                                    <NestedFields
+                                        fieldKey={createKey(filterChainId, `chain-${filter.id}`)}
+                                        rootId={rootId}
+                                        isRoot={false}
+                                        isToggle={true}
+                                        field={{ id: filterChainId, name: "filterChain" }}
+                                    />
+                                    <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
+                                        <TextField
+                                            size="small"
+                                            label="Valeur"
+                                            fullWidth
+                                            onChange={(e) => updateFilterInfo(filter.id, e.target.value)}
+                                        />
+                                        <Button 
+                                            size="small" 
+                                            variant="outlined" 
+                                            onClick={() => applySpecificFilter(filter.id, index)}
+                                        >
+                                            Appliquer
+                                        </Button>
+                                    </Box>
+                                </Box>
 
-			{/* SpeedDial pour actions (Export, Ajouter, Supprimer) */}
-			<SpeedDial
+                                <Box sx={{ mt: 2, pt: 1, borderTop: "1px solid #ddd" }}>
+                                    <Typography variant="caption" fontWeight="bold">Résultats du filtre {index + 1}:</Typography>
+                                    <NestedFields
+                                        fieldKey={createKey(resultsId, `results-${filter.id}`)}
+                                        rootId={rootId}
+                                        isRoot={false}
+                                        field={{ id: resultsId, name: "results" }}
+                                    />
+                                </Box>
+                            </Paper>
+                        );
+                    })}
+                </Paper>
+            </Collapse>
+
+		{/* SpeedDial pour actions (Export, Ajouter, Supprimer) */}
+		<SpeedDial
 				ariaLabel="Actions SearchForm"
 				sx={{ position: "fixed", bottom: 16, right: 80 }}
 				hidden={false}
@@ -334,3 +440,4 @@ export const SearchFormView = ({
 		</Box>
 	);
 };
+

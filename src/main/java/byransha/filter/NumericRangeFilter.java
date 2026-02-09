@@ -185,7 +185,7 @@ public class NumericRangeFilter extends FieldFilterNode {
         String max = maxValue.get();
 
         if (min == null && max == null) {
-            return "Numeric Range Filter";
+            return "Intervalle de valeurs";
         }
 
         String minSymbol = includeMin.get() ? ">=" : ">";

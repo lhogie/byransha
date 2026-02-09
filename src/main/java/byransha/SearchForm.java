@@ -7,6 +7,7 @@ import byransha.filter.ContainsFilter;
 import byransha.filter.DateRangeFilter;
 import byransha.filter.FilterChain;
 import byransha.filter.FilterNode; // ajout Dylan
+import byransha.filter.FilterResultPair;
 import byransha.filter.NumericRangeFilter;
 import byransha.filter.StartsWithFilter;
 
@@ -17,6 +18,10 @@ public class SearchForm extends BNode {
 
     @ListOptions(type = ListOptions.ListType.LIST, allowCreation = false, allowMultiple = true)
     public ListNode<BNode> results;
+    
+    // Liste des paires filterChain/results pour chaque filtre progressif
+    @ListOptions(type = ListOptions.ListType.LIST, allowCreation = false, allowMultiple = true)
+    public ListNode<FilterResultPair> filterChainResults;
 
     public SearchForm(BBGraph g, User creator, InstantiationInfo ii) {
         super(g, creator, ii);
@@ -30,6 +35,7 @@ public class SearchForm extends BNode {
         searchTerm = new StringNode(g, creator, InstantiationInfo.persisting);
         filterChain = new FilterChain(g, creator, InstantiationInfo.persisting);
         results = new ListNode(g, creator, InstantiationInfo.persisting);
+        filterChainResults = new ListNode(g, creator, InstantiationInfo.persisting);
         initializeDefaultFilterChain(creator);
     }
 
