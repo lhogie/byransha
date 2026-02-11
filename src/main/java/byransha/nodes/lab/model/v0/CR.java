@@ -1,0 +1,12 @@
+package byransha.nodes.lab.model.v0;
+
+import byransha.BBGraph;
+import byransha.nodes.system.User;
+
+public class CR extends Status {
+	public CR(BBGraph g, User creator) {
+		super(g, creator);
+		name.set("Chargé de Recherche", creator);
+		name.readOnly = true;
+	}
+}

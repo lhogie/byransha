@@ -1,0 +1,14 @@
+[Unit]
+Description=Byransha
+ 
+[Service]
+Type=simple
+PIDFile=/home/byransha/byransha-systemd-service.pid 
+User=byransha
+ 
+ExecStart=/home/byransha/backend/start.sh
+ 
+Restart=always
+ 
+[Install]
+WantedBy=multi-user.target
