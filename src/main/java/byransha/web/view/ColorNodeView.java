@@ -29,6 +29,7 @@ public class ColorNodeView extends NodeEndpoint<BNode> implements TechnicalView 
 			throws Throwable {
 		var color = node.getColor();
 		String hex = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+	
 		return new EndpointJsonResponse(new TextNode(hex), "color");
 	}
 

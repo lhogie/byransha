@@ -58,7 +58,7 @@ public class SetValue extends NodeEndpoint<BNode> {
 		a.set("id", new IntNode(node.id()));
 		a.set("name", new TextNode(node.prettyName()));
 		a.set("type", new TextNode(node.getClass().getSimpleName()));
-		List<JsonNode> errors = node.errors().stream().map(e -> (JsonNode) new TextNode(e.error)).toList();
+		List<JsonNode> errors = node.errors(1).stream().map(e -> (JsonNode) new TextNode(e.error)).toList();
 		a.set("errors", new ArrayNode(null, errors));
 
 		var value = in.get("value");

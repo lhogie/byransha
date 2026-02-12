@@ -59,8 +59,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
-		super.fillErrors(errs);
+	protected void fillErrors(List<NodeError> errs, int depth) {
 		int v = get();
 
 		if (v < min)

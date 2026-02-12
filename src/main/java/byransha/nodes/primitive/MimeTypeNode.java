@@ -11,13 +11,17 @@ public class MimeTypeNode extends StringNode {
 
 	public static final List<String> validMimeTypes = new ArrayList<String>();
 
+	static {
+		validMimeTypes.add("image/jpeg");
+		validMimeTypes.add("application/pdf");
+	}
+	
 	public MimeTypeNode(BBGraph g, User creator) {
 		super(g, creator);
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
-		super.fillErrors(errs);
+	protected void fillErrors(List<NodeError> errs, int depth) {
 		String v = get();
 
 		if (!validMimeTypes.contains(v))

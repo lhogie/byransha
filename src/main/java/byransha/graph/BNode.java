@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -233,11 +233,12 @@ public abstract class BNode {
 				consumer.accept(c, d);
 			}
 
+			final var c_tmp = c;
 			c.forEachOut((f, n) -> {
 				if (!visited.contains(n)) {
 					visited.add(n);
 
-					if (nodeFilter.test(c)) {
+					if (nodeFilter.test(c_tmp)) {
 						q.add(n);
 						distances.put(n, d + 1);
 					}
@@ -294,12 +295,26 @@ public abstract class BNode {
 		return v;
 	}
 
-	public JsonNode toJSONNode() {
-		var n = new ObjectNode(null);
-		n.set("id", new IntNode(id()));
-		n.set("pretty_name", new TextNode(prettyName()));
-		n.set("color", new TextNode(Utilities.toRGBHex(getColor())));
-		return n;
+	public ObjectNode toJSONNode(User user, int depth) {
+		ObjectNode r = new ObjectNode(null);
+		r.put("id", id());
+		r.put("class", getClass().getName());
+		r.put("color", Utilities.toRGBHex(getColor()));
+		r.put("prettyName", prettyName());
+		r.put("whatIsThis", whatIsThis());
+		r.put("canSee", canSee(user));
+		r.put("canEdit", canEdit(user));
+		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.error)).toList()));
+		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.error)).toList()));
+
+		ObjectNode outsNode = new ObjectNode(null);
+		r.set("outs", outsNode);
+
+		if (depth > 0) {
+			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(user, depth - 1)));
+		}
+
+		return r;
 	}
 
 	public Color getColor() {
@@ -433,30 +448,4 @@ public abstract class BNode {
 		return r;
 	}
 
-	/*
-	 * public static class BFS extends NodeEndpoint<BNode> {
-	 *
-	 * @Override public EndpointResponse exec(ObjectNode input, User user, WebServer
-	 * webServer, HttpsExchange exchange, ObjectNode r = null;
-	 *
-	 * List<BNode> q = new ArrayList<>(); BNode c = n; q.add(c); var visited = new
-	 * Int2ObjectOpenHashMap<ObjectNode>();
-	 *
-	 * while (!q.isEmpty()) { c = q.remove(0); var nn = visited.put(c.id(), new
-	 * ObjectNode(null)); r.add(nn);
-	 *
-	 * c.forEachOut((f, out) -> { if (!visited.containsKey(out)) { visited.add(new
-	 * ObjectNode(null)); q.add(out); } }); }
-	 *
-	 * var outs = new ObjectNode(null); n.forEachOut((name, o) -> outs.set(name, new
-	 * TextNode("" + o))); r.set("outs", outs); var ins = new ObjectNode(null);
-	 * n.forEachIn((name, o) -> ins.set(name, new TextNode("" + o))); r.set("ins",
-	 * ins); return r; }
-	 *
-	 * @Override public String whatIsThis() { return
-	 * "generates a JSON describing the local node and its out-nodes, up to a given depth"
-	 * ; }
-	 *
-	 * }
-	 */
 }
