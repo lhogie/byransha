@@ -1,46 +1,37 @@
 package byransha.event;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.function.Predicate;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
-public abstract class EventList {
-	final File directory;
-	PriorityQueue<Event> q;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 
-	public EventList(File directory) throws IOException {
+public abstract class EventList extends BNode {
+	public static final File defaultEventListDirectory = new File(System.getProperty("user.home") + "/.byransha");
+
+	public final File directory;
+	EventQueueSerializer qFormat = new SerQueueSerializer();
+
+	public EventList(BBGraph g, File directory) throws IOException {
+		super(g, g.systemUser);
 		this.directory = directory;
 		this.directory.mkdirs();
 		var is = new ObjectInputStream(new FileInputStream(new File(this.directory, "events")));
-		q = (PriorityQueue<Event>) is.readObject();
 		is.close();
-
 	}
 
 	public void add(Event e) throws IOException, ClassNotFoundException {
 		File f = getFile(e);
-		var q = readQueue(f);
+		var q = qFormat.read(new FileInputStream(f));
 		q.add(e);
-		writeQueue(f, q);
-	}
-
-	private  PriorityQueue readQueue(File f) throws IOException, ClassNotFoundException {
-		var is = new ObjectInputStream(new FileInputStream(f));
-		q = (PriorityQueue) is.readObject();
-		is.close();
-		return q;
-	}
-
-	private void writeQueue(File f, PriorityQueue<Event> q) throws IOException {
-		var os = new ObjectOutputStream(new FileOutputStream(f));
-		os.writeObject(q);
-		os.close();
+		qFormat.write(q, new FileOutputStream(f));
 	}
 
 	public abstract Event forward();
+
 	public abstract Event rewind();
 
 	public abstract File getFile(Event e);

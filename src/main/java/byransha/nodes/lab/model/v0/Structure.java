@@ -1,7 +1,7 @@
 package byransha.nodes.lab.model.v0;
 
-import byransha.BBGraph;
 import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 
@@ -12,7 +12,7 @@ public class Structure extends BusinessNode {
 
     public Structure(BBGraph g, User creator) {
         super(g, creator);
-        name = new StringNode(g, creator);
+        name = new StringNode(g, creator, "", ".+");
         subStructures = new ListNode(g, creator);
         offices =new ListNode(g, creator);
     }

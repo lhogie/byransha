@@ -1,7 +1,7 @@
 package byransha.nodes.system;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
@@ -22,7 +22,7 @@ public class User extends BNode {
 
     public User(BBGraph g, User creator) {
         super(g, creator);
-        stack.push(g.application.rootNode);
+        stack.push(g.systemNode.application.rootNode);
     }
 
     public User(BBGraph g, User creator, String user, String password) {

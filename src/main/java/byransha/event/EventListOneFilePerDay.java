@@ -1,10 +1,13 @@
 package byransha.event;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 
-public  class EventListOneFilePerDay extends EventList {
-	public EventListOneFilePerDay(File directory) throws IOException {
-		super(directory);
+import byransha.graph.BBGraph;
+
+public class EventListOneFilePerDay extends EventList {
+	public EventListOneFilePerDay(BBGraph g, File directory) throws IOException {
+		super(g, directory);
 	}
 
 	@Override
@@ -17,12 +20,19 @@ public  class EventListOneFilePerDay extends EventList {
 		return null;
 	}
 
-
 	@Override
-public File getFile(Event e) {
+	public File getFile(Event e) {
 		return new File(e.date.getYear() + "/" + e.date.getMonthValue(), e.date.getDayOfMonth() + ".ser");
 	}
 
+	@Override
+	public String whatIsThis() {
+		return "an event list storing events by day";
+	}
 
+	@Override
+	public String prettyName() {
+		return "event list";
+	}
 
 }

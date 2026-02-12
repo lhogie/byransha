@@ -3,9 +3,9 @@ package byransha.nodes.lab.model.v0.view;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
 import byransha.nodes.lab.model.v0.Structure;
+import byransha.nodes.system.User;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
@@ -20,13 +20,11 @@ final public class StructureView extends NodeEndpoint<Structure> {
 
 	public StructureView(BBGraph g) {
 		super(g);
-		endOfConstructor();
 	}
 
-
 	@Override
-	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-			Structure s) throws Throwable {
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange, Structure s)
+			throws Throwable {
 		return new EndpointTextResponse("text/html", pw -> {
 			pw.println("<ul>");
 			pw.println("<li>#offices: " + s.offices.size());

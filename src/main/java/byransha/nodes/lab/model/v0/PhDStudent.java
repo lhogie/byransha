@@ -2,7 +2,7 @@ package byransha.nodes.lab.model.v0;
 
 import java.util.List;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 public class PhDStudent extends Position {

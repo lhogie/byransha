@@ -2,7 +2,8 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.annotations.*;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import byransha.nodes.lab.model.v0.BusinessNode;
 import byransha.nodes.primitive.ListNode;
@@ -230,7 +231,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             currentNodeInformation.put("total", node.outDegree());
             currentNodeInformation.put(
                     "hasNext",
-                    offset + limit < node.outs().size()
+                    offset + limit < node.computeOuts().size()
             );
         }
 
@@ -253,10 +254,10 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         if (node instanceof BusinessNode businessNode) {
             currentNodeInfo.set(
                 "isValid",
-                BooleanNode.valueOf(businessNode.isValid())
+                BooleanNode.valueOf(businessNode.errors())
             );
         }
-        currentNodeInfo.set("out", new TextNode(node.outs().toString()));
+        currentNodeInfo.set("out", new TextNode(node.computeOuts().toString()));
 
         if (node instanceof PrimitiveValueNode<?> valuedNode) {
             addValuedNodeInfo(currentNodeInfo, valuedNode);
@@ -350,7 +351,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         b.set("canSee", BooleanNode.valueOf(out.canSee(user)));
 
         if (out instanceof BusinessNode bn) {
-            b.set("isValid", BooleanNode.valueOf(bn.isValid()));
+            b.set("isValid", BooleanNode.valueOf(bn.errors()));
         }
 
         if (out instanceof PrimitiveValueNode<?> vn) {

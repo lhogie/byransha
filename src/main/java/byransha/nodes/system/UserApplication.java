@@ -1,38 +1,36 @@
 package byransha.nodes.system;
 
-import byransha.BBGraph;
-import byransha.nodes.DocumentNode;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.graph.DocumentNode;
 
-public abstract class UserApplication extends BNode {
-    DocumentNode icon = null;
-    final BNode rootNode;
+public abstract class UserApplication extends SystemB {
+	DocumentNode icon = null;
+	final BNode rootNode;
 
-    public UserApplication(BBGraph g, User user){
-        super(g, user);
+	public UserApplication(BBGraph g) {
+		super(g);
 
-        try {
-            this.rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class)
-                    .newInstance(g, user);
-        } catch (Throwable err) {
-            throw new RuntimeException(err);
-        }
-    }
+		try {
+			this.rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class).newInstance(g, g.systemUser);
+		} catch (Throwable err) {
+			throw new RuntimeException(err);
+		}
+	}
 
-    protected abstract Class<? extends BNode> rootNodeClass() ;
+	protected abstract Class<? extends BNode> rootNodeClass();
 
+	public String name() {
+		return rootNode == null ? null : rootNode.prettyName() == null ? null : rootNode.prettyName();
+	}
 
-    public String name(){
-        return rootNode == null ? null : rootNode.prettyName() == null ? null : rootNode.prettyName();
-    }
+	@Override
+	public String whatIsThis() {
+		return "a byransha-based application";
+	}
 
-    @Override
-    public String whatIsThis() {
-        return "a byransha-based application";
-    }
-
-    @Override
-    public String prettyName() {
-        return name();
-    }
+	@Override
+	public String prettyName() {
+		return name();
+	}
 }

@@ -1,7 +1,7 @@
 package byransha.web.endpoint;
 
-import byransha.nodes.BNode;
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
@@ -45,8 +45,8 @@ public class NodeInfo extends NodeEndpoint<BNode> {
         r.set("to_string", new TextNode(node.toString()));
         r.set("can read", new TextNode("" + node.canSee(user)));
         r.set("can write", new TextNode("" + node.canSee(user)));
-        r.set("out", new IntNode(node.outDegree()));
-        r.set("in", new IntNode(node.ins().size()));
+        r.set("out", new IntNode(node.computeOuts().size()));
+        r.set("in", new IntNode(node.computeIns().size()));
 
         var availableEndpoints = new ArrayNode(null);
 

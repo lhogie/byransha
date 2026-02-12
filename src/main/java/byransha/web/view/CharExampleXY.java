@@ -4,9 +4,9 @@ import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
 import byransha.nodes.system.Byransha.Function;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import byransha.web.EndpointJsonResponse.dialects;
 
@@ -18,7 +18,6 @@ public class CharExampleXY extends NodeEndpoint<BNode> implements TechnicalView 
 	}
 	public CharExampleXY(BBGraph g) {
 		super(g);
-		endOfConstructor();
 	}
 
 	@Override

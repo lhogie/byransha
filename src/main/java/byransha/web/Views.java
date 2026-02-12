@@ -1,7 +1,7 @@
 package byransha.web;
 
-import byransha.nodes.BNode;
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

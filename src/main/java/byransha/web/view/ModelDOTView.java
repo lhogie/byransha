@@ -1,160 +1,133 @@
 package byransha.web.view;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
-import byransha.nodes.primitive.ListNode;
-import byransha.nodes.system.User;
-import byransha.nodes.primitive.ValuedNode;
-import byransha.web.*;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.net.httpserver.HttpsExchange;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.util.function.Predicate;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sun.net.httpserver.HttpsExchange;
+
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.ValuedNode;
+import byransha.nodes.system.User;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.TechnicalView;
+import byransha.web.WebServer;
 import lmu.AssociationRelation;
 import lmu.DotWriter;
 import lmu.Entity;
 import lmu.InheritanceRelation;
 import lmu.Model;
 import lmu.WriterException;
+import toools.Stop;
 
-public class ModelDOTView
-    extends NodeEndpoint<BBGraph>
-    implements TechnicalView {
+public class ModelDOTView extends NodeEndpoint<BBGraph> implements TechnicalView {
 
-    @Override
-    public String whatItDoes() {
-        return "ModelDOTView provides a DOT representation of the graph.";
-    }
+	@Override
+	public String whatItDoes() {
+		return "ModelDOTView provides a DOT representation of the graph.";
+	}
 
-    public ModelDOTView(BBGraph db) {
-        super(db);
-        endOfConstructor();
-    }
+	public ModelDOTView(BBGraph db) {
+		super(db);
+	}
 
+	@Override
+	public boolean sendContentByDefault() {
+		return false;
+	}
 
+	public static int id(Class n) {
+		return Math.abs(n.getName().hashCode());
+	}
 
-    @Override
-    public boolean sendContentByDefault() {
-        return false;
-    }
+	@Override
+	public EndpointTextResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
+			BBGraph g) throws Throwable {
+		return new EndpointTextResponse("text/dot", pw -> pw.print(toDot(g, c -> true)));
+	}
 
-    public static int id(Class n) {
-        return Math.abs(n.getName().hashCode());
-    }
+	public static String toDot(BBGraph g, Predicate<Class> nodeFilter) {
+		var model = new Model();
 
-    @Override
-    public EndpointTextResponse exec(
-        ObjectNode input,
-        User user,
-        WebServer webServer,
-        HttpsExchange exchange,
-        BBGraph g
-    ) throws Throwable {
-        return new EndpointTextResponse("text/dot", pw ->
-            pw.print(toDot(g, c -> true))
-        );
-    }
+		g.forEachNode(n -> {
+			Entity childEntity = null;
 
-    public static String toDot(BBGraph g, Predicate<Class> nodeFilter) {
-        var model = new Model();
+			for (Class c = n.getClass(); c != null && nodeFilter.test(c); c = c.getSuperclass()) {
+				var entityName = c.getSimpleName();
+				var e = model.findEntity(et -> et.getName().equals(entityName));
 
-        g.forEachNode(n -> {
-            Entity childEntity = null;
+				if (e == null // entity NOT yet in the model
+				) {
+					e = new Entity();
+					e.setName(entityName);
+					e.target = c;
+					model.addEntity(e);
+				}
 
-            for (
-                Class c = n.getClass();
-                c != null && nodeFilter.test(c);
-                c = c.getSuperclass()
-            ) {
-                var entityName = c.getSimpleName();
-                var e = model.findEntity(et -> et.getName().equals(entityName));
+				var ee = e;
+				var childEntitye = childEntity;
 
-                if (
-                    e == null // entity NOT yet in the model
-                ) {
-                    e = new Entity();
-                    e.setName(entityName);
-                    e.target = c;
-                    model.addEntity(e);
-                }
+				if (childEntity != null && model
+						.getRelations().stream().filter(r -> r instanceof InheritanceRelation ir
+								&& ir.getSuperEntity() == ee && ir.getSubEntity() == childEntitye)
+						.findFirst().isEmpty()) {
+					model.addRelation(new InheritanceRelation(childEntity, e));
+				}
 
-                var ee = e;
-                var childEntitye = childEntity;
+				childEntity = e;
+			}
+			
+			return Stop.no;
+		});
 
-                if (
-                    childEntity != null &&
-                    model
-                        .getRelations()
-                        .stream()
-                        .filter(
-                            r ->
-                                r instanceof InheritanceRelation ir &&
-                                ir.getSuperEntity() == ee &&
-                                ir.getSubEntity() == childEntitye
-                        )
-                        .findFirst()
-                        .isEmpty()
-                ) {
-                    model.addRelation(new InheritanceRelation(childEntity, e));
-                }
+		if (false)
+			for (var e : model.entities) {
+				for (var f : ((Class) e.target).getDeclaredFields()) {
+					if (Modifier.isStatic(f.getModifiers()) || !BNode.class.isAssignableFrom(f.getType())) {
+						continue;
+					}
 
-                childEntity = e;
-            }
-        });
+					f.setAccessible(true);
 
-        if (false) for (var e : model.entities) {
-            for (var f : ((Class) e.target).getDeclaredFields()) {
-                if (
-                    Modifier.isStatic(f.getModifiers()) ||
-                    !BNode.class.isAssignableFrom(f.getType())
-                ) {
-                    continue;
-                }
+					var childEntity = model.findEntity(et -> et.target == f.getType());
 
-                f.setAccessible(true);
+					var r = new AssociationRelation(e, childEntity);
+					model.addRelation(r);
 
-                var childEntity = model.findEntity(
-                    et -> et.target == f.getType()
-                );
+					boolean isList = ListNode.class.isAssignableFrom(f.getType());
 
-                var r = new AssociationRelation(e, childEntity);
-                model.addRelation(r);
+					Class<? extends BNode> targetType = null;
 
-                boolean isList = ListNode.class.isAssignableFrom(f.getType());
+					if (isList) {
+						if (f.getGenericType() instanceof ParameterizedType pt) {
+							if (pt.getActualTypeArguments().length == 1) {
+								targetType = ((Class<?>) pt.getActualTypeArguments()[0]).asSubclass(BNode.class);
+							} else {
+								throw new IllegalStateException();
+							}
+						} else {
+							throw new IllegalStateException();
+						}
+					} else {
+						targetType = f.getType().asSubclass(BNode.class);
+					}
 
-                Class<? extends BNode> targetType = null;
-
-                if (isList) {
-                    if (f.getGenericType() instanceof ParameterizedType pt) {
-                        if (pt.getActualTypeArguments().length == 1) {
-                            targetType = ((Class<
-                                    ?
-                                >) pt.getActualTypeArguments()[0]).asSubclass(
-                                BNode.class
-                            );
-                        } else {
-                            throw new IllegalStateException();
-                        }
-                    } else {
-                        throw new IllegalStateException();
-                    }
-                } else {
-                    targetType = f.getType().asSubclass(BNode.class);
-                }
-
-                r.setCardinality(isList ? "*" : "");
-                if (ValuedNode.class.isAssignableFrom(targetType)) {
-                    var a = new lmu.Attribute();
-                    a.setName(f.getName());
-                    //a.setType(f.getType());
-                }
-            }
-        }
-        try {
-            return new String(new DotWriter().writeModel(model));
-        } catch (WriterException e1) {
-            throw new IllegalStateException(e1);
-        }
-    }
+					r.setCardinality(isList ? "*" : "");
+					if (ValuedNode.class.isAssignableFrom(targetType)) {
+						var a = new lmu.Attribute();
+						a.setName(f.getName());
+						// a.setType(f.getType());
+					}
+				}
+			}
+		try {
+			return new String(new DotWriter().writeModel(model));
+		} catch (WriterException e1) {
+			throw new IllegalStateException(e1);
+		}
+	}
 }

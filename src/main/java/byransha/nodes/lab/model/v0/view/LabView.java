@@ -3,8 +3,8 @@ package byransha.nodes.lab.model.v0.view;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
 import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
 import byransha.nodes.lab.model.v0.Lab;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
@@ -20,7 +20,6 @@ final public class LabView extends NodeEndpoint<Lab> {
 
 	public LabView(BBGraph db) {
 		super(db);
-		endOfConstructor();
 	}
 
 

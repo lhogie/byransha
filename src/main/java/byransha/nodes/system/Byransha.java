@@ -4,23 +4,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-public class Byransha extends BNode {
+import byransha.graph.BBGraph;
 
-	public Byransha(BBGraph g, User creator) {
-		super(g, creator, InstantiationInfo.notPersisting);
-		endOfConstructor();
-	}
+public class Byransha extends SystemB {
 
-	@Override
-	protected void createOuts(User creator) {
-		super.createOuts(creator);
+	public Byransha(BBGraph g) {
+		super(g);
 	}
 
 	@Override

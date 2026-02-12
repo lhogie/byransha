@@ -1,13 +1,13 @@
 package byransha.nodes.primitive;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
-import byransha.nodes.system.User;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
+
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
 
 public class MapNode<N extends BNode> extends BNode {
 	public MapNode(BBGraph g, User creator) {
@@ -27,7 +27,7 @@ public class MapNode<N extends BNode> extends BNode {
 	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
 
 	@Override
-	public void forEachOutField(BiConsumer<String, BNode> consumer) {
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
 		for (Map.Entry<String, N> e : l.entrySet()) {
 			if (e.getValue() != null) {
 				consumer.accept(e.getKey(), e.getValue());

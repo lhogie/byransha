@@ -1,7 +1,7 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
@@ -20,7 +20,6 @@ public class LoadImage extends NodeEndpoint<BNode> {
 
     public LoadImage(BBGraph g) {
         super(g);
-        endOfConstructor();
     }
 
     @Override

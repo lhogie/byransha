@@ -3,9 +3,9 @@ package byransha.nodes.lab.model.v0;
 import java.io.IOException;
 import java.util.Objects;
 
-import byransha.BBGraph;
-import byransha.nodes.DocumentNode;
 import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
+import byransha.graph.DocumentNode;
 import byransha.nodes.primitive.StringNode;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

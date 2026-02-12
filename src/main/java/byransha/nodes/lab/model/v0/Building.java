@@ -1,19 +1,19 @@
 package byransha.nodes.lab.model.v0;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
 
 public class Building extends BusinessNode {
 
-    @byransha.annotations.ListOptions(
-        type = byransha.annotations.ListOptions.ListType.LIST
-    )
     public ListNode<Office> offices;
+    public StringNode name;
 
     public Building(BBGraph g, User creator) {
         super(g, creator);
         offices = new ListNode(g, creator);
+        name = new StringNode(g, creator, "", ".+");
     }
 
     public Office findOffice(String name) {
@@ -28,11 +28,11 @@ public class Building extends BusinessNode {
 
     @Override
     public String prettyName() {
-        return "building";
+        return name.get();
     }
 
     @Override
     public String whatIsThis() {
-        return "Building description";
+        return "a building in a campus";
     }
 }

@@ -1,7 +1,7 @@
 package byransha.nodes.lab.model.v0;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 
 import java.io.File;
@@ -63,7 +63,7 @@ public class DataLake extends BNode {
             throw new IOException("Input directory does not exist or not a directory: " + inputDir);
 
         System.out.println("Loading datalake from " + inputDir);
-        User user = g.systemUser();
+        User user = g.systemUser;
 
 
         Files.readAllLines(
@@ -105,7 +105,7 @@ public class DataLake extends BNode {
             UniCA.campuses.add(campus, user);
         }
 
-        OldTBRH.loadOLDTBRH(i3s, user, inputDir);
+       new  OldTBRH().loadOLDTBRH(i3s, user, inputDir);
 
 
         System.out.println(" Finished loading datalake");

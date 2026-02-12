@@ -1,7 +1,7 @@
 package byransha.nodes.lab.model.v0;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.system.User;
 

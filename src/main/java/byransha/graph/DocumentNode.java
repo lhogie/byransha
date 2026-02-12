@@ -1,6 +1,5 @@
-package byransha.nodes;
+package byransha.graph;
 
-import byransha.BBGraph;
 import byransha.nodes.system.User;
 import byransha.nodes.primitive.ByteNode;
 import byransha.nodes.primitive.MimeTypeNode;
@@ -26,6 +25,6 @@ public class DocumentNode extends BNode {
 
     @Override
     public String prettyName() {
-        return "document " + title.get();
+        return title.get();
     }
 }

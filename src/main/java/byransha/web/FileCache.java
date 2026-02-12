@@ -1,6 +1,6 @@
 package byransha.web;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 import java.util.Map;

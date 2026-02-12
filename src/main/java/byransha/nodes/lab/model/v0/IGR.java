@@ -1,6 +1,6 @@
 package byransha.nodes.lab.model.v0;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 public class IGR extends Status {

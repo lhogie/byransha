@@ -4,32 +4,26 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
+import byransha.graph.BBGraph;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 
-public class OSNode extends SystemNode {
+public class OSNode extends SystemB {
+
+
+	public OSNode(BBGraph g) {
+		super(g);
+	}
 
 	@Override
 	public String whatIsThis() {
 		return "information on the operating system";
-	}
-
-	public OSNode(BBGraph db) {
-		super(db, BNode.InstantiationInfo.notPersisting);
-		endOfConstructor();
-	}
-
-	@Override
-	protected void createOuts(User creator) {
-		super.createOuts(creator);
 	}
 
 	@Override
@@ -46,7 +40,6 @@ public class OSNode extends SystemNode {
 
 		public View(BBGraph g) {
 			super(g);
-			endOfConstructor();
 		}
 
 		@Override
@@ -85,10 +78,7 @@ public class OSNode extends SystemNode {
 			if (input == null) {
 				return "";
 			}
-			return input.replace("&", "&amp;")
-					.replace("<", "&lt;")
-					.replace(">", "&gt;")
-					.replace("\"", "&quot;")
+			return input.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;")
 					.replace("'", "&#39;");
 		}
 	}

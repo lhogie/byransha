@@ -1,7 +1,7 @@
 package byransha.web.view;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.User;
 import byransha.web.Endpoint;
 import byransha.web.EndpointTextResponse;
@@ -20,6 +20,7 @@ import lmu.MermaidWriter;
 import lmu.Model;
 import lmu.Visibility;
 import lmu.WriterException;
+import toools.Stop;
 
 public class ModelMermaidView
     extends NodeEndpoint<BBGraph>
@@ -27,7 +28,6 @@ public class ModelMermaidView
 
     public ModelMermaidView(BBGraph db) {
         super(db);
-        endOfConstructor();
     }
 
 
@@ -108,6 +108,8 @@ public class ModelMermaidView
 
                 childEntity = e;
             }
+            
+            return Stop.no;
         });
 
         // Add field-based associations

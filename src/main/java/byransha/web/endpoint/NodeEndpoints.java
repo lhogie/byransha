@@ -5,21 +5,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.WebServer;
+import toools.Stop;
 
 public class NodeEndpoints extends NodeEndpoint<WebServer> {
 
-
 	public NodeEndpoints(BBGraph db) {
 		super(db);
-		endOfConstructor();
 	}
-
 
 	@Override
 	public String whatItDoes() {
@@ -35,10 +33,13 @@ public class NodeEndpoints extends NodeEndpoint<WebServer> {
 		}
 
 		var data = new ArrayNode(null);
-		g.findAll(NodeEndpoint.class, e -> true).stream()
-				.filter(currentNode::matches)
-				.filter(e -> e.canExec(user))
-				.forEach(e -> data.add(new TextNode(e.name())));
+		g.forEachNodeOfClass(NodeEndpoint.class, e -> {
+			if (currentNode.matches(e) && e.canExec(user)) {
+				data.add(new TextNode(e.name()));
+			}
+
+			return Stop.no;
+		});
 
 		return new EndpointJsonResponse(data, this);
 	}

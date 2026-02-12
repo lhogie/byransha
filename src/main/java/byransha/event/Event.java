@@ -1,25 +1,23 @@
 package byransha.event;
 
-import byransha.nodes.BNode;
-
 import java.io.Serializable;
-import java.time.Instant;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
-public abstract class Event<N extends BNode> implements Serializable, Comparable<Event<N>> {
+import byransha.graph.BBGraph;
+
+public abstract class Event implements Serializable, Comparable<Event> {
 	LocalDateTime date;
-	final N target;
 
-	public Event(N target) {
-		this.target = target;
-	}
+	public abstract void apply(BBGraph g);
 
-	public abstract void apply(N system);
-
-	public abstract void undo(N system);
+	public abstract void undo(BBGraph g);
 
 	@Override
-	public int compareTo(Event<N> e) {
+	public int compareTo(Event e) {
 		return date.compareTo(e.date);
 	}
 
@@ -33,6 +31,28 @@ public abstract class Event<N extends BNode> implements Serializable, Comparable
 		if (!(e instanceof Event)) {
 			return false;
 		}
-		return date == ((Event<?>) e).date;
+		return date == ((Event) e).date;
+	}
+
+	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+	public final List<String> toCSVElements() {
+		var l = new ArrayList<String>();
+		l.add(date.format(dateFormat));
+		fillCSVColumns(l);
+		return l;
+	}
+
+	protected abstract void fillCSVColumns(ArrayList<String> l);
+
+	protected abstract void fromCSV(List<String> elements);
+
+	protected static Event fromCSVElements(List<String> elements)
+			throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+			NoSuchMethodException, SecurityException, ClassNotFoundException {
+		var e = (Event) Class.forName(elements.removeFirst()).getConstructor().newInstance();
+		e.date = LocalDateTime.parse(elements.removeFirst(), dateFormat);
+		e.fromCSV(elements);
+		return e;
 	}
 }

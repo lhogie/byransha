@@ -1,6 +1,5 @@
-package byransha.nodes;
+package byransha.graph;
 
-import byransha.BBGraph;
 import byransha.nodes.system.User;
 
 import java.util.LinkedHashMap;
@@ -41,7 +40,7 @@ public class ShortcutNode extends BNode {
     }
 
     @Override
-    public LinkedHashMap<String, BNode> outs() {
+    public LinkedHashMap<String, BNode> computeOuts() {
         try {
             LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
             return dynamicOuts != null
@@ -59,7 +58,7 @@ public class ShortcutNode extends BNode {
     }
 
     @Override
-    public void forEachOutField(BiConsumer<String, BNode> consumer) {
+    public void forEachOut(BiConsumer<String, BNode> consumer) {
         try {
             LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
             if (dynamicOuts != null) {
@@ -74,9 +73,6 @@ public class ShortcutNode extends BNode {
             );
         }
     }
-
-    @Override
-    protected void invalidateOutsCache() {}
 
     @Override
     public String prettyName() {

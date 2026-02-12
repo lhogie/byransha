@@ -1,7 +1,7 @@
 package byransha.nodes.system;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
@@ -12,25 +12,20 @@ import com.sun.net.httpserver.HttpsExchange;
 import java.lang.management.ManagementFactory;
 import toools.text.TextUtilities;
 
-public class JVMNode extends SystemNode {
+public class JVMNode extends SystemB {
 
     public JVMNode(BBGraph g) {
-        super(g, InstantiationInfo.notPersisting);
-        endOfConstructor();
+        super(g);
     }
 
     @Override
     public String prettyName() {
-        return "Java Virtual Machine";
-    }
-
-    @Override
-    protected void createOuts(User creator) {
+        return "JVM " + System.getProperty("java.version");
     }
 
     @Override
     public String whatIsThis() {
-        return "represents the server's JVM";
+        return "the JVM running this application";
     }
 
     public static class View
@@ -39,7 +34,6 @@ public class JVMNode extends SystemNode {
 
         public View(BBGraph g) {
             super(g);
-            endOfConstructor();
         }
 
         @Override
@@ -86,7 +80,6 @@ public class JVMNode extends SystemNode {
 
         public Kill(BBGraph db) {
             super(db);
-            endOfConstructor();
         }
 
 

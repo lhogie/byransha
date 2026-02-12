@@ -1,8 +1,8 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.nodes.BNode;
 import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.web.EndpointJsonResponse;

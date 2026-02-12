@@ -1,6 +1,6 @@
 package byransha.nodes.primitive;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 public abstract class PrimitiveValueNode<V>  extends ValuedNode<V>  {

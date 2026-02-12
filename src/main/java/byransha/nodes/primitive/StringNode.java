@@ -1,20 +1,24 @@
 package byransha.nodes.primitive;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
+import byransha.graph.NodeError;
 import byransha.nodes.system.User;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class StringNode extends PrimitiveValueNode<String> {
-
+	String re;
+	
     public StringNode(BBGraph db, User creator) {
         super(db, creator);
     }
 
 
-    public StringNode(BBGraph g, User creator, String init) {
+    public StringNode(BBGraph g, User creator, String init, String re) {
         this(g, creator);
+        this.re = re;
         set(init, creator);
     }
 
@@ -42,4 +46,19 @@ public class StringNode extends PrimitiveValueNode<String> {
     public String whatIsThis() {
         return "a sequence of characters";
     }
+    
+	@Override
+	protected void fillErrors(List<NodeError> errs) {
+		super.fillErrors(errs);
+		
+		if (re != null && !get().matches(re)) {
+			errs.add(new NodeError(this, "does not match " + re));
+		}
+	}
+
+
+	@Override
+	public String defaultValue() {
+		return null;
+	}
 }

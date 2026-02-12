@@ -1,6 +1,6 @@
 package byransha.nodes.primitive;
 
-import byransha.BBGraph;
+import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 import java.io.IOException;
@@ -36,6 +36,10 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
         }
     }
 
+	@Override
+	public OffsetDateTime defaultValue() {
+		return OffsetDateTime.now();
+	}
     @Override
     public String whatIsThis() {
         return "DateNode";
