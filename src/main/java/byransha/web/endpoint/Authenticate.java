@@ -2,14 +2,19 @@ package byransha.web.endpoint;
 
 import java.time.Duration;
 
-import byransha.BBGraph;
-import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BNode;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.ErrorResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.SessionStore;
+import byransha.web.WebServer;
 import byransha.web.util.TokenUtil;
+import toools.Stop;
 
 public class Authenticate extends NodeEndpoint<BNode> {
 	private SessionStore sessionStore;
@@ -19,17 +24,15 @@ public class Authenticate extends NodeEndpoint<BNode> {
 		return "Authenticate endpoint for user login.";
 	}
 
-
-
 	public Authenticate(BBGraph db, SessionStore sessionStore) {
 		super(db);
+
 		if (sessionStore == null) {
 			throw new IllegalArgumentException("SessionStore cannot be null");
 		}
-		this.sessionStore = sessionStore;
-		endOfConstructor();
-	}
 
+		this.sessionStore = sessionStore;
+	}
 
 	@Override
 	public boolean canExec(User user) {
@@ -53,7 +56,6 @@ public class Authenticate extends NodeEndpoint<BNode> {
 				"%s=; Path=/; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=None; Secure; HttpOnly", name);
 		https.getResponseHeaders().add("Set-Cookie", cookieValue);
 	}
-
 
 	@Override
 	public EndpointJsonResponse exec(ObjectNode in, User _ignoredUserParameter, WebServer webServer,
@@ -81,6 +83,7 @@ public class Authenticate extends NodeEndpoint<BNode> {
 	}
 
 	private User auth(String username, String password) {
-		return g.find(User.class, u -> u.name != null && u.passwordNode != null && u.accept(username, password));
+		return g.forEachNodeOfClass(User.class,
+				u -> Stop.stopIf(u.name != null && u.passwordNode != null && u.accept(username, password)));
 	}
 }

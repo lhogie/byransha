@@ -1,8 +1,8 @@
 package byransha.web;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -15,7 +15,6 @@ public abstract class NodeEndpoint<N extends BNode> extends Endpoint {
 
     public NodeEndpoint(BBGraph g) {
         super(g);
-        endOfConstructor();
     }
 
 

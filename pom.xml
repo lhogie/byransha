@@ -49,7 +49,7 @@
 				<configuration>
 					<mainClass>byransha.web.WebServer</mainClass>
 					<commandlineArgs
-                    >-Dfile.encoding=UTF-8 appClass=byransha.labmodel.I3SApplication</commandlineArgs>
+                    >-Dfile.encoding=UTF-8 appClass=byransha.nodes.lab.I3SApplication</commandlineArgs>
 					<systemProperties>
                         <systemProperty>
                             <key>file.encoding</key>

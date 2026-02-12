@@ -5,14 +5,17 @@ import java.lang.reflect.ParameterizedType;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-import byransha.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.SystemB;
+import byransha.nodes.system.User;
 import toools.text.TextUtilities;
 
-public abstract class Endpoint extends SystemNode {
+public abstract class Endpoint extends SystemB {
 	public static <E extends Endpoint> E create(Class<E> e, BBGraph g) {
 		try {
 			return e.getConstructor(BBGraph.class).newInstance(g);
@@ -26,15 +29,8 @@ public abstract class Endpoint extends SystemNode {
 	public final AtomicLong timeSpentNs = new AtomicLong(0);
 
 	protected Endpoint(BBGraph g) {
-		super(g, InstantiationInfo.notPersisting);
-		endOfConstructor();
+		super(g);
 	}
-
-	@Override
-	protected final void createOuts(User creator){
-		// endpoints have NO outs
-	}
-
 
 	@Override
 	public final String whatIsThis() {
@@ -83,12 +79,11 @@ public abstract class Endpoint extends SystemNode {
 
 		return TextUtilities.camelToSnake(name);
 	}
-	
+
 	@Override
 	public String prettyName() {
 		return TextUtilities.camelToSnake(getClass().getSimpleName()).replace('_', ' ');
 	}
-
 
 	protected final JsonNode requireParm(ObjectNode in, String s) {
 		var node = in.remove(s);
@@ -99,8 +94,6 @@ public abstract class Endpoint extends SystemNode {
 			return node;
 		}
 	}
-	
-
 
 	public boolean isDevelopmentView() {
 		return DevelopmentView.class.isAssignableFrom(getClass());
@@ -108,10 +101,6 @@ public abstract class Endpoint extends SystemNode {
 
 	public boolean isTechnicalView() {
 		return TechnicalView.class.isAssignableFrom(getClass());
-	}
-	
-	public boolean isChanger() {
-		return Changer.class.isAssignableFrom(getClass());
 	}
 
 	public static class V extends NodeEndpoint<Endpoint> {
@@ -145,6 +134,5 @@ public abstract class Endpoint extends SystemNode {
 			});
 		}
 
-		
 	}
 }

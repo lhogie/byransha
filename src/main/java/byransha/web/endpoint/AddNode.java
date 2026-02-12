@@ -1,6 +1,10 @@
 package byransha.web.endpoint;
 
-import byransha.*;
+import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.ValuedNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -22,7 +26,6 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
 
     public AddNode(BBGraph g) {
         super(g);
-        endOfConstructor();
     }
 
     @Override
@@ -51,9 +54,8 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
         }
         var node = clazz.getConstructor(
                 BBGraph.class,
-                User.class,
-                InstantiationInfo.class
-        ).newInstance(g, user, InstantiationInfo.persisting);
+                User.class
+        ).newInstance(g, user);
         if (node != null) {
             a.set("id", new IntNode(node.id()));
             a.set("name", new TextNode(node.prettyName()));

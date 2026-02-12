@@ -1,8 +1,8 @@
 package byransha.web;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -12,9 +12,8 @@ import java.io.StringWriter;
 
 public class Views extends NodeEndpoint<BNode> implements TechnicalView {
 
-    public Views(BBGraph db) {
-        super(db);
-        endOfConstructor();
+    public Views(BBGraph g) {
+        super(g);
     }
 
 

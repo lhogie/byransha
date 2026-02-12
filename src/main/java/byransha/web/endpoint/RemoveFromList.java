@@ -1,6 +1,9 @@
 package byransha.web.endpoint;
 
-import byransha.*;
+import byransha.nodes.system.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.primitive.ListNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -15,7 +18,6 @@ public class RemoveFromList<N extends BNode> extends NodeEndpoint<BNode> {
 
     public RemoveFromList(BBGraph g) {
         super(g);
-        endOfConstructor();
     }
 
     @Override

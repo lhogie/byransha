@@ -1,18 +1,20 @@
 package byransha.web.view;
 
-import byransha.web.*;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
+import byransha.web.EndpointTextResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.TechnicalView;
+import byransha.web.WebServer;
 
 public class ToStringView extends NodeEndpoint<BNode> implements TechnicalView {
 
 	public ToStringView(BBGraph db) {
 		super(db);
-		endOfConstructor();
 	}
 
 	@Override
@@ -28,6 +30,6 @@ public class ToStringView extends NodeEndpoint<BNode> implements TechnicalView {
 
 	@Override
 	public String whatItDoes() {
-		return "ToStringView for BNode";
+		return "gets the result of toString() on any node";
 	}
 }

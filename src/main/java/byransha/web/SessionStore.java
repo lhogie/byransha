@@ -1,6 +1,6 @@
 package byransha.web;
 
-import byransha.User;
+import byransha.nodes.system.User;
 import byransha.web.util.TokenUtil;
 
 import java.time.Instant;

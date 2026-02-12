@@ -1,8 +1,8 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.ErrorResponse;
 import byransha.web.NodeEndpoint;
@@ -20,8 +20,6 @@ public class ClassInformation extends NodeEndpoint<BNode> {
 
     public ClassInformation(BBGraph g) {
         super(g);
-        endOfConstructor();
-
     }
 
     @Override

@@ -3,7 +3,6 @@ package byransha.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
 public abstract class EndpointResponse<R> {
 	protected static final JsonNodeFactory nodeFactory = JsonNodeFactory.instance;

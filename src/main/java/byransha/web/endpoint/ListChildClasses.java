@@ -1,63 +1,68 @@
 package byransha.web.endpoint;
 
-import byransha.BBGraph;
-import byransha.BNode;
-import byransha.User;
-import byransha.web.EndpointJsonResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.WebServer;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import java.util.ArrayList;
-import java.util.List;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.WebServer;
+import toools.Stop;
 
 public class ListChildClasses extends NodeEndpoint<BNode> {
 
-    public ListChildClasses(BBGraph g) {
-        super(g);
-        endOfConstructor();
-    }
+	public ListChildClasses(BBGraph g) {
+		super(g);
+	}
 
-    @Override
-    public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode currentNode) throws Throwable {
-        var a = new ArrayNode(null);
+	@Override
+	public EndpointJsonResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
+			BNode currentNode) throws Throwable {
+		var a = new ArrayNode(null);
 
-        var classeName = requireParm(in, "className").asText();
+		var classeName = requireParm(in, "className").asText();
 
-        List<String> classes = new ArrayList<>();
+		List<String> classes = new ArrayList<>();
 
-        g.forEachNode(node -> {
-            if (isChildOfClass(node.getClass(), classeName)) {
-                if(!classes.contains(node.getClass().getSimpleName())) classes.add(node.getClass().getSimpleName());
-            }
-        });
-        a.addAll(classes.stream().map(TextNode::new).toList());
-        return new EndpointJsonResponse(a, "classeName");
-    }
+		g.forEachNode(node -> {
+			if (isChildOfClass(node.getClass(), classeName)) {
+				if (!classes.contains(node.getClass().getSimpleName()))
+					classes.add(node.getClass().getSimpleName());
+			}
 
-    private boolean isChildOfClass(Class<?> nodeClass, String targetClassName) {
-        Class<?> currentClass = nodeClass.getSuperclass();
+			return Stop.no;
+		});
+		a.addAll(classes.stream().map(TextNode::new).toList());
+		return new EndpointJsonResponse(a, "classeName");
+	}
 
-        while (currentClass != null && !currentClass.equals(BNode.class) && !currentClass.equals(Object.class)) {
-            if (currentClass.getSimpleName().equalsIgnoreCase(targetClassName)) {
-                return true;
-            }
-            currentClass = currentClass.getSuperclass();
-        }
+	private boolean isChildOfClass(Class<?> nodeClass, String targetClassName) {
+		Class<?> currentClass = nodeClass.getSuperclass();
 
-        if (currentClass != null && currentClass.equals(BNode.class) &&
-            currentClass.getSimpleName().equalsIgnoreCase(targetClassName)) {
-            return true;
-        }
+		while (currentClass != null && !currentClass.equals(BNode.class) && !currentClass.equals(Object.class)) {
+			if (currentClass.getSimpleName().equalsIgnoreCase(targetClassName)) {
+				return true;
+			}
+			currentClass = currentClass.getSuperclass();
+		}
 
-        return false;
-    }
+		if (currentClass != null && currentClass.equals(BNode.class)
+				&& currentClass.getSimpleName().equalsIgnoreCase(targetClassName)) {
+			return true;
+		}
 
-    @Override
-    public String whatItDoes() {
-        return "Return a list of child classes of a given node type.";
-    }
+		return false;
+	}
+
+	@Override
+	public String whatItDoes() {
+		return "Return a list of child classes of a given node type.";
+	}
 }

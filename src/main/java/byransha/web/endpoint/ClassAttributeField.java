@@ -2,7 +2,13 @@ package byransha.web.endpoint;
 
 import byransha.*;
 import byransha.annotations.*;
-import byransha.labmodel.model.v0.BusinessNode;
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
+import byransha.nodes.lab.model.v0.BusinessNode;
+import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.PrimitiveValueNode;
+import byransha.nodes.primitive.ValuedNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.View;
@@ -12,7 +18,6 @@ import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.sun.net.httpserver.HttpsExchange;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -148,7 +153,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
 
     public ClassAttributeField(BBGraph g) {
         super(g);
-        endOfConstructor();
     }
 
     private Field findField(Class<?> clazz, String name) {
@@ -227,7 +231,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             currentNodeInformation.put("total", node.outDegree());
             currentNodeInformation.put(
                     "hasNext",
-                    offset + limit < node.outs().size()
+                    offset + limit < node.computeOuts().size()
             );
         }
 
@@ -250,10 +254,10 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         if (node instanceof BusinessNode businessNode) {
             currentNodeInfo.set(
                 "isValid",
-                BooleanNode.valueOf(businessNode.isValid())
+                BooleanNode.valueOf(businessNode.errors())
             );
         }
-        currentNodeInfo.set("out", new TextNode(node.outs().toString()));
+        currentNodeInfo.set("out", new TextNode(node.computeOuts().toString()));
 
         if (node instanceof PrimitiveValueNode<?> valuedNode) {
             addValuedNodeInfo(currentNodeInfo, valuedNode);
@@ -278,12 +282,12 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
     ) {
         if (valuedNode.get() == null) {
             nodeInfo.set("value", NullNode.getInstance());
-        } else if (valuedNode instanceof byransha.BooleanNode) {
+        } else if (valuedNode instanceof byransha.nodes.primitive.BooleanNode) {
             nodeInfo.set(
                 "value",
                 BooleanNode.valueOf((Boolean) valuedNode.get())
             );
-        } else if (valuedNode instanceof byransha.IntNode) {
+        } else if (valuedNode instanceof byransha.nodes.primitive.IntNode) {
             nodeInfo.set("value", new IntNode((Integer) valuedNode.get()));
         } else {
             nodeInfo.set("value", new TextNode(valuedNode.getAsString()));
@@ -304,7 +308,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         );
 
         node.forEachOut((name, out) -> {
-            if (out instanceof BBGraph || out instanceof Cluster || out instanceof ValueHolder) return;
+            if (out instanceof BBGraph) return;
 
             if (validItemsProcessed.get() < offset) {
                 validItemsProcessed.incrementAndGet();
@@ -312,10 +316,6 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
             }
 
             if (count.get() >= limit) return;
-
-            if (out instanceof Out o) {
-                out = (BNode) o.get();
-            }
 
             if (out == null) {
                 return;
@@ -351,7 +351,7 @@ public class ClassAttributeField extends NodeEndpoint<BNode> implements View {
         b.set("canSee", BooleanNode.valueOf(out.canSee(user)));
 
         if (out instanceof BusinessNode bn) {
-            b.set("isValid", BooleanNode.valueOf(bn.isValid()));
+            b.set("isValid", BooleanNode.valueOf(bn.errors()));
         }
 
         if (out instanceof PrimitiveValueNode<?> vn) {

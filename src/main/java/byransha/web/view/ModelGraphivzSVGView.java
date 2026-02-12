@@ -1,7 +1,7 @@
 package byransha.web.view;
 
-import byransha.BBGraph;
-import byransha.User;
+import byransha.graph.BBGraph;
+import byransha.nodes.system.User;
 import byransha.web.EndpointBinaryResponse;
 import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
@@ -17,7 +17,6 @@ public class ModelGraphivzSVGView
 
     public ModelGraphivzSVGView(BBGraph db) {
         super(db);
-        endOfConstructor();
     }
 
 

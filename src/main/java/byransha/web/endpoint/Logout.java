@@ -4,61 +4,64 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.BBGraph;
-import byransha.User;
-import byransha.web.*;
+import byransha.graph.BBGraph;
+import byransha.nodes.system.User;
+import byransha.web.EndpointJsonResponse;
+import byransha.web.EndpointResponse;
+import byransha.web.NodeEndpoint;
+import byransha.web.SessionStore;
+import byransha.web.WebServer;
 
 public class Logout extends NodeEndpoint<BBGraph> {
 
-    private SessionStore sessionStore;
+	private SessionStore sessionStore;
 
-    @Override
-    public String whatItDoes() {
-        return "Logs the current user out by invalidating their session.";
-    }
+	@Override
+	public String whatItDoes() {
+		return "Logs the current user out by invalidating their session.";
+	}
 
+	public Logout(BBGraph db, SessionStore sessionStore) {
+		super(db);
 
-    public Logout(BBGraph db, SessionStore sessionStore) {
-        super(db);
-        if (sessionStore == null) {
-            throw new IllegalArgumentException("SessionStore cannot be null");
-        }
-        this.sessionStore = sessionStore;
-        endOfConstructor();
-    }
+		if (sessionStore == null) {
+			throw new IllegalArgumentException("SessionStore cannot be null");
+		}
 
+		this.sessionStore = sessionStore;
+	}
 
-    @Override
-    public boolean requiresAuthentication() {
-        return false;
-    }
+	@Override
+	public boolean requiresAuthentication() {
+		return false;
+	}
 
-    @Override
-    public boolean canExec(User user) {
-        return true;
-    }
+	@Override
+	public boolean canExec(User user) {
+		return true;
+	}
 
+	@Override
+	public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange https,
+			BBGraph ignoredNode) throws Throwable {
+		String sessionToken = null;
+		String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
 
-    @Override
-    public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange https, BBGraph ignoredNode) throws Throwable {
-        String sessionToken = null;
-        String cookieHeader = https.getRequestHeaders().getFirst("Cookie");
+		if (cookieHeader != null) {
+			for (String cookie : cookieHeader.split(";")) {
+				cookie = cookie.trim();
+				if (cookie.startsWith("session_token=")) {
+					sessionToken = cookie.substring("session_token=".length());
+					break;
+				}
+			}
+		}
 
-        if (cookieHeader != null) {
-            for (String cookie : cookieHeader.split(";")) {
-                cookie = cookie.trim();
-                if (cookie.startsWith("session_token=")) {
-                    sessionToken = cookie.substring("session_token=".length());
-                    break;
-                }
-            }
-        }
+		if (sessionToken != null) {
+			sessionStore.removeSession(sessionToken);
+			Authenticate.deleteSessionCookie(https, "session_token");
+		}
 
-        if (sessionToken != null) {
-            sessionStore.removeSession(sessionToken);
-            Authenticate.deleteSessionCookie(https, "session_token");
-        }
-
-        return new EndpointJsonResponse(new TextNode("Logout successful"), this);
-    }
+		return new EndpointJsonResponse(new TextNode("Logout successful"), this);
+	}
 }

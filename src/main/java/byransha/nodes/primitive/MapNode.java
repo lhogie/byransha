@@ -1,0 +1,46 @@
+package byransha.nodes.primitive;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.BiConsumer;
+
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.nodes.system.User;
+
+public class MapNode<N extends BNode> extends BNode {
+	public MapNode(BBGraph g, User creator) {
+		super(g, creator);
+	}
+
+	@Override
+	public String prettyName() {
+		return "a map";
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "a map";
+	}
+
+	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
+
+	@Override
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
+		for (Map.Entry<String, N> e : l.entrySet()) {
+			if (e.getValue() != null) {
+				consumer.accept(e.getKey(), e.getValue());
+			}
+		}
+	}
+
+	public void add(String key, N n) {
+		l.put(key, n);
+	}
+
+	public void remove(String key) {
+		l.remove(key);
+	}
+
+}
