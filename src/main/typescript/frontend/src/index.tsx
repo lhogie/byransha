@@ -3,10 +3,11 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { router } from "@global/router";
-import { Button, StyledEngineProvider } from "@mui/material";
+import { Button, StyledEngineProvider, ThemeProvider } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider } from "react-router";
+import { byranshaTheme } from "./theme/byranshaTheme";
 
 // Enhanced QueryClient configuration for React 19
 const queryClient = new QueryClient({
@@ -191,8 +192,9 @@ root.render(
 				}
 			}}
 		>
-			<StyledEngineProvider injectFirst>
-				<QueryClientProvider client={queryClient}>
+			<ThemeProvider theme={byranshaTheme}>
+				<StyledEngineProvider injectFirst>
+					<QueryClientProvider client={queryClient}>
 					<ErrorBoundary
 						fallback={
 							<div
@@ -234,15 +236,16 @@ root.render(
 						<RouterProvider router={router} />
 					</ErrorBoundary>
 
-					{/* React Query DevTools - only in development */}
-					{process.env.NODE_ENV === "development" && (
-						<ReactQueryDevtools
-							buttonPosition="bottom-left"
-							initialIsOpen={false}
-						/>
-					)}
-				</QueryClientProvider>
-			</StyledEngineProvider>
+						{/* React Query DevTools - only in development */}
+						{process.env.NODE_ENV === "development" && (
+							<ReactQueryDevtools
+								buttonPosition="bottom-left"
+								initialIsOpen={false}
+							/>
+						)}
+					</QueryClientProvider>
+				</StyledEngineProvider>
+			</ThemeProvider>
 		</ErrorBoundary>
 	</StrictMode>,
 );

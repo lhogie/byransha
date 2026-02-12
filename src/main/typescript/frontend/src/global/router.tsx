@@ -13,6 +13,7 @@ const LoginForm = lazy(() => import("@components/LoginForm/LoginForm"));
 const HomePage = lazy(() => import("@components/HomePage/HomePage"));
 const AddNodePage = lazy(() => import("@components/AddNode/AddNodePage"));
 const FormPage = lazy(() => import("@components/FormPage/FormPage"));
+const KView = lazy(() => import("@components/KView/KView"));
 const Expand = lazy(() => import("@components/Common/Expand"));
 
 export const router = createBrowserRouter([
@@ -80,6 +81,17 @@ export const router = createBrowserRouter([
 								errorMessage="Failed to load form page"
 							>
 								<FormPage />
+							</LazyComponentWrapper>
+						),
+					},
+					{
+						path: "/kview/:rootId",
+						element: (
+							<LazyComponentWrapper
+								fallback={<LoadingStates.Component message="Chargement de la vue..." />}
+								errorMessage="Échec du chargement de la KView"
+							>
+								<KView />
 							</LazyComponentWrapper>
 						),
 					},

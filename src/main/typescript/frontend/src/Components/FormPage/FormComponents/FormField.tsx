@@ -305,7 +305,7 @@ const FormField = ({
 	return (
 		<Box key={fieldKey} className="form-field-wrapper" sx={{ p: 1 }}>
 			<Grid container className="form-field" spacing={2} alignItems="center">
-				<Grid size={{ xs: 12, sm: 4 }}>
+				<Grid xs={12} sm={4}>
 					<FormControl
 						component="fieldset"
 						sx={{
@@ -342,7 +342,7 @@ const FormField = ({
 					</FormControl>
 				</Grid>
 
-				<Grid size={{ xs: 12, sm: 6 }}>
+			<Grid xs={12} sm={6}>
 					{listField.includes(type) && field.listType === "CHECKBOX" && (
 						<ListCheckboxField
 							field={field}

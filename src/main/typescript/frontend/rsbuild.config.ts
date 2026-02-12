@@ -1,7 +1,8 @@
-import { defineConfig } from "@rsbuild/core";
+import { defineConfig, loadEnv } from "@rsbuild/core";
 import { pluginReact } from "@rsbuild/plugin-react";
 import { pluginTypeCheck } from "@rsbuild/plugin-type-check";
 
+const { publicVars } = loadEnv();
 const isDev = process.env.NODE_ENV === "development";
 const isProd = process.env.NODE_ENV === "production";
 
@@ -22,6 +23,9 @@ export default defineConfig({
 		define: {
 			__DEV__: isDev,
 			__REACT_19_FEATURES__: true,
+			"import.meta.env.PUBLIC_API_BASE_URL": JSON.stringify(
+				publicVars.PUBLIC_API_BASE_URL || "http://localhost:8080"
+			),
 		},
 	},
 	resolve: {

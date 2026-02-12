@@ -13,10 +13,14 @@ import {
 import { saveAs } from "file-saver";
 import { useNavigate } from "react-router";
 import { createKey } from "@/utils/utils";
-import NestedFields from "./NestedFields";
-import { SearchFormView } from "./SearchFormView"; // ajout Dylan
+import NestedFields from "@components/FormPage/FormComponents/NestedFields";
+import { SearchFormView } from "@components/FormPage/FormComponents/SearchFormView";
 
-export const Form = ({
+/**
+ * KViewContent - Contenu principal de la KView
+ * Gère l'affichage des champs, actions (export, ajout, suppression)
+ */
+export const KViewContent = ({
 	rawApiData,
 	loading,
 	error,
@@ -31,7 +35,8 @@ export const Form = ({
 	const navigate = useNavigate();
 	const pageName =
 		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.name;
-	const currentNodeType = rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.type; // ajout Dylan
+	const currentNodeType =
+		rawApiData?.data?.results?.[0]?.result?.data?.currentNode?.type;
 	const exportCSVMutation = useApiMutation("export_csv");
 	const removeNodeMutation = useApiMutation("remove_node");
 
@@ -46,18 +51,24 @@ export const Form = ({
 				<CircularProgress />
 			</Box>
 		);
+
 	if (error)
 		return (
 			<Typography color="error">
 				Erreur de chargement des champs : {error.message || "Erreur inconnue"}
 			</Typography>
 		);
-	
-	// Utiliser la vue spéciale pour SearchForm
+
+	// Vue spéciale pour SearchForm
 	if (currentNodeType === "SearchForm") {
-		return <SearchFormView rootId={rootId} rawApiData={rawApiData} refetch={refetch} />;
+		return (
+			<SearchFormView
+				rootId={rootId}
+				rawApiData={rawApiData}
+				refetch={refetch}
+			/>
+		);
 	}
-	
 
 	return (
 		<Box>
@@ -69,10 +80,10 @@ export const Form = ({
 					id: rootId,
 				}}
 			/>
-			
 
+			{/* SpeedDial  */}
 			<SpeedDial
-				ariaLabel="SpeedDial playground example"
+				ariaLabel="Actions rapides"
 				sx={{ position: "absolute", bottom: 16, right: 16 }}
 				hidden={false}
 				icon={<SpeedDialIcon />}
@@ -97,7 +108,11 @@ export const Form = ({
 					},
 					{
 						icon: <AddIcon />,
-						name: "Ajouter une nouvelle entrée",
+						name: "Ajouter",
+						onClick: () => {
+							// TODO: Implémenter l'ajout d'une nouvelle entrée
+							console.log("Ajouter une nouvelle entrée");
+						},
 					},
 					{
 						icon: <DeleteIcon />,
@@ -111,8 +126,8 @@ export const Form = ({
 								{
 									onSuccess: async (data) => {
 										await refetch();
-										var li = data?.data?.results?.[0]?.result?.data;
-										var chaine = "Ces nœuds seront affectés : \n";
+										const li = data?.data?.results?.[0]?.result?.data;
+										let chaine = "Ces nœuds seront affectés : \n";
 										for (
 											let i = 0;
 											i < data?.data?.results?.[0]?.result?.data.length;

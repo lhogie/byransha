@@ -15,12 +15,10 @@ import { useApiData, useApiMutation } from "@hooks/useApiData";
 import {
 	ChevronRight as ChevronRightIcon,
 	Close as CloseIcon,
-	Home as HomeIcon,
 	Logout as LogoutIcon,
 	MoreHoriz as MoreHorizIcon,
 	Search as SearchIcon,
 	ManageSearchRounded as TuneIcon,
-	AccountTree as TreeIcon,
 } from "@mui/icons-material";
 import {
 	Alert,
@@ -112,8 +110,6 @@ const UserInfo = memo(
 		isLoading: boolean;
 		error: any;
 	}) => {
-		const _theme = useTheme();
-
 		if (isLoading) {
 			return (
 				<LoadingStates.Inline text="Chargement des informations utilisateur..." />
@@ -539,15 +535,9 @@ const MainLayout = memo(() => {
 	const { isLoading: isTransitioning, withLoading } = useLoadingState();
 
 	const [selectedDate, setSelectedDate] = useState<number>(Date.now());
-	const _dateRangeStart = new Date("1920-01-01").getTime();
-	const _dateRangeEnd = Date.now();
-	const _handleDateChange = (_: Event, value: number | number[]) => {
-		setSelectedDate(value as number);
-	};
 
 	// Media queries for responsive behavior
 	const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-	const _isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
 	// React 19 optimized state management
 	const [menuAnchor, setMenuAnchor, isMenuUpdating] = useOptimizedState<
