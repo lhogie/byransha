@@ -1,5 +1,7 @@
 package byransha.nodes.lab.model.v0;
 
+import java.awt.Color;
+
 import byransha.graph.BBGraph;
 import byransha.graph.DocumentNode;
 import byransha.nodes.primitive.BooleanNode;
@@ -39,6 +41,21 @@ public class Person extends BusinessNode {
 	public boolean enposte;
 	public StringNode researchActivity;
 
+	public Person(BBGraph g, User creator) {
+		super(g, creator);
+		etatCivil = new EtatCivil(g, creator);
+		positions = new ListNode(g, creator);
+		pics = new DocumentNode(g, creator);
+		hdr = new BooleanNode(g, creator, ByBoolean.DUNNO);
+		badgeNumber = new StringNode(g, creator);
+		website = new StringNode(g, creator);
+		faxNumber = new StringNode(g, creator);
+		phdDate = new DateNode(g, creator);
+		phoneNumbers = new ListNode(g, creator);
+		emailAddresses = new ListNode(g, creator);
+		offices = new ListNode(g, creator);
+	}
+
 	@Override
 	public String toString() {
 		if (etatCivil == null) {
@@ -56,19 +73,9 @@ public class Person extends BusinessNode {
 		return etatCivil.prettyName();
 	}
 
-	public Person(BBGraph g, User creator) {
-		super(g, creator);
-		etatCivil = new EtatCivil(g, creator);
-		positions = new ListNode(g, creator);
-		pics = new DocumentNode(g, creator);
-		hdr = new BooleanNode(g, creator, ByBoolean.DUNNO);
-		badgeNumber = new StringNode(g, creator);
-		website = new StringNode(g, creator);
-		faxNumber = new StringNode(g, creator);
-		phdDate = new DateNode(g, creator);
-		phoneNumbers = new ListNode(g, creator);
-		emailAddresses = new ListNode(g, creator);
-		offices = new ListNode(g, creator);
+	@Override
+	public Color getColor() {
+		return Color.blue;
 	}
 
 	@Override

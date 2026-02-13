@@ -5,13 +5,16 @@ import java.io.IOException;
 
 import byransha.graph.BBGraph;
 
-public class EventListOneFilePerDay extends EventList {
+public class EventListOneFilePerDay extends OnDiskEventList {
 	public EventListOneFilePerDay(BBGraph g, File directory) throws IOException {
 		super(g, directory);
 	}
 
+
+
 	@Override
-	public Event forward() {
+	public Event forward() throws Throwable {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -22,7 +25,8 @@ public class EventListOneFilePerDay extends EventList {
 
 	@Override
 	public File getFile(Event e) {
-		return new File(e.date.getYear() + "/" + e.date.getMonthValue(), e.date.getDayOfMonth() + ".ser");
+		return new File(directory,
+				e.date.getYear() + "/" + e.date.getMonthValue() + "/" + e.date.getDayOfMonth() + ".ser");
 	}
 
 	@Override
@@ -30,9 +34,5 @@ public class EventListOneFilePerDay extends EventList {
 		return "an event list storing events by day";
 	}
 
-	@Override
-	public String prettyName() {
-		return "event list";
-	}
 
 }

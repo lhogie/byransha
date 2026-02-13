@@ -19,18 +19,17 @@ public class SystemNode extends SystemB {
 	public WebServer webServer;
 	public SwingFrontend swing;
 
-	public SystemNode(BBGraph g, Class<? extends UserApplication> appClass)
+	public SystemNode(BBGraph g, Class<? extends UserApplication> appClass, File directory)
 			throws IOException, InstantiationException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g);
-		this.application = appClass.getConstructor(BBGraph.class).newInstance(g);
+		this.application = appClass.getConstructor(BBGraph.class, User.class).newInstance(g, g.systemUser);
 		this.jvm = new JVMNode(g);
 		this.byransha = new Byransha(g);
 		this.os = new OSNode(g);
 		this.admin = new User(g, g.systemUser, "admin", "admin"); // self accept
 		this.guest = new User(g, g.systemUser, "user", "test");
-		this.eventList = new EventListOneFilePerDay(g, new File(System.getProperty("user.home") + "/.byransha/events"));
-
+		this.eventList = new EventListOneFilePerDay(g, directory);
 	}
 
 	@Override

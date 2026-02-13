@@ -16,14 +16,10 @@ import java.util.function.Function;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.event.EventListOneFilePerDay;
 import byransha.nodes.system.Byransha;
-import byransha.nodes.system.JVMNode;
-import byransha.nodes.system.OSNode;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
 import byransha.nodes.system.UserApplication;
-import byransha.swing.SwingFrontend;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
@@ -40,19 +36,13 @@ public class BBGraph extends BNode {
 	private ConcurrentMap<Integer, BNode> nodesById = new ConcurrentHashMap<>();
 	private final AtomicInteger idSequence = new AtomicInteger(1);
 
-	public final User systemUser;
 	public final SystemNode systemNode;
+	public final User systemUser = null;
 
-	public BBGraph(Map<String, String> argMap) throws Exception {
+	public BBGraph(Class<? extends UserApplication> appClass, File directory) throws Exception {
 		super(null, null);
 		nodesById.put(0, this);
-		this.systemUser = new User(this, null, "system", ""); // self accept
-		var appClass = (Class<? extends UserApplication>) Class.forName(argMap.remove("appClass"));
-		this.systemNode = new SystemNode(g, appClass);
-	}
-
-	public Color getColorForNodeClass(Class<? extends BNode> aClass) {
-		return Color.white;
+		this.systemNode = new SystemNode(g, appClass, directory);
 	}
 
 	@Override

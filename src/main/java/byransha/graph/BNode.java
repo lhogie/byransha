@@ -1,10 +1,6 @@
 package byransha.graph;
 
 import java.awt.Color;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -13,12 +9,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import javax.swing.Icon;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -26,23 +23,19 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import com.sun.net.httpserver.HttpsExchange;
 
-import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
-import byransha.web.EndpointJsonResponse;
-import byransha.web.EndpointJsonResponse.dialects;
-import byransha.web.EndpointResponse;
 import byransha.web.NodeEndpoint;
-import byransha.web.TechnicalView;
-import byransha.web.WebServer;
-import graph.AnyGraph;
 import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
 
 public abstract class BNode {
+	public static final NodeAction reset = new ResetNodeAction();
+	public static final NodeAction delete = new DeleteNodeAction();
+	public static final NodeAction export = new exportNodeAction();
+
 	public BBGraph g;
 	public boolean readOnly;
 	private int id;
@@ -67,61 +60,6 @@ public abstract class BNode {
 			}
 		}
 	}
-
-	public final NodeAction reset = new NodeAction() {
-
-		@Override
-		public String description() {
-			return "reset the values";
-		}
-
-		@Override
-		public BNode exec(User user) {
-			forEachOutField(f -> {
-				try {
-					var v = (BNode) f.get(BNode.this);
-
-					if (v instanceof ValuedNode vn) {
-						vn.set(vn.defaultValue(), user);
-					}
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			});
-			return null;
-		}
-	};
-
-	public final NodeAction delete = new NodeAction() {
-
-		@Override
-		public String description() {
-			return "delete from the graph";
-		}
-
-		@Override
-		public BNode exec(User user) {
-			computeIns().forEach(inArc -> inArc.source.removeOut(BNode.this, user));
-			g.removeNode(id());
-			return g;
-		}
-	};
-
-	public final NodeAction export = new NodeAction() {
-
-		@Override
-		public String description() {
-			return "export this node as CSV";
-		}
-
-		@Override
-		public BNode exec(User user) throws FileNotFoundException, IllegalArgumentException, IllegalAccessException {
-			File file = new File(g.systemNode.eventList.directory, getClass().getName() + "-" + id() + ".csv");
-			var ps = new PrintWriter(new BufferedOutputStream(new FileOutputStream(file)));
-			toCSV(ps, true);
-			return null;
-		}
-	};
 
 	public void toCSV(PrintWriter ps, boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
 		var fields = new ArrayList<Field>();
@@ -157,21 +95,47 @@ public abstract class BNode {
 	}
 
 	public void forEachOutField(Consumer<Field> consumer) {
-		boolean bNodeReached = false;
-
-		for (Class c = getClass(); !bNodeReached; c = c.getSuperclass()) {
-			bNodeReached = c == BNode.class;
-
+		forEachBNodeClass(c -> {
 			for (var f : c.getDeclaredFields()) {
 				if ((f.getModifiers() & Modifier.STATIC) != 0)
 					continue;
+
 				f.setAccessible(true);
 
 				if (BNode.class.isAssignableFrom(f.getType())) {
 					consumer.accept(f);
 				}
 			}
+		});
+	}
+
+	public List<NodeAction> actions() {
+		var r = new ArrayList<NodeAction>();
+
+		forEachBNodeClass(c -> {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0 && NodeAction.class.isAssignableFrom(f.getType())) {
+					f.setAccessible(true);
+
+					try {
+						NodeAction action = (NodeAction) f.get(null);
+						action.name = f.getName();
+					} catch (Throwable e) {
+						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
+					}
+				}
+			}
+		});
+
+		return r;
+	}
+
+	private void forEachBNodeClass(Consumer<Class<? extends BNode>> consumer) {
+		for (Class c = getClass(); c != BNode.class; c = c.getSuperclass()) {
+			consumer.accept(c);
 		}
+
+		consumer.accept(BNode.class);
 	}
 
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
@@ -247,12 +211,7 @@ public abstract class BNode {
 		}
 	}
 
-	protected void onEdgeChanged(String fieldName, BNode oldTarget, BNode newTarget) {
-	}
-
-	public int distanceToSearchString(String s, User user) {
-		return 1;
-	}
+	
 
 	public boolean canSee(User user) {
 		return true;
@@ -281,7 +240,7 @@ public abstract class BNode {
 
 	@Override
 	public final int hashCode() {
-		return System.identityHashCode(this);
+		return id;
 	}
 
 	@Override
@@ -304,8 +263,9 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(user));
 		r.put("canEdit", canEdit(user));
-		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.error)).toList()));
-		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.error)).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name)).toList()));
+		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
+		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.msg)).toList()));
 
 		ObjectNode outsNode = new ObjectNode(null);
 		r.set("outs", outsNode);
@@ -318,7 +278,11 @@ public abstract class BNode {
 	}
 
 	public Color getColor() {
-		return g.getColorForNodeClass(getClass());
+		return Color.white;
+	}
+
+	public Icon getIcon() {
+		return null;
 	}
 
 	public abstract String prettyName();
@@ -327,44 +291,6 @@ public abstract class BNode {
 		return readOnly;
 	}
 
-	private int bnodeDepth() {
-		int r = 0;
-
-		for (Class<?> c = getClass(); c != BNode.class; c = c.getSuperclass()) {
-			r++;
-		}
-
-		return r;
-	}
-
-	public Pair<BNode, Field> getParentNodeWithField() {
-		for (InLink inLink : computeIns()) {
-			BNode sourceNode = inLink.source();
-
-			// Check fields in the entire class hierarchy
-			Class<?> currentClass = sourceNode.getClass();
-			while (currentClass != null && currentClass != Object.class) {
-				for (Field field : currentClass.getDeclaredFields()) {
-					if ((field.getModifiers() & Modifier.STATIC) != 0)
-						continue;
-					field.setAccessible(true);
-
-					try {
-						if (field.get(sourceNode) == this) {
-							Pair<BNode, Field> result = Pair.of(sourceNode, field);
-							return result;
-						}
-					} catch (IllegalAccessException e) {
-						throw new RuntimeException("Error accessing field: " + e.getMessage(), e);
-					}
-				}
-				// Move to the parent class
-				currentClass = currentClass.getSuperclass();
-			}
-		}
-
-		return null;
-	}
 
 	public final List<NodeError> errors(int depth) {
 		var errs = new ArrayList<NodeError>();
@@ -376,76 +302,9 @@ public abstract class BNode {
 		bfs(depth, n -> true, (n, d) -> fillErrors(errs, depth));
 	}
 
-	public record InLink(String role, BNode source) {
-		@Override
-		public String toString() {
-			return source + "." + role;
-		}
-	}
-
-	public static class InOutsNivoView extends NodeEndpoint<BNode> implements TechnicalView {
-
-		public InOutsNivoView(BBGraph db) {
-			super(db);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "generates a NIVO description of the graph";
-		}
-
-		@Override
-		public boolean sendContentByDefault() {
-			return false;
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange, BNode n) {
-			var g = new AnyGraph();
-			var currentVertex = g.ensureHasVertex(n);
-			setVertexProperties(currentVertex, n, "pink");
-			currentVertex.size = 20;
-			var limit = 99;
-			AtomicInteger currentNumberNodes = new AtomicInteger(0);
-
-			if (n.getClass() != BBGraph.class) {
-				n.forEachOut((role, outNode) -> {
-					if (currentNumberNodes.get() <= limit || outNode.getClass() == BBGraph.class) {
-						var outVertex = g.ensureHasVertex(outNode);
-						setVertexProperties(outVertex, outNode, "blue");
-						var arc = g.newArc(currentVertex, outVertex);
-						arc.label = role;
-						arc.color = "red";
-						currentNumberNodes.getAndIncrement();
-					}
-				});
-
-				n.computeIns().forEach(inLink -> {
-					if (inLink.source.canSee(user) && !(inLink.source instanceof ValuedNode<?>)) {
-						var inVertex = g.ensureHasVertex(inLink.source);
-						setVertexProperties(inVertex, inLink.source, "pink");
-						var arc = g.newArc(inVertex, currentVertex);
-						arc.style = "dotted";
-						arc.label = inLink.role;
-					}
-				});
-			}
-
-			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
-		}
-
-		private void setVertexProperties(BVertex vertex, BNode node, String defaultColor) {
-			vertex.color = node.getColor().toString();
-			vertex.label = node.prettyName();
-			vertex.whatIsThis = node.whatIsThis();
-			vertex.className = node.getClass().getName();
-		}
-	}
-
 	public Map<String, BNode> computeOuts() {
 		var r = new HashMap<String, BNode>();
 		forEachOut((role, out) -> r.put(role, out));
 		return r;
 	}
-
 }

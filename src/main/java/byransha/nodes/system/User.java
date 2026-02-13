@@ -23,16 +23,16 @@ public class User extends BNode {
 	public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
 
 	public User(BBGraph g, User creator) {
-		super(g, creator);
-		stack.push(g.systemNode.application.rootNode);
+		this(g, creator, null, null);
 	}
 
 	public User(BBGraph g, User creator, String user, String password) {
-		this(g, creator);
-		name = new StringNode(g, creator);
-		name.set(user, this);
-		passwordNode = new StringNode(g, creator);
-		passwordNode.set(password, this);
+		super(g, creator);
+		name = new StringNode(g, creator, user, ".+");
+		passwordNode = new StringNode(g, creator, password, ".+");
+		
+		if (creator != null)
+		stack.push(g.systemNode.application.rootNode);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class RemoveNode extends NodeEndpoint<BNode> {
 			return new EndpointJsonResponse(new ObjectNode(null).set("id", new IntNode(node.id())),
 					"Node cannot be removed because it is the graph.");
 
-		node.delete.exec(user);
+		BNode.delete.exec(node, user);
 		user.stack.add(g);
 		var a = new ArrayNode(null);
 		return new EndpointJsonResponse(new TextNode("ok"), RemoveNode.class.getName());

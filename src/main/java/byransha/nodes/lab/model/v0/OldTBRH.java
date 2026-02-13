@@ -12,13 +12,12 @@ import toools.Stop;
 
 class OldTBRH {
 	public void loadOLDTBRH(Lab i3s, User user, File inputDir) throws IOException {
-		var extractionDir = new File(inputDir, "marijo_tbrh");
-		loadPersonnel(i3s, user, extractionDir);
+		loadPersonnel(i3s, user, inputDir);
 	}
 
 	private static void loadPersonnel(Lab i3s, User user, File extractionDir) throws IOException {
 
-		var csv = new CSV(new File(extractionDir, "TB_personneI3S_IT.csv"), ";");
+		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
 
 		int total = csv.size();
 		int barLength = 40;

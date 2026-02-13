@@ -1,38 +1,44 @@
 package byransha.event;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.time.LocalDateTime;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 
 public abstract class EventList extends BNode {
-	public static final File defaultEventListDirectory = new File(System.getProperty("user.home") + "/.byransha");
+	protected LocalDateTime currentDate;
 
-	public final File directory;
-	EventQueueSerializer qFormat = new SerQueueSerializer();
-
-	public EventList(BBGraph g, File directory) throws IOException {
+	public EventList(BBGraph g) throws IOException {
 		super(g, g.systemUser);
-		this.directory = directory;
-		this.directory.mkdirs();
-		var is = new ObjectInputStream(new FileInputStream(new File(this.directory, "events")));
-		is.close();
 	}
 
-	public void add(Event e) throws IOException, ClassNotFoundException {
-		File f = getFile(e);
-		var q = qFormat.read(new FileInputStream(f));
-		q.add(e);
-		qFormat.write(q, new FileOutputStream(f));
+	public abstract void add(Event e) throws IOException, ClassNotFoundException;
+
+	public abstract Event forward() throws Throwable;
+
+	public abstract Event rewind() throws Throwable;
+
+	@Override
+	public String prettyName() {
+		return "event list";
 	}
 
-	public abstract Event forward();
+	public void goToNow() throws Throwable {
+		goTo(LocalDateTime.now());
+	}
 
-	public abstract Event rewind();
-
-	public abstract File getFile(Event e);
+	public void goTo(LocalDateTime target) throws Throwable {
+		if (target.isAfter(currentDate)) {
+			for (var e = forward(); e.date.isBefore(target);) {
+				e.apply(g);
+				currentDate = e.date;
+			}
+		} else if (target.isBefore(currentDate)) {
+			for (var e = rewind(); e.date.isAfter(target);) {
+				e.apply(g);
+				currentDate = e.date;
+			}
+		}
+	}
 }

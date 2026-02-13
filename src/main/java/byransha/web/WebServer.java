@@ -44,6 +44,7 @@ import com.sun.net.httpserver.HttpsServer;
 import butils.Utils;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.graph.InOutsNivoView;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
@@ -175,7 +176,7 @@ public class WebServer extends SystemB {
 		new BBGraph.GraphNivoView(g);
 		new OSNode.View(g);
 		new JVMNode.View(g);
-		new BNode.InOutsNivoView(g);
+		new InOutsNivoView(g);
 		new ModelGraphivzSVGView(g);
 		new ModelMermaidView(g);
 		new Navigator(g);

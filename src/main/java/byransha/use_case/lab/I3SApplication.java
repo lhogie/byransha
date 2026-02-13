@@ -28,7 +28,6 @@ public class I3SApplication extends UserApplication {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
