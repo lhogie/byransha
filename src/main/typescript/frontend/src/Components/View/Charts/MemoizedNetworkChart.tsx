@@ -1,6 +1,5 @@
 import { Box } from "@mui/material";
 import type { ElementDefinition } from "cytoscape";
-import type { FcoseLayoutOptions } from "cytoscape-fcose";
 import { memo, useMemo } from "react";
 import { CytoscapeGraph } from "../CytoscapeGraph";
 
@@ -92,16 +91,14 @@ export const MemoizedNetworkChart = memo(
 					elements={elements as ElementDefinition[]}
 					style={{ width: "100%", height: "100%" }}
 					stylesheet={cytoscapeStyles}
-					layout={
-						{
-							name: processedData.nodes.length > 1000 ? "random" : "fcose",
-							animate: false,
-							samplingType: false,
-							animationDuration: 1500,
-							fit: true,
-							padding: 30,
-						} as FcoseLayoutOptions
-					}
+					layout={{
+						name: processedData.nodes.length > 1000 ? "random" : "fcose",
+						animate: false,
+						samplingType: false,
+						animationDuration: 1500,
+						fit: true,
+						padding: 30,
+					}}
 					onNodeClick={onNodeClick}
 				/>
 			</Box>
@@ -110,3 +107,4 @@ export const MemoizedNetworkChart = memo(
 );
 
 MemoizedNetworkChart.displayName = "MemoizedNetworkChart";
+

@@ -103,7 +103,7 @@ const NestedFields = ({
 			const fullName = field?.listNodeType;
 
 			try {
-				const _data = await addNode.mutateAsync(
+				await addNode.mutateAsync(
 					{
 						BNodeClass: fullName,
 						node_id: id,

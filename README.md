@@ -63,7 +63,7 @@ The script will automatically detect missing tools and provide installation inst
 
 1. Open the project in IntelliJ IDEA
 2. A shared run configuration **"Start Backend"** is available in the toolbar
-3. For the frontend, navigate to `src/main/java/frontend/` and run:
+3. For the frontend, navigate to `src/main/typescript/frontend/` and run:
    ```bash
    bun install
    bun start
@@ -79,7 +79,7 @@ mvn exec:java -Dexec.mainClass=byransha.web.WebServer
 
 **Frontend:**
 ```bash
-cd src/main/java/frontend
+cd src/main/typescript/frontend
 bun install
 bun start
 ```

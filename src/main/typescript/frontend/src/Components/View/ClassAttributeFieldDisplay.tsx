@@ -193,7 +193,8 @@ export const ClassAttributeFieldDisplay = ({
 								{rowItems.map((outNode) => (
 									<Grid
 										key={outNode.id}
-										size={{ xs: 12, sm: 6 }}
+									xs={12}
+									sm={6}
 										sx={{ display: "flex" }}
 									>
 										{renderCard(outNode)}

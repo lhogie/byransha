@@ -1,13 +1,15 @@
 import { useNavigate, useParams } from "react-router";
-import "./FormPage.css";
-
-import { Form } from "@components/FormPage/FormComponents/Form";
 import { useApiData } from "@hooks/useApiData";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { Box, Container, IconButton, Paper, Typography } from "@mui/material";
 import { shortenAndFormatLabel } from "@/utils/utils";
+import { KViewContent } from "./KViewContent";
 
-const FormPage = () => {
+/**
+ * KView - Composant réutilisable pour afficher/éditer un nœud
+ * Basé sur FormPage mais extrait comme composant générique
+ */
+const KView = () => {
 	const { rootId: rawRootId } = useParams();
 	const navigate = useNavigate();
 	const rootId = rawRootId ? parseInt(rawRootId, 10) : 0;
@@ -35,7 +37,7 @@ const FormPage = () => {
 				<IconButton
 					className="close-button"
 					onClick={() => navigate(`/home`)}
-					aria-label="close"
+					aria-label="Fermer"
 					sx={{ position: "absolute", top: 16, right: 16 }}
 				>
 					<CloseRoundedIcon />
@@ -56,7 +58,8 @@ const FormPage = () => {
 				>
 					Fiche : {shortenAndFormatLabel(pageName)}
 				</Typography>
-				<Form
+				
+				<KViewContent
 					rawApiData={rawApiData}
 					loading={loading}
 					error={error}
@@ -67,4 +70,4 @@ const FormPage = () => {
 	);
 };
 
-export default FormPage;
+export default KView;

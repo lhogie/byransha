@@ -15,7 +15,6 @@ import {
 	SpeedDialAction,
 	SpeedDialIcon,
 	TextField,
-	Tooltip,
 	Typography,
 } from "@mui/material";
 import { useQueryClient } from "@tanstack/react-query";
@@ -97,10 +96,6 @@ export const SearchFormView = ({
 	const searchTermAttr = attributes.find(
 		(attr: any) => attr.name === "searchTerm",
 	);
-	const filterChainAttr = attributes.find(
-		(attr: any) => attr.name === "filterChain",
-	);
-	const resultsAttr = attributes.find((attr: any) => attr.name === "results");
 
 	// Initialiser la valeur de recherche
 	useEffect(() => {
