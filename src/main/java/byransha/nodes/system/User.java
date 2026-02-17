@@ -21,6 +21,7 @@ public class User extends BNode {
 	public StringNode name;
 	public StringNode passwordNode;
 	public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
+	public int passwordHash;
 
 	public User(BBGraph g, User creator) {
 		this(g, creator, null, null);
@@ -30,9 +31,9 @@ public class User extends BNode {
 		super(g, creator);
 		name = new StringNode(g, creator, user, ".+");
 		passwordNode = new StringNode(g, creator, password, ".+");
-		
+
 		if (creator != null)
-		stack.push(g.systemNode.application.rootNode);
+			stack.push(g.systemNode.application.rootNode);
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class User extends BNode {
 		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
 				BNode node) throws Throwable {
 			var a = new ArrayNode(null);
-			user.stack.forEach(e -> a.add(e.toJSONNode(user, 0)));
+//			user.stack.forEach(e -> a.add(e.toJSONNode(user, 0)));
 			return new EndpointJsonResponse(a, this);
 		}
 	}

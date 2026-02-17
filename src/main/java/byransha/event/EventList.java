@@ -7,7 +7,7 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 
 public abstract class EventList extends BNode {
-	protected LocalDateTime currentDate;
+	protected LocalDateTime currentDate = LocalDateTime.now();
 
 	public EventList(BBGraph g) throws IOException {
 		super(g, g.systemUser);
@@ -30,12 +30,12 @@ public abstract class EventList extends BNode {
 
 	public void goTo(LocalDateTime target) throws Throwable {
 		if (target.isAfter(currentDate)) {
-			for (var e = forward(); e.date.isBefore(target);) {
+			for (var e = forward(); e != null && e.date.isBefore(target);) {
 				e.apply(g);
 				currentDate = e.date;
 			}
 		} else if (target.isBefore(currentDate)) {
-			for (var e = rewind(); e.date.isAfter(target);) {
+			for (var e = rewind(); e != null && e.date.isAfter(target);) {
 				e.apply(g);
 				currentDate = e.date;
 			}

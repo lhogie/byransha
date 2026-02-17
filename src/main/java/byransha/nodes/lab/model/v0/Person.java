@@ -5,7 +5,6 @@ import java.awt.Color;
 import byransha.graph.BBGraph;
 import byransha.graph.DocumentNode;
 import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.ByBoolean;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
 import byransha.nodes.primitive.ListNode;
@@ -46,7 +45,7 @@ public class Person extends BusinessNode {
 		etatCivil = new EtatCivil(g, creator);
 		positions = new ListNode(g, creator);
 		pics = new DocumentNode(g, creator);
-		hdr = new BooleanNode(g, creator, ByBoolean.DUNNO);
+		hdr = new BooleanNode(g, creator, null);
 		badgeNumber = new StringNode(g, creator);
 		website = new StringNode(g, creator);
 		faxNumber = new StringNode(g, creator);

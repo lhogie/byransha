@@ -1,6 +1,8 @@
 package byransha.nodes.primitive;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
@@ -8,9 +10,14 @@ import byransha.nodes.system.User;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
+	public final List<ValueNodeListener<V>> listeners = new ArrayList<>();
 
 	public ValuedNode(BBGraph g, User user) {
 		super(g, user);
+	}
+
+	public static interface ValueNodeListener<V> {
+		void valueChangedTo(V v);
 	}
 
 	protected abstract byte[] valueToBytes(V v) throws IOException;
@@ -34,11 +41,26 @@ public abstract class ValuedNode<V> extends BNode {
 		return value;
 	}
 
-	public void set(V v, User user) {
+	public V getOrDefault(V defaultValue) {
+		var value = get();
+
+		if (value == null) {
+			return defaultValue;
+		}
+
+		return value;
+	}
+
+	public void set(V newValue, User user) {
 		if (!canEdit(user))
 			throw new RuntimeException(user + " is not allowed to set value");
 
-		value = v;
+		boolean valueChanging = newValue != value || (value != null && value.equals(newValue));
+		value = newValue;
+
+		if (valueChanging) {
+			listeners.forEach(l -> l.valueChangedTo(newValue));
+		}
 	}
 
 	public abstract V defaultValue();

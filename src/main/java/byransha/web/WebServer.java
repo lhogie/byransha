@@ -53,7 +53,6 @@ import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
 import byransha.web.endpoint.AddNode;
 import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.ClassAttributeField;
 import byransha.web.endpoint.ClassInformation;
 import byransha.web.endpoint.Endpoints;
 import byransha.web.endpoint.Jump;
@@ -192,7 +191,6 @@ public class WebServer extends SystemB {
 		new Summarizer(g);
 		new LoadImage(g);
 		new ClassInformation(g);
-		new ClassAttributeField(g);
 		new AddNode(g);
 		new RemoveFromList(g);
 		new RemoveNode(g);

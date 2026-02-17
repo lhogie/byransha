@@ -1,7 +1,6 @@
 package byransha.nodes.primitive;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -11,13 +10,15 @@ import java.util.function.BiConsumer;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.graph.BNode.exportNodeAction.CSVStream;
 import byransha.nodes.system.User;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	String label;
+	private List<T> selected = new ArrayList<>();
 
-	public ListNode(BBGraph db, User creator) {
-		super(db, creator);
+	public ListNode(BBGraph g, User creator) {
+		super(g, creator);
 		set(new ArrayList<>(), creator);
 	}
 
@@ -28,12 +29,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	}
 
 	@Override
-	public void toCSV(PrintWriter ps, boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
-		var l = get();
+	public void toCSVStreams(List<CSVStream> l, boolean printHeaders)
+			throws IllegalArgumentException, IllegalAccessException {
+		var elements = get();
 
-		for (int i = 0; i < l.size(); ++i) {
-			var n = l.get(i);
-			n.toCSV(ps, i == 0 ? printHeaders : false);
+		for (int i = 0; i < elements.size(); ++i) {
+			elements.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
 		}
 	}
 
@@ -105,13 +106,16 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		get().remove(element);
 	}
 
-	public String getSelected() {
-		if (get().isEmpty()) {
-			return null;
-		}
+	public void select(T element) {
+		selected.add(element);
+	}
 
-		return get().stream().filter(e -> e instanceof StringNode).map(e -> (StringNode) e).map(StringNode::get)
-				.findFirst().orElse(null);
+	public void unselect(T element) {
+		selected.remove(element);
+	}
+
+	public List<T> getSelected() {
+		return selected;
 	}
 
 	public void removeAll() {

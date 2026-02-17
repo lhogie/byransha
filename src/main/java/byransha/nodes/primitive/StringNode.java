@@ -4,13 +4,52 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
+import byransha.graph.NodeView;
 import byransha.nodes.system.User;
 
 public class StringNode extends PrimitiveValueNode<String> {
 	String re;
+	public boolean password;
 
+	
+	public static class StringNodeView extends NodeView<StringNode> {
+
+		protected StringNodeView(BBGraph g, User creator) {
+			super(g, creator);
+		}
+
+		@Override
+		public JsonNode toJSON(User requester, StringNode n) {
+			ObjectNode r = new ObjectNode(null);
+			r.set("value", new TextNode(n.get()));
+			r.set("password", BooleanNode.valueOf(n.password));
+			return r;
+		}
+
+		@Override
+		public JComponent createComponentImpl(User requester, StringNode n) {
+			String s = n.get();
+			boolean multiline = s.indexOf('\n') >= 0;
+			var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
+			int caret = textComponent.getCaretPosition();
+			n.listeners.add(newValue -> textComponent.setText(newValue));
+			textComponent.setCaretPosition(caret);
+			return textComponent;
+		}
+	}
+	
+	
 	public StringNode(BBGraph db, User creator) {
 		super(db, creator);
 	}

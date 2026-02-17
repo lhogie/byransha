@@ -2,6 +2,7 @@ package byransha.graph;
 
 import java.awt.Color;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -17,24 +18,98 @@ import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.graph.BNode.exportNodeAction.CSVStream;
+import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.StringNode;
+import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
 import byransha.web.NodeEndpoint;
 import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
+import toools.io.Cout;
 
 public abstract class BNode {
-	public static final NodeAction reset = new ResetNodeAction();
-	public static final NodeAction delete = new DeleteNodeAction();
-	public static final NodeAction export = new exportNodeAction();
+
+	public static class Delete extends ConfirmRequiredNodeAction {
+
+		public Delete(BBGraph g, User creator) {
+			super(g, creator);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "delete from the graph";
+		}
+
+		@Override
+		protected ActionResult execConfirm(User user) {
+			delete(user);
+			return null;
+		}
+
+	}
+
+	public final static class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
+		protected exportNodeAction(BBGraph g, User creator) {
+			super(g, creator);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "export this node as CSV";
+		}
+
+		public static class CSVStream {
+			String name;
+			String data;
+		}
+
+		@Override
+		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target, User user) throws Throwable {
+			var r = new ListNode<byransha.nodes.primitive.TextNode>(g, user);
+			var csvs = new ArrayList<CSVStream>();
+			target.toCSVStreams(csvs, true);
+			csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, user, csv.name + "(CSV)", csv.data))
+					.forEach(n -> r.get().add(n));
+			r.get().add(new byransha.nodes.primitive.TextNode(g, user, id() + " (JSON)",
+					toJSONNode(user, 0).toPrettyString()));
+			return new exportNodeResult(g, user, this, r);
+		}
+	}
+
+	final static class ResetNodeAction extends NodeAction {
+		protected ResetNodeAction(BBGraph g, User creator) {
+			super(g, creator);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "reset the values";
+		}
+
+		@Override
+		public ActionResult exec(BNode target, User user) {
+			target.forEachOutField(f -> {
+				try {
+					var v = (BNode) f.get(target);
+
+					if (v instanceof ValuedNode vn) {
+						vn.set(vn.defaultValue(), user);
+					}
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			});
+			return null;
+		}
+	}
 
 	public BBGraph g;
 	public boolean readOnly;
@@ -61,7 +136,31 @@ public abstract class BNode {
 		}
 	}
 
-	public void toCSV(PrintWriter ps, boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
+	public void delete(User user) {
+		computeIns().forEach(inArc -> inArc.source().removeOut(this, user));
+		g.removeNode(id());
+	}
+
+	public void toCSVStreams(List<CSVStream> l, boolean printHeaders)
+			throws IllegalArgumentException, IllegalAccessException {
+		var c = new CSVStream();
+		c.data = fieldsToCSV(printHeaders);
+		c.name = "fields";
+		l.add(c);
+	}
+
+	public String fieldsToCSV(boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
+		var sw = new StringWriter();
+		var pw = new PrintWriter(sw);
+		fieldsToCSV(pw, printHeaders);
+		var s = pw.toString();
+		pw.close();
+		return s;
+
+	}
+
+	public void fieldsToCSV(PrintWriter ps, boolean printHeaders)
+			throws IllegalArgumentException, IllegalAccessException {
 		var fields = new ArrayList<Field>();
 
 		if (printHeaders) {
@@ -113,8 +212,32 @@ public abstract class BNode {
 		var r = new ArrayList<NodeAction>();
 
 		forEachBNodeClass(c -> {
+			System.out.println(c);
 			for (var f : c.getDeclaredFields()) {
+				System.out.println("field: " + f.getName() + " tyoe: " + f.getType());
 				if ((f.getModifiers() & Modifier.STATIC) != 0 && NodeAction.class.isAssignableFrom(f.getType())) {
+					f.setAccessible(true);
+
+					try {
+						NodeAction action = (NodeAction) f.get(null);
+						action.name = f.getName();
+					} catch (Throwable e) {
+						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
+					}
+				}
+			}
+		});
+
+		return r;
+	}
+
+	public List<NodeView> views() {
+		Cout.debugSuperVisible("Viewww");
+		var r = new ArrayList<NodeView>();
+
+		forEachBNodeClass(c -> {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) != 0 && NodeView.class.isAssignableFrom(f.getType())) {
 					f.setAccessible(true);
 
 					try {
@@ -211,8 +334,6 @@ public abstract class BNode {
 		}
 	}
 
-	
-
 	public boolean canSee(User user) {
 		return true;
 	}
@@ -254,29 +375,6 @@ public abstract class BNode {
 		return v;
 	}
 
-	public ObjectNode toJSONNode(User user, int depth) {
-		ObjectNode r = new ObjectNode(null);
-		r.put("id", id());
-		r.put("class", getClass().getName());
-		r.put("color", Utilities.toRGBHex(getColor()));
-		r.put("prettyName", prettyName());
-		r.put("whatIsThis", whatIsThis());
-		r.put("canSee", canSee(user));
-		r.put("canEdit", canEdit(user));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name)).toList()));
-		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("errors", new ArrayNode(null, errors(0).stream().map(e -> (JsonNode) new TextNode(e.msg)).toList()));
-
-		ObjectNode outsNode = new ObjectNode(null);
-		r.set("outs", outsNode);
-
-		if (depth > 0) {
-			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(user, depth - 1)));
-		}
-
-		return r;
-	}
-
 	public Color getColor() {
 		return Color.white;
 	}
@@ -290,7 +388,6 @@ public abstract class BNode {
 	public boolean isReadOnly() {
 		return readOnly;
 	}
-
 
 	public final List<NodeError> errors(int depth) {
 		var errs = new ArrayList<NodeError>();
@@ -307,4 +404,28 @@ public abstract class BNode {
 		forEachOut((role, out) -> r.put(role, out));
 		return r;
 	}
+
+	public ObjectNode toJSONNode(User user, int depth) {
+		ObjectNode r = new ObjectNode(null);
+		r.put("id", id());
+		r.put("class", getClass().getName());
+		r.put("color", Utilities.toRGBHex(getColor()));
+		r.put("prettyName", prettyName());
+		r.put("whatIsThis", whatIsThis());
+		r.put("canSee", canSee(user));
+		r.put("canEdit", canEdit(user));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name)).toList()));
+		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
+		r.set("views", new ArrayNode(null, views().stream().map(v -> v.toJSON(user, this)).toList()));
+
+		ObjectNode outsNode = new ObjectNode(null);
+		r.set("outs", outsNode);
+
+		if (depth > 0) {
+			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(user, depth - 1)));
+		}
+
+		return r;
+	}
+
 }

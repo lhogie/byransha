@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-import byransha.event.EventListOneFilePerDay;
+import byransha.event.EventList;
+import byransha.event.EventListOneBigFile;
 import byransha.graph.BBGraph;
 import byransha.swing.SwingFrontend;
 import byransha.web.WebServer;
@@ -15,7 +16,7 @@ public class SystemNode extends SystemB {
 	public final JVMNode jvm;
 	public final Byransha byransha;
 	public final OSNode os;
-	public final EventListOneFilePerDay eventList;
+	public final EventList eventList;
 	public WebServer webServer;
 	public SwingFrontend swing;
 
@@ -29,7 +30,7 @@ public class SystemNode extends SystemB {
 		this.os = new OSNode(g);
 		this.admin = new User(g, g.systemUser, "admin", "admin"); // self accept
 		this.guest = new User(g, g.systemUser, "user", "test");
-		this.eventList = new EventListOneFilePerDay(g, directory);
+		this.eventList = new EventListOneBigFile(g, directory);
 	}
 
 	@Override

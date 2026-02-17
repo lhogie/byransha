@@ -14,7 +14,6 @@ public class EventListOneFilePerDay extends OnDiskEventList {
 
 	@Override
 	public Event forward() throws Throwable {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

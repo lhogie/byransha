@@ -5,13 +5,12 @@ import java.io.IOException;
 import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
-public class BooleanNode extends PrimitiveValueNode<ByBoolean> {
+public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(BBGraph g, User creator, ByBoolean v) {
+	public BooleanNode(BBGraph g, User creator, Boolean v) {
 		super(g, creator);
 		set(v, creator);
 	}
-
 
 	@Override
 	public String prettyName() {
@@ -19,37 +18,39 @@ public class BooleanNode extends PrimitiveValueNode<ByBoolean> {
 	}
 
 	@Override
-	protected ByBoolean bytesToValue(byte[] bytes, User user) throws IOException {
+	protected Boolean bytesToValue(byte[] bytes, User user) throws IOException {
 		if (bytes.length != 1)
 			throw new IOException("Invalid byte array length for BooleanNode: " + bytes.length);
 
 		if (bytes[0] == 0) {
-			return ByBoolean.NO;
+			return false;
 		} else if (bytes[0] == 1) {
-			return ByBoolean.YES;
+			return true;
 		} else {
-			return ByBoolean.DUNNO;
+			return null;
 		}
 	}
 
 	@Override
-	protected byte[] valueToBytes(ByBoolean b) throws IOException {
+	protected byte[] valueToBytes(Boolean b) throws IOException {
 		var r = new byte[1];
 
-		if (b == ByBoolean.NO) {
-			r[0] = 0;
-		} else if (b == ByBoolean.YES) {
-			r[0] = 1;
-		} else {
+		if (b == null) {
 			r[0] = 2;
+		} else {
+			if (b) {
+				r[0] = 1;
+			} else {
+				r[0] = 0;
+			}
 		}
-		
+
 		return r;
 	}
 
 	@Override
 	public void fromString(String s, User user) {
-		set(ByBoolean.valueOf(s), user);
+		set(Boolean.valueOf(s), user);
 	}
 
 	@Override
@@ -58,7 +59,7 @@ public class BooleanNode extends PrimitiveValueNode<ByBoolean> {
 	}
 
 	@Override
-	public ByBoolean defaultValue() {
-		return ByBoolean.DUNNO;
+	public Boolean defaultValue() {
+		return null;
 	}
 }
