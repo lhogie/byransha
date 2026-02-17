@@ -1,5 +1,6 @@
 package byransha.nodes.primitive;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -7,6 +8,8 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
@@ -22,10 +25,9 @@ public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean password;
 
-	
 	public static class StringNodeView extends NodeView<StringNode> {
 
-		protected StringNodeView(BBGraph g, User creator) {
+		public StringNodeView(BBGraph g, User creator) {
 			super(g, creator);
 		}
 
@@ -40,16 +42,41 @@ public class StringNode extends PrimitiveValueNode<String> {
 		@Override
 		public JComponent createComponentImpl(User requester, StringNode n) {
 			String s = n.get();
-			boolean multiline = s.indexOf('\n') >= 0;
+			boolean multiline = s != null && s.indexOf('\n') >= 0;
 			var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
+			textComponent.setPreferredSize(new Dimension(200, 20));
+			textComponent.getDocument().addDocumentListener(new DocumentListener() {
+
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					changed(e);
+				}
+
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					changed(e);
+				}
+
+				private void changed(DocumentEvent e) {
+					n.set(textComponent.getText(), requester);
+				}
+
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+				}
+			});
+
 			int caret = textComponent.getCaretPosition();
-			n.listeners.add(newValue -> textComponent.setText(newValue));
+			n.listeners.add(newValue -> {
+				if (!textComponent.getText().equals(newValue)) {
+					textComponent.setText(newValue);
+				}
+			});
 			textComponent.setCaretPosition(caret);
 			return textComponent;
 		}
 	}
-	
-	
+
 	public StringNode(BBGraph db, User creator) {
 		super(db, creator);
 	}

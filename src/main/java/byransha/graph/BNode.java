@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,12 +21,12 @@ import javax.swing.Icon;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BNode.exportNodeAction.CSVStream;
 import byransha.nodes.primitive.ListNode;
-import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
 import byransha.web.NodeEndpoint;
@@ -33,7 +34,6 @@ import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
-import toools.io.Cout;
 
 public abstract class BNode {
 
@@ -57,7 +57,7 @@ public abstract class BNode {
 	}
 
 	public final static class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
-		protected exportNodeAction(BBGraph g, User creator) {
+		public exportNodeAction(BBGraph g, User creator) {
 			super(g, creator);
 		}
 
@@ -72,7 +72,8 @@ public abstract class BNode {
 		}
 
 		@Override
-		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target, User user) throws Throwable {
+		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target, User user)
+				throws Throwable {
 			var r = new ListNode<byransha.nodes.primitive.TextNode>(g, user);
 			var csvs = new ArrayList<CSVStream>();
 			target.toCSVStreams(csvs, true);
@@ -85,7 +86,7 @@ public abstract class BNode {
 	}
 
 	final static class ResetNodeAction extends NodeAction {
-		protected ResetNodeAction(BBGraph g, User creator) {
+		public ResetNodeAction(BBGraph g, User creator) {
 			super(g, creator);
 		}
 
@@ -114,6 +115,7 @@ public abstract class BNode {
 	public BBGraph g;
 	public boolean readOnly;
 	private int id;
+	public boolean historize = true;
 
 	protected BNode(BBGraph g, User creator) {
 		if (!canCreate(creator))
@@ -208,46 +210,33 @@ public abstract class BNode {
 		});
 	}
 
-	public List<NodeAction> actions() {
+	public List<NodeAction> actions(User user) {
 		var r = new ArrayList<NodeAction>();
 
 		forEachBNodeClass(c -> {
-			System.out.println(c);
-			for (var f : c.getDeclaredFields()) {
-				System.out.println("field: " + f.getName() + " tyoe: " + f.getType());
-				if ((f.getModifiers() & Modifier.STATIC) != 0 && NodeAction.class.isAssignableFrom(f.getType())) {
-					f.setAccessible(true);
-
-					try {
-						NodeAction action = (NodeAction) f.get(null);
-						action.name = f.getName();
-					} catch (Throwable e) {
-						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
-					}
+			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
+				try {
+					r.add((NodeAction) v.getConstructor(BBGraph.class, User.class).newInstance(g, user));
+				} catch (Throwable err) {
+					throw new IllegalStateException(err);
 				}
-			}
+			});
 		});
 
 		return r;
 	}
 
-	public List<NodeView> views() {
-		Cout.debugSuperVisible("Viewww");
+	public List<NodeView> views(User user) {
 		var r = new ArrayList<NodeView>();
 
 		forEachBNodeClass(c -> {
-			for (var f : c.getDeclaredFields()) {
-				if ((f.getModifiers() & Modifier.STATIC) != 0 && NodeView.class.isAssignableFrom(f.getType())) {
-					f.setAccessible(true);
-
-					try {
-						NodeAction action = (NodeAction) f.get(null);
-						action.name = f.getName();
-					} catch (Throwable e) {
-						throw e instanceof RuntimeException re ? re : new RuntimeException(e);
-					}
+			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
+				try {
+					r.add((NodeView) v.getConstructor(BBGraph.class, User.class).newInstance(g, user));
+				} catch (Throwable err) {
+					throw new IllegalStateException(err);
 				}
-			}
+			});
 		});
 
 		return r;
@@ -405,8 +394,10 @@ public abstract class BNode {
 		return r;
 	}
 
+	final static JsonNodeFactory factory = new JsonNodeFactory(true);
+
 	public ObjectNode toJSONNode(User user, int depth) {
-		ObjectNode r = new ObjectNode(null);
+		ObjectNode r = new ObjectNode(factory);
 		r.put("id", id());
 		r.put("class", getClass().getName());
 		r.put("color", Utilities.toRGBHex(getColor()));
@@ -414,9 +405,10 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(user));
 		r.put("canEdit", canEdit(user));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name)).toList()));
+		r.set("actions",
+				new ArrayNode(null, actions(user).stream().map(e -> (JsonNode) new TextNode(e.name())).toList()));
 		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views", new ArrayNode(null, views().stream().map(v -> v.toJSON(user, this)).toList()));
+		r.set("views", new ArrayNode(null, views(user).stream().map(v -> v.toJSON(user, this)).toList()));
 
 		ObjectNode outsNode = new ObjectNode(null);
 		r.set("outs", outsNode);

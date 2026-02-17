@@ -27,7 +27,7 @@ public class Jump extends NodeEndpoint<BNode> {
 			throws Throwable {
 
 		if (node != user.currentNode()) {
-			user.stack.add(node);
+			user.history.get().add(node);
 		}
 
 		NodeInfo nodeInfoEndpoint = g.findEndpoint(NodeInfo.class);

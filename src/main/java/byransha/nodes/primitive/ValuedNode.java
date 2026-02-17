@@ -26,7 +26,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 	@Override
 	public final String toString() {
-		return getClass().getSimpleName() + ": " + value == null ? "no value" : value.toString();
+		return getClass().getSimpleName() + ": " +( value == null ? "no value" : value.toString());
 	}
 
 	public String getAsString() {
@@ -55,7 +55,7 @@ public abstract class ValuedNode<V> extends BNode {
 		if (!canEdit(user))
 			throw new RuntimeException(user + " is not allowed to set value");
 
-		boolean valueChanging = newValue != value || (value != null && value.equals(newValue));
+		boolean valueChanging = newValue != value || (value != null && !value.equals(newValue));
 		value = newValue;
 
 		if (valueChanging) {

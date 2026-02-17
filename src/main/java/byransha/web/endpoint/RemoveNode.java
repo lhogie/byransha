@@ -1,6 +1,5 @@
 package byransha.web.endpoint;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -27,9 +26,8 @@ public class RemoveNode extends NodeEndpoint<BNode> {
 			return new EndpointJsonResponse(new ObjectNode(null).set("id", new IntNode(node.id())),
 					"Node cannot be removed because it is the graph.");
 
-	//	BNode.delete.exec(node, user);
-		user.stack.add(g);
-		var a = new ArrayNode(null);
+		// BNode.delete.exec(node, user);
+		user.history.get().add(g);
 		return new EndpointJsonResponse(new TextNode("ok"), RemoveNode.class.getName());
 	}
 

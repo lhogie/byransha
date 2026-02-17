@@ -1,7 +1,7 @@
 package byransha.nodes.system;
 
-import java.util.Deque;
-import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,6 +9,7 @@ import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
@@ -20,8 +21,9 @@ import byransha.web.WebServer;
 public class User extends BNode {
 	public StringNode name;
 	public StringNode passwordNode;
-	public final Deque<BNode> stack = new ConcurrentLinkedDeque<>();
+	public final ListNode<BNode> history;
 	public int passwordHash;
+	private BNode currentNode;
 
 	public User(BBGraph g, User creator) {
 		this(g, creator, null, null);
@@ -31,9 +33,11 @@ public class User extends BNode {
 		super(g, creator);
 		name = new StringNode(g, creator, user, ".+");
 		passwordNode = new StringNode(g, creator, password, ".+");
+		history = new ListNode<>(g, creator);
 
-		if (creator != null)
-			stack.push(g.systemNode.application.rootNode);
+		if (creator != null) {
+			history.get().add(g.systemNode.application.rootNode);
+		}
 	}
 
 	@Override
@@ -42,7 +46,7 @@ public class User extends BNode {
 	}
 
 	public BNode currentNode() {
-		return stack.isEmpty() ? null : stack.getLast();
+		return history.get().isEmpty() ? null : history.get().getLast();
 	}
 
 	@Override
@@ -133,5 +137,23 @@ public class User extends BNode {
 				name.set("user", this);
 			}
 		}
+	}
+
+	public static interface UserListener {
+		void userJumpedTo(BNode n);
+	}
+
+	public final List<UserListener> listeners = new ArrayList<>();
+
+	public void jumpTo(BNode n) {
+		if (n.historize) {
+			history.get().add(n);
+		}
+
+		if (currentNode != n) {
+			currentNode = n;
+			listeners.forEach(l -> l.userJumpedTo(n));
+		}
+
 	}
 }

@@ -3,10 +3,17 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JTextField;
+
 import org.apache.commons.lang3.Conversion;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
+import byransha.graph.NodeView;
 import byransha.nodes.system.User;
 
 public class IntNode extends PrimitiveValueNode<Integer> {
@@ -66,5 +73,27 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 			errs.add(new NodeError(this, "too small, min is " + min));
 		else if (v > max)
 			errs.add(new NodeError(this, "too large, max is " + max));
+	}
+	
+	public static class IntNodeView extends NodeView<IntNode> {
+
+		public IntNodeView(BBGraph g, User creator) {
+			super(g, creator);
+		}
+
+		@Override
+		public JsonNode toJSON(User requester, IntNode n) {
+			ObjectNode r = new ObjectNode(null);
+			r.set("value", new com.fasterxml.jackson.databind.node.IntNode(n.get()));
+			return r;
+		}
+
+		@Override
+		public JComponent createComponentImpl(User requester, IntNode n) {
+			int v = n.get();
+			var tf = new JTextField("" + v);
+			n.listeners.add(newValue -> tf.setText("" + newValue));
+			return tf;
+		}
 	}
 }

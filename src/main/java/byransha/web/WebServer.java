@@ -308,7 +308,7 @@ public class WebServer extends SystemB {
 					BNode validatedNode = g.findByID(originalNodeId);
 					if (validatedNode == null) {
 						// Current node no longer exists in graph
-						user.stack.clear();
+						user.history.get().clear();
 						log("Error: User " + user.name.get() + "'s current node (ID: " + originalNodeId
 								+ ") no longer exists in graph. Cleared navigation stack.");
 						return new HTTPResponse(404, "application/json",
