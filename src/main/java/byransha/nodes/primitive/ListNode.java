@@ -1,5 +1,6 @@
 package byransha.nodes.primitive;
 
+import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,9 +9,17 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.ListCellRenderer;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.BNode.exportNodeAction.CSVStream;
+import byransha.graph.NodeView;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	String label;
@@ -138,6 +147,37 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 			return null;
 		}
 		return get().stream().skip(index).findFirst().orElse(null);
+	}
+
+	public static class ElementView extends NodeView<ListNode<BNode>> {
+
+		public ElementView(BBGraph g) {
+			super(g);
+		}
+
+		@Override
+		public JsonNode toJSON(ListNode<BNode> n) {
+			var r = new ArrayNode(null);
+			n.get().forEach(e -> r.add(e.toJSONNode(0)));
+			return r;
+		}
+
+		@Override
+		public JComponent createComponentImpl(ListNode<BNode> n) {
+			var jlist = new JList();
+			jlist.setListData(n.get().toArray());
+			jlist.setCellRenderer(new ListCellRenderer<BNode>() {
+
+				@Override
+				public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
+						boolean isSelected, boolean cellHasFocus) {
+					return value.views().getFirst().createComponent(value);
+				}
+			});
+
+			return jlist;
+		}
+
 	}
 
 }
