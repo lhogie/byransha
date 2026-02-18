@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import byransha.event.EventList;
-import byransha.event.EventListOneBigFile;
+import byransha.event.InMemoryEventList;
 import byransha.graph.BBGraph;
 import byransha.graph.ErrorLog;
 import byransha.swing.SwingFrontend;
@@ -32,9 +32,9 @@ public class SystemNode extends SystemB {
 		this.byransha = new Byransha(g);
 		this.os = new OSNode(g);
 		this.errorLog = new ErrorLog(g);
-		this.admin = new User(g, "admin", "admin"); // self accept
-		this.guest = new User(g, "user", "test");
-		this.eventList = new EventListOneBigFile(g, directory);
+		this.admin = new User(g, "admin", "admin".hashCode()); // self accept
+		this.guest = new User(g, "user", "test".hashCode());
+		this.eventList = new InMemoryEventList(g);
 		setCurrentUser(guest);
 	}
 

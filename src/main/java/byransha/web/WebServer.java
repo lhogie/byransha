@@ -276,10 +276,7 @@ public class WebServer extends SystemB {
 				user = g.forEachNodeOfClass(User.class, u -> Stop.stopIf(u.name.get().equals("guest")));
 
 				if (user == null) {
-					user = new User(g, g.systemNode.admin);
-					user.name.set("guest");
-					user.passwordNode.set("guest");
-					// user.stack.push(graph.root());
+					user = new User(g, "guest", "guest".hashCode());
 				}
 			}
 

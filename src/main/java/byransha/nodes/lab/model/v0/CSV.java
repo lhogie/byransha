@@ -49,7 +49,6 @@ public class CSV extends ArrayList<List<String>> {
 
 	public List<String> getColumn(String col) {
 		return getColumn(headers.indexOf(col));
-
 	}
 
 	public List<String> getColumn(int i) {

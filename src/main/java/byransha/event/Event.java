@@ -3,6 +3,8 @@ package byransha.event;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Iterator;
+import java.util.function.Consumer;
 
 import byransha.graph.BBGraph;
 
@@ -41,4 +43,12 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	}
 
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+	public void provideCSVElements(Consumer<String> l) {
+		l.accept(getClass().getName());
+		l.accept(date.toString());
+	}
+
+	public abstract void fromCSV(Iterator<String> l);
+
 }

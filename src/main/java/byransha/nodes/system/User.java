@@ -20,19 +20,16 @@ import byransha.web.WebServer;
 
 public class User extends BNode {
 	public StringNode name;
+	public int passwordHash;
 	public StringNode passwordNode;
 	public final ListNode<BNode> history;
-	public int passwordHash;
 	private BNode currentNode;
 
-	public User(BBGraph g, User creator) {
-		this(g, null, null);
-	}
-
-	public User(BBGraph g, String user, String password) {
+	public User(BBGraph g, String user, int passwordHash) {
 		super(g);
 		name = new StringNode(g, user, ".+");
-		passwordNode = new StringNode(g, password, ".+");
+		this.passwordHash = passwordHash;
+		passwordNode = new StringNode(g, null, ".+");
 		history = new ListNode<>(g);
 	}
 
