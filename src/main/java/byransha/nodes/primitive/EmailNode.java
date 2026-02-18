@@ -4,14 +4,13 @@ import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
-import byransha.nodes.system.User;
 
 public class EmailNode extends StringNode {
 
 	public static final String re = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
-	public EmailNode(BBGraph g, User creator, String s) {
-		super(g, creator, s, re);
+	public EmailNode(BBGraph g, String s) {
+		super(g, s, re);
 	}
 
 	@Override

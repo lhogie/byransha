@@ -13,13 +13,13 @@ public class Contract extends BusinessNode {
 	ListNode<Person> partners;
 	ListNode<Person> misc;
 
-	public Contract(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator);
-		subHolders = new ListNode<>(g, creator);
-		coordinators = new ListNode<>(g, creator);
-		partners = new ListNode<>(g, creator);
-		misc = new ListNode<>(g, creator);
+	public Contract(BBGraph g) {
+		super(g);
+		name = new StringNode(g);
+		subHolders = new ListNode<>(g);
+		coordinators = new ListNode<>(g);
+		partners = new ListNode<>(g);
+		misc = new ListNode<>(g);
 	}
 
 	@Override

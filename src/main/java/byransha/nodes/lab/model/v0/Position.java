@@ -11,8 +11,8 @@ public class Position extends BNode {
 	DateNode to;
 	Status status;
 
-	public Position(BBGraph g, User creator) {
-		super(g, creator);
+	public Position(BBGraph g) {
+		super(g);
 	}
 
 	@Override

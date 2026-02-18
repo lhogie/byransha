@@ -69,7 +69,7 @@ public class AddNode<N extends BNode> extends NodeEndpoint<BNode> {
             if (currentNode instanceof ListNode<?> listNode) {
                 @SuppressWarnings("unchecked")
                 ListNode<N> typedListNode = (ListNode<N>) listNode;
-                typedListNode.add(node, user);
+                typedListNode.add(node);
             }
         } else {
             return ErrorResponse.serverError(

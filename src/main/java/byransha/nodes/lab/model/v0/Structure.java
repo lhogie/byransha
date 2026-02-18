@@ -10,11 +10,11 @@ public class Structure extends BusinessNode {
     public ListNode<Structure> subStructures;
     public ListNode<Office> offices;
 
-    public Structure(BBGraph g, User creator) {
-        super(g, creator);
-        name = new StringNode(g, creator, "", ".+");
-        subStructures = new ListNode(g, creator);
-        offices =new ListNode(g, creator);
+    public Structure(BBGraph g) {
+        super(g);
+        name = new StringNode(g, "", ".+");
+        subStructures = new ListNode(g);
+        offices =new ListNode(g);
     }
 
 

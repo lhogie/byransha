@@ -5,7 +5,7 @@ import byransha.nodes.system.User;
 
 public class CNRS extends EPST {
 
-	public CNRS(BBGraph g, User creator) {
-		super(g, creator);
+	public CNRS(BBGraph g) {
+		super(g);
 	}
 }

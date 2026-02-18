@@ -6,7 +6,7 @@ import byransha.nodes.system.User;
 
 public abstract class BusinessNode extends BNode {
 
-	public BusinessNode(BBGraph g, User creator) {
-		super(g, creator);
+	public BusinessNode(BBGraph g) {
+		super(g);
 	}
 }

@@ -11,11 +11,11 @@ import byransha.nodes.system.User;
 import toools.Stop;
 
 class OldTBRH {
-	public void loadOLDTBRH(Lab i3s, User user, File inputDir) throws IOException {
-		loadPersonnel(i3s, user, inputDir);
+	public void loadOLDTBRH(Lab i3s, File inputDir) throws IOException {
+		loadPersonnel(i3s, inputDir);
 	}
 
-	private static void loadPersonnel(Lab i3s, User user, File extractionDir) throws IOException {
+	private static void loadPersonnel(Lab i3s,File extractionDir) throws IOException {
 
 		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
 
@@ -25,25 +25,25 @@ class OldTBRH {
 		;
 
 		for (var l : csv) {
-			var person = new Person(i3s.g, user); // new Person(graph);
+			var person = new Person(i3s.g); // new Person(graph);
 
 			if (l.set(0, null).equals("member")) {
-				var position = new Position(i3s.g, user);
+				var position = new Position(i3s.g);
 				position.employer = i3s;
-				person.positions.add(position, user);
+				person.positions.add(position);
 			}
 
-			person.etatCivil.name.set(l.set(1, null), user);
-			person.etatCivil.familyNameBeforeMariage.set(l.set(2, null), user);
-			person.etatCivil.firstName.set(l.set(3, null), user);
-			person.etatCivil.birthDate.set(DataLake.parseDate(l.set(4, null)), user);
-			person.etatCivil.cityOfBirth.set(l.set(5, null), user);
+			person.etatCivil.name.set(l.set(1, null));
+			person.etatCivil.familyNameBeforeMariage.set(l.set(2, null));
+			person.etatCivil.firstName.set(l.set(3, null));
+			person.etatCivil.birthDate.set(DataLake.parseDate(l.set(4, null)));
+			person.etatCivil.cityOfBirth.set(l.set(5, null));
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
-			person.etatCivil.address.set(l.set(8, null), user);
-			var inter = new StringNode(i3s.g, user);
-			inter.set(l.set(9, null), user);
-			person.phoneNumbers.add(inter, user);
+			person.etatCivil.address.set(l.set(8, null));
+			var inter = new StringNode(i3s.g);
+			inter.set(l.set(9, null));
+			person.phoneNumbers.add(inter);
 
 			var officeName = l.set(15, null);
 
@@ -57,7 +57,7 @@ class OldTBRH {
 							var office = b.findOffice(officeName);
 
 							if (office != null) {
-								person.offices.add((Office) office, user);
+								person.offices.add((Office) office);
 							}
 						}
 					}
@@ -65,17 +65,17 @@ class OldTBRH {
 			}
 
 			for (var phoneNumber : List.of(l.set(12, null), l.set(13, null), l.set(14, null))) {
-				var n = new StringNode(i3s.g, user); // new StringNode(this, phoneNumber);
-				n.set(phoneNumber, user);
-				person.phoneNumbers.add(n, user);
+				var n = new StringNode(i3s.g); // new StringNode(this, phoneNumber);
+				n.set(phoneNumber);
+				person.phoneNumbers.add(n);
 			}
 
-			person.badgeNumber.set(l.set(16, null), user);
-			person.website.set(l.set(17, null), user);
-			person.faxNumber.set(l.set(18, null), user);
-			var email = new EmailNode(i3s.g, user, null);
-			email.set(l.set(19, null), user);
-			person.emailAddresses.add(email, user);
+			person.badgeNumber.set(l.set(16, null));
+			person.website.set(l.set(17, null));
+			person.faxNumber.set(l.set(18, null));
+			var email = new EmailNode(i3s.g, null);
+			email.set(l.set(19, null));
+			person.emailAddresses.add(email);
 			String researchGroupName = l.set(20, null);
 			person.researchGroup = i3s.g.forEachNodeOfClass(ResearchGroup.class,
 					n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(researchGroupName)));
@@ -83,9 +83,9 @@ class OldTBRH {
 			String phdDate = l.set(22, null);
 
 			if (phdDate != null && phdDate != "") {
-				person.phdDate.set(DataLake.parseDate(phdDate), user);
+				person.phdDate.set(DataLake.parseDate(phdDate));
 			} else if (doctor) {
-				person.phdDate.set(null, user);
+				person.phdDate.set(null);
 			}
 			// System.err.println(l.stream().map(e-> e == null ? "" : "-").toList());
 			var startDate = l.set(30, null);
@@ -93,34 +93,34 @@ class OldTBRH {
 
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, null);
-				person.position = new Position(i3s.g, user); // new Position(graph);
+				person.position = new Position(i3s.g); // new Position(graph);
 				person.position.employer = i3s.g.forEachNodeOfClass(ResearchGroup.class,
 						n -> Stop.stopIf(n.name.get() != null && n.name.get().equals(employer)));
 
 				var corps = l.set(i - 2, null);
-//                person.position.status = graph.find(Status(g, user), s ->
+//                person.position.status = graph.find(Status(g), s ->
 //                    s.name.get().equals(corps)
 //                );
 
 				if (!startDate.isBlank()) {
-					var startDateNode = new DateNode(i3s.g, user);
-					startDateNode.set(DataLake.parseDate(startDate), user);
+					var startDateNode = new DateNode(i3s.g);
+					startDateNode.set(DataLake.parseDate(startDate));
 					person.position.from = startDateNode;
 				}
 
 				if (!endDate.isBlank()) {
-					var endDateNode = new DateNode(i3s.g, user);
-					endDateNode.set(DataLake.parseDate(endDate), user);
+					var endDateNode = new DateNode(i3s.g);
+					endDateNode.set(DataLake.parseDate(endDate));
 					person.position.to = endDateNode;
 				}
 			}
 
 			person.enposte = l.set(27, null).equals("en poste");
-			var quotite = new StringNode(i3s.g, user);
-			quotite.set(l.set(29, null), user);
+			var quotite = new StringNode(i3s.g);
+			quotite.set(l.set(29, null));
 			person.quotite = quotite;
-			var researchActivity = new StringNode(i3s.g, user);
-			researchActivity.set(l.set(33, null), user);
+			var researchActivity = new StringNode(i3s.g);
+			researchActivity.set(l.set(33, null));
 			person.researchActivity = researchActivity;
 
 //            if (

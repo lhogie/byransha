@@ -39,8 +39,8 @@ public abstract class BNode {
 
 	public static class Delete extends ConfirmRequiredNodeAction {
 
-		public Delete(BBGraph g, User creator) {
-			super(g, creator);
+		public Delete(BBGraph g) {
+			super(g);
 		}
 
 		@Override
@@ -49,16 +49,16 @@ public abstract class BNode {
 		}
 
 		@Override
-		protected ActionResult execConfirm(User user) {
-			delete(user);
+		protected ActionResult execConfirm() {
+			delete();
 			return null;
 		}
 
 	}
 
 	public final static class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
-		public exportNodeAction(BBGraph g, User creator) {
-			super(g, creator);
+		public exportNodeAction(BBGraph g) {
+			super(g);
 		}
 
 		@Override
@@ -72,22 +72,20 @@ public abstract class BNode {
 		}
 
 		@Override
-		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target, User user)
-				throws Throwable {
-			var r = new ListNode<byransha.nodes.primitive.TextNode>(g, user);
+		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target) throws Throwable {
+			var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
 			var csvs = new ArrayList<CSVStream>();
 			target.toCSVStreams(csvs, true);
-			csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, user, csv.name + "(CSV)", csv.data))
+			csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
 					.forEach(n -> r.get().add(n));
-			r.get().add(new byransha.nodes.primitive.TextNode(g, user, id() + " (JSON)",
-					toJSONNode(user, 0).toPrettyString()));
-			return new exportNodeResult(g, user, this, r);
+			r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode(0).toPrettyString()));
+			return new exportNodeResult(g, this, r);
 		}
 	}
 
 	final static class ResetNodeAction extends NodeAction {
-		public ResetNodeAction(BBGraph g, User creator) {
-			super(g, creator);
+		public ResetNodeAction(BBGraph g) {
+			super(g);
 		}
 
 		@Override
@@ -96,13 +94,13 @@ public abstract class BNode {
 		}
 
 		@Override
-		public ActionResult exec(BNode target, User user) {
+		public ActionResult exec(BNode target) {
 			target.forEachOutField(f -> {
 				try {
 					var v = (BNode) f.get(target);
 
 					if (v instanceof ValuedNode vn) {
-						vn.set(vn.defaultValue(), user);
+						vn.set(vn.defaultValue());
 					}
 				} catch (IllegalAccessException e) {
 					throw new RuntimeException(e);
@@ -117,10 +115,7 @@ public abstract class BNode {
 	private int id;
 	public boolean historize = true;
 
-	protected BNode(BBGraph g, User creator) {
-		if (!canCreate(creator))
-			throw new IllegalStateException("can't create " + creator);
-
+	protected BNode(BBGraph g) {
 		if (g == null) {
 			this.id = 0;
 			this.g = (BBGraph) this;
@@ -138,8 +133,12 @@ public abstract class BNode {
 		}
 	}
 
-	public void delete(User user) {
-		computeIns().forEach(inArc -> inArc.source().removeOut(this, user));
+	public User currentUser() {
+		return g.systemNode == null ? null : g.systemNode.getCurrentUser();
+	}
+
+	public void delete() {
+		computeIns().forEach(inArc -> inArc.source().removeOut(this));
 		g.removeNode(id());
 	}
 
@@ -183,7 +182,7 @@ public abstract class BNode {
 		}
 	}
 
-	public void removeOut(BNode out, User user) {
+	public void removeOut(BNode out) {
 		forEachOutField(f -> {
 			try {
 				if (f.get(this) == out) {
@@ -210,15 +209,15 @@ public abstract class BNode {
 		});
 	}
 
-	public List<NodeAction> actions(User user) {
+	public List<NodeAction> actions() {
 		var r = new ArrayList<NodeAction>();
 
 		forEachBNodeClass(c -> {
 			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					r.add((NodeAction) v.getConstructor(BBGraph.class).newInstance(g, user));
+					r.add((NodeAction) v.getConstructor(BBGraph.class).newInstance(g));
 				} catch (Throwable err) {
-					throw new IllegalStateException(err);
+					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
 				}
 			});
 		});
@@ -226,15 +225,15 @@ public abstract class BNode {
 		return r;
 	}
 
-	public List<NodeView> views(User user) {
+	public List<NodeView> views() {
 		var r = new ArrayList<NodeView>();
 
 		forEachBNodeClass(c -> {
 			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					r.add((NodeView) v.getConstructor(BBGraph.class, User.class).newInstance(g, user));
+					r.add((NodeView) v.getConstructor(BBGraph.class).newInstance(g));
 				} catch (Throwable err) {
-					throw new IllegalStateException(err);
+					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
 				}
 			});
 		});
@@ -267,7 +266,6 @@ public abstract class BNode {
 	public void setID(int newID) {
 		g.setID(this, newID);
 		this.id = newID;
-
 	}
 
 	public abstract String whatIsThis();
@@ -396,25 +394,24 @@ public abstract class BNode {
 
 	final static JsonNodeFactory factory = new JsonNodeFactory(true);
 
-	public ObjectNode toJSONNode(User user, int depth) {
+	public ObjectNode toJSONNode(int depth) {
 		ObjectNode r = new ObjectNode(factory);
 		r.put("id", id());
 		r.put("class", getClass().getName());
 		r.put("color", Utilities.toRGBHex(getColor()));
 		r.put("prettyName", prettyName());
 		r.put("whatIsThis", whatIsThis());
-		r.put("canSee", canSee(user));
-		r.put("canEdit", canEdit(user));
-		r.set("actions",
-				new ArrayNode(null, actions(user).stream().map(e -> (JsonNode) new TextNode(e.name())).toList()));
+		r.put("canSee", canSee(currentUser()));
+		r.put("canEdit", canEdit(currentUser()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name())).toList()));
 		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views", new ArrayNode(null, views(user).stream().map(v -> v.toJSON(user, this)).toList()));
+		r.set("views", new ArrayNode(null, views().stream().map(v -> v.toJSON(this)).toList()));
 
 		ObjectNode outsNode = new ObjectNode(null);
 		r.set("outs", outsNode);
 
 		if (depth > 0) {
-			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(user, depth - 1)));
+			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(depth - 1)));
 		}
 
 		return r;

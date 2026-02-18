@@ -18,8 +18,8 @@ public class DataLake extends BNode {
 
 	public final File inputDir;
 
-	public DataLake(BBGraph g, User creator, File dir) {
-		super(g, creator);
+	public DataLake(BBGraph g ,File dir) {
+		super(g);
 		inputDir = dir;
 	}
 
@@ -70,35 +70,35 @@ public class DataLake extends BNode {
 		User user = g.systemUser;
 
 		Files.readAllLines(new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-			var c = new Nationality(g, user);
-			c.set(l, user);
+			var c = new Nationality(g);
+			c.set(l);
 		});
 
-		Lab i3s = new Lab(g, user);
+		Lab i3s = new Lab(g);
 
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = new EPST(g, user);
-			epst.name.set(n, user);
-			i3s.tutelles.add(epst, user);
+			var epst = new EPST(g);
+			epst.name.set(n);
+			i3s.tutelles.add(epst);
 		}
 
-		var UniCA = new University(g, user); // new University(graph);
-		UniCA.name.set("UniCA", user);
-		i3s.tutelles.add(UniCA, user);
+		var UniCA = new University(g); // new University(graph);
+		UniCA.name.set("UniCA");
+		i3s.tutelles.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(g, user); // new ResearchGroup(graph);
-			group.name.set(n, user);
-			i3s.subStructures.add(group, user);
+			var group = new ResearchGroup(g); // new ResearchGroup(graph);
+			group.name.set(n);
+			i3s.subStructures.add(group);
 		}
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = new Campus(g, user); // new Campus(graph);
-			campus.name.set(n, user);
-			UniCA.campuses.add(campus, user);
+			var campus = new Campus(g); // new Campus(graph);
+			campus.name.set(n);
+			UniCA.campuses.add(campus);
 		}
 
-		new OldTBRH().loadOLDTBRH(i3s, user, new File(inputDir, "marijo_tbrh"));
+		new OldTBRH().loadOLDTBRH(i3s, new File(inputDir, "marijo_tbrh"));
 
 		System.out.println(" Finished loading datalake");
 	}

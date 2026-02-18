@@ -40,19 +40,19 @@ public class Person extends BusinessNode {
 	public boolean enposte;
 	public StringNode researchActivity;
 
-	public Person(BBGraph g, User creator) {
-		super(g, creator);
-		etatCivil = new EtatCivil(g, creator);
-		positions = new ListNode(g, creator);
-		pics = new DocumentNode(g, creator);
-		hdr = new BooleanNode(g, creator, null);
-		badgeNumber = new StringNode(g, creator);
-		website = new StringNode(g, creator);
-		faxNumber = new StringNode(g, creator);
-		phdDate = new DateNode(g, creator);
-		phoneNumbers = new ListNode(g, creator);
-		emailAddresses = new ListNode(g, creator);
-		offices = new ListNode(g, creator);
+	public Person(BBGraph g) {
+		super(g);
+		etatCivil = new EtatCivil(g);
+		positions = new ListNode(g);
+		pics = new DocumentNode(g);
+		hdr = new BooleanNode(g, null);
+		badgeNumber = new StringNode(g);
+		website = new StringNode(g);
+		faxNumber = new StringNode(g);
+		phdDate = new DateNode(g);
+		phoneNumbers = new ListNode(g);
+		emailAddresses = new ListNode(g);
+		offices = new ListNode(g);
 	}
 
 	@Override

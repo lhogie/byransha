@@ -10,7 +10,7 @@ public abstract class EventList extends BNode {
 	protected LocalDateTime currentDate = LocalDateTime.now();
 
 	public EventList(BBGraph g) throws IOException {
-		super(g, g.systemUser);
+		super(g);
 	}
 
 	public abstract void add(Event e) throws IOException, ClassNotFoundException;

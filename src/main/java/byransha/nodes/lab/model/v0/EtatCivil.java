@@ -24,17 +24,17 @@ public class EtatCivil extends BusinessNode {
 
 	public DocumentNode pic;
 
-	public EtatCivil(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator);
-		familyNameBeforeMariage = new StringNode(g, creator);
-		firstName = new StringNode(g, creator);
-		birthDate = new DateNode(g, creator);
-		cityOfBirth = new StringNode(g, creator);
-		countryOfBirth = new ListNode<Country>(g, creator);
-		nationality = new ListNode<Nationality>(g, creator);
-		address = new StringNode(g, creator);
-		telephone = new PhoneNumberNode(g, creator);
+	public EtatCivil(BBGraph g) {
+		super(g);
+		name = new StringNode(g);
+		familyNameBeforeMariage = new StringNode(g);
+		firstName = new StringNode(g);
+		birthDate = new DateNode(g);
+		cityOfBirth = new StringNode(g);
+		countryOfBirth = new ListNode<Country>(g);
+		nationality = new ListNode<Nationality>(g);
+		address = new StringNode(g);
+		telephone = new PhoneNumberNode(g);
 	}
 
 	@Override

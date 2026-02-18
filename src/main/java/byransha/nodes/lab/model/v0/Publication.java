@@ -13,11 +13,11 @@ public class Publication extends BusinessNode {
 
 	public ACMClassifier acmClassifier;
 
-	public Publication(BBGraph g, User creator) {
-		super(g, creator);
-		this.title = new StringNode(g, creator);
-		this.authors = new ListNode<>(g, creator);
-		this.acmClassifier = new ACMClassifier(g, creator);
+	public Publication(BBGraph g) {
+		super(g);
+		this.title = new StringNode(g);
+		this.authors = new ListNode<>(g);
+		this.acmClassifier = new ACMClassifier(g);
 	}
 
 	@Override

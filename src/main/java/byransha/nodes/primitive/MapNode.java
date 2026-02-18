@@ -7,11 +7,10 @@ import java.util.function.BiConsumer;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.nodes.system.User;
 
 public class MapNode<N extends BNode> extends BNode {
-	public MapNode(BBGraph g, User creator) {
-		super(g, creator);
+	public MapNode(BBGraph g) {
+		super(g);
 	}
 
 	@Override

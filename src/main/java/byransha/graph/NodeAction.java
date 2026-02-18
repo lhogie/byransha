@@ -15,13 +15,13 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 	protected boolean stopRequest;
 
 	public NodeAction(BBGraph g) {
-		super(g, g.systemNode.getCurrentUser());
+		super(g);
 	}
 
 	@Override
-	public ObjectNode toJSONNode(User user, int depth) {
-		var r = super.toJSONNode(user, depth);
-		r.put("canExecute", canExecute(user));
+	public ObjectNode toJSONNode(int depth) {
+		var r = super.toJSONNode(depth);
+		r.put("canExecute", canExecute(currentUser()));
 		return r;
 	}
 
@@ -35,7 +35,7 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 
 	public abstract String whatItDoes();
 
-	public abstract ActionResult<T, R> exec(T target, User user) throws Throwable;
+	public abstract ActionResult<T, R> exec(T target) throws Throwable;
 
 	@Override
 	public Color getColor() {
@@ -76,8 +76,8 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 
 	static class exec extends NodeAction<NodeAction, BNode> {
 
-		public exec(BBGraph g, User creator) {
-			super(g, creator);
+		public exec(BBGraph g) {
+			super(g);
 		}
 
 		@Override
@@ -90,9 +90,9 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 		}
 
 		@Override
-		public ActionResult exec(NodeAction target, User user) throws Throwable {
+		public ActionResult exec(NodeAction target) throws Throwable {
 			Cout.debugSuperVisible("exec " + target.prettyName());
-			var r = target.exec(target, user);
+			var r = target.exec(target);
 			r.startDateMs = System.currentTimeMillis();
 			return r;
 		}

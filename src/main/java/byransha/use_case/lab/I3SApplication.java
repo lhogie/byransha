@@ -14,14 +14,14 @@ import byransha.nodes.system.UserApplication;
 
 public class I3SApplication extends UserApplication {
 
-	public I3SApplication(BBGraph g, User creator) {
+	public I3SApplication(BBGraph g) {
 		super(g);
 		new StructureView(g);
 		new LabView(g);
 
-		Country.loadCountries(g, creator);
+		Country.loadCountries(g);
 
-		var lake = new DataLake(this.g, creator, Paths.get(System.getProperty("user.home"), "data_lake").toFile());
+		var lake = new DataLake(this.g, Paths.get(System.getProperty("user.home"), "data_lake").toFile());
 
 		try {
 			lake.load();

@@ -18,7 +18,6 @@ import com.sun.net.httpserver.HttpsExchange;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
-import byransha.nodes.system.UserApplication;
 import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointJsonResponse.dialects;
 import byransha.web.EndpointResponse;
@@ -38,10 +37,10 @@ public class BBGraph extends BNode {
 	public final SystemNode systemNode;
 	public final User systemUser = null;
 
-	public BBGraph(Class<? extends UserApplication> appClass, File directory) throws Exception {
-		super(null, null);
+	public BBGraph(File directory) throws Exception {
+		super(null);
 		nodesById.put(0, this);
-		this.systemNode = new SystemNode(g, appClass, directory);
+		this.systemNode = new SystemNode(g, directory);
 	}
 
 	@Override

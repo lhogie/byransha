@@ -1,7 +1,5 @@
 package byransha.graph;
 
-import byransha.nodes.system.User;
-
 import java.util.LinkedHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -10,7 +8,9 @@ import java.util.function.Supplier;
  * A dynamic node that acts as a shortcut to other nodes in the graph.
  * <p>
  * Example usage:
- * <pre><code>
+ * 
+ * <pre>
+ * <code>
  * pays = BNode.create(g, ShortcutNode.class);
  * pays.withOutsSupplier(() -> {
  *    LinkedHashMap<String, BNode> connected = new LinkedHashMap<>();
@@ -21,67 +21,53 @@ import java.util.function.Supplier;
  *    return connected;
  * });
  *
- * </code></pre>
+ * </code>
+ * </pre>
  */
 public class ShortcutNode extends BNode {
 
-    private Supplier<LinkedHashMap<String, BNode>> outsSupplier;
+	private Supplier<LinkedHashMap<String, BNode>> outsSupplier;
 
-    public ShortcutNode(BBGraph g, User creator) {
-        super(g, creator);
-        this.outsSupplier = LinkedHashMap::new;
-    }
+	public ShortcutNode(BBGraph g) {
+		super(g);
+		this.outsSupplier = LinkedHashMap::new;
+	}
 
-    public ShortcutNode withOutsSupplier(
-            Supplier<LinkedHashMap<String, BNode>> supplier
-    ) {
-        this.outsSupplier = supplier != null ? supplier : LinkedHashMap::new;
-        return this;
-    }
+	public ShortcutNode withOutsSupplier(Supplier<LinkedHashMap<String, BNode>> supplier) {
+		this.outsSupplier = supplier != null ? supplier : LinkedHashMap::new;
+		return this;
+	}
 
-    @Override
-    public LinkedHashMap<String, BNode> computeOuts() {
-        try {
-            LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
-            return dynamicOuts != null
-                ? new LinkedHashMap<>(dynamicOuts)
-                : new LinkedHashMap<>();
-        } catch (Exception e) {
-            System.err.println(
-                "Error fetching dynamic outs for ShortcutNode " +
-                id() +
-                ": " +
-                e.getMessage()
-            );
-            return new LinkedHashMap<>();
-        }
-    }
+	@Override
+	public LinkedHashMap<String, BNode> computeOuts() {
+		try {
+			LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
+			return dynamicOuts != null ? new LinkedHashMap<>(dynamicOuts) : new LinkedHashMap<>();
+		} catch (Exception e) {
+			System.err.println("Error fetching dynamic outs for ShortcutNode " + id() + ": " + e.getMessage());
+			return new LinkedHashMap<>();
+		}
+	}
 
-    @Override
-    public void forEachOut(BiConsumer<String, BNode> consumer) {
-        try {
-            LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
-            if (dynamicOuts != null) {
-                dynamicOuts.forEach(consumer);
-            }
-        } catch (Exception e) {
-            System.err.println(
-                "Error in forEachOut for ShortcutNode " +
-                id() +
-                ": " +
-                e.getMessage()
-            );
-        }
-    }
+	@Override
+	public void forEachOut(BiConsumer<String, BNode> consumer) {
+		try {
+			LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
+			if (dynamicOuts != null) {
+				dynamicOuts.forEach(consumer);
+			}
+		} catch (Exception e) {
+			System.err.println("Error in forEachOut for ShortcutNode " + id() + ": " + e.getMessage());
+		}
+	}
 
-    @Override
-    public String prettyName() {
-        return "shortcut";
-    }
+	@Override
+	public String prettyName() {
+		return "shortcut";
+	}
 
-
-    @Override
-    public String whatIsThis() {
-        return "a shortcut";
-    }
+	@Override
+	public String whatIsThis() {
+		return "a shortcut";
+	}
 }

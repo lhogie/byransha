@@ -12,9 +12,9 @@ import byransha.nodes.lab.model.v0.Lab;
 
 public class I3S extends Lab {
 
-	public I3S(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator, "I3S", ".+");
-		name.set("I3S", creator);
+	public I3S(BBGraph g) {
+		super(g);
+		name = new StringNode(g, "I3S", ".+");
+		name.set("I3S");
 	}
 }

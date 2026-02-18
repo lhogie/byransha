@@ -7,8 +7,8 @@ import byransha.nodes.system.User;
 public class Software extends Publication {
 	BooleanNode openSource;
 
-	public Software(BBGraph g, User creator) {
-		super(g, creator);
-		openSource = new BooleanNode(g, creator, null);
+	public Software(BBGraph g) {
+		super(g);
+		openSource = new BooleanNode(g, null);
 	}
 }

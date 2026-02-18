@@ -72,7 +72,6 @@ import byransha.web.view.ModelDOTView;
 import byransha.web.view.ModelGraphivzSVGView;
 import byransha.web.view.ModelMermaidView;
 import byransha.web.view.Navigator;
-import byransha.web.view.OutDegreeDistribution;
 import byransha.web.view.ToStringView;
 import graph.AnyGraph;
 import toools.Stop;
@@ -179,7 +178,6 @@ public class WebServer extends SystemB {
 		new ModelGraphivzSVGView(g);
 		new ModelMermaidView(g);
 		new Navigator(g);
-		new OutDegreeDistribution(g);
 		new byransha.web.ClassDistribution(g);
 		new ModelDOTView(g);
 		new ToStringView(g);
@@ -279,8 +277,8 @@ public class WebServer extends SystemB {
 
 				if (user == null) {
 					user = new User(g, g.systemNode.admin);
-					user.name.set("guest", user);
-					user.passwordNode.set("guest", user);
+					user.name.set("guest");
+					user.passwordNode.set("guest");
 					// user.stack.push(graph.root());
 				}
 			}

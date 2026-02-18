@@ -4,9 +4,9 @@ import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 public class CR extends Status {
-	public CR(BBGraph g, User creator) {
-		super(g, creator);
-		name.set("Chargé de Recherche", creator);
+	public CR(BBGraph g) {
+		super(g);
+		name.set("Chargé de Recherche");
 		name.readOnly = true;
 	}
 }

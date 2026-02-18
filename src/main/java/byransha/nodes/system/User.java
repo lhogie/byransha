@@ -26,18 +26,14 @@ public class User extends BNode {
 	private BNode currentNode;
 
 	public User(BBGraph g, User creator) {
-		this(g, creator, null, null);
+		this(g, null, null);
 	}
 
-	public User(BBGraph g, User creator, String user, String password) {
-		super(g, creator);
-		name = new StringNode(g, creator, user, ".+");
-		passwordNode = new StringNode(g, creator, password, ".+");
-		history = new ListNode<>(g, creator);
-
-		if (creator != null) {
-			history.get().add(g.systemNode.application.rootNode);
-		}
+	public User(BBGraph g, String user, String password) {
+		super(g);
+		name = new StringNode(g, user, ".+");
+		passwordNode = new StringNode(g, password, ".+");
+		history = new ListNode<>(g);
 	}
 
 	@Override
@@ -131,10 +127,10 @@ public class User extends BNode {
 
 	public void setAdmin(boolean admin) {
 		if (admin) {
-			name.set("admin", this);
+			name.set("admin");
 		} else {
 			if (name.get().equals("admin")) {
-				name.set("user", this);
+				name.set("user");
 			}
 		}
 	}

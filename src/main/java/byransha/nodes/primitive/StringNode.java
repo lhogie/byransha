@@ -27,12 +27,12 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	public static class StringNodeView extends NodeView<StringNode> {
 
-		public StringNodeView(BBGraph g, User creator) {
-			super(g, creator);
+		public StringNodeView(BBGraph g) {
+			super(g);
 		}
 
 		@Override
-		public JsonNode toJSON(User requester, StringNode n) {
+		public JsonNode toJSON(StringNode n) {
 			ObjectNode r = new ObjectNode(null);
 			r.set("value", new TextNode(n.get()));
 			r.set("password", BooleanNode.valueOf(n.password));
@@ -40,7 +40,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 		}
 
 		@Override
-		public JComponent createComponentImpl(User requester, StringNode n) {
+		public JComponent createComponentImpl( StringNode n) {
 			String s = n.get();
 			boolean multiline = s != null && s.indexOf('\n') >= 0;
 			var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
@@ -58,7 +58,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 				}
 
 				private void changed(DocumentEvent e) {
-					n.set(textComponent.getText(), requester);
+					n.set(textComponent.getText());
 				}
 
 				@Override
@@ -77,23 +77,24 @@ public class StringNode extends PrimitiveValueNode<String> {
 		}
 	}
 
-	public StringNode(BBGraph db, User creator) {
-		super(db, creator);
+	public StringNode(BBGraph db) {
+		super(db);
 	}
 
-	public StringNode(BBGraph g, User creator, String init, String re) {
-		this(g, creator);
+	public StringNode(BBGraph g,  String init, String re) {
+		this(g);
 		this.re = re;
-		set(init, creator);
+		set(init);
 	}
 
+	
 	@Override
 	protected byte[] valueToBytes(String s) throws IOException {
 		return s.getBytes(StandardCharsets.UTF_8);
 	}
 
 	@Override
-	protected String bytesToValue(byte[] bytes, User user) throws IOException {
+	protected String bytesToValue(byte[] bytes) throws IOException {
 		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
@@ -103,8 +104,8 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void fromString(String s, User creator) {
-		set(s, creator);
+	public void fromString(String s) {
+		set(s);
 	}
 
 	@Override

@@ -5,7 +5,6 @@ import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
-import byransha.nodes.system.User;
 
 public class MimeTypeNode extends StringNode {
 
@@ -15,9 +14,9 @@ public class MimeTypeNode extends StringNode {
 		validMimeTypes.add("image/jpeg");
 		validMimeTypes.add("application/pdf");
 	}
-	
-	public MimeTypeNode(BBGraph g, User creator) {
-		super(g, creator);
+
+	public MimeTypeNode(BBGraph g) {
+		super(g);
 	}
 
 	@Override

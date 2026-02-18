@@ -9,9 +9,9 @@ public class ResearchGroup extends Structure {
     public ListNode<ACMClassifier> keywords;
 
 
-    public ResearchGroup(BBGraph g, User creator) {
-        super(g, creator);
-        keywords = new ListNode<>(g, creator);
+    public ResearchGroup(BBGraph g) {
+        super(g);
+        keywords = new ListNode<>(g);
     }
 
 }

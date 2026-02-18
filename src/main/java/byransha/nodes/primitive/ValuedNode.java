@@ -6,14 +6,13 @@ import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.nodes.system.User;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
 	public final List<ValueNodeListener<V>> listeners = new ArrayList<>();
 
-	public ValuedNode(BBGraph g, User user) {
-		super(g, user);
+	public ValuedNode(BBGraph g) {
+		super(g);
 	}
 
 	public static interface ValueNodeListener<V> {
@@ -22,11 +21,11 @@ public abstract class ValuedNode<V> extends BNode {
 
 	protected abstract byte[] valueToBytes(V v) throws IOException;
 
-	protected abstract V bytesToValue(byte[] bytes, User user) throws IOException;
+	protected abstract V bytesToValue(byte[] bytes) throws IOException;
 
 	@Override
 	public final String toString() {
-		return getClass().getSimpleName() + ": " +( value == null ? "no value" : value.toString());
+		return getClass().getSimpleName() + ": " + (value == null ? "no value" : value.toString());
 	}
 
 	public String getAsString() {
@@ -34,9 +33,8 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public V get() {
-		var user = g.systemUser;
-		if (!canSee(user))
-			throw new RuntimeException(user + " is not allowed to read the value");
+		if (!canSee(currentUser()))
+			throw new RuntimeException(currentUser() + " is not allowed to read the value");
 
 		return value;
 	}
@@ -51,9 +49,9 @@ public abstract class ValuedNode<V> extends BNode {
 		return value;
 	}
 
-	public void set(V newValue, User user) {
-		if (!canEdit(user))
-			throw new RuntimeException(user + " is not allowed to set value");
+	public void set(V newValue) {
+		if (!canEdit(currentUser()))
+			throw new RuntimeException(currentUser() + " is not allowed to set value");
 
 		boolean valueChanging = newValue != value || (value != null && !value.equals(newValue));
 		value = newValue;

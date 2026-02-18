@@ -12,9 +12,9 @@ public abstract class UserApplication extends SystemB {
 		super(g);
 
 		try {
-			this.rootNode = rootNodeClass().getConstructor(BBGraph.class, User.class).newInstance(g, g.systemUser);
+			this.rootNode = rootNodeClass().getConstructor(BBGraph.class).newInstance(g);
 		} catch (Throwable err) {
-			throw new RuntimeException(err);
+			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
 		}
 	}
 

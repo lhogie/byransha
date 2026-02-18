@@ -16,28 +16,28 @@ public class Country extends BusinessNode {
 	private StringNode name, codeNode;
 	private DocumentNode flag;
 
-	public Country(BBGraph g, User creator) {
-        super(g, creator);
-		codeNode = new StringNode(g, creator);
-		name = new StringNode(g, creator);
+	public Country(BBGraph g) {
+        super(g);
+		codeNode = new StringNode(g);
+		name = new StringNode(g);
 	}
 
 
-	public void setFlagCode(String code, User user) throws IOException {
-		codeNode.set(code, user);
-		name.set(countryCodes.get(code).asText(), user);
+	public void setFlagCode(String code) throws IOException {
+		codeNode.set(code);
+		name.set(countryCodes.get(code).asText());
 
 		try {
 			flag.data.set(Country.class.getResource("/country_flags/svg/" + code.toLowerCase() + ".svg").openStream()
-					.readAllBytes(), user);
-			flag.mimeType.set("image/svg+xml", user);
-			flag.title.set(name.get() + ".svg", user);
+					.readAllBytes());
+			flag.mimeType.set("image/svg+xml");
+			flag.title.set(name.get() + ".svg");
 		} catch (IOException err) {
 			err.printStackTrace();
 		}
 	}
 
-	public static void loadCountries(BBGraph g, User creator) {
+	public static void loadCountries(BBGraph g) {
 		var res = Country.class.getResource("/country_flags/countries.json");
 		Objects.requireNonNull(res);
 
@@ -46,12 +46,12 @@ public class Country extends BusinessNode {
 			countryCodes = new ObjectMapper().readTree(json);
 
 			countryCodes.fieldNames().forEachRemaining(code -> {
-				var country = new Country(g, creator);
+				var country = new Country(g);
 
 				try {
 					var countryCode = countryCodes.get(code).asText();
-					country.flag= new DocumentNode(g, creator);
-					country.setFlagCode(code, creator);
+					country.flag= new DocumentNode(g);
+					country.setFlagCode(code);
 				} catch (IOException ex) {
 					throw new RuntimeException(ex);
 				}

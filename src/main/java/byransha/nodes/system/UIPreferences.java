@@ -17,10 +17,10 @@ public class UIPreferences extends SystemB {
 
 	public UIPreferences(BBGraph g) {
 		super(g);
-		backgroundColor = new ColorNode(g, g.systemUser);
-		backgroundColor.set("#A9A9A9", g.systemUser);
-		textColor = new ColorNode(g, g.systemUser);
-		textColor.set("#000000", g.systemUser);
+		backgroundColor = new ColorNode(g);
+		backgroundColor.set("#A9A9A9");
+		textColor = new ColorNode(g);
+		textColor.set("#000000");
 	}
 
 	@Override

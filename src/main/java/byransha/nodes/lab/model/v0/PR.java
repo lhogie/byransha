@@ -5,8 +5,8 @@ import byransha.nodes.system.User;
 
 public class PR extends Status {
 
-	public PR(BBGraph g, User creator) {
-		super(g, creator);
-		name.set("Professeur des Universités", creator);
+	public PR(BBGraph g) {
+		super(g);
+		name.set("Professeur des Universités");
 	}
 }

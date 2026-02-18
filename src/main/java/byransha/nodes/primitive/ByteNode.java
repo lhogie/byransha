@@ -6,8 +6,8 @@ import byransha.graph.BBGraph;
 import byransha.nodes.system.User;
 
 public class ByteNode extends PrimitiveValueNode<byte[]> {
-	public ByteNode(BBGraph g, User user) {
-		super(g, user);
+	public ByteNode(BBGraph g) {
+		super(g);
 	}
 
 	@Override
@@ -16,17 +16,17 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 	}
 
 	@Override
-	protected byte[] bytesToValue(byte[] bytes, User user) {
+	protected byte[] bytesToValue(byte[] bytes) {
 		return bytes;
 	}
 
 	@Override
-	public void fromString(String s, User user) {
+	public void fromString(String s) {
 		if (s == null || s.isEmpty()) {
-			set(null, user);
+			set(null);
 			return;
 		}
-		set(Base64.getDecoder().decode(s), user);
+		set(Base64.getDecoder().decode(s));
 	}
 
 	@Override

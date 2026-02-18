@@ -3,7 +3,6 @@ package byransha.nodes.lab.model.v0;
 import byransha.graph.BBGraph;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 
 public class Campus extends BusinessNode {
 
@@ -11,10 +10,10 @@ public class Campus extends BusinessNode {
 
 	public ListNode<Building> buildings;
 
-	public Campus(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator, "", ".+");
-		buildings = new ListNode(g, creator);
+	public Campus(BBGraph g) {
+		super(g);
+		name = new StringNode(g, "", ".+");
+		buildings = new ListNode(g);
 	}
 
 	@Override

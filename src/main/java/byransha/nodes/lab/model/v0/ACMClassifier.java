@@ -11,8 +11,8 @@ public class ACMClassifier extends BusinessNode {
 	public String code, descr;
 
 
-	public ACMClassifier(BBGraph g, User creator) {
-		super(g, creator);
+	public ACMClassifier(BBGraph g) {
+		super(g);
 	}
 
 	@Override

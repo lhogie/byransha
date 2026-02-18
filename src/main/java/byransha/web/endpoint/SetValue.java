@@ -65,7 +65,7 @@ public class SetValue extends NodeEndpoint<BNode> {
 
 		try {
 			if (node instanceof PrimitiveValueNode<?> pv) {
-				pv.fromString(value.asText(), user);
+				pv.fromString(value.asText());
 				a.set("value", new TextNode(value.asText()));
 			} else {
 				return ErrorResponse.badRequest(

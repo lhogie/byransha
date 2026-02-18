@@ -10,10 +10,10 @@ public class Building extends BusinessNode {
     public ListNode<Office> offices;
     public StringNode name;
 
-    public Building(BBGraph g, User creator) {
-        super(g, creator);
-        offices = new ListNode(g, creator);
-        name = new StringNode(g, creator, "", ".+");
+    public Building(BBGraph g) {
+        super(g);
+        offices = new ListNode(g);
+        name = new StringNode(g, "", ".+");
     }
 
     public Office findOffice(String name) {

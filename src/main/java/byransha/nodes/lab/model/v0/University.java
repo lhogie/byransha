@@ -7,8 +7,8 @@ import byransha.nodes.system.User;
 public class University extends Structure {
     ListNode<Campus> campuses;
 
-    public University(BBGraph g, User creator) {
-        super(g, creator);
-        campuses = new ListNode(g, creator);
+    public University(BBGraph g) {
+        super(g);
+        campuses = new ListNode(g);
     }
 }

@@ -19,8 +19,8 @@ import byransha.nodes.system.User;
 public class IntNode extends PrimitiveValueNode<Integer> {
 	public int min = 0, max = 10000;
 
-	public IntNode(BBGraph g, User creator) {
-		super(g, creator);
+	public IntNode(BBGraph g ) {
+		super(g);
 	}
 
 	public void setBounds(int min, int max) {
@@ -34,7 +34,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	}
 
 	@Override
-	protected Integer bytesToValue(byte[] bytes, User user) throws IOException {
+	protected Integer bytesToValue(byte[] bytes) throws IOException {
 		if (bytes.length != 4) {
 			throw new IOException("IntNode requires exactly 4 bytes, got " + bytes.length);
 		}
@@ -51,8 +51,8 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	}
 
 	@Override
-	public void fromString(String s, User user) {
-		set(Integer.valueOf(s), user);
+	public void fromString(String s) {
+		set(Integer.valueOf(s));
 	}
 
 	@Override
@@ -77,19 +77,19 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	
 	public static class IntNodeView extends NodeView<IntNode> {
 
-		public IntNodeView(BBGraph g, User creator) {
-			super(g, creator);
+		public IntNodeView(BBGraph g) {
+			super(g);
 		}
 
 		@Override
-		public JsonNode toJSON(User requester, IntNode n) {
+		public JsonNode toJSON(IntNode n) {
 			ObjectNode r = new ObjectNode(null);
 			r.set("value", new com.fasterxml.jackson.databind.node.IntNode(n.get()));
 			return r;
 		}
 
 		@Override
-		public JComponent createComponentImpl(User requester, IntNode n) {
+		public JComponent createComponentImpl(IntNode n) {
 			int v = n.get();
 			var tf = new JTextField("" + v);
 			n.listeners.add(newValue -> tf.setText("" + newValue));

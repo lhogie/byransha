@@ -17,9 +17,9 @@ import byransha.nodes.system.User;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(BBGraph g, User creator, Boolean v) {
-		super(g, creator);
-		set(v, creator);
+	public BooleanNode(BBGraph g, Boolean v) {
+		super(g);
+		set(v);
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	}
 
 	@Override
-	protected Boolean bytesToValue(byte[] bytes, User user) throws IOException {
+	protected Boolean bytesToValue(byte[] bytes) throws IOException {
 		if (bytes.length != 1)
 			throw new IOException("Invalid byte array length for BooleanNode: " + bytes.length);
 
@@ -59,8 +59,8 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	}
 
 	@Override
-	public void fromString(String s, User user) {
-		set(Boolean.valueOf(s), user);
+	public void fromString(String s) {
+		set(Boolean.valueOf(s));
 	}
 
 	@Override
@@ -75,12 +75,12 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
 	public static class BooleanNodeView extends NodeView<BooleanNode> {
 
-		protected BooleanNodeView(BBGraph g, User creator) {
-			super(g, creator);
+		protected BooleanNodeView(BBGraph g) {
+			super(g);
 		}
 
 		@Override
-		public JsonNode toJSON(User requester, BooleanNode n) {
+		public JsonNode toJSON(BooleanNode n) {
 			ObjectNode r = new ObjectNode(null);
 			Boolean b = n.get();
 			r.set("value", b == null ? new com.fasterxml.jackson.databind.node.TextNode("-")
@@ -89,7 +89,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 		}
 
 		@Override
-		public JComponent createComponentImpl(User requester, BooleanNode n) {
+		public JComponent createComponentImpl(BooleanNode n) {
 			boolean b = n.get();
 
 			var yes = new JRadioButton("yes");
@@ -100,9 +100,9 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 			group.add(no);
 			group.add(dunno);
 
-			yes.addActionListener(e -> n.set(true, requester));
-			no.addActionListener(e -> n.set(false, requester));
-			dunno.addActionListener(e -> n.set(null, requester));
+			yes.addActionListener(e -> n.set(true));
+			no.addActionListener(e -> n.set(false));
+			dunno.addActionListener(e -> n.set(null));
 
 			n.listeners.add(newValue -> {
 				if (newValue == null) {

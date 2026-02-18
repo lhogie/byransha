@@ -9,11 +9,11 @@ public class Device extends BusinessNode {
 	public StringNode brand;
 	public StringNode modelName;
 
-	public Device(BBGraph g, User creator) {
-		super(g,  creator);
-		serialNumber = new StringNode(g, creator);
-		brand = new StringNode(g, creator);
-		modelName = new StringNode(g, creator);
+	public Device(BBGraph g) {
+		super(g);
+		serialNumber = new StringNode(g);
+		brand = new StringNode(g);
+		modelName = new StringNode(g);
 	}
 
 

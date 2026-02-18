@@ -14,12 +14,12 @@ public class Office extends BusinessNode {
 
 	public IntNode surface, capacity;
 
-	public Office(BBGraph g, User creator) {
-		super(g, creator);
-		name = new StringNode(g, creator);
-		users = new ListNode(g, creator);
-		surface = new IntNode(g, creator);
-		capacity = new IntNode(g, creator);
+	public Office(BBGraph g) {
+		super(g);
+		name = new StringNode(g);
+		users = new ListNode(g);
+		surface = new IntNode(g);
+		capacity = new IntNode(g);
 	}
 
 	@Override

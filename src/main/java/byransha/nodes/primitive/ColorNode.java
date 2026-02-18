@@ -7,8 +7,8 @@ import byransha.nodes.system.User;
 
 public class ColorNode extends PrimitiveValueNode<String> {
 
-	public ColorNode(BBGraph g, User creator) {
-		super(g, creator);
+	public ColorNode(BBGraph g) {
+		super(g);
 	}
 
 	@Override
@@ -17,8 +17,8 @@ public class ColorNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void fromString(String s, User creator) {
-		set(s, creator);
+	public void fromString(String s) {
+		set(s);
 	}
 
 	@Override
@@ -42,12 +42,12 @@ public class ColorNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	protected String bytesToValue(byte[] bytes, User user) throws IOException {
+	protected String bytesToValue(byte[] bytes) throws IOException {
 		if (bytes == null || bytes.length != 3) {
 			throw new IOException("Color bytes must be exactly 3 bytes long");
 		}
 		String hex = String.format("#%02X%02X%02X", bytes[0] & 0xFF, bytes[1] & 0xFF, bytes[2] & 0xFF);
-		set(hex, user);
+		set(hex);
 		return hex;
 	}
 

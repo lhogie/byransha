@@ -11,19 +11,18 @@ import java.util.function.BiConsumer;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.BNode.exportNodeAction.CSVStream;
-import byransha.nodes.system.User;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	String label;
 	private List<T> selected = new ArrayList<>();
 
-	public ListNode(BBGraph g, User creator) {
-		super(g, creator);
-		set(new ArrayList<>(), creator);
+	public ListNode(BBGraph g) {
+		super(g);
+		set(new ArrayList<>());
 	}
 
 	@Override
-	public void removeOut(BNode out, User user) {
+	public void removeOut(BNode out) {
 		var l = get();
 		l.remove(out);
 	}
@@ -54,7 +53,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	}
 
 	@Override
-	protected List<T> bytesToValue(byte[] bytes, User user) throws IOException {
+	protected List<T> bytesToValue(byte[] bytes) throws IOException {
 		if (bytes.length == 0) {
 			return Collections.emptyList();
 		}
@@ -96,10 +95,10 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		}
 	}
 
-	public void add(T element, User user) {
+	public void add(T element) {
 		List<T> newL = new ArrayList<>(get());
 		newL.add(element);
-		set(newL, user);
+		set(newL);
 	}
 
 	public void remove(T element) {
