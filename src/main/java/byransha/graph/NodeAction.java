@@ -14,8 +14,8 @@ import toools.io.Cout;
 public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode {
 	protected boolean stopRequest;
 
-	public NodeAction(BBGraph g, User creator) {
-		super(g, creator);
+	public NodeAction(BBGraph g) {
+		super(g, g.systemNode.getCurrentUser());
 	}
 
 	@Override
@@ -68,6 +68,9 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 		add(BNode.class, BNode.exportNodeAction.class);
 		add(BNode.class, BNode.ResetNodeAction.class);
 		add(BNode.class, BNode.Delete.class);
+		add(BNode.class, SearchAction.class);
+		add(BNode.class, SearchTextAction.class);
+		add(BNode.class, SearchRegexpAction.class);
 		add(NodeAction.class, NodeAction.exec.class);
 	}
 

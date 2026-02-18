@@ -216,7 +216,7 @@ public abstract class BNode {
 		forEachBNodeClass(c -> {
 			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					r.add((NodeAction) v.getConstructor(BBGraph.class, User.class).newInstance(g, user));
+					r.add((NodeAction) v.getConstructor(BBGraph.class).newInstance(g, user));
 				} catch (Throwable err) {
 					throw new IllegalStateException(err);
 				}
