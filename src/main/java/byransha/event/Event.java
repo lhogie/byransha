@@ -12,7 +12,7 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	public Event(LocalDateTime date) {
 		this.date = date;
 	}
-	
+
 	public abstract void apply(BBGraph g) throws Throwable;;
 
 	public abstract void undo(BBGraph g) throws Throwable;
@@ -28,6 +28,11 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	}
 
 	@Override
+	public String toString() {
+		return getClass().getName() + " at " + date;
+	}
+
+	@Override
 	public boolean equals(Object e) {
 		if (!(e instanceof Event)) {
 			return false;
@@ -36,20 +41,4 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	}
 
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-	/*
-	 * public final List<String> toCSVElements() { var l = new ArrayList<String>();
-	 * l.add(date.format(dateFormat)); fillCSVColumns(l); return l; }
-	 * 
-	 * protected abstract void fillCSVColumns(ArrayList<String> l);
-	 * 
-	 * protected abstract void fromCSV(List<String> elements);
-	 * 
-	 * protected static Event fromCSVElements(List<String> elements) throws
-	 * InstantiationException, IllegalAccessException, IllegalArgumentException,
-	 * InvocationTargetException, NoSuchMethodException, SecurityException,
-	 * ClassNotFoundException { var e = (Event)
-	 * Class.forName(elements.removeFirst()).getConstructor().newInstance(); e.date
-	 * = LocalDateTime.parse(elements.removeFirst(), dateFormat);
-	 * e.fromCSV(elements); return e; }
-	 */
 }

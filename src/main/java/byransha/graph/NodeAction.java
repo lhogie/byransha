@@ -32,6 +32,9 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 	public String name() {
 		return getClass().getSimpleName();
 	}
+	public boolean wantToBeProposedFor(BNode bNode) {
+		return true;
+	}
 
 	public abstract String whatItDoes();
 

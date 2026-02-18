@@ -60,7 +60,10 @@ public abstract class BNode {
 		public exportNodeAction(BBGraph g) {
 			super(g);
 		}
-
+		@Override
+		public boolean wantToBeProposedFor(BNode n) {
+			return n.getClass() != AuthenticateAction.class;
+		}
 		@Override
 		public String whatItDoes() {
 			return "export this node as CSV";
@@ -81,6 +84,8 @@ public abstract class BNode {
 			r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode(0).toPrettyString()));
 			return new exportNodeResult(g, this, r);
 		}
+		
+		
 	}
 
 	final static class ResetNodeAction extends NodeAction {
@@ -215,7 +220,11 @@ public abstract class BNode {
 		forEachBNodeClass(c -> {
 			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					r.add((NodeAction) v.getConstructor(BBGraph.class).newInstance(g));
+					var action = (NodeAction) v.getConstructor(BBGraph.class).newInstance(g);
+
+					if (action.wantToBeProposedFor(this)) {
+						r.add(action);
+					}
 				} catch (Throwable err) {
 					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
 				}
@@ -231,7 +240,8 @@ public abstract class BNode {
 		forEachBNodeClass(c -> {
 			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					r.add((NodeView) v.getConstructor(BBGraph.class).newInstance(g));
+					var view = (NodeView) v.getConstructor(BBGraph.class).newInstance(g);
+					r.add(view);
 				} catch (Throwable err) {
 					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
 				}
