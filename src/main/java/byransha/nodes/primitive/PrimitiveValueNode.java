@@ -13,13 +13,11 @@ public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
 	}
 
 	@Override
-	public ObjectNode toJSONNode(int depth) {
-		var r = super.toJSONNode(0);
+	public ObjectNode toJSONNode() {
+		var r = super.toJSONNode();
 		r.put("value", getAsString());
 		return r;
 	}
-
-	
 
 	public abstract void fromString(String s);
 }

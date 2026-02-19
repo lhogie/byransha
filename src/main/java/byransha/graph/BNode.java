@@ -3,15 +3,17 @@ package byransha.graph;
 import java.awt.Color;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -19,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -26,95 +29,16 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.BNode.exportNodeAction.CSVStream;
-import byransha.nodes.primitive.ListNode;
-import byransha.nodes.primitive.ValuedNode;
+import byransha.graph.action.exportNodeAction.CSVData;
+import byransha.graph.view.NodeView;
 import byransha.nodes.system.User;
 import byransha.web.NodeEndpoint;
 import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import toools.SizeOf;
 import toools.Stop;
 import toools.gui.Utilities;
 
 public abstract class BNode {
-
-	public static class Delete extends ConfirmRequiredNodeAction {
-
-		public Delete(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "delete from the graph";
-		}
-
-		@Override
-		protected ActionResult execConfirm() {
-			delete();
-			return null;
-		}
-	}
-
-	public final static class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
-		public exportNodeAction(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public boolean wantToBeProposedFor(BNode n) {
-			return n.getClass() != AuthenticateAction.class;
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "export this node as CSV";
-		}
-
-		public static class CSVStream {
-			String name;
-			String data;
-		}
-
-		@Override
-		public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target) throws Throwable {
-			var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
-			var csvs = new ArrayList<CSVStream>();
-			target.toCSVStreams(csvs, true);
-			csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
-					.forEach(n -> r.get().add(n));
-			r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode(0).toPrettyString()));
-			return new exportNodeResult(g, this, r);
-		}
-	}
-
-	final static class ResetNodeAction extends NodeAction {
-		public ResetNodeAction(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "reset the values";
-		}
-
-		@Override
-		public ActionResult exec(BNode target) {
-			target.forEachOutField(f -> {
-				try {
-					var v = (BNode) f.get(target);
-
-					if (v instanceof ValuedNode vn) {
-						vn.set(vn.defaultValue());
-					}
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			});
-			return null;
-		}
-	}
 
 	public BBGraph g;
 	public boolean readOnly;
@@ -138,7 +62,24 @@ public abstract class BNode {
 			}
 		}
 	}
-
+	public NodeView<BNode> findView(Class<? extends NodeView<BNode>> c) {
+		for (var v : views()) {
+			if (c.isAssignableFrom(v.getClass())) {
+				return v;
+			}
+		}
+		return null;
+	}
+	
+	public NodeAction<BNode, BNode> findAction(String name) {
+		for (var a : actions()) {
+			if (a.getClass().getSimpleName().toLowerCase().equals(name)) {
+				return a;
+			}
+		}
+		return null;
+	}
+	
 	public User currentUser() {
 		return g.systemNode == null ? null : g.systemNode.getCurrentUser();
 	}
@@ -149,34 +90,79 @@ public abstract class BNode {
 	}
 
 	public int sizeOf() {
-		AtomicInteger i = new AtomicInteger(0);
+		return sizeOfFields(this);
+	}
 
-		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
-			for (var f : c.getDeclaredFields()) {
-				if ((f.getModifiers() & Modifier.STATIC) == 0) { // non static
-					var type = f.getType();
+	public static int sizeOfObject(Object o) {
+		if (o == null) {
+			return 0;
+		} else if (o instanceof BNode) {
+			return 0;
+		} else if (o.getClass().isArray()) {
+			var componentType = o.getClass().getComponentType();
+			var arrayLen = Array.getLength(o);
 
-					if (BNode.class.isAssignableFrom(type)) {
-						i.addAndGet(4);
+			if (componentType.isPrimitive()) {
+				return arrayLen * butils.Utils.sizeOfPrimitive.get(componentType);
+			} else {
+				int sum = 0;
+
+				for (int i = 0; i < arrayLen; ++i) {
+					sum += 4 + sizeOfObject(Array.get(o, i));
+				}
+
+				return sum;
+			}
+		} else if (o instanceof Iterable iter) {
+			int sum = 4; // nb of elements
+
+			for (var ce : iter) {
+				sum += 4 + sizeOfObject(ce);
+			}
+
+			return sum;
+		} else if (o instanceof LocalDateTime) {
+			return 76;
+		} else if (o instanceof Map m) {
+			return 4 + sizeOfObject(m.keySet()) + 4 + sizeOfObject(m.values());
+		} else {
+			return sizeOfFields(o);
+		}
+	}
+
+	private static int sizeOfFields(Object o) {
+		int totalSize = 0;
+
+		for (Class c = o.getClass(); c != null; c = c.getSuperclass()) {
+			for (var field : c.getDeclaredFields()) {
+				if ((field.getModifiers() & Modifier.STATIC) == 0) { // non static
+					var fieldDeclaraionType = field.getType();
+
+					if (fieldDeclaraionType.isPrimitive()) {
+						totalSize += butils.Utils.sizeOfPrimitive.get(fieldDeclaraionType);
 					} else {
-						if (type.isPrimitive()) {
-							i.addAndGet(butils.Utils.sizeOfPrimitive.get(type));
-						} else {
-							i.addAndGet((int) SizeOf.sizeOf(type));
+						totalSize += 4; // ref size
+
+						try {
+							field.setAccessible(true);
+							totalSize += sizeOfObject(field.get(o));
+						} catch (Throwable err) {
+							// throw err instanceof RuntimeException re ? re : new RuntimeException(err);
 						}
 					}
 				}
 			}
 		}
 
-		return i.get();
+		return totalSize;
+
 	}
 
-	public void toCSVStreams(List<CSVStream> l, boolean printHeaders)
+	public void toCSVStreams(List<CSVData> l, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
-		var c = new CSVStream();
-		c.data = fieldsToCSV(printHeaders);
+		var c = new CSVData();
 		c.name = "fields";
+		c.data = fieldsToCSV(printHeaders);
 		l.add(c);
 	}
 
@@ -187,7 +173,6 @@ public abstract class BNode {
 		var s = pw.toString();
 		pw.close();
 		return s;
-
 	}
 
 	public void fieldsToCSV(PrintWriter ps, boolean printHeaders)
@@ -402,6 +387,11 @@ public abstract class BNode {
 	}
 
 	public Icon getIcon() {
+		var bytes = getIconBytes();
+		return bytes == null ? null : new ImageIcon();
+	}
+
+	public byte[] getIconBytes() {
 		return null;
 	}
 
@@ -411,14 +401,13 @@ public abstract class BNode {
 		return readOnly;
 	}
 
-	public final List<NodeError> errors(int depth) {
+	public final List<NodeError> errors() {
 		var errs = new ArrayList<NodeError>();
-		fillErrors(errs, depth);
+		fillErrors(errs);
 		return errs;
 	}
 
-	protected void fillErrors(List<NodeError> errs, int depth) {
-		bfs(depth, n -> true, (n, d) -> fillErrors(errs, depth));
+	protected void fillErrors(List<NodeError> errs) {
 	}
 
 	public Map<String, BNode> computeOuts() {
@@ -427,29 +416,33 @@ public abstract class BNode {
 		return r;
 	}
 
-	final static JsonNodeFactory factory = new JsonNodeFactory(true);
+	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 
-	public ObjectNode toJSONNode(int depth) {
+	public ObjectNode toJSONNode() {
 		ObjectNode r = new ObjectNode(factory);
 		r.put("id", id());
 		r.put("class", getClass().getName());
 		r.put("color", Utilities.toRGBHex(getColor()));
 		r.put("prettyName", prettyName());
+
+		var iconBytes = getIconBytes();
+
+		if (iconBytes != null) {
+			r.put("icon", Base64.getEncoder().encode(getIconBytes()));
+		}
+
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.name())).toList()));
-		r.set("errors", new ArrayNode(null, errors(0).stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views", new ArrayNode(null, views().stream().map(v -> v.toJSON(this)).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.prettyName())).toList()));
+		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
+		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.name())).toList()));
 
 		ObjectNode outsNode = new ObjectNode(null);
 		r.set("outs", outsNode);
 
-		if (depth > 0) {
-			forEachOut((s, o) -> outsNode.set(s, o.toJSONNode(depth - 1)));
-		}
-
 		return r;
 	}
+	
 
 }

@@ -18,8 +18,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.graph.BNode.exportNodeAction.CSVStream;
-import byransha.graph.NodeView;
+import byransha.graph.action.exportNodeAction.CSVData;
+import byransha.graph.view.NodeView;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	String label;
@@ -37,7 +37,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	}
 
 	@Override
-	public void toCSVStreams(List<CSVStream> l, boolean printHeaders)
+	public void toCSVStreams(List<CSVData> l, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
 		var elements = get();
 
@@ -156,9 +156,14 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		}
 
 		@Override
+		public String whatItShows() {
+			return "all elements in a list";
+		}
+
+		@Override
 		public JsonNode toJSON(ListNode<BNode> n) {
 			var r = new ArrayNode(null);
-			n.get().forEach(e -> r.add(e.toJSONNode(0)));
+			n.get().forEach(e -> r.add(e.toJSONNode()));
 			return r;
 		}
 
@@ -176,6 +181,11 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 			});
 
 			return jlist;
+		}
+	
+		@Override
+		protected boolean allowsEditing() {
+			return true;
 		}
 
 	}

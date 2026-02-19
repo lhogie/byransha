@@ -13,13 +13,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
-import byransha.graph.NodeView;
-import byransha.nodes.system.User;
+import byransha.graph.view.NodeView;
 
 public class IntNode extends PrimitiveValueNode<Integer> {
 	public int min = 0, max = 10000;
 
-	public IntNode(BBGraph g ) {
+	public IntNode(BBGraph g) {
 		super(g);
 	}
 
@@ -27,7 +26,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 		this.min = min;
 		this.max = max;
 	}
-	
+
 	@Override
 	public String prettyName() {
 		return "an integer";
@@ -66,7 +65,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs, int depth) {
+	protected void fillErrors(List<NodeError> errs) {
 		int v = get();
 
 		if (v < min)
@@ -74,7 +73,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 		else if (v > max)
 			errs.add(new NodeError(this, "too large, max is " + max));
 	}
-	
+
 	public static class IntNodeView extends NodeView<IntNode> {
 
 		public IntNodeView(BBGraph g) {
@@ -95,5 +94,18 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 			n.listeners.add(newValue -> tf.setText("" + newValue));
 			return tf;
 		}
-	}	
+
+		@Override
+		public String whatItShows() {
+			return "editor for a number";
+		}
+
+
+
+		@Override
+		protected boolean allowsEditing() {
+			return true;
+		}
+
+	}
 }

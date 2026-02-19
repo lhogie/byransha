@@ -14,7 +14,7 @@ public class EmailNode extends StringNode {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs, int depth) {
+	protected void fillErrors(List<NodeError> errs) {
 		if (!get().matches(re)) {
 			errs.add(new NodeError(this, "invalid email address"));
 		}

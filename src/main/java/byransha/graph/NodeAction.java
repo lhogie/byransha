@@ -8,20 +8,30 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import byransha.graph.action.ActionResult;
+import byransha.graph.action.DeleteAction;
+import byransha.graph.action.ResetNodeAction;
+import byransha.graph.action.SearchAction;
+import byransha.graph.action.SearchRegexpAction;
+import byransha.graph.action.SearchTextAction;
+import byransha.graph.action.exportNodeAction;
+import byransha.nodes.primitive.FileNode;
+import byransha.nodes.primitive.FileNode.openFile;
 import byransha.nodes.system.User;
 import toools.io.Cout;
 
 public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode {
-	protected boolean stopRequest;
+	public boolean stopRequest;
 
 	public NodeAction(BBGraph g) {
 		super(g);
 	}
 
 	@Override
-	public ObjectNode toJSONNode(int depth) {
-		var r = super.toJSONNode(depth);
+	public ObjectNode toJSONNode() {
+		var r = super.toJSONNode();
 		r.put("canExecute", canExecute(currentUser()));
+		r.put("whatItDoes", whatItDoes());
 		return r;
 	}
 
@@ -29,11 +39,13 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 		return true;
 	}
 
-	public String name() {
-		return getClass().getSimpleName();
-	}
 	public boolean wantToBeProposedFor(BNode bNode) {
 		return true;
+	}
+
+	@Override
+	public String prettyName() {
+		return getClass().getSimpleName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
 	}
 
 	public abstract String whatItDoes();
@@ -43,11 +55,6 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 	@Override
 	public Color getColor() {
 		return Color.white;
-	}
-
-	@Override
-	public String prettyName() {
-		return name();
 	}
 
 	@Override
@@ -68,16 +75,17 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 	}
 
 	static {
-		add(BNode.class, BNode.exportNodeAction.class);
-		add(BNode.class, BNode.ResetNodeAction.class);
-		add(BNode.class, BNode.Delete.class);
+		add(BNode.class, exportNodeAction.class);
+		add(BNode.class, ResetNodeAction.class);
+		add(BNode.class, DeleteAction.class);
 		add(BNode.class, SearchAction.class);
 		add(BNode.class, SearchTextAction.class);
 		add(BNode.class, SearchRegexpAction.class);
 		add(NodeAction.class, NodeAction.exec.class);
+		add(FileNode.class, openFile.class);
 	}
 
-	static class exec extends NodeAction<NodeAction, BNode> {
+	static public class exec extends NodeAction<NodeAction, BNode> {
 
 		public exec(BBGraph g) {
 			super(g);
@@ -98,6 +106,11 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 			var r = target.exec(target);
 			r.startDateMs = System.currentTimeMillis();
 			return r;
+		}
+
+		@Override
+		public String prettyName() {
+			return "Run";
 		}
 	}
 }

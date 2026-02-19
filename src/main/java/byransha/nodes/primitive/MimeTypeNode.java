@@ -20,7 +20,7 @@ public class MimeTypeNode extends StringNode {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs, int depth) {
+	protected void fillErrors(List<NodeError> errs) {
 		String v = get();
 
 		if (!validMimeTypes.contains(v))

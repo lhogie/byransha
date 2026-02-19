@@ -3,15 +3,12 @@ package byransha.nodes.system;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.web.EndpointJsonResponse;
 import byransha.web.EndpointResponse;
 import byransha.web.EndpointTextResponse;
 import byransha.web.NodeEndpoint;
@@ -19,18 +16,19 @@ import byransha.web.TechnicalView;
 import byransha.web.WebServer;
 
 public class User extends BNode {
-	public StringNode name;
+	public final StringNode name;
 	public int passwordHash;
-	public StringNode passwordNode;
-	public final ListNode<BNode> history;
+	public final StringNode passwordNode;
+	public final HistoryNode history;
 	private BNode currentNode = this;
+	public final List<NavigationListener> listeners = new ArrayList<>();
 
 	public User(BBGraph g, String user, int passwordHash) {
 		super(g);
 		name = new StringNode(g, user, ".+");
 		this.passwordHash = passwordHash;
 		passwordNode = new StringNode(g, null, ".+");
-		history = new ListNode<>(g);
+		history = new HistoryNode(g);
 	}
 
 	@Override
@@ -85,65 +83,33 @@ public class User extends BNode {
 		}
 	}
 
-	public static class History extends NodeEndpoint<BNode> implements TechnicalView {
-
-		public History(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "gets the navigation history";
-		}
-
-		@Override
-		public boolean sendContentByDefault() {
-			return true;
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				BNode node) throws Throwable {
-			var a = new ArrayNode(null);
-//			user.stack.forEach(e -> a.add(e.toJSONNode(user, 0)));
-			return new EndpointJsonResponse(a, this);
-		}
-	}
-
 	@Override
 	public String prettyName() {
 		return name.get();
 	}
 
-	public boolean isAdmin() {
-		return name.get().equals("admin");
-	}
-
-	public void setAdmin(boolean admin) {
-		if (admin) {
-			name.set("admin");
-		} else {
-			if (name.get().equals("admin")) {
-				name.set("user");
-			}
-		}
-	}
-
-	public static interface UserListener {
+	public static interface NavigationListener {
 		void userJumpedTo(BNode n);
 	}
 
-	public final List<UserListener> listeners = new ArrayList<>();
-
 	public void jumpTo(BNode n) {
-		if (n.historize) {
-			history.get().add(n);
-		}
-
 		if (currentNode != n) {
+			if (currentNode.historize) {
+				history.addToHistory(currentNode);
+			}
+
 			currentNode = n;
 			listeners.forEach(l -> l.userJumpedTo(n));
 		}
+	}
 
+	public void back() {
+		currentNode = history.back();
+		listeners.forEach(l -> l.userJumpedTo(currentNode));
+	}
+
+	public void forward() {
+		currentNode = history.forward();
+		listeners.forEach(l -> l.userJumpedTo(currentNode));
 	}
 }

@@ -184,7 +184,6 @@ public class WebServer extends SystemB {
 		new NodeEndpoints(g);
 		new SetValue(g);
 		new AnyGraph.Classes(g);
-		new User.History(g);
 		new UIPreferences.getProperties(g);
 		new Summarizer(g);
 		new LoadImage(g);
