@@ -95,5 +95,5 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 			n.listeners.add(newValue -> tf.setText("" + newValue));
 			return tf;
 		}
-	}
+	}	
 }

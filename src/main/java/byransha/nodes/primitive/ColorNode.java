@@ -3,7 +3,6 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 
 import byransha.graph.BBGraph;
-import byransha.nodes.system.User;
 
 public class ColorNode extends PrimitiveValueNode<String> {
 
@@ -60,5 +59,6 @@ public class ColorNode extends PrimitiveValueNode<String> {
 	public String prettyName() {
 		return get() != null ? get() : "null";
 	}
+
 
 }

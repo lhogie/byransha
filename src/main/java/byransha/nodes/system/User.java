@@ -23,7 +23,7 @@ public class User extends BNode {
 	public int passwordHash;
 	public StringNode passwordNode;
 	public final ListNode<BNode> history;
-	private BNode currentNode;
+	private BNode currentNode = this;
 
 	public User(BBGraph g, String user, int passwordHash) {
 		super(g);
@@ -39,7 +39,7 @@ public class User extends BNode {
 	}
 
 	public BNode currentNode() {
-		return history.get().isEmpty() ? null : history.get().getLast();
+		return currentNode;
 	}
 
 	@Override
@@ -112,9 +112,6 @@ public class User extends BNode {
 
 	@Override
 	public String prettyName() {
-		if (name == null || name.get() == null) {
-			return null;
-		}
 		return name.get();
 	}
 

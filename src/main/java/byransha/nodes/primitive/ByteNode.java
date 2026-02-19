@@ -3,7 +3,6 @@ package byransha.nodes.primitive;
 import java.util.Base64;
 
 import byransha.graph.BBGraph;
-import byransha.nodes.system.User;
 
 public class ByteNode extends PrimitiveValueNode<byte[]> {
 	public ByteNode(BBGraph g) {
@@ -53,4 +52,6 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 	public byte[] defaultValue() {
 		return new byte[0];
 	}
+
+
 }

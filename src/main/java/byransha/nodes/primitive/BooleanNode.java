@@ -122,4 +122,5 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 			return p;
 		}
 	}
+
 }

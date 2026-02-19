@@ -52,12 +52,12 @@ public class SystemNode extends SystemB {
 		void changed(User u);
 	}
 
-	public final List<CurrentUserListener> userListener = new ArrayList<>();
+	public final List<CurrentUserListener> changeUserListener = new ArrayList<>();
 
 	public void setCurrentUser(User newUser) {
 		if (newUser != currentUser) {
 			this.currentUser = newUser;
-			userListener.forEach(l -> l.changed(newUser));
+			changeUserListener.forEach(l -> l.changed(newUser));
 		}
 
 	}

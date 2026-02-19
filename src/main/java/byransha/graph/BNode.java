@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -32,6 +33,7 @@ import byransha.nodes.system.User;
 import byransha.web.NodeEndpoint;
 import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import toools.SizeOf;
 import toools.Stop;
 import toools.gui.Utilities;
 
@@ -53,17 +55,18 @@ public abstract class BNode {
 			delete();
 			return null;
 		}
-
 	}
 
 	public final static class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
 		public exportNodeAction(BBGraph g) {
 			super(g);
 		}
+
 		@Override
 		public boolean wantToBeProposedFor(BNode n) {
 			return n.getClass() != AuthenticateAction.class;
 		}
+
 		@Override
 		public String whatItDoes() {
 			return "export this node as CSV";
@@ -84,8 +87,6 @@ public abstract class BNode {
 			r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode(0).toPrettyString()));
 			return new exportNodeResult(g, this, r);
 		}
-		
-		
 	}
 
 	final static class ResetNodeAction extends NodeAction {
@@ -145,6 +146,30 @@ public abstract class BNode {
 	public void delete() {
 		computeIns().forEach(inArc -> inArc.source().removeOut(this));
 		g.removeNode(id());
+	}
+
+	public int sizeOf() {
+		AtomicInteger i = new AtomicInteger(0);
+
+		for (Class c = getClass(); c != null; c = c.getSuperclass()) {
+			for (var f : c.getDeclaredFields()) {
+				if ((f.getModifiers() & Modifier.STATIC) == 0) { // non static
+					var type = f.getType();
+
+					if (BNode.class.isAssignableFrom(type)) {
+						i.addAndGet(4);
+					} else {
+						if (type.isPrimitive()) {
+							i.addAndGet(butils.Utils.sizeOfPrimitive.get(type));
+						} else {
+							i.addAndGet((int) SizeOf.sizeOf(type));
+						}
+					}
+				}
+			}
+		}
+
+		return i.get();
 	}
 
 	public void toCSVStreams(List<CSVStream> l, boolean printHeaders)

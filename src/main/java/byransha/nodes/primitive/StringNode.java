@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
 import byransha.graph.NodeView;
-import byransha.nodes.system.User;
 
 public class StringNode extends PrimitiveValueNode<String> {
 	String re;
@@ -40,7 +39,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 		}
 
 		@Override
-		public JComponent createComponentImpl( StringNode n) {
+		public JComponent createComponentImpl(StringNode n) {
 			String s = n.get();
 			boolean multiline = s != null && s.indexOf('\n') >= 0;
 			var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
@@ -81,13 +80,12 @@ public class StringNode extends PrimitiveValueNode<String> {
 		super(db);
 	}
 
-	public StringNode(BBGraph g,  String init, String re) {
+	public StringNode(BBGraph g, String init, String re) {
 		this(g);
 		this.re = re;
 		set(init);
 	}
 
-	
 	@Override
 	protected byte[] valueToBytes(String s) throws IOException {
 		return s.getBytes(StandardCharsets.UTF_8);
@@ -124,4 +122,5 @@ public class StringNode extends PrimitiveValueNode<String> {
 	public String defaultValue() {
 		return null;
 	}
+
 }
