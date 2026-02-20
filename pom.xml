@@ -21,6 +21,12 @@
 	</repositories>
 	<dependencies>
 		<dependency>
+			<groupId>tools.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>3.0.1</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>io.github.lhogie</groupId>
 			<artifactId>toools</artifactId>
 			<version>master-SNAPSHOT</version>
@@ -29,11 +35,6 @@
 			<groupId>com.upokecenter</groupId>
 			<artifactId>cbor</artifactId>
 			<version>5.0.0-alpha2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.mapdb</groupId>
-			<artifactId>mapdb</artifactId>
-			<version>3.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
