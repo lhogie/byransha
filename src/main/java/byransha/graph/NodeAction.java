@@ -113,4 +113,11 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 			return "Run";
 		}
 	}
+
+	public String commandName() {
+		var s = getClass().getSimpleName().toLowerCase();
+		if (s.endsWith("action"))
+			s = s.substring(0, s.length() - 6);
+		return s;
+	}
 }

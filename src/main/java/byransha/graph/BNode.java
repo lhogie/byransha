@@ -62,6 +62,7 @@ public abstract class BNode {
 			}
 		}
 	}
+
 	public NodeView<BNode> findView(Class<? extends NodeView<BNode>> c) {
 		for (var v : views()) {
 			if (c.isAssignableFrom(v.getClass())) {
@@ -70,16 +71,9 @@ public abstract class BNode {
 		}
 		return null;
 	}
-	
-	public NodeAction<BNode, BNode> findAction(String name) {
-		for (var a : actions()) {
-			if (a.getClass().getSimpleName().toLowerCase().equals(name)) {
-				return a;
-			}
-		}
-		return null;
-	}
-	
+
+
+
 	public User currentUser() {
 		return g.systemNode == null ? null : g.systemNode.getCurrentUser();
 	}
@@ -434,15 +428,19 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.prettyName())).toList()));
+		r.set("actions",
+				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.commandName())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.name())).toList()));
 
-		ObjectNode outsNode = new ObjectNode(null);
+		var outsNode = new ObjectNode(factory);
+		forEachOut((name, out) -> {
+			outsNode.put(name, out.id());
+
+		});
 		r.set("outs", outsNode);
 
 		return r;
 	}
-	
 
 }
