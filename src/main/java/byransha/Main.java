@@ -7,7 +7,7 @@ import java.util.Map;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.use_case.lab.I3S;
+import byransha.nodes.lab.I3S;
 import byransha.web.WebServer;
 
 public class Main {

@@ -6,7 +6,7 @@ import java.util.function.Consumer;
 
 import byransha.event.Event;
 import byransha.graph.BBGraph;
-import byransha.nodes.lab.model.v0.Person;
+import byransha.nodes.lab.Person;
 import toools.Stop;
 
 public class CreateNewPerson extends Event {
