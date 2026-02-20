@@ -17,9 +17,8 @@ public class Main {
 
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
 		var g = new BBGraph(d);
-		g.systemNode.application = (BNode) Class
-				.forName(argMap.getOrDefault("appClass", I3S.class.getName())).getConstructor(BBGraph.class)
-				.newInstance(g);
+		g.systemNode.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
+				.getConstructor(BBGraph.class).newInstance(g);
 
 		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new SwingFrontend(g);
@@ -35,9 +34,7 @@ public class Main {
 
 	private static Map<String, String> mapArgs(String... args) {
 		var r = new HashMap<String, String>();
-
 		List.of(args).stream().map(a -> a.split("=")).forEach(a -> r.put(a[0], a[1]));
-
 		return r;
 	}
 

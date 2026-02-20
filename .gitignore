@@ -86,3 +86,4 @@ build/frontend/
 # Ignorer le frontend déplacé (Java)
 src/main/java/frontend/
 .DS_Store
+/byransha.iml
