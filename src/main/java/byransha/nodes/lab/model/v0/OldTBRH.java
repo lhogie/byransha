@@ -7,7 +7,6 @@ import java.util.List;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 import toools.Stop;
 
 class OldTBRH {
@@ -15,7 +14,7 @@ class OldTBRH {
 		loadPersonnel(i3s, inputDir);
 	}
 
-	private static void loadPersonnel(Lab i3s,File extractionDir) throws IOException {
+	private static void loadPersonnel(Lab i3s, File extractionDir) throws IOException {
 
 		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
 

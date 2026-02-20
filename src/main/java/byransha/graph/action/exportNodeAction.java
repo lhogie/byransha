@@ -1,0 +1,40 @@
+package byransha.graph.action;
+
+import java.util.ArrayList;
+
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+import byransha.graph.NodeAction;
+import byransha.nodes.primitive.ListNode;
+
+public final class exportNodeAction extends NodeAction<BNode, ListNode<byransha.nodes.primitive.TextNode>> {
+	public exportNodeAction(BBGraph g) {
+		super(g);
+	}
+
+	@Override
+	public boolean wantToBeProposedFor(BNode n) {
+		return n.getClass() != AuthenticateAction.class;
+	}
+
+	@Override
+	public String whatItDoes() {
+		return "export this node as CSV";
+	}
+
+	public static class CSVData {
+		public String name;
+		public String data;
+	}
+
+	@Override
+	public ActionResult<BNode, ListNode<byransha.nodes.primitive.TextNode>> exec(BNode target) throws Throwable {
+		var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
+		var csvs = new ArrayList<CSVData>();
+		target.toCSVStreams(csvs, true);
+		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
+				.forEach(n -> r.get().add(n));
+		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode().toPrettyString()));
+		return new exportNodeResult(g, this, r);
+	}
+}

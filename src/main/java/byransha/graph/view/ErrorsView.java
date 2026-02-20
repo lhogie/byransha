@@ -1,0 +1,62 @@
+package byransha.graph.view;
+
+import java.awt.GridBagLayout;
+
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
+import byransha.graph.BBGraph;
+import byransha.graph.BNode;
+
+public class ErrorsView extends NodeView<BNode> {
+
+	public ErrorsView(BBGraph g) {
+		super(g);
+	}
+
+	@Override
+	public String whatItShows() {
+		return "errors";
+	}
+
+	@Override
+	public JsonNode toJSON(BNode n) {
+		ArrayNode r = new ArrayNode(factory);
+
+		for (var err : n.errors()) {
+			r.add(err.msg);
+		}
+
+		return r;
+	}
+
+	@Override
+	protected boolean kishanable() {
+		return true;
+	}
+
+	@Override
+	public JComponent createComponentImpl(BNode n) {
+		var p = new JPanel(new GridBagLayout());
+
+		for (var err : n.errors()) {
+			var b = new JLabel(err.msg);
+			p.add(b);
+		}
+
+		return p;
+	}
+
+	public boolean showInViewList() {
+		return true;
+	}
+
+	@Override
+	protected boolean allowsEditing() {
+		return false;
+	}
+}
