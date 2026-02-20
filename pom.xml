@@ -1,8 +1,4 @@
-<project
-	xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
->
+<project xmlns="http://maven.apache.org/POM/4.0.0">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.lhogie</groupId>
 	<artifactId>byransha</artifactId>
@@ -25,6 +21,11 @@
 			<artifactId>jackson-core</artifactId>
 			<version>3.0.1</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.upokecenter</groupId>
+			<artifactId>cbor</artifactId>
+			<version>5.0.0-alpha2</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.lhogie</groupId>
