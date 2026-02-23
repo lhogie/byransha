@@ -2,15 +2,14 @@ package byransha.graph;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sun.net.httpserver.HttpsExchange;
@@ -26,20 +25,18 @@ import byransha.web.NodeEndpoint;
 import byransha.web.TechnicalView;
 import byransha.web.View;
 import byransha.web.WebServer;
-import graph.AnyGraph;
-import graph.BVertex;
 import toools.Stop;
 
 public class BBGraph extends BNode {
-	private ConcurrentMap<Integer, BNode> nodesById = new ConcurrentHashMap<>();
-	private final AtomicInteger idSequence = new AtomicInteger(1);
+	private final ConcurrentMap<Integer, BNode> nodesById = new ConcurrentHashMap<>();
 
+	private int nextID = 0;
 	public final SystemNode systemNode;
 	public final User systemUser = null;
 
 	public BBGraph(File directory) throws Exception {
 		super(null);
-		nodesById.put(0, this);
+		setID(0);
 		this.systemNode = new SystemNode(g, directory);
 	}
 
@@ -77,12 +74,10 @@ public class BBGraph extends BNode {
 	}
 
 	public synchronized int nextID() {
-		int potentialId;
-		do {
-			potentialId = idSequence.getAndIncrement();
-		} while (potentialId == 0 || nodesById.containsKey(potentialId));
+		while (nodesById.containsKey(nextID))
+			++nextID;
 
-		return potentialId;
+		return nextID;
 	}
 
 	public long countNodes() {
@@ -109,6 +104,15 @@ public class BBGraph extends BNode {
 
 	public <C extends BNode> C forEachNodeOfClass(Class<C> nodeClass, Function<C, Stop> f) {
 		return (C) forEachNode(n -> nodeClass.isAssignableFrom(n.getClass()) ? f.apply((C) n) : Stop.no);
+	}
+
+	public <C extends BNode> C findFirst(Class<C> c, Predicate<C> p) {
+		return forEachNodeOfClass(c, n -> Stop.stopIf(p.test(n)));
+	}
+
+	public <C extends BNode> C findFirstOr(Class<C> c, Predicate<C> p, Supplier<C> defaultValue) {
+		var r = findFirst(c, p);
+		return r == null && defaultValue != null ? defaultValue.get() : r;
 	}
 
 	public List<User> users() {
@@ -161,56 +165,6 @@ public class BBGraph extends BNode {
 		}
 	}
 
-	public static class GraphNivoView extends NodeEndpoint<BBGraph> {
-
-		@Override
-		public String whatItDoes() {
-			return "gives a NIVO text representing the graph";
-		}
-
-		public GraphNivoView(BBGraph db) {
-			super(db);
-
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				BBGraph db) {
-			var g = new AnyGraph();
-
-			Map<Integer, BVertex> vertexCache = new HashMap<>();
-			db.forEachNode(v -> {
-				if (v.canSee(user)) {
-					BVertex vertex = v.toVertex();
-					g.addVertex(vertex);
-					vertexCache.put(v.id(), vertex);
-				}
-				return Stop.no;
-			});
-
-			db.forEachNode(v -> {
-				if (v.canSee(user)) {
-					BVertex sourceVertex = vertexCache.get(v.id());
-					if (sourceVertex != null) {
-						v.forEachOut((s, o) -> {
-							if (o.canSee(user)) {
-								BVertex targetVertex = vertexCache.get(o.id());
-								if (targetVertex != null) {
-									var arc = g.newArc(sourceVertex, targetVertex);
-									arc.label = s;
-								}
-							}
-						});
-					}
-				}
-
-				return Stop.no;
-			});
-
-			return new EndpointJsonResponse(g.toNivoJSON(), dialects.nivoNetwork);
-		}
-	}
-
 	@Override
 	public String prettyName() {
 		return "graph";
@@ -249,7 +203,7 @@ public class BBGraph extends BNode {
 	}
 
 	void setID(BNode n, int newID) {
-		BNode previous = nodesById.putIfAbsent(this.id(), this);
+		BNode previous = nodesById.putIfAbsent(newID, this);
 
 		if (previous != null && previous != this)
 			throw new IllegalStateException(

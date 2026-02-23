@@ -14,7 +14,6 @@ import java.security.SecureRandom;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,8 @@ import java.util.function.BiConsumer;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLParameters;
+
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -41,39 +42,13 @@ import com.sun.net.httpserver.HttpsExchange;
 import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
-import butils.Utils;
+import butils.ByUtils;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.graph.InOutsNivoView;
 import byransha.nodes.system.Byransha;
-import byransha.nodes.system.JVMNode;
-import byransha.nodes.system.OSNode;
 import byransha.nodes.system.SystemB;
 import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
-import byransha.web.endpoint.AddNode;
-import byransha.web.endpoint.Authenticate;
-import byransha.web.endpoint.ClassInformation;
-import byransha.web.endpoint.Endpoints;
-import byransha.web.endpoint.Jump;
-import byransha.web.endpoint.ListChildClasses;
-import byransha.web.endpoint.LoadImage;
-import byransha.web.endpoint.Logout;
-import byransha.web.endpoint.NodeEndpoints;
-import byransha.web.endpoint.NodeInfo;
-import byransha.web.endpoint.RemoveFromList;
-import byransha.web.endpoint.RemoveNode;
-import byransha.web.endpoint.SetValue;
-import byransha.web.endpoint.Summarizer;
-import byransha.web.view.CharExampleXY;
-import byransha.web.view.ColorNodeView;
-import byransha.web.view.Log;
-import byransha.web.view.ModelDOTView;
-import byransha.web.view.ModelGraphivzSVGView;
-import byransha.web.view.ModelMermaidView;
-import byransha.web.view.Navigator;
-import byransha.web.view.ToStringView;
-import graph.AnyGraph;
 import toools.Stop;
 import toools.reflect.ClassPath;
 import toools.text.TextUtilities;
@@ -159,40 +134,6 @@ public class WebServer extends SystemB {
 	}
 
 	private void createEndpoints() {
-		new NodeInfo(g);
-		new Views(g);
-		new Jump(g);
-		new Endpoints(g);
-		new JVMNode.Kill(g);
-		var n = new Authenticate(g, sessionStore);
-		var l = new Logout(g, sessionStore);
-		new WebServer.Info(g);
-		new WebServer.Logs(g);
-		new BasicView(g);
-		new CharExampleXY(g);
-		new User.UserView(g);
-		new BBGraph.GraphNivoView(g);
-		new OSNode.View(g);
-		new JVMNode.View(g);
-		new InOutsNivoView(g);
-		new ModelGraphivzSVGView(g);
-		new ModelMermaidView(g);
-		new Navigator(g);
-		new byransha.web.ClassDistribution(g);
-		new ModelDOTView(g);
-		new ToStringView(g);
-		new NodeEndpoints(g);
-		new SetValue(g);
-		new AnyGraph.Classes(g);
-		new UIPreferences.getProperties(g);
-		new Summarizer(g);
-		new LoadImage(g);
-		new ClassInformation(g);
-		new AddNode(g);
-		new RemoveFromList(g);
-		new RemoveNode(g);
-		new ColorNodeView(g);
-		new ListChildClasses(g);
 	}
 
 	public SessionStore getSessionStore() {
@@ -263,11 +204,9 @@ public class WebServer extends SystemB {
 						System.err.println("User ID " + sessionData.userId() + " from session token "
 								+ sessionToken.substring(0, 8) + "... not found in graph. Invalidating session.");
 						sessionStore.removeSession(sessionToken);
-						Authenticate.deleteSessionCookie(https, "session_token");
 						sessionData = null;
 					}
 				} else {
-					Authenticate.deleteSessionCookie(https, "session_token");
 				}
 			}
 
@@ -475,7 +414,7 @@ public class WebServer extends SystemB {
 				if (cachedFile == null || file.lastModified() > cachedFile.lastModified) {
 					try {
 						byte[] content = Files.readAllBytes(file.toPath());
-						String contentType = Utils.mimeType(file.getName());
+						String contentType = ByUtils.mimeType(file.getName());
 
 						fileCache.add(cacheKey, content, contentType, file.lastModified(), user);
 
@@ -603,11 +542,6 @@ public class WebServer extends SystemB {
 				throw new IllegalArgumentException("no such endpoint: " + endpointName);
 			}
 
-			if (currentNode != null && !currentNode.matches(e)) {
-				throw new IllegalArgumentException(
-						"Endpoint " + endpointName + " is not applicable to the current node: " + currentNode);
-			}
-
 			return List.of(e);
 		}
 	}
@@ -687,7 +621,6 @@ public class WebServer extends SystemB {
 	}
 
 	public void log(String msg) {
-		logs.add(new Log(new Date(), msg));
 	}
 
 	public static class Info extends NodeEndpoint<WebServer> {
@@ -717,30 +650,6 @@ public class WebServer extends SystemB {
 		}
 	}
 
-	public static class Logs extends NodeEndpoint<WebServer> {
-
-		@Override
-		public String whatItDoes() {
-			return "providing a view of the logs for the WebServer node";
-		}
-
-		public Logs(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode in, User user, WebServer webServer, HttpsExchange exchange,
-				WebServer n) {
-			var r = new ArrayNode(null);
-			n.logs.forEach(l -> {
-				var lr = new ObjectNode(null);
-				lr.set("date", new TextNode(l.date.toString()));
-				lr.set("message", new TextNode(l.msg));
-				r.add(lr);
-			});
-			return new EndpointJsonResponse(r, "logs");
-		}
-	}
 
 	@Override
 	public String prettyName() {

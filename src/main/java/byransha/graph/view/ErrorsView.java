@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.swing.MyLayout;
+import byransha.swing.MyLayout.Direction;
 
 public class ErrorsView extends NodeView<BNode> {
 
@@ -41,7 +43,7 @@ public class ErrorsView extends NodeView<BNode> {
 
 	@Override
 	public JComponent createComponentImpl(BNode n) {
-		var p = new JPanel(new GridBagLayout());
+		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
 
 		for (var err : n.errors()) {
 			var b = new JLabel(err.msg);

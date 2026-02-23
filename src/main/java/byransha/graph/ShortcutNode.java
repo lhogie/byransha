@@ -38,16 +38,6 @@ public class ShortcutNode extends BNode {
 		return this;
 	}
 
-	@Override
-	public LinkedHashMap<String, BNode> computeOuts() {
-		try {
-			LinkedHashMap<String, BNode> dynamicOuts = outsSupplier.get();
-			return dynamicOuts != null ? new LinkedHashMap<>(dynamicOuts) : new LinkedHashMap<>();
-		} catch (Exception e) {
-			System.err.println("Error fetching dynamic outs for ShortcutNode " + id() + ": " + e.getMessage());
-			return new LinkedHashMap<>();
-		}
-	}
 
 	@Override
 	public void forEachOut(BiConsumer<String, BNode> consumer) {

@@ -1,11 +1,11 @@
 package byransha.graph.view;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.TextField;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -30,29 +30,28 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public JComponent createComponentImpl(BNode n) {
-		JPanel p = new JPanel(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.weightx = 1.0;
-
+		var gl = new GridLayout();
+		JPanel p = new JPanel(gl);
 		n.forEachOut((name, out) -> {
 			if (out != g) {
-				JPanel outPanel = new JPanel(new GridBagLayout());
-				outPanel.setBorder(new TitledBorder(name));
-				GridBagConstraints gbfdsc = new GridBagConstraints();
+				var tf = new TextField(name);
+				tf.setForeground(Color.black);
+				tf.setEditable(false);
+				p.add(tf);
 
 				for (var v : out.views()) {
 					if (v.kishanable()) {
-						outPanel.add(v.createComponent(out), gbfdsc);
-						gbfdsc.gridx++;
+						p.add(v.createComponent(out));
 					}
 				}
-
-				p.add(outPanel, c);
-				c.gridy++;
 			}
 		});
 
+		int nbColumns = 2;
+		gl.setColumns(nbColumns);
+		gl.setRows(p.getComponentCount() / nbColumns);
+		p.revalidate();
+		p.repaint();
 		return p;
 	}
 

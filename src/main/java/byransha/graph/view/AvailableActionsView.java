@@ -1,8 +1,8 @@
 package byransha.graph.view;
 
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -15,11 +15,11 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 
 public class AvailableActionsView extends NodeView<BNode> {
+	int edgeSize = 60;
 
 	public AvailableActionsView(BBGraph g) {
 		super(g);
 	}
-
 
 	@Override
 	public JsonNode toJSON(BNode n) {
@@ -30,14 +30,21 @@ public class AvailableActionsView extends NodeView<BNode> {
 	}
 
 	@Override
+	public Color getColor() {
+		return Color.pink;
+	}
+
+	@Override
 	public JComponent createComponentImpl(BNode n) {
-		var p = new JPanel(new GridBagLayout());
+//		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
+		var actions= n.actions();
+		var p = new JPanel(new GridLayout( actions.size(), 1));
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 		c.weightx = 1.0;
-
-		n.actions().forEach(a -> {
+		actions.forEach(a -> {
 			var b = new JButton(a.prettyName());
+//			b.setPreferredSize(new Dimension(edgeSize, edgeSize));
 			p.add(b, c);
 
 			b.addActionListener(l -> {
@@ -55,8 +62,6 @@ public class AvailableActionsView extends NodeView<BNode> {
 		});
 		return p;
 	}
-
-	
 
 	@Override
 	protected boolean allowsEditing() {

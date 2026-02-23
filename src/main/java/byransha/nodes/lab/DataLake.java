@@ -10,17 +10,46 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.graph.DocumentNode;
 import byransha.nodes.system.User;
 
 public class DataLake extends BNode {
 
-	public final File inputDir;
+	public final File dir;
 
-	public DataLake(BBGraph g ,File dir) {
+	public DataLake(BBGraph g, File dir) {
 		super(g);
-		inputDir = dir;
+		this.dir = dir;
+	}
+
+	static JsonNode countryCodes;
+
+	public void loadCountries(BBGraph g) throws IOException {
+
+		var json = Files.readAllBytes(new File(dir, "country_flags/countries.json").toPath());
+		countryCodes = new ObjectMapper().readTree(json);
+
+		countryCodes.fieldNames().forEachRemaining(code -> {
+			var country = new Country(g);
+			country.code = code;
+
+			country.name = countryCodes.get(code).asText();
+			country.flag = new DocumentNode(g);
+
+			try {
+				var fileFlag = new File(dir, "country_flags/svg/" + code.toLowerCase() + ".svg");
+				country.flag.data.set(Files.readAllBytes(fileFlag.toPath()));
+				country.flag.mimeType.set("image/svg+xml");
+				country.flag.title.set(country.name + ".svg");
+			} catch (IOException err) {
+				throw new RuntimeException(err);
+			}
+		});
 	}
 
 	static DateTimeFormatter[] formatters = new DateTimeFormatter[] { DateTimeFormatter.ofPattern("dd/MM/yyyy"),
@@ -56,20 +85,22 @@ public class DataLake extends BNode {
 
 	@Override
 	public String prettyName() {
-		return "datalake at " + inputDir.getAbsolutePath();
+		return "datalake at " + dir.getAbsolutePath();
 	}
 
 	public void load() throws IOException {
-		if (inputDir == null)
+		if (dir == null)
 			throw new NullPointerException();
 
-		if (!inputDir.exists() || !inputDir.isDirectory())
-			throw new IOException("Input directory does not exist or not a directory: " + inputDir);
+		if (!dir.exists() || !dir.isDirectory())
+			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
-		System.out.println("Loading datalake from " + inputDir);
+		System.out.println("Loading datalake from " + dir);
+		loadCountries(g);
+
 		User user = g.systemUser;
 
-		Files.readAllLines(new File(inputDir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
+		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);
 			c.set(l);
 		});
@@ -98,7 +129,7 @@ public class DataLake extends BNode {
 			UniCA.campuses.add(campus);
 		}
 
-		new OldTBRH().loadOLDTBRH(i3s, new File(inputDir, "marijo_tbrh"));
+		new OldTBRH().loadOLDTBRH(i3s, new File(dir, "i3s/tbrh"));
 
 		System.out.println(" Finished loading datalake");
 	}

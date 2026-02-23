@@ -8,6 +8,7 @@ import java.util.Map;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
+import byransha.swing.SwingFrontend;
 import byransha.web.WebServer;
 
 public class Main {
@@ -37,5 +38,4 @@ public class Main {
 		List.of(args).stream().map(a -> a.split("=")).forEach(a -> r.put(a[0], a[1]));
 		return r;
 	}
-
 }

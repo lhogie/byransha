@@ -6,6 +6,9 @@ import byransha.graph.NodeAction;
 import byransha.nodes.system.User;
 
 public class ActionResult<T extends BNode, R extends BNode> extends BNode {
+	static {
+//		NodeAction.actions.put(ActionResult
+	}
 	public long startDateMs;
 	public R result;
 	public NodeAction<T, R> runningAction;

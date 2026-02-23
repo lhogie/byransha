@@ -6,12 +6,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.SwingFrontend;
 import byransha.event.EventList;
 import byransha.event.InMemoryEventList;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.ErrorLog;
+import byransha.swing.SwingFrontend;
 import byransha.web.WebServer;
 
 public class SystemNode extends SystemB {

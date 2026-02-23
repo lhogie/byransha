@@ -18,7 +18,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.graph.action.exportNodeAction.CSVData;
+import byransha.graph.action.Export.CSVData;
 import byransha.graph.view.NodeView;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
@@ -182,7 +182,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 			return jlist;
 		}
-	
+
 		@Override
 		protected boolean allowsEditing() {
 			return true;

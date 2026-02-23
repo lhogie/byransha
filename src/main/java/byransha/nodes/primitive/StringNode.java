@@ -48,8 +48,14 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	@Override
 	protected void fillErrors(List<NodeError> errs) {
-		if (re != null && !get().matches(re)) {
-			errs.add(new NodeError(this, "does not match " + re));
+		if (re != null) {
+			var s = get();
+
+			if (s == null) {
+				errs.add(new NodeError(this, "no value"));
+			} else if (!s.matches(re)) {
+				errs.add(new NodeError(this, "does not match " + re));
+			}
 		}
 	}
 

@@ -9,18 +9,20 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.action.ActionResult;
-import byransha.graph.action.DeleteAction;
-import byransha.graph.action.ResetNodeAction;
-import byransha.graph.action.SearchAction;
-import byransha.graph.action.SearchRegexpAction;
-import byransha.graph.action.SearchTextAction;
-import byransha.graph.action.exportNodeAction;
+import byransha.graph.action.Delete;
+import byransha.graph.action.Reset;
+import byransha.graph.action.Export;
+import byransha.graph.action.search.Search;
+import byransha.graph.action.search.SearchRegexp;
+import byransha.graph.action.search.SearchText;
 import byransha.nodes.primitive.FileNode;
 import byransha.nodes.primitive.FileNode.openFile;
+import byransha.nodes.primitive.TextNode;
+import byransha.nodes.primitive.TextNode.saveNodeAction;
 import byransha.nodes.system.User;
 import toools.io.Cout;
 
-public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode {
+public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 	public boolean stopRequest;
 
 	public NodeAction(BBGraph g) {
@@ -45,12 +47,13 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 
 	@Override
 	public String prettyName() {
+		// camel case to words
 		return getClass().getSimpleName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
 	}
 
 	public abstract String whatItDoes();
 
-	public abstract ActionResult<T, R> exec(T target) throws Throwable;
+	public abstract ActionResult<IN, OUT> exec(IN target) throws Throwable;
 
 	@Override
 	public Color getColor() {
@@ -75,14 +78,15 @@ public abstract class NodeAction<T extends BNode, R extends BNode> extends BNode
 	}
 
 	static {
-		add(BNode.class, exportNodeAction.class);
-		add(BNode.class, ResetNodeAction.class);
-		add(BNode.class, DeleteAction.class);
-		add(BNode.class, SearchAction.class);
-		add(BNode.class, SearchTextAction.class);
-		add(BNode.class, SearchRegexpAction.class);
+		add(BNode.class, Export.class);
+		add(BNode.class, Reset.class);
+		add(BNode.class, Delete.class);
+		add(BNode.class, Search.class);
+		add(BNode.class, SearchText.class);
+		add(BNode.class, SearchRegexp.class);
 		add(NodeAction.class, NodeAction.exec.class);
 		add(FileNode.class, openFile.class);
+		add(TextNode.class, saveNodeAction.class);
 	}
 
 	static public class exec extends NodeAction<NodeAction, BNode> {

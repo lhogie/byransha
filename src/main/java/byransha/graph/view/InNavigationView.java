@@ -1,7 +1,6 @@
 package byransha.graph.view;
 
 import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -11,6 +10,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.swing.MyLayout;
+import byransha.swing.MyLayout.Direction;
 
 public class InNavigationView extends NodeView<BNode> {
 
@@ -32,13 +33,13 @@ public class InNavigationView extends NodeView<BNode> {
 
 	@Override
 	public JComponent createComponentImpl(BNode n) {
-		var p = new JPanel(new GridBagLayout());
+		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
 		var c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
 		c.weightx = 1.0;
 		n.computeIns().forEach(in -> {
-			p.add(in.source().views().stream().filter(v -> v instanceof JumpToView).map(v -> (JumpToView) v).toList()
-					.getFirst().createComponent(in.source()), c);
+			p.add(in.source().views().stream().filter(v -> v instanceof JumpTo).map(v -> (JumpTo) v).toList().getFirst()
+					.createComponent(in.source()), c);
 			c.gridx++;
 		});
 

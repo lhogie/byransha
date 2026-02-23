@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 
 import byransha.graph.BBGraph;
 
@@ -15,9 +15,10 @@ public class I3S extends Lab {
 	public I3S(BBGraph g) {
 		super(g);
 		name.set("I3S");
-		Country.loadCountries(g);
 
-		var lake = new DataLake(this.g, Paths.get(System.getProperty("user.home"), "data_lake").toFile());
+		var home = new File(System.getProperty("user.home"));
+		var lakeD = new File(home, "a/job/byransha/data_lake");
+		var lake = new DataLake(this.g, lakeD);
 
 		try {
 			lake.load();

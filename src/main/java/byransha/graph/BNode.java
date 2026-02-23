@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,38 +28,27 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.action.exportNodeAction.CSVData;
+import byransha.graph.action.Export.CSVData;
 import byransha.graph.view.NodeView;
 import byransha.nodes.system.User;
-import byransha.web.NodeEndpoint;
-import graph.BVertex;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
 
 public abstract class BNode {
 
-	public BBGraph g;
+	public final BBGraph g;
 	public boolean readOnly;
 	private int id;
-	public boolean historize = true;
 
 	protected BNode(BBGraph g) {
 		if (g == null) {
-			this.id = 0;
 			this.g = (BBGraph) this;
 		} else {
 			this.g = g;
-
-			if (this instanceof NodeEndpoint ne) {
-				var alreadyInName = this.g.findEndpoint(ne.name());
-
-				if (alreadyInName != null) {
-					throw new IllegalArgumentException("adding " + ne + ", endpoint with same name '" + ne.name()
-							+ "' already there: " + alreadyInName.getClass().getName());
-				}
-			}
+			setID(this.g.nextID());
 		}
+
 	}
 
 	public NodeView<BNode> findView(Class<? extends NodeView<BNode>> c) {
@@ -71,8 +59,6 @@ public abstract class BNode {
 		}
 		return null;
 	}
-
-
 
 	public User currentUser() {
 		return g.systemNode == null ? null : g.systemNode.getCurrentUser();
@@ -97,7 +83,7 @@ public abstract class BNode {
 			var arrayLen = Array.getLength(o);
 
 			if (componentType.isPrimitive()) {
-				return arrayLen * butils.Utils.sizeOfPrimitive.get(componentType);
+				return arrayLen * butils.ByUtils.sizeOfPrimitive.get(componentType);
 			} else {
 				int sum = 0;
 
@@ -133,7 +119,7 @@ public abstract class BNode {
 					var fieldDeclaraionType = field.getType();
 
 					if (fieldDeclaraionType.isPrimitive()) {
-						totalSize += butils.Utils.sizeOfPrimitive.get(fieldDeclaraionType);
+						totalSize += butils.ByUtils.sizeOfPrimitive.get(fieldDeclaraionType);
 					} else {
 						totalSize += 4; // ref size
 
@@ -204,7 +190,7 @@ public abstract class BNode {
 	}
 
 	public void forEachOutField(Consumer<Field> consumer) {
-		forEachBNodeClass(c -> {
+		forEachSuperClassNode(c -> {
 			for (var f : c.getDeclaredFields()) {
 				if ((f.getModifiers() & Modifier.STATIC) != 0)
 					continue;
@@ -221,7 +207,7 @@ public abstract class BNode {
 	public List<NodeAction> actions() {
 		var r = new ArrayList<NodeAction>();
 
-		forEachBNodeClass(c -> {
+		forEachSuperClassNode(c -> {
 			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
 					var action = (NodeAction) v.getConstructor(BBGraph.class).newInstance(g);
@@ -241,7 +227,7 @@ public abstract class BNode {
 	public List<NodeView> views() {
 		var r = new ArrayList<NodeView>();
 
-		forEachBNodeClass(c -> {
+		forEachSuperClassNode(c -> {
 			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
 					var view = (NodeView) v.getConstructor(BBGraph.class).newInstance(g);
@@ -255,7 +241,7 @@ public abstract class BNode {
 		return r;
 	}
 
-	private void forEachBNodeClass(Consumer<Class<? extends BNode>> consumer) {
+	public void forEachSuperClassNode(Consumer<Class<? extends BNode>> consumer) {
 		for (Class c = getClass(); c != BNode.class; c = c.getSuperclass()) {
 			consumer.accept(c);
 		}
@@ -278,8 +264,10 @@ public abstract class BNode {
 	}
 
 	public void setID(int newID) {
-		g.setID(this, newID);
-		this.id = newID;
+		synchronized (g) {
+			this.id = newID;
+			g.setID(this, newID);
+		}
 	}
 
 	public abstract String whatIsThis();
@@ -347,10 +335,6 @@ public abstract class BNode {
 		return true;
 	}
 
-	public boolean matches(NodeEndpoint v) {
-		return v.getTargetNodeType().isAssignableFrom(getClass());
-	}
-
 	@Override
 	public String toString() {
 		return prettyName();
@@ -368,12 +352,6 @@ public abstract class BNode {
 	@Override
 	public final boolean equals(Object obj) {
 		return this == obj;
-	}
-
-	public BVertex toVertex() {
-		var v = new BVertex("" + id());
-		v.label = toString();
-		return v;
 	}
 
 	public Color getColor() {
@@ -402,12 +380,6 @@ public abstract class BNode {
 	}
 
 	protected void fillErrors(List<NodeError> errs) {
-	}
-
-	public Map<String, BNode> computeOuts() {
-		var r = new HashMap<String, BNode>();
-		forEachOut((role, out) -> r.put(role, out));
-		return r;
 	}
 
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);

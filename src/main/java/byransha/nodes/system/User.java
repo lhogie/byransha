@@ -20,12 +20,11 @@ public class User extends BNode {
 	public int passwordHash;
 	public final StringNode passwordNode;
 	public final HistoryNode history;
-	private BNode currentNode = this;
 	public final List<NavigationListener> listeners = new ArrayList<>();
 
-	public User(BBGraph g, String user, int passwordHash) {
+	public User(BBGraph g, String userName, int passwordHash) {
 		super(g);
-		name = new StringNode(g, user, ".+");
+		name = new StringNode(g, userName, ".+");
 		this.passwordHash = passwordHash;
 		passwordNode = new StringNode(g, null, ".+");
 		history = new HistoryNode(g);
@@ -37,7 +36,7 @@ public class User extends BNode {
 	}
 
 	public BNode currentNode() {
-		return currentNode;
+		return history.get().isEmpty() ? null : history.get().getLast();
 	}
 
 	@Override
@@ -93,23 +92,10 @@ public class User extends BNode {
 	}
 
 	public void jumpTo(BNode n) {
-		if (currentNode != n) {
-			if (currentNode.historize) {
-				history.addToHistory(currentNode);
-			}
-
-			currentNode = n;
+		if (currentNode() != n) {
+			history.addToHistory(n);
 			listeners.forEach(l -> l.userJumpedTo(n));
 		}
 	}
 
-	public void back() {
-		currentNode = history.back();
-		listeners.forEach(l -> l.userJumpedTo(currentNode));
-	}
-
-	public void forward() {
-		currentNode = history.forward();
-		listeners.forEach(l -> l.userJumpedTo(currentNode));
-	}
 }
