@@ -12,6 +12,7 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.ErrorLog;
 import byransha.swing.SwingFrontend;
+import byransha.web.ByranshaWebSocketServer;
 import byransha.web.WebServer;
 
 public class SystemNode extends SystemB {
@@ -23,6 +24,7 @@ public class SystemNode extends SystemB {
 	public final ErrorLog errorLog;
 	public final EventList eventList;
 	public WebServer webServer;
+	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
 	private User currentUser;
 

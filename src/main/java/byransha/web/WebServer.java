@@ -131,6 +131,19 @@ public class WebServer extends SystemB {
 		httpsServer.createContext("/", http -> processRequest((HttpsExchange) http).send(http));
 		httpsServer.setExecutor(Executors.newCachedThreadPool());
 		httpsServer.start();
+		
+		// Start WebSocket server on port + 1
+		int wsPort = port + 1;
+		System.out.println("starting WebSocket server on port " + wsPort);
+		try {
+			g.systemNode.webSocketServer = new ByranshaWebSocketServer(g, sessionStore, wsPort);
+			g.systemNode.webSocketServer.start();
+			System.out.println("WebSocket server started successfully on port " + wsPort);
+		} catch (Exception e) {
+			System.err.println("Failed to start WebSocket server: " + e.getMessage());
+			e.printStackTrace();
+			// Continue without WebSocket (graceful degradation)
+		}
 	}
 
 	private void createEndpoints() {
