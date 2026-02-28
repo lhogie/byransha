@@ -2,7 +2,10 @@ package byransha.graph.relection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
+import java.util.List;
+import java.util.function.Predicate;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
@@ -87,36 +90,47 @@ public class ClassNode extends BNode {
 		return clazz.getName();
 	}
 
-	public String toPlantUML() {
-		StringBuilder sb = new StringBuilder("@startuml\n");
+	public String toPlantUML(int depth, Predicate<ClassNode> filter) {
+		var bfs = bfs(depth, n -> n instanceof ClassNode cn && filter.test(cn), null);
+		var classes = bfs.distances.keySet().stream().map(n -> (ClassNode) n).toList();
+		return toPlantUML(classes, true);
+	}
 
-		sb.append("class ").append(clazz.getSimpleName()).append("\n");
+	public String toPlantUML(boolean tag) {
+		var buf = new StringBuilder(tag ? "@startuml\n" : "");
+		buf.append("class ").append(clazz.getSimpleName()).append("\n");
 
-		sb.append(superClass.clazz.getSimpleName()).append(" <|-- ").append(clazz.getSimpleName()).append(" : ")
+		buf.append(superClass.clazz.getSimpleName()).append(" <|-- ").append(clazz.getSimpleName()).append(" : ")
 				.append("\n");
 
 		for (var i : interfaces.get()) {
-			sb.append(i.clazz.getSimpleName()).append(" <|.. ").append(clazz.getSimpleName()).append(" : ")
+			buf.append(i.clazz.getSimpleName()).append(" <|.. ").append(clazz.getSimpleName()).append(" : ")
 					.append("\n");
 		}
 
 		for (var i : aggregations.get()) {
 			if (!i.clazz.isPrimitive() && !i.clazz.getName().startsWith("java.lang")) {
-				sb.append(clazz.getSimpleName()).append(" o-- ").append(i.clazz.getSimpleName()).append(" : ")
+				buf.append(clazz.getSimpleName()).append(" o-- ").append(i.clazz.getSimpleName()).append(" : ")
 						.append("\n");
 			}
 		}
 
-		sb.append("@enduml");
+		buf.append(tag ? "@enduml" : "");
+		return buf.toString();
+	}
 
-		return sb.toString();
+	public static String toPlantUML(List<ClassNode> l, boolean tag) {
+		var buf = new StringBuilder(tag ? "@startuml\n" : "");
+		l.forEach(e -> buf.append(e.toPlantUML(false)));
+		buf.append(tag ? "@enduml" : "");
+		return buf.toString();
 	}
 
 	public String toSVG() {
 		var out = new ByteArrayOutputStream();
 
 		try {
-			SourceStringReader reader = new SourceStringReader(toPlantUML());
+			SourceStringReader reader = new SourceStringReader(toPlantUML(true));
 			reader.outputImage(out, new FileFormatOption(FileFormat.SVG));
 			out.close();
 		} catch (IOException err) {
@@ -124,5 +138,15 @@ public class ClassNode extends BNode {
 		}
 
 		return new String(out.toByteArray());
+	}
+
+	public BNode newInstance() {
+		try {
+			return (BNode) clazz.getConstructor(BBGraph.class).newInstance(g);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+				| NoSuchMethodException err) {
+			g.systemNode.errorLog.add(err);
+			throw new IllegalStateException(err);
+		}
 	}
 }

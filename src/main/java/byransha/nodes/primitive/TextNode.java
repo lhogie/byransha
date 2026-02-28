@@ -10,6 +10,9 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 
 public class TextNode extends PrimitiveValueNode<String> {
+	static {
+		NodeAction.add(TextNode.class, saveNodeAction.class);
+	}
 
 	StringNode labelNode;
 

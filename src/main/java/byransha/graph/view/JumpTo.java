@@ -1,5 +1,7 @@
 package byransha.graph.view;
 
+import java.util.function.Consumer;
+
 import javax.swing.JButton;
 import javax.swing.JComponent;
 
@@ -29,10 +31,10 @@ public class JumpTo extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-		var b = new JButton(n.prettyName());
-		b.addActionListener(e -> currentUser().jumpTo(n));
-		return b;
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		var b = new JButton(node.prettyName());
+		b.addActionListener(e -> currentUser().jumpTo(node));
+		onComponentCreated.accept(b);
 	}
 
 	public boolean showInViewList() {

@@ -1,5 +1,7 @@
 package byransha.graph.view;
 
+import java.util.function.Consumer;
+
 import javax.swing.JComponent;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,11 +27,9 @@ public class DebugView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-		return ByUtils.JsonToTreeConverter.buildTreeModel(toJSON(n));
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		onComponentCreated.accept(ByUtils.JsonToTreeConverter.buildTreeModel(toJSON(node)));
 	}
-
-	
 
 	@Override
 	protected boolean allowsEditing() {

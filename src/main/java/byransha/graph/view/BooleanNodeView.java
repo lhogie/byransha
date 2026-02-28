@@ -1,10 +1,9 @@
 package byransha.graph.view;
 
-import java.awt.FlowLayout;
+import java.util.function.Consumer;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -29,9 +28,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BooleanNode n) {
-		boolean b = n.get();
-
+	public void addTo(Consumer<JComponent> onComponentCreated) {
 		var yes = new JRadioButton("yes");
 		var no = new JRadioButton("no");
 		var dunno = new JRadioButton("don't know");
@@ -40,11 +37,11 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 		group.add(no);
 		group.add(dunno);
 
-		yes.addActionListener(e -> n.set(true));
-		no.addActionListener(e -> n.set(false));
-		dunno.addActionListener(e -> n.set(null));
+		yes.addActionListener(e -> node.set(true));
+		no.addActionListener(e -> node.set(false));
+		dunno.addActionListener(e -> node.set(null));
 
-		n.valueChangeListeners.add(newValue -> {
+		node.valueChangeListeners.add(newValue -> {
 			if (newValue == null) {
 				dunno.setSelected(true);
 			} else if (newValue == true) {
@@ -54,12 +51,9 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 			}
 		});
 
-		var p = new JPanel(new FlowLayout());
-		p.add(yes);
-		p.add(no);
-		p.add(dunno);
-
-		return p;
+		onComponentCreated.accept(yes);
+		onComponentCreated.accept(no);
+		onComponentCreated.accept(dunno);
 	}
 
 	@Override

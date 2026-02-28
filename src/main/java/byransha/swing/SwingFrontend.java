@@ -14,7 +14,7 @@ public class SwingFrontend extends SystemB {
 
 	public final UIPreferences ui;
 	static JFrame f = new JFrame("Byransha");
-	public final MyTextPane2 sheet = new MyTextPane2();
+	public final JPanelDocumentPane sheet = new JPanelDocumentPane();
 
 	public SwingFrontend(BBGraph g) {
 		super(g);

@@ -3,8 +3,14 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 
 import byransha.graph.BBGraph;
+import byransha.graph.view.BooleanNodeView;
+import byransha.graph.view.NodeView;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
+
+	static {
+		NodeView.add(BooleanNode.class, BooleanNodeView.class);
+	}
 
 	public BooleanNode(BBGraph g, Boolean v) {
 		super(g);

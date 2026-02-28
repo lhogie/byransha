@@ -11,6 +11,7 @@ import byransha.event.InMemoryEventList;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.ErrorLog;
+import byransha.graph.action.NewNodeCreator;
 import byransha.swing.SwingFrontend;
 import byransha.web.ByranshaWebSocketServer;
 import byransha.web.WebServer;
@@ -23,6 +24,7 @@ public class SystemNode extends SystemB {
 	public final OSNode os;
 	public final ErrorLog errorLog;
 	public final EventList eventList;
+	public final NewNodeCreator nodeCreator;
 	public WebServer webServer;
 	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
@@ -38,6 +40,7 @@ public class SystemNode extends SystemB {
 		this.admin = new User(g, "admin", "admin".hashCode()); // self accept
 		this.guest = new User(g, "user", "test".hashCode());
 		this.eventList = new InMemoryEventList(g);
+		this.nodeCreator = new NewNodeCreator(g);
 		setCurrentUser(guest);
 	}
 

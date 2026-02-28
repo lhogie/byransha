@@ -1,15 +1,17 @@
 package byransha.graph.view;
 
+import java.io.IOException;
+import java.util.function.Consumer;
+
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.TitledBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.swing.MyTextPane;
 
 public class KishanView extends NodeView<BNode> {
 
@@ -28,28 +30,27 @@ public class KishanView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-		var p = new MyTextPane();
-
-		n.forEachOut((name, out) -> {
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		node.forEachOut((name, out) -> {
 			if (out != g) {
-				var pp = new JPanel();
+				var p = new JPanel();
+				p.setBorder(new TitledBorder(name));
 				p.add(new JCheckBox());
-				p.add(new JLabel(name));
 
 				for (var v : out.views()) {
 					if (v.kishanable()) {
-						p.add(v.createComponent());
+						try {
+							v.addTo(c -> p.add(c));
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						break;
 					}
 				}
 
-				p.append(pp);
-				p.append(" ");
+				onComponentCreated.accept(p);
 			}
 		});
-
-		return p;
 	}
 
 	@Override

@@ -6,8 +6,14 @@ import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
+import byransha.graph.view.NodeView;
+import byransha.graph.view.StringNodeView;
 
 public class StringNode extends PrimitiveValueNode<String> {
+	static {
+		NodeView.add(StringNode.class, StringNodeView.class);
+	}
+
 	String re;
 	public boolean password;
 

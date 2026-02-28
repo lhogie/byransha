@@ -8,8 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
@@ -22,6 +24,11 @@ import byransha.graph.action.Export.CSVData;
 import byransha.graph.view.NodeView;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
+
+	static {
+		NodeView.add(ListNode.class, ElementView.class);
+	}
+
 	String label;
 	private List<T> selected = new ArrayList<>();
 
@@ -168,19 +175,19 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		}
 
 		@Override
-		public JComponent createComponentImpl(ListNode<BNode> n) {
+		public void addTo(Consumer<JComponent> onComponentCreated) {
 			var jlist = new JList();
-			jlist.setListData(n.get().toArray());
+			jlist.setListData(node.get().toArray());
 			jlist.setCellRenderer(new ListCellRenderer<BNode>() {
 
 				@Override
 				public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
 						boolean isSelected, boolean cellHasFocus) {
-					return value.views().getFirst().createComponent();
+					return new JLabel(value.prettyName());
 				}
 			});
 
-			return jlist;
+			onComponentCreated.accept(jlist);
 		}
 
 		@Override

@@ -97,10 +97,10 @@ public class ShellServer {
 							var view = findView(currentNode(), viewName);
 
 							if (view == null) {
-								out.println("no such view " + viewName + " on node " + graph.currentUser().currentNode()
-										+ " of " + graph.currentUser().currentNode().getClass());
+								out.println("no such view " + viewName + " on node " + currentNode() + " of "
+										+ currentNode().getClass());
 							} else {
-								var r = view.toJSON(currentNode());
+								var r = view.toJSON();
 								out.println(r.toPrettyString());
 							}
 						} else if (line.startsWith("/")) { // local command
@@ -118,21 +118,20 @@ public class ShellServer {
 							}
 						} else {
 							var actionName = line;
-							var a = findAction(currentNode(), actionName);
+							var action = findAction(currentNode(), actionName);
 
-							if (a == null) {
-								out.println(
-										"no such action " + actionName + " on node " + graph.currentUser().currentNode()
-												+ " of " + graph.currentUser().currentNode().getClass());
+							if (action == null) {
+								out.println("no such action " + actionName + " on node " + currentNode() + " of "
+										+ currentNode().getClass());
 							} else {
-								var r = a.exec();
+								var r = action.exec();
 
 								for (var v : r.result.views()) {
 									out.println(v.prettyName() + ":");
-									out.println(v.toJSON(graph.currentUser().currentNode()).toPrettyString());
+									out.println(v.toJSON().toPrettyString());
 								}
 
-								out.println("*" + a.prettyName() + " completed in " + r.durationMs() + "ms:");
+								out.println("*" + action.prettyName() + " completed in " + r.durationMs() + "ms:");
 							}
 						}
 

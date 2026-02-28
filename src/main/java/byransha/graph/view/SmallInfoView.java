@@ -1,5 +1,7 @@
 package byransha.graph.view;
 
+import java.util.function.Consumer;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
@@ -26,11 +28,10 @@ public class SmallInfoView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-		return new JLabel(currentUser() + " - " + currentUser().currentNode().prettyName() + " ("
-				+ currentUser().currentNode().whatIsThis() + ")");
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		onComponentCreated.accept(new JLabel(currentUser() + " - " + currentUser().currentNode().prettyName() + " ("
+				+ currentUser().currentNode().whatIsThis() + ")"));
 	}
-
 
 	@Override
 	protected boolean allowsEditing() {

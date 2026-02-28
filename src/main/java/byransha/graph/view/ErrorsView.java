@@ -1,16 +1,15 @@
 package byransha.graph.view;
 
+import java.util.function.Consumer;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.swing.MyLayout;
-import byransha.swing.MyLayout.Direction;
 
 public class ErrorsView extends NodeView<BNode> {
 
@@ -40,15 +39,10 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
-
-		for (var err : n.errors()) {
-			var b = new JLabel(err.msg);
-			p.add(b);
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		for (var err : node.errors()) {
+			onComponentCreated.accept(new JLabel(err.msg));
 		}
-
-		return p;
 	}
 
 	public boolean showInViewList() {

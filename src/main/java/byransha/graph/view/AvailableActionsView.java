@@ -1,17 +1,16 @@
 package byransha.graph.view;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.util.function.Consumer;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
-import byransha.swing.MyLayout;
-import byransha.swing.MyLayout.Direction;
 
 public class AvailableActionsView extends NodeView<BNode> {
 	int edgeSize = 60;
@@ -34,12 +33,14 @@ public class AvailableActionsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(BNode n) {
-//		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
-		var actions = n.actions();
-		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
-		actions.forEach(a -> p.add(a.findView(JumpTo.class).createComponent()));
-		return p;
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		node.views().forEach(v -> {
+			try {
+				v.addTo(onComponentCreated);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
 	}
 
 	@Override

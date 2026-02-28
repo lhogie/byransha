@@ -9,21 +9,14 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.action.ActionResult;
-import byransha.graph.action.Delete;
-import byransha.graph.action.Export;
-import byransha.graph.action.Jump;
-import byransha.graph.action.Reset;
-import byransha.graph.action.search.Search;
-import byransha.graph.action.search.SearchRegexp;
-import byransha.graph.action.search.SearchText;
-import byransha.nodes.primitive.FileNode;
-import byransha.nodes.primitive.FileNode.openFile;
-import byransha.nodes.primitive.TextNode;
-import byransha.nodes.primitive.TextNode.saveNodeAction;
 import byransha.nodes.system.User;
 import toools.io.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
+	static {
+		add(NodeAction.class, NodeAction.exec.class);
+	}
+	
 	private final IN inputNode;
 	public boolean stopRequest;
 
@@ -72,7 +65,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public String whatIsThis() {
+	public final String whatIsThis() {
 		return "an action which " + whatItDoes();
 	}
 
@@ -88,18 +81,6 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		l.add(v);
 	}
 
-	static {
-		add(BNode.class, Export.class);
-		add(BNode.class, Reset.class);
-		add(BNode.class, Delete.class);
-		add(BNode.class, Search.class);
-		add(BNode.class, SearchText.class);
-		add(BNode.class, SearchRegexp.class);
-		add(BNode.class, Jump.class);
-		add(NodeAction.class, NodeAction.exec.class);
-		add(FileNode.class, openFile.class);
-		add(TextNode.class, saveNodeAction.class);
-	}
 
 	static public class exec<IN extends BNode, OUT extends BNode> extends NodeAction<NodeAction<IN, OUT>, OUT> {
 

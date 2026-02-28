@@ -1,6 +1,7 @@
 package byransha.graph.view;
 
 import java.awt.Dimension;
+import java.util.function.Consumer;
 
 import javax.swing.JComponent;
 import javax.swing.JTextArea;
@@ -45,8 +46,8 @@ public class StringNodeView extends NodeView<StringNode> {
 	}
 
 	@Override
-	public JComponent createComponentImpl(StringNode n) {
-		String s = n.get();
+	public void addTo(Consumer<JComponent> onComponentCreated) {
+		String s = node.get();
 		boolean multiline = s != null && s.indexOf('\n') >= 0;
 		var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
 		textComponent.setPreferredSize(new Dimension(200, 20));
@@ -63,7 +64,7 @@ public class StringNodeView extends NodeView<StringNode> {
 			}
 
 			private void changed(DocumentEvent e) {
-				n.set(textComponent.getText());
+				node.set(textComponent.getText());
 			}
 
 			@Override
@@ -72,13 +73,13 @@ public class StringNodeView extends NodeView<StringNode> {
 		});
 
 		int caret = textComponent.getCaretPosition();
-		n.valueChangeListeners.add(newValue -> {
+		node.valueChangeListeners.add(newValue -> {
 			if (!textComponent.getText().equals(newValue)) {
 				textComponent.setText(newValue);
 			}
 		});
 		textComponent.setCaretPosition(caret);
-		return textComponent;
+		onComponentCreated.accept(textComponent);
 	}
 
 }

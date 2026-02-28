@@ -2,6 +2,7 @@ package byransha.nodes.primitive;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.swing.JComponent;
 import javax.swing.JTextField;
@@ -16,6 +17,10 @@ import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
 
 public class IntNode extends PrimitiveValueNode<Integer> {
+	static {
+		NodeView.add(IntNode.class, IntNodeView.class);
+	}
+
 	public int min = 0, max = 10000;
 
 	public IntNode(BBGraph g) {
@@ -88,19 +93,16 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 		}
 
 		@Override
-		public JComponent createComponentImpl(IntNode n) {
-			int v = n.get();
-			var tf = new JTextField("" + v);
-			n.valueChangeListeners.add(newValue -> tf.setText("" + newValue));
-			return tf;
+		public void addTo(Consumer<JComponent> onComponentCreated) {
+			var tf = new JTextField("" + node.get());
+			node.valueChangeListeners.add(newValue -> tf.setText("" + newValue));
+			onComponentCreated.accept(tf);
 		}
 
 		@Override
 		public String whatItShows() {
 			return "editor for a number";
 		}
-
-
 
 		@Override
 		protected boolean allowsEditing() {

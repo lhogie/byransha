@@ -9,6 +9,9 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 
 public class FileNode extends BNode {
+	static {
+		NodeAction.add(FileNode.class, openFile.class);
+	}
 
 	File file;
 
@@ -45,7 +48,7 @@ public class FileNode extends BNode {
 				desktop.open(target.file);
 			}
 
-			return createResultNode(target); 
+			return createResultNode(target);
 		}
 
 		@Override

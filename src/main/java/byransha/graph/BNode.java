@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.ObjIntConsumer;
@@ -28,14 +29,47 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.graph.action.Delete;
+import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
+import byransha.graph.action.Jump;
+import byransha.graph.action.Reset;
+import byransha.graph.action.search.Search;
+import byransha.graph.action.search.SearchRegexp;
+import byransha.graph.action.search.SearchText;
+import byransha.graph.view.AvailableActionsView;
+import byransha.graph.view.DebugView;
+import byransha.graph.view.ErrorsView;
+import byransha.graph.view.InNavigationView;
+import byransha.graph.view.JumpTo;
+import byransha.graph.view.KishanView;
 import byransha.graph.view.NodeView;
+import byransha.graph.view.OutNavigationView;
+import byransha.graph.view.SmallInfoView;
 import byransha.nodes.system.User;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
 
 public abstract class BNode {
+	static {
+		NodeAction.add(BNode.class, Export.class);
+		NodeAction.add(BNode.class, Reset.class);
+		NodeAction.add(BNode.class, Delete.class);
+		NodeAction.add(BNode.class, Search.class);
+		NodeAction.add(BNode.class, SearchText.class);
+		NodeAction.add(BNode.class, SearchRegexp.class);
+		NodeAction.add(BNode.class, Jump.class);
+
+		NodeView.add(BNode.class, KishanView.class);
+		NodeView.add(BNode.class, SmallInfoView.class);
+		NodeView.add(BNode.class, JumpTo.class);
+		NodeView.add(BNode.class, OutNavigationView.class);
+		NodeView.add(BNode.class, InNavigationView.class);
+		NodeView.add(BNode.class, ErrorsView.class);
+		NodeView.add(BNode.class, AvailableActionsView.class);
+		NodeView.add(BNode.class, DebugView.class);
+	}
 
 	public final BBGraph g;
 	public boolean readOnly;
@@ -224,8 +258,8 @@ public abstract class BNode {
 		return r;
 	}
 
-	public List<NodeView> views() {
-		var r = new ArrayList<NodeView>();
+	public List<NodeView<BNode>> views() {
+		var r = new ArrayList<NodeView<BNode>>();
 
 		ascendSuperClassesUntil(BNode.class, c -> {
 			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
@@ -287,39 +321,45 @@ public abstract class BNode {
 		return refs;
 	}
 
-	public void bfs(int maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
+	public static class BFSResult {
+		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
+		public Set<BNode> visited = new HashSet<>();
+	}
+
+	public BFSResult bfs(int maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
 		List<BNode> q = new ArrayList<>();
-		var distances = new Object2IntOpenHashMap<BNode>();
-		var visited = new HashSet<BNode>();
+		var r = new BFSResult();
 
 		BNode c = this;
 		q.add(c);
-		distances.put(c, 0);
+		r.distances.put(c, 0);
 
 		while (!q.isEmpty()) {
 			c = q.removeFirst();
-			int d = distances.getInt(c);
+			int d = r.distances.getInt(c);
 
 			if (d > maxDistance) { // went too far
 				break;
 			}
 
-			if (d > 0) { // don't expose source node
+			if (d > 0 && consumer != null) { // don't expose source node
 				consumer.accept(c, d);
 			}
 
 			final var c_tmp = c;
 			c.forEachOut((f, n) -> {
-				if (!visited.contains(n)) {
-					visited.add(n);
+				if (!r.visited.contains(n)) {
+					r.visited.add(n);
 
 					if (nodeFilter.test(c_tmp)) {
 						q.add(n);
-						distances.put(n, d + 1);
+						r.distances.put(n, d + 1);
 					}
 				}
 			});
 		}
+
+		return r;
 	}
 
 	public boolean canSee(User user) {
