@@ -13,8 +13,8 @@ import toools.Stop;
 public class Authenticate extends NodeAction<BNode, User> {
 	public StringNode username, password;
 
-	public Authenticate(BBGraph g) {
-		super(g);
+	public Authenticate(BBGraph g, BNode node) {
+		super(g, node);
 		username = new StringNode(g, null, ".+");
 		password = new StringNode(g, null, ".+");
 	}
@@ -22,8 +22,8 @@ public class Authenticate extends NodeAction<BNode, User> {
 	@Override
 	public List<NodeAction> actions() {
 		var r = new ArrayList<NodeAction>();
-		r.add(new exec(g));
-		r.add(new Reset(g));
+		r.add(new exec(g, this));
+		r.add(new Reset(g, this));
 		return r;
 	}
 
@@ -38,7 +38,7 @@ public class Authenticate extends NodeAction<BNode, User> {
 			g.systemNode.setCurrentUser(newUser);
 		}
 
-		return new ActionResult<BNode, User>(g, this, newUser);
+		return createResultNode(newUser);
 	}
 
 	@Override

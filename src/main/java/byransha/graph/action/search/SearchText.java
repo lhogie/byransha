@@ -9,8 +9,8 @@ public class SearchText extends Search {
 	public StringNode searchText;
 	public BooleanNode caseSensitive;
 
-	public SearchText(BBGraph g) {
-		super(g);
+	public SearchText(BBGraph g, BNode src) {
+		super(g, src);
 		searchText = new StringNode(g, "", ".*");
 		caseSensitive = new BooleanNode(g, false);
 	}

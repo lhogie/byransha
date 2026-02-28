@@ -9,8 +9,8 @@ import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
-	public Export(BBGraph g) {
-		super(g);
+	public Export(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode<TextNode>> exec(BNode target) throws Throwable {
+	protected ActionResult<BNode, ListNode<TextNode>> exec(BNode target) throws Throwable {
 		var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
 		var csvs = new ArrayList<CSVData>();
 		target.toCSVStreams(csvs, true);

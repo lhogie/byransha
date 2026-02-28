@@ -6,8 +6,8 @@ import byransha.graph.NodeAction;
 import byransha.nodes.primitive.ValuedNode;
 
 final public class Reset extends NodeAction {
-	public Reset(BBGraph g) {
-		super(g);
+	public Reset(BBGraph g, NodeAction action) {
+		super(g, action);
 	}
 
 	@Override
@@ -16,7 +16,7 @@ final public class Reset extends NodeAction {
 	}
 
 	@Override
-	public ActionResult exec(BNode target) {
+	protected ActionResult exec(BNode target) {
 		target.forEachOutField(f -> {
 			try {
 				var v = (BNode) f.get(target);

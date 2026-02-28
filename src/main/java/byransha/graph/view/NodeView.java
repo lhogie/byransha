@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -21,8 +20,11 @@ import byransha.nodes.primitive.ListNode.ElementView;
 import byransha.nodes.primitive.StringNode;
 
 public abstract class NodeView<N extends BNode> extends BNode {
-	public NodeView(BBGraph g) {
+	private final N node;
+
+	public NodeView(BBGraph g, N node) {
 		super(g);
+		this.node = node;
 	}
 
 	public String name() {
@@ -39,15 +41,15 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return r;
 	}
 
-	public final JComponent createComponent(N n) {
+	public final JComponent createComponent() {
 		try {
-			var c = createComponentImpl(n);
+			var c = createComponentImpl(node);
 //			c.setPreferredSize(new Dimension(500, 200));
 			return c;
 		} catch (Throwable err) {
 			g.systemNode.errorLog.add(err);
 			err.printStackTrace();
-			return new JLabel("can't create list renderer for " + n);
+			return g.systemNode.errorLog.findView(JumpTo.class).createComponent();
 		}
 	}
 

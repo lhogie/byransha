@@ -24,6 +24,7 @@ public class ShellServer {
 
 	private final Map<String, Command> commands = new HashMap<>();
 	private final BBGraph graph;
+	private Object map;
 
 	public ShellServer(BBGraph graph, int port) throws Throwable {
 		this.graph = graph;
@@ -73,37 +74,25 @@ public class ShellServer {
 						var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 						var out = new PrintWriter(clientSocket.getOutputStream(), true)) {
 
-					out.println("Welcome to Byransha!");
-					
 					while (true) {
 						String line = in.readLine();
+						System.out.println("line: " + line);
 
 						if (line == null)
 							break;
 
 						line = line.trim();
 
-						if (line.startsWith(".")) { // run action
-							var cmdName = line.substring(1);
-							var a = findAction(currentNode(), cmdName);
+						if (line.isEmpty())
+							continue;
 
-							if (a == null) {
-								out.println(
-										"no such action " + cmdName + " on node " + graph.currentUser().currentNode()
-												+ " of " + graph.currentUser().currentNode().getClass());
-							} else {
-								var r = a.exec(graph.currentUser().currentNode());
+						line = line.trim();
 
-								for (var v : r.result.views()) {
-									out.println(v.prettyName() + ":");
-									out.println(v.toJSON(graph.currentUser().currentNode()).toPrettyString());
-								}
-
-								out.println("*" + a.prettyName() + " completed in " + r.durationMs() + "ms:");
-							}
-
-						}
-						if (line.startsWith("/")) { // show view
+						if (line.startsWith("auth ")) {
+							var username = line.substring("auth ".length() + 1).trim();
+							var userhash = username.hashCode();
+							out.println(userhash);
+						} else if (line.startsWith(".")) { // show view
 							var viewName = line.substring(1);
 							var view = findView(currentNode(), viewName);
 
@@ -114,8 +103,10 @@ public class ShellServer {
 								var r = view.toJSON(currentNode());
 								out.println(r.toPrettyString());
 							}
-						} else {
-							Command cmd = commands.get(line);
+						} else if (line.startsWith("/")) { // local command
+							var cmdName = line.substring(1);
+							Command cmd = commands.get(cmdName);
+
 							if (cmd != null) {
 								try {
 									cmd.action.exec(out);
@@ -123,10 +114,26 @@ public class ShellServer {
 									e.printStackTrace();
 								}
 							} else {
-
 								out.println("Unknown command: " + line);
 							}
+						} else {
+							var actionName = line;
+							var a = findAction(currentNode(), actionName);
 
+							if (a == null) {
+								out.println(
+										"no such action " + actionName + " on node " + graph.currentUser().currentNode()
+												+ " of " + graph.currentUser().currentNode().getClass());
+							} else {
+								var r = a.exec();
+
+								for (var v : r.result.views()) {
+									out.println(v.prettyName() + ":");
+									out.println(v.toJSON(graph.currentUser().currentNode()).toPrettyString());
+								}
+
+								out.println("*" + a.prettyName() + " completed in " + r.durationMs() + "ms:");
+							}
 						}
 
 						out.println();

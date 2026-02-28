@@ -1,10 +1,7 @@
 package byransha.graph.view;
 
 import java.awt.Color;
-import java.awt.GridBagConstraints;
-import java.awt.GridLayout;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -13,12 +10,14 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.swing.MyLayout;
+import byransha.swing.MyLayout.Direction;
 
 public class AvailableActionsView extends NodeView<BNode> {
 	int edgeSize = 60;
 
-	public AvailableActionsView(BBGraph g) {
-		super(g);
+	public AvailableActionsView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -37,29 +36,9 @@ public class AvailableActionsView extends NodeView<BNode> {
 	@Override
 	public JComponent createComponentImpl(BNode n) {
 //		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
-		var actions= n.actions();
-		var p = new JPanel(new GridLayout( actions.size(), 1));
-		GridBagConstraints c = new GridBagConstraints();
-		c.anchor = GridBagConstraints.WEST;
-		c.weightx = 1.0;
-		actions.forEach(a -> {
-			var b = new JButton(a.prettyName());
-//			b.setPreferredSize(new Dimension(edgeSize, edgeSize));
-			p.add(b, c);
-
-			b.addActionListener(l -> {
-				try {
-					var nextNode = a.exec(n);
-
-					if (currentUser().currentNode() != nextNode) {
-						currentUser().jumpTo(nextNode);
-					}
-				} catch (Throwable err) {
-					g.systemNode.errorLog.add(err);
-					throw err instanceof RuntimeException re ? re : new RuntimeException(err);
-				}
-			});
-		});
+		var actions = n.actions();
+		var p = new JPanel(new MyLayout(Direction.HORIZONTAL));
+		actions.forEach(a -> p.add(a.findView(JumpTo.class).createComponent()));
 		return p;
 	}
 

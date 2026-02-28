@@ -15,8 +15,8 @@ import byransha.swing.MyLayout.Direction;
 
 public class OutNavigationView extends NodeView<BNode> {
 
-	public OutNavigationView(BBGraph g) {
-		super(g);
+	public OutNavigationView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class OutNavigationView extends NodeView<BNode> {
 
 		n.forEachOut((name, out) -> {
 			p.add(out.views().stream().filter(v -> v instanceof JumpTo).map(v -> (JumpTo) v).toList().getFirst()
-					.createComponent(out), c);
+					.createComponent(), c);
 			c.gridx++;
 		});
 

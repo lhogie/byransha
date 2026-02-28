@@ -190,7 +190,7 @@ public abstract class BNode {
 	}
 
 	public void forEachOutField(Consumer<Field> consumer) {
-		forEachSuperClassNode(c -> {
+		ascendSuperClassesUntil(BNode.class, c -> {
 			for (var f : c.getDeclaredFields()) {
 				if ((f.getModifiers() & Modifier.STATIC) != 0)
 					continue;
@@ -207,7 +207,7 @@ public abstract class BNode {
 	public List<NodeAction> actions() {
 		var r = new ArrayList<NodeAction>();
 
-		forEachSuperClassNode(c -> {
+		ascendSuperClassesUntil(BNode.class, c -> {
 			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
 					var action = (NodeAction) v.getConstructor(BBGraph.class).newInstance(g);
@@ -227,11 +227,10 @@ public abstract class BNode {
 	public List<NodeView> views() {
 		var r = new ArrayList<NodeView>();
 
-		forEachSuperClassNode(c -> {
+		ascendSuperClassesUntil(BNode.class, c -> {
 			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
 				try {
-					var view = (NodeView) v.getConstructor(BBGraph.class).newInstance(g);
-					r.add(view);
+					r.add((NodeView) v.getConstructor(BBGraph.class, c).newInstance(g, this));
 				} catch (Throwable err) {
 					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
 				}
@@ -241,12 +240,12 @@ public abstract class BNode {
 		return r;
 	}
 
-	public void forEachSuperClassNode(Consumer<Class<? extends BNode>> consumer) {
-		for (Class c = getClass(); c != BNode.class; c = c.getSuperclass()) {
+	public void ascendSuperClassesUntil(Class<? extends BNode> until, Consumer<Class<? extends BNode>> consumer) {
+		for (Class c = getClass(); c != until; c = c.getSuperclass()) {
 			consumer.accept(c);
 		}
 
-		consumer.accept(BNode.class);
+		consumer.accept(until);
 	}
 
 	public void forEachOut(BiConsumer<String, BNode> consumer) {
@@ -385,6 +384,13 @@ public abstract class BNode {
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 
 	public ObjectNode toJSONNode() {
+		return toJSONNode(1);
+	}
+
+	public ObjectNode toJSONNode(int depth) {
+		if (depth < 0)
+			return null;
+
 		ObjectNode r = new ObjectNode(factory);
 		r.put("id", id());
 		r.put("class", getClass().getName());
@@ -407,8 +413,7 @@ public abstract class BNode {
 
 		var outsNode = new ObjectNode(factory);
 		forEachOut((name, out) -> {
-			outsNode.put(name, out.id());
-
+			outsNode.put(name, out.toJSONNode(depth - 1));
 		});
 		r.set("outs", outsNode);
 

@@ -10,8 +10,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.Delete;
-import byransha.graph.action.Reset;
 import byransha.graph.action.Export;
+import byransha.graph.action.Jump;
+import byransha.graph.action.Reset;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
@@ -23,10 +24,12 @@ import byransha.nodes.system.User;
 import toools.io.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
+	private final IN inputNode;
 	public boolean stopRequest;
 
-	public NodeAction(BBGraph g) {
+	public NodeAction(BBGraph g, IN inputNode) {
 		super(g);
+		this.inputNode = inputNode;
 	}
 
 	@Override
@@ -35,6 +38,10 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		r.put("canExecute", canExecute(currentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;
+	}
+
+	protected final ActionResult<IN, OUT> createResultNode(OUT out) {
+		return new ActionResult<IN, OUT>(g, this, out);
 	}
 
 	public boolean canExecute(User user) {
@@ -53,7 +60,11 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	public abstract String whatItDoes();
 
-	public abstract ActionResult<IN, OUT> exec(IN target) throws Throwable;
+	public final ActionResult<IN, OUT> exec() throws Throwable {
+		return exec(inputNode);
+	}
+
+	protected abstract ActionResult<IN, OUT> exec(IN in) throws Throwable;
 
 	@Override
 	public Color getColor() {
@@ -84,15 +95,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		add(BNode.class, Search.class);
 		add(BNode.class, SearchText.class);
 		add(BNode.class, SearchRegexp.class);
+		add(BNode.class, Jump.class);
 		add(NodeAction.class, NodeAction.exec.class);
 		add(FileNode.class, openFile.class);
 		add(TextNode.class, saveNodeAction.class);
 	}
 
-	static public class exec extends NodeAction<NodeAction, BNode> {
+	static public class exec<IN extends BNode, OUT extends BNode> extends NodeAction<NodeAction<IN, OUT>, OUT> {
 
-		public exec(BBGraph g) {
-			super(g);
+		public exec(BBGraph g, NodeAction<IN, OUT> inputNode) {
+			super(g, inputNode);
 		}
 
 		@Override
@@ -105,11 +117,11 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public ActionResult exec(NodeAction target) throws Throwable {
-			Cout.debugSuperVisible("exec " + target.prettyName());
-			var r = target.exec(target);
+		public ActionResult<NodeAction<IN, OUT>, OUT> exec(NodeAction<IN, OUT> action) throws Throwable {
+			Cout.debugSuperVisible("exec " + action.prettyName());
+			var r = action.exec();
 			r.startDateMs = System.currentTimeMillis();
-			return r;
+			return createResultNode(r.result);
 		}
 
 		@Override

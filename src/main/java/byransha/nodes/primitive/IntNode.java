@@ -76,8 +76,8 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 
 	public static class IntNodeView extends NodeView<IntNode> {
 
-		public IntNodeView(BBGraph g) {
-			super(g);
+		public IntNodeView(BBGraph g, IntNode i) {
+			super(g, i);
 		}
 
 		@Override
@@ -91,7 +91,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 		public JComponent createComponentImpl(IntNode n) {
 			int v = n.get();
 			var tf = new JTextField("" + v);
-			n.listeners.add(newValue -> tf.setText("" + newValue));
+			n.valueChangeListeners.add(newValue -> tf.setText("" + newValue));
 			return tf;
 		}
 

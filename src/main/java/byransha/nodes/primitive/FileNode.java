@@ -7,7 +7,6 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
-import byransha.nodes.system.User;
 
 public class FileNode extends BNode {
 
@@ -29,8 +28,8 @@ public class FileNode extends BNode {
 
 	public static class openFile extends NodeAction<FileNode, FileNode> {
 
-		protected openFile(BBGraph g) {
-			super(g);
+		protected openFile(BBGraph g, FileNode f) {
+			super(g, f);
 		}
 
 		@Override
@@ -46,7 +45,7 @@ public class FileNode extends BNode {
 				desktop.open(target.file);
 			}
 
-			return new ActionResult<FileNode, FileNode>(g, this, target);
+			return createResultNode(target); 
 		}
 
 		@Override

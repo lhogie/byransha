@@ -10,8 +10,8 @@ import byransha.nodes.primitive.ListNode;
 public class Search extends NodeAction<BNode, ListNode> {
 	public IntNode depth;
 
-	public Search(BBGraph g) {
-		super(g);
+	public Search(BBGraph g, BNode src) {
+		super(g, src);
 		depth = new IntNode(g);
 		depth.set(1);
 		depth.setBounds(0, 100000);
@@ -21,7 +21,7 @@ public class Search extends NodeAction<BNode, ListNode> {
 	public ActionResult<BNode, ListNode> exec(BNode target) {
 		var list = new ListNode(g);
 		target.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
-		return new ActionResult<BNode, ListNode>(g, this, list);
+		return createResultNode(list);
 	}
 
 	protected boolean accept(BNode n) {

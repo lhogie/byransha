@@ -151,8 +151,8 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	public static class ElementView extends NodeView<ListNode<BNode>> {
 
-		public ElementView(BBGraph g) {
-			super(g);
+		public ElementView(BBGraph g, ListNode<BNode> l) {
+			super(g, l);
 		}
 
 		@Override
@@ -176,7 +176,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 				@Override
 				public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
 						boolean isSelected, boolean cellHasFocus) {
-					return value.views().getFirst().createComponent(value);
+					return value.views().getFirst().createComponent();
 				}
 			});
 

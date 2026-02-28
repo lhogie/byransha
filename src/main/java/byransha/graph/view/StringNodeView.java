@@ -18,8 +18,8 @@ import byransha.nodes.primitive.StringNode;
 
 public class StringNodeView extends NodeView<StringNode> {
 
-	public StringNodeView(BBGraph g) {
-		super(g);
+	public StringNodeView(BBGraph g, StringNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public class StringNodeView extends NodeView<StringNode> {
 		return "string editor";
 	}
 
-	protected  boolean kishanable() {
+	protected boolean kishanable() {
 		return true;
 	}
 
@@ -72,7 +72,7 @@ public class StringNodeView extends NodeView<StringNode> {
 		});
 
 		int caret = textComponent.getCaretPosition();
-		n.listeners.add(newValue -> {
+		n.valueChangeListeners.add(newValue -> {
 			if (!textComponent.getText().equals(newValue)) {
 				textComponent.setText(newValue);
 			}

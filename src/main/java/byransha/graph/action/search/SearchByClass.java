@@ -15,12 +15,12 @@ import toools.Stop;
 public class SearchByClass extends Search {
 	public ListNode<ClassNode> availableClasses;
 
-	public SearchByClass(BBGraph g) {
-		super(g);
+	public SearchByClass(BBGraph g, BNode src) {
+		super(g, src);
 		availableClasses = new ListNode(g);
 
 		// update the list of classes when the depth changes
-		depth.listeners.add(e -> {
+		depth.valueChangeListeners.add(e -> {
 			var classes = new HashSet<Class>();
 			bfs(depth.get(), n -> true, (node, d) -> classes.add(node.getClass()));
 			var classList = new ArrayList<Class>(classes);

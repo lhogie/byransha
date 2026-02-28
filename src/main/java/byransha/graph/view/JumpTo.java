@@ -10,8 +10,8 @@ import byransha.graph.BNode;
 
 public class JumpTo extends NodeView<BNode> {
 
-	public JumpTo(BBGraph g) {
-		super(g);
+	public JumpTo(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	protected boolean kishanable() {

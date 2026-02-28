@@ -14,8 +14,8 @@ import byransha.nodes.system.User;
 public class AddNode extends NodeAction<BNode, BNode> {
 	ListNode<StringNode> classes;
 
-	protected AddNode(BBGraph g) {
-		super(g);
+	protected AddNode(BBGraph g, BNode node) {
+		super(g, node);
 		classes = new ListNode<StringNode>(g);
 		addClass(Person.class);
 		addClass(Office.class);

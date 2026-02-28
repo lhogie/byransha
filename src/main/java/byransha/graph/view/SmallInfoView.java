@@ -11,8 +11,8 @@ import byransha.graph.BNode;
 
 public class SmallInfoView extends NodeView<BNode> {
 
-	public SmallInfoView(BBGraph g) {
-		super(g);
+	public SmallInfoView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override

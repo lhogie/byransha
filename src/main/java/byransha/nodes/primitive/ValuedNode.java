@@ -9,7 +9,7 @@ import byransha.graph.BNode;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
-	public final List<ValueNodeListener<V>> listeners = new ArrayList<>();
+	public final List<ValueNodeListener<V>> valueChangeListeners = new ArrayList<>();
 
 	public ValuedNode(BBGraph g) {
 		super(g);
@@ -57,7 +57,7 @@ public abstract class ValuedNode<V> extends BNode {
 		value = newValue;
 
 		if (valueChanging) {
-			listeners.forEach(l -> l.valueChangedTo(newValue));
+			valueChangeListeners.forEach(l -> l.valueChangedTo(newValue));
 		}
 	}
 

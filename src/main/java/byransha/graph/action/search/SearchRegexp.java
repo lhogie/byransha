@@ -7,8 +7,8 @@ import byransha.nodes.primitive.StringNode;
 public class SearchRegexp extends Search {
 	public StringNode regexp;
 
-	public SearchRegexp(BBGraph g) {
-		super(g);
+	public SearchRegexp(BBGraph g, BNode srcNode) {
+		super(g, srcNode);
 		regexp = new StringNode(g, ".*", ".+");
 	}
 

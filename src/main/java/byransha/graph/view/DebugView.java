@@ -10,8 +10,8 @@ import byransha.graph.BNode;
 
 public class DebugView extends NodeView<BNode> {
 
-	public DebugView(BBGraph g) {
-		super(g);
+	public DebugView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override

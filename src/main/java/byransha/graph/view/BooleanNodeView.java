@@ -15,8 +15,8 @@ import byransha.nodes.primitive.BooleanNode;
 
 public class BooleanNodeView extends NodeView<BooleanNode> {
 
-	protected BooleanNodeView(BBGraph g) {
-		super(g);
+	protected BooleanNodeView(BBGraph g, BooleanNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -44,7 +44,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 		no.addActionListener(e -> n.set(false));
 		dunno.addActionListener(e -> n.set(null));
 
-		n.listeners.add(newValue -> {
+		n.valueChangeListeners.add(newValue -> {
 			if (newValue == null) {
 				dunno.setSelected(true);
 			} else if (newValue == true) {
@@ -67,7 +67,6 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 		return "boolean editor";
 	}
 
-	
 	@Override
 	protected boolean allowsEditing() {
 		return true;

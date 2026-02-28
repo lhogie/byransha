@@ -1,21 +1,20 @@
 package byransha.graph.view;
 
-import java.awt.Color;
-import java.awt.GridLayout;
-import java.awt.TextField;
-
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.swing.MyTextPane;
 
 public class KishanView extends NodeView<BNode> {
 
-	public KishanView(BBGraph g) {
-		super(g);
+	public KishanView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -30,28 +29,26 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public JComponent createComponentImpl(BNode n) {
-		var gl = new GridLayout();
-		JPanel p = new JPanel(gl);
+		var p = new MyTextPane();
+
 		n.forEachOut((name, out) -> {
 			if (out != g) {
-				var tf = new TextField(name);
-				tf.setForeground(Color.black);
-				tf.setEditable(false);
-				p.add(tf);
+				var pp = new JPanel();
+				p.add(new JCheckBox());
+				p.add(new JLabel(name));
 
 				for (var v : out.views()) {
 					if (v.kishanable()) {
-						p.add(v.createComponent(out));
+						p.add(v.createComponent());
+						break;
 					}
 				}
+
+				p.append(pp);
+				p.append(" ");
 			}
 		});
 
-		int nbColumns = 2;
-		gl.setColumns(nbColumns);
-		gl.setRows(p.getComponentCount() / nbColumns);
-		p.revalidate();
-		p.repaint();
 		return p;
 	}
 

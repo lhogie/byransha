@@ -3,7 +3,6 @@ package byransha.graph.action;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
-import byransha.nodes.system.User;
 
 public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 	static {
@@ -35,8 +34,8 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 
 	public static class stop extends NodeAction<ActionResult, NodeAction> {
 
-		protected stop(BBGraph g) {
-			super(g);
+		protected stop(BBGraph g, ActionResult r) {
+			super(g, r);
 		}
 
 		@Override
@@ -45,8 +44,8 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		}
 
 		@Override
-		public ActionResult exec(ActionResult t) throws Throwable {
-			t.runningAction.stopRequest = true;
+		protected ActionResult exec(ActionResult r) throws Throwable {
+			r.runningAction.stopRequest = true;
 			return null;
 		}
 

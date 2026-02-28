@@ -15,8 +15,8 @@ import byransha.swing.MyLayout.Direction;
 
 public class InNavigationView extends NodeView<BNode> {
 
-	public InNavigationView(BBGraph g) {
-		super(g);
+	public InNavigationView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class InNavigationView extends NodeView<BNode> {
 		c.weightx = 1.0;
 		n.computeIns().forEach(in -> {
 			p.add(in.source().views().stream().filter(v -> v instanceof JumpTo).map(v -> (JumpTo) v).toList().getFirst()
-					.createComponent(in.source()), c);
+					.createComponent(), c);
 			c.gridx++;
 		});
 

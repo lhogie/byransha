@@ -1,7 +1,5 @@
 package byransha.graph.view;
 
-import java.awt.GridBagLayout;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,8 +14,8 @@ import byransha.swing.MyLayout.Direction;
 
 public class ErrorsView extends NodeView<BNode> {
 
-	public ErrorsView(BBGraph g) {
-		super(g);
+	public ErrorsView(BBGraph g, BNode node) {
+		super(g, node);
 	}
 
 	@Override
