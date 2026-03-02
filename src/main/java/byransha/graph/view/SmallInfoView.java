@@ -28,7 +28,7 @@ public class SmallInfoView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		onComponentCreated.accept(new JLabel(currentUser() + " - " + currentUser().currentNode().prettyName() + " ("
 				+ currentUser().currentNode().whatIsThis() + ")"));
 	}

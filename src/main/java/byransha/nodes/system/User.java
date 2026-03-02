@@ -3,30 +3,23 @@ package byransha.nodes.system;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.sun.net.httpserver.HttpsExchange;
-
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
+import byransha.graph.NodeAction;
 import byransha.nodes.primitive.StringNode;
-import byransha.web.EndpointResponse;
-import byransha.web.EndpointTextResponse;
-import byransha.web.NodeEndpoint;
-import byransha.web.TechnicalView;
-import byransha.web.WebServer;
 
 public class User extends BNode {
 	public final StringNode name;
-	public int passwordHash;
-	public final StringNode passwordNode;
+	public String passwordHash;
+	public final StringNode password;
 	public final HistoryNode history;
 	public final List<NavigationListener> listeners = new ArrayList<>();
 
-	public User(BBGraph g, String userName, int passwordHash) {
+	public User(BBGraph g, String userName, String passwordHash) {
 		super(g);
 		name = new StringNode(g, userName, ".+");
 		this.passwordHash = passwordHash;
-		passwordNode = new StringNode(g, null, ".+");
+		password = new StringNode(g, null, ".+");
 		history = new HistoryNode(g);
 	}
 
@@ -50,36 +43,7 @@ public class User extends BNode {
 	}
 
 	public boolean accept(String username, String p) {
-		return name.get().equals(username) && passwordNode.get().equals(p);
-	}
-
-	public static class UserView extends NodeEndpoint<User> implements TechnicalView {
-
-		public UserView(BBGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "show some things about users";
-		}
-
-		@Override
-		public boolean sendContentByDefault() {
-			return false;
-		}
-
-		@Override
-		public EndpointResponse exec(ObjectNode input, User user, WebServer webServer, HttpsExchange exchange,
-				User node) throws Throwable {
-			return new EndpointTextResponse("text/html", pw -> {
-				pw.println("<ul>");
-				pw.print("<li>Navigation history: ");
-				// user.stack.forEach(n -> pw.print(linkTo(n, "X")));
-				pw.println("<li>admin? " + false);
-				pw.println("</ul>");
-			});
-		}
+		return name.get().equals(username) && password.get().equals(p);
 	}
 
 	@Override
@@ -92,10 +56,18 @@ public class User extends BNode {
 	}
 
 	public void jumpTo(BNode n) {
-		if (currentNode() != n) {
+		if (currentNode() == n)
+			throw new IllegalArgumentException("already on this node");
+
+		if (n instanceof NodeAction a && a.execStraightAway) {
+			try {
+				jumpTo(a.exec());
+			} catch (Throwable err) {
+				jumpTo(error(err, false));
+			}
+		} else {
 			history.addToHistory(n);
 			listeners.forEach(l -> l.userJumpedTo(n));
 		}
 	}
-
 }

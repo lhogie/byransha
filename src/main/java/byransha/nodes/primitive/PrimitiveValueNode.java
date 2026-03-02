@@ -6,8 +6,6 @@ import byransha.graph.BBGraph;
 
 public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
 
-	boolean undefined = false;
-
 	public PrimitiveValueNode(BBGraph g) {
 		super(g);
 	}

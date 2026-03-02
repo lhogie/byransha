@@ -1,28 +1,28 @@
 package byransha.graph;
 
 import java.awt.Color;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import butils.ByUtils;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.system.User;
 import toools.io.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
-	static {
-		add(NodeAction.class, NodeAction.exec.class);
-	}
-	
-	private final IN inputNode;
-	public boolean stopRequest;
+	protected final IN inputNode;
+	public boolean stopRequested = false;
+	private Thread thread;
+	public boolean execStraightAway = false;
 
 	public NodeAction(BBGraph g, IN inputNode) {
 		super(g);
 		this.inputNode = inputNode;
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.add(new exec<OUT>(g, this));
 	}
 
 	@Override
@@ -47,17 +47,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	@Override
 	public String prettyName() {
-		// camel case to words
-		return getClass().getSimpleName().replaceAll("(?<=[a-z])(?=[A-Z])", " ");
+		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
+	}
+
+	public String technicalName() {
+		return prettyName().replace(' ', '_').toLowerCase();
 	}
 
 	public abstract String whatItDoes();
 
-	public final ActionResult<IN, OUT> exec() throws Throwable {
-		return exec(inputNode);
-	}
-
-	protected abstract ActionResult<IN, OUT> exec(IN in) throws Throwable;
+	public abstract ActionResult<IN, OUT> exec() throws Throwable;
 
 	@Override
 	public Color getColor() {
@@ -69,28 +68,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		return "an action which " + whatItDoes();
 	}
 
-	public static final Map<Class, List<Class>> actions = new HashMap<>();
+	static public class exec<OUT extends BNode> extends NodeAction<NodeAction, OUT> {
 
-	public static void add(Class c, Class v) {
-		var l = actions.get(c);
-
-		if (l == null) {
-			actions.put(c, l = new ArrayList<>());
-		}
-
-		l.add(v);
-	}
-
-
-	static public class exec<IN extends BNode, OUT extends BNode> extends NodeAction<NodeAction<IN, OUT>, OUT> {
-
-		public exec(BBGraph g, NodeAction<IN, OUT> inputNode) {
+		public exec(BBGraph g, NodeAction inputNode) {
 			super(g, inputNode);
+			execStraightAway = true;
 		}
 
 		@Override
 		public String whatItDoes() {
-			return "trigger its action";
+			return "trigger the action on the source node";
 		}
 
 		boolean execStraight() {
@@ -98,23 +85,19 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public ActionResult<NodeAction<IN, OUT>, OUT> exec(NodeAction<IN, OUT> action) throws Throwable {
-			Cout.debugSuperVisible("exec " + action.prettyName());
-			var r = action.exec();
-			r.startDateMs = System.currentTimeMillis();
-			return createResultNode(r.result);
+		public ActionResult<NodeAction, OUT> exec() throws Throwable {
+			Cout.debugSuperVisible("exec " + inputNode.prettyName());
+			var startDateMs = System.currentTimeMillis();
+			var r = inputNode.exec();
+			r.durationMs = System.currentTimeMillis() - startDateMs;
+			return r;
 		}
 
 		@Override
 		public String prettyName() {
 			return "Run";
 		}
+
 	}
 
-	public String commandName() {
-		var s = getClass().getSimpleName().toLowerCase();
-		if (s.endsWith("action"))
-			s = s.substring(0, s.length() - 6);
-		return s;
-	}
 }

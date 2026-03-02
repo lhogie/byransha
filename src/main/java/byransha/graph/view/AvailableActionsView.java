@@ -33,13 +33,13 @@ public class AvailableActionsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
-		node.views().forEach(v -> {
-			try {
-				v.addTo(onComponentCreated);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
+		node.actions().forEach(a -> {
+			a.views().forEach(v -> {
+				if (v instanceof JumpTo jt) {
+					jt.createSwingComponents(onComponentCreated);
+				}
+			});
 		});
 	}
 

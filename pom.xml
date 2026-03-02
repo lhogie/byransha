@@ -15,11 +15,17 @@
 			<url>https://jitpack.io</url>
 		</repository>
 	</repositories>
-	<dependencies><dependency>
-    <groupId>io.github.classgraph</groupId>
-    <artifactId>classgraph</artifactId>
-    <version>4.8.165</version>
-</dependency>
+	<dependencies>
+		<dependency>
+			<groupId>io.github.classgraph</groupId>
+			<artifactId>classgraph</artifactId>
+			<version>4.8.165</version>
+		</dependency>
+		<dependency>
+			<groupId>de.mkammerer</groupId>
+			<artifactId>argon2-jvm</artifactId>
+			<version>2.11</version>
+		</dependency>
 		<dependency>
 			<groupId>com.formdev</groupId>
 			<artifactId>flatlaf-extras</artifactId>

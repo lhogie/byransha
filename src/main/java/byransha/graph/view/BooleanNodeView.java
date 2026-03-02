@@ -14,7 +14,7 @@ import byransha.nodes.primitive.BooleanNode;
 
 public class BooleanNodeView extends NodeView<BooleanNode> {
 
-	protected BooleanNodeView(BBGraph g, BooleanNode node) {
+	public BooleanNodeView(BBGraph g, BooleanNode node) {
 		super(g, node);
 	}
 
@@ -28,7 +28,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		var yes = new JRadioButton("yes");
 		var no = new JRadioButton("no");
 		var dunno = new JRadioButton("don't know");

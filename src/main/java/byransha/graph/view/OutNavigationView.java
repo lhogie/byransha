@@ -29,11 +29,17 @@ public class OutNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		node.forEachOut((name, out) -> {
-			out.views().stream().filter(v -> v instanceof JumpTo).map(v -> (JumpTo) v).toList().getFirst()
-					.addTo(onComponentCreated);
+			for (var v : out.views()) {
+				if (v instanceof JumpTo j) {
+					j.createSwingComponents(onComponentCreated);
+					return;
+				}
+			}				
+			throw new IllegalStateException(out.getClass() + " has no jump view" );
 		});
+
 	}
 
 	@Override

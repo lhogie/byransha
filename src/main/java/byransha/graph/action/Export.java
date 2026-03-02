@@ -29,10 +29,10 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	protected ActionResult<BNode, ListNode<TextNode>> exec(BNode target) throws Throwable {
+	public ActionResult<BNode, ListNode<TextNode>> exec() throws Throwable {
 		var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
 		var csvs = new ArrayList<CSVData>();
-		target.toCSVStreams(csvs, true);
+		inputNode.toCSVStreams(csvs, true);
 		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
 				.forEach(n -> r.get().add(n));
 		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode().toPrettyString()));

@@ -2,24 +2,27 @@ package byransha.nodes.primitive;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import byransha.graph.BBGraph;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
+import byransha.graph.view.TextNodeView;
 
 public class TextNode extends PrimitiveValueNode<String> {
-	static {
-		NodeAction.add(TextNode.class, saveNodeAction.class);
-	}
-
 	StringNode labelNode;
 
 	public TextNode(BBGraph g, String label, String data) {
 		super(g);
 		set(data);
 		labelNode = new StringNode(g, label, ".+");
+	}
+
+	@Override
+	public void createViews() {
+		cachedViews.add(new TextNodeView(g, this));
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.add(new saveNodeAction(g, this));
 	}
 
 	@Override
@@ -50,34 +53,5 @@ public class TextNode extends PrimitiveValueNode<String> {
 	@Override
 	public String defaultValue() {
 		return null;
-	}
-
-	public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
-		StringNode fileNameNode;
-
-		protected saveNodeAction(BBGraph g, TextNode textNode) {
-			super(g, textNode);
-			fileNameNode = new StringNode(g, "example.txt", ".+\\..+");
-		}
-
-		@Override
-		protected ActionResult<TextNode, FileNode> exec(TextNode target)
-				throws IllegalArgumentException, IllegalAccessException, IOException {
-			var path = Path.of(fileNameNode.getOrDefault(prettyName() + "-" + id() + ".txt"));
-			Files.write(path, get().getBytes());
-			var fileNode = new FileNode(g);
-			fileNode.file = path.toFile();
-			return createResultNode(fileNode);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "save this text to a file";
-		}
-
-		@Override
-		public String prettyName() {
-			return "Save";
-		}
 	}
 }

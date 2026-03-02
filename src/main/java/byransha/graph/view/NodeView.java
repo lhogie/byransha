@@ -1,10 +1,6 @@
 package byransha.graph.view;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import javax.swing.JComponent;
@@ -17,27 +13,11 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 
 public abstract class NodeView<N extends BNode> extends BNode {
-	public static final Map<Class, List<Class>> views = new HashMap<>();
-
-	public static void add(Class c, Class v) {
-		var l = views.get(c);
-
-		if (l == null) {
-			views.put(c, l = new ArrayList<>());
-		}
-
-		l.add(v);
-	}
-
 	public final N node;
 
 	public NodeView(BBGraph g, N node) {
 		super(g);
 		this.node = node;
-	}
-
-	public String name() {
-		return getClass().getSimpleName().toLowerCase();
 	}
 
 	public final JsonNode toJSON() {
@@ -70,12 +50,16 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
 	}
 
+	public String technicalName() {
+		return prettyName().replace(' ', '_').toLowerCase();
+	}
+
 	protected abstract boolean allowsEditing();
 
 	protected boolean kishanable() {
 		return false;
 	}
 
-	public abstract void addTo(Consumer<JComponent> c) throws IOException;
+	public abstract void createSwingComponents(Consumer<JComponent> c) throws IOException;
 
 }

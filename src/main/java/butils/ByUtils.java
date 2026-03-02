@@ -24,6 +24,7 @@ public class ByUtils {
 		sizeOfPrimitive.put(float.class, 4);
 		sizeOfPrimitive.put(double.class, 8);
 	}
+
 	public static String camelToWords(String text) {
 	    if (text == null || text.isBlank()) return text;
 
@@ -33,6 +34,7 @@ public class ByUtils {
 	    // 2. Met la première lettre en majuscule (Optionnel)
 	    return result.substring(0, 1).toUpperCase() + result.substring(1);
 	}
+	
 	public static Field findField(Class<?> clazz, String fieldName) throws NoSuchFieldException {
 		try {
 			var field = clazz.getDeclaredField(fieldName);
@@ -119,6 +121,18 @@ public class ByUtils {
 	public static void ensure(boolean b) {
 		if (!b)
 			throw new IllegalStateException();
+	}
+	
+	public static String ms2string(long ms) {
+		if (ms < 1000) {
+			return ms + "ms";
+		} else if (ms < 60 * 1000) {
+			return String.format("%.2fs", ms / 1000.0);
+		} else if (ms < 60 * 60 * 1000) {
+			return String.format("%.2fm", ms / (60 * 1000.0));
+		} else {
+			return String.format("%.2fh", ms / (60 * 60 * 1000.0));
+		}
 	}
 
 }

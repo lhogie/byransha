@@ -31,7 +31,7 @@ public class JumpTo extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		var b = new JButton(node.prettyName());
 		b.addActionListener(e -> currentUser().jumpTo(node));
 		onComponentCreated.accept(b);

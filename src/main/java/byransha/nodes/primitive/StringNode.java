@@ -6,19 +6,20 @@ import java.util.List;
 
 import byransha.graph.BBGraph;
 import byransha.graph.NodeError;
-import byransha.graph.view.NodeView;
 import byransha.graph.view.StringNodeView;
 
 public class StringNode extends PrimitiveValueNode<String> {
-	static {
-		NodeView.add(StringNode.class, StringNodeView.class);
-	}
-
 	String re;
 	public boolean password;
 
 	public StringNode(BBGraph db) {
 		super(db);
+	}
+
+	@Override
+	public void createViews() {
+		super.createViews();
+		cachedViews.add(new StringNodeView(g, this));
 	}
 
 	public StringNode(BBGraph g, String init, String re) {

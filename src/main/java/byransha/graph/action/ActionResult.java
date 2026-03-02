@@ -8,9 +8,9 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 	static {
 //		NodeAction.actions.put(ActionResult
 	}
-	public long startDateMs;
+	public long durationMs;
 	public R result;
-	public NodeAction<T, R> runningAction;
+	public final NodeAction<T, R> runningAction;
 
 	public ActionResult(BBGraph g, NodeAction<T, R> runningAction, R result) {
 		super(g);
@@ -19,7 +19,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 	}
 
 	public long durationMs() {
-		return System.currentTimeMillis() - startDateMs;
+		return durationMs;
 	}
 
 	@Override
@@ -33,25 +33,19 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 	}
 
 	public static class stop extends NodeAction<ActionResult, NodeAction> {
-
 		protected stop(BBGraph g, ActionResult r) {
 			super(g, r);
 		}
 
 		@Override
 		public String whatItDoes() {
-			return "stop the running action";
+			return "stops the running action";
 		}
 
 		@Override
-		protected ActionResult exec(ActionResult r) throws Throwable {
-			r.runningAction.stopRequest = true;
-			return null;
-		}
-
-		@Override
-		public String prettyName() {
-			return "Stop";
+		public ActionResult exec() {
+			inputNode.runningAction.stopRequested = true;
+			return createResultNode(inputNode.runningAction);
 		}
 	}
 }

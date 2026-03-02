@@ -8,12 +8,14 @@ import java.net.ServerSocket;
 import java.util.HashMap;
 import java.util.Map;
 
+import butils.ByUtils;
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.view.NodeView;
+import byransha.nodes.system.SystemB;
 
-public class ShellServer {
+public class ShellServer extends SystemB {
 	@FunctionalInterface
 	interface CommandAction {
 		void exec(PrintWriter out) throws Throwable;
@@ -23,20 +25,61 @@ public class ShellServer {
 	}
 
 	private final Map<String, Command> commands = new HashMap<>();
-	private final BBGraph graph;
-	private Object map;
 
-	public ShellServer(BBGraph graph, int port) throws Throwable {
-		this.graph = graph;
-		initializeCommands(graph);
+	public ShellServer(BBGraph g, int port) throws Throwable {
+		super(g);
+		System.out.println("Starting shell server on port " + port);
+		initializeCommands(g);
 
 		new Thread(() -> {
 			try {
 				startServer(port);
 			} catch (Throwable err) {
-				throw err instanceof RuntimeException re ? re : new RuntimeException(err);
+				error(err);
 			}
 		}).start();
+	}
+
+
+
+	private void startServer(int port) throws Throwable {
+		try (var serverSocket = new ServerSocket(port)) {
+			System.out.println("Telnet server listening on port " + port);
+
+			while (true) {
+				try (var clientSocket = serverSocket.accept();
+						var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+						var out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+
+					String line = in.readLine();
+					System.out.println("line: " + line);
+
+					if (line == null)
+						break;
+
+					line = line.trim();
+
+					if (line.isEmpty()) {
+						out.println("Empty command received, ignoring");
+					} else if (line.startsWith("auth ")) {
+						var username = line.substring("auth ".length() + 1).trim();
+						var userhash = username.hashCode();
+						out.println(userhash);
+					} else if (line.startsWith(".")) {
+						showView(line.substring(1), out);
+					} else if (line.startsWith("/")) {
+						execLocalCommand(line.substring(1), out);
+					} else {
+						execAction(line, out);
+					}
+
+					clientSocket.getOutputStream().flush();
+					clientSocket.close();
+				} catch (IOException e) {
+					System.err.println("Client error: " + e.getMessage());
+				}
+			}
+		}
 	}
 
 	private void initializeCommands(BBGraph graph) {
@@ -49,10 +92,12 @@ public class ShellServer {
 		commands.put("pwd", new Command("print current node", out -> out.println(currentNode())));
 
 		commands.put("kill", new Command("kill the server's JVM", out -> System.exit(0)));
+
 		commands.put("actions", new Command("list actions available on this node",
-				out -> graph.currentUser().currentNode().actions().forEach(a -> out.println(a.commandName()))));
+				out -> currentNode().actions().forEach(a -> out.println(a.technicalName()))));
+
 		commands.put("views", new Command("list views available on this node",
-				out -> graph.currentUser().currentNode().views().forEach(a -> out.println(a.name()))));
+				out -> currentNode().views().forEach(v -> out.println(v.technicalName()))));
 
 		commands.put("ls", new Command("list outs",
 				out -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
@@ -65,99 +110,54 @@ public class ShellServer {
 		commands.put("name", new Command("print current node name", out -> out.println(currentNode())));
 	}
 
-	private void startServer(int port) throws Throwable {
-		try (var serverSocket = new ServerSocket(port)) {
-			System.out.println("Telnet server listening on port " + port);
-			while (true) {
-				// Using try-with-resources to automatically close client socket
-				try (var clientSocket = serverSocket.accept();
-						var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-						var out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+	private void execAction(String actionName, PrintWriter out) throws Throwable {
+		var action = currentNode().findAction(actionName);
 
-					while (true) {
-						String line = in.readLine();
-						System.out.println("line: " + line);
+		if (action == null) {
+			out.println(
+					"no such action " + actionName + " on node " + currentNode() + " of " + currentNode().getClass());
+		} else {
+			var r = action.exec();
 
-						if (line == null)
-							break;
-
-						line = line.trim();
-
-						if (line.isEmpty())
-							continue;
-
-						line = line.trim();
-
-						if (line.startsWith("auth ")) {
-							var username = line.substring("auth ".length() + 1).trim();
-							var userhash = username.hashCode();
-							out.println(userhash);
-						} else if (line.startsWith(".")) { // show view
-							var viewName = line.substring(1);
-							var view = findView(currentNode(), viewName);
-
-							if (view == null) {
-								out.println("no such view " + viewName + " on node " + currentNode() + " of "
-										+ currentNode().getClass());
-							} else {
-								var r = view.toJSON();
-								out.println(r.toPrettyString());
-							}
-						} else if (line.startsWith("/")) { // local command
-							var cmdName = line.substring(1);
-							Command cmd = commands.get(cmdName);
-
-							if (cmd != null) {
-								try {
-									cmd.action.exec(out);
-								} catch (Throwable e) {
-									e.printStackTrace();
-								}
-							} else {
-								out.println("Unknown command: " + line);
-							}
-						} else {
-							var actionName = line;
-							var action = findAction(currentNode(), actionName);
-
-							if (action == null) {
-								out.println("no such action " + actionName + " on node " + currentNode() + " of "
-										+ currentNode().getClass());
-							} else {
-								var r = action.exec();
-
-								for (var v : r.result.views()) {
-									out.println(v.prettyName() + ":");
-									out.println(v.toJSON().toPrettyString());
-								}
-
-								out.println("*" + action.prettyName() + " completed in " + r.durationMs() + "ms:");
-							}
-						}
-
-						out.println();
-					}
-				} catch (IOException e) {
-					System.err.println("Client error: " + e.getMessage());
-				}
+			for (var v : r.result.views()) {
+				out.println(v.prettyName() + ":");
+				out.println(v.toJSON().toPrettyString());
 			}
 
+			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string( r.durationMs()) + "ms:");
 		}
 	}
 
-	public static NodeAction<BNode, BNode> findAction(BNode n, String name) {
-		for (var a : n.actions()) {
-			if (a.commandName().equals(name)) {
-				return a;
-			}
-		}
+	private void showView(String viewName, PrintWriter out) {
+		var view = findView(currentNode(), viewName);
 
-		return null;
+		if (view == null) {
+			out.println("no such view " + viewName + " on node " + currentNode() + " of " + currentNode().getClass());
+		} else {
+			var r = view.toJSON();
+			out.println(r.toPrettyString());
+		}
 	}
+
+	private void execLocalCommand(String cmdName, PrintWriter out) {
+		Command cmd = commands.get(cmdName);
+
+		if (cmd != null) {
+			try {
+				cmd.action.exec(out);
+			} catch (Throwable e) {
+				e.printStackTrace();
+			}
+		} else {
+			out.println("Unknown command: " + cmdName);
+		}
+	}
+
+	
 
 	public static NodeView<BNode> findView(BNode n, String name) {
 		for (var v : n.views()) {
-			if (v.name().equals(name)) {
+			if (v.technicalName().equals(name)) {
 				return v;
 			}
 		}
@@ -166,6 +166,16 @@ public class ShellServer {
 	}
 
 	private BNode currentNode() {
-		return graph.systemNode.getCurrentUser().currentNode();
+		return g.systemNode.getCurrentUser().currentNode();
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "the TCP server for command line interaction with the graph";
+	}
+
+	@Override
+	public String prettyName() {
+		return "shell server";
 	}
 }

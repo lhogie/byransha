@@ -16,8 +16,6 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	public NewNodeCreator(BBGraph g) {
 		super(g, g);
 		classes = new ListNode<>(g);
-
-		addClasses(I3S.class.getPackage());
 	}
 
 	public void addClasses(Package p) {
@@ -47,7 +45,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode<BNode>> exec(BNode target) throws Throwable {
+	public ActionResult<BNode, ListNode<BNode>> exec() {
 		var instanceList = new ListNode<BNode>(g);
 		instanceList.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
 		return createResultNode(instanceList);

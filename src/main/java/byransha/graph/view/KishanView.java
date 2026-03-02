@@ -30,25 +30,20 @@ public class KishanView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		node.forEachOut((name, out) -> {
 			if (out != g) {
 				var p = new JPanel();
 				p.setBorder(new TitledBorder(name));
 				p.add(new JCheckBox());
 
-				for (var v : out.views()) {
-					if (v.kishanable()) {
-						try {
-							v.addTo(c -> p.add(c));
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-						break;
-					}
+				try {
+					out.getKishanView().createSwingComponents(c -> p.add(c));
+					onComponentCreated.accept(p);
+				} catch (IOException e) {
+					error(e);
 				}
 
-				onComponentCreated.accept(p);
 			}
 		});
 	}

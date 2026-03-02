@@ -27,7 +27,7 @@ public class DebugView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		onComponentCreated.accept(ByUtils.JsonToTreeConverter.buildTreeModel(toJSON(node)));
 	}
 

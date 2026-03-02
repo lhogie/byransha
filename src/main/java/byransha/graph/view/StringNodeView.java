@@ -1,10 +1,8 @@
 package byransha.graph.view;
 
-import java.awt.Dimension;
 import java.util.function.Consumer;
 
 import javax.swing.JComponent;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -46,11 +44,9 @@ public class StringNodeView extends NodeView<StringNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		String s = node.get();
-		boolean multiline = s != null && s.indexOf('\n') >= 0;
-		var textComponent = multiline ? new JTextArea(s) : new JTextField(s);
-		textComponent.setPreferredSize(new Dimension(200, 20));
+		var textComponent = new JTextField(s);
 		textComponent.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override

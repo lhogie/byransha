@@ -39,7 +39,7 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		for (var err : node.errors()) {
 			onComponentCreated.accept(new JLabel(err.msg));
 		}

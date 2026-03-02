@@ -14,7 +14,7 @@ public class SwingFrontend extends SystemB {
 
 	public final UIPreferences ui;
 	static JFrame f = new JFrame("Byransha");
-	public final JPanelDocumentPane sheet = new JPanelDocumentPane();
+	public final ByranshaUserPane sheet = new DocPane_TextPane();
 
 	public SwingFrontend(BBGraph g) {
 		super(g);
@@ -22,7 +22,7 @@ public class SwingFrontend extends SystemB {
 		g.systemNode.swing = this;
 		g.systemNode.changeUserListener.add(u -> sheet.addNode(u));
 
-		JScrollPane scroll = new JScrollPane(sheet);
+		JScrollPane scroll = new JScrollPane(sheet.getComponent());
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();

@@ -24,10 +24,11 @@ public class ErrorLog extends SystemB {
 		return "error log";
 	}
 
-	public void add(Throwable err) {
+	public ExceptionNode add(Throwable err) {
 		var errN = new ExceptionNode(g);
 		errN.err = err;
 		errN.date = LocalDateTime.now();
 		errors.add(errN);
+		return errN;
 	}
 }

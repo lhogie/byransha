@@ -28,11 +28,11 @@ public class Authenticate extends NodeAction<BNode, User> {
 	}
 
 	@Override
-	public ActionResult<BNode, User> exec(BNode target) {
+	public ActionResult<BNode, User> exec() {
 		var u = username.get();
 		var p = password.getOrDefault("").hashCode();
 		var newUser = g.forEachNodeOfClass(User.class,
-				uu -> Stop.stopIf(uu.name.get().equals(u) && uu.passwordHash == p));
+				uu -> Stop.stopIf(uu.name.get().equals(u) && uu.passwordHash.equals(p)));
 
 		if (newUser != null) {
 			g.systemNode.setCurrentUser(newUser);

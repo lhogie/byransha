@@ -8,5 +8,4 @@ public abstract class SystemB extends BNode {
 	public SystemB(BBGraph g) {
 		super(g);
 	}
-
 }

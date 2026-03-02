@@ -9,7 +9,6 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.action.Delete;
+import byransha.graph.action.ExceptionNode;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.Jump;
@@ -46,34 +46,19 @@ import byransha.graph.view.KishanView;
 import byransha.graph.view.NodeView;
 import byransha.graph.view.OutNavigationView;
 import byransha.graph.view.SmallInfoView;
+import byransha.nodes.primitive.ListNode;
 import byransha.nodes.system.User;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import toools.Stop;
 import toools.gui.Utilities;
 
 public abstract class BNode {
-	static {
-		NodeAction.add(BNode.class, Export.class);
-		NodeAction.add(BNode.class, Reset.class);
-		NodeAction.add(BNode.class, Delete.class);
-		NodeAction.add(BNode.class, Search.class);
-		NodeAction.add(BNode.class, SearchText.class);
-		NodeAction.add(BNode.class, SearchRegexp.class);
-		NodeAction.add(BNode.class, Jump.class);
-
-		NodeView.add(BNode.class, KishanView.class);
-		NodeView.add(BNode.class, SmallInfoView.class);
-		NodeView.add(BNode.class, JumpTo.class);
-		NodeView.add(BNode.class, OutNavigationView.class);
-		NodeView.add(BNode.class, InNavigationView.class);
-		NodeView.add(BNode.class, ErrorsView.class);
-		NodeView.add(BNode.class, AvailableActionsView.class);
-		NodeView.add(BNode.class, DebugView.class);
-	}
-
 	public final BBGraph g;
 	public boolean readOnly;
 	private int id;
+
+	protected ListNode<NodeView> cachedViews;
+	protected ListNode<NodeAction> cachedActions;
 
 	protected BNode(BBGraph g) {
 		if (g == null) {
@@ -82,7 +67,43 @@ public abstract class BNode {
 			this.g = g;
 			setID(this.g.nextID());
 		}
+	}
 
+	protected ExceptionNode error(Throwable err) {
+		return error(err, true);
+	}
+
+	protected ExceptionNode error(Throwable err, boolean rethrow) {
+		var n = g.systemNode.errorLog.add(err);
+
+		if (rethrow) {
+			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
+		} else {
+			return n;
+		}
+	}
+
+	public List<NodeView<BNode>> views() {
+		if (cachedViews == null) {
+			cachedViews = new ListNode(g);
+			createViews();
+		}
+
+		return (List<NodeView<BNode>>) (List) cachedViews.get();
+	}
+
+	public List<NodeAction> actions() {
+		if (cachedActions == null) {
+			cachedActions = new ListNode<>(g);
+			createActions();
+		}
+
+		return (List<NodeAction>) cachedActions.get();
+	}
+
+	public void invalidateCache() {
+		cachedViews = null;
+		cachedActions = null;
 	}
 
 	public NodeView<BNode> findView(Class<? extends NodeView<BNode>> c) {
@@ -217,8 +238,8 @@ public abstract class BNode {
 				if (f.get(this) == out) {
 					f.set(this, null);
 				}
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
+			} catch (IllegalAccessException err) {
+				error(err);
 			}
 		});
 	}
@@ -238,40 +259,25 @@ public abstract class BNode {
 		});
 	}
 
-	public List<NodeAction> actions() {
-		var r = new ArrayList<NodeAction>();
-
-		ascendSuperClassesUntil(BNode.class, c -> {
-			NodeAction.actions.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
-				try {
-					var action = (NodeAction) v.getConstructor(BBGraph.class).newInstance(g);
-
-					if (action.wantToBeProposedFor(this)) {
-						r.add(action);
-					}
-				} catch (Throwable err) {
-					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
-				}
-			});
-		});
-
-		return r;
+	public void createActions() {
+		cachedActions.add(new Export(g, this));
+		cachedActions.add(new Reset(g, this));
+		cachedActions.add(new Delete(g, this));
+		cachedActions.add(new Search(g, this));
+		cachedActions.add(new SearchText(g, this));
+		cachedActions.add(new SearchRegexp(g, this));
+		cachedActions.add(new Jump(g, this));
 	}
 
-	public List<NodeView<BNode>> views() {
-		var r = new ArrayList<NodeView<BNode>>();
-
-		ascendSuperClassesUntil(BNode.class, c -> {
-			NodeView.views.getOrDefault(c, (List<Class>) Collections.EMPTY_LIST).forEach(v -> {
-				try {
-					r.add((NodeView) v.getConstructor(BBGraph.class, c).newInstance(g, this));
-				} catch (Throwable err) {
-					throw err instanceof RuntimeException re ? re : new IllegalStateException(err);
-				}
-			});
-		});
-
-		return r;
+	public void createViews() {
+		cachedViews.add(new KishanView(g, this));
+		cachedViews.add(new SmallInfoView(g, this));
+		cachedViews.add(new JumpTo(g, this));
+		cachedViews.add(new OutNavigationView(g, this));
+		cachedViews.add(new InNavigationView(g, this));
+		cachedViews.add(new ErrorsView(g, this));
+		cachedViews.add(new AvailableActionsView(g, this));
+		cachedViews.add(new DebugView(g, this));
 	}
 
 	public void ascendSuperClassesUntil(Class<? extends BNode> until, Consumer<Class<? extends BNode>> consumer) {
@@ -447,9 +453,10 @@ public abstract class BNode {
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
 		r.set("actions",
-				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.commandName())).toList()));
+				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.technicalName())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.name())).toList()));
+		r.set("views",
+				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
 
 		var outsNode = new ObjectNode(factory);
 		forEachOut((name, out) -> {
@@ -458,6 +465,28 @@ public abstract class BNode {
 		r.set("outs", outsNode);
 
 		return r;
+	}
+
+	public NodeAction findAction(String actionName) {
+		for (var a : actions()) {
+			if (a.technicalName().equals(actionName)) {
+				return a;
+			}
+		}
+
+		return null;
+	}
+
+	public NodeView<BNode> getKishanView() {
+		for (var v : views()) {
+			if (v instanceof KishanView) {
+				continue;
+			}
+			return v;
+
+		}
+
+		throw new IllegalStateException("no kishan view found for node " + this);
 	}
 
 }

@@ -77,7 +77,6 @@ public class WebServer extends SystemB {
 
 	final List<User> nbRequestsInProgress = Collections.synchronizedList(new ArrayList<>());
 
-	private final FileCache fileCache;
 
 	private final HttpsServer httpsServer;
 	public final List<Log> logs = new CopyOnWriteArrayList<>();
@@ -88,7 +87,6 @@ public class WebServer extends SystemB {
 		super(g);
 		g.systemNode.webServer = this;
 
-		this.fileCache = new FileCache();
 		this.sessionStore = new SessionStore();
 
 		try {

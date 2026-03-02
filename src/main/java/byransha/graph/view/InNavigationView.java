@@ -29,11 +29,11 @@ public class InNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void addTo(Consumer<JComponent> onComponentCreated) {
+	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 		for (var in : node.computeIns()) {
 			for (var v : in.source().views()) {
 				if (v instanceof JumpTo jt) {
-					jt.addTo(onComponentCreated);
+					jt.createSwingComponents(onComponentCreated);
 					break;
 				}
 			}

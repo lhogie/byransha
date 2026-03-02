@@ -18,9 +18,9 @@ public class Search extends NodeAction<BNode, ListNode> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode> exec(BNode target) {
+	public ActionResult<BNode, ListNode> exec() {
 		var list = new ListNode(g);
-		target.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
+		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
 		return createResultNode(list);
 	}
 

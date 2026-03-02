@@ -17,14 +17,15 @@ import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
 
 public class IntNode extends PrimitiveValueNode<Integer> {
-	static {
-		NodeView.add(IntNode.class, IntNodeView.class);
-	}
-
 	public int min = 0, max = 10000;
 
 	public IntNode(BBGraph g) {
 		super(g);
+	}
+
+	@Override
+	public void createViews() {
+		cachedViews.add(new IntNodeView(g, this));
 	}
 
 	public void setBounds(int min, int max) {
@@ -93,7 +94,7 @@ public class IntNode extends PrimitiveValueNode<Integer> {
 		}
 
 		@Override
-		public void addTo(Consumer<JComponent> onComponentCreated) {
+		public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
 			var tf = new JTextField("" + node.get());
 			node.valueChangeListeners.add(newValue -> tf.setText("" + newValue));
 			onComponentCreated.accept(tf);

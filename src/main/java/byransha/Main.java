@@ -9,7 +9,6 @@ import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
 import byransha.swing.SwingFrontend;
-import byransha.web.WebServer;
 
 public class Main {
 
@@ -21,7 +20,9 @@ public class Main {
 		g.systemNode.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BBGraph.class).newInstance(g);
 
-		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
+		g.systemNode.nodeCreator.addClasses(g.systemNode.application.getClass().getPackage());
+
+//		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new SwingFrontend(g);
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "1000")));
 

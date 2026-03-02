@@ -15,8 +15,8 @@ public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
 	}
 
 	@Override
-	protected ActionResult execConfirmed(BNode node) {
-		node.delete();
+	protected ActionResult execConfirmed() {
+		inputNode.delete();
 		return null;
 	}
 }

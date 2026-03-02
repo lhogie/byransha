@@ -14,10 +14,10 @@ public abstract class ConfirmRequiredNodeAction<A extends BNode, R extends BNode
 	}
 
 	@Override
-	protected final ActionResult exec(A a) {
+	public final ActionResult exec() {
 		boolean confirmedByTheUser = confirmed.get();
-		return confirmedByTheUser ? execConfirmed(a) : null;
+		return confirmedByTheUser ? execConfirmed() : null;
 	}
 
-	protected abstract ActionResult<A, R> execConfirmed(A a);
+	protected abstract ActionResult<A, R> execConfirmed();
 }

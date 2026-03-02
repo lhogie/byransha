@@ -1,6 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,26 +7,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.ListCellRenderer;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BBGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.view.NodeView;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
-
-	static {
-		NodeView.add(ListNode.class, ElementView.class);
-	}
 
 	String label;
 	private List<T> selected = new ArrayList<>();
@@ -35,6 +20,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	public ListNode(BBGraph g) {
 		super(g);
 		set(new ArrayList<>());
+	}
+
+	@Override
+	public void createViews() {
+		super.createViews();
+		cachedViews.add(new GetListElementView(g, this));
 	}
 
 	@Override
@@ -154,47 +145,6 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 			return null;
 		}
 		return get().stream().skip(index).findFirst().orElse(null);
-	}
-
-	public static class ElementView extends NodeView<ListNode<BNode>> {
-
-		public ElementView(BBGraph g, ListNode<BNode> l) {
-			super(g, l);
-		}
-
-		@Override
-		public String whatItShows() {
-			return "all elements in a list";
-		}
-
-		@Override
-		public JsonNode toJSON(ListNode<BNode> n) {
-			var r = new ArrayNode(null);
-			n.get().forEach(e -> r.add(e.toJSONNode()));
-			return r;
-		}
-
-		@Override
-		public void addTo(Consumer<JComponent> onComponentCreated) {
-			var jlist = new JList();
-			jlist.setListData(node.get().toArray());
-			jlist.setCellRenderer(new ListCellRenderer<BNode>() {
-
-				@Override
-				public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
-						boolean isSelected, boolean cellHasFocus) {
-					return new JLabel(value.prettyName());
-				}
-			});
-
-			onComponentCreated.accept(jlist);
-		}
-
-		@Override
-		protected boolean allowsEditing() {
-			return true;
-		}
-
 	}
 
 }

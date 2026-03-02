@@ -37,8 +37,8 @@ public class SystemNode extends SystemB {
 		this.byransha = new Byransha(g);
 		this.os = new OSNode(g);
 		this.errorLog = new ErrorLog(g);
-		this.admin = new User(g, "admin", "admin".hashCode()); // self accept
-		this.guest = new User(g, "user", "test".hashCode());
+		this.admin = new User(g, "admin", PasswordHasher.hashPassword("admin")); // self accept
+		this.guest = new User(g, "user", PasswordHasher.hashPassword("test"));
 		this.eventList = new InMemoryEventList(g);
 		this.nodeCreator = new NewNodeCreator(g);
 		setCurrentUser(guest);
