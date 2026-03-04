@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ $# -lt 2 ]
+then
+	echo Syntax: byclient [host] [port] [cmd]
+	exit 1
+fi
+
+HOSTNAME=$1
+PORT=$2
+shift
+shift
+echo $* | nc $HOSTNAME $PORT
