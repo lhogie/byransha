@@ -1,25 +1,29 @@
 package byransha.graph.action;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.nodes.primitive.LongNode;
 
 public class ActionResult<T extends BNode, R extends BNode> extends BNode {
-	static {
-//		NodeAction.actions.put(ActionResult
-	}
-	public long durationMs;
-	public R result;
-	public final NodeAction<T, R> runningAction;
 
-	public ActionResult(BBGraph g, NodeAction<T, R> runningAction, R result) {
+	public final LongNode durationMs;
+	public final R result;
+	public final NodeAction<T, R> runningAction;
+	public final boolean jumpStraightAwayToResult;
+
+	public ActionResult(BGraph g, NodeAction<T, R> runningAction, R result, boolean jumpStraightAwayToResult) {
 		super(g);
 		this.runningAction = runningAction;
 		this.result = result;
+		this.durationMs = new LongNode(g);
+		this.jumpStraightAwayToResult = jumpStraightAwayToResult;
 	}
 
-	public long durationMs() {
-		return durationMs;
+	@Override
+	public void createActions() {
+		cachedActions.add(new stop(g, this));
+		super.createActions();
 	}
 
 	@Override
@@ -32,8 +36,8 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		return "result for action " + runningAction;
 	}
 
-	public static class stop extends NodeAction<ActionResult, NodeAction> {
-		protected stop(BBGraph g, ActionResult r) {
+	public static class stop extends NodeAction<ActionResult, ActionResult> {
+		protected stop(BGraph g, ActionResult r) {
 			super(g, r);
 		}
 
@@ -45,7 +49,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		@Override
 		public ActionResult exec() {
 			inputNode.runningAction.stopRequested = true;
-			return createResultNode(inputNode.runningAction);
+			return createResultNode(inputNode, false);
 		}
 	}
 }

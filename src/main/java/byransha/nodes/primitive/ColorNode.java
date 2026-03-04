@@ -1,27 +1,35 @@
 package byransha.nodes.primitive;
 
+import java.awt.Color;
 import java.io.IOException;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
-public class ColorNode extends PrimitiveValueNode<String> {
+public class ColorNode extends PrimitiveValueNode<Color> {
 
-	public ColorNode(BBGraph g) {
+	public ColorNode(BGraph g) {
 		super(g);
 	}
 
 	@Override
-	public String defaultValue() {
-		return "white";
+	public void createViews() {
+		cachedViews.add(new ColorView(g, this));
+		super.createViews();
+	}
+
+	@Override
+	public Color defaultValue() {
+		return Color.white;
 	}
 
 	@Override
 	public void fromString(String s) {
-		set(s);
+		set(Color.decode(s));
 	}
 
 	@Override
-	protected byte[] valueToBytes(String s) throws IOException {
+	protected byte[] valueToBytes(Color c) throws IOException {
+		var s = c.toString();
 		if (s == null) {
 			return new byte[0];
 		}
@@ -41,13 +49,14 @@ public class ColorNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	protected String bytesToValue(byte[] bytes) throws IOException {
+	protected Color bytesToValue(byte[] bytes) throws IOException {
 		if (bytes == null || bytes.length != 3) {
 			throw new IOException("Color bytes must be exactly 3 bytes long");
 		}
 		String hex = String.format("#%02X%02X%02X", bytes[0] & 0xFF, bytes[1] & 0xFF, bytes[2] & 0xFF);
-		set(hex);
-		return hex;
+		var c = Color.decode(hex);
+		set(c);
+		return c;
 	}
 
 	@Override
@@ -57,8 +66,7 @@ public class ColorNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public String prettyName() {
-		return get() != null ? get() : "null";
+		return get() != null ? get().toString() : "null";
 	}
-
 
 }

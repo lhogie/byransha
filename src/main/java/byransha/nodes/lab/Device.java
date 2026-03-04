@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
 
@@ -9,7 +9,7 @@ public class Device extends BusinessNode {
 	public StringNode brand;
 	public StringNode modelName;
 
-	public Device(BBGraph g) {
+	public Device(BGraph g) {
 		super(g);
 		serialNumber = new StringNode(g);
 		brand = new StringNode(g);

@@ -1,10 +1,10 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.User;
 
 public class DR extends Status {
-	public DR(BBGraph g) {
+	public DR(BGraph g) {
 		super(g);
 		name.set("Directeur de Recherche");
 	}

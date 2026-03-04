@@ -5,11 +5,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class MapNode<N extends BNode> extends BNode {
-	public MapNode(BBGraph g) {
+	public MapNode(BGraph g) {
 		super(g);
 	}
 
@@ -26,10 +26,10 @@ public class MapNode<N extends BNode> extends BNode {
 	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
 
 	@Override
-	public void forEachOut(BiConsumer<String, BNode> consumer) {
+	public void forEachOut(BiConsumer<BNode, String> consumer) {
 		for (Map.Entry<String, N> e : l.entrySet()) {
 			if (e.getValue() != null) {
-				consumer.accept(e.getKey(), e.getValue());
+				consumer.accept(e.getValue(), e.getKey());
 			}
 		}
 	}

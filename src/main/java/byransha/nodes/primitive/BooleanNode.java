@@ -2,12 +2,12 @@ package byransha.nodes.primitive;
 
 import java.io.IOException;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.view.BooleanNodeView;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(BBGraph g, Boolean v) {
+	public BooleanNode(BGraph g, Boolean v) {
 		super(g);
 		set(v);
 	}

@@ -1,27 +1,27 @@
 package byransha.graph.action.search;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
-import byransha.nodes.primitive.IntNode;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.LongNode;
 
 public class Search extends NodeAction<BNode, ListNode> {
-	public IntNode depth;
+	public LongNode depth;
 
-	public Search(BBGraph g, BNode src) {
+	public Search(BGraph g, BNode src) {
 		super(g, src);
-		depth = new IntNode(g);
-		depth.set(1);
+		depth = new LongNode(g);
+		depth.set(1L);
 		depth.setBounds(0, 100000);
 	}
 
 	@Override
 	public ActionResult<BNode, ListNode> exec() {
-		var list = new ListNode(g);
+		var list = new ListNode(g, "search result at depth " + depth);
 		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
-		return createResultNode(list);
+		return createResultNode(list, false);
 	}
 
 	protected boolean accept(BNode n) {

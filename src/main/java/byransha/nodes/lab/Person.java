@@ -2,7 +2,7 @@ package byransha.nodes.lab;
 
 import java.awt.Color;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.DateNode;
@@ -40,19 +40,19 @@ public class Person extends BusinessNode {
 	public boolean enposte;
 	public StringNode researchActivity;
 
-	public Person(BBGraph g) {
+	public Person(BGraph g) {
 		super(g);
 		etatCivil = new EtatCivil(g);
-		positions = new ListNode(g);
+		positions = new ListNode(g, "positions");
 		pics = new DocumentNode(g);
 		hdr = new BooleanNode(g, null);
 		badgeNumber = new StringNode(g);
 		website = new StringNode(g);
 		faxNumber = new StringNode(g);
 		phdDate = new DateNode(g);
-		phoneNumbers = new ListNode(g);
-		emailAddresses = new ListNode(g);
-		offices = new ListNode(g);
+		phoneNumbers = new ListNode(g, "phone number(s)");
+		emailAddresses = new ListNode(g, "email adresses");
+		offices = new ListNode(g, "offices");
 	}
 
 	@Override

@@ -13,7 +13,7 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
 import byransha.nodes.system.User;
@@ -22,14 +22,14 @@ public class DataLake extends BNode {
 
 	public final File dir;
 
-	public DataLake(BBGraph g, File dir) {
+	public DataLake(BGraph g, File dir) {
 		super(g);
 		this.dir = dir;
 	}
 
 	static JsonNode countryCodes;
 
-	public void loadCountries(BBGraph g) throws IOException {
+	public void loadCountries(BGraph g) throws IOException {
 
 		var json = Files.readAllBytes(new File(dir, "country_flags/countries.json").toPath());
 		countryCodes = new ObjectMapper().readTree(json);
@@ -97,8 +97,6 @@ public class DataLake extends BNode {
 
 		System.out.println("Loading datalake from " + dir);
 		loadCountries(g);
-
-		User user = g.systemUser;
 
 		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);

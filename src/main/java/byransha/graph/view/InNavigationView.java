@@ -1,18 +1,15 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class InNavigationView extends NodeView<BNode> {
 
-	public InNavigationView(BBGraph g, BNode node) {
+	public InNavigationView(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -22,27 +19,26 @@ public class InNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON(BNode n) {
+	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(BNode.factory);
 
 		return r;
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		for (var in : node.computeIns()) {
-			for (var v : in.source().views()) {
-				if (v instanceof JumpTo jt) {
-					jt.createSwingComponents(onComponentCreated);
-					break;
-				}
-			}
-		}
+	public void writeTo(ByranshaUserPane pane) {
+		g.i.reverseNavigation.forEachInOf(n, in -> in.source().findView(JumpTo.class).writeTo(pane));
 	}
 
 	@Override
 	protected boolean allowsEditing() {
 		return false;
+	}
+	
+
+	@Override
+	public boolean showInViewList() {
+		return true;
 	}
 
 }

@@ -1,11 +1,11 @@
 package byransha.graph.action;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
 
-	public Delete(BBGraph g, BNode node) {
+	public Delete(BGraph g, BNode node) {
 		super(g, node);
 	}
 

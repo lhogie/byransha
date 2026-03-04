@@ -13,7 +13,7 @@ import org.java_websocket.server.WebSocketServer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.SystemB;
 import byransha.nodes.system.User;
 
@@ -24,7 +24,7 @@ import byransha.nodes.system.User;
  */
 public class ByranshaWebSocketServer extends WebSocketServer {
 	
-	private final BBGraph graph;
+	private final BGraph graph;
 	private final SessionStore sessionStore;
 	public final WebSocketHandler handler;
 	private final ObjectMapper mapper = new ObjectMapper();
@@ -35,7 +35,7 @@ public class ByranshaWebSocketServer extends WebSocketServer {
 	// Map: User ID -> Set of WebSocket connections (for multi-device support)
 	private final Map<Integer, java.util.Set<WebSocket>> userConnections = new ConcurrentHashMap<>();
 	
-	public ByranshaWebSocketServer(BBGraph graph, SessionStore sessionStore, int port) {
+	public ByranshaWebSocketServer(BGraph graph, SessionStore sessionStore, int port) {
 		super(new InetSocketAddress(port));
 		this.graph = graph;
 		this.sessionStore = sessionStore;

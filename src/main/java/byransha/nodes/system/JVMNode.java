@@ -1,21 +1,16 @@
 package byransha.nodes.system;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import butils.ByUtils;
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
 
 public class JVMNode extends SystemB {
 
-	public JVMNode(BBGraph g) {
+	public JVMNode(BGraph g) {
 		super(g);
 	}
 
@@ -32,16 +27,17 @@ public class JVMNode extends SystemB {
 	@Override
 	public void createViews() {
 		cachedViews.add(new View(g, this));
+		super.createViews();
 	}
 
 	public static class View extends NodeView<JVMNode> {
 
-		public View(BBGraph g, JVMNode jvm) {
+		public View(BGraph g, JVMNode jvm) {
 			super(g, jvm);
 		}
 
 		@Override
-		public JsonNode toJSON(JVMNode jvm) {
+		public JsonNode toJSON() {
 			var r = new ObjectNode(factory);
 			r.put("heap size", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
 
@@ -63,11 +59,6 @@ public class JVMNode extends SystemB {
 		@Override
 		protected boolean allowsEditing() {
 			return false;
-		}
-
-		@Override
-		public void createSwingComponents(Consumer<JComponent> c) throws IOException {
-			c.accept(ByUtils.JsonToTreeConverter.buildTreeModel(toJSON(node)));
 		}
 	}
 }

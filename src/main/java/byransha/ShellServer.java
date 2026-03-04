@@ -9,9 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import butils.ByUtils;
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
 import byransha.graph.view.NodeView;
 import byransha.nodes.system.SystemB;
 
@@ -26,7 +25,7 @@ public class ShellServer extends SystemB {
 
 	private final Map<String, Command> commands = new HashMap<>();
 
-	public ShellServer(BBGraph g, int port) throws Throwable {
+	public ShellServer(BGraph g, int port) throws Throwable {
 		super(g);
 		System.out.println("Starting shell server on port " + port);
 		initializeCommands(g);
@@ -39,8 +38,6 @@ public class ShellServer extends SystemB {
 			}
 		}).start();
 	}
-
-
 
 	private void startServer(int port) throws Throwable {
 		try (var serverSocket = new ServerSocket(port)) {
@@ -82,12 +79,11 @@ public class ShellServer extends SystemB {
 		}
 	}
 
-	private void initializeCommands(BBGraph graph) {
+	private void initializeCommands(BGraph graph) {
 		commands.put("help", new Command("list available commands",
 				out -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));
 
-		commands.put("whoami",
-				new Command("print current user", out -> out.println(graph.systemNode.getCurrentUser())));
+		commands.put("whoami", new Command("print current user", out -> out.println(graph.getCurrentUser())));
 
 		commands.put("pwd", new Command("print current node", out -> out.println(currentNode())));
 
@@ -102,8 +98,8 @@ public class ShellServer extends SystemB {
 		commands.put("ls", new Command("list outs",
 				out -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
-		commands.put("lf",
-				new Command("list fields", out -> currentNode().forEachOutField(f -> out.println(f.getName()))));
+		commands.put("lf", new Command("list fields",
+				out -> currentNode().forEachOutInFields((f, o, ro) -> out.println(f.getName()))));
 
 		commands.put("id", new Command("print current node ID", out -> out.println(currentNode().id())));
 
@@ -124,7 +120,7 @@ public class ShellServer extends SystemB {
 				out.println(v.toJSON().toPrettyString());
 			}
 
-			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string( r.durationMs()) + "ms:");
+			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
 		}
 	}
 
@@ -153,8 +149,6 @@ public class ShellServer extends SystemB {
 		}
 	}
 
-	
-
 	public static NodeView<BNode> findView(BNode n, String name) {
 		for (var v : n.views()) {
 			if (v.technicalName().equals(name)) {
@@ -166,7 +160,7 @@ public class ShellServer extends SystemB {
 	}
 
 	private BNode currentNode() {
-		return g.systemNode.getCurrentUser().currentNode();
+		return g.getCurrentUser().currentNode();
 	}
 
 	@Override

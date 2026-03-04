@@ -1,11 +1,11 @@
 package byransha.nodes.system;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public abstract class SystemB extends BNode {
 
-	public SystemB(BBGraph g) {
+	public SystemB(BGraph g) {
 		super(g);
 	}
 }

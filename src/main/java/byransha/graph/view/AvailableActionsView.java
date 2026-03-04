@@ -1,26 +1,23 @@
 package byransha.graph.view;
 
 import java.awt.Color;
-import java.io.IOException;
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class AvailableActionsView extends NodeView<BNode> {
 	int edgeSize = 60;
 
-	public AvailableActionsView(BBGraph g, BNode node) {
+	public AvailableActionsView(BGraph g, BNode node) {
 		super(g, node);
 	}
 
 	@Override
-	public JsonNode toJSON(BNode n) {
+	public JsonNode toJSON() {
 		ArrayNode r = new ArrayNode(null);
 		var actions = n.actions();
 		actions.forEach(a -> r.add(a.toJSONNode()));
@@ -33,13 +30,10 @@ public class AvailableActionsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		node.actions().forEach(a -> {
-			a.views().forEach(v -> {
-				if (v instanceof JumpTo jt) {
-					jt.createSwingComponents(onComponentCreated);
-				}
-			});
+	public void writeTo(ByranshaUserPane pane) {
+		n.actions().forEach(a -> {
+			a.findView(JumpTo.class).writeTo(pane);
+			pane.append( " ");
 		});
 	}
 

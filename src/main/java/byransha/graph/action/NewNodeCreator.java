@@ -1,6 +1,6 @@
 package byransha.graph.action;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.relection.ClassNode;
@@ -13,12 +13,12 @@ import io.github.classgraph.ScanResult;
 public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	ListNode<ClassNode> classes;
 
-	public NewNodeCreator(BBGraph g) {
+	public NewNodeCreator(BGraph g) {
 		super(g, g);
-		classes = new ListNode<>(g);
+		classes = new ListNode<>(g, "Business class(es)");
 	}
 
-	public void addClasses(Package p) {
+	public void addBusinessClassesIn(Package p) {
 		try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan()) {
 			for (var c : scanResult.getAllClasses().loadClasses()) {
 				if (BusinessNode.class.isAssignableFrom(c)) {
@@ -30,7 +30,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	}
 
 	public void addClass(Class cla) {
-		ClassNode cn = g.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
+		ClassNode cn = g.i.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
 		classes.get().add(cn);
 	}
 
@@ -46,8 +46,8 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 
 	@Override
 	public ActionResult<BNode, ListNode<BNode>> exec() {
-		var instanceList = new ListNode<BNode>(g);
+		var instanceList = new ListNode<BNode>(g, "newly created node(s)");
 		instanceList.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
-		return createResultNode(instanceList);
+		return createResultNode(instanceList, false);
 	}
 }

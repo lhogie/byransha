@@ -1,18 +1,21 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
+import java.awt.Dimension;
 
 import javax.swing.JButton;
-import javax.swing.JComponent;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class JumpTo extends NodeView<BNode> {
 
-	public JumpTo(BBGraph g, BNode node) {
+	private String label;
+	private JButton b;
+
+	public JumpTo(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -25,16 +28,25 @@ public class JumpTo extends NodeView<BNode> {
 		return "a way to jump to the node";
 	}
 
+	public void setLabel(String l) {
+		this.label = l;
+
+		if (b != null) {
+			b.setText(label);
+		}
+	}
+
 	@Override
-	public JsonNode toJSON(BNode n) {
+	public JsonNode toJSON() {
 		return new com.fasterxml.jackson.databind.node.IntNode(n.id());
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		var b = new JButton(node.prettyName());
-		b.addActionListener(e -> currentUser().jumpTo(node));
-		onComponentCreated.accept(b);
+	public void writeTo(ByranshaUserPane pane) {
+		b = new JButton(label != null ? label : n.prettyName());
+		b.setPreferredSize(new Dimension(100, 30));
+		b.addActionListener(e -> currentUser().jumpTo(n));
+		pane.append(b);
 	}
 
 	public boolean showInViewList() {

@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
-import byransha.nodes.primitive.IntNode;
+import byransha.graph.BGraph;
+import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
@@ -9,14 +9,14 @@ import byransha.nodes.system.User;
 public class Publication extends BusinessNode {
 	public StringNode title;
 	public ListNode<Person> authors;
-	public IntNode halID;
+	public LongNode halID;
 
 	public ACMClassifier acmClassifier;
 
-	public Publication(BBGraph g) {
+	public Publication(BGraph g) {
 		super(g);
 		this.title = new StringNode(g);
-		this.authors = new ListNode<>(g);
+		this.authors = new ListNode<>(g, "author(s)");
 		this.acmClassifier = new ACMClassifier(g);
 	}
 

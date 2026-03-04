@@ -2,10 +2,10 @@ package byransha.nodes.primitive;
 
 import java.util.Base64;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class ByteNode extends PrimitiveValueNode<byte[]> {
-	public ByteNode(BBGraph g) {
+	public ByteNode(BGraph g) {
 		super(g);
 	}
 

@@ -6,10 +6,10 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class EventListOneFilePerDay extends OnDiskEventList {
-	public EventListOneFilePerDay(BBGraph g, File directory) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	public EventListOneFilePerDay(BGraph g, File directory) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g, directory);
 	}
 

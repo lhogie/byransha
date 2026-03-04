@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 
 import byransha.event.Event;
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.lab.Person;
 import toools.Stop;
 
@@ -27,13 +27,14 @@ public class CreateNewPerson extends Event {
 	}
 
 	@Override
-	public void undo(BBGraph g) throws Throwable {
-		var luc = g.forEachNodeOfClass(Person.class, p -> Stop.stopIf(p.etatCivil.name.get().equals(name)));
+	public void undo(BGraph g) throws Throwable {
+		var luc = g.i.byClass.forEachNodeOfClass(Person.class,
+				p -> Stop.stopIf(p.etatCivil.name.get().equals(name)));
 		luc.delete();
 	}
 
 	@Override
-	public void apply(BBGraph g) {
+	public void apply(BGraph g) {
 		var p = new Person(g);
 		p.etatCivil.name.set(name);
 	}

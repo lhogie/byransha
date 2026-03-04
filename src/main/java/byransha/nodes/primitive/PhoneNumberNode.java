@@ -1,10 +1,10 @@
 package byransha.nodes.primitive;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class PhoneNumberNode extends StringNode {
 
-	public PhoneNumberNode(BBGraph db) {
+	public PhoneNumberNode(BGraph db) {
 		super(db);
 	}
 

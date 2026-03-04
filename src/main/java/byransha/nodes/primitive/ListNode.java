@@ -1,6 +1,8 @@
 package byransha.nodes.primitive;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -8,24 +10,47 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import byransha.graph.BBGraph;
+import butils.IntObjectBiConsumer;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Export.CSVData;
+import byransha.graph.action.PruneList;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	String label;
-	private List<T> selected = new ArrayList<>();
+	List<T> selected = Collections.EMPTY_LIST;
 
-	public ListNode(BBGraph g) {
+	public ListNode(BGraph g, String label) {
 		super(g);
 		set(new ArrayList<>());
+		this.label = label;
+	}
+
+	@Override
+	public void forEachOut(BiConsumer<BNode, String> consumer) {
+		super.forEachOut(consumer);
+		forEachOutInContent((i, o) -> consumer.accept(o, "" + i));
+	}
+
+	public void forEachOutInContent(IntObjectBiConsumer<BNode> consumer) {
+		var l = get();
+
+		for (int i = 0; i < l.size(); ++i) {
+			consumer.accept(i, l.get(i));
+		}
 	}
 
 	@Override
 	public void createViews() {
+		// cachedViews.add(new ListNodeView(g, this));
 		super.createViews();
-		cachedViews.add(new GetListElementView(g, this));
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.add(new PruneList(g, this));
+		super.createActions();
 	}
 
 	@Override
@@ -65,7 +90,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 			return Collections.emptyList();
 		}
 
-		return new String(bytes).lines().map(l -> (T) g.findByID(Integer.valueOf(l))).toList();
+		return new String(bytes).lines().map(l -> (T) g.i.byId.get(Integer.valueOf(l))).toList();
 	}
 
 	@Override
@@ -88,18 +113,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	@Override
 	public String prettyName() {
-		return label;
-	}
-
-	@Override
-	public void forEachOut(BiConsumer<String, BNode> consumer) {
-		super.forEachOut(consumer);
-
-		for (T element : getElements()) {
-			if (element instanceof BNode bNode) {
-				consumer.accept(bNode.id() + ". " + bNode.prettyName(), bNode);
-			}
-		}
+		return label == null ? "a list" : label;
 	}
 
 	public void add(T element) {
@@ -145,6 +159,16 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 			return null;
 		}
 		return get().stream().skip(index).findFirst().orElse(null);
+	}
+
+	public String toDot() {
+		var s = new StringWriter();
+		var pw = new PrintWriter(s);
+		pw.println("digraph {");
+		get().forEach(e -> pw.println(e.id() + ";"));
+		get().forEach(e -> e.forEachOut(o -> pw.println(e.id() + " -> " + o.id())));
+		pw.println("}");
+		return s.toString();
 	}
 
 }

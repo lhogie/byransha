@@ -2,11 +2,11 @@ package byransha.nodes.primitive;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
 
-	public PrimitiveValueNode(BBGraph g) {
+	public PrimitiveValueNode(BGraph g) {
 		super(g);
 	}
 

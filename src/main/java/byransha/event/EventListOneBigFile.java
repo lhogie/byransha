@@ -8,13 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class EventListOneBigFile extends OnDiskEventList {
 	private final File file;
 	int i;
 
-	public EventListOneBigFile(BBGraph g, File directory)
+	public EventListOneBigFile(BGraph g, File directory)
 			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g, directory);

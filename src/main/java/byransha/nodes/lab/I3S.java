@@ -3,7 +3,7 @@ package byransha.nodes.lab;
 import java.io.File;
 import java.io.IOException;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 /*
  * https://codimd.math.cnrs.fr/_ivy9aRUQK2o4ue-p9RHKg?both
@@ -12,7 +12,7 @@ import byransha.graph.BBGraph;
 
 public class I3S extends Lab {
 
-	public I3S(BBGraph g) {
+	public I3S(BGraph g) {
 		super(g);
 		name.set("I3S");
 

@@ -1,25 +1,23 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
-
 import javax.swing.ButtonGroup;
-import javax.swing.JComponent;
 import javax.swing.JRadioButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.BooleanNode;
+import byransha.swing.ByranshaUserPane;
 
 public class BooleanNodeView extends NodeView<BooleanNode> {
 
-	public BooleanNodeView(BBGraph g, BooleanNode node) {
+	public BooleanNodeView(BGraph g, BooleanNode node) {
 		super(g, node);
 	}
 
 	@Override
-	public JsonNode toJSON(BooleanNode n) {
+	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(null);
 		Boolean b = n.get();
 		r.set("value", b == null ? new com.fasterxml.jackson.databind.node.TextNode("-")
@@ -28,22 +26,19 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
+	public void writeTo(ByranshaUserPane pane) {
 		var yes = new JRadioButton("yes");
 		var no = new JRadioButton("no");
-		var dunno = new JRadioButton("don't know");
 		var group = new ButtonGroup();
 		group.add(yes);
 		group.add(no);
-		group.add(dunno);
 
-		yes.addActionListener(e -> node.set(true));
-		no.addActionListener(e -> node.set(false));
-		dunno.addActionListener(e -> node.set(null));
+		yes.addActionListener(e -> n.set(true));
+		no.addActionListener(e -> n.set(false));
 
-		node.valueChangeListeners.add(newValue -> {
+		n.valueChangeListeners.add(newValue -> {
 			if (newValue == null) {
-				dunno.setSelected(true);
+				throw new RuntimeException("null value not allowed in boolean node");
 			} else if (newValue == true) {
 				yes.setSelected(true);
 			} else {
@@ -51,9 +46,8 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 			}
 		});
 
-		onComponentCreated.accept(yes);
-		onComponentCreated.accept(no);
-		onComponentCreated.accept(dunno);
+		pane.append(yes);
+		pane.append(no);
 	}
 
 	@Override

@@ -10,12 +10,13 @@ import byransha.nodes.system.User;
 import toools.io.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
+	@Hide
 	protected final IN inputNode;
 	public boolean stopRequested = false;
 	private Thread thread;
 	public boolean execStraightAway = false;
 
-	public NodeAction(BBGraph g, IN inputNode) {
+	public NodeAction(BGraph g, IN inputNode) {
 		super(g);
 		this.inputNode = inputNode;
 	}
@@ -33,8 +34,8 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		return r;
 	}
 
-	protected final ActionResult<IN, OUT> createResultNode(OUT out) {
-		return new ActionResult<IN, OUT>(g, this, out);
+	protected final ActionResult<IN, OUT> createResultNode(OUT out, boolean jumpStraightAwayToResult) {
+		return new ActionResult<IN, OUT>(g, this, out, jumpStraightAwayToResult);
 	}
 
 	public boolean canExecute(User user) {
@@ -70,7 +71,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	static public class exec<OUT extends BNode> extends NodeAction<NodeAction, OUT> {
 
-		public exec(BBGraph g, NodeAction inputNode) {
+		public exec(BGraph g, NodeAction inputNode) {
 			super(g, inputNode);
 			execStraightAway = true;
 		}
@@ -89,7 +90,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 			Cout.debugSuperVisible("exec " + inputNode.prettyName());
 			var startDateMs = System.currentTimeMillis();
 			var r = inputNode.exec();
-			r.durationMs = System.currentTimeMillis() - startDateMs;
+			r.durationMs.set( System.currentTimeMillis() - startDateMs);
 			return r;
 		}
 

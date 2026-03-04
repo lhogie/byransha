@@ -10,7 +10,7 @@ public class DocumentNode extends BNode {
     public StringNode title;
     public MimeTypeNode mimeType;
 
-    public DocumentNode(BBGraph g) {
+    public DocumentNode(BGraph g) {
         super(g);
         data = new ByteNode(g);
         title = new StringNode(g);

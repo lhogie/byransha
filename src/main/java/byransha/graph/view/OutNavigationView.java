@@ -1,18 +1,15 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class OutNavigationView extends NodeView<BNode> {
 
-	public OutNavigationView(BBGraph g, BNode node) {
+	public OutNavigationView(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -22,22 +19,22 @@ public class OutNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON(BNode n) {
+	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(BNode.factory);
 
 		return r;
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		node.forEachOut((name, out) -> {
+	public void writeTo(ByranshaUserPane pane) {
+		n.forEachOut((out, role) -> {
 			for (var v : out.views()) {
 				if (v instanceof JumpTo j) {
-					j.createSwingComponents(onComponentCreated);
+					j.writeTo(pane);
 					return;
 				}
-			}				
-			throw new IllegalStateException(out.getClass() + " has no jump view" );
+			}
+			throw new IllegalStateException(out.getClass() + " has no jump view");
 		});
 
 	}

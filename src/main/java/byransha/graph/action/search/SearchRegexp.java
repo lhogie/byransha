@@ -1,13 +1,13 @@
 package byransha.graph.action.search;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 
 public class SearchRegexp extends Search {
 	public StringNode regexp;
 
-	public SearchRegexp(BBGraph g, BNode srcNode) {
+	public SearchRegexp(BGraph g, BNode srcNode) {
 		super(g, srcNode);
 		regexp = new StringNode(g, ".*", ".+");
 	}

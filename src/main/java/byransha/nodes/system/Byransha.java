@@ -9,12 +9,19 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
+import byransha.nodes.primitive.StringNode;
+import byransha.nodes.primitive.URLNode;
 
 public class Byransha extends SystemB {
 
-	public Byransha(BBGraph g) {
+	public final StringNode version;
+	public final URLNode sourceURL;
+
+	public Byransha(BGraph g) {
 		super(g);
+		version = new StringNode(g, "0.0.1", ".*");
+		sourceURL = new URLNode(g, "https://github.com/lhogie/byransha");
 	}
 
 	@Override
@@ -26,8 +33,6 @@ public class Byransha extends SystemB {
 	public String whatIsThis() {
 		return "Byransha";
 	}
-
-	public static final String VERSION = "0.0.1";
 
 	interface JSONable {
 		JsonNode toJson();

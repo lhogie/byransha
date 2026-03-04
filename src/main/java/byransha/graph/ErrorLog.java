@@ -9,9 +9,9 @@ import byransha.nodes.system.SystemB;
 public class ErrorLog extends SystemB {
 	public final ListNode<ExceptionNode> errors;
 
-	public ErrorLog(BBGraph g) {
+	public ErrorLog(BGraph g) {
 		super(g);
-		errors = new ListNode<>(g);
+		errors = new ListNode<>(g, "error(s)");
 	}
 
 	@Override
@@ -29,6 +29,7 @@ public class ErrorLog extends SystemB {
 		errN.err = err;
 		errN.date = LocalDateTime.now();
 		errors.add(errN);
+		err.printStackTrace();
 		return errN;
 	}
 }

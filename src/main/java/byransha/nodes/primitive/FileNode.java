@@ -2,14 +2,14 @@ package byransha.nodes.primitive;
 
 import java.io.File;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class FileNode extends BNode {
 
 	File file;
 
-	protected FileNode(BBGraph g) {
+	protected FileNode(BGraph g) {
 		super(g);
 	}
 

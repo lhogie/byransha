@@ -1,19 +1,17 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class SmallInfoView extends NodeView<BNode> {
 
-	public SmallInfoView(BBGraph g, BNode node) {
+	public SmallInfoView(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -23,14 +21,13 @@ public class SmallInfoView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON(BNode n) {
+	public JsonNode toJSON() {
 		return new TextNode(n.prettyName());
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		onComponentCreated.accept(new JLabel(currentUser() + " - " + currentUser().currentNode().prettyName() + " ("
-				+ currentUser().currentNode().whatIsThis() + ")"));
+	public void writeTo(ByranshaUserPane pane) {
+		pane.append(new JLabel(n + " - " + n.prettyName() + " (" + n.whatIsThis() + ")"));
 	}
 
 	@Override

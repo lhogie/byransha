@@ -2,14 +2,14 @@ package byransha.graph.action;
 
 import java.util.ArrayList;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
-	public Export(BBGraph g, BNode node) {
+	public Export(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -30,7 +30,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public ActionResult<BNode, ListNode<TextNode>> exec() throws Throwable {
-		var r = new ListNode<byransha.nodes.primitive.TextNode>(g);
+		var r = new ListNode<byransha.nodes.primitive.TextNode>(g, "export texts");
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
 		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))

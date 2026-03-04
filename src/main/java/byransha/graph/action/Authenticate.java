@@ -3,7 +3,7 @@ package byransha.graph.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.StringNode;
@@ -13,7 +13,7 @@ import toools.Stop;
 public class Authenticate extends NodeAction<BNode, User> {
 	public StringNode username, password;
 
-	public Authenticate(BBGraph g, BNode node) {
+	public Authenticate(BGraph g, BNode node) {
 		super(g, node);
 		username = new StringNode(g, null, ".+");
 		password = new StringNode(g, null, ".+");
@@ -31,14 +31,14 @@ public class Authenticate extends NodeAction<BNode, User> {
 	public ActionResult<BNode, User> exec() {
 		var u = username.get();
 		var p = password.getOrDefault("").hashCode();
-		var newUser = g.forEachNodeOfClass(User.class,
-				uu -> Stop.stopIf(uu.name.get().equals(u) && uu.passwordHash.equals(p)));
+		var newUser = g.i.byClass.forEachNodeOfClass(User.class,
+				uu -> Stop.stopIf(uu.name.get().equals(u) && uu.argon2Hash.equals(p)));
 
 		if (newUser != null) {
-			g.systemNode.setCurrentUser(newUser);
+			g.setCurrentUser(newUser);
 		}
 
-		return createResultNode(newUser);
+		return createResultNode(newUser, true);
 	}
 
 	@Override

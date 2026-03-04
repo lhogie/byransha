@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.function.Predicate;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
@@ -22,7 +22,7 @@ public class ClassNode extends BNode {
 	public ListNode<ClassNode> aggregations;
 
 	public static class Aggregation extends BNode {
-		protected Aggregation(BBGraph g) {
+		protected Aggregation(BGraph g) {
 			super(g);
 		}
 
@@ -40,24 +40,24 @@ public class ClassNode extends BNode {
 		}
 	}
 
-	public ClassNode(BBGraph g, Class c) {
+	public ClassNode(BGraph g, Class c) {
 		super(g);
 		this.clazz = c;
 	}
 
 	public void link() {
-		this.interfaces = new ListNode<>(g);
-		this.aggregations = new ListNode<>(g);
+		this.interfaces = new ListNode<>(g, "interfaces");
+		this.aggregations = new ListNode<>(g, "aggregations");
 
 		for (var superInterface : clazz.getInterfaces()) {
-			var superInterfaceNode = g.findFirst(ClassNode.class, n -> n.clazz == superInterface);
+			var superInterfaceNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == superInterface);
 
 			if (superInterfaceNode != null) {
 				interfaces.get().add(superInterfaceNode);
 			}
 		}
 
-		this.superClass = g.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
+		this.superClass = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
 
 		{
 			var set = new HashSet<Class>();
@@ -71,7 +71,7 @@ public class ClassNode extends BNode {
 			}
 
 			for (var cc : set) {
-				var classNode = g.findFirst(ClassNode.class, n -> n.clazz == cc);
+				var classNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == cc);
 
 				if (classNode != null) {
 					aggregations.get().add(classNode);
@@ -142,10 +142,10 @@ public class ClassNode extends BNode {
 
 	public BNode newInstance() {
 		try {
-			return (BNode) clazz.getConstructor(BBGraph.class).newInstance(g);
+			return (BNode) clazz.getConstructor(BGraph.class).newInstance(g);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException err) {
-			g.systemNode.errorLog.add(err);
+			g.errorLog.add(err);
 			throw new IllegalStateException(err);
 		}
 	}

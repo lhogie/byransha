@@ -3,24 +3,30 @@ package byransha.nodes.system;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.StringNode;
 
 public class User extends BNode {
 	public final StringNode name;
-	public String passwordHash;
-	public final StringNode password;
+	public final StringNode passwordNode;
+	public final StringNode argon2Hash;
 	public final HistoryNode history;
 	public final List<NavigationListener> listeners = new ArrayList<>();
 
-	public User(BBGraph g, String userName, String passwordHash) {
+	public User(BGraph g, String userName, String passwordHash) {
 		super(g);
 		name = new StringNode(g, userName, ".+");
-		this.passwordHash = passwordHash;
-		password = new StringNode(g, null, ".+");
+		passwordNode = new StringNode(g, null, ".+");
+		this.argon2Hash = new StringNode(g, passwordHash, ".*");
+		passwordNode.hideText = true;
 		history = new HistoryNode(g);
+
+		passwordNode.valueChangeListeners.add(e -> {
+			argon2Hash.set(Argon.hash(passwordNode.get()));
+		});
 	}
 
 	@Override
@@ -43,7 +49,7 @@ public class User extends BNode {
 	}
 
 	public boolean accept(String username, String p) {
-		return name.get().equals(username) && password.get().equals(p);
+		return name.get().equals(username) && passwordNode.get().equals(p);
 	}
 
 	@Override
@@ -56,12 +62,10 @@ public class User extends BNode {
 	}
 
 	public void jumpTo(BNode n) {
-		if (currentNode() == n)
-			throw new IllegalArgumentException("already on this node");
-
 		if (n instanceof NodeAction a && a.execStraightAway) {
 			try {
-				jumpTo(a.exec());
+				ActionResult ar = a.exec();
+				jumpTo(ar.jumpStraightAwayToResult ? ar.result : ar);
 			} catch (Throwable err) {
 				jumpTo(error(err, false));
 			}

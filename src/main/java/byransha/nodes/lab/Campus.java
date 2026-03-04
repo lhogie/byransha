@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 
@@ -10,10 +10,10 @@ public class Campus extends BusinessNode {
 
 	public ListNode<Building> buildings;
 
-	public Campus(BBGraph g) {
+	public Campus(BGraph g) {
 		super(g);
 		name = new StringNode(g, "", ".+");
-		buildings = new ListNode(g);
+		buildings = new ListNode(g, "campus(es)");
 	}
 
 	@Override

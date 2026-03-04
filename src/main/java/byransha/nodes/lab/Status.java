@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
 
@@ -8,7 +8,7 @@ public class Status extends BusinessNode {
 
 	StringNode name;
 
-	public Status(BBGraph g) {
+	public Status(BGraph g) {
 		super(g);
 		name = new StringNode(g);
 	}

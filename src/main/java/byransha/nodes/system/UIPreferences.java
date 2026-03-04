@@ -1,18 +1,20 @@
 package byransha.nodes.system;
 
-import byransha.graph.BBGraph;
+import java.awt.Color;
+
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.ColorNode;
 
 public class UIPreferences extends SystemB {
 	ColorNode backgroundColor;
 	ColorNode textColor;
 
-	public UIPreferences(BBGraph g) {
+	public UIPreferences(BGraph g) {
 		super(g);
 		backgroundColor = new ColorNode(g);
-		backgroundColor.set("#A9A9A9");
+		backgroundColor.set(Color.white);
 		textColor = new ColorNode(g);
-		textColor.set("#000000");
+		textColor.set(Color.black);
 	}
 
 	@Override

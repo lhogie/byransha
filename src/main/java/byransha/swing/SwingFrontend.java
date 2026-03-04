@@ -6,7 +6,7 @@ import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.SystemB;
 import byransha.nodes.system.UIPreferences;
 
@@ -16,12 +16,12 @@ public class SwingFrontend extends SystemB {
 	static JFrame f = new JFrame("Byransha");
 	public final ByranshaUserPane sheet = new DocPane_TextPane();
 
-	public SwingFrontend(BBGraph g) {
+	public SwingFrontend(BGraph g) {
 		super(g);
 //		setLookAndFeel("WebLaf");
-		g.systemNode.swing = this;
-		g.systemNode.changeUserListener.add(u -> sheet.addNode(u));
-
+		g.swing = this;
+		g.changeUserListener.add(u -> sheet.addNode(u));
+				
 		JScrollPane scroll = new JScrollPane(sheet.getComponent());
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

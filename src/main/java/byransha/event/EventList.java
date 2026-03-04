@@ -5,14 +5,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.function.Consumer;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public abstract class EventList extends BNode {
 
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
 
-	public EventList(BBGraph g) {
+	public EventList(BGraph g) {
 		super(g);
 	}
 

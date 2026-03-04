@@ -1,6 +1,9 @@
 package butils;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -10,6 +13,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import com.fasterxml.jackson.databind.JsonNode;
+
+import byransha.graph.BNode;
 
 public class ByUtils {
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
@@ -134,5 +139,68 @@ public class ByUtils {
 			return String.format("%.2fh", ms / (60 * 60 * 1000.0));
 		}
 	}
+	public static int sizeOfObject(Object o) {
+		if (o == null) {
+			return 0;
+		} else if (o instanceof BNode) {
+			return 0;
+		} else if (o.getClass().isArray()) {
+			var componentType = o.getClass().getComponentType();
+			var arrayLen = Array.getLength(o);
 
+			if (componentType.isPrimitive()) {
+				return arrayLen * butils.ByUtils.sizeOfPrimitive.get(componentType);
+			} else {
+				int sum = 0;
+
+				for (int i = 0; i < arrayLen; ++i) {
+					sum += 4 + sizeOfObject(Array.get(o, i));
+				}
+
+				return sum;
+			}
+		} else if (o instanceof Iterable iter) {
+			int sum = 4; // nb of elements
+
+			for (var ce : iter) {
+				sum += 4 + sizeOfObject(ce);
+			}
+
+			return sum;
+		} else if (o instanceof LocalDateTime) {
+			return 76;
+		} else if (o instanceof Map m) {
+			return 4 + sizeOfObject(m.keySet()) + 4 + sizeOfObject(m.values());
+		} else {
+			return sizeOfFields(o);
+		}
+	}
+
+	public static int sizeOfFields(Object o) {
+		int totalSize = 0;
+
+		for (Class c = o.getClass(); c != null; c = c.getSuperclass()) {
+			for (var field : c.getDeclaredFields()) {
+				if ((field.getModifiers() & Modifier.STATIC) == 0) { // non static
+					var fieldDeclaraionType = field.getType();
+
+					if (fieldDeclaraionType.isPrimitive()) {
+						totalSize += butils.ByUtils.sizeOfPrimitive.get(fieldDeclaraionType);
+					} else {
+						totalSize += 4; // ref size
+
+						try {
+							field.setAccessible(true);
+							totalSize += sizeOfObject(field.get(o));
+						} catch (Throwable err) {
+							// throw err instanceof RuntimeException re ? re : new RuntimeException(err);
+						}
+					}
+				}
+			}
+		}
+
+		return totalSize;
+
+	}
 }

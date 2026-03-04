@@ -2,11 +2,11 @@ package byransha.nodes.lab;
 
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.User;
 
 public class PhDStudent extends Position {
-	public PhDStudent(BBGraph g) {
+	public PhDStudent(BGraph g) {
 		super(g);
 	}
 

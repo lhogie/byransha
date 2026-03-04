@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class InMemoryEventList extends EventList {
 	List<Event> q = new ArrayList<>();
 	int lastExecutedEventIndex = -1;
 
-	public InMemoryEventList(BBGraph g) {
+	public InMemoryEventList(BGraph g) {
 		super(g);
 	}
 

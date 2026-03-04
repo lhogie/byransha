@@ -1,6 +1,6 @@
 package byransha.graph.action;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.BooleanNode;
@@ -8,7 +8,7 @@ import byransha.nodes.primitive.BooleanNode;
 public abstract class ConfirmRequiredNodeAction<A extends BNode, R extends BNode> extends NodeAction<A, R> {
 	private final BooleanNode confirmed;
 
-	public ConfirmRequiredNodeAction(BBGraph g, A action) {
+	public ConfirmRequiredNodeAction(BGraph g, A action) {
 		super(g, action);
 		this.confirmed = new BooleanNode(g, null);
 	}

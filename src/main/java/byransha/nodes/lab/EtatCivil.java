@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.ListNode;
@@ -24,15 +24,15 @@ public class EtatCivil extends BusinessNode {
 
 	public DocumentNode pic;
 
-	public EtatCivil(BBGraph g) {
+	public EtatCivil(BGraph g) {
 		super(g);
 		name = new StringNode(g);
 		familyNameBeforeMariage = new StringNode(g);
 		firstName = new StringNode(g);
 		birthDate = new DateNode(g);
 		cityOfBirth = new StringNode(g);
-		countryOfBirth = new ListNode<Country>(g);
-		nationality = new ListNode<Nationality>(g);
+		countryOfBirth = new ListNode<Country>(g, "countries");
+		nationality = new ListNode<Nationality>(g, "nationalities");
 		address = new StringNode(g);
 		telephone = new PhoneNumberNode(g);
 	}

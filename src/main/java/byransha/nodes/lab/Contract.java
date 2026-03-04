@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
@@ -13,7 +13,7 @@ public class Contract extends BusinessNode {
 	ListNode<Person> partners;
 	ListNode<Person> misc;
 
-	public Contract(BBGraph g) {
+	public Contract(BGraph g) {
 		super(g);
 		name = new StringNode(g);
 		subHolders = new ListNode<>(g);

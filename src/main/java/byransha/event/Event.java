@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public abstract class Event implements Serializable, Comparable<Event> {
 	final LocalDateTime date;
@@ -15,9 +15,9 @@ public abstract class Event implements Serializable, Comparable<Event> {
 		this.date = date;
 	}
 
-	public abstract void apply(BBGraph g) throws Throwable;;
+	public abstract void apply(BGraph g) throws Throwable;;
 
-	public abstract void undo(BBGraph g) throws Throwable;
+	public abstract void undo(BGraph g) throws Throwable;
 
 	@Override
 	public int compareTo(Event e) {

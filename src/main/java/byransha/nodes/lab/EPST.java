@@ -1,10 +1,10 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class EPST extends Structure {
 
-	public EPST(BBGraph g) {
+	public EPST(BGraph g) {
 		super(g);
 	}
 }

@@ -5,7 +5,7 @@ import org.java_websocket.WebSocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.system.User;
 
@@ -14,11 +14,11 @@ import byransha.nodes.system.User;
  */
 public class WebSocketHandler {
 	
-	private final BBGraph graph;
+	private final BGraph graph;
 	private final ByranshaWebSocketServer server;
 	private final ObjectMapper mapper = new ObjectMapper();
 	
-	public WebSocketHandler(BBGraph graph, ByranshaWebSocketServer server) {
+	public WebSocketHandler(BGraph graph, ByranshaWebSocketServer server) {
 		this.graph = graph;
 		this.server = server;
 	}

@@ -4,14 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
 	public final List<ValueNodeListener<V>> valueChangeListeners = new ArrayList<>();
 
-	public ValuedNode(BBGraph g) {
+	public ValuedNode(BGraph g) {
 		super(g);
 	}
 
@@ -47,6 +47,11 @@ public abstract class ValuedNode<V> extends BNode {
 		}
 
 		return value;
+	}
+
+	@Override
+	public void reset() {
+		set(defaultValue());
 	}
 
 	public void set(V newValue) {

@@ -1,30 +1,26 @@
 package byransha.graph.view;
 
-import java.io.IOException;
-import java.util.function.Consumer;
+import java.awt.Dimension;
 
-import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import butils.ByUtils;
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public abstract class NodeView<N extends BNode> extends BNode {
-	public final N node;
+	public final N n;
 
-	public NodeView(BBGraph g, N node) {
+	public NodeView(BGraph g, N node) {
 		super(g);
-		this.node = node;
+		this.n = node;
 	}
 
-	public final JsonNode toJSON() {
-		return toJSON(node);
-	}
-
-	public abstract JsonNode toJSON(N n);
+	public abstract JsonNode toJSON();
 
 	@Override
 	public ObjectNode toJSONNode() {
@@ -60,6 +56,13 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return false;
 	}
 
-	public abstract void createSwingComponents(Consumer<JComponent> c) throws IOException;
+	public void writeTo(ByranshaUserPane pane) {
+		var c = ByUtils.JsonToTreeConverter.buildTreeModel(toJSON());
+		var sp = new JScrollPane(c);
+		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		sp.setPreferredSize(new Dimension(500, 100));
+		pane.append(sp);
+	}
 
 }

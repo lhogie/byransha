@@ -3,15 +3,12 @@ package byransha.graph;
 import java.awt.Color;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -28,6 +25,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import butils.ByUtils;
+import byransha.graph.action.Back;
 import byransha.graph.action.Delete;
 import byransha.graph.action.ExceptionNode;
 import byransha.graph.action.Export;
@@ -47,25 +46,30 @@ import byransha.graph.view.NodeView;
 import byransha.graph.view.OutNavigationView;
 import byransha.graph.view.SmallInfoView;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import toools.Stop;
+import toools.function.TriConsumer;
 import toools.gui.Utilities;
 
 public abstract class BNode {
-	public final BBGraph g;
+	@Hide
+	public final BGraph g;
 	public boolean readOnly;
 	private int id;
 
+	@Hide
 	protected ListNode<NodeView> cachedViews;
+	@Hide
 	protected ListNode<NodeAction> cachedActions;
 
-	protected BNode(BBGraph g) {
+	protected BNode(BGraph g) {
 		if (g == null) {
-			this.g = (BBGraph) this;
+			this.g = (BGraph) this;
 		} else {
 			this.g = g;
-			setID(this.g.nextID());
+
+			g.i.byId.index(this);
 		}
 	}
 
@@ -74,7 +78,7 @@ public abstract class BNode {
 	}
 
 	protected ExceptionNode error(Throwable err, boolean rethrow) {
-		var n = g.systemNode.errorLog.add(err);
+		var n = g.errorLog.add(err);
 
 		if (rethrow) {
 			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
@@ -85,8 +89,11 @@ public abstract class BNode {
 
 	public List<NodeView<BNode>> views() {
 		if (cachedViews == null) {
-			cachedViews = new ListNode(g);
+			cachedViews = new ListNode(g, "views for node " + this);
 			createViews();
+
+			if (findView(JumpTo.class) == null)
+				error(new IllegalStateException("no jump view found for node " + getClass().getName()));
 		}
 
 		return (List<NodeView<BNode>>) (List) cachedViews.get();
@@ -94,7 +101,7 @@ public abstract class BNode {
 
 	public List<NodeAction> actions() {
 		if (cachedActions == null) {
-			cachedActions = new ListNode<>(g);
+			cachedActions = new ListNode<>(g, "actions for node " + this);
 			createActions();
 		}
 
@@ -106,91 +113,26 @@ public abstract class BNode {
 		cachedActions = null;
 	}
 
-	public NodeView<BNode> findView(Class<? extends NodeView<BNode>> c) {
+	public NodeView findView(Class<? extends NodeView> c) {
 		for (var v : views()) {
 			if (c.isAssignableFrom(v.getClass())) {
 				return v;
 			}
 		}
+
 		return null;
 	}
 
 	public User currentUser() {
-		return g.systemNode == null ? null : g.systemNode.getCurrentUser();
+		return g == null ? null : g.getCurrentUser();
 	}
 
 	public void delete() {
-		computeIns().forEach(inArc -> inArc.source().removeOut(this));
-		g.removeNode(id());
+		g.i.delete(this);
 	}
 
 	public int sizeOf() {
-		return sizeOfFields(this);
-	}
-
-	public static int sizeOfObject(Object o) {
-		if (o == null) {
-			return 0;
-		} else if (o instanceof BNode) {
-			return 0;
-		} else if (o.getClass().isArray()) {
-			var componentType = o.getClass().getComponentType();
-			var arrayLen = Array.getLength(o);
-
-			if (componentType.isPrimitive()) {
-				return arrayLen * butils.ByUtils.sizeOfPrimitive.get(componentType);
-			} else {
-				int sum = 0;
-
-				for (int i = 0; i < arrayLen; ++i) {
-					sum += 4 + sizeOfObject(Array.get(o, i));
-				}
-
-				return sum;
-			}
-		} else if (o instanceof Iterable iter) {
-			int sum = 4; // nb of elements
-
-			for (var ce : iter) {
-				sum += 4 + sizeOfObject(ce);
-			}
-
-			return sum;
-		} else if (o instanceof LocalDateTime) {
-			return 76;
-		} else if (o instanceof Map m) {
-			return 4 + sizeOfObject(m.keySet()) + 4 + sizeOfObject(m.values());
-		} else {
-			return sizeOfFields(o);
-		}
-	}
-
-	private static int sizeOfFields(Object o) {
-		int totalSize = 0;
-
-		for (Class c = o.getClass(); c != null; c = c.getSuperclass()) {
-			for (var field : c.getDeclaredFields()) {
-				if ((field.getModifiers() & Modifier.STATIC) == 0) { // non static
-					var fieldDeclaraionType = field.getType();
-
-					if (fieldDeclaraionType.isPrimitive()) {
-						totalSize += butils.ByUtils.sizeOfPrimitive.get(fieldDeclaraionType);
-					} else {
-						totalSize += 4; // ref size
-
-						try {
-							field.setAccessible(true);
-							totalSize += sizeOfObject(field.get(o));
-						} catch (Throwable err) {
-							// throw err instanceof RuntimeException re ? re : new RuntimeException(err);
-						}
-					}
-				}
-			}
-		}
-
-		return totalSize;
-
+		return ByUtils.sizeOfFields(this);
 	}
 
 	public void toCSVStreams(List<CSVData> l, boolean printHeaders)
@@ -215,7 +157,7 @@ public abstract class BNode {
 		var fields = new ArrayList<Field>();
 
 		if (printHeaders) {
-			forEachOutField(f -> fields.add(f));
+			forEachOutInFields((f, o, ro) -> fields.add(f));
 			ps.println('#' + fields.stream().map(f -> f.getName()).collect(Collectors.joining(", ")));
 		}
 
@@ -233,9 +175,9 @@ public abstract class BNode {
 	}
 
 	public void removeOut(BNode out) {
-		forEachOutField(f -> {
+		forEachOutInFields((f, o, ro) -> {
 			try {
-				if (f.get(this) == out) {
+				if (o == out) {
 					f.set(this, null);
 				}
 			} catch (IllegalAccessException err) {
@@ -244,22 +186,39 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOutField(Consumer<Field> consumer) {
+	public void forEachOutInFields(TriConsumer<Field, BNode, Boolean> consumer) {
 		ascendSuperClassesUntil(BNode.class, c -> {
 			for (var f : c.getDeclaredFields()) {
-				if ((f.getModifiers() & Modifier.STATIC) != 0)
-					continue;
+				if (!f.isAnnotationPresent(Hide.class)) {
+					f.setAccessible(true);
 
-				f.setAccessible(true);
+					if (BNode.class.isAssignableFrom(f.getType())) {
+						try {
+							var outNode = (BNode) f.get(this);
 
-				if (BNode.class.isAssignableFrom(f.getType())) {
-					consumer.accept(f);
+							if (outNode != null) {
+								var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
+								consumer.accept(f, outNode, isFinal);
+							}
+						} catch (IllegalArgumentException | IllegalAccessException e) {
+							throw new IllegalStateException(e);
+						}
+					}
 				}
 			}
 		});
 	}
 
+	public void forEachOut(BiConsumer<BNode, String> consumer) {
+		forEachOutInFields((f, o, ro) -> consumer.accept(o, f.getName()));
+	}
+
+	public void forEachOut(Consumer<BNode> consumer) {
+		forEachOutInFields((f, o, ro) -> consumer.accept(o));
+	}
+
 	public void createActions() {
+		cachedActions.add(new Back(g, this));
 		cachedActions.add(new Export(g, this));
 		cachedActions.add(new Reset(g, this));
 		cachedActions.add(new Delete(g, this));
@@ -288,51 +247,14 @@ public abstract class BNode {
 		consumer.accept(until);
 	}
 
-	public void forEachOut(BiConsumer<String, BNode> consumer) {
-		forEachOutField(f -> {
-			try {
-				var outNode = (BNode) f.get(this);
-
-				if (outNode != null) {
-					consumer.accept(f.getName(), outNode);
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				throw new IllegalStateException(e);
-			}
-		});
-	}
-
-	public void setID(int newID) {
-		synchronized (g) {
-			this.id = newID;
-			g.setID(this, newID);
-		}
-	}
-
 	public abstract String whatIsThis();
-
-	public List<InLink> computeIns() {
-		List<InLink> refs = new ArrayList<>();
-
-		g.forEachNode(node -> {
-			node.forEachOut((role, target) -> {
-				if (target != null && target == this) {
-					refs.add(new InLink(role, node));
-				}
-			});
-
-			return Stop.no;
-		});
-
-		return refs;
-	}
 
 	public static class BFSResult {
 		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
 		public Set<BNode> visited = new HashSet<>();
 	}
 
-	public BFSResult bfs(int maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
+	public BFSResult bfs(long maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
 		List<BNode> q = new ArrayList<>();
 		var r = new BFSResult();
 
@@ -353,13 +275,13 @@ public abstract class BNode {
 			}
 
 			final var c_tmp = c;
-			c.forEachOut((f, n) -> {
-				if (!r.visited.contains(n)) {
-					r.visited.add(n);
+			c.forEachOut(o -> {
+				if (!r.visited.contains(o)) {
+					r.visited.add(o);
 
 					if (nodeFilter.test(c_tmp)) {
-						q.add(n);
-						r.distances.put(n, d + 1);
+						q.add(o);
+						r.distances.put(o, d + 1);
 					}
 				}
 			});
@@ -459,8 +381,8 @@ public abstract class BNode {
 				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOut((name, out) -> {
-			outsNode.put(name, out.toJSONNode(depth - 1));
+		forEachOutInFields((f, out, ro) -> {
+			outsNode.put(f.getName(), out.toJSONNode(depth - 1));
 		});
 		r.set("outs", outsNode);
 
@@ -479,14 +401,28 @@ public abstract class BNode {
 
 	public NodeView<BNode> getKishanView() {
 		for (var v : views()) {
-			if (v instanceof KishanView) {
-				continue;
+			if (!(v instanceof KishanView)) {
+				return v;
 			}
-			return v;
-
 		}
 
-		throw new IllegalStateException("no kishan view found for node " + this);
+		throw new IllegalStateException("no kishanable view found for node " + this);
+	}
+
+	public void reset() {
+		forEachOutInFields((f, o, ro) -> {
+			if (!ro) {
+				try {
+					var v = (BNode) f.get(this);
+
+					if (v instanceof ValuedNode vn) {
+						reset();
+					}
+				} catch (IllegalAccessException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
 	}
 
 }

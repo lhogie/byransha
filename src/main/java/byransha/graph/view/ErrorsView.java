@@ -1,19 +1,15 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
-
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.swing.ByranshaUserPane;
 
 public class ErrorsView extends NodeView<BNode> {
 
-	public ErrorsView(BBGraph g, BNode node) {
+	public ErrorsView(BGraph g, BNode node) {
 		super(g, node);
 	}
 
@@ -23,8 +19,8 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON(BNode n) {
-		ArrayNode r = new ArrayNode(factory);
+	public JsonNode toJSON() {
+		var r = new ArrayNode(factory);
 
 		for (var err : n.errors()) {
 			r.add(err.msg);
@@ -39,14 +35,15 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		for (var err : node.errors()) {
-			onComponentCreated.accept(new JLabel(err.msg));
+	public void writeTo(ByranshaUserPane pane) {
+		for (var err : n.errors()) {
+			pane.append("Error: " + err.msg);
+			pane.newLine();
 		}
 	}
 
 	public boolean showInViewList() {
-		return true;
+		return !n.errors().isEmpty();
 	}
 
 	@Override

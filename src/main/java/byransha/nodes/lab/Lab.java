@@ -3,7 +3,7 @@ package byransha.nodes.lab;
 import java.util.HashMap;
 import java.util.Map;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.ListNode;
 
 public class Lab extends Structure {
@@ -12,10 +12,10 @@ public class Lab extends Structure {
 	final Map<Person, HFDSAvisE> HFDSAvisfds;
 	final ListNode<Structure> tutelles;
 
-	public Lab(BBGraph g) {
+	public Lab(BGraph g) {
 		super(g);
 		HFDSAvisfds = new HashMap<>();
-		tutelles = new ListNode(g);
+		tutelles = new ListNode(g, "tutelles");
 	}
 
 	enum HFDSAvisE {

@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
 import byransha.swing.SwingFrontend;
@@ -16,22 +16,22 @@ public class Main {
 		var argMap = mapArgs(args);
 
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
-		var g = new BBGraph(d);
-		g.systemNode.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
-				.getConstructor(BBGraph.class).newInstance(g);
+		var g = new BGraph(d);
+		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
+				.getConstructor(BGraph.class).newInstance(g);
 
-		g.systemNode.nodeCreator.addClasses(g.systemNode.application.getClass().getPackage());
+		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new SwingFrontend(g);
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "1000")));
 
-		g.systemNode.eventList.add(new CreateNewPerson("Luc"));
-		g.systemNode.eventList.add(new CreateNewPerson("Dylan"));
-		g.systemNode.eventList.add(new CreateNewPerson("Sophie"));
+		g.eventList.add(new CreateNewPerson("Luc"));
+		g.eventList.add(new CreateNewPerson("Dylan"));
+		g.eventList.add(new CreateNewPerson("Sophie"));
 
 		System.out.println("playing events");
-		g.systemNode.eventList.goToNow(e -> System.out.println("event: " + e));
+		g.eventList.goToNow(e -> System.out.println("event: " + e));
 	}
 
 	private static Map<String, String> mapArgs(String... args) {

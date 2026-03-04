@@ -1,23 +1,22 @@
 package byransha.graph.view;
 
-import java.util.function.Consumer;
+import java.awt.Dimension;
 
-import javax.swing.JComponent;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
+import byransha.swing.ByranshaUserPane;
 
 public class StringNodeView extends NodeView<StringNode> {
 
-	public StringNodeView(BBGraph g, StringNode node) {
+	public StringNodeView(BGraph g, StringNode node) {
 		super(g, node);
 	}
 
@@ -36,18 +35,19 @@ public class StringNodeView extends NodeView<StringNode> {
 	}
 
 	@Override
-	public JsonNode toJSON(StringNode n) {
-		ObjectNode r = new ObjectNode(null);
-		r.set("value", new TextNode(n.get()));
-		r.set("password", BooleanNode.valueOf(n.password));
+	public JsonNode toJSON() {
+		ObjectNode r = new ObjectNode(factory);
+		r.put("value", n.get());
+		r.put("password", n.hideText);
 		return r;
 	}
 
 	@Override
-	public void createSwingComponents(Consumer<JComponent> onComponentCreated) {
-		String s = node.get();
-		var textComponent = new JTextField(s);
-		textComponent.getDocument().addDocumentListener(new DocumentListener() {
+	public void writeTo(ByranshaUserPane pane) {
+		String s = n.get();
+		var tf = n.hideText ? new JPasswordField(s) : new JTextField(s);
+		tf.setPreferredSize(new Dimension(100, 30));
+		tf.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
@@ -60,7 +60,7 @@ public class StringNodeView extends NodeView<StringNode> {
 			}
 
 			private void changed(DocumentEvent e) {
-				node.set(textComponent.getText());
+				n.set(tf.getText());
 			}
 
 			@Override
@@ -68,14 +68,14 @@ public class StringNodeView extends NodeView<StringNode> {
 			}
 		});
 
-		int caret = textComponent.getCaretPosition();
-		node.valueChangeListeners.add(newValue -> {
-			if (!textComponent.getText().equals(newValue)) {
-				textComponent.setText(newValue);
+		int caret = tf.getCaretPosition();
+		n.valueChangeListeners.add(newValue -> {
+			if (!tf.getText().equals(newValue)) {
+				tf.setText(newValue);
 			}
 		});
-		textComponent.setCaretPosition(caret);
-		onComponentCreated.accept(textComponent);
+		tf.setCaretPosition(caret);
+		pane.append(tf);
 	}
 
 }

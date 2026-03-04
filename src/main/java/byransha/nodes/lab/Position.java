@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.system.User;
@@ -11,7 +11,7 @@ public class Position extends BNode {
 	DateNode to;
 	Status status;
 
-	public Position(BBGraph g) {
+	public Position(BGraph g) {
 		super(g);
 	}
 

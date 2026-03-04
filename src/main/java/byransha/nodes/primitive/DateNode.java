@@ -3,10 +3,10 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 import java.time.OffsetDateTime;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
-	public DateNode(BBGraph g) {
+	public DateNode(BGraph g) {
 		super(g);
 	}
 

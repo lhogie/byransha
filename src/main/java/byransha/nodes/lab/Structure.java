@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 
@@ -9,11 +9,11 @@ public class Structure extends BusinessNode {
 	public final ListNode<Structure> subStructures;
 	public final ListNode<Office> offices;
 
-	public Structure(BBGraph g) {
+	public Structure(BGraph g) {
 		super(g);
 		name = new StringNode(g, null, ".+");
-		subStructures = new ListNode(g);
-		offices = new ListNode(g);
+		subStructures = new ListNode(g, "sub-structure(s)");
+		offices = new ListNode(g, "offices");
 	}
 
 	@Override

@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 
 public abstract class OnDiskEventList extends EventList {
 	protected EventQueueSerializer qFormat = new CSVSerializer();
 	public final File directory;
 
-	public OnDiskEventList(BBGraph g, File directory)
+	public OnDiskEventList(BGraph g, File directory)
 			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g);

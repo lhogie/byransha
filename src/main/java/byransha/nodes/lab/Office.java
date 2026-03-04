@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
-import byransha.nodes.primitive.IntNode;
+import byransha.graph.BGraph;
+import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.User;
@@ -12,14 +12,14 @@ public class Office extends BusinessNode {
 
 	public ListNode<Person> users;
 
-	public IntNode surface, capacity;
+	public LongNode surface, capacity;
 
-	public Office(BBGraph g) {
+	public Office(BGraph g) {
 		super(g);
 		name = new StringNode(g);
-		users = new ListNode(g);
-		surface = new IntNode(g);
-		capacity = new IntNode(g);
+		users = new ListNode(g, "users");
+		surface = new LongNode(g);
+		capacity = new LongNode(g);
 	}
 
 	@Override

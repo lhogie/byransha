@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
 
 public class Country extends BusinessNode {
@@ -8,7 +8,7 @@ public class Country extends BusinessNode {
 	public String name, code;
 	public DocumentNode flag;
 
-	public Country(BBGraph g) {
+	public Country(BGraph g) {
 		super(g);
 	}
 

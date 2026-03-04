@@ -1,11 +1,11 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.User;
 
 public class CNRS extends EPST {
 
-	public CNRS(BBGraph g) {
+	public CNRS(BGraph g) {
 		super(g);
 	}
 }

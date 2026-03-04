@@ -43,7 +43,7 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import butils.ByUtils;
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.SystemB;
@@ -83,7 +83,7 @@ public class WebServer extends SystemB {
 
 	public final SessionStore sessionStore;
 
-	public WebServer(BBGraph g, int port) throws Exception {
+	public WebServer(BGraph g, int port) throws Exception {
 		super(g);
 		g.systemNode.webServer = this;
 
@@ -641,7 +641,7 @@ public class WebServer extends SystemB {
 			return "Provides information about the WebServer node.";
 		}
 
-		public Info(BBGraph db) {
+		public Info(BGraph db) {
 			super(db);
 		}
 

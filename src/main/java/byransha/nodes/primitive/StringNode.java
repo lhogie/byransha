@@ -4,25 +4,26 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.NodeError;
 import byransha.graph.view.StringNodeView;
 
 public class StringNode extends PrimitiveValueNode<String> {
 	String re;
-	public boolean password;
+	public boolean hideText;
 
-	public StringNode(BBGraph db) {
+	public StringNode(BGraph db) {
 		super(db);
 	}
 
 	@Override
 	public void createViews() {
-		super.createViews();
 		cachedViews.add(new StringNodeView(g, this));
+		super.createViews();
 	}
 
-	public StringNode(BBGraph g, String init, String re) {
+
+	public StringNode(BGraph g, String init, String re) {
 		this(g);
 		this.re = re;
 		set(init);

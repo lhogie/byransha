@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.nodes.system.User;
 
 /*
@@ -11,7 +11,7 @@ public class ACMClassifier extends BusinessNode {
 	public String code, descr;
 
 
-	public ACMClassifier(BBGraph g) {
+	public ACMClassifier(BGraph g) {
 		super(g);
 	}
 

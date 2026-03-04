@@ -1,13 +1,14 @@
 package byransha.graph.action;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.ValuedNode;
 
 final public class Reset extends NodeAction<BNode, BNode> {
-	public Reset(BBGraph g, BNode n) {
+	public Reset(BGraph g, BNode n) {
 		super(g, n);
+		execStraightAway = true;
 	}
 
 	@Override
@@ -17,18 +18,8 @@ final public class Reset extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult exec() {
-		inputNode.forEachOutField(f -> {
-			try {
-				var v = (BNode) f.get(inputNode);
+		inputNode.reset();
 
-				if (v instanceof ValuedNode vn) {
-					vn.set(vn.defaultValue());
-				}
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			}
-		});
-
-		return null;
+		return createResultNode(inputNode, true);
 	}
 }

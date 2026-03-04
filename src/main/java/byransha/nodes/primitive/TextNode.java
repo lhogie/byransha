@@ -3,13 +3,13 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import byransha.graph.BBGraph;
+import byransha.graph.BGraph;
 import byransha.graph.view.TextNodeView;
 
 public class TextNode extends PrimitiveValueNode<String> {
 	StringNode labelNode;
 
-	public TextNode(BBGraph g, String label, String data) {
+	public TextNode(BGraph g, String label, String data) {
 		super(g);
 		set(data);
 		labelNode = new StringNode(g, label, ".+");
