@@ -1,4 +1,4 @@
-package byransha.swing;
+package byransha.ui.swing;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
@@ -7,10 +7,10 @@ import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 
 import byransha.graph.BGraph;
-import byransha.nodes.system.SystemB;
+import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.UIPreferences;
 
-public class SwingFrontend extends SystemB {
+public class SwingFrontend extends SystemNode {
 
 	public final UIPreferences ui;
 	static JFrame f = new JFrame("Byransha");
@@ -18,7 +18,7 @@ public class SwingFrontend extends SystemB {
 
 	public SwingFrontend(BGraph g) {
 		super(g);
-//		setLookAndFeel("WebLaf");
+		setLookAndFeel("WebLaf");
 		g.swing = this;
 		g.changeUserListener.add(u -> sheet.addNode(u));
 				
@@ -39,7 +39,7 @@ public class SwingFrontend extends SystemB {
 		this.ui = new UIPreferences(g);
 	}
 
-	private void setLookAndFeel(String name) {
+	private static void setLookAndFeel(String name) {
 		System.setProperty("awt.useSystemAAFontSettings", "on");
 		System.setProperty("swing.aatext", "true");
 		// https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes#how-to-use

@@ -5,15 +5,15 @@ import java.awt.Color;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import butils.ByUtils;
+import butils.Cout;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.system.User;
-import toools.io.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 	@Hide
 	protected final IN inputNode;
 	public boolean stopRequested = false;
-	private Thread thread;
+	public Thread thread;
 	public boolean execStraightAway = false;
 
 	public NodeAction(BGraph g, IN inputNode) {
@@ -24,6 +24,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	@Override
 	public void createActions() {
 		cachedActions.add(new exec<OUT>(g, this));
+		super.createActions();
 	}
 
 	@Override
@@ -90,7 +91,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 			Cout.debugSuperVisible("exec " + inputNode.prettyName());
 			var startDateMs = System.currentTimeMillis();
 			var r = inputNode.exec();
-			r.durationMs.set( System.currentTimeMillis() - startDateMs);
+			r.durationMs.set(System.currentTimeMillis() - startDateMs);
 			return r;
 		}
 
@@ -99,6 +100,13 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 			return "Run";
 		}
 
+		@Override
+		public boolean applies() {
+			return true;
+		}
+
 	}
+
+	public abstract boolean applies();
 
 }

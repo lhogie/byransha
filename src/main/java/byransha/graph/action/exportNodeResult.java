@@ -12,5 +12,4 @@ public final class exportNodeResult extends ActionResult<BNode, ListNode<TextNod
 			ListNode<TextNode> result) {
 		super(g, runningAction, result, true);
 	}
-
 }

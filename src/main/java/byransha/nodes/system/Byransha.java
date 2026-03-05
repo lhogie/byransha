@@ -13,7 +13,7 @@ import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
 
-public class Byransha extends SystemB {
+public class Byransha extends SystemNode {
 
 	public final StringNode version;
 	public final URLNode sourceURL;

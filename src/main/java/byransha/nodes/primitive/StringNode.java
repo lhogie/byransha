@@ -1,7 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import byransha.graph.BGraph;
@@ -22,21 +20,10 @@ public class StringNode extends PrimitiveValueNode<String> {
 		super.createViews();
 	}
 
-
 	public StringNode(BGraph g, String init, String re) {
 		this(g);
 		this.re = re;
 		set(init);
-	}
-
-	@Override
-	protected byte[] valueToBytes(String s) throws IOException {
-		return s.getBytes(StandardCharsets.UTF_8);
-	}
-
-	@Override
-	protected String bytesToValue(byte[] bytes) throws IOException {
-		return new String(bytes, StandardCharsets.UTF_8);
 	}
 
 	@Override

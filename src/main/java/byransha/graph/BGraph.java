@@ -13,7 +13,8 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.User;
-import byransha.swing.SwingFrontend;
+import byransha.ui.javafx.JavaFXFrontend;
+import byransha.ui.swing.SwingFrontend;
 import byransha.web.ByranshaWebSocketServer;
 import byransha.web.WebServer;
 
@@ -35,6 +36,7 @@ public class BGraph extends BNode {
 	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
 	private User currentUser;
+	public JavaFXFrontend javafx;
 
 	public static interface CurrentUserListener {
 		void changed(User u);
@@ -43,6 +45,12 @@ public class BGraph extends BNode {
 	public BGraph(File directory) throws Exception {
 		super(null);
 		setCurrentUser(guest);
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.add(new AllNodes(g));
+		super.createActions();
 	}
 
 	public void setCurrentUser(User newUser) {

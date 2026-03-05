@@ -30,4 +30,9 @@ public class Jump extends NodeAction<BNode, BNode> {
 		return createResultNode(target, true);
 	}
 
+
+	@Override
+	public boolean applies() {
+		return true;
+	}
 }

@@ -5,7 +5,6 @@ import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.lab.BusinessNode;
-import byransha.nodes.lab.I3S;
 import byransha.nodes.primitive.ListNode;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -22,15 +21,20 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 		try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan()) {
 			for (var c : scanResult.getAllClasses().loadClasses()) {
 				if (BusinessNode.class.isAssignableFrom(c)) {
-					System.out.println("adding " + c);
+//					System.out.println("adding " + c);
 					addClass(c);
 				}
 			}
 		}
 	}
 
+	@Override
+	public boolean applies() {
+		return true;
+	}
+
 	public void addClass(Class cla) {
-		ClassNode cn = g.i.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
+		ClassNode cn = ClassNode.find(g, cla);
 		classes.get().add(cn);
 	}
 

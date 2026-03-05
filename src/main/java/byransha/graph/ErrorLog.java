@@ -4,9 +4,9 @@ import java.time.LocalDateTime;
 
 import byransha.graph.action.ExceptionNode;
 import byransha.nodes.primitive.ListNode;
-import byransha.nodes.system.SystemB;
+import byransha.nodes.system.SystemNode;
 
-public class ErrorLog extends SystemB {
+public class ErrorLog extends SystemNode {
 	public final ListNode<ExceptionNode> errors;
 
 	public ErrorLog(BGraph g) {

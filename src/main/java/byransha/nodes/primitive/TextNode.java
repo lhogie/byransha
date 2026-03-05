@@ -1,8 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import byransha.graph.BGraph;
 import byransha.graph.view.TextNodeView;
 
@@ -18,21 +15,13 @@ public class TextNode extends PrimitiveValueNode<String> {
 	@Override
 	public void createViews() {
 		cachedViews.add(new TextNodeView(g, this));
+		super.createViews();
 	}
 
 	@Override
 	public void createActions() {
 		cachedActions.add(new saveNodeAction(g, this));
-	}
-
-	@Override
-	protected byte[] valueToBytes(String s) throws IOException {
-		return s.getBytes(StandardCharsets.UTF_8);
-	}
-
-	@Override
-	protected String bytesToValue(byte[] bytes) throws IOException {
-		return new String(bytes, StandardCharsets.UTF_8);
+		super.createActions();
 	}
 
 	@Override

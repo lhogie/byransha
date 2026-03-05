@@ -43,21 +43,21 @@ import com.sun.net.httpserver.HttpsParameters;
 import com.sun.net.httpserver.HttpsServer;
 
 import butils.ByUtils;
+import butils.Stop;
+import butils.TextUtilities;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.system.Byransha;
-import byransha.nodes.system.SystemB;
+import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
-import toools.Stop;
 import toools.reflect.ClassPath;
-import toools.text.TextUtilities;
 
 /**
  * https://syncagio.medium.com/how-to-setup-java-httpsserver-and-keystore-eb74a8bd89d
  */
 
-public class WebServer extends SystemB {
+public class WebServer extends SystemNode {
 
 	static final ObjectMapper mapper = new ObjectMapper();
 

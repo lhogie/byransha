@@ -5,14 +5,14 @@ import byransha.graph.BNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.ListNode;
 
-public class MapToClassNode extends AbstractMapAction {
+public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassNode> {
 
-	public MapToClassNode(BGraph g, ListNode l) {
+	public MapToClassNode(BGraph g, ListNode<A> l) {
 		super(g, l);
 	}
 
 	@Override
-	protected BNode map(BNode n) {
+	protected ClassNode map(A n) {
 		return g.i.byClass.findFirstOr(ClassNode.class, cn -> cn.clazz == n.getClass(),
 				() -> new ClassNode(g, n.getClass()));
 	}
@@ -20,5 +20,10 @@ public class MapToClassNode extends AbstractMapAction {
 	@Override
 	public String mapTo() {
 		return "class node";
+	}
+
+	@Override
+	public boolean applies() {
+		return inputNode.size() > 0;
 	}
 }

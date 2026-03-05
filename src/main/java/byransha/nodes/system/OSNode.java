@@ -15,7 +15,7 @@ import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
 
-public class OSNode extends SystemB {
+public class OSNode extends SystemNode {
 
 	public OSNode(BGraph g) {
 		super(g);

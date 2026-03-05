@@ -8,7 +8,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.graph.NodeAction;
+import byransha.ui.swing.ByranshaUserPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
+import javafx.scene.text.TextFlow;
 
 public class JumpTo extends NodeView<BNode> {
 
@@ -44,9 +48,32 @@ public class JumpTo extends NodeView<BNode> {
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
 		b = new JButton(label != null ? label : n.prettyName());
-		b.setPreferredSize(new Dimension(100, 30));
+		int side = 70;
+		b.setPreferredSize(new Dimension(side, side));
+		b.setMaximumSize(b.getPreferredSize());
 		b.addActionListener(e -> currentUser().jumpTo(n));
 		pane.append(b);
+
+		if (n instanceof NodeAction a) {
+			b.setToolTipText(a.whatItDoes());
+			b.setEnabled(a.applies());
+		} else {
+			b.setToolTipText(n.whatIsThis());
+		}
+	}
+
+	@Override
+	public void writeTo(TextFlow pane) {
+		Button b = new Button(label != null ? label : n.prettyName());
+		b.setOnAction(e -> currentUser().jumpTo(n));
+		pane.getChildren().add(b);
+
+		if (n instanceof NodeAction a) {
+			b.setTooltip(new Tooltip(a.whatItDoes()));
+			b.setDisable(!a.applies());
+		} else {
+			b.setTooltip(new Tooltip(n.whatIsThis()));
+		}
 	}
 
 	public boolean showInViewList() {

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
-import byransha.nodes.system.SystemB;
+import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
 
 /**

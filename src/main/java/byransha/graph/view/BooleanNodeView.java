@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.BooleanNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class BooleanNodeView extends NodeView<BooleanNode> {
 

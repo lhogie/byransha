@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class SmallInfoView extends NodeView<BNode> {
 

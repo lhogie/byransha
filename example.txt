@@ -1,0 +1,15 @@
+{
+  "id" : 0,
+  "class" : "byransha.graph.action.Export",
+  "color" : "#ffffff",
+  "prettyName" : "Export",
+  "whatIsThis" : "an action which export this node using text formats",
+  "canSee" : true,
+  "canEdit" : true,
+  "actions" : [ "run" ],
+  "errors" : [ ],
+  "views" : [ "kishan", "small_info", "jump_to", "out_navigation", "in_navigation", "errors", "available_actions", "debug" ],
+  "outs" : { },
+  "canExecute" : true,
+  "whatItDoes" : "export this node using text formats"
+}

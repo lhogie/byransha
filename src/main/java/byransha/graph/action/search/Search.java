@@ -32,4 +32,10 @@ public class Search extends NodeAction<BNode, ListNode> {
 	public String whatItDoes() {
 		return "search all nodes until a given distance";
 	}
+
+	@Override
+	public boolean applies() {
+		return true;
+	}
+
 }

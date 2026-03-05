@@ -15,6 +15,8 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.PruneList;
+import byransha.graph.view.DotAction;
+import byransha.graph.view.GeneratePlantUML;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
@@ -50,6 +52,8 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	@Override
 	public void createActions() {
 		cachedActions.add(new PruneList(g, this));
+		cachedActions.add(new DotAction(g, this));
+		cachedActions.add(new GeneratePlantUML(g, this));
 		super.createActions();
 	}
 
@@ -84,28 +88,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		return r;
 	}
 
-	@Override
-	protected List<T> bytesToValue(byte[] bytes) throws IOException {
-		if (bytes.length == 0) {
-			return Collections.emptyList();
-		}
-
-		return new String(bytes).lines().map(l -> (T) g.i.byId.get(Integer.valueOf(l))).toList();
-	}
-
-	@Override
-	protected byte[] valueToBytes(List<T> ts) throws IOException {
-		if (ts.isEmpty()) {
-			return new byte[0];
-		}
-
-		StringBuilder s = new StringBuilder();
-		for (T element : ts) {
-			s.append(element.id()).append('\n');
-		}
-		return s.toString().getBytes();
-	}
-
+	
 	@Override
 	public String whatIsThis() {
 		return "a list of nodes";
@@ -166,7 +149,8 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		var pw = new PrintWriter(s);
 		pw.println("digraph {");
 		get().forEach(e -> pw.println(e.id() + ";"));
-		get().forEach(e -> e.forEachOut(o -> pw.println(e.id() + " -> " + o.id())));
+		get().forEach(
+				e -> e.forEachOut((o, role) -> pw.println(e.id() + " -> " + o.id() + "[label=\"" + role + "\"]")));
 		pw.println("}");
 		return s.toString();
 	}

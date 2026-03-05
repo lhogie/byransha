@@ -1,13 +1,13 @@
 package byransha.graph.index;
 
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
-import byransha.graph.BGraph;
 
 public class AllIndexes extends Index {
 	public final ByID byId;
 	public final ByClass byClass;
-	private final NodeList nodesList;
+	public final NodeList nodesList;
 	public final ReverseNavigation reverseNavigation;
 
 	public AllIndexes(BGraph g) {
@@ -24,7 +24,7 @@ public class AllIndexes extends Index {
 
 	@Override
 	public void add(BNode n) {
-		byId.m.put(n.id(), n);
+		byId.index(n);
 		nodesList.l.add(n);
 		byClass.m.put(n.getClass(), n);
 	}

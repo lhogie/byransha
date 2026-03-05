@@ -9,15 +9,7 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 		super(g);
 	}
 
-	@Override
-	protected byte[] valueToBytes(byte[] v) {
-		return v;
-	}
-
-	@Override
-	protected byte[] bytesToValue(byte[] bytes) {
-		return bytes;
-	}
+	
 
 	@Override
 	public void fromString(String s) {

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class StringNodeView extends NodeView<StringNode> {
 
@@ -46,7 +46,7 @@ public class StringNodeView extends NodeView<StringNode> {
 	public void writeTo(ByranshaUserPane pane) {
 		String s = n.get();
 		var tf = n.hideText ? new JPasswordField(s) : new JTextField(s);
-		tf.setPreferredSize(new Dimension(100, 30));
+		tf.setColumns(20);
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override

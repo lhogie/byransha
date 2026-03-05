@@ -35,4 +35,10 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	public String prettyName() {
 		return "Save";
 	}
+	
+
+	@Override
+	public boolean applies() {
+		return true;
+	}
 }

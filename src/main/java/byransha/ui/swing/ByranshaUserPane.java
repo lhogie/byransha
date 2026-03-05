@@ -1,4 +1,4 @@
-package byransha.swing;
+package byransha.ui.swing;
 
 import java.awt.Component;
 
@@ -20,7 +20,8 @@ public interface ByranshaUserPane {
 
 	public default void addNode(BNode n) {
 		clear();
-		append(n.prettyName() + " - " + n.whatIsThis() + " - " + "(id:" + n.id() + ") ");
+		append('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.id() + ".");
+		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
 
@@ -32,7 +33,9 @@ public interface ByranshaUserPane {
 		}
 
 		newLine();
-		append("Available actions:");
+		newLine();
+		append("What do you want to do?");
+		newLine();
 		n.findView(AvailableActionsView.class).writeTo(this);
 		newLine();
 	}

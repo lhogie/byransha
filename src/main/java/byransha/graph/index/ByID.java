@@ -1,15 +1,15 @@
 package byransha.graph.index;
 
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
-import byransha.graph.BGraph;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 public class ByID extends Index {
-	 final Int2ObjectMap<BNode> m = new Int2ObjectOpenHashMap<>();
+	final Int2ObjectMap<BNode> m = new Int2ObjectOpenHashMap<>();
 
 	protected ByID(BGraph g) {
 		super(g);
@@ -39,6 +39,7 @@ public class ByID extends Index {
 			++id;
 
 		m.put(id, n);
+		n.id = id;
 		return id;
 	}
 

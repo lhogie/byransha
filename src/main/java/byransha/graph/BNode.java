@@ -26,9 +26,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import butils.ByUtils;
+import butils.TriConsumer;
 import byransha.graph.action.Back;
 import byransha.graph.action.Delete;
-import byransha.graph.action.ExceptionNode;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.Jump;
@@ -49,14 +49,13 @@ import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import toools.function.TriConsumer;
-import toools.gui.Utilities;
+
 
 public abstract class BNode {
 	@Hide
 	public final BGraph g;
 	public boolean readOnly;
-	private int id;
+	public int id;
 
 	@Hide
 	protected ListNode<NodeView> cachedViews;
@@ -69,21 +68,21 @@ public abstract class BNode {
 		} else {
 			this.g = g;
 
-			g.i.byId.index(this);
+			g.i.add(this);
 		}
 	}
 
-	protected ExceptionNode error(Throwable err) {
+	protected BNode error(Throwable err) {
 		return error(err, true);
 	}
 
-	protected ExceptionNode error(Throwable err, boolean rethrow) {
+	protected BNode error(Throwable err, boolean rethrow) {
 		var n = g.errorLog.add(err);
 
 		if (rethrow) {
 			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
 		} else {
-			return n;
+			return g.errorLog;
 		}
 	}
 
@@ -147,7 +146,7 @@ public abstract class BNode {
 		var sw = new StringWriter();
 		var pw = new PrintWriter(sw);
 		fieldsToCSV(pw, printHeaders);
-		var s = pw.toString();
+		var s = sw.toString();
 		pw.close();
 		return s;
 	}
@@ -362,7 +361,7 @@ public abstract class BNode {
 		ObjectNode r = new ObjectNode(factory);
 		r.put("id", id());
 		r.put("class", getClass().getName());
-		r.put("color", Utilities.toRGBHex(getColor()));
+		r.put("color", ByUtils.toHex(getColor()));
 		r.put("prettyName", prettyName());
 
 		var iconBytes = getIconBytes();

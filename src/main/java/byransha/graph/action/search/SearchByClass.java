@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
+import butils.Stop;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.PrimitiveValueNode;
-import toools.Stop;
 
 public class SearchByClass extends Search {
 	public ListNode<ClassNode> availableClasses;

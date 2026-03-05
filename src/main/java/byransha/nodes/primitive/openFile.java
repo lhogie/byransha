@@ -33,4 +33,9 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 		return "open";
 	}
 
+	@Override
+	public boolean applies() {
+		return inputNode.file.exists();
+	}
+
 }

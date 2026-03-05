@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class AllView extends NodeView<BNode> {
 

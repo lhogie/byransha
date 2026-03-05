@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 

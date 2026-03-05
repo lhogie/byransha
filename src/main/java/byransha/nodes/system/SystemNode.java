@@ -3,9 +3,9 @@ package byransha.nodes.system;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
-public abstract class SystemB extends BNode {
+public abstract class SystemNode extends BNode {
 
-	public SystemB(BGraph g) {
+	public SystemNode(BGraph g) {
 		super(g);
 	}
 }

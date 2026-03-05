@@ -4,12 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.primitive.MapNode;
 import byransha.nodes.primitive.StringNode;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
@@ -19,7 +20,7 @@ public class ClassNode extends BNode {
 	public final Class clazz;
 	public ClassNode superClass;
 	public ListNode<ClassNode> interfaces;
-	public ListNode<ClassNode> aggregations;
+	public MapNode<ClassNode> aggregations;
 
 	public static class Aggregation extends BNode {
 		protected Aggregation(BGraph g) {
@@ -47,7 +48,7 @@ public class ClassNode extends BNode {
 
 	public void link() {
 		this.interfaces = new ListNode<>(g, "interfaces");
-		this.aggregations = new ListNode<>(g, "aggregations");
+		this.aggregations = new MapNode<>(g, "aggregations");
 
 		for (var superInterface : clazz.getInterfaces()) {
 			var superInterfaceNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == superInterface);
@@ -60,21 +61,24 @@ public class ClassNode extends BNode {
 		this.superClass = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
 
 		{
-			var set = new HashSet<Class>();
+			record A(String name, Class c) {
+			}
+
+			var set = new HashSet<A>();
 
 			for (var f : clazz.getDeclaredFields()) {
-				set.add(f.getType());
+				set.add(new A(f.getName(), f.getType()));
 			}
 
-			for (var f : clazz.getDeclaredMethods()) {
-				set.add(f.getReturnType());
+			for (var m : clazz.getDeclaredMethods()) {
+				set.add(new A(m.getName(), m.getReturnType()));
 			}
 
-			for (var cc : set) {
-				var classNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == cc);
+			for (var a : set) {
+				var classNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == a.c);
 
 				if (classNode != null) {
-					aggregations.get().add(classNode);
+					aggregations.map.put(a.name, classNode);
 				}
 			}
 		}
@@ -92,25 +96,27 @@ public class ClassNode extends BNode {
 
 	public String toPlantUML(int depth, Predicate<ClassNode> filter) {
 		var bfs = bfs(depth, n -> n instanceof ClassNode cn && filter.test(cn), null);
-		var classes = bfs.distances.keySet().stream().map(n -> (ClassNode) n).toList();
+		var classes = new HashSet<>(bfs.distances.keySet().stream().map(n -> (ClassNode) n).toList());
 		return toPlantUML(classes, true);
 	}
 
 	public String toPlantUML(boolean tag) {
+		link();
 		var buf = new StringBuilder(tag ? "@startuml\n" : "");
 		buf.append("class ").append(clazz.getSimpleName()).append("\n");
 
-		buf.append(superClass.clazz.getSimpleName()).append(" <|-- ").append(clazz.getSimpleName()).append(" : ")
-				.append("\n");
-
-		for (var i : interfaces.get()) {
-			buf.append(i.clazz.getSimpleName()).append(" <|.. ").append(clazz.getSimpleName()).append(" : ")
-					.append("\n");
+		if (superClass != null) {
+			buf.append(superClass.clazz.getSimpleName()).append(" <|-- ").append(clazz.getSimpleName()).append("\n");
 		}
 
-		for (var i : aggregations.get()) {
-			if (!i.clazz.isPrimitive() && !i.clazz.getName().startsWith("java.lang")) {
-				buf.append(clazz.getSimpleName()).append(" o-- ").append(i.clazz.getSimpleName()).append(" : ")
+		for (var i : interfaces.get()) {
+			buf.append(i.clazz.getSimpleName()).append(" <|.. ").append(clazz.getSimpleName()).append("\n");
+		}
+
+		for (var i : aggregations.map.entrySet()) {
+			var c = i.getValue().clazz;
+			if (!c.isPrimitive() && !c.getName().startsWith("java.lang")) {
+				buf.append(clazz.getSimpleName()).append(" o-- ").append(c.getSimpleName()).append(": ").append(i.getKey())
 						.append("\n");
 			}
 		}
@@ -119,7 +125,7 @@ public class ClassNode extends BNode {
 		return buf.toString();
 	}
 
-	public static String toPlantUML(List<ClassNode> l, boolean tag) {
+	public static String toPlantUML(Set<ClassNode> l, boolean tag) {
 		var buf = new StringBuilder(tag ? "@startuml\n" : "");
 		l.forEach(e -> buf.append(e.toPlantUML(false)));
 		buf.append(tag ? "@enduml" : "");
@@ -149,4 +155,9 @@ public class ClassNode extends BNode {
 			throw new IllegalStateException(err);
 		}
 	}
+
+	public static ClassNode find(BGraph g, Class cla) {
+		return g.i.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
+	}
+
 }

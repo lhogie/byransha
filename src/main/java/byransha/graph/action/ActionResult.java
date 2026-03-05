@@ -42,6 +42,11 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		}
 
 		@Override
+		public boolean applies() {
+			return inputNode.runningAction.thread != null;
+		}
+
+		@Override
 		public String whatItDoes() {
 			return "stops the running action";
 		}

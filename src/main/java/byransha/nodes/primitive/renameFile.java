@@ -25,4 +25,11 @@ public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 		return createResultNode(inputNode, true);
 	}
 
+
+	@Override
+	public boolean applies() {
+		return inputNode.file.exists();
+	}
+
+	
 }

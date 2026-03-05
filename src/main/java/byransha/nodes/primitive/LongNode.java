@@ -1,11 +1,8 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
 import java.util.List;
 
 import javax.swing.JTextField;
-
-import org.apache.commons.lang3.Conversion;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -13,7 +10,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.graph.BGraph;
 import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class LongNode extends PrimitiveValueNode<Long> {
 	public long min = 0, max = 10000;
@@ -36,23 +33,6 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	@Override
 	public String prettyName() {
 		return "a numeric value";
-	}
-
-	@Override
-	protected Long bytesToValue(byte[] bytes) throws IOException {
-		if (bytes.length != 4) {
-			throw new IOException("IntNode requires exactly 4 bytes, got " + bytes.length);
-		}
-		return Conversion.byteArrayToLong(bytes, 0, 0, 4, 4);
-	}
-
-	@Override
-	protected byte[] valueToBytes(Long integer) throws IOException {
-		if (integer == null) {
-			throw new IOException("Cannot convert null Integer to bytes");
-		}
-		byte[] result = new byte[4];
-		return Conversion.longToByteArray(integer, 0, result, 0, 4);
 	}
 
 	@Override

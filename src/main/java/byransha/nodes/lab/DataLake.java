@@ -13,10 +13,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import butils.Cout;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
-import byransha.nodes.system.User;
 
 public class DataLake extends BNode {
 
@@ -29,9 +29,9 @@ public class DataLake extends BNode {
 
 	static JsonNode countryCodes;
 
-	public void loadCountries(BGraph g) throws IOException {
-
-		var json = Files.readAllBytes(new File(dir, "country_flags/countries.json").toPath());
+	public static void loadCountries(BGraph g, File dataLakeDir) throws IOException {
+		var dir = new File(dataLakeDir, "country_flags");
+		var json = Files.readAllBytes(new File(dir, "countries.json").toPath());
 		countryCodes = new ObjectMapper().readTree(json);
 
 		countryCodes.fieldNames().forEachRemaining(code -> {
@@ -42,7 +42,7 @@ public class DataLake extends BNode {
 			country.flag = new DocumentNode(g);
 
 			try {
-				var fileFlag = new File(dir, "country_flags/svg/" + code.toLowerCase() + ".svg");
+				var fileFlag = new File(dir, "svg/" + code.toLowerCase() + ".svg");
 				country.flag.data.set(Files.readAllBytes(fileFlag.toPath()));
 				country.flag.mimeType.set("image/svg+xml");
 				country.flag.title.set(country.name + ".svg");
@@ -95,9 +95,10 @@ public class DataLake extends BNode {
 		if (!dir.exists() || !dir.isDirectory())
 			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
-		System.out.println("Loading datalake from " + dir);
-		loadCountries(g);
+		Cout.progress("Loading datalake from " + dir);
+		loadCountries(g, dir);
 
+		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);
 			c.set(l);
@@ -127,9 +128,11 @@ public class DataLake extends BNode {
 			UniCA.campuses.add(campus);
 		}
 
+		Cout.progress("\tLoading old TBRH");
 		new OldTBRH().loadOLDTBRH(i3s, new File(dir, "i3s/tbrh"));
 
-		System.out.println(" Finished loading datalake");
+		Cout.progress("End loading");
+
 	}
 
 }

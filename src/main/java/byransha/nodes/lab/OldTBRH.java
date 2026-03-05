@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import butils.Stop;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
 import byransha.nodes.primitive.StringNode;
-import toools.Stop;
 
 class OldTBRH {
 	public void loadOLDTBRH(Lab i3s, File inputDir) throws IOException {
@@ -17,11 +17,6 @@ class OldTBRH {
 	private static void loadPersonnel(Lab i3s, File extractionDir) throws IOException {
 
 		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
-
-		int total = csv.size();
-		int barLength = 40;
-		int count = 0;
-		;
 
 		for (var l : csv) {
 			var person = new Person(i3s.g); // new Person(graph);
@@ -122,17 +117,6 @@ class OldTBRH {
 			researchActivity.set(l.set(33, null));
 			person.researchActivity = researchActivity;
 
-//            if (
-//                l.stream().anyMatch(Objects::nonNull)
-//            ) throw new IllegalStateException("unused columns: " + l);
-
-			// ---- Progression ----
-			count++;
-			int percent = (count * 100) / total;
-			int filled = (count * barLength) / total;
-
-			String bar = "[" + "=".repeat(filled) + " ".repeat(barLength - filled) + "]";
-			System.out.print("\r" + bar + " " + percent + "% (" + count + "/" + total + ")");
 		}
 
 	}

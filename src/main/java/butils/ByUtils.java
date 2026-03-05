@@ -1,5 +1,6 @@
 package butils;
 
+import java.awt.Color;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -203,4 +204,12 @@ public class ByUtils {
 		return totalSize;
 
 	}
+
+	public static String toHex(Color color) {
+        // %02X means: 2-digit hex, uppercase, padded with 0 if needed
+        return String.format("#%02X%02X%02X", 
+                             color.getRed(), 
+                             color.getGreen(), 
+                             color.getBlue());
+    }
 }

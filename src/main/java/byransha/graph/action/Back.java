@@ -12,13 +12,25 @@ final public class Back extends NodeAction<BNode, BNode> {
 
 	@Override
 	public String whatItDoes() {
-		return "reset the values";
+		return "back in history";
 	}
 
 	@Override
 	public ActionResult exec() {
 		var h = g.currentUser().history.get();
-		var r = h.size() > 1 ? h.get(h.size() - 2) : inputNode;
-		return createResultNode(r, true);
+
+		if (applies()) {
+			h.remove(h.size() - 1);
+			var next = h.remove(h.size() - 1);
+			return createResultNode(next, true);
+		} else {
+			return createResultNode(inputNode, true);
+		}
 	}
+
+	@Override
+	public boolean applies() {
+		return g.currentUser().history.get().size() > 1;
+	}
+
 }

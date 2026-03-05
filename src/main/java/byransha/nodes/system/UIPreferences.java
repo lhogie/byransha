@@ -5,7 +5,7 @@ import java.awt.Color;
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.ColorNode;
 
-public class UIPreferences extends SystemB {
+public class UIPreferences extends SystemNode {
 	ColorNode backgroundColor;
 	ColorNode textColor;
 

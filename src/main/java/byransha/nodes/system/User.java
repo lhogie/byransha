@@ -65,7 +65,11 @@ public class User extends BNode {
 		if (n instanceof NodeAction a && a.execStraightAway) {
 			try {
 				ActionResult ar = a.exec();
-				jumpTo(ar.jumpStraightAwayToResult ? ar.result : ar);
+				jumpTo(ar);
+
+				if (ar.jumpStraightAwayToResult) {
+					jumpTo(ar.result);
+				}
 			} catch (Throwable err) {
 				jumpTo(error(err, false));
 			}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.nodes.lab.BusinessNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
 
@@ -20,7 +21,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public String whatItDoes() {
-		return "export this node as CSV";
+		return "export this node using text formats";
 	}
 
 	public static class CSVData {
@@ -37,5 +38,10 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 				.forEach(n -> r.get().add(n));
 		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode().toPrettyString()));
 		return new exportNodeResult(g, this, r);
+	}
+
+	@Override
+	public boolean applies() {
+		return inputNode instanceof BusinessNode;
 	}
 }

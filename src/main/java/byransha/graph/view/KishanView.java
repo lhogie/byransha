@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.ListNode;
-import byransha.swing.ByranshaUserPane;
+import byransha.ui.swing.ByranshaUserPane;
 
 public class KishanView extends NodeView<BNode> {
 

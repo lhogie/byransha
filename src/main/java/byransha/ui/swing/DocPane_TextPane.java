@@ -1,4 +1,4 @@
-package byransha.swing;
+package byransha.ui.swing;
 
 import java.awt.Component;
 

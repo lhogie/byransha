@@ -1,4 +1,4 @@
-package byransha;
+package byransha.ui;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,9 +12,9 @@ import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
-import byransha.nodes.system.SystemB;
+import byransha.nodes.system.SystemNode;
 
-public class ShellServer extends SystemB {
+public class ShellServer extends SystemNode {
 	@FunctionalInterface
 	interface CommandAction {
 		void exec(PrintWriter out) throws Throwable;

@@ -1,8 +1,9 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
@@ -19,13 +20,11 @@ public abstract class ValuedNode<V> extends BNode {
 		void valueChangedTo(V v);
 	}
 
-	protected abstract byte[] valueToBytes(V v) throws IOException;
-
-	protected abstract V bytesToValue(byte[] bytes) throws IOException;
-
 	@Override
-	public final String toString() {
-		return getClass().getSimpleName() + ": " + (value == null ? "no value" : value.toString());
+	public ObjectNode toJSONNode() {
+		var r = super.toJSONNode();
+		r.put("value", getAsString());
+		return r;
 	}
 
 	public String getAsString() {

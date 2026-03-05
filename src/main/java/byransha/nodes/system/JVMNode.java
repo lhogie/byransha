@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
 
-public class JVMNode extends SystemB {
+public class JVMNode extends SystemNode {
 
 	public JVMNode(BGraph g) {
 		super(g);

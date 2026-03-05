@@ -9,8 +9,12 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class MapNode<N extends BNode> extends BNode {
-	public MapNode(BGraph g) {
+	public final ConcurrentMap<String, N> map = new ConcurrentHashMap<>();
+	private String label;
+
+	public MapNode(BGraph g, String label) {
 		super(g);
+		this.label = label;
 	}
 
 	@Override
@@ -23,11 +27,9 @@ public class MapNode<N extends BNode> extends BNode {
 		return "a map";
 	}
 
-	private final ConcurrentMap<String, N> l = new ConcurrentHashMap<>();
-
 	@Override
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		for (Map.Entry<String, N> e : l.entrySet()) {
+		for (Map.Entry<String, N> e : map.entrySet()) {
 			if (e.getValue() != null) {
 				consumer.accept(e.getValue(), e.getKey());
 			}
@@ -35,11 +37,11 @@ public class MapNode<N extends BNode> extends BNode {
 	}
 
 	public void add(String key, N n) {
-		l.put(key, n);
+		map.put(key, n);
 	}
 
 	public void remove(String key) {
-		l.remove(key);
+		map.remove(key);
 	}
 
 }

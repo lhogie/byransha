@@ -9,16 +9,7 @@ public class PhoneNumberNode extends StringNode {
 	}
 
 	@Override
-	public String prettyName() {
-		if (get() == null || get().isEmpty()) {
-			return "Phone number (empty)";
-		}
-
-		return getAsString();
-	}
-
-	@Override
 	public String whatIsThis() {
-		return "PhoneNumberNode with value: " + get();
+		return "a phone  number";
 	}
 }
