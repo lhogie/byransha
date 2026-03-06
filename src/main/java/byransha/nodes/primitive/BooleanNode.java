@@ -1,7 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
-
 import byransha.graph.BGraph;
 import byransha.graph.view.BooleanNodeView;
 

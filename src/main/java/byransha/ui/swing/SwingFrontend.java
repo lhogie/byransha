@@ -12,7 +12,6 @@ import byransha.nodes.system.UIPreferences;
 
 public class SwingFrontend extends SystemNode {
 
-	public final UIPreferences ui;
 	static JFrame f = new JFrame("Byransha");
 	public final ByranshaUserPane sheet = new DocPane_TextPane();
 
@@ -32,11 +31,9 @@ public class SwingFrontend extends SystemNode {
 		f.setContentPane(scroll);
 
 		// setNode(new AuthenticateAction(g));
-		currentUser().listeners.add(n -> sheet.addNode(n));
+		currentUser().jumpListeners.add(n -> sheet.addNode(n));
 		currentUser().jumpTo(currentUser());
 		f.setVisible(true);
-
-		this.ui = new UIPreferences(g);
 	}
 
 	private static void setLookAndFeel(String name) {

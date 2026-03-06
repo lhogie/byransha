@@ -8,6 +8,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.swing.ByranshaUserPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
 
 public class AvailableActionsView extends NodeView<BNode> {
 	int edgeSize = 60;
@@ -35,6 +38,15 @@ public class AvailableActionsView extends NodeView<BNode> {
 			a.findView(JumpTo.class).writeTo(pane);
 			pane.append( " ");
 		});
+	}
+	
+	@Override
+	public void writeTo(Pane pane) {
+		var flow = new TextFlow();
+		n.actions().forEach(a -> {
+			a.findView(JumpTo.class).writeTo(flow);
+		});
+		pane.getChildren().add(flow);
 	}
 
 	@Override

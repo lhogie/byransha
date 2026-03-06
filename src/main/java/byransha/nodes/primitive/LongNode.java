@@ -68,9 +68,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 		@Override
 		public JsonNode toJSON() {
-			ObjectNode r = new ObjectNode(null);
-			r.set("value", new com.fasterxml.jackson.databind.node.LongNode(n.get()));
-			return r;
+			return new com.fasterxml.jackson.databind.node.LongNode(n.get());
 		}
 
 		@Override

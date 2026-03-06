@@ -6,8 +6,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.ui.swing.ByranshaUserPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 public class KishanView extends NodeView<BNode> {
 
@@ -27,10 +30,6 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		if (n instanceof ListNode) {
-			writeTo2(pane);
-			return;
-		}
 		n.forEachOutInFields((f, out, readOnly) -> {
 			if (out != n) {
 				var cb = new JCheckBox("", out != null);
@@ -50,22 +49,17 @@ public class KishanView extends NodeView<BNode> {
 		});
 	}
 
-	public void writeTo2(ByranshaUserPane pane) {
-		((ListNode<BNode>) n).forEachOutInContent((i, out) -> {
+	@Override
+	public void writeTo(Pane lines) {
+		n.forEachOutInFields((f, out, readOnly) -> {
 			if (out != n) {
-				var cb = new JCheckBox("", out != null);
-				cb.addActionListener(e -> {
-					if (cb.isSelected()) {
-					} else {
-					}
-				});
-				cb.setEnabled(!readOnly);
-				pane.append(cb);
+				var flow = new TextFlow();
+				flow.getChildren().add(new Text(readOnly ? "r-" : "rw"));
 				var jt = (JumpTo) out.findView(JumpTo.class);
-				jt.setLabel("" + i);
-				jt.writeTo(pane);
-				out.getKishanView().writeTo(pane);
-				pane.newLine();
+				jt.setLabel(f.getName());
+				jt.writeTo(flow);
+				out.getKishanView().writeTo(flow);
+				lines.getChildren().add(flow);
 			}
 		});
 	}

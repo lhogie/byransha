@@ -8,6 +8,6 @@ public class ByText extends TextArea {
 		super(s);
 		setEditable(false);
 		setWrapText(true);
-		setPrefSize(100, 30);
+//		setPrefSize(100, 30);
 	}
 }

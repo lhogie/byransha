@@ -10,11 +10,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.javafx.JsonTreeConverter;
+import byransha.ui.javafx.Utils;
 import byransha.ui.swing.ByranshaUserPane;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 
 public abstract class NodeView<N extends BNode> extends BNode {
 	public final N n;
@@ -69,15 +70,18 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		pane.append(sp);
 	}
 
-	public void writeTo(TextFlow flow) {
-		var rootItem = JsonTreeConverter.buildTree(toJSON());
+	public void writeTo(Pane pane) {
+		var rootItem = Utils.buildTree(toJSON());
 		TreeView<String> treeView = new TreeView<>(rootItem);
 		ScrollPane scrollPane = new ScrollPane(treeView);
-
-		// 3. Set policies (equivalent to JScrollPane constants)
-		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER); // Hide horizontal scroll
+		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
 		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-		flow.getChildren().add(scrollPane);
+		scrollPane.setPrefWidth(500);
+		scrollPane.setPrefHeight(300);
+		treeView.setPrefWidth(500);
+		treeView.setPrefHeight(300);
+		scrollPane.setFitToWidth(true);
+		pane.getChildren().add(scrollPane);
 	}
 
 }

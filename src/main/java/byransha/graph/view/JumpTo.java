@@ -1,7 +1,5 @@
 package byransha.graph.view;
 
-import java.awt.Dimension;
-
 import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -12,6 +10,8 @@ import byransha.graph.NodeAction;
 import byransha.ui.swing.ByranshaUserPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 
 public class JumpTo extends NodeView<BNode> {
@@ -49,30 +49,41 @@ public class JumpTo extends NodeView<BNode> {
 	public void writeTo(ByranshaUserPane pane) {
 		b = new JButton(label != null ? label : n.prettyName());
 		int side = 70;
-		b.setPreferredSize(new Dimension(side, side));
+//		b.setPreferredSize(new Dimension(side, side));
 		b.setMaximumSize(b.getPreferredSize());
 		b.addActionListener(e -> currentUser().jumpTo(n));
-		pane.append(b);
 
 		if (n instanceof NodeAction a) {
-			b.setToolTipText(a.whatItDoes());
-			b.setEnabled(a.applies());
+			var applies = a.applies();
+
+			if (applies || g.ui.showUnapplicationActions.get()) {
+				b.setToolTipText(a.whatItDoes());
+				b.setEnabled(applies);
+				pane.append(b);
+			}
 		} else {
 			b.setToolTipText(n.whatIsThis());
+			pane.append(b);
 		}
 	}
 
 	@Override
-	public void writeTo(TextFlow pane) {
+	public void writeTo(Pane pane) {
 		Button b = new Button(label != null ? label : n.prettyName());
 		b.setOnAction(e -> currentUser().jumpTo(n));
-		pane.getChildren().add(b);
+		b.setPrefSize(70, 70);
 
 		if (n instanceof NodeAction a) {
-			b.setTooltip(new Tooltip(a.whatItDoes()));
-			b.setDisable(!a.applies());
+			var applies = a.applies();
+
+			if (applies || g.ui.showUnapplicationActions.get()) {
+				b.setTooltip(new Tooltip(a.whatItDoes()));
+				b.setDisable(!applies);
+				pane.getChildren().add(b);
+			}
 		} else {
 			b.setTooltip(new Tooltip(n.whatIsThis()));
+			pane.getChildren().add(b);
 		}
 	}
 

@@ -14,7 +14,7 @@ public class User extends BNode {
 	public final StringNode passwordNode;
 	public final StringNode argon2Hash;
 	public final HistoryNode history;
-	public final List<NavigationListener> listeners = new ArrayList<>();
+	public final List<JumpListener> jumpListeners = new ArrayList<>();
 
 	public User(BGraph g, String userName, String passwordHash) {
 		super(g);
@@ -57,7 +57,7 @@ public class User extends BNode {
 		return name.get();
 	}
 
-	public static interface NavigationListener {
+	public static interface JumpListener {
 		void userJumpedTo(BNode n);
 	}
 
@@ -75,7 +75,7 @@ public class User extends BNode {
 			}
 		} else {
 			history.addToHistory(n);
-			listeners.forEach(l -> l.userJumpedTo(n));
+			jumpListeners.forEach(l -> l.userJumpedTo(n));
 		}
 	}
 }

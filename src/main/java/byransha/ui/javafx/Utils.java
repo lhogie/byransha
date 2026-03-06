@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import javafx.scene.control.TreeItem;
 
-public class JsonTreeConverter {
+public class Utils {
 
 	public static TreeItem<String> buildTree(JsonNode node) {
 		var parent = new TreeItem<String>();

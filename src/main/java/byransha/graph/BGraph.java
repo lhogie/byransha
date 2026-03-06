@@ -12,6 +12,7 @@ import byransha.nodes.system.Argon;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
+import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
@@ -37,6 +38,7 @@ public class BGraph extends BNode {
 	public SwingFrontend swing;
 	private User currentUser;
 	public JavaFXFrontend javafx;
+	public final UIPreferences ui;
 
 	public static interface CurrentUserListener {
 		void changed(User u);
@@ -44,6 +46,9 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
+
+		this.ui = new UIPreferences(g);
+
 		setCurrentUser(guest);
 	}
 
