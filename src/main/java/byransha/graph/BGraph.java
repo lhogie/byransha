@@ -16,8 +16,6 @@ import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
-import byransha.web.ByranshaWebSocketServer;
-import byransha.web.WebServer;
 
 public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
@@ -33,8 +31,8 @@ public class BGraph extends BNode {
 	public final ErrorLog errorLog = new ErrorLog(this);
 	public final EventList eventList = new InMemoryEventList(this);
 	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
-	public WebServer webServer;
-	public ByranshaWebSocketServer webSocketServer;
+//	public WebServer webServer;
+//	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
 	private User currentUser;
 	public JavaFXFrontend javafx;
