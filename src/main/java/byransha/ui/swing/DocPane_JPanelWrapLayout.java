@@ -2,13 +2,14 @@ package byransha.ui.swing;
 
 import java.awt.Component;
 
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class DocPane_JPanel extends JPanel implements ByranshaUserPane {
+public class DocPane_JPanelWrapLayout extends JPanel implements ByranshaUserPane {
 
-	public DocPane_JPanel() {
+	public DocPane_JPanelWrapLayout() {
 		super(new WrapLayout(5, 5));
 	}
 
@@ -28,7 +29,7 @@ public class DocPane_JPanel extends JPanel implements ByranshaUserPane {
 	}
 
 	@Override
-	public Component getComponent() {
+	public JComponent getComponent() {
 		return this;
 	}
 
@@ -37,6 +38,10 @@ public class DocPane_JPanel extends JPanel implements ByranshaUserPane {
 		removeAll();
 		revalidate();
 		repaint();
+	}
+	@Override
+	public void end() {
+		 add(Box.createVerticalGlue());
 	}
 
 }

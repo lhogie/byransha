@@ -1,7 +1,5 @@
 package byransha.ui.swing;
 
-import java.awt.Component;
-
 import javax.swing.JComponent;
 
 import byransha.graph.BNode;
@@ -16,7 +14,7 @@ public interface ByranshaUserPane {
 
 	public void newLine();
 
-	public Component getComponent();
+	public JComponent getComponent();
 
 	public default void addNode(BNode n) {
 		clear();
@@ -24,6 +22,7 @@ public interface ByranshaUserPane {
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
+		newLine();
 
 		var err = n.findView(ErrorsView.class);
 
@@ -31,14 +30,16 @@ public interface ByranshaUserPane {
 			err.writeTo(this);
 			newLine();
 		}
-
 		newLine();
 		newLine();
 		append("What do you want to do?");
 		newLine();
 		n.findView(AvailableActionsView.class).writeTo(this);
 		newLine();
+		end();
 	}
+
+	public void end();
 
 	public void clear();
 }

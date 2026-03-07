@@ -5,8 +5,11 @@ import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
 import byransha.nodes.system.SystemNode;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 public class JavaFXFrontend extends SystemNode {
 
@@ -24,11 +27,8 @@ public class JavaFXFrontend extends SystemNode {
 	}
 
 	public void addNode(BNode n) {
-
 		vbox.getChildren().clear();
-		vbox.getChildren()
-				.add(new ByText('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.id() + ".\n\n"));
-
+		vbox.getChildren().add(new ByText('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " +n.id() + ".\n\n"));
 		n.views().getFirst().writeTo(vbox);
 		vbox.getChildren().add(new Text("\nErrors:\n"));
 		n.findView(ErrorsView.class).writeTo(vbox);

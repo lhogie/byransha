@@ -6,6 +6,7 @@ import javax.swing.JTextField;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.NodeError;
@@ -68,7 +69,8 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 		@Override
 		public JsonNode toJSON() {
-			return new com.fasterxml.jackson.databind.node.LongNode(n.get());
+			var l = n.get();
+			return l != null ? new com.fasterxml.jackson.databind.node.LongNode(l) : new TextNode("null");
 		}
 
 		@Override

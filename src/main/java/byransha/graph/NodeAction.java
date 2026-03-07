@@ -109,4 +109,9 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	public abstract boolean applies();
 
+	public ActionCategory<IN> getCategory() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

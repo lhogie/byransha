@@ -71,7 +71,8 @@ public class JumpTo extends NodeView<BNode> {
 	public void writeTo(Pane pane) {
 		Button b = new Button(label != null ? label : n.prettyName());
 		b.setOnAction(e -> currentUser().jumpTo(n));
-		b.setPrefSize(70, 70);
+		b.setPrefWidth(70);
+		b.setWrapText(true);
 
 		if (n instanceof NodeAction a) {
 			var applies = a.applies();

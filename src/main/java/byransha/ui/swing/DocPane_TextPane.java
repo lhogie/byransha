@@ -2,6 +2,7 @@ package byransha.ui.swing;
 
 import java.awt.Component;
 
+import javax.swing.Box;
 import javax.swing.JComponent;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
@@ -41,13 +42,16 @@ public class DocPane_TextPane extends JTextPane implements ByranshaUserPane {
 	}
 
 	@Override
-	public Component getComponent() {
+	public JComponent getComponent() {
 		return this;
 	}
 
 	@Override
 	public void clear() {
 		setText("");
+	}
+	@Override
+	public void end() {
 	}
 
 }

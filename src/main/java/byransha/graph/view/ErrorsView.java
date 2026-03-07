@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.swing.ByranshaUserPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.text.Text;
 
 public class ErrorsView extends NodeView<BNode> {
 
@@ -40,6 +42,11 @@ public class ErrorsView extends NodeView<BNode> {
 			pane.append("Error: " + err.msg);
 			pane.newLine();
 		}
+	}
+
+	@Override
+	public void writeTo(Pane pane) {
+		n.errors().forEach(err -> pane.getChildren().add(new Text("Error: " + err.msg + "\n")));
 	}
 
 	public boolean showInViewList() {
