@@ -22,12 +22,12 @@ public class SmallInfoView extends NodeView<BNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return new TextNode(n.prettyName());
+		return new TextNode(viewedNode.prettyName());
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		pane.append(new JLabel(n + " - " + n.prettyName() + " (" + n.whatIsThis() + ")"));
+		pane.appendToCurrentFlow(new JLabel(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")"));
 	}
 
 	@Override

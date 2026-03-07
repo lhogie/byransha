@@ -28,8 +28,8 @@ public class URLNodeView extends StringNodeView {
 	@Override
 	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(factory);
-		r.put("value", n.get());
-		r.put("password", n.hideText);
+		r.put("value", viewedNode.get());
+		r.put("password", viewedNode.hideText);
 		return r;
 	}
 
@@ -39,12 +39,12 @@ public class URLNodeView extends StringNodeView {
 		var b = new JButton("visit");
 		b.addActionListener(e -> {
 			try {
-				Desktop.getDesktop().browse(new URI(n.get()));
+				Desktop.getDesktop().browse(new URI(viewedNode.get()));
 			} catch (IOException | URISyntaxException e1) {
 				g.errorLog.add(e1);
 			}
 		});
-		pane.append(b);
+		pane.appendToCurrentFlow(b);
 	}
 
 }

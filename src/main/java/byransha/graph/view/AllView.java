@@ -19,13 +19,13 @@ public class AllView extends NodeView<BNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return n.toJSONNode();
+		return viewedNode.toJSONNode();
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
 		try {
-			for (var v : n.views()) {
+			for (var v : viewedNode.views()) {
 				if (v.showInViewList()) {
 					v.writeTo(pane);
 					pane.newLine();

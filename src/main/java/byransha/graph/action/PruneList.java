@@ -26,7 +26,7 @@ public class PruneList<N extends BNode> extends NodeAction<ListNode<N>, ListNode
 
 	@Override
 	public boolean applies() {
-		return inputNode.getSelected().size() > 0;
+		return inputNode.getSelected().size() > 2;
 	}
 
 }

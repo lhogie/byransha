@@ -19,7 +19,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 	@Override
 	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(null);
-		Boolean b = n.get();
+		Boolean b = viewedNode.get();
 		r.set("value", b == null ? new com.fasterxml.jackson.databind.node.TextNode("-")
 				: com.fasterxml.jackson.databind.node.BooleanNode.valueOf(b));
 		return r;
@@ -33,10 +33,11 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 		group.add(yes);
 		group.add(no);
 
-		yes.addActionListener(e -> n.set(true));
-		no.addActionListener(e -> n.set(false));
+		yes.addActionListener(e -> viewedNode.set(true));
+		no.addActionListener(e -> viewedNode.set(false));
 
-		n.valueChangeListeners.add(newValue -> {
+		viewedNode.changeListeners.add(n -> {
+			var  newValue = ((BooleanNode) n).get();
 			if (newValue == null) {
 				throw new RuntimeException("null value not allowed in boolean node");
 			} else if (newValue == true) {
@@ -46,8 +47,8 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 			}
 		});
 
-		pane.append(yes);
-		pane.append(no);
+		pane.appendToCurrentFlow(yes);
+		pane.appendToCurrentFlow(no);
 	}
 
 	@Override

@@ -25,13 +25,13 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return n.toJSONNode();
+		return viewedNode.toJSONNode();
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		n.forEachOutInFields((f, out, readOnly) -> {
-			if (out != n) {
+		viewedNode.forEachOutInFields((f, out, readOnly) -> {
+			if (out != viewedNode) {
 				var cb = new JCheckBox("", out != null);
 				cb.addActionListener(e -> {
 					if (cb.isSelected()) {
@@ -39,10 +39,10 @@ public class KishanView extends NodeView<BNode> {
 					}
 				});
 				cb.setEnabled(!readOnly);
-				pane.append(cb);
-				var jt = (JumpTo) out.findView(JumpTo.class);
-				jt.setLabel(f.getName());
-				jt.writeTo(pane);
+				pane.appendToCurrentFlow(cb);
+				var jt = out.createJumpComponent();
+				jt.setText(f.getName());
+				pane.appendToCurrentFlow(jt);
 				out.getKishanView().writeTo(pane);
 				pane.newLine();
 			}
@@ -51,8 +51,8 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(Pane lines) {
-		n.forEachOutInFields((f, out, readOnly) -> {
-			if (out != n) {
+		viewedNode.forEachOutInFields((f, out, readOnly) -> {
+			if (out != viewedNode) {
 				var flow = new TextFlow();
 				flow.getChildren().add(new Text(readOnly ? "r-" : "rw"));
 				var jt = (JumpTo) out.findView(JumpTo.class);

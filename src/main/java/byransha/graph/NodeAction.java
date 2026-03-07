@@ -1,6 +1,6 @@
 package byransha.graph;
 
-import java.awt.Color;
+import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -10,7 +10,7 @@ import byransha.graph.action.ActionResult;
 import byransha.nodes.system.User;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
-	@Hide
+
 	protected final IN inputNode;
 	public boolean stopRequested = false;
 	public Thread thread;
@@ -33,6 +33,20 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		r.put("canExecute", canExecute(currentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;
+	}
+
+	@Override
+	public JButton createJumpComponent() {
+		var b = super.createJumpComponent();
+		changeListeners.add(n -> b.setEnabled(applies()));
+		var applies = applies();
+
+		if (applies || g.ui.proposeUnapplicableActions.get()) {
+			b.setToolTipText(whatItDoes());
+			b.setEnabled(applies);
+		}
+
+		return b;
 	}
 
 	protected final ActionResult<IN, OUT> createResultNode(OUT out, boolean jumpStraightAwayToResult) {
@@ -59,11 +73,6 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	public abstract String whatItDoes();
 
 	public abstract ActionResult<IN, OUT> exec() throws Throwable;
-
-	@Override
-	public Color getColor() {
-		return Color.white;
-	}
 
 	@Override
 	public final String whatIsThis() {

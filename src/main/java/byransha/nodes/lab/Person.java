@@ -73,11 +73,6 @@ public class Person extends BusinessNode {
 	}
 
 	@Override
-	public Color getColor() {
-		return Color.blue;
-	}
-
-	@Override
 	public String whatIsThis() {
 		return "a physical person working in the lab";
 	}

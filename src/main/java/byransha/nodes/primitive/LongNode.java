@@ -5,7 +5,6 @@ import java.util.List;
 import javax.swing.JTextField;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BGraph;
@@ -69,15 +68,15 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 		@Override
 		public JsonNode toJSON() {
-			var l = n.get();
+			var l = viewedNode.get();
 			return l != null ? new com.fasterxml.jackson.databind.node.LongNode(l) : new TextNode("null");
 		}
 
 		@Override
 		public void writeTo(ByranshaUserPane pane) {
-			var tf = new JTextField("" + n.get());
-			n.valueChangeListeners.add(newValue -> tf.setText("" + newValue));
-			pane.append(tf);
+			var tf = new JTextField("" + viewedNode.get());
+			viewedNode.changeListeners.add(n -> tf.setText("" + ((LongNode) n).get()));
+			pane.appendToCurrentFlow(tf);
 		}
 
 		@Override

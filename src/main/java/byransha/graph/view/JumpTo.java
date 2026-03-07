@@ -11,11 +11,8 @@ import byransha.ui.swing.ByranshaUserPane;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.TextFlow;
 
 public class JumpTo extends NodeView<BNode> {
-
 	private String label;
 	private JButton b;
 
@@ -42,48 +39,31 @@ public class JumpTo extends NodeView<BNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return new com.fasterxml.jackson.databind.node.IntNode(n.id());
+		return new com.fasterxml.jackson.databind.node.IntNode(viewedNode.id());
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		b = new JButton(label != null ? label : n.prettyName());
-		int side = 70;
-//		b.setPreferredSize(new Dimension(side, side));
-		b.setMaximumSize(b.getPreferredSize());
-		b.addActionListener(e -> currentUser().jumpTo(n));
-
-		if (n instanceof NodeAction a) {
-			var applies = a.applies();
-
-			if (applies || g.ui.showUnapplicationActions.get()) {
-				b.setToolTipText(a.whatItDoes());
-				b.setEnabled(applies);
-				pane.append(b);
-			}
-		} else {
-			b.setToolTipText(n.whatIsThis());
-			pane.append(b);
-		}
+		pane.appendToCurrentFlow(viewedNode.createJumpComponent());
 	}
 
 	@Override
 	public void writeTo(Pane pane) {
-		Button b = new Button(label != null ? label : n.prettyName());
-		b.setOnAction(e -> currentUser().jumpTo(n));
+		Button b = new Button(label != null ? label : viewedNode.prettyName());
+		b.setOnAction(e -> currentUser().jumpTo(viewedNode));
 		b.setPrefWidth(70);
 		b.setWrapText(true);
 
-		if (n instanceof NodeAction a) {
+		if (viewedNode instanceof NodeAction a) {
 			var applies = a.applies();
 
-			if (applies || g.ui.showUnapplicationActions.get()) {
+			if (applies || g.ui.proposeUnapplicableActions.get()) {
 				b.setTooltip(new Tooltip(a.whatItDoes()));
 				b.setDisable(!applies);
 				pane.getChildren().add(b);
 			}
 		} else {
-			b.setTooltip(new Tooltip(n.whatIsThis()));
+			b.setTooltip(new Tooltip(viewedNode.whatIsThis()));
 			pane.getChildren().add(b);
 		}
 	}

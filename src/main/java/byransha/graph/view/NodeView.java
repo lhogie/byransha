@@ -1,9 +1,5 @@
 package byransha.graph.view;
 
-import java.awt.Dimension;
-
-import javax.swing.JScrollPane;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -15,14 +11,13 @@ import byransha.ui.swing.ByranshaUserPane;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 
 public abstract class NodeView<N extends BNode> extends BNode {
-	public final N n;
+	public final N viewedNode;
 
 	public NodeView(BGraph g, N node) {
 		super(g);
-		this.n = node;
+		this.viewedNode = node;
 	}
 
 	public abstract JsonNode toJSON();
@@ -63,11 +58,7 @@ public abstract class NodeView<N extends BNode> extends BNode {
 
 	public void writeTo(ByranshaUserPane pane) {
 		var c = ByUtils.JsonToTreeConverter.buildTreeModel(toJSON());
-		var sp = new JScrollPane(c);
-		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sp.setPreferredSize(new Dimension(500, 100));
-		pane.append(sp);
+		pane.appendToCurrentFlow(byransha.ui.swing.Utils.resizableScrollPane(c));
 	}
 
 	public void writeTo(Pane pane) {

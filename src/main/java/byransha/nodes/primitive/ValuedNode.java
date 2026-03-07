@@ -1,8 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
@@ -10,14 +7,9 @@ import byransha.graph.BNode;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
-	public final List<ValueNodeListener<V>> valueChangeListeners = new ArrayList<>();
 
 	public ValuedNode(BGraph g) {
 		super(g);
-	}
-
-	public static interface ValueNodeListener<V> {
-		void valueChangedTo(V v);
 	}
 
 	@Override
@@ -61,7 +53,7 @@ public abstract class ValuedNode<V> extends BNode {
 		value = newValue;
 
 		if (valueChanging) {
-			valueChangeListeners.forEach(l -> l.valueChangedTo(newValue));
+			changeListeners.forEach(l -> l.changed(this));
 		}
 	}
 

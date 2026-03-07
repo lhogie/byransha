@@ -27,7 +27,7 @@ public class OutNavigationView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		n.forEachOut((out, role) -> {
+		viewedNode.forEachOut((out, role) -> {
 			for (var v : out.views()) {
 				if (v instanceof JumpTo j) {
 					j.writeTo(pane);

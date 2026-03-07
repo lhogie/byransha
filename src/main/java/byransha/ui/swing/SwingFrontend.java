@@ -13,7 +13,7 @@ import byransha.nodes.system.SystemNode;
 public class SwingFrontend extends SystemNode {
 
 	static JFrame f = new JFrame("Byransha");
-	public final DocPane_JPanelFlowlaout sheet = new DocPane_JPanelFlowlaout();
+	public final ByranshaUserPane sheet = new ByranshaUserPane();
 
 	public SwingFrontend(BGraph g) {
 		super(g);
@@ -21,7 +21,7 @@ public class SwingFrontend extends SystemNode {
 		g.swing = this;
 		g.changeUserListener.add(u -> sheet.addNode(u));
 
-		JScrollPane scroll = new JScrollPane(sheet.getComponent());
+		JScrollPane scroll = new JScrollPane(sheet);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -31,7 +31,7 @@ public class SwingFrontend extends SystemNode {
 		f.setSize(size);
 		f.setLocation(location);
 		f.add(scroll);
-		f.setLocationRelativeTo(null);
+		// f.setLocationRelativeTo(null);
 
 		// setNode(new AuthenticateAction(g));
 		currentUser().jumpListeners.add(n -> sheet.addNode(n));

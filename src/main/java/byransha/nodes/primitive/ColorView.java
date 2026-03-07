@@ -32,10 +32,10 @@ public class ColorView extends NodeView<ColorNode> {
 	public void writeTo(ByranshaUserPane pane) {
 		var cc = new JColorChooser();
 		cc.getSelectionModel().addChangeListener(e -> {
-			n.set(cc.getColor());
+			viewedNode.set(cc.getColor());
 		});
 
-		pane.append(cc);
+		pane.appendToCurrentFlow(cc);
 	}
 
 }

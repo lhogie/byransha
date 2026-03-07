@@ -23,21 +23,16 @@ public class AvailableActionsView extends NodeView<BNode> {
 	@Override
 	public JsonNode toJSON() {
 		ArrayNode r = new ArrayNode(null);
-		var actions = n.actions();
+		var actions = viewedNode.actions();
 		actions.forEach(a -> r.add(a.toJSONNode()));
 		return r;
 	}
 
-	@Override
-	public Color getColor() {
-		return Color.pink;
-	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		n.actions().forEach(a -> {
+		viewedNode.actions().forEach(a -> {
 			a.findView(JumpTo.class).writeTo(pane);
-			pane.append(" ");
 		});
 	}
 
@@ -52,7 +47,7 @@ public class AvailableActionsView extends NodeView<BNode> {
 
 		List<A> as = new ArrayList<>();
 
-		n.actions().forEach(a -> {
+		viewedNode.actions().forEach(a -> {
 //			a.getTarget();
 			a.findView(JumpTo.class).writeTo(flow);
 		});

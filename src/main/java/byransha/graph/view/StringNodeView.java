@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
+import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.ui.swing.ByranshaUserPane;
 import javafx.scene.control.PasswordField;
@@ -38,15 +39,15 @@ public class StringNodeView extends NodeView<StringNode> {
 	@Override
 	public JsonNode toJSON() {
 		ObjectNode r = new ObjectNode(factory);
-		r.put("value", n.get());
-		r.put("password", n.hideText);
+		r.put("value", viewedNode.get());
+		r.put("password", viewedNode.hideText);
 		return r;
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		String s = n.get();
-		var tf = n.hideText ? new JPasswordField(s) : new JTextField(s);
+		String s = viewedNode.get();
+		var tf = viewedNode.hideText ? new JPasswordField(s) : new JTextField(s);
 		tf.setColumns(20);
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -61,7 +62,7 @@ public class StringNodeView extends NodeView<StringNode> {
 			}
 
 			private void changed(DocumentEvent e) {
-				n.set(tf.getText());
+				viewedNode.set(tf.getText());
 			}
 
 			@Override
@@ -70,25 +71,28 @@ public class StringNodeView extends NodeView<StringNode> {
 		});
 
 		int caret = tf.getCaretPosition();
-		n.valueChangeListeners.add(newValue -> {
+		viewedNode.changeListeners.add(n -> {
+			var newValue = ((StringNode) n).get();
 			if (!tf.getText().equals(newValue)) {
 				tf.setText(newValue);
 			}
 		});
 		tf.setCaretPosition(caret);
-		pane.append(tf);
+		pane.appendToCurrentFlow(tf);
 	}
 
 	@Override
 	public void writeTo(Pane pane) {
-		String s = n.get();
-		var tf = n.hideText ? new PasswordField() : new TextField();
+		String s = viewedNode.get();
+		var tf = viewedNode.hideText ? new PasswordField() : new TextField();
 		tf.setText(s);
 		tf.setPrefColumnCount(50);
-		tf.textProperty().addListener((o, old, newValue) -> n.set(tf.getText()));
+		tf.textProperty().addListener((o, old, newValue) -> viewedNode.set(tf.getText()));
 
 		int caret = tf.getCaretPosition();
-		n.valueChangeListeners.add(newValue -> {
+		viewedNode.changeListeners.add(n -> {
+			var newValue = ((StringNode) n).get();
+			
 			if (!tf.getText().equals(newValue)) {
 				tf.setText(newValue);
 			}

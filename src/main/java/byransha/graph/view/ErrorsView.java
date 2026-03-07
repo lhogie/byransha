@@ -24,7 +24,7 @@ public class ErrorsView extends NodeView<BNode> {
 	public JsonNode toJSON() {
 		var r = new ArrayNode(factory);
 
-		for (var err : n.errors()) {
+		for (var err : viewedNode.errors()) {
 			r.add(err.msg);
 		}
 
@@ -38,19 +38,19 @@ public class ErrorsView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		for (var err : n.errors()) {
-			pane.append("Error: " + err.msg);
+		for (var err : viewedNode.errors()) {
+			pane.appendToCurrentFlow("Error: " + err.msg);
 			pane.newLine();
 		}
 	}
 
 	@Override
 	public void writeTo(Pane pane) {
-		n.errors().forEach(err -> pane.getChildren().add(new Text("Error: " + err.msg + "\n")));
+		viewedNode.errors().forEach(err -> pane.getChildren().add(new Text("Error: " + err.msg + "\n")));
 	}
 
 	public boolean showInViewList() {
-		return !n.errors().isEmpty();
+		return !viewedNode.errors().isEmpty();
 	}
 
 	@Override

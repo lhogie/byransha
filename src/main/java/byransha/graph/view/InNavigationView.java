@@ -27,7 +27,7 @@ public class InNavigationView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		g.i.reverseNavigation.forEachInOf(n, in -> in.source().findView(JumpTo.class).writeTo(pane));
+		g.i.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpTo.class).writeTo(pane));
 	}
 
 	@Override

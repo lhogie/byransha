@@ -17,6 +17,8 @@ public class Search extends NodeAction<BNode, ListNode> {
 		depth.setBounds(0, 100000);
 	}
 
+	
+	
 	@Override
 	public ActionResult<BNode, ListNode> exec() {
 		var list = new ListNode(g, "search result at depth " + depth);

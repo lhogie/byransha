@@ -24,7 +24,7 @@ public class User extends BNode {
 		passwordNode.hideText = true;
 		history = new HistoryNode(g);
 
-		passwordNode.valueChangeListeners.add(e -> {
+		passwordNode.changeListeners.add(n -> {
 			argon2Hash.set(Argon.hash(passwordNode.get()));
 		});
 	}

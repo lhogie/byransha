@@ -1,6 +1,7 @@
 package byransha.graph;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -48,14 +50,20 @@ import byransha.graph.view.SmallInfoView;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.User;
+import byransha.ui.swing.ColorPalette;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-
 
 public abstract class BNode {
 	@Hide
 	public final BGraph g;
 	public boolean readOnly;
 	public int id;
+
+	public static interface NodeChangeListener {
+		void changed(BNode n);
+	}
+
+	public List<NodeChangeListener> changeListeners = new ArrayList<>();
 
 	@Hide
 	protected ListNode<NodeView> cachedViews;
@@ -320,8 +328,9 @@ public abstract class BNode {
 		return this == obj;
 	}
 
-	public Color getColor() {
-		return Color.white;
+	public final Color getColor() {
+		System.out.println("color FOR " + getClass());
+		return ColorPalette.forClass(getClass());
 	}
 
 	public Icon getIcon() {
@@ -422,6 +431,15 @@ public abstract class BNode {
 				}
 			}
 		});
+	}
+
+	public JButton createJumpComponent() {
+		var b = new JButton(prettyName());
+		b.setBackground(getColor());
+		b.setPreferredSize(new Dimension(100, 30));
+		b.addActionListener(e -> currentUser().jumpTo(this));
+		b.setToolTipText(whatIsThis());
+		return b;
 	}
 
 }

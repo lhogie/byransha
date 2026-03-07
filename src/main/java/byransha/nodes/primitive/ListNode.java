@@ -1,6 +1,6 @@
 package byransha.nodes.primitive;
 
-import java.io.IOException;
+import java.awt.Component;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -19,9 +19,8 @@ import byransha.graph.view.DotAction;
 import byransha.graph.view.GeneratePlantUML;
 
 public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
-
 	String label;
-	List<T> selected = Collections.EMPTY_LIST;
+	private List<T> selected = Collections.EMPTY_LIST;
 
 	public ListNode(BGraph g, String label) {
 		super(g);
@@ -45,7 +44,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	@Override
 	public void createViews() {
-		// cachedViews.add(new ListNodeView(g, this));
+		cachedViews.add(new ListNodeView(g, this));
 		super.createViews();
 	}
 
@@ -88,7 +87,6 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		return r;
 	}
 
-	
 	@Override
 	public String whatIsThis() {
 		return "a list of nodes";
@@ -154,5 +152,12 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		pw.println("}");
 		return s.toString();
 	}
+
+	public void setSelected(List list) {
+		this.selected = list;
+		System.out.println("notifying");
+		changeListeners.forEach(l -> l.changed(this));
+	}
+
 
 }

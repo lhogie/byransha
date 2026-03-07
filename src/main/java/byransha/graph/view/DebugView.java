@@ -18,7 +18,7 @@ public class DebugView extends NodeView<BNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return n.toJSONNode();
+		return viewedNode.toJSONNode();
 	}
 
 	@Override

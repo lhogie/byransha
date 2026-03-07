@@ -20,7 +20,7 @@ public class SearchByClass extends Search {
 		availableClasses = new ListNode(g, "searcheable classes");
 
 		// update the list of classes when the depth changes
-		depth.valueChangeListeners.add(e -> {
+		depth.changeListeners.add(e -> {
 			var classes = new HashSet<Class>();
 			bfs(depth.get(), n -> true, (node, d) -> classes.add(node.getClass()));
 			var classList = new ArrayList<Class>(classes);

@@ -17,14 +17,14 @@ public class AvailableViewsView extends NodeView<BNode> {
 	@Override
 	public JsonNode toJSON() {
 		ArrayNode r = new ArrayNode(null);
-		var views = n.views();
+		var views = viewedNode.views();
 		views.forEach(v -> r.add(v.toJSONNode()));
 		return r;
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		n.views().forEach(v -> {
+		viewedNode.views().forEach(v -> {
 			v.findView(JumpTo.class).writeTo(pane);
 		});
 	}

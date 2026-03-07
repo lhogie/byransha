@@ -1,15 +1,14 @@
 package byransha.nodes.primitive;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
@@ -21,6 +20,8 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
 import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ResizableByGrip;
+import byransha.ui.swing.Utils;
 
 public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 
@@ -38,50 +39,57 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 	@Override
 	public JsonNode toJSON() {
 		var r = new ArrayNode(null);
-		n.get().forEach(e -> r.add(e.toJSONNode()));
+		viewedNode.get().forEach(e -> r.add(e.toJSONNode()));
 		return r;
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
 		this.label = new JLabel();
-		pane.append(label);
+		pane.appendToCurrentFlow(label);
 		pane.newLine();
 		var jlist = new JList();
-		jlist.setListData(n.get().toArray());
+		jlist.setListData(viewedNode.get().toArray());
 		jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jlist.setCellRenderer(new ListCellRenderer<BNode>() {
 
 			@Override
 			public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
 					boolean isSelected, boolean cellHasFocus) {
-				JPanel p = new JPanel();
-				var b = new JButton(value.prettyName());
-				p.add(b);
-				b.setOpaque(true);
-				b.setBackground(isSelected ? Color.blue : Color.white);
-//				p.add(value.findView(JumpTo.class);
-				return p;
+				var b = value.createJumpComponent();
+				if (isSelected)
+					b.setBackground(list.getSelectionBackground());
+				b.setText(value.whatIsThis() + ": " + b.getText());
+				return b;
 			}
 		});
 
+		jlist.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					int index = jlist.locationToIndex(e.getPoint());
+
+					if (index >= 0) {
+						currentUser().jumpTo((BNode) jlist.getModel().getElementAt(index));
+					}
+				}
+			}
+		});
 		var selectionModel = jlist.getSelectionModel();
 		selectionModel.addListSelectionListener(e -> {
-			n.selected = (List) Arrays.stream(selectionModel.getSelectedIndices())
-					.mapToObj(i -> jlist.getModel().getElementAt(i)).toList();
+			viewedNode.setSelected((List) Arrays.stream(selectionModel.getSelectedIndices())
+					.mapToObj(i -> jlist.getModel().getElementAt(i)).toList());
 			updateLabel();
 		});
 
-		var sp = new JScrollPane(jlist);
-		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sp.setPreferredSize(new Dimension(500, 100));
-		pane.append(sp);
+		
+		pane.appendToCurrentFlow(Utils.resizableScrollPane(jlist));
 		updateLabel();
 	}
 
 	private void updateLabel() {
-		label.setText(n.selected.size() + " selected, among " + n.get().size());
+		label.setText(viewedNode.getSelected().size() + " selected, among " + viewedNode.get().size());
 	}
 
 	@Override

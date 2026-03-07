@@ -1,5 +1,9 @@
 package byransha.graph.view;
 
+import java.awt.Dimension;
+
+import javax.swing.JComponent;
+import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -10,6 +14,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.TextNode;
 import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ResizableByGrip;
+import byransha.ui.swing.Utils;
 
 public class TextNodeView extends NodeView<TextNode> {
 
@@ -33,12 +39,12 @@ public class TextNodeView extends NodeView<TextNode> {
 
 	@Override
 	public JsonNode toJSON() {
-		return new ObjectNode(factory).put("value", n.get());
+		return new ObjectNode(factory).put("value", viewedNode.get());
 	}
 
 	@Override
 	public void writeTo(ByranshaUserPane pane) {
-		String s = n.get();
+		String s = viewedNode.get();
 		var p = new JTextPane();
 		p.setText(s);
 		p.getDocument().addDocumentListener(new DocumentListener() {
@@ -54,7 +60,7 @@ public class TextNodeView extends NodeView<TextNode> {
 			}
 
 			private void changed(DocumentEvent e) {
-				n.set(p.getText());
+				viewedNode.set(p.getText());
 			}
 
 			@Override
@@ -63,13 +69,21 @@ public class TextNodeView extends NodeView<TextNode> {
 		});
 
 		int caret = p.getCaretPosition();
-		n.valueChangeListeners.add(newValue -> {
+		viewedNode.changeListeners.add(n -> {
+			var newValue = ((TextNode) n).get();
+
 			if (!p.getText().equals(newValue)) {
 				p.setText(newValue);
 			}
 		});
 		p.setCaretPosition(caret);
-		pane.append(p);
+		
+		
+		pane.appendToCurrentFlow(Utils.resizableScrollPane(p));
+
+		
 	}
+
+
 
 }
