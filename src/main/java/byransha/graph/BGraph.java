@@ -8,6 +8,7 @@ import byransha.event.EventList;
 import byransha.event.InMemoryEventList;
 import byransha.graph.action.NewNodeCreator;
 import byransha.graph.index.AllIndexes;
+import byransha.network.NetworkAgent;
 import byransha.nodes.system.Argon;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
@@ -21,7 +22,8 @@ public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
 	public final List<CurrentUserListener> changeUserListener = new ArrayList<>();
 
-	public final AllIndexes i = new AllIndexes(this);
+	public AllIndexes indexes = new AllIndexes();
+	public final AllIndexesNode inode = new AllIndexesNode(this);
 	public final User admin = new User(this, "admin", Argon.hash("admin"));
 	public final User guest = new User(this, "user", Argon.hash("test"));
 	public BNode application;
@@ -36,7 +38,8 @@ public class BGraph extends BNode {
 	public SwingFrontend swing;
 	private User currentUser;
 	public JavaFXFrontend javafx;
-	public final UIPreferences ui;
+	public final UIPreferences ui = new UIPreferences(this);
+	public final NetworkAgent networkAgent = new NetworkAgent(this);
 
 	public static interface CurrentUserListener {
 		void changed(User u);
@@ -44,10 +47,9 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-
-		this.ui = new UIPreferences(g);
-
 		setCurrentUser(guest);
+
+		indexes.add(g);
 	}
 
 	@Override

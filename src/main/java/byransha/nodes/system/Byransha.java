@@ -1,5 +1,7 @@
 package byransha.nodes.system;
 
+import java.io.File;
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +19,7 @@ public class Byransha extends SystemNode {
 
 	public final StringNode version;
 	public final URLNode sourceURL;
+	public File configDirectory;
 
 	public Byransha(BGraph g) {
 		super(g);

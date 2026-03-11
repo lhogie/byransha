@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class AvailableViewsView extends NodeView<BNode> {
 	int edgeSize = 60;
@@ -23,7 +23,7 @@ public class AvailableViewsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		viewedNode.views().forEach(v -> {
 			v.findView(JumpTo.class).writeTo(pane);
 		});

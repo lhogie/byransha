@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.ResizableByGrip;
 import byransha.ui.swing.Utils;
 
@@ -44,7 +44,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		this.label = new JLabel();
 		pane.appendToCurrentFlow(label);
 		pane.newLine();
@@ -71,7 +71,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 					int index = jlist.locationToIndex(e.getPoint());
 
 					if (index >= 0) {
-						currentUser().jumpTo((BNode) jlist.getModel().getElementAt(index));
+						getChat().jumpTo((BNode) jlist.getModel().getElementAt(index));
 					}
 				}
 			}

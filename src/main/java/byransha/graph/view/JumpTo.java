@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
@@ -43,7 +43,7 @@ public class JumpTo extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		pane.appendToCurrentFlow(viewedNode.createJumpComponent());
 	}
 

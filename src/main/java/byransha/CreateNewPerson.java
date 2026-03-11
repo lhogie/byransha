@@ -28,7 +28,7 @@ public class CreateNewPerson extends Event {
 
 	@Override
 	public void undo(BGraph g) throws Throwable {
-		var luc = g.i.byClass.forEachNodeOfClass(Person.class,
+		var luc = g.indexes.byClass.forEachNodeOfClass(Person.class,
 				p -> Stop.stopIf(p.etatCivil.name.get().equals(name)));
 		luc.delete();
 	}

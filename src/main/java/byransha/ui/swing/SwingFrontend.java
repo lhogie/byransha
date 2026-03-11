@@ -13,7 +13,7 @@ import byransha.nodes.system.SystemNode;
 public class SwingFrontend extends SystemNode {
 
 	static JFrame f = new JFrame("Byransha");
-	public final ByranshaUserPane sheet = new ByranshaUserPane();
+	public final ChatSheet sheet = new ChatSheet();
 
 	public SwingFrontend(BGraph g) {
 		super(g);

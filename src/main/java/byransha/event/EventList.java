@@ -3,22 +3,57 @@ package byransha.event;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.primitive.StringNode;
 
 public abstract class EventList extends BNode {
-
+	StringNode status;
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
 
 	public EventList(BGraph g) {
 		super(g);
+		status = new StringNode(g);
+
+		new Thread(() -> {
+			while (true) {
+				List<Event> candidates = new ArrayList<>();
+				status.set("running " + candidates.size() + " event(s) sent");
+				forEachEvent(e -> {
+					if (e.owners.size() < 1) {
+						try {
+							candidates.add(e);
+							g.networkAgent.send(e);
+							status.set("running " + candidates.size() + " event(s) sent");
+						} catch (IOException err) {
+
+						}
+					}
+				});
+
+				for (int nbSecPause = 10; nbSecPause > 0; --nbSecPause) {
+					status.set(candidates.size() + " event(s) sent. Resend in " + nbSecPause + "s");
+					try {
+						Thread.currentThread().sleep(1);
+					} catch (InterruptedException e1) {
+						e1.printStackTrace();
+					}
+				}
+
+			}
+		}, "event list dissemination thread").start();
 	}
 
-	public abstract void add(Event e)
-			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException;
+	private void forEachEvent(Consumer<Event> c) {
+		// TODO Auto-generated method stub
+
+	}
+
+	public abstract void add(Event e);
 
 	public abstract Event forward() throws Throwable;
 
@@ -45,5 +80,10 @@ public abstract class EventList extends BNode {
 		} else {
 			throw new IllegalStateException();
 		}
+	}
+
+	public Event findEvent(long eventID) {
+		return null;
+
 	}
 }

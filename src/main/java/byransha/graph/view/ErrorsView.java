@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
@@ -37,7 +37,7 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		for (var err : viewedNode.errors()) {
 			pane.appendToCurrentFlow("Error: " + err.msg);
 			pane.newLine();

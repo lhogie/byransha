@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class SmallInfoView extends NodeView<BNode> {
 
@@ -26,7 +26,7 @@ public class SmallInfoView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		pane.appendToCurrentFlow(new JLabel(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")"));
 	}
 

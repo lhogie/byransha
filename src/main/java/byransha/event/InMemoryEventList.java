@@ -1,7 +1,5 @@
 package byransha.event;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,8 +15,7 @@ public class InMemoryEventList extends EventList {
 	}
 
 	@Override
-	public void add(Event e) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	public void add(Event e) {
 		q.add(e);
 		Collections.sort(q);
 	}

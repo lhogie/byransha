@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.TextFlow;
 
@@ -30,7 +30,7 @@ public class AvailableActionsView extends NodeView<BNode> {
 
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		viewedNode.actions().forEach(a -> {
 			a.findView(JumpTo.class).writeTo(pane);
 		});

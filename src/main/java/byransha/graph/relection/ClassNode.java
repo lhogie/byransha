@@ -51,14 +51,14 @@ public class ClassNode extends BNode {
 		this.aggregations = new MapNode<>(g, "aggregations");
 
 		for (var superInterface : clazz.getInterfaces()) {
-			var superInterfaceNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == superInterface);
+			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == superInterface);
 
 			if (superInterfaceNode != null) {
 				interfaces.get().add(superInterfaceNode);
 			}
 		}
 
-		this.superClass = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
+		this.superClass = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
 
 		{
 			record A(String name, Class c) {
@@ -75,7 +75,7 @@ public class ClassNode extends BNode {
 			}
 
 			for (var a : set) {
-				var classNode = g.i.byClass.findFirst(ClassNode.class, n -> n.clazz == a.c);
+				var classNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == a.c);
 
 				if (classNode != null) {
 					aggregations.map.put(a.name, classNode);
@@ -157,7 +157,7 @@ public class ClassNode extends BNode {
 	}
 
 	public static ClassNode find(BGraph g, Class cla) {
-		return g.i.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
+		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
 	}
 
 }

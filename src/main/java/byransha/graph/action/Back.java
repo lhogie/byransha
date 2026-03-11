@@ -17,7 +17,7 @@ final public class Back extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult exec() {
-		var h = g.currentUser().history.get();
+		var h = g.currentUser().chat.get();
 
 		if (applies()) {
 			h.remove(h.size() - 1);
@@ -30,7 +30,7 @@ final public class Back extends NodeAction<BNode, BNode> {
 
 	@Override
 	public boolean applies() {
-		return g.currentUser().history.get().size() > 1;
+		return g.currentUser().chat.get().size() > 1;
 	}
 
 }

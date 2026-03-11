@@ -13,7 +13,7 @@ public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassN
 
 	@Override
 	protected ClassNode map(A n) {
-		return g.i.byClass.findFirstOr(ClassNode.class, cn -> cn.clazz == n.getClass(),
+		return g.indexes.byClass.findFirstOr(ClassNode.class, cn -> cn.clazz == n.getClass(),
 				() -> new ClassNode(g, n.getClass()));
 	}
 

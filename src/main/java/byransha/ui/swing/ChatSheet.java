@@ -1,6 +1,9 @@
 package byransha.ui.swing;
 
 import java.awt.Dimension;
+import java.awt.datatransfer.StringSelection;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragSource;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -11,16 +14,17 @@ import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 
 import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
 
-public class ByranshaUserPane extends ScrollablePanel {
+public class ChatSheet extends ScrollablePanel {
 
 	JPanel currentFlow = createNewFlow();
 
-	public ByranshaUserPane() {
+	public ChatSheet() {
 		super();
 		var bl = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(bl);
@@ -28,8 +32,15 @@ public class ByranshaUserPane extends ScrollablePanel {
 
 	public void addNode(BNode n) {
 //		clear();
-		appendToCurrentFlow(
-				"<html><b><h3>" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.id() + ".");
+		var idLabel = new JTextField(n.idAsText());
+		idLabel.setEditable(false);
+		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(idLabel, DnDConstants.ACTION_COPY, e -> {
+			String dragText = ((JTextField) e.getComponent()).getText();
+			e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(dragText));
+		});
+
+		appendToCurrentFlow("<html><b><h3>" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is ");
+		appendToCurrentFlow(idLabel);
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
@@ -79,6 +90,7 @@ public class ByranshaUserPane extends ScrollablePanel {
 		wp.setBorder(BorderFactory.createTitledBorder(""));
 		return wp;
 	}
+
 	private static JPanel createNewFlow2() {
 		var wp = new WrapPanel();
 		var cp = new ClosablePanel(wp);

@@ -7,7 +7,7 @@ import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.javafx.Utils;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;
@@ -56,7 +56,7 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return false;
 	}
 
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		var c = ByUtils.JsonToTreeConverter.buildTreeModel(toJSON());
 		pane.appendToCurrentFlow(byransha.ui.swing.Utils.resizableScrollPane(c));
 	}

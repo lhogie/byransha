@@ -21,9 +21,6 @@ public class ReverseNavigation extends Index {
 		}
 	}
 
-	protected ReverseNavigation(BGraph g) {
-		super(g);
-	}
 
 	private List<InLink> computeIns(List<BNode> nodes) {
 		List<InLink> refs = new ArrayList<>();
@@ -49,18 +46,6 @@ public class ReverseNavigation extends Index {
 		m.remove(n);
 	}
 
-	@Override
-	public void arcDeleted(BNode from, BNode to) {
-		m.removeMapping(from, to);
-	}
-
-	@Override
-	public void arcAdded(BNode from, BNode to) {
-	}
-
-	@Override
-	public void idChanged(int oldID, int newID) {
-	}
 
 	@Override
 	public String strategy() {

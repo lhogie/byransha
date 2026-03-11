@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class OutNavigationView extends NodeView<BNode> {
 
@@ -26,7 +26,7 @@ public class OutNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		viewedNode.forEachOut((out, role) -> {
 			for (var v : out.views()) {
 				if (v instanceof JumpTo j) {

@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.BooleanNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class BooleanNodeView extends NodeView<BooleanNode> {
 
@@ -26,7 +26,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		var yes = new JRadioButton("yes");
 		var no = new JRadioButton("no");
 		var group = new ButtonGroup();

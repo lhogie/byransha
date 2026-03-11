@@ -1,22 +1,24 @@
 package byransha.nodes.system;
 
+import java.util.List;
+
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ColorPalette.Style;
 
 public class UIPreferences extends SystemNode {
 	public final BooleanNode proposeUnapplicableActions;
-	public final ListNode<ColorSchemeNode> colorStyle;
+	public final ColorSchemeNode colorStyle;
 
-	class ColorSchemeNode extends BNode {
+	public class ColorSchemeNode extends BNode {
 
-		public Style style;
+		public final Style style;
 
-		protected ColorSchemeNode(BGraph g) {
+		protected ColorSchemeNode(BGraph g, Style style2) {
 			super(g);
+			this.style = style2;
 		}
 
 		@Override
@@ -34,13 +36,8 @@ public class UIPreferences extends SystemNode {
 	public UIPreferences(BGraph g) {
 		super(g);
 		this.proposeUnapplicableActions = new BooleanNode(g, true);
-		this.colorStyle = new ListNode<>(g, "color styles");
-
-		for (var style : ColorPalette.Style.values()) {
-			var cn = new ColorSchemeNode(g);
-			cn.style = style;
-			colorStyle.get().add(cn);
-		}
+		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
+		this.colorStyle = schemeNodes.getFirst();
 	}
 
 	@Override

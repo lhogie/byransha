@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class AllView extends NodeView<BNode> {
 
@@ -23,7 +23,7 @@ public class AllView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		try {
 			for (var v : viewedNode.views()) {
 				if (v.showInViewList()) {

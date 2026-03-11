@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class InNavigationView extends NodeView<BNode> {
 
@@ -26,8 +26,8 @@ public class InNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ByranshaUserPane pane) {
-		g.i.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpTo.class).writeTo(pane));
+	public void writeTo(ChatSheet pane) {
+		g.indexes.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpTo.class).writeTo(pane));
 	}
 
 	@Override

@@ -1,9 +1,10 @@
 package byransha.graph;
 
 public class BNodeNOTNODE {
+	protected final BGraph g;
 
 	public BNodeNOTNODE(BGraph g) {
-		// TODO Auto-generated constructor stub
+		this.g = g;
 	}
 
 	public String whatIsThis() {

@@ -3,13 +3,18 @@ package byransha.event;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import byransha.graph.BGraph;
+import byransha.network.PeerNode;
 
 public abstract class Event implements Serializable, Comparable<Event> {
 	final LocalDateTime date;
+	Set<PeerNode> owners = new HashSet<>();
+	public long ID;
 
 	public Event(LocalDateTime date) {
 		this.date = date;
@@ -50,5 +55,12 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	}
 
 	public abstract void fromCSV(Iterator<String> l);
+
+	public void markReceivedBy(PeerNode from) {
+		owners.add(from);
+	}
+
+	public void commitToDisk() {
+	}
 
 }

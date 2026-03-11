@@ -25,7 +25,7 @@ public class SearchByClass extends Search {
 			bfs(depth.get(), n -> true, (node, d) -> classes.add(node.getClass()));
 			var classList = new ArrayList<Class>(classes);
 			Collections.sort(classList, (a, b) -> a.getSimpleName().compareTo(b.getSimpleName()));
-			List<ClassNode> l = classes.stream().map(c -> g.i.byClass.forEachNodeOfClass(ClassNode.class, n -> Stop.no))
+			List<ClassNode> l = classes.stream().map(c -> g.indexes.byClass.forEachNodeOfClass(ClassNode.class, n -> Stop.no))
 					.toList();
 			availableClasses.set(l);
 		});

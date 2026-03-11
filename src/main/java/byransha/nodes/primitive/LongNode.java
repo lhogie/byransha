@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import byransha.graph.BGraph;
 import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class LongNode extends PrimitiveValueNode<Long> {
 	public long min = 0, max = 10000;
@@ -73,8 +73,9 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		}
 
 		@Override
-		public void writeTo(ByranshaUserPane pane) {
+		public void writeTo(ChatSheet pane) {
 			var tf = new JTextField("" + viewedNode.get());
+			tf.setEditable(readOnly);
 			viewedNode.changeListeners.add(n -> tf.setText("" + ((LongNode) n).get()));
 			pane.appendToCurrentFlow(tf);
 		}

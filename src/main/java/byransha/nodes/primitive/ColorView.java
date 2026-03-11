@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.ByranshaUserPane;
+import byransha.ui.swing.ChatSheet;
 
 public class ColorView extends NodeView<ColorNode> {
 
@@ -29,7 +29,7 @@ public class ColorView extends NodeView<ColorNode> {
 		return true;
 	}
 
-	public void writeTo(ByranshaUserPane pane) {
+	public void writeTo(ChatSheet pane) {
 		var cc = new JColorChooser();
 		cc.getSelectionModel().addChangeListener(e -> {
 			viewedNode.set(cc.getColor());

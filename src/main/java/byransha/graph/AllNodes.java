@@ -19,7 +19,7 @@ public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
 	@Override
 	public ActionResult exec() throws Throwable {
 		var r = new ListNode<>(g, "all nodes in the graph");
-		g.i.nodesList.forEachNode(n -> {
+		g.indexes.nodesList.forEachNode(n -> {
 			r.get().add(n);
 			return Stop.no;
 		});

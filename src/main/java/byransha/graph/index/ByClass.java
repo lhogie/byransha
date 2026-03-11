@@ -1,6 +1,5 @@
 package byransha.graph.index;
 
-import java.util.List;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -9,17 +8,12 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import butils.Stop;
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 
 public class ByClass extends Index {
 
-	MultiValuedMap<Class<? extends BNode>, BNode> m = new HashSetValuedHashMap<>();
-
-	protected ByClass(BGraph g) {
-		super(g);
-	}
+	public MultiValuedMap<Class, BNode> m = new HashSetValuedHashMap<>();
 
 	public <C extends BNode> C forEachNodeOfClass(Class<C> nodeClass, Function<C, Stop> f) {
 		for (var c : m.keySet()) {
@@ -46,33 +40,17 @@ public class ByClass extends Index {
 
 	@Override
 	public void add(BNode n) {
-		m.put(n.getClass(), n);
+		n.ascendSuperClassesUntil(BNode.class, clazz -> m.put(clazz, n));
 	}
 
 	@Override
 	public void delete(BNode n) {
-		m.removeMapping(n.getClass(), n);
-	}
-
-	@Override
-	public void arcDeleted(BNode from, BNode to) {
-	}
-
-	@Override
-	public void arcAdded(BNode from, BNode to) {
-	}
-
-	@Override
-	public void idChanged(int oldID, int newID) {
+		n.ascendSuperClassesUntil(BNode.class, clazz -> m.removeMapping(clazz, n));
 	}
 
 	@Override
 	public String strategy() {
 		return "class";
-	}
-
-	public <N extends BNode> List<N> get(Class<N> c) {
-		return get(c).stream().map(n -> (N) n).toList();
 	}
 
 }

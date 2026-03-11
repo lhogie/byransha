@@ -31,7 +31,7 @@ public class Authenticate extends NodeAction<BNode, User> {
 	public ActionResult<BNode, User> exec() {
 		var u = username.get();
 		var p = password.getOrDefault("").hashCode();
-		var newUser = g.i.byClass.forEachNodeOfClass(User.class,
+		var newUser = g.indexes.byClass.forEachNodeOfClass(User.class,
 				uu -> Stop.stopIf(uu.name.get().equals(u) && uu.argon2Hash.equals(p)));
 
 		if (newUser != null) {

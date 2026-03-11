@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import butils.Base62;
 import butils.ByUtils;
 import butils.TriConsumer;
 import byransha.graph.action.Back;
@@ -38,6 +40,7 @@ import byransha.graph.action.Reset;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
+import byransha.graph.relection.ClassNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
@@ -67,6 +70,7 @@ public abstract class BNode {
 
 	@Hide
 	protected ListNode<NodeView> cachedViews;
+
 	@Hide
 	protected ListNode<NodeAction> cachedActions;
 
@@ -75,8 +79,7 @@ public abstract class BNode {
 			this.g = (BGraph) this;
 		} else {
 			this.g = g;
-
-			g.i.add(this);
+			this.g.indexes.add(this);
 		}
 	}
 
@@ -85,7 +88,7 @@ public abstract class BNode {
 	}
 
 	protected BNode error(Throwable err, boolean rethrow) {
-		var n = g.errorLog.add(err);
+		g.errorLog.add(err);
 
 		if (rethrow) {
 			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
@@ -135,7 +138,7 @@ public abstract class BNode {
 	}
 
 	public void delete() {
-		g.i.delete(this);
+		g.indexes.delete(this);
 	}
 
 	public int sizeOf() {
@@ -329,8 +332,7 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		System.out.println("color FOR " + getClass());
-		return ColorPalette.forClass(getClass());
+		return ColorPalette.forClass(getClass(), g.ui.colorStyle.style);
 	}
 
 	public Icon getIcon() {
@@ -434,12 +436,35 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpComponent() {
-		var b = new JButton(prettyName());
-		b.setBackground(getColor());
+		var b = new JButton(prettyName()) {
+			@Override
+			public Color getBackground() {
+				return getColor();
+			}
+		};
+
 		b.setPreferredSize(new Dimension(100, 30));
 		b.addActionListener(e -> currentUser().jumpTo(this));
 		b.setToolTipText(whatIsThis());
 		return b;
+	}
+
+	public String idAsText() {
+		return Base62.encode(id());
+	}
+
+	public <N extends BNode> ClassNode getClassNode() {
+		for (ClassNode c : (Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class)) {
+			if (c.clazz == getClass()) {
+				return c;
+			}
+		}
+
+		throw new IllegalStateException("class node should be registered");
+	}
+
+	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
+		f.set(this, newValue);
 	}
 
 }
