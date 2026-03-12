@@ -10,6 +10,7 @@ import byransha.graph.action.ActionResult;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
+import byransha.nodes.system.ChatNode;
 
 public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(BGraph g, ListNode<N> node) {
@@ -23,7 +24,7 @@ public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, T
 	}
 
 	@Override
-	public ActionResult<ListNode<N>, TextNode> exec() throws Throwable {
+	public ActionResult<ListNode<N>, TextNode> exec(ChatNode chat) throws Throwable {
 		var l = new ArrayList<>(inputNode.get());
 		var classNode = new HashSet<ClassNode>();
 
@@ -35,7 +36,7 @@ public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, T
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.size() > 0;
 	}
 

@@ -21,7 +21,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new LongNodeView(g, this));
+		cachedViews.values.add(new LongNodeView(g, this));
 		super.createViews();
 	}
 

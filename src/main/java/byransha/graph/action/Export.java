@@ -8,6 +8,7 @@ import byransha.graph.NodeAction;
 import byransha.nodes.lab.BusinessNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
+import byransha.nodes.system.ChatNode;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	public Export(BGraph g, BNode node) {
@@ -30,7 +31,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode<TextNode>> exec() throws Throwable {
+	public ActionResult<BNode, ListNode<TextNode>> exec(ChatNode chat) throws Throwable {
 		var r = new ListNode<byransha.nodes.primitive.TextNode>(g, "export texts");
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
@@ -41,7 +42,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode instanceof BusinessNode;
 	}
 }

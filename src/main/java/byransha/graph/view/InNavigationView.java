@@ -27,7 +27,7 @@ public class InNavigationView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		g.indexes.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpTo.class).writeTo(pane));
+		g.indexes.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpToMe.class).writeTo(pane));
 	}
 
 	@Override

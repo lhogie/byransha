@@ -29,7 +29,7 @@ public class OutNavigationView extends NodeView<BNode> {
 	public void writeTo(ChatSheet pane) {
 		viewedNode.forEachOut((out, role) -> {
 			for (var v : out.views()) {
-				if (v instanceof JumpTo j) {
+				if (v instanceof JumpToMe j) {
 					j.writeTo(pane);
 					return;
 				}

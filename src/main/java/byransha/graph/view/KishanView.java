@@ -46,7 +46,7 @@ public class KishanView extends NodeView<BNode> {
 				idTf.setEditable(readOnly);
 				pane.appendToCurrentFlow(idTf);
 
-				var jumpButton = out.createJumpComponent();
+				var jumpButton = out.createJumpComponent(pane.chat);
 				jumpButton.setText(f.getName());
 				jumpButton.setToolTipText(f.getName());
 				pane.appendToCurrentFlow(jumpButton);
@@ -103,7 +103,7 @@ public class KishanView extends NodeView<BNode> {
 			if (out != viewedNode) {
 				var flow = new TextFlow();
 				flow.getChildren().add(new Text(readOnly ? "r-" : "rw"));
-				var jt = (JumpTo) out.findView(JumpTo.class);
+				var jt = (JumpToMe) out.findView(JumpToMe.class);
 				jt.setLabel(f.getName());
 				jt.writeTo(flow);
 				out.getKishanView().writeTo(flow);

@@ -13,12 +13,16 @@ import byransha.nodes.system.SystemNode;
 public class SwingFrontend extends SystemNode {
 
 	static JFrame f = new JFrame("Byransha");
-	public final ChatSheet sheet = new ChatSheet();
+	public final ChatSheet sheet;
 
 	public SwingFrontend(BGraph g) {
 		super(g);
 		setLookAndFeel("WebLaf");
 		g.swing = this;
+		
+		var defaultChat = currentUser().chats.get(0);
+		sheet = new ChatSheet(defaultChat);
+
 		g.changeUserListener.add(u -> sheet.addNode(u));
 
 		JScrollPane scroll = new JScrollPane(sheet);
@@ -33,9 +37,9 @@ public class SwingFrontend extends SystemNode {
 		f.add(scroll);
 		// f.setLocationRelativeTo(null);
 
+
 		// setNode(new AuthenticateAction(g));
-		currentUser().jumpListeners.add(n -> sheet.addNode(n));
-		currentUser().jumpTo(currentUser());
+		defaultChat.jumpListeners.add(n -> sheet.addNode(n));
 		f.setVisible(true);
 	}
 

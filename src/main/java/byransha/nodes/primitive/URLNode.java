@@ -12,7 +12,7 @@ public class URLNode extends StringNode {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new URLNodeView(g, this));
+		cachedViews.values.add(new URLNodeView(g, this));
 		super.createViews();
 	}
 

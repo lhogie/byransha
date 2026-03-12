@@ -5,6 +5,7 @@ import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.system.ChatNode;
 
 public abstract class AbstractMapAction<A extends BNode, B extends BNode> extends NodeAction<ListNode<A>, ListNode<B>> {
 
@@ -13,7 +14,7 @@ public abstract class AbstractMapAction<A extends BNode, B extends BNode> extend
 	}
 
 	@Override
-	public ActionResult<ListNode<A>, ListNode<B>> exec() {
+	public ActionResult<ListNode<A>, ListNode<B>> exec(ChatNode chat) {
 		var r = new ListNode<B>(g, "mapping to " + mapTo());
 		inputNode.get().forEach(n -> r.get().add(map(n)));
 		return createResultNode(r, true);

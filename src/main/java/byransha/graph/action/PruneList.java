@@ -4,6 +4,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.system.ChatNode;
 
 public class PruneList<N extends BNode> extends NodeAction<ListNode<N>, ListNode<N>> {
 
@@ -18,14 +19,14 @@ public class PruneList<N extends BNode> extends NodeAction<ListNode<N>, ListNode
 	}
 
 	@Override
-	public ActionResult<ListNode<N>, ListNode<N>> exec() throws Throwable {
+	public ActionResult<ListNode<N>, ListNode<N>> exec(ChatNode chat) throws Throwable {
 		var r = new ListNode<N>(g, "pruned list");
 		r.get().addAll(inputNode.getSelected());
 		return createResultNode(r, true);
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.getSelected().size() > 2;
 	}
 

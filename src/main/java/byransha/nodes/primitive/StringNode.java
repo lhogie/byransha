@@ -16,7 +16,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new StringNodeView(g, this));
+		cachedViews.values.add(new StringNodeView(g, this));
 		super.createViews();
 	}
 

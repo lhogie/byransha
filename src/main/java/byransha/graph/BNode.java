@@ -45,13 +45,14 @@ import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
 import byransha.graph.view.InNavigationView;
-import byransha.graph.view.JumpTo;
+import byransha.graph.view.JumpToMe;
 import byransha.graph.view.KishanView;
 import byransha.graph.view.NodeView;
 import byransha.graph.view.OutNavigationView;
 import byransha.graph.view.SmallInfoView;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.ValuedNode;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.ColorPalette;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
@@ -102,7 +103,7 @@ public abstract class BNode {
 			cachedViews = new ListNode(g, "views for node " + this);
 			createViews();
 
-			if (findView(JumpTo.class) == null)
+			if (findView(JumpToMe.class) == null)
 				error(new IllegalStateException("no jump view found for node " + getClass().getName()));
 		}
 
@@ -227,6 +228,7 @@ public abstract class BNode {
 		forEachOutInFields((f, o, ro) -> consumer.accept(o));
 	}
 
+	
 	public void createActions() {
 		cachedActions.add(new Back(g, this));
 		cachedActions.add(new Export(g, this));
@@ -236,12 +238,13 @@ public abstract class BNode {
 		cachedActions.add(new SearchText(g, this));
 		cachedActions.add(new SearchRegexp(g, this));
 		cachedActions.add(new Jump(g, this));
+		cachedActions.add(new OpenInNewChat(g, this));
 	}
 
 	public void createViews() {
 		cachedViews.add(new KishanView(g, this));
 		cachedViews.add(new SmallInfoView(g, this));
-		cachedViews.add(new JumpTo(g, this));
+		cachedViews.add(new JumpToMe(g, this));
 		cachedViews.add(new OutNavigationView(g, this));
 		cachedViews.add(new InNavigationView(g, this));
 		cachedViews.add(new ErrorsView(g, this));
@@ -425,8 +428,8 @@ public abstract class BNode {
 				try {
 					var v = (BNode) f.get(this);
 
-					if (v instanceof ValuedNode vn) {
-						reset();
+					if (v instanceof ValuedNode) {
+						v.reset();
 					}
 				} catch (IllegalAccessException e) {
 					throw new RuntimeException(e);
@@ -435,7 +438,7 @@ public abstract class BNode {
 		});
 	}
 
-	public JButton createJumpComponent() {
+	public JButton createJumpComponent(ChatNode chat) {
 		var b = new JButton(prettyName()) {
 			@Override
 			public Color getBackground() {
@@ -444,7 +447,7 @@ public abstract class BNode {
 		};
 
 		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> currentUser().jumpTo(this));
+		b.addActionListener(e -> chat.add(this));
 		b.setToolTipText(whatIsThis());
 		return b;
 	}

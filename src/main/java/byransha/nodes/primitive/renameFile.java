@@ -5,6 +5,7 @@ import java.io.File;
 import byransha.graph.BGraph;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.ConfirmRequiredNodeAction;
+import byransha.nodes.system.ChatNode;
 
 public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 	StringNode newName;
@@ -27,7 +28,7 @@ public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.file.exists();
 	}
 

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import butils.ByUtils;
 import butils.Cout;
 import byransha.graph.action.ActionResult;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
@@ -15,6 +16,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	public boolean stopRequested = false;
 	public Thread thread;
 	public boolean execStraightAway = false;
+	String category;
 
 	public NodeAction(BGraph g, IN inputNode) {
 		super(g);
@@ -36,10 +38,10 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public JButton createJumpComponent() {
-		var b = super.createJumpComponent();
-		changeListeners.add(n -> b.setEnabled(applies()));
-		var applies = applies();
+	public JButton createJumpComponent(ChatNode chat) {
+		var b = super.createJumpComponent(chat);
+		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
+		var applies = applies(chat);
 
 		if (applies || g.ui.proposeUnapplicableActions.get()) {
 			b.setToolTipText(whatItDoes());
@@ -72,7 +74,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	public abstract String whatItDoes();
 
-	public abstract ActionResult<IN, OUT> exec() throws Throwable;
+	public abstract ActionResult<IN, OUT> exec(ChatNode chat) throws Throwable;
 
 	@Override
 	public final String whatIsThis() {
@@ -96,10 +98,10 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public ActionResult<NodeAction, OUT> exec() throws Throwable {
+		public ActionResult<NodeAction, OUT> exec(ChatNode chat) throws Throwable {
 			Cout.debugSuperVisible("exec " + inputNode.prettyName());
 			var startDateMs = System.currentTimeMillis();
-			var r = inputNode.exec();
+			var r = inputNode.exec(chat);
 			r.durationMs.set(System.currentTimeMillis() - startDateMs);
 			return r;
 		}
@@ -110,17 +112,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public boolean applies() {
+		public boolean applies(ChatNode chat) {
 			return true;
 		}
 
 	}
 
-	public abstract boolean applies();
+	public abstract boolean applies(ChatNode chat);
 
-	public ActionCategory<IN> getCategory() {
-		// TODO Auto-generated method stub
-		return null;
+	public String getCategory() {
+		return category;
 	}
 
 }

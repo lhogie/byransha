@@ -12,7 +12,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new BooleanNodeView(g, this));
+		cachedViews.values.add(new BooleanNodeView(g, this));
 		super.createViews();
 	}
 

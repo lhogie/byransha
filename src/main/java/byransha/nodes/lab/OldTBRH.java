@@ -47,7 +47,7 @@ class OldTBRH {
 							n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(campusName)));
 
 					if (campus != null && !officeName.isBlank()) {
-						for (var b : campus.buildings.getElements()) {
+						for (var b : campus.buildings.elements()) {
 							var office = b.findOffice(officeName);
 
 							if (office != null) {

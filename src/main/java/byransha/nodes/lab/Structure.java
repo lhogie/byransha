@@ -22,15 +22,15 @@ public class Structure extends BusinessNode {
 	}
 
 	public double occupationRatio() {
-		return offices.getElements().stream().mapToDouble(Office::occupationRatio).average().getAsDouble();
+		return offices.elements().stream().mapToDouble(Office::occupationRatio).average().getAsDouble();
 	}
 
 	public double avgSurfacePerUser() {
-		return offices.getElements().stream().mapToDouble(Office::surfacePerUser).average().getAsDouble();
+		return offices.elements().stream().mapToDouble(Office::surfacePerUser).average().getAsDouble();
 	}
 
 	public double totalSurface() {
-		return offices.getElements().stream().mapToDouble(o -> o.surface.get()).sum();
+		return offices.elements().stream().mapToDouble(o -> o.surface.get()).sum();
 	}
 
 	@Override

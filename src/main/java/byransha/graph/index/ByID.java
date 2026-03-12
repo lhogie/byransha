@@ -1,10 +1,8 @@
 package byransha.graph.index;
 
-import byransha.graph.BGraph;
+import butils.Base62;
 import byransha.graph.BNode;
 import byransha.graph.Index;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
@@ -12,8 +10,6 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 public class ByID extends Index {
 	final Long2ObjectMap<BNode> m = new Long2ObjectOpenHashMap<>();
-
-
 
 	private final IntList freeSlots = new IntArrayList();
 
@@ -53,7 +49,6 @@ public class ByID extends Index {
 		m.remove(n.id());
 	}
 
-
 	@Override
 	public String strategy() {
 		return "ID";
@@ -61,5 +56,9 @@ public class ByID extends Index {
 
 	public BNode get(long id) {
 		return m.get(id);
+	}
+
+	public BNode getByText(String id) {
+		return m.get(Base62.decode(id));
 	}
 }

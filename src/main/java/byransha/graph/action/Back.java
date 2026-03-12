@@ -3,6 +3,7 @@ package byransha.graph.action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.nodes.system.ChatNode;
 
 final public class Back extends NodeAction<BNode, BNode> {
 	public Back(BGraph g, BNode n) {
@@ -16,10 +17,10 @@ final public class Back extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult exec() {
-		var h = g.currentUser().chat.get();
+	public ActionResult exec(ChatNode chat) {
+		var h = chat.get();
 
-		if (applies()) {
+		if (applies(chat)) {
 			h.remove(h.size() - 1);
 			var next = h.remove(h.size() - 1);
 			return createResultNode(next, true);
@@ -29,8 +30,8 @@ final public class Back extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public boolean applies() {
-		return g.currentUser().chat.get().size() > 1;
+	public boolean applies(ChatNode chat) {
+		return chat.get().size() > 1;
 	}
 
 }

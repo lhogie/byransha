@@ -18,7 +18,7 @@ public class User extends BNode {
 		this.argon2Hash = new StringNode(g, passwordHash, ".*");
 		passwordNode.hideText = true;
 		chats = new ListNode<>(g, "chats");
-		chats.get().add(new ChatNode(g));
+		chats.get().add(new ChatNode(this, g));
 
 		passwordNode.changeListeners.add(n -> argon2Hash.set(Argon.hash(passwordNode.get())));
 	}

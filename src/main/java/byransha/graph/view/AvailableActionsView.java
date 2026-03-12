@@ -32,7 +32,7 @@ public class AvailableActionsView extends NodeView<BNode> {
 	@Override
 	public void writeTo(ChatSheet pane) {
 		viewedNode.actions().forEach(a -> {
-			a.findView(JumpTo.class).writeTo(pane);
+			a.findView(JumpToMe.class).writeTo(pane);
 		});
 	}
 
@@ -42,14 +42,14 @@ public class AvailableActionsView extends NodeView<BNode> {
 
 		class A {
 			Class target;
-			List<JumpTo> actions = new ArrayList<>();
+			List<JumpToMe> actions = new ArrayList<>();
 		}
 
 		List<A> as = new ArrayList<>();
 
 		viewedNode.actions().forEach(a -> {
 //			a.getTarget();
-			a.findView(JumpTo.class).writeTo(flow);
+			a.findView(JumpToMe.class).writeTo(flow);
 		});
 
 		pane.getChildren().add(flow);

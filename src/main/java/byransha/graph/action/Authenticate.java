@@ -8,6 +8,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.StringNode;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 
 public class Authenticate extends NodeAction<BNode, User> {
@@ -28,7 +29,7 @@ public class Authenticate extends NodeAction<BNode, User> {
 	}
 
 	@Override
-	public ActionResult<BNode, User> exec() {
+	public ActionResult<BNode, User> exec(ChatNode chat) {
 		var u = username.get();
 		var p = password.getOrDefault("").hashCode();
 		var newUser = g.indexes.byClass.forEachNodeOfClass(User.class,
@@ -42,7 +43,7 @@ public class Authenticate extends NodeAction<BNode, User> {
 	}
 	
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return true;
 	}
 

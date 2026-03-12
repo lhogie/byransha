@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
+import byransha.nodes.system.ChatNode;
 
 public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	StringNode fileNameNode;
@@ -17,7 +18,7 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	}
 
 	@Override
-	public ActionResult<TextNode, FileNode> exec()
+	public ActionResult<TextNode, FileNode> exec(ChatNode chat)
 			throws IllegalArgumentException, IllegalAccessException, IOException {
 		var path = Path.of(fileNameNode.getOrDefault(prettyName() + "-" + id() + ".txt"));
 		Files.write(path, inputNode.get().getBytes());
@@ -35,10 +36,9 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	public String prettyName() {
 		return "Save";
 	}
-	
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return true;
 	}
 }

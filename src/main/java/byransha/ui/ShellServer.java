@@ -5,25 +5,29 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 
 public class ShellServer extends SystemNode {
 	@FunctionalInterface
 	interface CommandAction {
-		void exec(PrintWriter out) throws Throwable;
+		void exec(PrintWriter out, List<String> parms) throws Throwable;
 	}
 
 	record Command(String description, CommandAction action) {
 	}
 
 	private final Map<String, Command> commands = new HashMap<>();
+	public ChatNode currentChat;
 
 	public ShellServer(BGraph g, int port) throws Throwable {
 		super(g);
@@ -81,29 +85,38 @@ public class ShellServer extends SystemNode {
 
 	private void initializeCommands(BGraph graph) {
 		commands.put("help", new Command("list available commands",
-				out -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));
+				(out, parms) -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));
 
-		commands.put("whoami", new Command("print current user", out -> out.println(graph.getCurrentUser())));
+		commands.put("whoami", new Command("print current user", (out, parms) -> out.println(graph.getCurrentUser())));
 
-		commands.put("pwd", new Command("print current node", out -> out.println(currentNode())));
+		commands.put("pwd", new Command("print current node", (out, parms) -> out.println(currentNode())));
 
-		commands.put("kill", new Command("kill the server's JVM", out -> System.exit(0)));
+		commands.put("kill", new Command("kill the server's JVM", (out, parms) -> System.exit(0)));
 
 		commands.put("actions", new Command("list actions available on this node",
-				out -> currentNode().actions().forEach(a -> out.println(a.technicalName()))));
+				(out, parms) -> currentNode().actions().forEach(a -> out.println(a.technicalName()))));
 
 		commands.put("views", new Command("list views available on this node",
-				out -> currentNode().views().forEach(v -> out.println(v.technicalName()))));
+				(out, parms) -> currentNode().views().forEach(v -> out.println(v.technicalName()))));
 
 		commands.put("ls", new Command("list outs",
-				out -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
+				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
 		commands.put("lf", new Command("list fields",
-				out -> currentNode().forEachOutInFields((f, o, ro) -> out.println(f.getName()))));
+				(out, parms) -> currentNode().forEachOutInFields((f, o, ro) -> out.println(f.getName()))));
 
-		commands.put("id", new Command("print current node ID", out -> out.println(currentNode().id())));
+		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode().id())));
 
-		commands.put("name", new Command("print current node name", out -> out.println(currentNode())));
+		commands.put("name", new Command("print current node name", (out, parms) -> out.println(currentNode())));
+		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
+		commands.put("chats", new Command("print available chats", (out, parms) -> out
+				.println(currentChat.currentUser().chats.values.stream().map(c -> c.idAsText()).toList())));
+		commands.put("newchat", new Command("create new chat",
+				(out, parms) -> out.println(new ChatNode(currentUser(), currentChat.currentNode()).id())));
+		commands.put("setcurrentchat", new Command("change chat",
+				(out, parms) -> out.println(currentChat = (ChatNode) g.indexes.byId.getByText(parms.removeFirst()))));
+		commands.put("deletechat",
+				new Command("delete node", (out, parms) -> g.indexes.byId.getByText(parms.removeFirst()).delete()));
 	}
 
 	private void execAction(String actionName, PrintWriter out) throws Throwable {
@@ -113,7 +126,7 @@ public class ShellServer extends SystemNode {
 			out.println(
 					"no such action " + actionName + " on node " + currentNode() + " of " + currentNode().getClass());
 		} else {
-			var r = action.exec();
+			var r = action.exec(currentChat);
 
 			for (var v : r.result.views()) {
 				out.println(v.prettyName() + ":");
@@ -135,12 +148,14 @@ public class ShellServer extends SystemNode {
 		}
 	}
 
-	private void execLocalCommand(String cmdName, PrintWriter out) {
-		Command cmd = commands.get(cmdName);
+	private void execLocalCommand(String cmdLine, PrintWriter out) {
+		var l = new ArrayList<>(List.of(cmdLine.split(" +")));
+		var cmdName = l.removeFirst();
+		var cmd = commands.get(cmdName);
 
 		if (cmd != null) {
 			try {
-				cmd.action.exec(out);
+				cmd.action.exec(out, l);
 			} catch (Throwable e) {
 				e.printStackTrace();
 			}
@@ -160,7 +175,7 @@ public class ShellServer extends SystemNode {
 	}
 
 	private BNode currentNode() {
-		return g.getCurrentUser().currentNode();
+		return currentChat.currentNode();
 	}
 
 	@Override

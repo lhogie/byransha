@@ -19,13 +19,16 @@ import javax.swing.JTextField;
 import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
+import byransha.nodes.system.ChatNode;
 
 public class ChatSheet extends ScrollablePanel {
 
 	JPanel currentFlow = createNewFlow();
+	public final ChatNode chat;
 
-	public ChatSheet() {
+	public ChatSheet(ChatNode chat) {
 		super();
+		this.chat = chat;
 		var bl = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(bl);
 	}

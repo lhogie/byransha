@@ -1,11 +1,10 @@
 package byransha.graph.action;
 
-import java.lang.annotation.Target;
-
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.LongNode;
+import byransha.nodes.system.ChatNode;
 
 public class Jump extends NodeAction<BNode, BNode> {
 	final LongNode targetID;
@@ -14,12 +13,12 @@ public class Jump extends NodeAction<BNode, BNode> {
 	public Jump(BGraph g, BNode in) {
 		super(g, in);
 		targetID = new LongNode(g);
-		
+
 		targetID.changeListeners.add(l -> {
 			var node = g.indexes.byId.get(targetID.get());
 			target = node;
 		});
-		
+
 		execStraightAway = true;
 		target = g;
 	}
@@ -35,13 +34,13 @@ public class Jump extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec() {
-		g.currentUser().jumpTo(target);
+	public ActionResult<BNode, BNode> exec(ChatNode chat) {
+		chat.add(target);
 		return createResultNode(target, true);
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return true;
 	}
 }

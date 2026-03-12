@@ -4,12 +4,10 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
 public class JavaFXFrontend extends SystemNode {
 
@@ -20,15 +18,16 @@ public class JavaFXFrontend extends SystemNode {
 		g.javafx = this;
 		this.vbox = vbox;
 
+		ChatNode chat = null;
 		g.changeUserListener.add(u -> addNode(u));
-		currentUser().jumpListeners.add(n -> addNode(n));
-		currentUser().jumpTo(currentUser());
-
+		chat.jumpListeners.add(n -> addNode(n));
+		chat.add(g);
 	}
 
 	public void addNode(BNode n) {
 		vbox.getChildren().clear();
-		vbox.getChildren().add(new ByText('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " +n.id() + ".\n\n"));
+		vbox.getChildren()
+				.add(new ByText('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.id() + ".\n\n"));
 		n.views().getFirst().writeTo(vbox);
 		vbox.getChildren().add(new Text("\nErrors:\n"));
 		n.findView(ErrorsView.class).writeTo(vbox);

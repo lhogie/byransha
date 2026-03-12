@@ -3,7 +3,7 @@ package byransha.graph.action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
-import byransha.nodes.system.SystemNode;
+import byransha.nodes.system.ChatNode;
 
 public final class FreezingAction extends NodeAction<BNode, BNode> {
 	public FreezingAction(BGraph g, BNode node) {
@@ -21,7 +21,7 @@ public final class FreezingAction extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec() throws Throwable {
+	public ActionResult<BNode, BNode> exec(ChatNode chat) throws Throwable {
 		var r = createResultNode(null, false);
 
 		new Thread(() -> {
@@ -34,10 +34,9 @@ public final class FreezingAction extends NodeAction<BNode, BNode> {
 
 		return r;
 	}
-	
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return true;
 	}
 }

@@ -1,15 +1,12 @@
 package byransha.nodes.primitive;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Arrays;
-import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
@@ -20,7 +17,6 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
 import byransha.ui.swing.ChatSheet;
-import byransha.ui.swing.ResizableByGrip;
 import byransha.ui.swing.Utils;
 
 public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
@@ -39,7 +35,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 	@Override
 	public JsonNode toJSON() {
 		var r = new ArrayNode(null);
-		viewedNode.get().forEach(e -> r.add(e.toJSONNode()));
+		viewedNode.values.forEach(e -> r.add(e.toJSONNode()));
 		return r;
 	}
 
@@ -49,14 +45,14 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 		pane.appendToCurrentFlow(label);
 		pane.newLine();
 		var jlist = new JList();
-		jlist.setListData(viewedNode.get().toArray());
+		jlist.setListData(viewedNode.values.toArray());
 		jlist.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		jlist.setCellRenderer(new ListCellRenderer<BNode>() {
 
 			@Override
 			public Component getListCellRendererComponent(JList<? extends BNode> list, BNode value, int index,
 					boolean isSelected, boolean cellHasFocus) {
-				var b = value.createJumpComponent();
+				var b = value.createJumpComponent(pane.chat);
 				if (isSelected)
 					b.setBackground(list.getSelectionBackground());
 				b.setText(value.whatIsThis() + ": " + b.getText());
@@ -71,15 +67,15 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 					int index = jlist.locationToIndex(e.getPoint());
 
 					if (index >= 0) {
-						getChat().jumpTo((BNode) jlist.getModel().getElementAt(index));
+						pane.chat.add((BNode) jlist.getModel().getElementAt(index));
 					}
 				}
 			}
 		});
+		
 		var selectionModel = jlist.getSelectionModel();
-		selectionModel.addListSelectionListener(e -> {
-			viewedNode.setSelected((List) Arrays.stream(selectionModel.getSelectedIndices())
-					.mapToObj(i -> jlist.getModel().getElementAt(i)).toList());
+		selectionModel.addListSelectionListener(e ->{ 
+			Arrays.stream(selectionModel.getSelectedIndices()).forEach(i -> viewedNode.select(i));
 			updateLabel();
 		});
 
@@ -89,7 +85,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 	}
 
 	private void updateLabel() {
-		label.setText(viewedNode.getSelected().size() + " selected, among " + viewedNode.get().size());
+		label.setText(viewedNode.getSelected().size() + " selected, among " + viewedNode.values.size());
 	}
 
 	@Override

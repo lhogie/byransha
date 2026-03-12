@@ -12,7 +12,7 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new ColorView(g, this));
+		cachedViews.values.add(new ColorView(g, this));
 		super.createViews();
 	}
 

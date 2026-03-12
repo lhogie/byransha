@@ -4,6 +4,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.ListNode;
+import byransha.nodes.system.ChatNode;
 
 public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassNode> {
 
@@ -23,7 +24,7 @@ public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassN
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.size() > 0;
 	}
 }

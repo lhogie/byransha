@@ -5,6 +5,7 @@ import java.awt.Desktop;
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
+import byransha.nodes.system.ChatNode;
 
 public class openFile extends NodeAction<FileNode, FileNode> {
 
@@ -18,7 +19,7 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	public ActionResult<FileNode, FileNode> exec() throws Throwable {
+	public ActionResult<FileNode, FileNode> exec(ChatNode chat) throws Throwable {
 		Desktop desktop = Desktop.getDesktop();
 
 		if (inputNode.file.exists()) {
@@ -34,7 +35,7 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.file.exists();
 	}
 

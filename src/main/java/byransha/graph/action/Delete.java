@@ -2,6 +2,7 @@ package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 
 public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
@@ -22,7 +23,7 @@ public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return !(inputNode instanceof SystemNode);
 	}
 }

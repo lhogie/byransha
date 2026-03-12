@@ -14,13 +14,13 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new TextNodeView(g, this));
+		cachedViews.values.add(new TextNodeView(g, this));
 		super.createViews();
 	}
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new saveNodeAction(g, this));
+		cachedActions.values.add(new saveNodeAction(g, this));
 		super.createActions();
 	}
 

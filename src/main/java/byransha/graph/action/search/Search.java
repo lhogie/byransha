@@ -6,6 +6,7 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.LongNode;
+import byransha.nodes.system.ChatNode;
 
 public class Search extends NodeAction<BNode, ListNode> {
 	public LongNode depth;
@@ -20,7 +21,7 @@ public class Search extends NodeAction<BNode, ListNode> {
 	
 	
 	@Override
-	public ActionResult<BNode, ListNode> exec() {
+	public ActionResult<BNode, ListNode> exec(ChatNode chat) {
 		var list = new ListNode(g, "search result at depth " + depth);
 		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
 		return createResultNode(list, false);
@@ -36,7 +37,7 @@ public class Search extends NodeAction<BNode, ListNode> {
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return true;
 	}
 

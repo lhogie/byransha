@@ -10,24 +10,24 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
 
 import butils.RSAEncoder;
 import byransha.event.Event;
 import byransha.graph.Ack;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.primitive.ListNode;
 
 public class NetworkAgent extends BNode {
-	List<PeerNode> peers = new ArrayList<>();
+	public static final int port = 9876;
+	final ListNode<PeerNode> peers;
 	final RSAEncoder rsaEncoder;
 	DatagramSocket socket;
 
 	public NetworkAgent(BGraph g) {
 		super(g);
+		this.peers = new ListNode<>(g, "peers");
 		rsaEncoder = new RSAEncoder(null);
-		int port = 9876;
 
 		new Thread(() -> {
 			try {
@@ -39,7 +39,6 @@ public class NetworkAgent extends BNode {
 				while (true) {
 					DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 					socket.receive(packet);
-
 					byte[] encodedData = packet.getData();
 					var from = findPeer(packet.getAddress());
 					var data = RSAEncoder.decode(from.publicKey, encodedData);
@@ -50,57 +49,53 @@ public class NetworkAgent extends BNode {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}, "network agent thread").start();
-	}
-
-	public static class Events extends ArrayList<Event> {
+		}, "network agent reception thread").start();
 
 	}
 
 	private void handle(Object received, PeerNode from) {
 		if (received instanceof Ack ack) {
-			g.eventList.findEvent(ack.eventID).markReceivedBy(from);
-		} else if (received instanceof Events events) {
-			for (var e : events) {
-				var alreadyKnownEvent = g.eventList.findEvent(e.ID);
+			g.eventList.findEvent(ack.id).markReceivedBy(from);
+		} else if (received instanceof Event e) {
+			var alreadyKnownEvent = g.eventList.findEvent(e.ID);
 
-				if (alreadyKnownEvent != null) {
-					alreadyKnownEvent.markReceivedBy(from);
-					alreadyKnownEvent.commitToDisk();
-				} else {
-					e.markReceivedBy(from);
+			if (alreadyKnownEvent != null) {
+				alreadyKnownEvent.commitToDisk();
+				alreadyKnownEvent.markReceivedBy(from);
+			} else {
+				try {
 					g.eventList.add(e);
+					e.markReceivedBy(from);
+				} catch (IOException e1) {
+					error(e1, true);
 				}
 			}
+
+			try {
+				send(new Ack(e.ID));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+		} else {
+			throw new IllegalStateException("received " + received.getClass());
 		}
 	}
 
 	private PeerNode findPeer(InetAddress address) {
-		for (var p : peers) {
+		for (var p : peers.get()) {
 			if (p.address.equals(address)) {
 				return p;
 			}
 		}
 
 		try {
-			PeerNode p;
-			p = new PeerNode(g);
+			var p = new PeerNode(g);
 			p.address = address;
 			return p;
 		} catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
 			error(e);
 			return null;
 		}
-	}
-
-	private PeerNode findPeer(int hash) {
-		for (var p : peers) {
-			if (p.peerID() == hash) {
-				return p;
-			}
-		}
-
-		return null;
 	}
 
 	public synchronized void send(Object o, PeerNode to) throws IOException {
@@ -114,7 +109,7 @@ public class NetworkAgent extends BNode {
 	}
 
 	public synchronized void send(Object o) throws IOException {
-		for (var to : peers) {
+		for (var to : peers.get()) {
 			send(o, to);
 		}
 	}

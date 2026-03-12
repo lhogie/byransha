@@ -4,6 +4,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.LongNode;
+import byransha.nodes.system.ChatNode;
 
 public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 
@@ -42,7 +43,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		}
 
 		@Override
-		public boolean applies() {
+		public boolean applies(ChatNode chat) {
 			return inputNode.runningAction.thread != null;
 		}
 
@@ -52,7 +53,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 		}
 
 		@Override
-		public ActionResult exec() {
+		public ActionResult exec(ChatNode chat) {
 			inputNode.runningAction.stopRequested = true;
 			return createResultNode(inputNode, false);
 		}

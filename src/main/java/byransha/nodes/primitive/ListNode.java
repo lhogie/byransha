@@ -1,16 +1,14 @@
 package byransha.nodes.primitive;
 
-import java.awt.Component;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
 import butils.IntObjectBiConsumer;
+import butils.ListenableList;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Export.CSVData;
@@ -18,14 +16,34 @@ import byransha.graph.action.PruneList;
 import byransha.graph.view.DotAction;
 import byransha.graph.view.GeneratePlantUML;
 
-public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
+public class ListNode<T extends BNode> extends BNode {
 	String label;
-	private List<T> selected = Collections.EMPTY_LIST;
+	final public ListenableList<T> values = new ListenableList<>();
+	private final ListenableList<T> selection = new ListenableList<>();
 
 	public ListNode(BGraph g, String label) {
 		super(g);
-		set(new ArrayList<>());
 		this.label = label;
+
+		var listener = new ListenableList.ChangeListener<T>() {
+
+			@Override
+			public void onAdd(T element) {
+				changeListeners.forEach(l -> l.changed(ListNode.this));
+			}
+
+			@Override
+			public void onRemove(T element) {
+				changeListeners.forEach(l -> l.changed(ListNode.this));
+			}
+		};
+
+		values.addChangeListener(listener);
+		selection.addChangeListener(listener);
+	}
+
+	public T get(int i) {
+		return values.get(i);
 	}
 
 	@Override
@@ -35,7 +53,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 	}
 
 	public void forEachOutInContent(IntObjectBiConsumer<BNode> consumer) {
-		var l = get();
+		var l = values;
 
 		for (int i = 0; i < l.size(); ++i) {
 			consumer.accept(i, l.get(i));
@@ -44,37 +62,30 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new ListNodeView(g, this));
+		cachedViews.values.add(new ListNodeView(g, this));
 		super.createViews();
 	}
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new PruneList(g, this));
-		cachedActions.add(new DotAction(g, this));
-		cachedActions.add(new GeneratePlantUML(g, this));
+		cachedActions.values.add(new PruneList(g, this));
+		cachedActions.values.add(new DotAction(g, this));
+		cachedActions.values.add(new GeneratePlantUML(g, this));
 		super.createActions();
 	}
 
 	@Override
 	public void removeOut(BNode out) {
-		var l = get();
-		l.remove(out);
+		values.remove(out);
 	}
 
 	@Override
 	public void toCSVStreams(List<CSVData> l, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
-		var elements = get();
 
-		for (int i = 0; i < elements.size(); ++i) {
-			elements.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
+		for (int i = 0; i < values.size(); ++i) {
+			values.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
 		}
-	}
-
-	@Override
-	public List<T> defaultValue() {
-		return new ArrayList<T>();
 	}
 
 	public boolean isHeterogeneous() {
@@ -83,7 +94,7 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 
 	public Set<Class<? extends BNode>> classes() {
 		var r = new HashSet<Class<? extends BNode>>();
-		get().forEach(e -> r.add(e.getClass()));
+		values.forEach(e -> r.add(e.getClass()));
 		return r;
 	}
 
@@ -97,67 +108,54 @@ public class ListNode<T extends BNode> extends ValuedNode<List<T>> {
 		return label == null ? "a list" : label;
 	}
 
-	public void add(T element) {
-		List<T> newL = new ArrayList<>(get());
-		newL.add(element);
-		set(newL);
+	public void select(int i) {
+		selection.add(values.get(i));
 	}
 
-	public void remove(T element) {
-		get().remove(element);
-	}
-
-	public void select(T element) {
-		selected.add(element);
-	}
-
-	public void unselect(T element) {
-		selected.remove(element);
+	public void unselect(int i) {
+		selection.remove(values.get(i));
 	}
 
 	public List<T> getSelected() {
-		return selected;
+		return selection;
 	}
 
-	public void removeAll() {
-		get().clear();
-	}
-
-	public List<T> getElements() {
-		if (get() == null) {
-			return Collections.emptyList();
-		}
-
-		return List.copyOf(get());
-	}
-
-	public int size() {
-		return get().size();
-	}
-
-	public T get(int index) {
-		if (index < 0 || index >= get().size()) {
-			return null;
-		}
-		return get().stream().skip(index).findFirst().orElse(null);
+	public void reset() {
+		super.reset();
+		values.clear();
 	}
 
 	public String toDot() {
 		var s = new StringWriter();
 		var pw = new PrintWriter(s);
 		pw.println("digraph {");
-		get().forEach(e -> pw.println(e.id() + ";"));
-		get().forEach(
+		values.forEach(e -> pw.println(e.id() + ";"));
+		values.forEach(
 				e -> e.forEachOut((o, role) -> pw.println(e.id() + " -> " + o.id() + "[label=\"" + role + "\"]")));
 		pw.println("}");
 		return s.toString();
 	}
 
-	public void setSelected(List list) {
-		this.selected = list;
-		System.out.println("notifying");
-		changeListeners.forEach(l -> l.changed(this));
+	public void add(T n) {
+		values.add(n);
 	}
 
+	public List<T> get() {
+		return values;
+	}
+
+	public int size() {
+		return values.size();
+	}
+
+	public void set(List<T> l) {
+		values.clear();
+		selection.clear();
+		values.addAll(l);
+	}
+
+	public List<T> elements() {
+		return values;
+	}
 
 }

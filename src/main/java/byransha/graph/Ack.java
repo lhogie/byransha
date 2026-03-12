@@ -1,5 +1,9 @@
 package byransha.graph;
 
 public class Ack {
-	public long eventID;
+	public long id;
+
+	public Ack(long id) {
+	}
+
 }

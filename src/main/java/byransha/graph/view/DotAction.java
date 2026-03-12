@@ -5,6 +5,7 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
+import byransha.nodes.system.ChatNode;
 
 public class DotAction extends NodeAction<ListNode, TextNode> {
 	public DotAction(BGraph g, ListNode node) {
@@ -17,13 +18,13 @@ public class DotAction extends NodeAction<ListNode, TextNode> {
 	}
 
 	@Override
-	public ActionResult<ListNode, TextNode> exec() throws Throwable {
+	public ActionResult<ListNode, TextNode> exec(ChatNode chat) throws Throwable {
 		var r = new TextNode(g, "DOT", inputNode.toDot());
 		return createResultNode(r, true);
 	}
 
 	@Override
-	public boolean applies() {
+	public boolean applies(ChatNode chat) {
 		return inputNode.size() > 0;
 	}
 }

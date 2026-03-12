@@ -25,7 +25,7 @@ public class AvailableViewsView extends NodeView<BNode> {
 	@Override
 	public void writeTo(ChatSheet pane) {
 		viewedNode.views().forEach(v -> {
-			v.findView(JumpTo.class).writeTo(pane);
+			v.findView(JumpToMe.class).writeTo(pane);
 		});
 	}
 
