@@ -16,8 +16,7 @@ public class I3S extends Lab {
 		super(g);
 		name.set("I3S");
 
-		var home = new File(System.getProperty("user.home"));
-		var lakeD = new File(home, "a/job/byransha/data_lake");
+		var lakeD = new File(g.byransha.configDirectory, "data_lake");
 		var lake = new DataLake(this.g, lakeD);
 
 		try {

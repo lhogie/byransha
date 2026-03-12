@@ -1,7 +1,6 @@
 package byransha.nodes.system;
 
 import java.io.File;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
@@ -19,12 +19,13 @@ public class Byransha extends SystemNode {
 
 	public final StringNode version;
 	public final URLNode sourceURL;
-	public File configDirectory;
+	public final File configDirectory;
 
 	public Byransha(BGraph g) {
 		super(g);
 		version = new StringNode(g, "0.0.1", ".*");
 		sourceURL = new URLNode(g, "https://github.com/lhogie/byransha");
+		configDirectory = new File(ByUtils.home, ".byransha");
 	}
 
 	@Override

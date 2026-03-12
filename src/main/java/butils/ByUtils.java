@@ -1,6 +1,7 @@
 package butils;
 
 import java.awt.Color;
+import java.io.File;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -18,6 +19,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BNode;
 
 public class ByUtils {
+	public static final File home = new File(System.getProperty("user.home"));
+
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
 
 	static {

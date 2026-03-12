@@ -5,7 +5,8 @@ module byransha {
 	// This is the one that contains JsonNode
 	requires com.fasterxml.jackson.databind;
 	requires it.unimi.dsi.fastutil;
-
+	 requires org.bouncycastle.pkix;
+	    requires org.bouncycastle.provider;
 	// Usually you need these too for Jackson to function
 	requires com.fasterxml.jackson.core;
 	requires com.fasterxml.jackson.annotation;

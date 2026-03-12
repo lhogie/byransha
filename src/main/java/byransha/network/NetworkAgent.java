@@ -2,14 +2,22 @@ package byransha.network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+
+import org.bouncycastle.openssl.PEMKeyPair;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import butils.RSAEncoder;
 import byransha.event.Event;
@@ -23,11 +31,20 @@ public class NetworkAgent extends BNode {
 	final ListNode<PeerNode> peers;
 	final RSAEncoder rsaEncoder;
 	DatagramSocket socket;
+	private static boolean forceEncryptedCommunication = false;
 
-	public NetworkAgent(BGraph g) {
+	public NetworkAgent(BGraph g) throws FileNotFoundException, IOException {
 		super(g);
 		this.peers = new ListNode<>(g, "peers");
-		rsaEncoder = new RSAEncoder(null);
+		File privateKeyFile = new File(g.byransha.configDirectory.getAbsolutePath(), "id_rsa");
+
+		if (privateKeyFile.exists()) {
+			rsaEncoder = new RSAEncoder(loadKeys(privateKeyFile));
+		} else if (forceEncryptedCommunication) {
+			throw new IllegalStateException("can't find private key at " + privateKeyFile);
+		} else {
+			rsaEncoder = null;
+		}
 
 		new Thread(() -> {
 			try {
@@ -51,6 +68,13 @@ public class NetworkAgent extends BNode {
 			}
 		}, "network agent reception thread").start();
 
+	}
+
+	private KeyPair loadKeys(File privateKeyFile) throws FileNotFoundException, IOException {
+		try (PEMParser parser = new PEMParser(new FileReader(privateKeyFile.getAbsolutePath()))) {
+			PEMKeyPair pemKeyPair = (PEMKeyPair) parser.readObject();
+			return new JcaPEMKeyConverter().getKeyPair(pemKeyPair);
+		}
 	}
 
 	private void handle(Object received, PeerNode from) {

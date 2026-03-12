@@ -38,7 +38,7 @@ public class ChatNode extends ListNode<BNode> {
 				add(error(err, false));
 			}
 		} else {
-			add(n);
+			super.add(n);
 		}
 
 		jumpListeners.forEach(l -> l.userJumpedTo(n));
