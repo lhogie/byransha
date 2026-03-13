@@ -94,6 +94,7 @@ public abstract class BNode {
 		if (rethrow) {
 			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
 		} else {
+			err.printStackTrace();
 			return g.errorLog;
 		}
 	}

@@ -6,6 +6,8 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,6 +77,35 @@ public class RSAEncoder {
 		System.out.println(encoded);
 		var decoded = g.decode(g.keyPair.getPublic(), encoded);
 		System.out.println(new String(decoded));
+	}
+	
+	public static String toBase64(PublicKey key) {
+	    return Base64.getEncoder().encodeToString(key.getEncoded());
+	}
+
+	// PEM format (standard, readable)
+	public static String toPem(PublicKey key) {
+	    String base64 = Base64.getMimeEncoder(64, new byte[]{'\n'})
+	                          .encodeToString(key.getEncoded());
+	    return "-----BEGIN PUBLIC KEY-----\n" + base64 + "\n-----END PUBLIC KEY-----";
+	}
+
+	// OpenSSH format (matches what id_rsa.pub looks like)
+	public static String toOpenSsh(PublicKey key) throws Exception {
+	    RSAPublicKey rsa = (RSAPublicKey) key;
+	    java.io.ByteArrayOutputStream buf = new java.io.ByteArrayOutputStream();
+	    java.io.DataOutputStream out = new java.io.DataOutputStream(buf);
+
+	    byte[] alg = "ssh-rsa".getBytes();
+	    out.writeInt(alg.length);       out.write(alg);
+
+	    byte[] e = rsa.getPublicExponent().toByteArray();
+	    out.writeInt(e.length);         out.write(e);
+
+	    byte[] n = rsa.getModulus().toByteArray();
+	    out.writeInt(n.length);         out.write(n);
+
+	    return "ssh-rsa " + Base64.getEncoder().encodeToString(buf.toByteArray());
 	}
 
 }

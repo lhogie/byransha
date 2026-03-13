@@ -7,6 +7,8 @@ import byransha.graph.BNode;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
+	public boolean readOnly;
+
 
 	public ValuedNode(BGraph g) {
 		super(g);
