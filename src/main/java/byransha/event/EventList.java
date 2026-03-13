@@ -1,7 +1,7 @@
 package byransha.event;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,10 +10,12 @@ import java.util.function.Consumer;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.security.AES;
 
 public abstract class EventList extends BNode {
 	StringNode status;
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
+	Key encryptionKey = AES.createStringBasedOnHardware();
 
 	public EventList(BGraph g) {
 		super(g);
@@ -84,6 +86,5 @@ public abstract class EventList extends BNode {
 
 	public Event findEvent(long eventID) {
 		return null;
-
 	}
 }

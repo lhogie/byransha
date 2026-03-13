@@ -24,13 +24,13 @@ import org.bouncycastle.openssl.PEMKeyPair;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
-import butils.RSAEncoder;
 import byransha.event.Event;
 import byransha.graph.Ack;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.security.RSA;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 
@@ -40,10 +40,10 @@ public class NetworkAgent extends BNode {
 	final StringNode inOutInfo;
 	final ListNode<PeerNode> peers;
 	String name;
-	final RSAEncoder rsaEncoder;
 	DatagramSocket socket;
 	private int packetReceived;
 	private int packetSent;
+	private KeyPair keyPair;
 
 	public NetworkAgent(BGraph g) throws FileNotFoundException, IOException {
 		super(g);
@@ -77,17 +77,16 @@ public class NetworkAgent extends BNode {
 
 		publicKeyInfo = new StringNode(g);
 		inOutInfo = new StringNode(g);
-		File privateKeyFile = new File(securityDir, "keyPair.ser");
+		File keyPairFile = new File(securityDir, "keyPair.ser");
 
-		if (privateKeyFile.exists()) {
-			rsaEncoder = new RSAEncoder((KeyPair) serializer.fromBytes(Files.readAllBytes(privateKeyFile.toPath())));
+		if (keyPairFile.exists()) {
+			keyPair = (KeyPair) serializer.fromBytes(Files.readAllBytes(keyPairFile.toPath()));
 		} else {
 			System.out.println("Generating new random RSA keys");
-			var keys = RSAEncoder.randomKeyPair();
-			rsaEncoder = new RSAEncoder(keys);
-			privateKeyFile.getParentFile().mkdirs();
-			Files.write(privateKeyFile.toPath(), serializer.toBytes(keys));
-			var pub = new String(RSAEncoder.toBase64(rsaEncoder.keyPair.getPublic()));
+			keyPair = RSA.randomKeyPair();
+			keyPairFile.getParentFile().mkdirs();
+			Files.write(keyPairFile.toPath(), serializer.toBytes(keyPair));
+			var pub = new String(RSA.toBase64(keyPair.getPublic()));
 			System.out.println("public key: " + pub);
 			publicKeyInfo.set(pub);
 		}
@@ -111,52 +110,44 @@ public class NetworkAgent extends BNode {
 				e.printStackTrace();
 			}
 		}, "network agent reception thread").start();
-
 	}
 
 	public static PrivateKey readPrivateKey(Path path) throws Exception {
-	    String pem = Files.readString(path);
+		String pem = Files.readString(path);
 
-	    String base64 = pem
-	        .replaceAll("-----BEGIN [A-Z ]+-----", "")
-	        .replaceAll("-----END [A-Z ]+-----", "")
-	        .replaceAll("\\s", "");
+		String base64 = pem.replaceAll("-----BEGIN [A-Z ]+-----", "").replaceAll("-----END [A-Z ]+-----", "")
+				.replaceAll("\\s", "");
 
-	    byte[] der = Base64.getDecoder().decode(base64);
+		byte[] der = Base64.getDecoder().decode(base64);
 
-	    // Try PKCS#8 first (BEGIN PRIVATE KEY)
-	    try {
-	        return KeyFactory.getInstance("RSA")
-	            .generatePrivate(new PKCS8EncodedKeySpec(der));
-	    } catch (InvalidKeySpecException e) {
-	        // Fall back to PKCS#1 (BEGIN RSA PRIVATE KEY) via BouncyCastle
-	        return readPkcs1PrivateKey(path);
-	    }
+		// Try PKCS#8 first (BEGIN PRIVATE KEY)
+		try {
+			return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(der));
+		} catch (InvalidKeySpecException e) {
+			// Fall back to PKCS#1 (BEGIN RSA PRIVATE KEY) via BouncyCastle
+			return readPkcs1PrivateKey(path);
+		}
 	}
 
 	// BouncyCastle fallback for PKCS#1 format
 	private static PrivateKey readPkcs1PrivateKey(Path path) throws Exception {
-	    try (PEMParser parser = new PEMParser(Files.newBufferedReader(path))) {
-	        Object obj = parser.readObject();
-	        if (obj instanceof PEMKeyPair pemKeyPair) {
-	            return new JcaPEMKeyConverter()
-	                .setProvider("BC")
-	                .getKeyPair(pemKeyPair)
-	                .getPrivate();
-	        }
-	        if (obj instanceof PrivateKeyInfo info) {
-	            return new JcaPEMKeyConverter()
-	                .setProvider("BC")
-	                .getPrivateKey(info);
-	        }
-	        throw new IllegalArgumentException("Unrecognized key format: " + obj.getClass());
-	    }
+		try (PEMParser parser = new PEMParser(Files.newBufferedReader(path))) {
+			Object obj = parser.readObject();
+			if (obj instanceof PEMKeyPair pemKeyPair) {
+				return new JcaPEMKeyConverter().setProvider("BC").getKeyPair(pemKeyPair).getPrivate();
+			}
+			if (obj instanceof PrivateKeyInfo info) {
+				return new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(info);
+			}
+			throw new IllegalArgumentException("Unrecognized key format: " + obj.getClass());
+		}
 	}
+
 	private void handle(Message msg) throws IOException, ClassNotFoundException {
 		var from = findPeer(msg.from.getLast());
 
 		if (from.publicKey != null) {
-			msg.data = RSAEncoder.decode(from.publicKey, msg.data);
+			msg.data = RSA.decrypt(msg.data, keyPair.getPrivate());
 		}
 
 		var received = serializer.fromBytes(msg.data);
@@ -214,10 +205,7 @@ public class NetworkAgent extends BNode {
 		var msg = new Message();
 		msg.from.add(name);
 		msg.data = serializer.toBytes(o);
-
-		if (rsaEncoder != null) {
-			msg.data = rsaEncoder.encode(msg.data);
-		}
+		msg.data = RSA.encrypt(msg.data, to.publicKey);
 
 		var msgBytes = serializer.toBytes(msg);
 		var sendPacket = new DatagramPacket(msgBytes, msgBytes.length, to.address, to.port);
