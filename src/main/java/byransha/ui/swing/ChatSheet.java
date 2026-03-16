@@ -1,19 +1,16 @@
 package byransha.ui.swing;
 
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.datatransfer.StringSelection;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragSource;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
+import javax.swing.JTextArea;
 import javax.swing.border.TitledBorder;
 
 import byransha.graph.BNode;
@@ -40,17 +37,17 @@ public class ChatSheet extends ScrollablePanel {
 		chat.get().forEach(c -> addNode(c));
 	}
 
-	public void addNode(BNode n) {
-//		clear();
-		var idLabel = new JTextField();
-		idLabel.setEditable(false);
-		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(idLabel, DnDConstants.ACTION_COPY, e -> {
-			String dragText = ((JTextField) e.getComponent()).getText();
-			e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(dragText));
-		});
+	int colorIndex;
+	Color[] backgroundColors = new Color[] { Color.white, new Color(0xEE, 0xEE, 0xEE, 10) };
 
-		appendToCurrentFlow(
-				"<html><b><h3>" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.idAsText());
+	public void addNode(BNode n) {
+		c = backgroundColors[colorIndex++ % backgroundColors.length];
+		c = n.getColor();
+		c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 20);
+
+		newLine();
+		appendToCurrentFlow("\"" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is");
+		appendToCurrentFlow(Utils.idShower(n));
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
@@ -65,25 +62,30 @@ public class ChatSheet extends ScrollablePanel {
 
 		newLine();
 		newLine();
-		appendToCurrentFlow("<html><i>What do <b>you</b> want to do?");
+		appendToCurrentFlow("What do you want to do?");
 		newLine();
 
 		n.findView(AvailableActionsView.class).writeTo(this);
 		newLine();
 		end();
 
-		swipeDownInOneSecond();
+		new Thread(() -> swipeDownInOneSecond()).start();
 	}
 
 	public void swipeDownInOneSecond() {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 		var scrollPane = ((JScrollPane) getParent().getParent());
 		JScrollBar vertical = scrollPane.getVerticalScrollBar();
 		int nbSteps = vertical.getMaximum() - vertical.getValue();
-		System.out.println(nbSteps);
-		int pauseDuration = 1 / nbSteps;
+//		System.out.println(nbSteps);
+		int pauseDuration = 1000 / nbSteps;
 
 		for (int i = vertical.getValue(); i < vertical.getMaximum(); ++i) {
-			System.out.println(vertical.getValue() + " -> " + vertical.getMaximum());
+//			System.out.println(vertical.getValue() + " -> " + vertical.getMaximum());
 			vertical.setValue(i);
 			revalidate();
 			repaint();
@@ -97,7 +99,8 @@ public class ChatSheet extends ScrollablePanel {
 	}
 
 	public void appendToCurrentFlow(String s) {
-		var tf = new JEditorPane("text/html", s);
+		var tf = new JTextArea();
+		tf.setText(s);
 		tf.setEditable(false);
 		tf.setBackground(null);
 		tf.setBorder(null);
@@ -106,6 +109,9 @@ public class ChatSheet extends ScrollablePanel {
 	}
 
 	public void appendToCurrentFlow(JComponent c) {
+//		c.setBackground(null);
+//		c.setBorder(null);
+//		c.setOpaque(true);
 		currentFlow.add(c);
 	}
 
@@ -114,17 +120,14 @@ public class ChatSheet extends ScrollablePanel {
 		currentFlow = createNewFlow();
 	}
 
-	private static JPanel createNewFlow() {
-		var wp = new WrapPanel();
-//		wp.setBorder(BorderFactory.createTitledBorder(""));
-		return wp;
-	}
+	public Color c;
 
-	private static JPanel createNewFlow2() {
+	private JPanel createNewFlow() {
 		var wp = new WrapPanel();
-		var cp = new ClosablePanel(wp);
-//		cp.setBorder(BorderFactory.createTitledBorder(""));
-		return cp;
+		wp.setBackground(c);
+		wp.setBorder(null);
+		wp.setOpaque(true);
+		return wp;
 	}
 
 	public void clear() {

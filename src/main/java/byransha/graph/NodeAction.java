@@ -14,6 +14,7 @@ import byransha.util.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 
+	@Hide
 	protected final IN inputNode;
 	public boolean stopRequested = false;
 	public Thread thread;
@@ -115,7 +116,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		@Override
 		public String prettyName() {
-			return "Run";
+			return "run " + inputNode.prettyName() ;
 		}
 
 		@Override

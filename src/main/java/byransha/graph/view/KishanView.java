@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Utils;
 import byransha.util.Base62;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
@@ -37,10 +38,9 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		viewedNode.forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
+		viewedNode.forEachOutInFields(viewedNode.getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != viewedNode) {
-				pane.appendToCurrentFlow("id: ");
-				pane.appendToCurrentFlow(out.idAsText());
+				pane.appendToCurrentFlow(Utils.idShower(out));
 
 				var jumpButton = out.createJumpComponent(pane.chat);
 				jumpButton.setText(f.getName());

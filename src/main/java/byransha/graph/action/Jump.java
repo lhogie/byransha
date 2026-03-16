@@ -2,12 +2,15 @@ package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Hide;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 
 public class Jump extends NodeAction<BNode, BNode> {
+	@Hide
 	final LongNode targetID;
+	@Hide
 	BNode target;
 
 	public Jump(BGraph g, BNode in) {

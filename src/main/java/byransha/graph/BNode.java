@@ -169,7 +169,7 @@ public abstract class BNode {
 		var fields = new ArrayList<Field>();
 
 		if (printHeaders) {
-			forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> fields.add(f));
+			forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> fields.add(f));
 			ps.println('#' + fields.stream().map(f -> f.getName()).collect(Collectors.joining(", ")));
 		}
 
@@ -187,7 +187,7 @@ public abstract class BNode {
 	}
 
 	public void removeOut(BNode out) {
-		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> {
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> {
 			try {
 				if (o == out) {
 					f.set(this, null);
@@ -198,23 +198,21 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until, TriConsumer<Field, BNode, Boolean> consumer) {
+	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until,
+			TriConsumer<Field, BNode, Boolean> consumer) {
 		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
-				if (!f.isAnnotationPresent(Hide.class)) {
-					f.setAccessible(true);
+				if (BNode.class.isAssignableFrom(f.getType()) && !f.isAnnotationPresent(Hide.class)) {
+					try {
+						f.setAccessible(true);
+						var outNode = (BNode) f.get(this);
 
-					if (BNode.class.isAssignableFrom(f.getType())) {
-						try {
-							var outNode = (BNode) f.get(this);
-
-							if (outNode != null) {
-								var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
-								consumer.accept(f, outNode, isFinal);
-							}
-						} catch (IllegalArgumentException | IllegalAccessException e) {
-							throw new IllegalStateException(e);
+						if (outNode != null) {
+							var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
+							consumer.accept(f, outNode, isFinal);
 						}
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						error(e);
 					}
 				}
 			}
@@ -222,14 +220,16 @@ public abstract class BNode {
 	}
 
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> consumer.accept(o, f.getName()));
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
 	}
 
 	public void forEachOut(Consumer<BNode> consumer) {
-		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> consumer.accept(o));
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o));
 	}
 
 	public void createActions() {
+
+//		cachedActions.add(new QueryIA(g, this));
 		cachedActions.add(new Back(g, this));
 		cachedActions.add(new Export(g, this));
 		cachedActions.add(new Reset(g, this));
@@ -252,7 +252,12 @@ public abstract class BNode {
 		cachedViews.add(new DebugView(g, this));
 	}
 
-	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until, Consumer<Class<? extends BNode>> consumer) {
+	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until,
+			Consumer<Class<? extends BNode>> consumer) {
+
+		if (!until.isAssignableFrom(from))
+			throw new IllegalArgumentException("from " + from + " to " + until);
+
 		for (Class c = from; c != until; c = c.getSuperclass()) {
 			consumer.accept(c);
 		}
@@ -394,7 +399,7 @@ public abstract class BNode {
 				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class,(f, out, ro) -> {
+		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> {
 			outsNode.put(f.getName(), out.toJSONNode(depth - 1));
 		});
 		r.set("outs", outsNode);
@@ -423,7 +428,7 @@ public abstract class BNode {
 	}
 
 	public void reset() {
-		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> {
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> {
 			if (!ro) {
 				try {
 					var v = (BNode) f.get(this);
@@ -445,7 +450,7 @@ public abstract class BNode {
 				return getColor();
 			}
 		};
-
+//		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
 		b.addActionListener(e -> chat.add(this));
 		b.setToolTipText(whatIsThis());

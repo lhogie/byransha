@@ -12,10 +12,12 @@ import byransha.nodes.system.ChatNode;
 
 public abstract class QueryIA extends NodeAction<BNode, JSONNode> {
 	public final StringNode prompt;
+	public final JSONNode inputJSON;
 
 	public QueryIA(BGraph g, BNode n) {
 		super(g, n);
 		prompt = new StringNode(g, "", ".+");
+		inputJSON = new JSONNode(g, n.toJSONNode());
 	}
 
 	@Override

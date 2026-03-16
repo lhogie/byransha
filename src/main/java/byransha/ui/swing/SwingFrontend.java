@@ -34,7 +34,7 @@ public class SwingFrontend extends SystemNode {
 			fonts.add(new FontNode(g, font));
 		}
 
-		setLookAndFeel("WebLaf");
+	//	setLookAndFeel("WebLaf");
 		g.swing = this;
 
 		var gl = new GridLayout(1, 1);
@@ -46,7 +46,7 @@ public class SwingFrontend extends SystemNode {
 				@Override
 				public void newChat(User user, ChatNode chat) {
 					System.out.println("NEW CHAT " + chat);
-					f.setSize(f.getSize().width + Utils.chatWidth, f.getSize().height);
+					f.setSize(Math.min(f.getSize().width,Utils.screenSize.width) + Utils.chatWidth, f.getSize().height);
 					var sheet = new ChatSheet(chat);
 					chat.jumpListeners.add(n -> sheet.addNode(n));
 					sheets.put(chat, sheet);
