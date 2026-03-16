@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
+import byransha.util.ByUtils;
 
 public class ShellServer extends SystemNode {
 	@FunctionalInterface
@@ -103,7 +103,7 @@ public class ShellServer extends SystemNode {
 				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
 		commands.put("lf", new Command("list fields",
-				(out, parms) -> currentNode().forEachOutInFields((f, o, ro) -> out.println(f.getName()))));
+				(out, parms) -> currentNode().forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
 
 		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode().id())));
 

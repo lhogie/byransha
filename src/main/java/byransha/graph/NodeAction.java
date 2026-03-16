@@ -1,26 +1,34 @@
 package byransha.graph;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import butils.ByUtils;
-import butils.Cout;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
+import byransha.util.ByUtils;
+import byransha.util.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 
 	protected final IN inputNode;
 	public boolean stopRequested = false;
 	public Thread thread;
-	public boolean execStraightAway = false;
+//	public final boolean execStraightAway;
 	String category;
 
 	public NodeAction(BGraph g, IN inputNode) {
 		super(g);
 		this.inputNode = inputNode;
+	}
+
+	public boolean execStraightAway() {
+		AtomicInteger i = new AtomicInteger();
+		forEachOutInFields(getClass(), NodeAction.class, (a, b, c) -> i.incrementAndGet());
+		return i.get() == 0;
 	}
 
 	@Override
@@ -85,7 +93,6 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		public exec(BGraph g, NodeAction inputNode) {
 			super(g, inputNode);
-			execStraightAway = true;
 		}
 
 		@Override

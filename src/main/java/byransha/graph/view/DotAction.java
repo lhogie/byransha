@@ -3,7 +3,7 @@ package byransha.graph.view;
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 

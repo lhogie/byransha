@@ -3,11 +3,11 @@ package byransha.graph.view;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.javafx.Utils;
 import byransha.ui.swing.ChatSheet;
+import byransha.util.ByUtils;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.Pane;

@@ -19,7 +19,6 @@ public class Jump extends NodeAction<BNode, BNode> {
 			target = node;
 		});
 
-		execStraightAway = true;
 		target = g;
 	}
 

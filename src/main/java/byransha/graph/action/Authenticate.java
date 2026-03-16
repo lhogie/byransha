@@ -3,13 +3,13 @@ package byransha.graph.action;
 import java.util.ArrayList;
 import java.util.List;
 
-import butils.Stop;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
+import byransha.util.Stop;
 
 public class Authenticate extends NodeAction<BNode, User> {
 	public StringNode username, password;
@@ -41,7 +41,7 @@ public class Authenticate extends NodeAction<BNode, User> {
 
 		return createResultNode(newUser, true);
 	}
-	
+
 	@Override
 	public boolean applies(ChatNode chat) {
 		return true;

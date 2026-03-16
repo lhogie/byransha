@@ -1,9 +1,14 @@
 package byransha.ui.swing;
 
 import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.util.Enumeration;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
 public class Utils {
 	public static ResizableByGrip resizableScrollPane(JComponent p) {
@@ -14,4 +19,27 @@ public class Utils {
 		var rbg = new ResizableByGrip(sp);
 		return rbg;
 	}
+
+	public static void setUIFont(FontUIResource f) {
+		Enumeration<Object> keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get(key);
+			if (value instanceof FontUIResource) {
+				UIManager.put(key, f);
+			}
+		}
+	}
+
+	public static final int chatWidth;
+	public static final Dimension initialSize;
+	public static final Point initialLocation;
+
+	static {
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		chatWidth = (9 * screenSize.height) / 16;
+		initialSize = new Dimension(5, screenSize.height);
+		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
+	}
+
 }

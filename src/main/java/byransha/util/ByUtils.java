@@ -1,4 +1,4 @@
-package butils;
+package byransha.util;
 
 import java.awt.Color;
 import java.io.File;
@@ -153,7 +153,7 @@ public class ByUtils {
 			var arrayLen = Array.getLength(o);
 
 			if (componentType.isPrimitive()) {
-				return arrayLen * butils.ByUtils.sizeOfPrimitive.get(componentType);
+				return arrayLen * byransha.util.ByUtils.sizeOfPrimitive.get(componentType);
 			} else {
 				int sum = 0;
 
@@ -189,7 +189,7 @@ public class ByUtils {
 					var fieldDeclaraionType = field.getType();
 
 					if (fieldDeclaraionType.isPrimitive()) {
-						totalSize += butils.ByUtils.sizeOfPrimitive.get(fieldDeclaraionType);
+						totalSize += byransha.util.ByUtils.sizeOfPrimitive.get(fieldDeclaraionType);
 					} else {
 						totalSize += 4; // ref size
 

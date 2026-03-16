@@ -28,15 +28,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import butils.Base62;
-import butils.ByUtils;
-import butils.TriConsumer;
 import byransha.graph.action.Back;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.Jump;
 import byransha.graph.action.Reset;
+import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
@@ -50,11 +48,13 @@ import byransha.graph.view.KishanView;
 import byransha.graph.view.NodeView;
 import byransha.graph.view.OutNavigationView;
 import byransha.graph.view.SmallInfoView;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.ColorPalette;
+import byransha.util.Base62;
+import byransha.util.ByUtils;
+import byransha.util.TriConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public abstract class BNode {
@@ -169,7 +169,7 @@ public abstract class BNode {
 		var fields = new ArrayList<Field>();
 
 		if (printHeaders) {
-			forEachOutInFields((f, o, ro) -> fields.add(f));
+			forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> fields.add(f));
 			ps.println('#' + fields.stream().map(f -> f.getName()).collect(Collectors.joining(", ")));
 		}
 
@@ -187,7 +187,7 @@ public abstract class BNode {
 	}
 
 	public void removeOut(BNode out) {
-		forEachOutInFields((f, o, ro) -> {
+		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> {
 			try {
 				if (o == out) {
 					f.set(this, null);
@@ -198,8 +198,8 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOutInFields(TriConsumer<Field, BNode, Boolean> consumer) {
-		ascendSuperClassesUntil(BNode.class, c -> {
+	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until, TriConsumer<Field, BNode, Boolean> consumer) {
+		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
 				if (!f.isAnnotationPresent(Hide.class)) {
 					f.setAccessible(true);
@@ -222,14 +222,13 @@ public abstract class BNode {
 	}
 
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		forEachOutInFields((f, o, ro) -> consumer.accept(o, f.getName()));
+		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> consumer.accept(o, f.getName()));
 	}
 
 	public void forEachOut(Consumer<BNode> consumer) {
-		forEachOutInFields((f, o, ro) -> consumer.accept(o));
+		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> consumer.accept(o));
 	}
 
-	
 	public void createActions() {
 		cachedActions.add(new Back(g, this));
 		cachedActions.add(new Export(g, this));
@@ -253,8 +252,8 @@ public abstract class BNode {
 		cachedViews.add(new DebugView(g, this));
 	}
 
-	public void ascendSuperClassesUntil(Class<? extends BNode> until, Consumer<Class<? extends BNode>> consumer) {
-		for (Class c = getClass(); c != until; c = c.getSuperclass()) {
+	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until, Consumer<Class<? extends BNode>> consumer) {
+		for (Class c = from; c != until; c = c.getSuperclass()) {
 			consumer.accept(c);
 		}
 
@@ -395,7 +394,7 @@ public abstract class BNode {
 				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields((f, out, ro) -> {
+		forEachOutInFields(getClass(), BNode.class,(f, out, ro) -> {
 			outsNode.put(f.getName(), out.toJSONNode(depth - 1));
 		});
 		r.set("outs", outsNode);
@@ -413,7 +412,7 @@ public abstract class BNode {
 		return null;
 	}
 
-	public NodeView<BNode> getKishanView() {
+	public NodeView<BNode> getFirstView() {
 		for (var v : views()) {
 			if (!(v instanceof KishanView)) {
 				return v;
@@ -424,7 +423,7 @@ public abstract class BNode {
 	}
 
 	public void reset() {
-		forEachOutInFields((f, o, ro) -> {
+		forEachOutInFields(getClass(), BNode.class,(f, o, ro) -> {
 			if (!ro) {
 				try {
 					var v = (BNode) f.get(this);

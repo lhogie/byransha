@@ -1,4 +1,4 @@
-package butils;
+package byransha.util;
 
 public class Base62 {
 

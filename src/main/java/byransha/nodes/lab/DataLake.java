@@ -13,10 +13,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import butils.Cout;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
+import byransha.util.Cout;
 
 public class DataLake extends BNode {
 
@@ -98,6 +98,9 @@ public class DataLake extends BNode {
 		Cout.progress("Loading datalake from " + dir);
 		loadCountries(g, dir);
 
+		ACMClassifier.createNodes(g, dir);
+
+		
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);

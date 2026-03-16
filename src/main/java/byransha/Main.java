@@ -68,7 +68,7 @@ public class Main {
 		primaryStage.setHeight(size.getHeight());
 		primaryStage.setX(location.x);
 		primaryStage.setY(location.y);
-		primaryStage.setTitle("Byransha v" + g.byransha.version.get());
+		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
 		primaryStage.show();
 
 		new JavaFXFrontend(g, vbox);

@@ -4,10 +4,10 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import butils.Stop;
 import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.nodes.lab.Person;
+import byransha.util.Stop;
 
 public class CreateNewPerson extends Event {
 

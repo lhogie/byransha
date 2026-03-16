@@ -20,12 +20,12 @@ import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
-	public final List<CurrentUserListener> changeUserListener = new ArrayList<>();
+	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
 	public AllIndexes indexes = new AllIndexes();
 	public final AllIndexesNode inode = new AllIndexesNode(this);
 	public final User admin = new User(this, "admin", Argon.hash("admin"));
-	public final User guest = new User(this, "user", Argon.hash("test"));
+	public final User guest = new User(this, "guest", Argon.hash(""));
 	public BNode application;
 	public final JVMNode jvm = new JVMNode(this);
 	public final Byransha byransha = new Byransha(this);
@@ -41,14 +41,8 @@ public class BGraph extends BNode {
 	public final UIPreferences ui = new UIPreferences(this);
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
 
-	public static interface CurrentUserListener {
-		void changed(User u);
-	}
-
 	public BGraph(File directory) throws Exception {
 		super(null);
-		setCurrentUser(guest);
-
 		indexes.add(g);
 	}
 
@@ -61,7 +55,7 @@ public class BGraph extends BNode {
 	public void setCurrentUser(User newUser) {
 		if (newUser != currentUser) {
 			this.currentUser = newUser;
-			changeUserListener.forEach(l -> l.changed(newUser));
+			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
 		}
 	}
 

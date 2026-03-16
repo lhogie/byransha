@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import butils.Stop;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.util.Stop;
 
 class OldTBRH {
 	public void loadOLDTBRH(Lab i3s, File inputDir) throws IOException {

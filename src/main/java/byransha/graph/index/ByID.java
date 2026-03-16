@@ -1,8 +1,8 @@
 package byransha.graph.index;
 
-import butils.Base62;
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.util.Base62;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;

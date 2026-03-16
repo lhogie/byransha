@@ -2,7 +2,6 @@ package byransha.graph.index;
 
 import byransha.graph.BNode;
 import byransha.graph.Index;
-import byransha.graph.relection.ClassNode;
 
 public class AllIndexes extends Index {
 	public final ByID byId;
@@ -27,14 +26,12 @@ public class AllIndexes extends Index {
 		nodesList.l.add(n);
 		byClass.add(n);
 	}
-	
-
 
 	@Override
 	public void delete(BNode n) {
 		nodesList.l.remove(n);
 		byId.m.remove(n.id());
-		n.ascendSuperClassesUntil(BNode.class, clazz -> byClass.m.removeMapping(clazz, n));
+		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> byClass.m.removeMapping(clazz, n));
 
 		for (var inl : reverseNavigation.m.remove(n)) {
 

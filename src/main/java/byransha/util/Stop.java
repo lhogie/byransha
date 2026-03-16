@@ -1,4 +1,4 @@
-package butils;
+package byransha.util;
 
 public enum Stop {
 	no, yes;

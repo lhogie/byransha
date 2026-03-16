@@ -36,7 +36,7 @@ Julien Deantoin (I3S, Université Cote D'Azur, Saclay)
 
 */
 
-package butils;
+package byransha.util;
 
 import java.util.function.Function;
 

@@ -4,7 +4,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 
@@ -18,8 +18,6 @@ public class Search extends NodeAction<BNode, ListNode> {
 		depth.setBounds(0, 100000);
 	}
 
-	
-	
 	@Override
 	public ActionResult<BNode, ListNode> exec(ChatNode chat) {
 		var list = new ListNode(g, "search result at depth " + depth);

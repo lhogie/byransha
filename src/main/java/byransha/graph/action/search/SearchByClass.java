@@ -5,12 +5,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import butils.Stop;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.PrimitiveValueNode;
+import byransha.util.Stop;
 
 public class SearchByClass extends Search {
 	public ListNode<ClassNode> availableClasses;
@@ -25,8 +25,8 @@ public class SearchByClass extends Search {
 			bfs(depth.get(), n -> true, (node, d) -> classes.add(node.getClass()));
 			var classList = new ArrayList<Class>(classes);
 			Collections.sort(classList, (a, b) -> a.getSimpleName().compareTo(b.getSimpleName()));
-			List<ClassNode> l = classes.stream().map(c -> g.indexes.byClass.forEachNodeOfClass(ClassNode.class, n -> Stop.no))
-					.toList();
+			List<ClassNode> l = classes.stream()
+					.map(c -> g.indexes.byClass.forEachNodeOfClass(ClassNode.class, n -> Stop.no)).toList();
 			availableClasses.set(l);
 		});
 	}

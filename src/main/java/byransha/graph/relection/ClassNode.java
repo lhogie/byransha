@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.MapNode;
 import byransha.nodes.primitive.StringNode;
 import net.sourceforge.plantuml.FileFormat;
@@ -116,8 +116,8 @@ public class ClassNode extends BNode {
 		for (var i : aggregations.map.entrySet()) {
 			var c = i.getValue().clazz;
 			if (!c.isPrimitive() && !c.getName().startsWith("java.lang")) {
-				buf.append(clazz.getSimpleName()).append(" o-- ").append(c.getSimpleName()).append(": ").append(i.getKey())
-						.append("\n");
+				buf.append(clazz.getSimpleName()).append(" o-- ").append(c.getSimpleName()).append(": ")
+						.append(i.getKey()).append("\n");
 			}
 		}
 

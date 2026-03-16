@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import butils.Stop;
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.util.Stop;
 
 public class NodeList extends Index {
 	 final List<BNode> l = new ArrayList<>();

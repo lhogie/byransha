@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.action.list.ListNode;
 import byransha.graph.view.NodeView;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.Utils;
@@ -72,14 +73,13 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 				}
 			}
 		});
-		
+
 		var selectionModel = jlist.getSelectionModel();
-		selectionModel.addListSelectionListener(e ->{ 
+		selectionModel.addListSelectionListener(e -> {
 			Arrays.stream(selectionModel.getSelectedIndices()).forEach(i -> viewedNode.select(i));
 			updateLabel();
 		});
 
-		
 		pane.appendToCurrentFlow(Utils.resizableScrollPane(jlist));
 		updateLabel();
 	}

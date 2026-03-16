@@ -1,46 +1,88 @@
 package byransha.ui.swing;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
+import byransha.graph.action.list.ListNode;
+import byransha.nodes.system.ChatListener;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
+import byransha.nodes.system.User;
 
 public class SwingFrontend extends SystemNode {
 
-	static JFrame f = new JFrame("Byransha");
-	public final ChatSheet sheet;
+	static JFrame f = new JFrame();
+	public final Map<ChatNode, ChatSheet> sheets = new HashMap<>();
+
+	public ListNode<FontNode> fonts;
 
 	public SwingFrontend(BGraph g) {
 		super(g);
+		f.setTitle("Byransha v" + g.byransha.VERSION +  " (contact: luc.hogie@cnrs.fr)");
+
+		fonts = new ListNode<>(g, "available fonts");
+		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+			fonts.add(new FontNode(g, font));
+		}
+
 		setLookAndFeel("WebLaf");
 		g.swing = this;
-		
-		var defaultChat = currentUser().chats.get(0);
-		sheet = new ChatSheet(defaultChat);
 
-		g.changeUserListener.add(u -> sheet.addNode(u));
+		var gl = new GridLayout(1, 1);
+		var chatsPanel = new JPanel(gl);
 
-		JScrollPane scroll = new JScrollPane(sheet);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		var width = (9 * screenSize.height) / 16;
-		var size = new Dimension(width, screenSize.height);
-		var location = new Point((screenSize.width - width) / 2, 0);
-		f.setSize(size);
-		f.setLocation(location);
-		f.add(scroll);
-		// f.setLocationRelativeTo(null);
+		g.userSwitchingListeners.add((formerUser, newUser) -> {
+			System.out.println("NE> user " + newUser);
+			newUser.chatListeners.add(new ChatListener() {
+				@Override
+				public void newChat(User user, ChatNode chat) {
+					System.out.println("NEW CHAT " + chat);
+					f.setSize(f.getSize().width + Utils.chatWidth, f.getSize().height);
+					var sheet = new ChatSheet(chat);
+					chat.jumpListeners.add(n -> sheet.addNode(n));
+					sheets.put(chat, sheet);
+					gl.setColumns(gl.getColumns() + 1);
+					chatsPanel.add(sheet.scroll);
+					chatsPanel.revalidate();
+					chatsPanel.repaint();
+					chat.add(user);
+				}
 
+				@Override
+				public void chatClosed(User user, ChatNode chat) {
+					f.setSize(f.getSize().width - Utils.chatWidth, f.getSize().height);
+					chatsPanel.remove(sheets.get(chat));
+					gl.setColumns(gl.getColumns() - 1);
+					chatsPanel.revalidate();
+					chatsPanel.repaint();
+				}
+			});
+		});
 
-		// setNode(new AuthenticateAction(g));
-		defaultChat.jumpListeners.add(n -> sheet.addNode(n));
+		FontUIResource customFont = new FontUIResource("ProximaNova-Medium", Font.PLAIN, 14);
+		Utils.setUIFont(customFont);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		f.setSize(Utils.initialSize);
+		f.setLocation(Utils.initialLocation);
+		f.add(chatsPanel);
 		f.setVisible(true);
+
+		g.setCurrentUser(g.guest);
+		new ChatNode(g.guest, g.guest);
 	}
 
 	private static void setLookAndFeel(String name) {

@@ -28,9 +28,10 @@ import byransha.event.Event;
 import byransha.graph.Ack;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.RSA;
+import byransha.util.GZip;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 
@@ -101,7 +102,7 @@ public class NetworkAgent extends BNode {
 				while (true) {
 					DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
 					socket.receive(packet);
-					var msg = (Message) serializer.fromBytes(packet.getData());
+					var msg = (Message) serializer.fromBytes(GZip.gunzip(packet.getData()));
 					++packetReceived;
 					updateInOutInfo();
 					handle(msg);
@@ -206,8 +207,7 @@ public class NetworkAgent extends BNode {
 		msg.from.add(name);
 		msg.data = serializer.toBytes(o);
 		msg.data = RSA.encrypt(msg.data, to.publicKey);
-
-		var msgBytes = serializer.toBytes(msg);
+		var msgBytes = GZip.gzip(serializer.toBytes(msg));
 		var sendPacket = new DatagramPacket(msgBytes, msgBytes.length, to.address, to.port);
 		socket.send(sendPacket);
 		++packetSent;

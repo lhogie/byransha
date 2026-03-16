@@ -1,4 +1,4 @@
-package byransha.nodes.primitive;
+package byransha.graph.action.list;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-import butils.IntObjectBiConsumer;
-import butils.ListenableList;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.action.PruneList;
+import byransha.graph.action.list.filter.RetainSelected;
 import byransha.graph.view.DotAction;
 import byransha.graph.view.GeneratePlantUML;
+import byransha.nodes.primitive.ListNodeView;
+import byransha.util.IntObjectBiConsumer;
+import byransha.util.ListenableList;
 
 public class ListNode<T extends BNode> extends BNode {
 	String label;
@@ -68,7 +69,7 @@ public class ListNode<T extends BNode> extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.values.add(new PruneList(g, this));
+		cachedActions.values.add(new RetainSelected<>(g, this));
 		cachedActions.values.add(new DotAction(g, this));
 		cachedActions.values.add(new GeneratePlantUML(g, this));
 		super.createActions();
@@ -156,6 +157,10 @@ public class ListNode<T extends BNode> extends BNode {
 
 	public List<T> elements() {
 		return values;
+	}
+
+	public boolean isSelected(T n) {
+		return selection.contains(n);
 	}
 
 }

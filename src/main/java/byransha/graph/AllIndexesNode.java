@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.LongNode;
 
 public class AllIndexesNode extends BNode {
