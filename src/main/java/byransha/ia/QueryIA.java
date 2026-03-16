@@ -10,7 +10,7 @@ import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.ChatNode;
 
-final public class QueryIA extends NodeAction<BNode, JSONNode> {
+public abstract class QueryIA extends NodeAction<BNode, JSONNode> {
 	public final StringNode prompt;
 
 	public QueryIA(BGraph g, BNode n) {
@@ -34,8 +34,6 @@ final public class QueryIA extends NodeAction<BNode, JSONNode> {
 		return createResultNode(new JSONNode(g, iaResponse), true);
 	}
 
-	private ObjectNode queryIA(JsonNode inputJSON, String prompt) {
-		return null;
-	}
+	protected abstract ObjectNode queryIA(JsonNode inputJSON, String prompt);
 
 }
