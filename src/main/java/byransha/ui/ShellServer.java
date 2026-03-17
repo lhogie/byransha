@@ -128,7 +128,7 @@ public class ShellServer extends SystemNode {
 		} else {
 			var r = action.exec(currentChat);
 
-			for (var v : r.result.views()) {
+			for (var v : r.outNode.views()) {
 				out.println(v.prettyName() + ":");
 				out.println(v.toJSON().toPrettyString());
 			}

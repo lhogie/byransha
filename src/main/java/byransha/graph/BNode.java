@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.graph.action.Back;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
@@ -230,7 +229,7 @@ public abstract class BNode {
 	public void createActions() {
 
 //		cachedActions.add(new QueryIA(g, this));
-		cachedActions.add(new Back(g, this));
+//		cachedActions.add(new Back(g, this));
 		cachedActions.add(new Export(g, this));
 		cachedActions.add(new Reset(g, this));
 		cachedActions.add(new Delete(g, this));
@@ -341,6 +340,11 @@ public abstract class BNode {
 
 	public final Color getColor() {
 		return ColorPalette.forClass(getClass(), g.ui.colorStyle.style);
+	}
+
+	public final Color getBackgroundColor() {
+		var c = getColor();
+		return new Color(c.getRed(), c.getGreen(), c.getBlue(), 20);
 	}
 
 	public Icon getIcon() {

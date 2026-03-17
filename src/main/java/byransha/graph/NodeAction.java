@@ -1,5 +1,7 @@
 package byransha.graph;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
@@ -26,16 +28,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		this.inputNode = inputNode;
 	}
 
-	public boolean execStraightAway() {
-		AtomicInteger i = new AtomicInteger();
-		forEachOutInFields(getClass(), NodeAction.class, (a, b, c) -> i.incrementAndGet());
-		return i.get() == 0;
+	public List<BNode> parameters() {
+		var r = new ArrayList<BNode>();
+		forEachOutInFields(getClass(), NodeAction.class, (a, b, c) -> r.add(b));
+		return r;
 	}
 
 	@Override
 	public void createActions() {
 		cachedActions.add(new exec<OUT>(g, this));
-		super.createActions();
+//		super.createActions();
 	}
 
 	@Override
@@ -107,7 +109,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		@Override
 		public ActionResult<NodeAction, OUT> exec(ChatNode chat) throws Throwable {
-			Cout.debugSuperVisible("exec " + inputNode.prettyName());
+//			Cout.debugSuperVisible("exec " + inputNode.prettyName());
 			var startDateMs = System.currentTimeMillis();
 			var r = inputNode.exec(chat);
 			r.durationMs.set(System.currentTimeMillis() - startDateMs);

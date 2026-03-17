@@ -48,7 +48,7 @@ public class SwingFrontend extends SystemNode {
 					System.out.println("NEW CHAT " + chat);
 					f.setSize(Math.min(f.getSize().width,Utils.screenSize.width) + Utils.chatWidth, f.getSize().height);
 					var sheet = new ChatSheet(chat);
-					chat.jumpListeners.add(n -> sheet.addNode(n));
+					chat.newNodeListeners.add(n -> sheet.addNode(n));
 					sheets.put(chat, sheet);
 					gl.setColumns(gl.getColumns() + 1);
 					chatsPanel.add(sheet.scroll);

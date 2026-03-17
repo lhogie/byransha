@@ -20,7 +20,7 @@ public class JavaFXFrontend extends SystemNode {
 
 		ChatNode chat = null;
 		g.userSwitchingListeners.add((old, newUser) -> addNode(newUser));
-		chat.jumpListeners.add(n -> addNode(n));
+		chat.newNodeListeners.add(n -> addNode(n));
 		chat.add(g);
 	}
 

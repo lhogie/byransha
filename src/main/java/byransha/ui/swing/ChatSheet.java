@@ -40,10 +40,19 @@ public class ChatSheet extends ScrollablePanel {
 	int colorIndex;
 	Color[] backgroundColors = new Color[] { Color.white, new Color(0xEE, 0xEE, 0xEE, 10) };
 
-	public void addNode(BNode n) {
-		c = backgroundColors[colorIndex++ % backgroundColors.length];
-		c = n.getColor();
-		c = new Color(c.getRed(), c.getGreen(), c.getBlue(), 20);
+	void addNode(BNode n) {
+		int nToRemove = 6;
+
+		if (getComponentCount() > nToRemove) {
+			for (int i = 0; i < nToRemove; ++i) {
+				remove(getComponentCount() - 1);
+			}
+		}
+		
+		addSeparator();
+
+//		c = backgroundColors[colorIndex++ % backgroundColors.length];
+		this.bgColor = n.getBackgroundColor();
 
 		newLine();
 		appendToCurrentFlow("\"" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is");
@@ -120,11 +129,11 @@ public class ChatSheet extends ScrollablePanel {
 		currentFlow = createNewFlow();
 	}
 
-	public Color c;
+	public Color bgColor;
 
 	private JPanel createNewFlow() {
 		var wp = new WrapPanel();
-		wp.setBackground(c);
+		wp.setBackground(bgColor);
 		wp.setBorder(null);
 		wp.setOpaque(true);
 		return wp;
@@ -137,10 +146,13 @@ public class ChatSheet extends ScrollablePanel {
 	}
 
 	public void end() {
+		addSeparator();
+		add(Box.createVerticalGlue());
+	}
+	public void addSeparator() {
 		var separator = new JSeparator();
 		separator.setPreferredSize(new Dimension(Integer.MAX_VALUE, 1));
 		add(separator);
-		add(Box.createVerticalGlue());
 	}
 
 }
