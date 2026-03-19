@@ -3,10 +3,10 @@ package byransha.ui.swing;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Insets;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -32,11 +32,11 @@ public class ChatPanel extends JPanel {
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(scroll, BorderLayout.CENTER);
 
-		
 		JPanel topBar = new WrapPanel();
 		topBar.setOpaque(false);
 
-		topBar.add(addButton("clear", e -> chat.elements.clear()));
+		topBar.add(addButton("clear", "/icon/settings_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
+				e -> chat.elements.clear()));
 		topBar.add(addButton("H", e -> chat.append(chat.g.application)));
 		topBar.add(addButton("G", e -> chat.append(chat.g)));
 		topBar.add(addButton("J", e -> chat.append(new Jump(chat.g, chat))));
@@ -58,12 +58,19 @@ public class ChatPanel extends JPanel {
 	}
 
 	JButton addButton(String text, ActionListener l) {
-		JButton closeBtn = new JButton(text);
-		closeBtn.setPreferredSize(new Dimension(40, 40));
-		closeBtn.setMargin(new Insets(0, 4, 0, 4));
-		closeBtn.setFocusable(false);
-		closeBtn.addActionListener(l);
-		return closeBtn;
+		return addButton(text, null, l);
+	}
+
+	JButton addButton(String text, String pathToIcon, ActionListener l) {
+		JButton b = new JButton(text);
+
+		if (pathToIcon != null)
+			b.setIcon(new ImageIcon(ChatPanel.class.getResource(pathToIcon)));
+		b.setPreferredSize(new Dimension(40, 40));
+		b.setMargin(new Insets(0, 4, 0, 4));
+		b.setFocusable(false);
+		b.addActionListener(l);
+		return b;
 	}
 
 	public void setCloseListener(CloseListener listener) {
