@@ -9,42 +9,30 @@ import java.util.function.BiConsumer;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.NodeAction;
+import byransha.graph.action.ActionResult;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.list.filter.RetainSelected;
 import byransha.graph.view.DotAction;
 import byransha.graph.view.GeneratePlantUML;
+import byransha.nodes.lab.stats.DistributionNode;
 import byransha.nodes.primitive.ListNodeView;
+import byransha.nodes.system.ChatNode;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
 
 public class ListNode<T extends BNode> extends BNode {
 	String label;
-	final public ListenableList<T> values = new ListenableList<>();
-	private final ListenableList<T> selection = new ListenableList<>();
+	final public ListenableList<T> elements = new ListenableList<>();
+	final public ListenableList<T> selection = new ListenableList<>();
 
 	public ListNode(BGraph g, String label) {
 		super(g);
 		this.label = label;
-
-		var listener = new ListenableList.ChangeListener<T>() {
-
-			@Override
-			public void onAdd(T element) {
-				changeListeners.forEach(l -> l.changed(ListNode.this));
-			}
-
-			@Override
-			public void onRemove(T element) {
-				changeListeners.forEach(l -> l.changed(ListNode.this));
-			}
-		};
-
-		values.addChangeListener(listener);
-		selection.addChangeListener(listener);
 	}
 
 	public T get(int i) {
-		return values.get(i);
+		return elements.get(i);
 	}
 
 	@Override
@@ -54,7 +42,7 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	public void forEachOutInContent(IntObjectBiConsumer<BNode> consumer) {
-		var l = values;
+		var l = elements;
 
 		for (int i = 0; i < l.size(); ++i) {
 			consumer.accept(i, l.get(i));
@@ -63,29 +51,30 @@ public class ListNode<T extends BNode> extends BNode {
 
 	@Override
 	public void createViews() {
-		cachedViews.values.add(new ListNodeView(g, this));
+		cachedViews.elements.add(new ListNodeView(g, this));
 		super.createViews();
 	}
 
 	@Override
 	public void createActions() {
-		cachedActions.values.add(new RetainSelected<>(g, this));
-		cachedActions.values.add(new DotAction(g, this));
-		cachedActions.values.add(new GeneratePlantUML(g, this));
+		cachedActions.elements.add(new EDistribution(g, this));
+		cachedActions.elements.add(new RetainSelected<>(g, this));
+		cachedActions.elements.add(new DotAction(g, this));
+		cachedActions.elements.add(new GeneratePlantUML(g, this));
 		super.createActions();
 	}
 
 	@Override
 	public void removeOut(BNode out) {
-		values.remove(out);
+		elements.remove(out);
 	}
 
 	@Override
 	public void toCSVStreams(List<CSVData> l, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
 
-		for (int i = 0; i < values.size(); ++i) {
-			values.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
+		for (int i = 0; i < elements.size(); ++i) {
+			elements.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
 		}
 	}
 
@@ -95,7 +84,7 @@ public class ListNode<T extends BNode> extends BNode {
 
 	public Set<Class<? extends BNode>> classes() {
 		var r = new HashSet<Class<? extends BNode>>();
-		values.forEach(e -> r.add(e.getClass()));
+		elements.forEach(e -> r.add(e.getClass()));
 		return r;
 	}
 
@@ -110,11 +99,11 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	public void select(int i) {
-		selection.add(values.get(i));
+		selection.add(elements.get(i));
 	}
 
 	public void unselect(int i) {
-		selection.remove(values.get(i));
+		selection.remove(elements.get(i));
 	}
 
 	public List<T> getSelected() {
@@ -123,44 +112,70 @@ public class ListNode<T extends BNode> extends BNode {
 
 	public void reset() {
 		super.reset();
-		values.clear();
+		elements.clear();
 	}
 
 	public String toDot() {
 		var s = new StringWriter();
 		var pw = new PrintWriter(s);
 		pw.println("digraph {");
-		values.forEach(e -> pw.println(e.id() + ";"));
-		values.forEach(
+		elements.forEach(e -> pw.println(e.id() + ";"));
+		elements.forEach(
 				e -> e.forEachOut((o, role) -> pw.println(e.id() + " -> " + o.id() + "[label=\"" + role + "\"]")));
 		pw.println("}");
 		return s.toString();
 	}
 
-	public void add(T n) {
-		values.add(n);
-	}
-
 	public List<T> get() {
-		return values;
+		return elements;
 	}
 
 	public int size() {
-		return values.size();
+		return elements.size();
 	}
 
 	public void set(List<T> l) {
-		values.clear();
+		elements.clear();
 		selection.clear();
-		values.addAll(l);
+		elements.addAll(l);
 	}
 
 	public List<T> elements() {
-		return values;
+		return elements;
 	}
 
 	public boolean isSelected(T n) {
 		return selection.contains(n);
+	}
+
+	public static class EDistribution<V extends BNode> extends NodeAction<ListNode<V>, DistributionNode<V>> {
+
+		public EDistribution(BGraph g, ListNode<V> inputNode) {
+			super(g, inputNode);
+		}
+
+		@Override
+		public String whatItDoes() {
+			return "computes distribution";
+		}
+
+		@Override
+		public ActionResult<ListNode<V>, DistributionNode<V>> exec(ChatNode chat) throws Throwable {
+			var d = new DistributionNode<V>(g) {
+
+				@Override
+				public String prettyName() {
+					return inputNode.label;
+				}};
+			inputNode.get().forEach(e -> d.entries.addOccurence(e, 1));
+			return createResultNode(d, readOnly);
+		}
+
+		@Override
+		public boolean applies(ChatNode chat) {
+			return true;
+		}
+
 	}
 
 }

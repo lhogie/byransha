@@ -25,9 +25,9 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 	}
 
 	@Override
-	public void fromString(String s) {
+	public OffsetDateTime valueFromString(String s) {
 		try {
-			this.set(OffsetDateTime.parse(s));
+			return OffsetDateTime.parse(s);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("Invalid date format: " + s, e);
 		}

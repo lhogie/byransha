@@ -1,14 +1,15 @@
 package byransha.ia;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 final public class JSONNode extends BNode {
-	private final ObjectNode node;
+	private final JsonNode node;
 
-	public JSONNode(BGraph g, ObjectNode n) {
+	public JSONNode(BGraph g, JsonNode n) {
 		super(g);
 		this.node = n;
 	}
@@ -20,7 +21,9 @@ final public class JSONNode extends BNode {
 
 	@Override
 	public ObjectNode toJSONNode() {
-		return node;
+		ObjectNode n = new ObjectNode(factory);
+		n.set("json", node);
+		return n;
 	}
 
 	@Override

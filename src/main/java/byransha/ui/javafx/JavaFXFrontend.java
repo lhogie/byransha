@@ -6,6 +6,7 @@ import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
+import byransha.util.ListChangeListener;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
@@ -20,8 +21,19 @@ public class JavaFXFrontend extends SystemNode {
 
 		ChatNode chat = null;
 		g.userSwitchingListeners.add((old, newUser) -> addNode(newUser));
-		chat.newNodeListeners.add(n -> addNode(n));
-		chat.add(g);
+		chat.elements.listeners.add(new ListChangeListener<BNode>() {
+
+			@Override
+			public void onRemove(BNode n) {
+
+			}
+
+			@Override
+			public void onAdd(BNode n) {
+				addNode(n);
+			}
+		});
+		chat.append(g);
 	}
 
 	public void addNode(BNode n) {

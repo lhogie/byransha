@@ -5,19 +5,13 @@ import java.util.List;
 
 public class ListenableList<E> extends ArrayList<E> {
 
-	public static interface ChangeListener<E> {
-		void onAdd(E element);
+	public final List<ListChangeListener<E>> listeners = new ArrayList<>();
 
-		void onRemove(E element);
-	}
-
-	private final List<ChangeListener<E>> listeners = new ArrayList<>();
-
-	public void addChangeListener(ChangeListener<E> l) {
+	public void addChangeListener(ListChangeListener<E> l) {
 		listeners.add(l);
 	}
 
-	public void removeChangeListener(ChangeListener<E> l) {
+	public void removeChangeListener(ListChangeListener<E> l) {
 		listeners.remove(l);
 	}
 

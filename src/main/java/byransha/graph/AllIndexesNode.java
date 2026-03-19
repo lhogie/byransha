@@ -34,12 +34,12 @@ public class AllIndexesNode extends BNode {
 
 	@Override
 	public String whatIsThis() {
-		return null;
+		return "node indexes";
 	}
 
 	@Override
 	public String prettyName() {
-		return null;
+		return "indexes";
 	}
 
 }

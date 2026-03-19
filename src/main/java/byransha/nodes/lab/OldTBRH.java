@@ -24,7 +24,7 @@ class OldTBRH {
 			if (l.set(0, null).equals("member")) {
 				var position = new Position(i3s.g);
 				position.employer = i3s;
-				person.positions.add(position);
+				person.positions.elements.add(position);
 			}
 
 			person.etatCivil.name.set(l.set(1, null));
@@ -37,7 +37,7 @@ class OldTBRH {
 			person.etatCivil.address.set(l.set(8, null));
 			var inter = new StringNode(i3s.g);
 			inter.set(l.set(9, null));
-			person.phoneNumbers.add(inter);
+			person.phoneNumbers.elements.add(inter);
 
 			var officeName = l.set(15, null);
 
@@ -51,7 +51,7 @@ class OldTBRH {
 							var office = b.findOffice(officeName);
 
 							if (office != null) {
-								person.offices.add((Office) office);
+								person.offices.elements.add((Office) office);
 							}
 						}
 					}
@@ -61,7 +61,7 @@ class OldTBRH {
 			for (var phoneNumber : List.of(l.set(12, null), l.set(13, null), l.set(14, null))) {
 				var n = new StringNode(i3s.g); // new StringNode(this, phoneNumber);
 				n.set(phoneNumber);
-				person.phoneNumbers.add(n);
+				person.phoneNumbers.elements.add(n);
 			}
 
 			person.badgeNumber.set(l.set(16, null));
@@ -69,7 +69,7 @@ class OldTBRH {
 			person.faxNumber.set(l.set(18, null));
 			var email = new EmailNode(i3s.g, null);
 			email.set(l.set(19, null));
-			person.emailAddresses.add(email);
+			person.emailAddresses.elements.add(email);
 			String researchGroupName = l.set(20, null);
 			person.researchGroup = i3s.g.indexes.byClass.forEachNodeOfClass(ResearchGroup.class,
 					n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(researchGroupName)));

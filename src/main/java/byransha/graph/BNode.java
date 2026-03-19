@@ -60,7 +60,7 @@ public abstract class BNode {
 	@Hide
 	public final BGraph g;
 	public boolean readOnly;
-	public int id;
+	public int id = -1;
 
 	public static interface NodeChangeListener {
 		void changed(BNode n);
@@ -230,25 +230,24 @@ public abstract class BNode {
 
 //		cachedActions.add(new QueryIA(g, this));
 //		cachedActions.add(new Back(g, this));
-		cachedActions.add(new Export(g, this));
-		cachedActions.add(new Reset(g, this));
-		cachedActions.add(new Delete(g, this));
-		cachedActions.add(new Search(g, this));
-		cachedActions.add(new SearchText(g, this));
-		cachedActions.add(new SearchRegexp(g, this));
-		cachedActions.add(new Jump(g, this));
-		cachedActions.add(new OpenInNewChat(g, this));
+		cachedActions.elements.add(new Reset(g, this));
+		cachedActions.elements.add(new Export(g, this));
+		cachedActions.elements.add(new Delete(g, this));
+		cachedActions.elements.add(new Search(g, this));
+//		cachedActions.elements.add(new SearchText(g, this));
+//		cachedActions.elements.add(new SearchRegexp(g, this));
+		cachedActions.elements.add(new OpenInNewChat(g, this));
 	}
 
 	public void createViews() {
-		cachedViews.add(new KishanView(g, this));
-		cachedViews.add(new SmallInfoView(g, this));
-		cachedViews.add(new JumpToMe(g, this));
-		cachedViews.add(new OutNavigationView(g, this));
-		cachedViews.add(new InNavigationView(g, this));
-		cachedViews.add(new ErrorsView(g, this));
-		cachedViews.add(new AvailableActionsView(g, this));
-		cachedViews.add(new DebugView(g, this));
+		cachedViews.elements.add(new KishanView(g, this));
+		cachedViews.elements.add(new SmallInfoView(g, this));
+		cachedViews.elements.add(new JumpToMe(g, this));
+		cachedViews.elements.add(new OutNavigationView(g, this));
+		cachedViews.elements.add(new InNavigationView(g, this));
+		cachedViews.elements.add(new ErrorsView(g, this));
+		cachedViews.elements.add(new AvailableActionsView(g, this));
+		cachedViews.elements.add(new DebugView(g, this));
 	}
 
 	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -344,7 +343,8 @@ public abstract class BNode {
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		return new Color(c.getRed(), c.getGreen(), c.getBlue(), 20);
+		int alpha = (int) g.ui.transparencyForNodeBackground.get().longValue();
+		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
 	public Icon getIcon() {
@@ -447,7 +447,18 @@ public abstract class BNode {
 		});
 	}
 
-	public JButton createJumpComponent(ChatNode chat) {
+	public JButton createJumpButton(ChatNode chat) {
+		var b = new JButton(prettyName());
+//		b.setContentAreaFilled(true);
+		b.setPreferredSize(new Dimension(100, 30));
+		b.addActionListener(e -> chat.append(this));
+		b.setToolTipText(whatIsThis());
+		b.setFocusable(false);
+
+		return b;
+	}
+
+	public JButton createJumpButton2(ChatNode chat) {
 		var b = new JButton(prettyName()) {
 			@Override
 			public Color getBackground() {
@@ -456,7 +467,7 @@ public abstract class BNode {
 		};
 //		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> chat.add(this));
+		b.addActionListener(e -> chat.append(this));
 		b.setToolTipText(whatIsThis());
 		return b;
 	}

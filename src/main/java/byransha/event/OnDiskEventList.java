@@ -27,11 +27,15 @@ public abstract class OnDiskEventList extends EventList {
 			InvocationTargetException, NoSuchMethodException, SecurityException, FileNotFoundException, IOException;
 
 	@Override
-	public void add(Event e) throws IOException {
-		var f = getFile(e);
-		var fos = new FileOutputStream(f);
+	public void add(Event e) {
+		try {
+			var f = getFile(e);
+			var fos = new FileOutputStream(f);
 //		qFormat.write(q, fos);
-		fos.close();
+			fos.close();
+		} catch (IOException err) {
+			error(err);
+		}
 	}
 
 	public File getFile(Event e) {

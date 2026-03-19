@@ -11,36 +11,43 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
-import javax.swing.border.TitledBorder;
 
 import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
 import byransha.nodes.system.ChatNode;
+import byransha.util.ListChangeListener;
 
 public class ChatSheet extends ScrollablePanel {
 
 	JPanel currentFlow = createNewFlow();
 	public final ChatNode chat;
-	public final JScrollPane scroll;
+//	int colorIndex;
+//	Color[] backgroundColors = new Color[] { Color.white, new Color(0xEE, 0xEE, 0xEE, 10) };
 
 	public ChatSheet(ChatNode chat) {
 		super();
 		this.chat = chat;
+		setOpaque(false);
 		var bl = new BoxLayout(this, BoxLayout.Y_AXIS);
 		setLayout(bl);
-		this.scroll = new JScrollPane(this);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setBorder(new TitledBorder(chat.prettyName()));
+		chat.get().forEach(node -> appendNode(node));
 
-		chat.get().forEach(c -> addNode(c));
+		chat.elements.listeners.add(new ListChangeListener<BNode>() {
+
+			@Override
+			public void onAdd(BNode n) {
+				appendNode(n);
+			}
+
+			@Override
+			public void onRemove(BNode n) {
+				removeNode(n);
+			}
+		});
 	}
 
-	int colorIndex;
-	Color[] backgroundColors = new Color[] { Color.white, new Color(0xEE, 0xEE, 0xEE, 10) };
-
-	void addNode(BNode n) {
+	void appendNode(BNode n) {
 		int nToRemove = 6;
 
 		if (getComponentCount() > nToRemove) {
@@ -48,15 +55,16 @@ public class ChatSheet extends ScrollablePanel {
 				remove(getComponentCount() - 1);
 			}
 		}
-		
-		addSeparator();
 
-//		c = backgroundColors[colorIndex++ % backgroundColors.length];
+		if (getComponentCount() > 0) {
+			addSeparator();
+		}
+
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		appendToCurrentFlow("\"" + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is");
-		appendToCurrentFlow(Utils.idShower(n));
+		appendToCurrentFlow(Utils.idShower(n, 20, 0));
+		appendToCurrentFlow("\"" + n.prettyName() + "\" is " + n.whatIsThis());
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
@@ -71,7 +79,7 @@ public class ChatSheet extends ScrollablePanel {
 
 		newLine();
 		newLine();
-		appendToCurrentFlow("What do you want to do?");
+		appendToCurrentFlow(n.g.translator.translate("What do you want to do?"));
 		newLine();
 
 		n.findView(AvailableActionsView.class).writeTo(this);
@@ -133,9 +141,9 @@ public class ChatSheet extends ScrollablePanel {
 
 	private JPanel createNewFlow() {
 		var wp = new WrapPanel();
-		wp.setBackground(bgColor);
-		wp.setBorder(null);
 		wp.setOpaque(true);
+		wp.setBackground(bgColor);
+//		wp.setBorder(null);
 		return wp;
 	}
 
@@ -149,10 +157,17 @@ public class ChatSheet extends ScrollablePanel {
 		addSeparator();
 		add(Box.createVerticalGlue());
 	}
+
 	public void addSeparator() {
 		var separator = new JSeparator();
 		separator.setPreferredSize(new Dimension(Integer.MAX_VALUE, 1));
+		newLine();
+		newLine();
 		add(separator);
+	}
+
+	public void removeNode(BNode n) {
+		// TODO
 	}
 
 }

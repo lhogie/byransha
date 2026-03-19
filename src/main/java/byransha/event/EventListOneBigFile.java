@@ -26,7 +26,7 @@ public class EventListOneBigFile extends OnDiskEventList {
 			throws ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException, NoSuchMethodException, SecurityException, FileNotFoundException, IOException {
 		var f = new File(directory, "events." + qFormat.ext());
-		return f.exists() ? qFormat.read(new FileInputStream(f)) : new ArrayList<Event>();
+		return f.exists() ? qFormat.read(new FileInputStream(f), g) : new ArrayList<Event>();
 	}
 
 	@Override

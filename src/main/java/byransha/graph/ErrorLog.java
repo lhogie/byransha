@@ -28,7 +28,7 @@ public class ErrorLog extends SystemNode {
 		var errN = new ExceptionNode(g);
 		errN.err = err;
 		errN.date = LocalDateTime.now();
-		errors.add(errN);
+		errors.elements.add(errN);
 		err.printStackTrace();
 		return errN;
 	}

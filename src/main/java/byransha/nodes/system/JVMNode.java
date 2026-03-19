@@ -26,7 +26,7 @@ public class JVMNode extends SystemNode {
 
 	@Override
 	public void createViews() {
-		cachedViews.add(new View(g, this));
+		cachedViews.elements.add(new View(g, this));
 		super.createViews();
 	}
 

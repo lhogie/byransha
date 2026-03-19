@@ -10,27 +10,20 @@ import byransha.nodes.primitive.StringNode;
 
 public class Person extends BusinessNode {
 
+	public Genre genre;
 	public EtatCivil etatCivil;
-
 	public ListNode<Position> positions;
-
 	public DocumentNode pics;
 	public BooleanNode hdr;
-
 	public StringNode badgeNumber;
 	public StringNode website;
 	public StringNode faxNumber;
 	public ResearchGroup researchGroup;
 	public DateNode phdDate;
-
 	public ListNode<StringNode> phoneNumbers;
-
 	protected ListNode<EmailNode> emailAddresses;
-
 	public ListNode<Office> offices;
-
 	public StringNode quotite;
-
 	public Position position;
 	public boolean enposte;
 	public StringNode researchActivity;

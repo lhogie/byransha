@@ -3,6 +3,7 @@ package byransha.graph.index;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import byransha.graph.BNode;
 import byransha.graph.Index;
@@ -42,5 +43,9 @@ public class NodeList extends Index {
 
 	public long size() {
 		return l.size();
+	}
+	
+	public Stream<BNode> stream() {
+		return l.stream();
 	}
 }

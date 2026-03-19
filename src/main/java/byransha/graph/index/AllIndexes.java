@@ -1,5 +1,7 @@
 package byransha.graph.index;
 
+import java.util.Objects;
+
 import byransha.graph.BNode;
 import byransha.graph.Index;
 
@@ -22,20 +24,19 @@ public class AllIndexes extends Index {
 
 	@Override
 	public void add(BNode n) {
-		byId.index(n);
-		nodesList.l.add(n);
+		Objects.requireNonNull(n);
+		byId.add(n);
+		nodesList.add(n);
 		byClass.add(n);
+		reverseNavigation.add(n);
 	}
 
 	@Override
 	public void delete(BNode n) {
-		nodesList.l.remove(n);
-		byId.m.remove(n.id());
-		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> byClass.m.removeMapping(clazz, n));
-
-		for (var inl : reverseNavigation.m.remove(n)) {
-
-		}
+		nodesList.delete(n);
+		byId.delete(n);
+		byClass.delete(n);
+		reverseNavigation.delete(n);
 	}
 
 	@Override

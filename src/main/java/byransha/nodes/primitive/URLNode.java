@@ -12,17 +12,12 @@ public class URLNode extends StringNode {
 
 	@Override
 	public void createViews() {
-		cachedViews.values.add(new URLNodeView(g, this));
+		cachedViews.elements.add(new URLNodeView(g, this));
 		super.createViews();
 	}
 
 	public String prettyName() {
 		return get();
-	}
-
-	@Override
-	public void fromString(String s) {
-		set(s);
 	}
 
 	@Override

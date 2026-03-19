@@ -43,6 +43,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return inputNode instanceof BusinessNode;
+		return true;
+//		return inputNode instanceof BusinessNode;
 	}
 }

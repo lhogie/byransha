@@ -21,8 +21,10 @@ public class Position extends BNode {
 			return status.prettyName() + " at " + employer.prettyName();
 		} else if (status != null) {
 			return status.prettyName();
+		} else if (employer != null) {
+			return "job at " + employer.prettyName();
 		} else {
-			return employer.prettyName();
+			return "some position";
 		}
 	}
 

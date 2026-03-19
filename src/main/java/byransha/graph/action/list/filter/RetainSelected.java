@@ -25,5 +25,4 @@ public class RetainSelected<N extends BNode> extends FilterNode<N> {
 	public boolean applies(ChatNode chat) {
 		return inputNode.size() > 0;
 	}
-
 }

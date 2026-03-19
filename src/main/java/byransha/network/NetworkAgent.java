@@ -66,7 +66,7 @@ public class NetworkAgent extends BNode {
 					var p = new PeerNode(g);
 					p.name = name;
 					p.publicKey = pk;
-					peers.add(p);
+					peers.elements.add(p);
 				} catch (InvalidKeySpecException | NoSuchAlgorithmException err) {
 					error(err);
 				}
@@ -162,12 +162,8 @@ public class NetworkAgent extends BNode {
 				alreadyKnownEvent.commitToDisk();
 				alreadyKnownEvent.markReceivedBy(from);
 			} else {
-				try {
-					g.eventList.add(e);
-					e.markReceivedBy(from);
-				} catch (IOException e1) {
-					error(e1, true);
-				}
+				g.eventList.add(e);
+				e.markReceivedBy(from);
 			}
 
 			try {

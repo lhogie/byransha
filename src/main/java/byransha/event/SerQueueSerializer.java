@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.util.List;
 
+import byransha.graph.BGraph;
+
 public class SerQueueSerializer implements EventQueueSerializer {
 
 	@Override
@@ -17,7 +19,7 @@ public class SerQueueSerializer implements EventQueueSerializer {
 	}
 
 	@Override
-	public List<Event> read(InputStream in) throws IOException, ClassNotFoundException {
+	public List<Event> read(InputStream in, BGraph g) throws IOException, ClassNotFoundException {
 		var is = new ObjectInputStream(in);
 		var q = (List<Event>) is.readObject();
 		is.close();

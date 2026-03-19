@@ -11,7 +11,7 @@ public class Website extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new Deploy(this));
+		cachedActions.elements.add(new Deploy(this));
 		super.createActions();
 	}
 

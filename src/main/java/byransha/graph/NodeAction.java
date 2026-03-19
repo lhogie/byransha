@@ -2,7 +2,6 @@ package byransha.graph;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.JButton;
 
@@ -12,7 +11,6 @@ import byransha.graph.action.ActionResult;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.util.ByUtils;
-import byransha.util.Cout;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 
@@ -36,7 +34,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new exec<OUT>(g, this));
+		cachedActions.elements.add(new exec<OUT>(g, this));
 //		super.createActions();
 	}
 
@@ -49,8 +47,8 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public JButton createJumpComponent(ChatNode chat) {
-		var b = super.createJumpComponent(chat);
+	public JButton createJumpButton(ChatNode chat) {
+		var b = super.createJumpButton(chat);
 		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
 		var applies = applies(chat);
 
@@ -118,7 +116,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		@Override
 		public String prettyName() {
-			return "run " + inputNode.prettyName() ;
+			return "Run";
 		}
 
 		@Override

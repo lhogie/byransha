@@ -6,6 +6,7 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.LongNode;
+import byransha.nodes.primitive.LongNode.Bounds;
 import byransha.nodes.system.ChatNode;
 
 public class Search extends NodeAction<BNode, ListNode> {
@@ -15,13 +16,13 @@ public class Search extends NodeAction<BNode, ListNode> {
 		super(g, src);
 		depth = new LongNode(g);
 		depth.set(1L);
-		depth.setBounds(0, 100000);
+		depth.setBounds(new Bounds(0, 1000));
 	}
 
 	@Override
 	public ActionResult<BNode, ListNode> exec(ChatNode chat) {
 		var list = new ListNode(g, "search result at depth " + depth);
-		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.add(n));
+		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.elements.add(n));
 		return createResultNode(list, false);
 	}
 

@@ -23,7 +23,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new stop(g, this));
+		cachedActions.elements.add(new stop(g, this));
 		super.createActions();
 	}
 

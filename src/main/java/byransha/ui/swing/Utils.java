@@ -1,5 +1,6 @@
 package byransha.ui.swing;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -12,6 +13,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BNode;
@@ -40,7 +42,7 @@ public class Utils {
 	public static final int chatWidth;
 	public static final Dimension initialSize;
 	public static final Point initialLocation;
-	public static final	Dimension screenSize= Toolkit.getDefaultToolkit().getScreenSize();
+	public static final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	static {
 		chatWidth = (9 * screenSize.height) / 16;
@@ -48,15 +50,14 @@ public class Utils {
 		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
 	}
 
-	public static JComponent idShower(BNode n) {
-		var c = new RoundTextField();
-		c.setText(n.idAsText());
-		c.setEditable(false);
-		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY, e -> {
-			String dragText = ((JTextField) e.getComponent()).getText();
-			e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(dragText));
-		});
+	public static JComponent idShower(BNode n, int diameter, int border) {
+		var c = new CircleComponent(diameter, n.getColor());
+		c.setBorderWidth(border);
+		c.setOpaque(false);
+		c.setFocusable(false);
+		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
+				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.id() + "")));
 		return c;
 	}
-	
+
 }

@@ -16,8 +16,8 @@ public class Authenticate extends NodeAction<BNode, User> {
 
 	public Authenticate(BGraph g, BNode node) {
 		super(g, node);
-		username = new StringNode(g, null, ".+");
-		password = new StringNode(g, null, ".+");
+		username = new StringNode(g, "", ".+");
+		password = new StringNode(g, "", ".+");
 	}
 
 	@Override

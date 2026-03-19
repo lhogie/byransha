@@ -1,8 +1,5 @@
 package byransha.nodes.system;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.list.ListNode;
@@ -12,8 +9,7 @@ public class User extends BNode {
 	public final StringNode name;
 	public final StringNode passwordNode;
 	public final StringNode argon2Hash;
-	public final ListNode<ChatNode> chats;
-	public final List<ChatListener> chatListeners = new ArrayList<>();
+	public final ListNode<ChatNode> chatList;
 
 	public User(BGraph g, String userName, String passwordHash) {
 		super(g);
@@ -21,7 +17,7 @@ public class User extends BNode {
 		passwordNode = new StringNode(g, null, ".+");
 		this.argon2Hash = new StringNode(g, passwordHash, ".*");
 		passwordNode.hideText = true;
-		chats = new ListNode<>(g, "chats");
+		chatList = new ListNode<>(g, "chats");
 //		chats.get().add(new ChatNode(this, g));
 
 		passwordNode.changeListeners.add(n -> argon2Hash.set(Argon.hash(passwordNode.get())));
