@@ -112,31 +112,65 @@
 			<artifactId>Java-WebSocket</artifactId>
 			<version>1.5.6</version>
 		</dependency>
+		<dependency>
+			<groupId>dev.langchain4j</groupId>
+			<artifactId>langchain4j-core</artifactId>
+			<version>1.0.0-beta1</version>
+		</dependency>
+		<dependency>
+    		<groupId>dev.langchain4j</groupId>
+    		<artifactId>langchain4j-jlama</artifactId>
+    		<version>1.0.0-beta1</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.tjake</groupId>
+			<artifactId>jlama-core</artifactId>
+			<version>0.8.3</version>
+		</dependency>
+		<dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-simple</artifactId>
+        	<version>2.0.12</version>
+    	</dependency>
+		<dependency>
+    		<groupId>net.java.dev.jna</groupId>
+    		<artifactId>jna</artifactId>
+    		<version>5.14.0</version>
+		</dependency>
+
+        <dependency>
+            <groupId>com.github.tjake</groupId>
+            <artifactId>jlama-native</artifactId>
+            <version>0.8.3</version>
+            <classifier>${os.detected.name}-${os.detected.arch}</classifier>
+        </dependency>
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-ollama</artifactId>
+            <version>1.0.0-beta1</version>
+        </dependency>
 	</dependencies>
 	<build>
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>1.7.1</version>
+			</extension>
+		</extensions>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
 			</resource>
 		</resources>
 		<plugins>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.1</version>
-				<configuration>
-					<source>25</source>
-					<target>25</target>
-					<release>25</release>
-				</configuration>
-			</plugin>
+
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>3.0.0</version>
 				<configuration>
-					<mainClass>byransha.web.WebServer</mainClass>
-					<commandlineArgs>-Dfile.encoding=UTF-8
-						appClass=byransha.nodes.lab.I3SApplication</commandlineArgs>
+					<mainClass>byransha.ai.Test</mainClass>
 					<systemProperties>
 						<systemProperty>
 							<key>file.encoding</key>
@@ -148,10 +182,11 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.14.0</version>
 				<configuration>
 					<source>25</source>
 					<target>25</target>
-					<compilerArgs>--enable-preview</compilerArgs>
+					<release>25</release>
 				</configuration>
 			</plugin>
 		</plugins>

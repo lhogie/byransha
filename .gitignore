@@ -19,6 +19,13 @@ desktop.ini
 *.swp
 *.swo
 
+# Dossiers temporaires locaux
+tmp/
+
+# Fichiers de support locaux (classpath/debug)
+.classpath.txt
+cp.txt
+
 # Fichiers de crash logs de la JVM
 hs_err_pid*
 replay_pid*

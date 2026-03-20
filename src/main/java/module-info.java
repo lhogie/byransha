@@ -20,15 +20,22 @@ module byransha {
 	requires java.management;
 	requires jdk.management;
 	requires net.sourceforge.plantuml;
+    requires java.net.http;
+    requires langchain4j.core;
+    requires langchain4j.ollama;
+    requires jlama.core;
+    requires jdk.incubator.vector;         // Pour les calculs mathématiques (IA)
+    requires com.sun.jna;					// Pour les appels natifs (ex: pour la détection de l'OS) (IA)
 	// Apache Commons IO (FileUtils, IOUtils, etc.)
 	requires org.apache.commons.io;
 	// Apache Commons Collections 4
 	requires org.apache.commons.collections4;
+	requires langchain4j.jlama;
 
 	// The themes pack module (where FlatDraculaIJTheme lives)
 	requires com.formdev.flatlaf.intellijthemes;
 
-	// 2. Allow JavaFX to access your classes (important for start() method)
+    // 2. Allow JavaFX to access your classes (important for start() method)
 	opens byransha to javafx.graphics, javafx.fxml;
 
 	// 3. Allow other modules to use your code
