@@ -11,6 +11,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
 	@Override
 	public void createViews() {
+		cachedViews.elements.add(new BooleanCheckBoxEditor(g, this));
 		cachedViews.elements.add(new BooleanRadioButtonEditor(g, this));
 		super.createViews();
 	}

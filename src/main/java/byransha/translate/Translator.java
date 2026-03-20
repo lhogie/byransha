@@ -52,7 +52,7 @@ public class Translator extends BNode {
 		translateDir = new File(g.byransha.configDirectory, "translate");
 		translateDir.mkdirs();
 
-		targetLanguage = new StringNode(g, "fr", ".+");
+		targetLanguage = new StringNode(g, "en", ".+");
 
 		targetLanguage.valueChangeListeners.add((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
@@ -98,6 +98,9 @@ public class Translator extends BNode {
 	}
 
 	public synchronized String translate(final String originalText, Language from, Language to) {
+		if (from == to)
+			return originalText;
+
 		if (originalText.isBlank() || originalText.matches("[0-9]+"))
 			return null;
 
