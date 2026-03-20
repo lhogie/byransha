@@ -19,9 +19,9 @@ import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
+import byransha.translate.Translator;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
-import byransha.util.Translator;
 
 public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();

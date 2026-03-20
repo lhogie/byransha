@@ -5,16 +5,16 @@ import java.util.Objects;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.util.Base62;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 public class ByID extends Index {
-	private final Int2ObjectMap<BNode> m = new Int2ObjectOpenHashMap<>();
+	private final Long2ObjectMap<BNode> m = new Long2ObjectOpenHashMap<>();
 	private final IntList freeSlots = new IntArrayList();
 
-	public synchronized int forceIndex(BNode n, int newID) {
+	public synchronized long forceIndex(BNode n, long newID) {
 		Objects.requireNonNull(n);
 
 		if (m.containsKey(newID)) {

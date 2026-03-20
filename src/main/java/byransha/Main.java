@@ -38,7 +38,7 @@ public class Main {
 
 		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
 
-		new ChatNode(g.currentUser(), g.application);
+		new ChatNode(g.currentUser()).append(g.application);
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new SwingFrontend(g);

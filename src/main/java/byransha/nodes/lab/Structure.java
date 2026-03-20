@@ -38,7 +38,7 @@ public class Structure extends BusinessNode {
 
 	@Override
 	public String whatIsThis() {
-		return "a physical structure having members, offices, sub-structures";
+		return "a structure";
 	}
 
 	public double occupationRatio() {

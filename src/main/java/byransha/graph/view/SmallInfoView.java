@@ -1,7 +1,5 @@
 package byransha.graph.view;
 
-import javax.swing.JLabel;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -27,7 +25,7 @@ public class SmallInfoView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		pane.appendToCurrentFlow(new JLabel(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")"));
+		pane.appendToCurrentFlow(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")");
 	}
 
 	@Override

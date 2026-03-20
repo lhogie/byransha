@@ -64,10 +64,8 @@ public class KishanView extends NodeView<BNode> {
 
 							if (droppedNode.getClass().isAssignableFrom(f.getType())) {
 								e.acceptDrop(DnDConstants.ACTION_COPY);
-								System.out.println("drag'n drop OK");
 								viewedNode.set(f, droppedNode);
 							} else {
-								System.out.println("drag'n drop NOOO");
 								e.rejectDrop();
 							}
 							e.dropComplete(true);

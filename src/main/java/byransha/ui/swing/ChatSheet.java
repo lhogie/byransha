@@ -2,6 +2,13 @@ package byransha.ui.swing;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.io.IOException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -16,6 +23,7 @@ import byransha.graph.BNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.ErrorsView;
 import byransha.nodes.system.ChatNode;
+import byransha.util.Base62;
 import byransha.util.ListChangeListener;
 
 public class ChatSheet extends ScrollablePanel {
@@ -45,6 +53,32 @@ public class ChatSheet extends ScrollablePanel {
 				removeNode(n);
 			}
 		});
+
+		new DropTarget(this, new DropTargetAdapter() {
+			@Override
+			public void dragOver(DropTargetDragEvent dtde) {
+
+			}
+
+			@Override
+			public void drop(DropTargetDropEvent e) {
+				try {
+					var droppedNode = node(e);
+					chat.elements.add(droppedNode);
+					e.dropComplete(true);
+				} catch (Exception ex) {
+					e.dropComplete(false);
+					chat.error(ex);
+				}
+			}
+
+			private BNode node(DropTargetDropEvent e) throws UnsupportedFlavorException, IOException {
+				String text = (String) e.getTransferable().getTransferData(DataFlavor.stringFlavor);
+				long id = Base62.decode(text);
+				return chat.g.indexes.byId.get(id);
+			}
+		});
+
 	}
 
 	void appendNode(BNode n) {
@@ -64,7 +98,7 @@ public class ChatSheet extends ScrollablePanel {
 
 		newLine();
 		appendToCurrentFlow(Utils.idShower(n, 20, 0));
-		appendToCurrentFlow("\"" + n.prettyName() + "\" is " + n.whatIsThis());
+		appendToCurrentFlow(n.prettyName() + " is " + n.whatIsThis());
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);
@@ -79,7 +113,7 @@ public class ChatSheet extends ScrollablePanel {
 
 		newLine();
 		newLine();
-		appendToCurrentFlow(n.g.translator.translate("What do you want to do?"));
+		appendToCurrentFlow("What do you want to do?");
 		newLine();
 
 		n.findView(AvailableActionsView.class).writeTo(this);
@@ -98,31 +132,33 @@ public class ChatSheet extends ScrollablePanel {
 		var scrollPane = ((JScrollPane) getParent().getParent());
 		JScrollBar vertical = scrollPane.getVerticalScrollBar();
 		int nbSteps = vertical.getMaximum() - vertical.getValue();
-//		System.out.println(nbSteps);
-		int pauseDuration = 1000 / nbSteps;
 
-		for (int i = vertical.getValue(); i < vertical.getMaximum(); ++i) {
-//			System.out.println(vertical.getValue() + " -> " + vertical.getMaximum());
-			vertical.setValue(i);
+		if (nbSteps > 0) {
+			int pauseDuration = 1000 / nbSteps;
+
+			for (int i = vertical.getValue(); i < vertical.getMaximum(); ++i) {
+//				System.out.println(vertical.getValue() + " -> " + vertical.getMaximum());
+				vertical.setValue(i);
+				revalidate();
+				repaint();
+
+				try {
+					Thread.sleep(pauseDuration);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		} else {
+			vertical.setValue(vertical.getMaximum());
 			revalidate();
 			repaint();
 
-			try {
-				Thread.sleep(pauseDuration);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 		}
+
 	}
 
 	public void appendToCurrentFlow(String s) {
-		var tf = new JTextArea();
-		tf.setText(s);
-		tf.setEditable(false);
-		tf.setBackground(null);
-		tf.setBorder(null);
-		tf.setOpaque(false);
-		appendToCurrentFlow(tf);
+		appendToCurrentFlow(new TextDisplayComponent(chat, s));
 	}
 
 	public void appendToCurrentFlow(JComponent c) {

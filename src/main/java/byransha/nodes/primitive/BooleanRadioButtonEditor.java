@@ -1,4 +1,4 @@
-package byransha.graph.view;
+package byransha.nodes.primitive;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JRadioButton;
@@ -7,12 +7,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
-import byransha.nodes.primitive.BooleanNode;
+import byransha.graph.view.NodeView;
 import byransha.ui.swing.ChatSheet;
 
-public class BooleanNodeView extends NodeView<BooleanNode> {
+public class BooleanRadioButtonEditor extends NodeView<BooleanNode> {
 
-	public BooleanNodeView(BGraph g, BooleanNode node) {
+	public BooleanRadioButtonEditor(BGraph g, BooleanNode node) {
 		super(g, node);
 	}
 
@@ -35,17 +35,7 @@ public class BooleanNodeView extends NodeView<BooleanNode> {
 
 		yes.addActionListener(e -> viewedNode.set(true));
 		no.addActionListener(e -> viewedNode.set(false));
-
-		viewedNode.changeListeners.add(n -> {
-			var  newValue = ((BooleanNode) n).get();
-			if (newValue == null) {
-				throw new RuntimeException("null value not allowed in boolean node");
-			} else if (newValue == true) {
-				yes.setSelected(true);
-			} else {
-				no.setSelected(true);
-			}
-		});
+		viewedNode.changeListeners.add(n -> (viewedNode.get() ? yes : no).setSelected(true));
 
 		pane.appendToCurrentFlow(yes);
 		pane.appendToCurrentFlow(no);

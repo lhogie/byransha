@@ -16,7 +16,7 @@ public class OpenInNewChat extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult exec(ChatNode chat) throws Throwable {
-		var newChat = new ChatNode(currentUser(), inputNode);
+		var newChat = new ChatNode(currentUser());
 		return createResultNode(inputNode, true);
 	}
 

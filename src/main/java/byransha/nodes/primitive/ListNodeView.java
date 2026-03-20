@@ -19,13 +19,14 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.view.NodeView;
+import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.Utils;
 import byransha.util.ListChangeListener;
 
 public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 
-	private JLabel label;
+	private TranslatableTextArea label;
 
 	public ListNodeView(BGraph g, ListNode<T> l) {
 		super(g, l);
@@ -45,7 +46,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		this.label = new JLabel();
+		this.label = new TranslatableTextArea(this);
 		pane.appendToCurrentFlow(label);
 		pane.newLine();
 		var jlist = new JList();

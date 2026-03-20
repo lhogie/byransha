@@ -31,25 +31,21 @@ import com.fasterxml.jackson.databind.node.TextNode;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.action.Jump;
 import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
-import byransha.graph.action.search.SearchRegexp;
-import byransha.graph.action.search.SearchText;
 import byransha.graph.relection.ClassNode;
 import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
-import byransha.graph.view.InNavigationView;
 import byransha.graph.view.JumpToMe;
 import byransha.graph.view.KishanView;
 import byransha.graph.view.NodeView;
-import byransha.graph.view.OutNavigationView;
 import byransha.graph.view.SmallInfoView;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
+import byransha.ui.swing.TranslatableButton;
 import byransha.ui.swing.ColorPalette;
 import byransha.util.Base62;
 import byransha.util.ByUtils;
@@ -83,7 +79,7 @@ public abstract class BNode {
 		}
 	}
 
-	protected BNode error(Throwable err) {
+	public BNode error(Throwable err) {
 		return error(err, true);
 	}
 
@@ -227,7 +223,6 @@ public abstract class BNode {
 	}
 
 	public void createActions() {
-
 //		cachedActions.add(new QueryIA(g, this));
 //		cachedActions.add(new Back(g, this));
 		cachedActions.elements.add(new Reset(g, this));
@@ -236,15 +231,15 @@ public abstract class BNode {
 		cachedActions.elements.add(new Search(g, this));
 //		cachedActions.elements.add(new SearchText(g, this));
 //		cachedActions.elements.add(new SearchRegexp(g, this));
-		cachedActions.elements.add(new OpenInNewChat(g, this));
+//		cachedActions.elements.add(new OpenInNewChat(g, this));
 	}
 
 	public void createViews() {
 		cachedViews.elements.add(new KishanView(g, this));
 		cachedViews.elements.add(new SmallInfoView(g, this));
 		cachedViews.elements.add(new JumpToMe(g, this));
-		cachedViews.elements.add(new OutNavigationView(g, this));
-		cachedViews.elements.add(new InNavigationView(g, this));
+//		cachedViews.elements.add(new OutNavigationView(g, this));
+//		cachedViews.elements.add(new InNavigationView(g, this));
 		cachedViews.elements.add(new ErrorsView(g, this));
 		cachedViews.elements.add(new AvailableActionsView(g, this));
 		cachedViews.elements.add(new DebugView(g, this));
@@ -448,7 +443,9 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpButton(ChatNode chat) {
-		var b = new JButton(prettyName());
+		var b = new TranslatableButton(chat);
+		b.setText(prettyName());
+		
 //		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
 		b.addActionListener(e -> chat.append(this));
@@ -488,6 +485,11 @@ public abstract class BNode {
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
 		f.set(this, newValue);
+	}
+
+	public String t(String s) {
+		var translation = g.translator.translate(s);
+		return translation == null ? s : translation;
 	}
 
 }

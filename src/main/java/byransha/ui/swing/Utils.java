@@ -1,6 +1,5 @@
 package byransha.ui.swing;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -11,9 +10,7 @@ import java.util.Enumeration;
 
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BNode;
@@ -56,7 +53,7 @@ public class Utils {
 		c.setOpaque(false);
 		c.setFocusable(false);
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
-				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.id() + "")));
+				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.idAsText())));
 		return c;
 	}
 

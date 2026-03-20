@@ -9,10 +9,10 @@ import byransha.graph.action.list.ListNode;
 
 public class ChatNode extends ListNode<BNode> {
 
-	public ChatNode(User user, BNode initialNode) {
+	public ChatNode(User user) {
 		super(user.g, user + "'s chat");
 		user.chatList.elements.add(this);
-		append(initialNode);
+		//append(initialNode);
 	}
 
 	public BNode currentNode() {
@@ -68,4 +68,5 @@ public class ChatNode extends ListNode<BNode> {
 
 		return r;
 	}
+
 }
