@@ -16,14 +16,14 @@ import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.ui.swing.Translatable;
 
-public class Translator extends BNode {
+public abstract class Translator extends BNode {
 	public enum Language {
 		fr, en, auto, es, it, de, lu
 	};
 
 	final File translateDir;
 	public final StringNode targetLanguage;
-	List<Dictionnary> dictionaries = new ArrayList<>();
+	List<Dictionary> dictionaries = new ArrayList<>();
 
 	public Translator(BGraph g) {
 		super(g);
@@ -35,17 +35,15 @@ public class Translator extends BNode {
 					error(e);
 				}
 
-				for (var dict : dictionaries) {
-					if (dict.needSave) {
-						try {
-							synchronized (this) {
-								dict.save();
-							}
-						} catch (IOException err) {
-							error(err);
+				dictionaries.stream().filter(d -> d.needSave).forEach(d -> {
+					try {
+						synchronized (this) {
+							d.save();
 						}
+					} catch (IOException err) {
+						error(err);
 					}
-				}
+				});
 			}
 		}).start();
 
@@ -110,7 +108,7 @@ public class Translator extends BNode {
 		if (dictionary == null) {
 			try {
 				var file = new File(translateDir, from + "-" + to + ".json");
-				dictionary = new Dictionnary(from, to, file);
+				dictionary = new Dictionary(from, to, file);
 				dictionaries.add(dictionary);
 			} catch (IOException err) {
 				error(err);
@@ -122,6 +120,8 @@ public class Translator extends BNode {
 
 		try {
 			translated = googleTranslate(originalText, from, to);
+			System.out.println("original text:  " + originalText);
+			System.out.println("translated text:  " + translated);
 
 			if (!originalText.equals(translated)) {
 				dictionary.put(originalText, translated);
@@ -136,40 +136,9 @@ public class Translator extends BNode {
 		}
 	}
 
-	public static String libretranslate(String text, Language from, Language to) throws Exception {
-		URL url = new URL("https://libretranslate.com/translate");
-		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		conn.setRequestMethod("POST");
-		conn.setRequestProperty("Content-Type", "application/json");
-		conn.setDoOutput(true);
+	
 
-		String body = """
-				{"q":"%s","source":"%s","target":"%s","format":"text"}
-				""".formatted(text.replace("\"", "\\\""), from, to);
-
-		conn.getOutputStream().write(body.getBytes());
-
-		String response = new String(conn.getInputStream().readAllBytes());
-		// Parse "translatedText" from JSON response
-		return response.split("\"translatedText\":\"")[1].split("\"")[0];
-	}
-
-	public static String googleTranslate(String text, Language from, Language to) throws Exception {
-		String URL = "https://translate.googleapis.com/translate_a/single" + "?client=gtx&sl=%s&tl=%s&dt=t&q=%s";
-
-		String encoded = java.net.URLEncoder.encode(text, "UTF-8");
-		String url = URL.formatted(from, to, encoded);
-
-		HttpURLConnection conn = (HttpURLConnection) new java.net.URL(url).openConnection();
-		conn.setRequestMethod("GET");
-		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36");
-
-		String response = new String(conn.getInputStream().readAllBytes());
-
-		// Response is a nested JSON array — extract first translation
-		// Format: [[["translatedText","originalText",...],...],...]
-		return response.split("\"")[1];
-	}
+	public abstract String googleTranslate(String text, Language from, Language to) throws Exception;
 
 	@Override
 	public String whatIsThis() {

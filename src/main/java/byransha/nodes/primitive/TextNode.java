@@ -5,6 +5,7 @@ import byransha.graph.view.TextNodeView;
 
 public class TextNode extends PrimitiveValueNode<String> {
 	StringNode labelNode;
+	public boolean info;
 
 	public TextNode(BGraph g, String label, String data) {
 		super(g);

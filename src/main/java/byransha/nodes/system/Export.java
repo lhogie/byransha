@@ -1,8 +1,8 @@
 package byransha.nodes.system;
 
+import byransha.ai.JSONNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
-import byransha.ia.JSONNode;
 
 public class Export extends NodeAction<ChatNode, JSONNode> {
 

@@ -19,6 +19,7 @@ import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
+import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
@@ -46,7 +47,7 @@ public class BGraph extends BNode {
 	public JavaFXFrontend javafx;
 	public final UIPreferences ui = new UIPreferences(this);
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
-	public final Translator translator = new Translator(this);
+	public final Translator translator = new GoogleTranslator(this);
 
 	public BGraph(File directory) throws Exception {
 		super(null);

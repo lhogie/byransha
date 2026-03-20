@@ -28,6 +28,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
@@ -45,8 +46,8 @@ import byransha.graph.view.SmallInfoView;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
-import byransha.ui.swing.TranslatableButton;
 import byransha.ui.swing.ColorPalette;
+import byransha.ui.swing.TranslatableButton;
 import byransha.util.Base62;
 import byransha.util.ByUtils;
 import byransha.util.TriConsumer;
@@ -223,7 +224,7 @@ public abstract class BNode {
 	}
 
 	public void createActions() {
-//		cachedActions.add(new QueryIA(g, this));
+		cachedActions.elements.add(new QueryIA(g, this));
 //		cachedActions.add(new Back(g, this));
 		cachedActions.elements.add(new Reset(g, this));
 		cachedActions.elements.add(new Export(g, this));
@@ -445,7 +446,7 @@ public abstract class BNode {
 	public JButton createJumpButton(ChatNode chat) {
 		var b = new TranslatableButton(chat);
 		b.setText(prettyName());
-		
+
 //		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
 		b.addActionListener(e -> chat.append(this));

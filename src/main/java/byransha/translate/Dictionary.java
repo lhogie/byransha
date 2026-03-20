@@ -9,13 +9,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.translate.Translator.Language;
 
-public class Dictionnary {
+public class Dictionary {
 	private final ObjectNode jsonNode;
 	boolean needSave = false;
 	final File file;
 	public final Language from, to;
 
-	public Dictionnary(Language from, Language to, File file) throws IOException {
+	public Dictionary(Language from, Language to, File file) throws IOException {
 		this.from = from;
 		this.to = to;
 		this.file = file;

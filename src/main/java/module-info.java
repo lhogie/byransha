@@ -24,7 +24,7 @@ module byransha {
 	requires org.apache.commons.io;
 	// Apache Commons Collections 4
 	requires org.apache.commons.collections4;
-
+	requires java.net.http; // <--- AJOUTEZ CETTE LIGNE
 	// The themes pack module (where FlatDraculaIJTheme lives)
 	requires com.formdev.flatlaf.intellijthemes;
 
