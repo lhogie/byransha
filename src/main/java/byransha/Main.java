@@ -4,13 +4,17 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
+import byransha.nodes.lab.Person;
+import byransha.nodes.system.ChatNode;
 import byransha.ui.ShellServer;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
@@ -34,19 +38,27 @@ public class Main {
 
 		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
 
+		new ChatNode(g.currentUser()).append(g.application);
+
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new SwingFrontend(g);
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "1000")));
 		// new JavaFXFrontend(g);
 
-		g.eventList.add(new CreateNewPerson("Luc"));
-		g.eventList.add(new CreateNewPerson("Dylan"));
-		g.eventList.add(new CreateNewPerson("Sophie"));
+		g.eventList.add(createPersonEvent("Luc"));
+		g.eventList.add(createPersonEvent("Dylan"));
+		g.eventList.add(createPersonEvent("Sophie"));
 
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
 
 		// launch(args);
+	}
+
+	private static Event createPersonEvent(String name) {
+		var e = new CreateNewNode<Person>(g, LocalDateTime.now());
+		e.clazz = Person.class;
+		return e;
 	}
 
 	private static Map<String, String> mapArgs(String... args) {
@@ -55,7 +67,7 @@ public class Main {
 		return r;
 	}
 
-	//@Override
+	// @Override
 	public void start(Stage primaryStage) throws Exception {
 		var vbox = new VBox();
 		primaryStage.setScene(new Scene(vbox));
@@ -68,7 +80,7 @@ public class Main {
 		primaryStage.setHeight(size.getHeight());
 		primaryStage.setX(location.x);
 		primaryStage.setY(location.y);
-		primaryStage.setTitle("Byransha v" + g.byransha.version.get());
+		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
 		primaryStage.show();
 
 		new JavaFXFrontend(g, vbox);

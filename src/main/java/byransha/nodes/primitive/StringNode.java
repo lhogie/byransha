@@ -10,13 +10,13 @@ public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean hideText;
 
-	public StringNode(BGraph db) {
-		super(db);
+	public StringNode(BGraph g) {
+		super(g);
 	}
 
 	@Override
 	public void createViews() {
-		cachedViews.values.add(new StringNodeView(g, this));
+		cachedViews.elements.add(new StringNodeView(g, this));
 		super.createViews();
 	}
 
@@ -32,8 +32,8 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void fromString(String s) {
-		set(s);
+	public String valueFromString(String s) {
+		return s;
 	}
 
 	@Override

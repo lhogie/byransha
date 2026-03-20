@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import byransha.graph.BGraph;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 
 public class Lab extends Structure {
 

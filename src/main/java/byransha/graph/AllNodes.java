@@ -1,15 +1,14 @@
 package byransha.graph;
 
-import butils.Stop;
 import byransha.graph.action.ActionResult;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.system.ChatNode;
+import byransha.util.Stop;
 
 public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
 
 	public AllNodes(BGraph g) {
 		super(g, g);
-		execStraightAway = true;
 	}
 
 	@Override

@@ -36,12 +36,12 @@ public class URLNodeView extends StringNodeView {
 	@Override
 	public void writeTo(ChatSheet pane) {
 		super.writeTo(pane);
-		var b = new JButton("visit");
+		var b = new JButton("browse");
 		b.addActionListener(e -> {
 			try {
 				Desktop.getDesktop().browse(new URI(viewedNode.get()));
 			} catch (IOException | URISyntaxException e1) {
-				g.errorLog.add(e1);
+				error(e1);
 			}
 		});
 		pane.appendToCurrentFlow(b);

@@ -15,9 +15,11 @@ public abstract class Event implements Serializable, Comparable<Event> {
 	final LocalDateTime date;
 	Set<PeerNode> owners = new HashSet<>();
 	public long ID;
+	final protected BGraph g;
 
-	public Event(LocalDateTime date) {
+	public Event(BGraph g, LocalDateTime date) {
 		this.date = date;
+		this.g = g;
 	}
 
 	public abstract void apply(BGraph g) throws Throwable;;
@@ -54,13 +56,13 @@ public abstract class Event implements Serializable, Comparable<Event> {
 		l.accept(date.toString());
 	}
 
-	public abstract void fromCSV(Iterator<String> l);
-
 	public void markReceivedBy(PeerNode from) {
 		owners.add(from);
 	}
 
 	public void commitToDisk() {
 	}
+
+	protected abstract void fromCSV(Iterator<String> elementIterator, BGraph g) throws ClassNotFoundException;
 
 }

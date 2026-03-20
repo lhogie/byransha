@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 
@@ -20,7 +19,6 @@ public class ReverseNavigation extends Index {
 			return source + "." + role;
 		}
 	}
-
 
 	private List<InLink> computeIns(List<BNode> nodes) {
 		List<InLink> refs = new ArrayList<>();
@@ -38,14 +36,12 @@ public class ReverseNavigation extends Index {
 
 	@Override
 	public void add(BNode n) {
-		m.put(n, null);
 	}
 
 	@Override
 	public void delete(BNode n) {
-		m.remove(n);
+		m.remove(n).forEach(inl -> inl.source.removeOut(n));
 	}
-
 
 	@Override
 	public String strategy() {

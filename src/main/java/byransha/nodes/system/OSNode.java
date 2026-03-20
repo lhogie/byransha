@@ -11,9 +11,9 @@ import javax.swing.JComponent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
+import byransha.util.ByUtils;
 
 public class OSNode extends SystemNode {
 

@@ -2,14 +2,14 @@ package byransha.nodes.system;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class User extends BNode {
 	public final StringNode name;
 	public final StringNode passwordNode;
 	public final StringNode argon2Hash;
-	public final ListNode<ChatNode> chats;
+	public final ListNode<ChatNode> chatList;
 
 	public User(BGraph g, String userName, String passwordHash) {
 		super(g);
@@ -17,8 +17,8 @@ public class User extends BNode {
 		passwordNode = new StringNode(g, null, ".+");
 		this.argon2Hash = new StringNode(g, passwordHash, ".*");
 		passwordNode.hideText = true;
-		chats = new ListNode<>(g, "chats");
-		chats.get().add(new ChatNode(this, g));
+		chatList = new ListNode<>(g, "chats");
+//		chats.get().add(new ChatNode(this, g));
 
 		passwordNode.changeListeners.add(n -> argon2Hash.set(Argon.hash(passwordNode.get())));
 	}
@@ -48,7 +48,7 @@ public class User extends BNode {
 	}
 
 	public static interface JumpListener {
-		void userJumpedTo(BNode n);
+		void newNode(BNode n);
 	}
 
 }

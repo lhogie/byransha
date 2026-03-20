@@ -1,47 +1,38 @@
 package byransha.nodes.lab;
 
-import java.awt.Color;
-
 import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 
 public class Person extends BusinessNode {
 
+	public Genre genre;
 	public EtatCivil etatCivil;
-
 	public ListNode<Position> positions;
-
 	public DocumentNode pics;
 	public BooleanNode hdr;
-
 	public StringNode badgeNumber;
 	public StringNode website;
 	public StringNode faxNumber;
 	public ResearchGroup researchGroup;
 	public DateNode phdDate;
-
 	public ListNode<StringNode> phoneNumbers;
-
 	protected ListNode<EmailNode> emailAddresses;
-
 	public ListNode<Office> offices;
-
-	protected ListNode<ACMClassifier> topics;
-
 	public StringNode quotite;
-
 	public Position position;
 	public boolean enposte;
 	public StringNode researchActivity;
+	public ListNode<Publication> publications;
+	public final StringNode orcid;
 
 	public Person(BGraph g) {
 		super(g);
+		orcid = new StringNode(g);
 		etatCivil = new EtatCivil(g);
 		positions = new ListNode(g, "positions");
 		pics = new DocumentNode(g);

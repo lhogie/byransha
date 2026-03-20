@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.LongNode;
 
 public class AllIndexesNode extends BNode {
@@ -34,12 +34,12 @@ public class AllIndexesNode extends BNode {
 
 	@Override
 	public String whatIsThis() {
-		return null;
+		return "node indexes";
 	}
 
 	@Override
 	public String prettyName() {
-		return null;
+		return "indexes";
 	}
 
 }

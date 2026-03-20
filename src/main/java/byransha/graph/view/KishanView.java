@@ -10,14 +10,14 @@ import java.awt.dnd.DropTargetDropEvent;
 import java.io.IOException;
 import java.util.List;
 
-import javax.swing.JTextField;
-
 import com.fasterxml.jackson.databind.JsonNode;
 
-import butils.Base62;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.lab.OnTheFlyNode;
 import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Utils;
+import byransha.util.Base62;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -39,14 +39,15 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		viewedNode.forEachOutInFields((f, out, readOnly) -> {
+		viewedNode.forEachOutInFields(viewedNode.getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != viewedNode) {
-				var idTf = new JTextField();
-				idTf.setText(out.idAsText());
-				idTf.setEditable(readOnly);
-				pane.appendToCurrentFlow(idTf);
+				if (out instanceof OnTheFlyNode otf) {
+					out = otf.compute();
+				}
 
-				var jumpButton = out.createJumpComponent(pane.chat);
+				pane.appendToCurrentFlow(Utils.idShower(out, 18, 2));
+
+				var jumpButton = out.createJumpButton(pane.chat);
 				jumpButton.setText(f.getName());
 				jumpButton.setToolTipText(f.getName());
 				pane.appendToCurrentFlow(jumpButton);
@@ -63,10 +64,8 @@ public class KishanView extends NodeView<BNode> {
 
 							if (droppedNode.getClass().isAssignableFrom(f.getType())) {
 								e.acceptDrop(DnDConstants.ACTION_COPY);
-								System.out.println("drag'n drop OK");
 								viewedNode.set(f, droppedNode);
 							} else {
-								System.out.println("drag'n drop NOOO");
 								e.rejectDrop();
 							}
 							e.dropComplete(true);
@@ -83,7 +82,7 @@ public class KishanView extends NodeView<BNode> {
 					}
 				});
 
-				out.getKishanView().writeTo(pane);
+				out.getFirstView().writeTo(pane);
 				pane.newLine();
 			}
 		});
@@ -99,14 +98,14 @@ public class KishanView extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(Pane lines) {
-		viewedNode.forEachOutInFields((f, out, readOnly) -> {
+		viewedNode.forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != viewedNode) {
 				var flow = new TextFlow();
 				flow.getChildren().add(new Text(readOnly ? "r-" : "rw"));
 				var jt = (JumpToMe) out.findView(JumpToMe.class);
 				jt.setLabel(f.getName());
 				jt.writeTo(flow);
-				out.getKishanView().writeTo(flow);
+				out.getFirstView().writeTo(flow);
 				lines.getChildren().add(flow);
 			}
 		});

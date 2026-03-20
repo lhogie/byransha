@@ -6,26 +6,31 @@ import java.util.List;
 
 import byransha.event.EventList;
 import byransha.event.InMemoryEventList;
+import byransha.graph.action.Authenticate;
 import byransha.graph.action.NewNodeCreator;
 import byransha.graph.index.AllIndexes;
 import byransha.network.NetworkAgent;
+import byransha.nodes.lab.Genre.Female;
+import byransha.nodes.lab.Genre.Male;
+import byransha.nodes.lab.Genre.NotGenred;
 import byransha.nodes.system.Argon;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.UIPreferences;
 import byransha.nodes.system.User;
+import byransha.translate.Translator;
 import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
-	public final List<CurrentUserListener> changeUserListener = new ArrayList<>();
+	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
 	public AllIndexes indexes = new AllIndexes();
 	public final AllIndexesNode inode = new AllIndexesNode(this);
 	public final User admin = new User(this, "admin", Argon.hash("admin"));
-	public final User guest = new User(this, "user", Argon.hash("test"));
+	public final User guest = new User(this, "guest", Argon.hash(""));
 	public BNode application;
 	public final JVMNode jvm = new JVMNode(this);
 	public final Byransha byransha = new Byransha(this);
@@ -33,35 +38,35 @@ public class BGraph extends BNode {
 	public final ErrorLog errorLog = new ErrorLog(this);
 	public final EventList eventList = new InMemoryEventList(this);
 	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
+	public final Authenticate authenticator = new Authenticate(this, this);
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
-	private User currentUser;
+	private User currentUser = guest;
 	public JavaFXFrontend javafx;
 	public final UIPreferences ui = new UIPreferences(this);
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
-
-	public static interface CurrentUserListener {
-		void changed(User u);
-	}
+	public final Translator translator = new Translator(this);
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-		setCurrentUser(guest);
+		indexes.add(this);
 
-		indexes.add(g);
+		new Male(g);
+		new Female(g);
+		new NotGenred(g);
 	}
 
 	@Override
 	public void createActions() {
-		cachedActions.add(new AllNodes(g));
+		cachedActions.elements.add(new AllNodes(g));
 		super.createActions();
 	}
 
 	public void setCurrentUser(User newUser) {
 		if (newUser != currentUser) {
 			this.currentUser = newUser;
-			changeUserListener.forEach(l -> l.changed(newUser));
+			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
 		}
 	}
 

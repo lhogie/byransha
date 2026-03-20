@@ -48,7 +48,7 @@ public class StringNodeView extends NodeView<StringNode> {
 	public void writeTo(ChatSheet pane) {
 		String s = viewedNode.get();
 		var tf = viewedNode.hideText ? new JPasswordField(s) : new JTextField(s);
-		tf.setEditable(readOnly);
+		tf.setEditable(!viewedNode.readOnly);
 		tf.setColumns(20);
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 

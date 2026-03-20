@@ -3,7 +3,7 @@ package byransha.graph;
 import java.time.LocalDateTime;
 
 import byransha.graph.action.ExceptionNode;
-import byransha.nodes.primitive.ListNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.system.SystemNode;
 
 public class ErrorLog extends SystemNode {
@@ -28,7 +28,7 @@ public class ErrorLog extends SystemNode {
 		var errN = new ExceptionNode(g);
 		errN.err = err;
 		errN.date = LocalDateTime.now();
-		errors.add(errN);
+		errors.elements.add(errN);
 		err.printStackTrace();
 		return errN;
 	}

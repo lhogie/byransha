@@ -11,6 +11,8 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.AES;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 
 public abstract class EventList extends BNode {
 	StringNode status;
@@ -45,9 +47,14 @@ public abstract class EventList extends BNode {
 						e1.printStackTrace();
 					}
 				}
-
 			}
 		}, "event list dissemination thread").start();
+	}
+
+	public LongList collectIDs() {
+		var l = new LongArrayList();
+		forEachEvent(e -> l.add(e.ID));
+		return l;
 	}
 
 	private void forEachEvent(Consumer<Event> c) {
@@ -55,7 +62,7 @@ public abstract class EventList extends BNode {
 
 	}
 
-	public abstract void add(Event e) throws IOException;
+	public abstract void add(Event e);
 
 	public abstract Event forward() throws Throwable;
 

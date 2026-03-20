@@ -9,7 +9,9 @@ import java.util.List;
 import byransha.graph.BGraph;
 
 public class EventListOneFilePerDay extends OnDiskEventList {
-	public EventListOneFilePerDay(BGraph g, File directory) throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+	public EventListOneFilePerDay(BGraph g, File directory)
+			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g, directory);
 	}
 
@@ -23,14 +25,10 @@ public class EventListOneFilePerDay extends OnDiskEventList {
 		return null;
 	}
 
-
-
 	@Override
 	public String whatIsThis() {
 		return "an event list storing events by day";
 	}
-
-
 
 	@Override
 	protected List<Event> loadQ()
@@ -38,6 +36,5 @@ public class EventListOneFilePerDay extends OnDiskEventList {
 			InvocationTargetException, NoSuchMethodException, SecurityException, FileNotFoundException, IOException {
 		return null;
 	}
-
 
 }

@@ -9,22 +9,21 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 		super(g);
 	}
 
-	
-
 	@Override
-	public void fromString(String s) {
+	public byte[] valueFromString(String s) {
 		if (s == null || s.isEmpty()) {
-			set(null);
-			return;
+			return null;
 		}
-		set(Base64.getDecoder().decode(s));
+
+		return Base64.getDecoder().decode(s);
 	}
 
 	@Override
-	public String getAsString() {
+	public String getValueAsString() {
 		if (get() == null) {
 			return "";
 		}
+
 		return Base64.getEncoder().encodeToString(get());
 	}
 
@@ -44,6 +43,5 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 	public byte[] defaultValue() {
 		return new byte[0];
 	}
-
 
 }

@@ -9,7 +9,6 @@ import byransha.nodes.system.SystemNode;
 final public class Reset extends NodeAction<BNode, BNode> {
 	public Reset(BGraph g, BNode n) {
 		super(g, n);
-		execStraightAway = true;
 	}
 
 	@Override

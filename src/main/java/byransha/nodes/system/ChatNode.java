@@ -1,47 +1,72 @@
 package byransha.nodes.system;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
-import byransha.nodes.primitive.ListNode;
-import byransha.nodes.system.User.JumpListener;
+import byransha.graph.action.list.ListNode;
 
 public class ChatNode extends ListNode<BNode> {
-	public final List<JumpListener> jumpListeners = new ArrayList<>();
 
-	public ChatNode(User user, BNode initialNode) {
-		super(user.g, "chat");
-		user.chats.add(this);
-		add(initialNode);
+	public ChatNode(User user) {
+		super(user.g, user + "'s chat");
+		user.chatList.elements.add(this);
+		//append(initialNode);
 	}
 
 	public BNode currentNode() {
 		return get().isEmpty() ? null : get().getLast();
 	}
 
-	@Override
-	public void add(BNode n) {
+	public void append(BNode n) {
 		if (size() > 0 && n == get(size() - 1)) // if same node
 			return;
 
-		if (n instanceof NodeAction action && action.execStraightAway) {
+		if (n instanceof NodeAction action && action.parameters().isEmpty()) {
 			try {
 				var result = action.exec(this);
-				add(result);
 
-				if (result.jumpStraightAwayToResult) {
-					add(result.result);
+				if (result.jumpStraightAwayToOutNode) {
+					append(result.outNode);
+				} else {
+					if (result != null)
+						append(result);
 				}
+
 			} catch (Throwable err) {
-				add(error(err, false));
+				append(error(err, false));
 			}
 		} else {
-			super.add(n);
+			elements.add(n);
+		}
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.elements.add(new Export(this));
+//		super.createActions();
+	}
+
+	ArrayNode export() {
+		ArrayNode r = new ArrayNode(factory);
+
+		for (var n : get()) {
+			var on = new ObjectNode(factory);
+			r.add(on);
+			on.put("id", n.id());
+			on.put("pretty name", n.prettyName());
+
+			if (n instanceof NodeAction action) {
+				var parmNode = new ObjectNode(factory);
+				on.set("parameters", parmNode);
+
+				n.forEachOutInFields(n.getClass(), NodeAction.class,
+						(f, o, ro) -> parmNode.put(f.getName(), o.prettyName()));
+			}
 		}
 
-		jumpListeners.forEach(l -> l.userJumpedTo(n));
+		return r;
 	}
 
 }

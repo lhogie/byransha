@@ -2,12 +2,14 @@ package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Hide;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 
 public class Jump extends NodeAction<BNode, BNode> {
 	final LongNode targetID;
+	@Hide
 	BNode target;
 
 	public Jump(BGraph g, BNode in) {
@@ -19,7 +21,6 @@ public class Jump extends NodeAction<BNode, BNode> {
 			target = node;
 		});
 
-		execStraightAway = true;
 		target = g;
 	}
 
@@ -35,7 +36,7 @@ public class Jump extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult<BNode, BNode> exec(ChatNode chat) {
-		chat.add(target);
+		chat.append(target);
 		return createResultNode(target, true);
 	}
 

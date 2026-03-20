@@ -13,10 +13,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import butils.Cout;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
+import byransha.util.Cout;
 
 public class DataLake extends BNode {
 
@@ -88,7 +88,7 @@ public class DataLake extends BNode {
 		return "datalake at " + dir.getAbsolutePath();
 	}
 
-	public void load() throws IOException {
+	public void load(Lab i3s) throws IOException {
 		if (dir == null)
 			throw new NullPointerException();
 
@@ -98,34 +98,35 @@ public class DataLake extends BNode {
 		Cout.progress("Loading datalake from " + dir);
 		loadCountries(g, dir);
 
+		ACMClassifier.createNodes(g, dir);
+
+		
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);
 			c.set(l);
 		});
 
-		Lab i3s = new Lab(g);
-
+		 
 		for (var n : List.of("CNRS", "Inria")) {
 			var epst = new EPST(g);
 			epst.name.set(n);
-			i3s.tutelles.add(epst);
+			i3s.tutelles.elements.add(epst);
 		}
 
 		var UniCA = new University(g); // new University(graph);
 		UniCA.name.set("UniCA");
-		i3s.tutelles.add(UniCA);
+		i3s.tutelles.elements.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(g); // new ResearchGroup(graph);
-			group.name.set(n);
-			i3s.subStructures.add(group);
+			var group = new ResearchGroup(g, n); // new ResearchGroup(graph);
+			i3s.subStructures.elements.add(group);
 		}
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
 			var campus = new Campus(g); // new Campus(graph);
 			campus.name.set(n);
-			UniCA.campuses.add(campus);
+			UniCA.campuses.elements.add(campus);
 		}
 
 		Cout.progress("\tLoading old TBRH");

@@ -1,7 +1,6 @@
 package byransha.nodes.primitive;
 
 import byransha.graph.BGraph;
-import byransha.graph.view.BooleanNodeView;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
@@ -12,25 +11,31 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
 	@Override
 	public void createViews() {
-		cachedViews.values.add(new BooleanNodeView(g, this));
+		cachedViews.elements.add(new BooleanCheckBoxEditor(g, this));
+		cachedViews.elements.add(new BooleanRadioButtonEditor(g, this));
 		super.createViews();
 	}
 
 	@Override
 	public String prettyName() {
 		Boolean v = get();
-		
+
 		if (v == null) {
 			return "dunno";
-		}else {
+		} else {
 			return v.toString();
 		}
 	}
 
-
 	@Override
-	public void fromString(String s) {
-		set(Boolean.valueOf(s));
+	public Boolean valueFromString(String s) {
+		if (s.equals("y"))
+			return true;
+
+		if (s.equals("n"))
+			return true;
+
+		return Boolean.valueOf(s);
 	}
 
 	@Override

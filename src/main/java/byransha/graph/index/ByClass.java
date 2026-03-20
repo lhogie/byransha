@@ -7,9 +7,9 @@ import java.util.function.Supplier;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import butils.Stop;
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.util.Stop;
 
 public class ByClass extends Index {
 
@@ -40,12 +40,12 @@ public class ByClass extends Index {
 
 	@Override
 	public void add(BNode n) {
-		n.ascendSuperClassesUntil(BNode.class, clazz -> m.put(clazz, n));
+		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.put(clazz, n));
 	}
 
 	@Override
 	public void delete(BNode n) {
-		n.ascendSuperClassesUntil(BNode.class, clazz -> m.removeMapping(clazz, n));
+		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.removeMapping(clazz, n));
 	}
 
 	@Override

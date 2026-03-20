@@ -1,5 +1,9 @@
 package byransha.nodes.primitive;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
@@ -7,8 +11,11 @@ import byransha.graph.BNode;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
-	public boolean readOnly;
+	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 
+	public static interface ValueChangeListener<V> {
+		void changed(ValuedNode<V> n, V formerValue, V newValue);
+	}
 
 	public ValuedNode(BGraph g) {
 		super(g);
@@ -17,13 +24,15 @@ public abstract class ValuedNode<V> extends BNode {
 	@Override
 	public ObjectNode toJSONNode() {
 		var r = super.toJSONNode();
-		r.put("value", getAsString());
+		r.put("value", getValueAsString());
 		return r;
 	}
 
-	public String getAsString() {
+	public String getValueAsString() {
 		return value != null ? value.toString() : "";
 	}
+
+	public abstract V valueFromString(String s);
 
 	public V get() {
 		if (!canSee(currentUser()))
@@ -48,14 +57,22 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public void set(V newValue) {
+		if (readOnly)
+			throw new RuntimeException("can't change a read only valued node");
+
 		if (!canEdit(currentUser()))
 			throw new RuntimeException(currentUser() + " is not allowed to set value");
 
-		boolean valueChanging = newValue != value || (value != null && !value.equals(newValue));
+		V oldValue = value;
+		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
 		value = newValue;
 
-		if (valueChanging) {
-			changeListeners.forEach(l -> l.changed(this));
+		if (valueChange) {
+			valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
+		}
+
+		if (g.eventList != null) {
+//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), id(), oldValue, newValue));
 		}
 	}
 

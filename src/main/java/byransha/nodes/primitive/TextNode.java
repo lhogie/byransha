@@ -14,24 +14,29 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public void createViews() {
-		cachedViews.values.add(new TextNodeView(g, this));
+		cachedViews.elements.add(new TextNodeView(g, this));
 		super.createViews();
 	}
 
 	@Override
 	public void createActions() {
-		cachedActions.values.add(new saveNodeAction(g, this));
+		cachedActions.elements.add(new saveNodeAction(g, this));
 		super.createActions();
 	}
 
 	@Override
 	public String prettyName() {
-		return "text";
+		return labelNode.get();
 	}
 
 	@Override
-	public void fromString(String s) {
-		set(s);
+	public String valueFromString(String s) {
+		return s.replaceAll("\\n", "\n");
+	}
+
+	@Override
+	public String getValueAsString() {
+		return super.getValueAsString().replace("\n", "\\n");
 	}
 
 	@Override

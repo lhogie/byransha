@@ -1,21 +1,24 @@
 package byransha.graph;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import butils.ByUtils;
-import butils.Cout;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
+import byransha.util.ByUtils;
 
 public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BNode {
 
+	@Hide
 	protected final IN inputNode;
 	public boolean stopRequested = false;
 	public Thread thread;
-	public boolean execStraightAway = false;
+//	public final boolean execStraightAway;
 	String category;
 
 	public NodeAction(BGraph g, IN inputNode) {
@@ -23,10 +26,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		this.inputNode = inputNode;
 	}
 
+	public List<BNode> parameters() {
+		var r = new ArrayList<BNode>();
+		forEachOutInFields(getClass(), NodeAction.class, (a, b, c) -> r.add(b));
+		return r;
+	}
+
 	@Override
 	public void createActions() {
-		cachedActions.add(new exec<OUT>(g, this));
-		super.createActions();
+		cachedActions.elements.add(new exec<OUT>(g, this));
+//		super.createActions();
 	}
 
 	@Override
@@ -38,8 +47,8 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public JButton createJumpComponent(ChatNode chat) {
-		var b = super.createJumpComponent(chat);
+	public JButton createJumpButton(ChatNode chat) {
+		var b = super.createJumpButton(chat);
 		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
 		var applies = applies(chat);
 
@@ -85,7 +94,6 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		public exec(BGraph g, NodeAction inputNode) {
 			super(g, inputNode);
-			execStraightAway = true;
 		}
 
 		@Override
@@ -99,7 +107,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		@Override
 		public ActionResult<NodeAction, OUT> exec(ChatNode chat) throws Throwable {
-			Cout.debugSuperVisible("exec " + inputNode.prettyName());
+//			Cout.debugSuperVisible("exec " + inputNode.prettyName());
 			var startDateMs = System.currentTimeMillis();
 			var r = inputNode.exec(chat);
 			r.durationMs.set(System.currentTimeMillis() - startDateMs);

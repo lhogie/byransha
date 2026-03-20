@@ -1,14 +1,13 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
-import byransha.nodes.primitive.ListNode;
-import byransha.nodes.system.User;
+import byransha.graph.action.list.ListNode;
 
 public class University extends Structure {
-    ListNode<Campus> campuses;
+	ListNode<Campus> campuses;
 
-    public University(BGraph g) {
-        super(g);
-        campuses = new ListNode(g, "campus");
-    }
+	public University(BGraph g) {
+		super(g);
+		campuses = new ListNode(g, "campus");
+	}
 }

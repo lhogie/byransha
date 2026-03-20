@@ -16,11 +16,13 @@ public class I3S extends Lab {
 		super(g);
 		name.set("I3S");
 
+
+		
 		var lakeD = new File(g.byransha.configDirectory, "data_lake");
 		var lake = new DataLake(this.g, lakeD);
 
 		try {
-			lake.load();
+			lake.load(this);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}

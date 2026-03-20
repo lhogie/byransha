@@ -2,11 +2,10 @@ package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.DateNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.PhoneNumberNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 
 public class EtatCivil extends BusinessNode {
 

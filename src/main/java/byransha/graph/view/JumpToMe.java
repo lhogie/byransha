@@ -41,7 +41,7 @@ public class JumpToMe extends NodeView<BNode> {
 
 	@Override
 	public void writeTo(ChatSheet pane) {
-		pane.appendToCurrentFlow(viewedNode.createJumpComponent(pane.chat));
+		pane.appendToCurrentFlow(viewedNode.createJumpButton(pane.chat));
 	}
 
 	@Override

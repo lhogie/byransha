@@ -1,46 +1,111 @@
 package byransha.ui.swing;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridLayout;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
-import javax.swing.JScrollPane;
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
+import byransha.graph.action.list.ListNode;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
+import byransha.nodes.system.User;
+import byransha.util.ListChangeListener;
 
 public class SwingFrontend extends SystemNode {
 
-	static JFrame f = new JFrame("Byransha");
-	public final ChatSheet sheet;
+	public static JFrame f = new JFrame();
+	public final Map<ChatNode, ChatPanel> sheets = new HashMap<>();
+
+	public final ListNode<FontNode> fonts;
+	private final JPanel chatsPanel;
 
 	public SwingFrontend(BGraph g) {
 		super(g);
-		setLookAndFeel("WebLaf");
+		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
+
+		fonts = new ListNode<>(g, "available fonts");
+		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
+//			fonts.elements.add(new FontNode(g, font));
+		}
+
+		// setLookAndFeel("WebLaf");
 		g.swing = this;
-		
-		var defaultChat = currentUser().chats.get(0);
-		sheet = new ChatSheet(defaultChat);
 
-		g.changeUserListener.add(u -> sheet.addNode(u));
+		this.chatsPanel = new JPanel(new GridLayout(1, 1));
+		chatsPanel.setOpaque(true);
+		chatsPanel.setBackground(g.ui.backgroundColor.get());
 
-		JScrollPane scroll = new JScrollPane(sheet);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		var width = (9 * screenSize.height) / 16;
-		var size = new Dimension(width, screenSize.height);
-		var location = new Point((screenSize.width - width) / 2, 0);
-		f.setSize(size);
-		f.setLocation(location);
-		f.add(scroll);
-		// f.setLocationRelativeTo(null);
+		FontUIResource customFont = new FontUIResource("ProximaNova-Medium", Font.PLAIN, 14);
+		Utils.setUIFont(customFont);
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-
-		// setNode(new AuthenticateAction(g));
-		defaultChat.jumpListeners.add(n -> sheet.addNode(n));
+		f.setSize(Utils.initialSize);
+		f.setLocation(Utils.initialLocation);
+		f.add(chatsPanel);
 		f.setVisible(true);
+		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
+
+		considerUser(g.currentUser());
+		g.currentUser().chatList.get().forEach(chatNode -> addChatPanelFor(chatNode));
+
+	}
+
+	private void considerUser(User newUser) {
+		chatsPanel.removeAll();
+		var gl = (GridLayout) chatsPanel.getLayout();
+		gl.setColumns(newUser.chatList.size());
+		newUser.chatList.elements.forEach(chat -> {
+			System.out.println("dfsdfsfsd  " + newUser.chatList.elements.size());
+			// addChatPanelFor(chat);
+			System.out.println("dfsdfsfsd  " + newUser.chatList.elements.size());
+		});
+		newUser.chatList.elements.listeners.add(new ListChangeListener<ChatNode>() {
+			@Override
+			public void onAdd(ChatNode chatNode) {
+				addChatPanelFor(chatNode);
+			}
+
+			@Override
+			public void onRemove(ChatNode chat) {
+				f.setSize(f.getSize().width - Utils.chatWidth, f.getSize().height);
+				ChatPanel a = sheets.get(chat);
+				chatsPanel.remove(a);
+				gl.setColumns(gl.getColumns() - 1);
+				chatsPanel.revalidate();
+				chatsPanel.repaint();
+			}
+		});
+	}
+
+	private void addChatPanelFor(ChatNode chatNode) {
+		var chatPanel = new ChatPanel(chatNode);
+		sheets.put(chatNode, chatPanel);
+		var gl = (GridLayout) chatsPanel.getLayout();
+		gl.setColumns(gl.getColumns() + 1);
+		chatsPanel.add(chatPanel);
+		chatsPanel.revalidate();
+		chatsPanel.repaint();
+		f.setSize(Math.min(f.getSize().width, Utils.screenSize.width) + Utils.chatWidth, f.getSize().height);
+
+		if (f.getSize().width > Utils.screenSize.width) {
+			f.setSize(Utils.screenSize.width, f.getSize().height);
+		}
+
+		if (f.getLocation().x + f.getSize().width > Utils.screenSize.width) {
+			int tooMuch = f.getLocation().x + f.getSize().width - Utils.screenSize.width;
+			f.setLocation(f.getLocation().x - tooMuch, f.getLocation().y);
+		}
 	}
 
 	private static void setLookAndFeel(String name) {

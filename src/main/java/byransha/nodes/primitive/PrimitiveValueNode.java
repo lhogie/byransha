@@ -8,5 +8,4 @@ public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
 		super(g);
 	}
 
-	public abstract void fromString(String s);
 }

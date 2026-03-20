@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.lab.BusinessNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 
@@ -43,6 +43,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return inputNode instanceof BusinessNode;
+		return true;
+//		return inputNode instanceof BusinessNode;
 	}
 }

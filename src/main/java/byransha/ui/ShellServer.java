@@ -10,12 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import butils.ByUtils;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
+import byransha.util.ByUtils;
 
 public class ShellServer extends SystemNode {
 	@FunctionalInterface
@@ -103,16 +103,16 @@ public class ShellServer extends SystemNode {
 				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
 		commands.put("lf", new Command("list fields",
-				(out, parms) -> currentNode().forEachOutInFields((f, o, ro) -> out.println(f.getName()))));
+				(out, parms) -> currentNode().forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
 
 		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode().id())));
 
 		commands.put("name", new Command("print current node name", (out, parms) -> out.println(currentNode())));
 		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
-				.println(currentChat.currentUser().chats.values.stream().map(c -> c.idAsText()).toList())));
+				.println(currentChat.currentUser().chatList.elements.stream().map(c -> c.idAsText()).toList())));
 		commands.put("newchat", new Command("create new chat",
-				(out, parms) -> out.println(new ChatNode(currentUser(), currentChat.currentNode()).id())));
+				(out, parms) -> out.println(new ChatNode(currentUser()).id())));
 		commands.put("setcurrentchat", new Command("change chat",
 				(out, parms) -> out.println(currentChat = (ChatNode) g.indexes.byId.getByText(parms.removeFirst()))));
 		commands.put("deletechat",
@@ -128,7 +128,7 @@ public class ShellServer extends SystemNode {
 		} else {
 			var r = action.exec(currentChat);
 
-			for (var v : r.result.views()) {
+			for (var v : r.outNode.views()) {
 				out.println(v.prettyName() + ":");
 				out.println(v.toJSON().toPrettyString());
 			}

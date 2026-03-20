@@ -1,10 +1,9 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.LongNode;
-import byransha.nodes.primitive.ListNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 
 public class Office extends BusinessNode {
 

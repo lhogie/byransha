@@ -18,6 +18,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.graph.BGraph;
+
 public class CSVSerializer implements EventQueueSerializer {
 	ObjectMapper mapper = new ObjectMapper();
 
@@ -39,19 +41,8 @@ public class CSVSerializer implements EventQueueSerializer {
 		pw.close();
 	}
 
-	private static boolean needProtecting(String s) {
-		for (int i = 0; i < s.length(); ++i) {
-			char c = s.charAt(i);
-
-			if (!Character.isAlphabetic(c) && !Character.isDigit(c)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	@Override
-	public ArrayList<Event> read(InputStream in)
+	public ArrayList<Event> read(InputStream in, BGraph g)
 			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		var q = new ArrayList<Event>();
@@ -66,7 +57,7 @@ public class CSVSerializer implements EventQueueSerializer {
 			var className = elementIterator.next();
 			LocalDateTime date = LocalDateTime.parse(elementIterator.next());
 			Event e = (Event) Class.forName(className).getConstructor(LocalDateTime.class).newInstance(date);
-			e.fromCSV(elementIterator);
+			e.fromCSV(elementIterator, g);
 			q.add(e);
 		}
 
