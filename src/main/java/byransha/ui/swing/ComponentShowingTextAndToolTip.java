@@ -1,6 +1,6 @@
 package byransha.ui.swing;
 
-public interface Translatable {
+public interface ComponentShowingTextAndToolTip {
 	String getText();
 
 	String getToolTipText();
@@ -8,4 +8,7 @@ public interface Translatable {
 	void setText(String s);
 
 	void setToolTipText(String s);
+
+	
+	
 }

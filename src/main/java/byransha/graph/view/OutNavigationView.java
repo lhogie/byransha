@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public class OutNavigationView extends NodeView<BNode> {
 
@@ -19,14 +19,15 @@ public class OutNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public JsonNode jsonView() {
 		ObjectNode r = new ObjectNode(BNode.factory);
-
+		viewedNode.forEachOut(o -> r.set("actions", o.describeAsJSON().get("actions")));
+		viewedNode.forEachOut(o -> r.set("outs", o.describeAsJSON().get("outs")));
 		return r;
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet pane) {
 		viewedNode.forEachOut((out, role) -> {
 			for (var v : out.views()) {
 				if (v instanceof JumpToMe j) {

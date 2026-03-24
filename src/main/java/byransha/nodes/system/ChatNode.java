@@ -7,20 +7,23 @@ import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.list.ListNode;
 
-public class ChatNode extends ListNode<BNode> {
+public class ChatNode extends BNode {
+	public ListNode<BNode> nodes = new ListNode<BNode>(g, "nodes");
+	final User user;
 
 	public ChatNode(User user) {
-		super(user.g, user + "'s chat");
+		super(user.g);
+		this.user = user;
 		user.chatList.elements.add(this);
-		//append(initialNode);
+		// append(initialNode);
 	}
 
 	public BNode currentNode() {
-		return get().isEmpty() ? null : get().getLast();
+		return nodes.get().isEmpty() ? null : nodes.get().getLast();
 	}
 
 	public void append(BNode n) {
-		if (size() > 0 && n == get(size() - 1)) // if same node
+		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node
 			return;
 
 		if (n instanceof NodeAction action && action.parameters().isEmpty()) {
@@ -38,7 +41,7 @@ public class ChatNode extends ListNode<BNode> {
 				append(error(err, false));
 			}
 		} else {
-			elements.add(n);
+			nodes.elements.add(n);
 		}
 	}
 
@@ -51,7 +54,7 @@ public class ChatNode extends ListNode<BNode> {
 	ArrayNode export() {
 		ArrayNode r = new ArrayNode(factory);
 
-		for (var n : get()) {
+		for (var n : nodes.elements) {
 			var on = new ObjectNode(factory);
 			r.add(on);
 			on.put("id", n.id());
@@ -67,6 +70,16 @@ public class ChatNode extends ListNode<BNode> {
 		}
 
 		return r;
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "a chat";
+	}
+
+	@Override
+	public String prettyName() {
+		return user + "'s chat";
 	}
 
 }

@@ -14,7 +14,7 @@ public class SearchRegexp extends Search {
 
 	@Override
 	protected boolean accept(BNode n) {
-		return n.toJSONNode().toString().matches(regexp.get());
+		return n.describeAsJSON().toString().matches(regexp.get());
 	}
 
 	@Override

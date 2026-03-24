@@ -17,7 +17,7 @@ public class SearchText extends Search {
 
 	@Override
 	protected boolean accept(BNode n) {
-		var s = n.toJSONNode().toString();
+		var s = n.describeAsJSON().toString();
 		var st = searchText.get();
 
 		if (!caseSensitive.get()) {

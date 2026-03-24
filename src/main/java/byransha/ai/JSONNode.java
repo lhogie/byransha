@@ -20,7 +20,7 @@ final public class JSONNode extends BNode {
 	}
 
 	@Override
-	public ObjectNode toJSONNode() {
+	public ObjectNode describeAsJSON() {
 		ObjectNode n = new ObjectNode(factory);
 		n.set("json", node);
 		return n;

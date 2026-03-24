@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.view.NodeView;
+import byransha.nodes.primitive.TradUINodeView;
 import byransha.util.ByUtils;
 
 public class OSNode extends SystemNode {
@@ -31,14 +32,14 @@ public class OSNode extends SystemNode {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
 	}
 
-	public static class View extends NodeView<JVMNode> {
+	public static class View extends TradUINodeView<JVMNode> {
 
 		public View(BGraph g, JVMNode jvm) {
 			super(g, jvm);
 		}
 
 		@Override
-		public JsonNode toJSON() {
+		public ObjectNode describeAsJSON() {
 			var r = new ObjectNode(factory);
 			r.put("heap size", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
 
@@ -66,6 +67,10 @@ public class OSNode extends SystemNode {
 		}
 
 
+		@Override
+		public JComponent getComponent() {
+			return getJSONDisplayComponent();
+		}
 	}
 
 }

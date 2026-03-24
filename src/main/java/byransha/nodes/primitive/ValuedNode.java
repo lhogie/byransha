@@ -1,6 +1,5 @@
 package byransha.nodes.primitive;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +21,8 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	@Override
-	public ObjectNode toJSONNode() {
-		var r = super.toJSONNode();
+	public ObjectNode describeAsJSON() {
+		var r = super.describeAsJSON();
 		r.put("value", getValueAsString());
 		return r;
 	}
@@ -65,6 +64,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 		V oldValue = value;
 		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
+
 		value = newValue;
 
 		if (valueChange) {

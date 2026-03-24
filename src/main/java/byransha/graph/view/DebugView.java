@@ -16,11 +16,7 @@ public class DebugView extends NodeView<BNode> {
 		return "technical information";
 	}
 
-	@Override
-	public JsonNode toJSON() {
-		return viewedNode.toJSONNode();
-	}
-
+	
 	@Override
 	protected boolean allowsEditing() {
 		return false;

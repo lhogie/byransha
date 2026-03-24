@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.swing.JButton;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.action.ActionResult;
@@ -39,8 +40,8 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public ObjectNode toJSONNode() {
-		var r = super.toJSONNode();
+	public ObjectNode describeAsJSON() {
+		var r = (ObjectNode) super.describeAsJSON();
 		r.put("canExecute", canExecute(currentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;

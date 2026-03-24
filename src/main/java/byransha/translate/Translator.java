@@ -14,7 +14,7 @@ import java.util.Set;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.ui.swing.Translatable;
+import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
 public abstract class Translator extends BNode {
 	public enum Language {
@@ -62,7 +62,7 @@ public abstract class Translator extends BNode {
 	private void translateRecursively(Component c, Set<Component> visited) {
 		visited.add(c);
 
-		if (c instanceof Translatable tr) {
+		if (c instanceof ComponentShowingTextAndToolTip tr) {
 			String initialText = tr.getText();
 			var translated = translate(initialText);
 

@@ -42,13 +42,13 @@ public abstract class EventList extends BNode {
 				for (int nbSecPause = 10; nbSecPause > 0; --nbSecPause) {
 					status.set(candidates.size() + " event(s) sent. Resend in " + nbSecPause + "s");
 					try {
-						Thread.currentThread().sleep(1);
+						Thread.currentThread().sleep(1000);
 					} catch (InterruptedException e1) {
 						e1.printStackTrace();
 					}
 				}
 			}
-		}, "event list dissemination thread").start();
+		}, "event list dissemination thread");
 	}
 
 	public LongList collectIDs() {

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public class URLNodeView extends StringNodeView {
 
@@ -26,7 +26,7 @@ public class URLNodeView extends StringNodeView {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public JsonNode jsonView() {
 		ObjectNode r = new ObjectNode(factory);
 		r.put("value", viewedNode.get());
 		r.put("password", viewedNode.hideText);
@@ -34,7 +34,7 @@ public class URLNodeView extends StringNodeView {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet pane) {
 		super.writeTo(pane);
 		var b = new JButton("browse");
 		b.addActionListener(e -> {
@@ -44,7 +44,7 @@ public class URLNodeView extends StringNodeView {
 				error(e1);
 			}
 		});
-		pane.appendToCurrentFlow(b);
+		pane.appendToCurrentLine(b);
 	}
 
 }

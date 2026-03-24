@@ -24,6 +24,6 @@ public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassN
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return inputNode.size() > 0;
+		return inputNode.elements.size() > 0;
 	}
 }

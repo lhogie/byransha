@@ -24,6 +24,7 @@ import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -36,7 +37,6 @@ import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.relection.ClassNode;
-import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
 import byransha.graph.view.JumpToMe;
@@ -236,13 +236,12 @@ public abstract class BNode {
 	}
 
 	public void createViews() {
-		cachedViews.elements.add(new KishanView(g, this));
+		cachedViews.elements.add(new KishanView(this));
 		cachedViews.elements.add(new SmallInfoView(g, this));
 		cachedViews.elements.add(new JumpToMe(g, this));
 //		cachedViews.elements.add(new OutNavigationView(g, this));
 //		cachedViews.elements.add(new InNavigationView(g, this));
 		cachedViews.elements.add(new ErrorsView(g, this));
-		cachedViews.elements.add(new AvailableActionsView(g, this));
 		cachedViews.elements.add(new DebugView(g, this));
 	}
 
@@ -369,7 +368,7 @@ public abstract class BNode {
 
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 
-	public ObjectNode toJSONNode() {
+	public ObjectNode describeAsJSON() {
 		return toJSONNode(1);
 	}
 
@@ -392,16 +391,12 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions",
-				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.technicalName())).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new IntNode(e.id())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views",
-				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
+		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.id() + "")).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> {
-			outsNode.put(f.getName(), out.toJSONNode(depth - 1));
-		});
+		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out.id()));
 		r.set("outs", outsNode);
 
 		return r;
@@ -417,7 +412,7 @@ public abstract class BNode {
 		return null;
 	}
 
-	public NodeView<BNode> getFirstView() {
+	public NodeView<BNode> getViewForKishanView() {
 		for (var v : views()) {
 			if (!(v instanceof KishanView)) {
 				return v;
@@ -444,7 +439,7 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpButton(ChatNode chat) {
-		var b = new TranslatableButton(chat);
+		var b = new TranslatableButton(chat.g.translator);
 		b.setText(prettyName());
 
 //		b.setContentAreaFilled(true);

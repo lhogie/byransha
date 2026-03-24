@@ -44,8 +44,10 @@ public class ChatPanel extends JPanel {
 		JPanel topBar = new WrapPanel();
 		topBar.setOpaque(false);
 
-		topBar.add(addButton("clear chat", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.elements.clear()));
-		topBar.add(addButton("go the root node", "home_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat.g.application)));
+		topBar.add(addButton("clear chat", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
+				e -> chat.nodes.elements.clear()));
+		topBar.add(addButton("go the root node", "home_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
+				e -> chat.append(chat.g.application)));
 		topBar.add(addButton("settings", "settings_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat.g)));
 		topBar.add(addButton("jump to a specific node", "search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 				e -> chat.append(new Jump(chat.g, chat))));
@@ -53,7 +55,8 @@ public class ChatPanel extends JPanel {
 				e -> chat.append(chat.g.currentUser())));
 		topBar.add(addButton("authenticate a new user", "person_check_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 				e -> chat.append(chat.g.authenticator)));
-		topBar.add(addButton("see the node corresponding to this chat", "chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
+		topBar.add(addButton("see the node corresponding to this chat",
+				"chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
 		topBar.add(addButton("starts a new chat", "add_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 				e -> new ChatNode(chat.currentUser())));
 		topBar.add(addButton("closes this chat", "close_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> {
@@ -65,10 +68,10 @@ public class ChatPanel extends JPanel {
 			closeListener.onClose(this);
 		}));
 
-		var dropb = addButton("drop", null, e -> {});
+		var dropb = addButton("drop", null, e -> {
+		});
 		topBar.add(dropb);
 
-		
 		new DropTarget(dropb, new DropTargetAdapter() {
 			@Override
 			public void dragOver(DropTargetDragEvent dtde) {
@@ -80,7 +83,7 @@ public class ChatPanel extends JPanel {
 				System.out.println("DROPPPED");
 				try {
 					var droppedNode = node(e);
-					chat.elements.add(droppedNode);
+					chat.nodes.elements.add(droppedNode);
 					e.dropComplete(true);
 				} catch (Exception ex) {
 					e.dropComplete(false);

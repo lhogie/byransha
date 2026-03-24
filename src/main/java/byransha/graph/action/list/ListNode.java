@@ -21,7 +21,7 @@ import byransha.nodes.system.ChatNode;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
 
-public class ListNode<T extends BNode> extends BNode {
+public final class ListNode<T extends BNode> extends BNode {
 	String label;
 	final public ListenableList<T> elements = new ListenableList<>();
 	final public ListenableList<T> selection = new ListenableList<>();
@@ -29,10 +29,6 @@ public class ListNode<T extends BNode> extends BNode {
 	public ListNode(BGraph g, String label) {
 		super(g);
 		this.label = label;
-	}
-
-	public T get(int i) {
-		return elements.get(i);
 	}
 
 	@Override
@@ -130,18 +126,10 @@ public class ListNode<T extends BNode> extends BNode {
 		return elements;
 	}
 
-	public int size() {
-		return elements.size();
-	}
-
 	public void set(List<T> l) {
 		elements.clear();
 		selection.clear();
 		elements.addAll(l);
-	}
-
-	public List<T> elements() {
-		return elements;
 	}
 
 	public boolean isSelected(T n) {
@@ -166,7 +154,8 @@ public class ListNode<T extends BNode> extends BNode {
 				@Override
 				public String prettyName() {
 					return inputNode.label;
-				}};
+				}
+			};
 			inputNode.get().forEach(e -> d.entries.addOccurence(e, 1));
 			return createResultNode(d, readOnly);
 		}

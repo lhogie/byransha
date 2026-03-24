@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.TextNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 
@@ -36,18 +36,18 @@ public class TextNodeView extends NodeView<TextNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public JsonNode jsonView() {
 		return new ObjectNode(factory).put("value", viewedNode.get());
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet pane) {
 		String s = viewedNode.get();
 
 		if (info) {
-			var ta = new TranslatableTextArea(this);
+			var ta = new TranslatableTextArea(g.translator);
 			ta.setText(s);
-			pane.appendToCurrentFlow(Utils.resizableScrollPane(ta));
+			pane.appendToCurrentLine(Utils.resizableScrollPane(ta));
 		} else {
 			var p = new JTextPane();
 			p.setText(s);
@@ -82,7 +82,7 @@ public class TextNodeView extends NodeView<TextNode> {
 			});
 			p.setCaretPosition(caret);
 
-			pane.appendToCurrentFlow(Utils.resizableScrollPane(p));
+			pane.appendToCurrentLine(Utils.resizableScrollPane(p));
 		}
 
 	}

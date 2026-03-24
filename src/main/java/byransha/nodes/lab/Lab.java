@@ -8,9 +8,9 @@ import byransha.graph.action.list.ListNode;
 
 public class Lab extends Structure {
 
+	final ListNode<Structure> tutelles;
 	public Person HFDS; // haut fonctionnaire defense securité
 	final Map<Person, HFDSAvisE> HFDSAvisfds;
-	final ListNode<Structure> tutelles;
 
 	public Lab(BGraph g) {
 		super(g);

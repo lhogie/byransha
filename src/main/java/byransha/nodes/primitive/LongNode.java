@@ -2,6 +2,8 @@ package byransha.nodes.primitive;
 
 import java.util.List;
 
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
@@ -12,7 +14,6 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.ChatSheet;
 
 public class LongNode extends PrimitiveValueNode<Long> {
 	public static record Bounds(long min, long max) {
@@ -32,7 +33,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	@Override
 	public void createViews() {
-		cachedViews.elements.add(new LongNodeView(g, this));
+		cachedViews.elements.add(new LongNodeView(this));
 		super.createViews();
 	}
 
@@ -72,32 +73,16 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		}
 	}
 
-	public static class LongNodeView extends NodeView<LongNode> {
+	public static class LongNodeView extends TradUINodeView<LongNode> {
 
-		public LongNodeView(BGraph g, LongNode i) {
-			super(g, i);
+		public LongNodeView(LongNode i) {
+			super(i.g, i);
 		}
 
 		@Override
-		public JsonNode toJSON() {
+		public JsonNode jsonView() {
 			var l = viewedNode.get();
 			return l != null ? new com.fasterxml.jackson.databind.node.LongNode(l) : new TextNode("");
-		}
-
-		@Override
-		public void writeTo(ChatSheet pane) {
-			var tf = new JTextField("" + viewedNode.getValueAsString());
-			tf.setColumns(10);
-			tf.setEditable(!viewedNode.readOnly);
-			viewedNode.changeListeners.add(n -> tf.setText("" + ((LongNode) n).getValueAsString()));
-			pane.appendToCurrentFlow(tf);
-
-			if (viewedNode.bounds != null) {
-				var slider = new JSlider((int) viewedNode.bounds.min, (int) viewedNode.bounds.max);
-				slider.setEnabled(!viewedNode.readOnly);
-				viewedNode.valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
-				pane.appendToCurrentFlow(tf);
-			}
 		}
 
 		@Override
@@ -108,6 +93,25 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		@Override
 		protected boolean allowsEditing() {
 			return true;
+		}
+
+		@Override
+		public JComponent getComponent() {
+			var p = new JPanel();
+			var tf = new JTextField("" + viewedNode.getValueAsString());
+			tf.setColumns(10);
+			tf.setEditable(!viewedNode.readOnly);
+			viewedNode.changeListeners.add(n -> tf.setText("" + ((LongNode) n).getValueAsString()));
+			p.add(tf);
+
+			if (viewedNode.bounds != null) {
+				var slider = new JSlider((int) viewedNode.bounds.min, (int) viewedNode.bounds.max);
+				slider.setEnabled(!viewedNode.readOnly);
+				viewedNode.valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
+				p.add(tf);
+			}
+
+			return p;
 		}
 
 	}

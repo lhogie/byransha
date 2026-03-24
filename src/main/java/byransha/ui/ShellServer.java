@@ -130,7 +130,7 @@ public class ShellServer extends SystemNode {
 
 			for (var v : r.outNode.views()) {
 				out.println(v.prettyName() + ":");
-				out.println(v.toJSON().toPrettyString());
+				out.println(v.describeAsJSON().toPrettyString());
 			}
 
 			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
@@ -143,7 +143,7 @@ public class ShellServer extends SystemNode {
 		if (view == null) {
 			out.println("no such view " + viewName + " on node " + currentNode() + " of " + currentNode().getClass());
 		} else {
-			var r = view.toJSON();
+			var r = view.describeAsJSON();
 			out.println(r.toPrettyString());
 		}
 	}

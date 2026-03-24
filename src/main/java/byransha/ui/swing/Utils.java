@@ -1,21 +1,56 @@
 package byransha.ui.swing;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.util.Enumeration;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.util.Base62;
+import byransha.util.PossiblyFailingConsumer;
 
 public class Utils {
+
+	public static void IdDropTarget(BGraph g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
+		new DropTarget(c, new DropTargetAdapter() {
+			@Override
+			public void drop(DropTargetDropEvent e) {
+				try {
+					String text = (String) e.getTransferable().getTransferData(DataFlavor.stringFlavor);
+					long id = Base62.decode(text);
+					var droppedNode = g.indexes.byId.get(id);
+
+					try {
+						e.acceptDrop(DnDConstants.ACTION_COPY);
+						dropAction.accept(droppedNode);
+					} catch (Throwable err) {
+						e.rejectDrop();
+					}
+
+					e.dropComplete(true);
+				} catch (Throwable ex) {
+					e.dropComplete(false);
+					g.error(ex);
+				}
+			}
+		});
+	}
+
 	public static ResizableByGrip resizableScrollPane(JComponent p) {
 		var sp = new JScrollPane(p);
 		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -56,5 +91,6 @@ public class Utils {
 				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.idAsText())));
 		return c;
 	}
+
 
 }

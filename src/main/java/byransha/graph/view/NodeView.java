@@ -1,12 +1,16 @@
 package byransha.graph.view;
 
+import java.awt.Color;
+
+import javax.swing.JComponent;
+
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.javafx.Utils;
 import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 import byransha.util.ByUtils;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TreeView;
@@ -20,18 +24,12 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		this.viewedNode = node;
 	}
 
-	public abstract JsonNode toJSON();
-
-	@Override
-	public ObjectNode toJSONNode() {
-		var r = super.toJSONNode();
-		r.put("showInMainWindow", showInViewList());
-		r.put("whatItShows", whatItShows());
-		return r;
-	}
-
 	public boolean showInViewList() {
 		return true;
+	}
+
+	public JsonNode jsonView() {
+		return viewedNode.describeAsJSON();
 	}
 
 	@Override
@@ -56,13 +54,16 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return false;
 	}
 
-	public void writeTo(ChatSheet pane) {
-		var c = ByUtils.JsonToTreeConverter.buildTreeModel(toJSON());
-		pane.appendToCurrentFlow(byransha.ui.swing.Utils.resizableScrollPane(c));
+	public JComponent getJSONDisplayComponent() {
+		return ByUtils.JsonToTreeConverter.buildTreeModel(describeAsJSON());
+	}
+
+	public void writeTo(Sheet pane) {
+		byransha.ui.swing.Utils.resizableScrollPane(getJSONDisplayComponent());
 	}
 
 	public void writeTo(Pane pane) {
-		var rootItem = Utils.buildTree(toJSON());
+		var rootItem = Utils.buildTree(describeAsJSON());
 		TreeView<String> treeView = new TreeView<>(rootItem);
 		ScrollPane scrollPane = new ScrollPane(treeView);
 		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -73,6 +74,15 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		treeView.setPrefHeight(300);
 		scrollPane.setFitToWidth(true);
 		pane.getChildren().add(scrollPane);
+	}
+
+	public void writeToWithErrors(Sheet pane) {
+		writeTo(pane);
+
+		for (var err : viewedNode.errors()) {
+			pane.appendToCurrentLine(err.msg, g.translator).setForeground(Color.red);
+			pane.newLine();
+		}
 	}
 
 }

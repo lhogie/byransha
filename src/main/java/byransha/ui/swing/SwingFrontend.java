@@ -64,7 +64,7 @@ public class SwingFrontend extends SystemNode {
 	private void considerUser(User newUser) {
 		chatsPanel.removeAll();
 		var gl = (GridLayout) chatsPanel.getLayout();
-		gl.setColumns(newUser.chatList.size());
+		gl.setColumns(newUser.chatList.elements.size());
 		newUser.chatList.elements.forEach(chat -> {
 			System.out.println("dfsdfsfsd  " + newUser.chatList.elements.size());
 			// addChatPanelFor(chat);

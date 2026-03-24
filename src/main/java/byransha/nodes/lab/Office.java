@@ -35,10 +35,10 @@ public class Office extends BusinessNode {
 	}
 
 	public double occupationRatio() {
-		return ((double) capacity.get()) / users.size();
+		return ((double) capacity.get()) / users.elements.size();
 	}
 
 	public double surfacePerUser() {
-		return ((double) surface.get()) / users.size();
+		return ((double) surface.get()) / users.elements.size();
 	}
 }

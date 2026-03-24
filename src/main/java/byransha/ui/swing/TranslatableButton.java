@@ -4,7 +4,7 @@ import javax.swing.JButton;
 
 import byransha.graph.BNode;
 
-public class TranslatableButton extends JButton implements Translatable {
+public class TranslatableButton extends JButton implements ComponentShowingTextAndToolTip {
 	private BNode v;
 
 	public TranslatableButton(BNode v) {

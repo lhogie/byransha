@@ -2,22 +2,23 @@ package byransha.ui.swing;
 
 import javax.swing.JTextArea;
 
-import byransha.graph.BNode;
+import byransha.translate.Translator;
 
-public class TranslatableTextArea extends JTextArea implements Translatable {
-	private BNode v;
+public class TranslatableTextArea extends JTextArea implements ComponentShowingTextAndToolTip {
+	private Translator translator;
 
-	public TranslatableTextArea(BNode v) {
-		this.v = v;
+	public TranslatableTextArea(Translator v) {
+		this.translator = v;
 	}
 
 	@Override
 	public void setText(String s) {
-		super.setText(v.t(s));
+		super.setText(translator.t(s));
 	}
 
 	@Override
 	public void setToolTipText(String s) {
-		super.setToolTipText(v.t(s));
+		super.setToolTipText(translator.t(s));
 	}
+
 }

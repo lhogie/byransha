@@ -36,7 +36,7 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 		inputNode.toCSVStreams(csvs, true);
 		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
 				.forEach(n -> r.get().add(n));
-		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", toJSONNode().toPrettyString()));
+		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", describeAsJSON().toPrettyString()));
 		return new exportNodeResult(g, this, r);
 	}
 
