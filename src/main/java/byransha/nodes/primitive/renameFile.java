@@ -10,8 +10,8 @@ import byransha.nodes.system.ChatNode;
 public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 	StringNode newName;
 
-	public renameFile(BGraph g, FileNode inputNode) {
-		super(g, inputNode);
+	public renameFile(BGraph g, FileNode inputNode, String cat) {
+		super(g, inputNode, cat);
 		this.newName = new StringNode(g, inputNode.file.getName(), ".+");
 	}
 

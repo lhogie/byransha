@@ -19,24 +19,21 @@ public class ChatSheet extends Sheet {
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.chat = chat;
 		setOpaque(false);
+		chat.nodes.elements.forEach(node -> appendNode(node));
+		chat.nodes.elements.listeners.add(new ListChangeListener<BNode>() {
 
-		if (chat != null) {
-			chat.nodes.elements.forEach(node -> appendNode(node));
-			chat.nodes.elements.listeners.add(new ListChangeListener<BNode>() {
+			@Override
+			public void onAdd(BNode n) {
+				appendNode(n);
+			}
 
-				@Override
-				public void onAdd(BNode n) {
-					appendNode(n);
-				}
+			@Override
+			public void onRemove(BNode n) {
+				removeNode(n);
+			}
+		});
 
-				@Override
-				public void onRemove(BNode n) {
-					removeNode(n);
-				}
-			});
-
-			Utils.IdDropTarget(chat.g, this, n -> chat.nodes.elements.add(n));
-		}
+		Utils.IdDropTarget(chat.g, this, n -> chat.nodes.elements.add(n));
 	}
 
 	@Override
@@ -65,11 +62,10 @@ public class ChatSheet extends Sheet {
 	}
 
 	void appendNode(BNode n) {
-		removeActionsForPreviousNodes();
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		appendToCurrentLine(Utils.idShower(n, 20, 0));
+		appendToCurrentLine(Utils.idShower(n, 20, 0, chat));
 		appendToCurrentLine(n.prettyName() + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();
@@ -85,11 +81,6 @@ public class ChatSheet extends Sheet {
 
 		newLine();
 		newLine();
-		appendToCurrentLine("What do you want to do?");
-		newLine();
-
-		n.actions().forEach(a -> appendToCurrentLine(a.createJumpButton(chat)));
-		newLine();
 		end();
 
 		new Thread(() -> swipeDownInOneSecond()).start();
@@ -99,18 +90,5 @@ public class ChatSheet extends Sheet {
 		super.appendToCurrentLine(s, chat.g.translator);
 	}
 
-	private void removeActionsForPreviousNodes() {
-		int nToRemove = 6;
-
-		if (getComponentCount() > nToRemove) {
-			for (int i = 0; i < nToRemove; ++i) {
-				remove(getComponentCount() - 1);
-			}
-		}
-
-		if (getComponentCount() > 0) {
-			addSeparator();
-		}
-	}
 
 }

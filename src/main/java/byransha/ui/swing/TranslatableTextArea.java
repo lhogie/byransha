@@ -1,6 +1,10 @@
 package byransha.ui.swing;
 
+import java.awt.Component;
+
+import javax.swing.JComponent;
 import javax.swing.JTextArea;
+import javax.swing.ToolTipManager;
 
 import byransha.translate.Translator;
 
@@ -9,6 +13,8 @@ public class TranslatableTextArea extends JTextArea implements ComponentShowingT
 
 	public TranslatableTextArea(Translator v) {
 		this.translator = v;
+		ToolTipManager.sharedInstance().registerComponent(this);
+
 	}
 
 	@Override
@@ -21,4 +27,16 @@ public class TranslatableTextArea extends JTextArea implements ComponentShowingT
 		super.setToolTipText(translator.t(s));
 	}
 
+	@Override
+	public String getToolTipText() {
+		String tip = super.getToolTipText();
+		if (tip == null) {
+			for (Component c = getParent(); c instanceof JComponent jc; c = c.getParent()) {
+				tip = jc.getToolTipText();
+				if (tip != null)
+					return tip;
+			}
+		}
+		return tip;
+	}
 }

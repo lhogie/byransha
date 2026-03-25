@@ -28,6 +28,7 @@ public class Sheet extends JPanel implements Scrollable {
 		super();
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setOpaque(false);
+		add(currentLine);
 	}
 
 	@Override
@@ -103,14 +104,10 @@ public class Sheet extends JPanel implements Scrollable {
 	}
 
 	public WrapPanel newLine() {
-		if (currentLine != null) {
-			add(currentLine);
-		}
-
 		currentLine = new WrapPanel();
 		currentLine.setOpaque(false);
 		currentLine.setBackground(bgColor);
-//		wp.setBorder(null);
+		add(currentLine);
 		return currentLine;
 
 	}

@@ -10,4 +10,10 @@ public class University extends Structure {
 		super(g);
 		campuses = new ListNode(g, "campus");
 	}
+	
+	@Override
+	public String whatIsThis() {
+		return "an university";
+	}
+
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BNode;
 import byransha.nodes.lab.DynamicValuedNode;
+import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.ErrorIndicator;
 import byransha.ui.swing.Sheet;
 import byransha.ui.swing.TextDisplayComponent;
@@ -31,7 +32,7 @@ public class KishanView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(Sheet sheet) {
 		viewedNode.forEachOutInFields(viewedNode.getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != viewedNode) {
 				if (out instanceof DynamicValuedNode otf) {
@@ -45,11 +46,12 @@ public class KishanView extends NodeView<BNode> {
 				fieldNameComponent.setPreferredSize(new Dimension(60, fieldNameComponent.getPreferredSize().height));
 				fieldNameComponent.setToolTipText(f.getName());
 				Utils.IdDropTarget(g, fieldNameComponent, dn -> viewedNode.set(f, dn));
-				pane.currentLine.add(fieldNameComponent);
-				pane.currentLine.add(Utils.idShower(out, 18, 2));
-				pane.appendToCurrentLine(new ErrorIndicator(out));
-				out.getViewForKishanView().writeToWithErrors(pane);
-				pane.newLine();
+				sheet.currentLine.add(fieldNameComponent);
+//				sheet.newLine();
+				sheet.currentLine.add(Utils.idShower(out, 18, 2, ((ChatSheet) sheet).chat));
+				sheet.appendToCurrentLine(new ErrorIndicator(out));
+				out.getViewForKishanView().writeToWithErrors(sheet);
+				sheet.newLine();
 			}
 		});
 	}

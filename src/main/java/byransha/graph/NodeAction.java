@@ -5,7 +5,6 @@ import java.util.List;
 
 import javax.swing.JButton;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.action.ActionResult;
@@ -20,11 +19,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	public boolean stopRequested = false;
 	public Thread thread;
 //	public final boolean execStraightAway;
-	String category;
+	public final String category;
 
 	public NodeAction(BGraph g, IN inputNode) {
+		this(g, inputNode, null);
+	}
+
+	public NodeAction(BGraph g, IN inputNode, String category) {
 		super(g);
 		this.inputNode = inputNode;
+		this.category = category;
 	}
 
 	public List<BNode> parameters() {

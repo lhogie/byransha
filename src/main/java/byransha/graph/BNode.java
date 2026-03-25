@@ -258,7 +258,9 @@ public abstract class BNode {
 		consumer.accept(until);
 	}
 
-	public abstract String whatIsThis();
+	public String whatIsThis() {
+		return getClassNode().whatItRepresents();
+	}
 
 	public static class BFSResult {
 		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();

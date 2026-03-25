@@ -46,6 +46,10 @@ public class ClassNode extends BNode {
 		this.clazz = c;
 	}
 
+	public String whatItRepresents() {
+		return "a " + clazz.getSimpleName();
+	}
+
 	public void link() {
 		this.interfaces = new ListNode<>(g, "interfaces");
 		this.aggregations = new MapNode<>(g, "aggregations");

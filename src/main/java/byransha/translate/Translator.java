@@ -2,14 +2,16 @@ package byransha.translate;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
@@ -54,7 +56,9 @@ public abstract class Translator extends BNode {
 
 		targetLanguage.valueChangeListeners.add((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
-				new Thread(() -> translateRecursively(g.swing.f.getContentPane(), new HashSet<>())).start();
+				new Thread(() -> {
+					g.swing.frames.values().forEach(f -> translateRecursively(f.getContentPane(), new HashSet<>()));
+				}).start();
 			}
 		});
 	}
@@ -68,10 +72,18 @@ public abstract class Translator extends BNode {
 
 			if (translated != null) {
 				tr.setText(translated);
+
+				if (c instanceof JComponent jc) {
+					SwingUtilities.invokeLater(() -> {
+						Rectangle rect = new Rectangle(0, 0, c.getWidth(), c.getHeight());
+						jc.scrollRectToVisible(rect);
+					});
+				}
 			}
 		} else if (c instanceof Container l) {
 			for (int i = 0; i < l.getComponentCount(); ++i) {
 				var child = l.getComponent(i);
+
 				if (!visited.contains(child)) {
 					translateRecursively(child, visited);
 				}
@@ -135,8 +147,6 @@ public abstract class Translator extends BNode {
 			return null;
 		}
 	}
-
-	
 
 	public abstract String googleTranslate(String text, Language from, Language to) throws Exception;
 

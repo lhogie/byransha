@@ -9,8 +9,8 @@ import byransha.nodes.system.ChatNode;
 public abstract class ConfirmRequiredNodeAction<A extends BNode, R extends BNode> extends NodeAction<A, R> {
 	private final BooleanNode confirmed;
 
-	public ConfirmRequiredNodeAction(BGraph g, A action) {
-		super(g, action);
+	public ConfirmRequiredNodeAction(BGraph g, A action, String category) {
+		super(g, action, category);
 		this.confirmed = new BooleanNode(g, null);
 	}
 

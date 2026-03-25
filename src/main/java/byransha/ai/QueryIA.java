@@ -18,7 +18,7 @@ public class QueryIA extends NodeAction<BNode, TextNode> {
 	OllamaModel ollamaModel = new OllamaModel();
 
 	public QueryIA(BGraph g, BNode n) {
-		super(g, n);
+		super(g, n, "IA");
 		prompt = new StringNode(g, "", ".+");
 		inputJSON = new JSONNode(g, n.describeAsJSON());
 	}

@@ -9,8 +9,8 @@ import byransha.nodes.system.ChatNode;
 
 public class openFile extends NodeAction<FileNode, FileNode> {
 
-	protected openFile(BGraph g, FileNode f) {
-		super(g, f);
+	protected openFile(BGraph g, FileNode f, String cat) {
+		super(g, f, cat);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ import byransha.nodes.system.ChatNode;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	public Export(BGraph g, BNode node) {
-		super(g, node);
+		super(g, node, "node");
 	}
 
 	@Override

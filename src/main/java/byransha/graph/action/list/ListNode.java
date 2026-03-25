@@ -2,10 +2,12 @@ package byransha.graph.action.list;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
@@ -78,11 +80,13 @@ public final class ListNode<T extends BNode> extends BNode {
 		return classes().size() <= 1;
 	}
 
-	public Set<Class<? extends BNode>> classes() {
-		var r = new HashSet<Class<? extends BNode>>();
-		elements.forEach(e -> r.add(e.getClass()));
+	public MultiValuedMap<Class<? extends BNode>, BNode> classes() {
+		var r = new HashSetValuedHashMap<Class<? extends BNode> , BNode>();
+		elements.forEach(e -> r.put(e.getClass(), e));
 		return r;
 	}
+	
+	
 
 	@Override
 	public String whatIsThis() {

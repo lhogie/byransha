@@ -6,6 +6,8 @@ import java.util.List;
 
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
+import byransha.nodes.primitive.LongNode;
+import byransha.nodes.primitive.PhoneNumberNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.util.Stop;
 
@@ -35,7 +37,7 @@ class OldTBRH {
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
 			person.etatCivil.address.set(l.set(8, null));
-			var inter = new StringNode(i3s.g);
+			var inter = new PhoneNumberNode(i3s.g);
 			inter.set(l.set(9, null));
 			person.phoneNumbers.elements.add(inter);
 
@@ -59,7 +61,7 @@ class OldTBRH {
 			}
 
 			for (var phoneNumber : List.of(l.set(12, null), l.set(13, null), l.set(14, null))) {
-				var n = new StringNode(i3s.g); // new StringNode(this, phoneNumber);
+				var n = new PhoneNumberNode(i3s.g);
 				n.set(phoneNumber);
 				person.phoneNumbers.elements.add(n);
 			}
@@ -110,9 +112,15 @@ class OldTBRH {
 			}
 
 			person.enposte = l.set(27, null).equals("en poste");
-			var quotite = new StringNode(i3s.g);
-			quotite.set(l.set(29, null));
-			person.quotite = quotite;
+			
+			try {
+				var quotite = new LongNode(i3s.g);
+				quotite.set(Long.valueOf(l.set(29, null)));
+				person.quotite = quotite;
+			} catch (NumberFormatException err) {
+
+			}
+
 			var researchActivity = new StringNode(i3s.g);
 			researchActivity.set(l.set(33, null));
 			person.researchActivity = researchActivity;

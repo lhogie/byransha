@@ -12,4 +12,9 @@ public class ResearchGroup extends Structure {
 		keywords = new ListNode<>(g, "research group(s)");
 	}
 
+	@Override
+	public String whatIsThis() {
+		return "a research group";
+	}
+
 }

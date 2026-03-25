@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JLabel;
+import javax.swing.border.LineBorder;
 
 import byransha.graph.BNode;
 import byransha.nodes.primitive.ValuedNode;
@@ -14,11 +15,8 @@ public class ErrorIndicator extends JLabel {
 
 	public ErrorIndicator(BNode n) {
 		this.n = n;
-		setPreferredSize(new Dimension(20, 20));
-		setBorder(null);
+//		setBorder(new LineBorder(Color.black));
 		setOpaque(false);
-		setFocusable(false);
-		setForeground(Color.red);
 		update();
 		n.changeListeners.add(c -> update());
 
@@ -36,8 +34,10 @@ public class ErrorIndicator extends JLabel {
 	private void update() {
 		if (n.errors().isEmpty()) {
 			setText("");
+			setForeground(Color.green);
 		} else {
 			setText("!");
+			setForeground(Color.red);
 		}
 	}
 }

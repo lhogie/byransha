@@ -23,6 +23,8 @@ public class ShellServer extends SystemNode {
 		void exec(PrintWriter out, List<String> parms) throws Throwable;
 	}
 
+	public static final int DEFAULT_PORT = 1000;
+
 	record Command(String description, CommandAction action) {
 	}
 
@@ -48,34 +50,45 @@ public class ShellServer extends SystemNode {
 			System.out.println("Telnet server listening on port " + port);
 
 			while (true) {
-				try (var clientSocket = serverSocket.accept();
-						var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-						var out = new PrintWriter(clientSocket.getOutputStream(), true)) {
+				try  {
+					var clientSocket = serverSocket.accept();
+					var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+					var out = new PrintWriter(clientSocket.getOutputStream(), true);
 
-					String line = in.readLine();
-					System.out.println("line: " + line);
+					new Thread(() -> {
+						try {
+							while (true) {
+								String line = in.readLine();
+System.out.println("server receiv " + line);
+								if (line == null)
+									break;
 
-					if (line == null)
-						break;
+								line = line.trim();
 
-					line = line.trim();
+								if (line.isEmpty()) {
+									out.println("Empty command received, ignoring");
+								} else if (line.startsWith("auth ")) {
+									var username = line.substring("auth ".length() + 1).trim();
+									var userhash = username.hashCode();
+									out.println(userhash);
+								} else if (line.startsWith(".")) {
+									showView(line.substring(1), out);
+								} else if (line.startsWith("/")) {
+									execLocalCommand(line.substring(1), out);
+								} else {
+									execAction(line, out);
+								}
+							}
+						} catch (Throwable err) {
+							error(err);
+						}
 
-					if (line.isEmpty()) {
-						out.println("Empty command received, ignoring");
-					} else if (line.startsWith("auth ")) {
-						var username = line.substring("auth ".length() + 1).trim();
-						var userhash = username.hashCode();
-						out.println(userhash);
-					} else if (line.startsWith(".")) {
-						showView(line.substring(1), out);
-					} else if (line.startsWith("/")) {
-						execLocalCommand(line.substring(1), out);
-					} else {
-						execAction(line, out);
-					}
-
-					clientSocket.getOutputStream().flush();
-					clientSocket.close();
+						try {
+							clientSocket.getOutputStream().flush();
+							clientSocket.close();
+						} catch (IOException e) {
+						}
+					}).start();
 				} catch (IOException e) {
 					System.err.println("Client error: " + e.getMessage());
 				}
@@ -102,8 +115,8 @@ public class ShellServer extends SystemNode {
 		commands.put("ls", new Command("list outs",
 				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
-		commands.put("lf", new Command("list fields",
-				(out, parms) -> currentNode().forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
+		commands.put("lf", new Command("list fields", (out, parms) -> currentNode()
+				.forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
 
 		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode().id())));
 
@@ -111,8 +124,8 @@ public class ShellServer extends SystemNode {
 		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
 				.println(currentChat.currentUser().chatList.elements.stream().map(c -> c.idAsText()).toList())));
-		commands.put("newchat", new Command("create new chat",
-				(out, parms) -> out.println(new ChatNode(currentUser()).id())));
+		commands.put("newchat",
+				new Command("create new chat", (out, parms) -> out.println(new ChatNode(currentUser()).id())));
 		commands.put("setcurrentchat", new Command("change chat",
 				(out, parms) -> out.println(currentChat = (ChatNode) g.indexes.byId.getByText(parms.removeFirst()))));
 		commands.put("deletechat",
