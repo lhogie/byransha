@@ -203,10 +203,8 @@ public abstract class BNode {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
 
-						if (outNode != null) {
 							var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
 							consumer.accept(f, outNode, isFinal);
-						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						error(e);
 					}
@@ -393,7 +391,7 @@ public abstract class BNode {
 		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.id() + "")).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out.id()));
+		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out != null? out.id() : -1));
 		r.set("outs", outsNode);
 
 		return r;
@@ -483,6 +481,11 @@ public abstract class BNode {
 	public String t(String s) {
 		var translation = g.translator.translate(s);
 		return translation == null ? s : translation;
+	}
+
+	public void highlight(boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

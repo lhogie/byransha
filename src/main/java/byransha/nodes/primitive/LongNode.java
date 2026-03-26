@@ -47,7 +47,6 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		this.bounds = b;
 	}
 
-
 	@Override
 	public Long valueFromString(String s) {
 		return Long.valueOf(s);
@@ -67,11 +66,12 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	protected void fillErrors(List<NodeError> errs) {
 		var v = get();
 
-		if (bounds != null) {
-			if (v < bounds.min)
+		if (v != null && bounds != null) {
+			if (v < bounds.min) {
 				errs.add(new NodeError(this, "too small, min is " + bounds.min));
-			else if (v > bounds.max)
+			} else if (v > bounds.max) {
 				errs.add(new NodeError(this, "too large, max is " + bounds.max));
+			}
 		}
 	}
 

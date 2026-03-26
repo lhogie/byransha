@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.ui.javafx.Utils;
-import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.Sheet;
 import byransha.util.ByUtils;
 import javafx.scene.control.ScrollPane;
@@ -55,7 +54,7 @@ public abstract class NodeView<N extends BNode> extends BNode {
 	}
 
 	public JComponent getJSONDisplayComponent() {
-		return ByUtils.JsonToTreeConverter.buildTreeModel(describeAsJSON());
+		return ByUtils.JsonToTreeConverter.buildTreeModel(jsonView());
 	}
 
 	public void writeTo(Sheet pane) {

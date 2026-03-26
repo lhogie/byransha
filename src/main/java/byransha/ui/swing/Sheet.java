@@ -8,8 +8,6 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.Scrollable;
 
@@ -54,40 +52,6 @@ public class Sheet extends JPanel implements Scrollable {
 	@Override
 	public boolean getScrollableTracksViewportHeight() {
 		return false; // allow vertical scrolling
-	}
-
-	public void swipeDownInOneSecond() {
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		var scrollPane = ((JScrollPane) getParent().getParent());
-		JScrollBar vertical = scrollPane.getVerticalScrollBar();
-		int nbSteps = vertical.getMaximum() - vertical.getValue();
-
-		if (nbSteps > 0) {
-			int pauseDuration = 1000 / nbSteps;
-
-			for (int i = vertical.getValue(); i < vertical.getMaximum(); ++i) {
-//				System.out.println(vertical.getValue() + " -> " + vertical.getMaximum());
-				vertical.setValue(i);
-				revalidate();
-				repaint();
-
-				try {
-					Thread.sleep(pauseDuration);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		} else {
-			vertical.setValue(vertical.getMaximum());
-			revalidate();
-			repaint();
-
-		}
-
 	}
 
 	public TextDisplayComponent appendToCurrentLine(String s, Translator translator) {

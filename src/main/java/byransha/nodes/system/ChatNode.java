@@ -8,7 +8,7 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.list.ListNode;
 
 public class ChatNode extends BNode {
-	public ListNode<BNode> nodes = new ListNode<BNode>(g, "nodes");
+	public ListNode<BNode> nodes = new ListNode<BNode>(g, "history");
 	final User user;
 
 	public ChatNode(User user) {

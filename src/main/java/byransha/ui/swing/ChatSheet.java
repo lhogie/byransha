@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.BoxLayout;
+import javax.swing.JScrollPane;
 
 import byransha.graph.BNode;
 import byransha.graph.view.ErrorsView;
@@ -83,7 +84,14 @@ public class ChatSheet extends Sheet {
 		newLine();
 		end();
 
-		new Thread(() -> swipeDownInOneSecond()).start();
+		
+		revalidate();
+		repaint();
+
+		if (getParent() != null) {
+			var scrollPane = ((JScrollPane) getParent().getParent());
+			ScrollUtils.scrollToBottomWhenReady(scrollPane, 2000, 100);
+		}
 	}
 
 	public void appendToCurrentLine(String s) {

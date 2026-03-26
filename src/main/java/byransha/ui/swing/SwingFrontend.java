@@ -28,19 +28,18 @@ public class SwingFrontend extends SystemNode {
 
 	public final Map<ChatNode, JFrame> frames = new HashMap<>();
 
-	public final ListNode<FontNode> fonts;
+	public final ListNode<FontNode> fonts= new ListNode<>(g, "available fonts");
 
 	public SwingFrontend(BGraph g) {
 		super(g);
 		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
 		this.colorStyle = schemeNodes.getFirst();
 
-		fonts = new ListNode<>(g, "available fonts");
 		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
-//			fonts.elements.add(new FontNode(g, font));
+			fonts.elements.add(new FontNode(g, font));
 		}
 
-		// setLookAndFeel("WebLaf");
+//		 setLookAndFeel("WebLaf");
 		g.swing = this;
 
 		FontUIResource customFont = new FontUIResource("ProximaNova-Medium", Font.PLAIN, 14);
@@ -54,8 +53,6 @@ public class SwingFrontend extends SystemNode {
 		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
 
 		considerUser(g.currentUser());
-		g.currentUser().chatList.get().forEach(chatNode -> addChatPanelFor(chatNode));
-
 	}
 
 	private void considerUser(User newUser) {
@@ -76,10 +73,20 @@ public class SwingFrontend extends SystemNode {
 	}
 
 	private void addChatPanelFor(ChatNode chatNode) {
+		var ref = frames.isEmpty() ? null: frames.values().iterator().next();
 		var f = new JFrame();
 		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
-		f.setSize(Utils.initialSize);
-		f.setLocation(Utils.initialLocation);
+
+		if (ref == null) {
+			f.setSize(Utils.initialSize);
+			f.setLocation(Utils.initialLocation);
+		} else {
+			f.setSize(ref.getSize());
+			var location = ref.getLocation();
+			location.x += ref.getSize().width;
+			f.setLocation(location);
+		}
+		
 		var chatPanel = new ChatPanel(chatNode);
 		f.setContentPane(chatPanel);
 		frames.put(chatNode, f);
