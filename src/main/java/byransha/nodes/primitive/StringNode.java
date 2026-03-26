@@ -31,7 +31,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return get();
 	}
 

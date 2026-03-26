@@ -1,25 +1,25 @@
 package byransha.nodes.system;
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.function.Consumer;
 
 import javax.swing.JComponent;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
-import byransha.graph.view.NodeView;
 import byransha.nodes.primitive.TradUINodeView;
-import byransha.util.ByUtils;
 
 public class OSNode extends SystemNode {
 
 	public OSNode(BGraph g) {
 		super(g);
+	}
+
+	public void createViews() {
+		cachedViews.elements.add(new View(g, this));
+		super.createViews();
 	}
 
 	@Override
@@ -28,23 +28,23 @@ public class OSNode extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
 	}
 
-	public static class View extends TradUINodeView<JVMNode> {
+	public static class View extends TradUINodeView<OSNode> {
 
-		public View(BGraph g, JVMNode jvm) {
-			super(g, jvm);
+		public View(BGraph g, OSNode os) {
+			super(g, os);
 		}
 
 		@Override
 		public ObjectNode describeAsJSON() {
 			var r = new ObjectNode(factory);
-			r.put("heap size", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
 
 			try {
-				r.put("IP address", InetAddress.getLocalHost().getHostName());
+				r.put("IP address", InetAddress.getLocalHost().getHostAddress());
+				r.put("hostname", InetAddress.getLocalHost().getHostName());
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
 			}
@@ -53,6 +53,8 @@ public class OSNode extends SystemNode {
 			r.put("OS name", ManagementFactory.getOperatingSystemMXBean().getName());
 			r.put("load average", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
 			r.put("#cores", Runtime.getRuntime().availableProcessors());
+			r.put("%busy", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
+					/ (double) Runtime.getRuntime().availableProcessors());
 			return r;
 		}
 
@@ -65,7 +67,6 @@ public class OSNode extends SystemNode {
 		protected boolean allowsEditing() {
 			return false;
 		}
-
 
 		@Override
 		public JComponent getComponent() {

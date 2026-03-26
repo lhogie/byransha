@@ -8,7 +8,7 @@ import byransha.nodes.system.SystemNode;
 
 final public class Reset extends NodeAction<BNode, BNode> {
 	public Reset(BGraph g, BNode n) {
-		super(g, n, "node");
+		super(g, n, "node.reset");
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package byransha.ui.swing;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JFrame;
@@ -11,12 +13,18 @@ import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
 import byransha.graph.action.list.ListNode;
+import byransha.nodes.primitive.ColorNode;
+import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
+import byransha.ui.ColorSchemeNode;
 import byransha.util.ListChangeListener;
 
 public class SwingFrontend extends SystemNode {
+	public final ColorSchemeNode colorStyle;
+	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
+	public ColorNode backgroundColor = new ColorNode(this, Color.pink);
 
 	public final Map<ChatNode, JFrame> frames = new HashMap<>();
 
@@ -24,6 +32,8 @@ public class SwingFrontend extends SystemNode {
 
 	public SwingFrontend(BGraph g) {
 		super(g);
+		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
+		this.colorStyle = schemeNodes.getFirst();
 
 		fonts = new ListNode<>(g, "available fonts");
 		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
@@ -91,7 +101,7 @@ public class SwingFrontend extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Swing GUI";
 	}
 }

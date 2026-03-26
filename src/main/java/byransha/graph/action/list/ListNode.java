@@ -94,7 +94,7 @@ public final class ListNode<T extends BNode> extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return label == null ? "a list" : label;
 	}
 
@@ -156,7 +156,7 @@ public final class ListNode<T extends BNode> extends BNode {
 			var d = new DistributionNode<V>(g) {
 
 				@Override
-				public String prettyName() {
+				public String toString() {
 					return inputNode.label;
 				}
 			};

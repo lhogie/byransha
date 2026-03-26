@@ -20,12 +20,12 @@ public class SmallInfoView extends NodeView<BNode> {
 
 	@Override
 	public JsonNode jsonView() {
-		return new TextNode(viewedNode.prettyName());
+		return new TextNode(viewedNode.toString());
 	}
 
 	@Override
 	public void writeTo(Sheet pane) {
-		pane.appendToCurrentLine(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")",
+		pane.appendToCurrentLine(viewedNode + " - " + viewedNode + " (" + viewedNode.whatIsThis() + ")",
 				g.translator);
 	}
 

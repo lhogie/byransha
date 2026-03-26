@@ -36,7 +36,7 @@ public class Person extends BusinessNode {
 
 	public Person(BGraph g) {
 		super(g);
-		quotite.setBounds(new Bounds(0,  100));
+		quotite.setBounds(new Bounds(0, 100));
 		orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
 		etatCivil = new EtatCivil(g);
 		positions = new ListNode(g, "positions");
@@ -54,18 +54,10 @@ public class Person extends BusinessNode {
 	@Override
 	public String toString() {
 		if (etatCivil == null) {
-			return super.toString();
-		}
-		return etatCivil.name.get();
-	}
-
-	@Override
-	public String prettyName() {
-		if (etatCivil == null) {
 			return null;
 		}
 
-		return etatCivil.prettyName();
+		return etatCivil.toString();
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.User;
 
 public class Status extends BusinessNode {
 
@@ -19,7 +18,7 @@ public class Status extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return name.get();
+	public String toString() {
+		return name.toString();
 	}
 }

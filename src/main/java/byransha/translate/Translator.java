@@ -156,7 +156,7 @@ public abstract class Translator extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Google translate";
 	}
 }

@@ -47,10 +47,6 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		this.bounds = b;
 	}
 
-	@Override
-	public String prettyName() {
-		return "" + get();
-	}
 
 	@Override
 	public Long valueFromString(String s) {

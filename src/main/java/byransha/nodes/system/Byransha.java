@@ -70,7 +70,7 @@ public class Byransha extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Byransha";
 	}
 

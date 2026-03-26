@@ -4,11 +4,9 @@ import java.lang.management.ManagementFactory;
 
 import javax.swing.JComponent;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
-import byransha.graph.view.NodeView;
 import byransha.nodes.primitive.TradUINodeView;
 
 public class JVMNode extends SystemNode {
@@ -18,7 +16,7 @@ public class JVMNode extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "JVM " + System.getProperty("java.version");
 	}
 

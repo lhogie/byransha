@@ -21,7 +21,7 @@ public class Website extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "website";
 	}
 

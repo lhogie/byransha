@@ -27,7 +27,7 @@ final public class JSONNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "some JSON data";
 	}
 

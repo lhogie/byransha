@@ -24,18 +24,12 @@ public class Publication extends BusinessNode {
 		return "Publication: " + title.get();
 	}
 
-	@Override
-	public String toString() {
-		if (title == null) {
-			return "Publication: " + id();
-		}
-		return title.get();
-	}
+	
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if (title != null && title.get() != null)
 			return title.get();
-		return null;
+		return "" + id();
 	}
 }

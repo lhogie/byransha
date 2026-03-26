@@ -18,7 +18,7 @@ public class MapNode<N extends BNode> extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "a map";
 	}
 

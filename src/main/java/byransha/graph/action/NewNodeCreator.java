@@ -40,7 +40,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "node creator";
 	}
 

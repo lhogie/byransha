@@ -29,7 +29,7 @@ public class GoogleTranslator extends Translator {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Google Translate";
 	}
 }

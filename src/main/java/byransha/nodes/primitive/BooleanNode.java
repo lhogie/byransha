@@ -16,16 +16,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 		super.createViews();
 	}
 
-	@Override
-	public String prettyName() {
-		Boolean v = get();
 
-		if (v == null) {
-			return "dunno";
-		} else {
-			return v.toString();
-		}
-	}
 
 	@Override
 	public Boolean valueFromString(String s) {

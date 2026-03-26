@@ -36,8 +36,8 @@ public class ClassNode extends BNode {
 		}
 
 		@Override
-		public String prettyName() {
-			return name.prettyName();
+		public String toString() {
+			return name.toString();
 		}
 	}
 
@@ -94,7 +94,7 @@ public class ClassNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return clazz.getName();
 	}
 

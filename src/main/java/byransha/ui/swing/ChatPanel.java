@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -18,9 +19,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.action.Jump;
 import byransha.nodes.system.ChatNode;
-import byransha.ui.ShellServer;
+import byransha.ui.shell.ShellServer;
 
 public class ChatPanel extends JPanel {
 
@@ -31,13 +34,43 @@ public class ChatPanel extends JPanel {
 	public CloseListener closeListener;
 	private final ChatSheet sheet;
 
+	public class ChatPanelNode extends BNode
+	{
+		ChatSheetNode sheet;
+		
+		protected ChatPanelNode(BGraph g) {
+			super(g);
+		}
+
+		@Override
+		public String toString() {
+			return "chat panel";
+		}
+	}
+	
+	public class ChatSheetNode extends BNode
+	{
+
+		protected ChatSheetNode(BGraph g) {
+			super(g);
+		}
+
+		@Override
+		public String toString() {
+			return "chat sheet";
+		}
+	}
+	
 	public ChatPanel(ChatNode chat) {
+		new ChatPanelNode (chat.g);
+		
 		setLayout(new BorderLayout());
-		setBackground(chat.g.ui.backgroundColor.get());
+		setBackground(chat.g.swing.backgroundColor.get());
 		setOpaque(true);
 
 		{
 			var mousePanel = new JPanel(new BorderLayout());
+			mousePanel.setOpaque(false);
 
 			sheet = new ChatSheet(chat);
 			var scroll = new JScrollPane(sheet);
@@ -49,6 +82,8 @@ public class ChatPanel extends JPanel {
 				JPanel topBar = new WrapPanel();
 				topBar.setOpaque(false);
 
+				topBar.add(addButton("organize frames", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
+						e -> WindowGridManager.arrangeInGrid(new ArrayList<>(chat.g.swing.frames.values()))));
 				topBar.add(addButton("clear chat", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> chat.nodes.elements.clear()));
 				topBar.add(addButton("go the root node", "home_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
@@ -86,7 +121,6 @@ public class ChatPanel extends JPanel {
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			try {
@@ -97,13 +131,13 @@ public class ChatPanel extends JPanel {
 				new Thread(() -> {
 					while (true) {
 						try {
-							String l = in.readLine();
+							String serverInput = in.readLine();
 
-							if (l == null) {
+							if (serverInput == null) {
 								sheet.appendToCurrentLine("Server stopped");
 								return;
 							} else {
-								sheet.appendToCurrentLine(l);
+								sheet.appendToCurrentLine(serverInput);
 							}
 						} catch (IOException err) {
 							chat.error(err);
@@ -112,7 +146,11 @@ public class ChatPanel extends JPanel {
 					}
 				}).start();
 
+				out.println(chat.id());
+				out.flush();
+
 				var chatInput = new JTextField();
+				chatInput.setOpaque(false);
 				add(chatInput, BorderLayout.SOUTH);
 				chatInput.addActionListener(i -> {
 					out.println(chatInput.getText());

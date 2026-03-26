@@ -66,7 +66,7 @@ public class ChatSheet extends Sheet {
 
 		newLine();
 		appendToCurrentLine(Utils.idShower(n, 20, 0, chat));
-		appendToCurrentLine(n.prettyName() + " (" + n.whatIsThis() + ")");
+		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();
 		n.views().getFirst().writeTo(this);

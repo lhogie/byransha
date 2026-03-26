@@ -77,4 +77,15 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public abstract V defaultValue();
+	
+	@Override
+	public String toString() {
+		var v = get();
+
+		if (v == null) {
+			return "undefined";
+		} else {
+			return v.toString();
+		}
+	}
 }

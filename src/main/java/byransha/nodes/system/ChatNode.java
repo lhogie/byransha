@@ -58,14 +58,14 @@ public class ChatNode extends BNode {
 			var on = new ObjectNode(factory);
 			r.add(on);
 			on.put("id", n.id());
-			on.put("pretty name", n.prettyName());
+			on.put("pretty name", n.toString());
 
 			if (n instanceof NodeAction action) {
 				var parmNode = new ObjectNode(factory);
 				on.set("parameters", parmNode);
 
 				n.forEachOutInFields(n.getClass(), NodeAction.class,
-						(f, o, ro) -> parmNode.put(f.getName(), o.prettyName()));
+						(f, o, ro) -> parmNode.put(f.getName(), o.toString()));
 			}
 		}
 
@@ -78,7 +78,7 @@ public class ChatNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return user + "'s chat";
 	}
 

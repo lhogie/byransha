@@ -27,7 +27,7 @@ public class Office extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if (name != null) {
 			return "Office: " + name.get();
 		}

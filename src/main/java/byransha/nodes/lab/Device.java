@@ -24,7 +24,7 @@ public class Device extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if(brand != null || serialNumber != null || modelName != null) {
 			String pretty = "";
 			if(brand != null && brand.get() != null && !brand.get().isBlank()) {

@@ -98,7 +98,7 @@ public abstract class DistributionNode<V> extends BNode {
 			chartPanel.setBackground(new Color(0, 0, 0, 0));
 			chartPanel.setOpaque(false);
 			chartPanel.setPreferredSize(new Dimension(300, 300));
-			DraggableChart.makeFileDraggable(chartPanel, viewedNode.prettyName());
+			DraggableChart.makeFileDraggable(chartPanel, viewedNode.toString());
 			sheet.appendToCurrentLine(chartPanel);
 		}
 

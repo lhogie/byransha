@@ -1,10 +1,10 @@
-package byransha.ui;
+package byransha.ui.shell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,83 +17,63 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class ShellServer extends SystemNode {
+public class Client extends SystemNode {
+	ChatNode currentChat;
+
 	@FunctionalInterface
 	interface CommandAction {
 		void exec(PrintWriter out, List<String> parms) throws Throwable;
 	}
 
-	public static final int DEFAULT_PORT = 1000;
-
 	record Command(String description, CommandAction action) {
 	}
 
 	private final Map<String, Command> commands = new HashMap<>();
-	public ChatNode currentChat;
+	private Socket socket;
 
-	public ShellServer(BGraph g, int port) throws Throwable {
+	public Client(Socket clientSocket, BGraph g) throws IOException {
 		super(g);
-		System.out.println("Starting shell server on port " + port);
+		this.socket = clientSocket;
+		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		var out = new PrintWriter(clientSocket.getOutputStream(), true);
+		var chatID = Integer.valueOf(in.readLine());
+		currentChat = (ChatNode) g.indexes.byId.get(chatID);
 		initializeCommands(g);
 
 		new Thread(() -> {
 			try {
-				startServer(port);
+				while (true) {
+					String line = in.readLine();
+
+					if (line == null)
+						break;
+
+					line = line.trim();
+
+					if (line.isEmpty()) {
+						out.println("Empty command received, ignoring");
+					} else if (line.startsWith("auth ")) {
+						var username = line.substring("auth ".length() + 1).trim();
+						var userhash = username.hashCode();
+						out.println(userhash);
+					} else if (line.startsWith(".")) {
+						showView(line.substring(1), out);
+					} else if (line.startsWith("/")) {
+						execLocalCommand(line.substring(1), out);
+					} else {
+						execAction(line, out);
+					}
+				}
 			} catch (Throwable err) {
-				error(err);
+				g.error(err);
+			}
+
+			try {
+				clientSocket.getOutputStream().flush();
+				clientSocket.close();
+			} catch (IOException e) {
 			}
 		}).start();
-	}
-
-	private void startServer(int port) throws Throwable {
-		try (var serverSocket = new ServerSocket(port)) {
-			System.out.println("Telnet server listening on port " + port);
-
-			while (true) {
-				try  {
-					var clientSocket = serverSocket.accept();
-					var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-					var out = new PrintWriter(clientSocket.getOutputStream(), true);
-
-					new Thread(() -> {
-						try {
-							while (true) {
-								String line = in.readLine();
-System.out.println("server receiv " + line);
-								if (line == null)
-									break;
-
-								line = line.trim();
-
-								if (line.isEmpty()) {
-									out.println("Empty command received, ignoring");
-								} else if (line.startsWith("auth ")) {
-									var username = line.substring("auth ".length() + 1).trim();
-									var userhash = username.hashCode();
-									out.println(userhash);
-								} else if (line.startsWith(".")) {
-									showView(line.substring(1), out);
-								} else if (line.startsWith("/")) {
-									execLocalCommand(line.substring(1), out);
-								} else {
-									execAction(line, out);
-								}
-							}
-						} catch (Throwable err) {
-							error(err);
-						}
-
-						try {
-							clientSocket.getOutputStream().flush();
-							clientSocket.close();
-						} catch (IOException e) {
-						}
-					}).start();
-				} catch (IOException e) {
-					System.err.println("Client error: " + e.getMessage());
-				}
-			}
-		}
 	}
 
 	private void initializeCommands(BGraph graph) {
@@ -125,11 +105,11 @@ System.out.println("server receiv " + line);
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
 				.println(currentChat.currentUser().chatList.elements.stream().map(c -> c.idAsText()).toList())));
 		commands.put("newchat",
-				new Command("create new chat", (out, parms) -> out.println(new ChatNode(currentUser()).id())));
-		commands.put("setcurrentchat", new Command("change chat",
-				(out, parms) -> out.println(currentChat = (ChatNode) g.indexes.byId.getByText(parms.removeFirst()))));
+				new Command("create new chat", (out, parms) -> out.println(new ChatNode(graph.currentUser()).id())));
+		commands.put("setcurrentchat", new Command("change chat", (out, parms) -> out
+				.println(currentChat = (ChatNode) graph.indexes.byId.getByText(parms.removeFirst()))));
 		commands.put("deletechat",
-				new Command("delete node", (out, parms) -> g.indexes.byId.getByText(parms.removeFirst()).delete()));
+				new Command("delete node", (out, parms) -> graph.indexes.byId.getByText(parms.removeFirst()).delete()));
 	}
 
 	private void execAction(String actionName, PrintWriter out) throws Throwable {
@@ -142,11 +122,11 @@ System.out.println("server receiv " + line);
 			var r = action.exec(currentChat);
 
 			for (var v : r.outNode.views()) {
-				out.println(v.prettyName() + ":");
+				out.println(v + ":");
 				out.println(v.describeAsJSON().toPrettyString());
 			}
 
-			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
+			out.println("*" + action + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
 		}
 	}
 
@@ -192,12 +172,7 @@ System.out.println("server receiv " + line);
 	}
 
 	@Override
-	public String whatIsThis() {
-		return "the TCP server for command line interaction with the graph";
-	}
-
-	@Override
-	public String prettyName() {
-		return "shell server";
+	public String toString() {
+		return socket.getInetAddress().getHostName() + ":" + socket.getPort();
 	}
 }

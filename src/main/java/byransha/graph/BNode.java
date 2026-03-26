@@ -315,11 +315,7 @@ public abstract class BNode {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return prettyName();
-	}
-
+	
 	public final int id() {
 		return id;
 	}
@@ -335,12 +331,12 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		return ColorPalette.forClass(getClass(), g.ui.colorStyle.style);
+		return ColorPalette.forClass(getClass(), g.swing.colorStyle.style);
 	}
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		int alpha = (int) g.ui.transparencyForNodeBackground.get().longValue();
+		int alpha = (int) g.swing.transparencyForNodeBackground.get().longValue();
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
@@ -353,7 +349,6 @@ public abstract class BNode {
 		return null;
 	}
 
-	public abstract String prettyName();
 
 	public boolean isReadOnly() {
 		return readOnly;
@@ -382,7 +377,7 @@ public abstract class BNode {
 		r.put("id", id());
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
-		r.put("prettyName", prettyName());
+		r.put("toString", toString());
 
 		var iconBytes = getIconBytes();
 
@@ -442,7 +437,7 @@ public abstract class BNode {
 
 	public JButton createJumpButton(ChatNode chat) {
 		var b = new TranslatableButton(chat.g.translator);
-		b.setText(prettyName());
+		b.setText(toString());
 
 //		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
@@ -454,7 +449,7 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpButton2(ChatNode chat) {
-		var b = new JButton(prettyName()) {
+		var b = new JButton(toString()) {
 			@Override
 			public Color getBackground() {
 				return getColor();

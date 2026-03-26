@@ -16,13 +16,13 @@ public class Position extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if (status != null && employer != null) {
-			return status.prettyName() + " at " + employer.prettyName();
+			return status + " at " + employer;
 		} else if (status != null) {
-			return status.prettyName();
+			return status.toString();
 		} else if (employer != null) {
-			return "job at " + employer.prettyName();
+			return "job at " + employer;
 		} else {
 			return "some position";
 		}

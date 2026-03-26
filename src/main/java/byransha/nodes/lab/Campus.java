@@ -22,7 +22,7 @@ public class Campus extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return name.get();
 	}
 }

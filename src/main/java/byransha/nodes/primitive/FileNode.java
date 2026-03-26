@@ -26,7 +26,7 @@ public class FileNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return file.getAbsolutePath();
 	}
 

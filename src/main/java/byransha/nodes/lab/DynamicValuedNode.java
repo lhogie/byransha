@@ -18,7 +18,7 @@ public abstract class DynamicValuedNode<OUT extends BNode> extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return "boh";
+	public String toString() {
+		return "dynamic node";
 	}
 }

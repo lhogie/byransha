@@ -47,7 +47,7 @@ public class ListNodeView<T extends BNode> extends NodeView<ListNode<T>> {
 		updateLabel();
 		sheet.currentLine.add(new TextDisplayComponent(g.translator, label.get()));
 		var line = sheet.newLine();
-var chat = ((ChatSheet) sheet).chat; 
+		var chat = ((ChatSheet) sheet).chat;
 		for (int i = 0; i < viewedNode.elements.size(); ++i) {
 			var element = viewedNode.elements.get(i);
 			var elementPanel = elementPanel(element, i + 1, chat);
@@ -82,7 +82,7 @@ var chat = ((ChatSheet) sheet).chat;
 
 	private JComponent elementPanel(T element, int i, ChatNode chat) {
 		var elementPanel = new JPanel();
-		elementPanel.setToolTipText(element.prettyName() + ", " + element.whatIsThis());
+		elementPanel.setToolTipText(element + ", " + element.whatIsThis());
 		elementPanel.setOpaque(false);
 		elementPanel.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.LOWERED));
 
@@ -94,7 +94,7 @@ var chat = ((ChatSheet) sheet).chat;
 		if (element instanceof PrimitiveValueNode) {
 			element.views().getFirst().writeTo(sheet);
 		} else {
-			var s = element.prettyName();
+			var s = element.toString();
 			sheet.appendToCurrentLine(s, element.g.translator);
 		}
 

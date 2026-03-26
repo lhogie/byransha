@@ -21,8 +21,8 @@ public class FontNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return "font " + font.getName();
+	public String toString() {
+		return font.getName();
 	}
 
 }

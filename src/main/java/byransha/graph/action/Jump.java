@@ -25,7 +25,7 @@ public class Jump extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "jump to node " + target;
 	}
 

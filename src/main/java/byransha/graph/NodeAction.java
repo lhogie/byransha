@@ -57,7 +57,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
 		var applies = applies(chat);
 
-		if (applies || g.ui.proposeUnapplicableActions.get()) {
+		if (applies) {
 			b.setToolTipText(whatItDoes());
 			b.setEnabled(applies);
 		}
@@ -78,12 +78,12 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
 	}
 
 	public String technicalName() {
-		return prettyName().replace(' ', '_').toLowerCase();
+		return toString().replace(' ', '_').toLowerCase();
 	}
 
 	public abstract String whatItDoes();
@@ -120,7 +120,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public String prettyName() {
+		public String toString() {
 			return "Run";
 		}
 

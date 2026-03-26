@@ -69,7 +69,7 @@ public abstract class EventList extends BNode {
 	public abstract Event rewind() throws Throwable;
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "event list";
 	}
 

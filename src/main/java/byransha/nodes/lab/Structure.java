@@ -12,7 +12,7 @@ public class Structure extends BusinessNode {
 
 		@Override
 		public ListNode<Person> exec() {
-			var s = g.indexes.nodesList.stream().filter(n -> n instanceof Person).map(n -> (Person) n)
+			var s = g.indexes.byClass.m.get(Person.class).stream().map(n -> (Person) n)
 					.filter(p -> p.researchGroup == Structure.this).toList();
 			var l = new ListNode<Person>(g, "members");
 			l.elements.addAll(s);
@@ -59,7 +59,7 @@ public class Structure extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if (name == null || name.get() == null || name.get().isEmpty()) {
 			return null;
 		}

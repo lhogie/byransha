@@ -42,7 +42,7 @@ public class EtatCivil extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		String prettyName = "";
 		if (name != null && name.get() != null && !name.get().isBlank()) {
 			prettyName = name.get();

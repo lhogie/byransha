@@ -15,7 +15,7 @@ public class JavaFXFrontend extends SystemNode {
 
 	public JavaFXFrontend(BGraph g, VBox vbox) {
 		super(g);
-		g.javafx = this;
+//		g.javafx = this;
 		this.vbox = vbox;
 
 		ChatNode chat = null;
@@ -38,7 +38,7 @@ public class JavaFXFrontend extends SystemNode {
 	public void addNode(BNode n) {
 		vbox.getChildren().clear();
 		vbox.getChildren()
-				.add(new ByText('"' + n.prettyName() + "\" is " + n.whatIsThis() + ". Its ID is " + n.id() + ".\n\n"));
+				.add(new ByText("'" + n + "'is " + n.whatIsThis() + ". Its ID is " + n.id() + ".\n\n"));
 		n.views().getFirst().writeTo(vbox);
 		vbox.getChildren().add(new Text("\nErrors:\n"));
 		n.findView(ErrorsView.class).writeTo(vbox);
@@ -53,7 +53,7 @@ public class JavaFXFrontend extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "JavaFX GUI";
 	}
 

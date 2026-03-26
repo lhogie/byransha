@@ -21,7 +21,7 @@ public abstract class Genre extends BNode {
 		}
 
 		@Override
-		public String prettyName() {
+		public String toString() {
 			return "male";
 		}
 	}
@@ -33,7 +33,7 @@ public abstract class Genre extends BNode {
 		}
 
 		@Override
-		public String prettyName() {
+		public String toString() {
 			return "male";
 		}
 	}
@@ -45,7 +45,7 @@ public abstract class Genre extends BNode {
 		}
 
 		@Override
-		public String prettyName() {
+		public String toString() {
 			return "ungenred";
 		}
 	}

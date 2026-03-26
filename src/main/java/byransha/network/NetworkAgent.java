@@ -226,7 +226,7 @@ public class NetworkAgent extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "network agent";
 	}
 }

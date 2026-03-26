@@ -40,12 +40,12 @@ public abstract class NodeView<N extends BNode> extends BNode {
 	public abstract String whatItShows();
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
 	}
 
 	public String technicalName() {
-		return prettyName().replace(' ', '_').toLowerCase();
+		return toString().replace(' ', '_').toLowerCase();
 	}
 
 	protected abstract boolean allowsEditing();

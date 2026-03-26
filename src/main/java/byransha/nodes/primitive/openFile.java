@@ -30,7 +30,7 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "open";
 	}
 
