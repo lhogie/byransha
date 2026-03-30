@@ -20,7 +20,7 @@ public class ErrorLog extends SystemNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "error log";
 	}
 

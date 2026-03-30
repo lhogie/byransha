@@ -24,7 +24,7 @@ public class DocumentNode extends BNode {
     }
 
     @Override
-    public String prettyName() {
+    public String toString() {
         return title.get();
     }
 }

@@ -1,11 +1,10 @@
 package byransha.graph.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
@@ -21,7 +20,7 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public ArrayNode jsonView() {
 		var r = new ArrayNode(factory);
 
 		for (var err : viewedNode.errors()) {
@@ -37,9 +36,9 @@ public class ErrorsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet pane) {
 		for (var err : viewedNode.errors()) {
-			pane.appendToCurrentFlow("Error: " + err.msg);
+			pane.appendToCurrentLine("Error: " + err.msg, g.translator);
 			pane.newLine();
 		}
 	}

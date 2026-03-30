@@ -16,7 +16,7 @@ public class URLNode extends StringNode {
 		super.createViews();
 	}
 
-	public String prettyName() {
+	public String prettyString() {
 		return get();
 	}
 

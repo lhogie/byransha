@@ -1,6 +1,7 @@
 package byransha.nodes.primitive;
 
 import java.util.List;
+import java.util.Objects;
 
 import byransha.graph.BGraph;
 import byransha.graph.NodeError;
@@ -12,6 +13,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	public StringNode(BGraph g) {
 		super(g);
+		Objects.requireNonNull(g);
 	}
 
 	@Override
@@ -22,12 +24,14 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	public StringNode(BGraph g, String init, String re) {
 		this(g);
+		if (g==null)
+			throw new NullPointerException();
 		this.re = re;
 		set(init);
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return get();
 	}
 

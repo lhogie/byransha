@@ -1,10 +1,10 @@
-package byransha.ui;
+package byransha.ui.shell;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +17,9 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class ShellServer extends SystemNode {
+public class Client extends SystemNode {
+	ChatNode currentChat;
+
 	@FunctionalInterface
 	interface CommandAction {
 		void exec(PrintWriter out, List<String> parms) throws Throwable;
@@ -27,33 +29,21 @@ public class ShellServer extends SystemNode {
 	}
 
 	private final Map<String, Command> commands = new HashMap<>();
-	public ChatNode currentChat;
+	private Socket socket;
 
-	public ShellServer(BGraph g, int port) throws Throwable {
+	public Client(Socket clientSocket, BGraph g) throws IOException {
 		super(g);
-		System.out.println("Starting shell server on port " + port);
+		this.socket = clientSocket;
+		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		var out = new PrintWriter(clientSocket.getOutputStream(), true);
+		var chatID = Integer.valueOf(in.readLine());
+		currentChat = (ChatNode) g.indexes.byId.get(chatID);
 		initializeCommands(g);
 
 		new Thread(() -> {
 			try {
-				startServer(port);
-			} catch (Throwable err) {
-				error(err);
-			}
-		}).start();
-	}
-
-	private void startServer(int port) throws Throwable {
-		try (var serverSocket = new ServerSocket(port)) {
-			System.out.println("Telnet server listening on port " + port);
-
-			while (true) {
-				try (var clientSocket = serverSocket.accept();
-						var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-						var out = new PrintWriter(clientSocket.getOutputStream(), true)) {
-
+				while (true) {
 					String line = in.readLine();
-					System.out.println("line: " + line);
 
 					if (line == null)
 						break;
@@ -73,14 +63,17 @@ public class ShellServer extends SystemNode {
 					} else {
 						execAction(line, out);
 					}
-
-					clientSocket.getOutputStream().flush();
-					clientSocket.close();
-				} catch (IOException e) {
-					System.err.println("Client error: " + e.getMessage());
 				}
+			} catch (Throwable err) {
+				g.error(err);
 			}
-		}
+
+			try {
+				clientSocket.getOutputStream().flush();
+				clientSocket.close();
+			} catch (IOException e) {
+			}
+		}).start();
 	}
 
 	private void initializeCommands(BGraph graph) {
@@ -102,8 +95,8 @@ public class ShellServer extends SystemNode {
 		commands.put("ls", new Command("list outs",
 				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
-		commands.put("lf", new Command("list fields",
-				(out, parms) -> currentNode().forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
+		commands.put("lf", new Command("list fields", (out, parms) -> currentNode()
+				.forEachOutInFields(currentNode().getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
 
 		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode().id())));
 
@@ -111,12 +104,12 @@ public class ShellServer extends SystemNode {
 		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
 				.println(currentChat.currentUser().chatList.elements.stream().map(c -> c.idAsText()).toList())));
-		commands.put("newchat", new Command("create new chat",
-				(out, parms) -> out.println(new ChatNode(currentUser()).id())));
-		commands.put("setcurrentchat", new Command("change chat",
-				(out, parms) -> out.println(currentChat = (ChatNode) g.indexes.byId.getByText(parms.removeFirst()))));
+		commands.put("newchat",
+				new Command("create new chat", (out, parms) -> out.println(new ChatNode(graph.currentUser()).id())));
+		commands.put("setcurrentchat", new Command("change chat", (out, parms) -> out
+				.println(currentChat = (ChatNode) graph.indexes.byId.getByText(parms.removeFirst()))));
 		commands.put("deletechat",
-				new Command("delete node", (out, parms) -> g.indexes.byId.getByText(parms.removeFirst()).delete()));
+				new Command("delete node", (out, parms) -> graph.indexes.byId.getByText(parms.removeFirst()).delete()));
 	}
 
 	private void execAction(String actionName, PrintWriter out) throws Throwable {
@@ -129,11 +122,11 @@ public class ShellServer extends SystemNode {
 			var r = action.exec(currentChat);
 
 			for (var v : r.outNode.views()) {
-				out.println(v.prettyName() + ":");
-				out.println(v.toJSON().toPrettyString());
+				out.println(v + ":");
+				out.println(v.describeAsJSON().toPrettyString());
 			}
 
-			out.println("*" + action.prettyName() + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
+			out.println("*" + action + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
 		}
 	}
 
@@ -143,7 +136,7 @@ public class ShellServer extends SystemNode {
 		if (view == null) {
 			out.println("no such view " + viewName + " on node " + currentNode() + " of " + currentNode().getClass());
 		} else {
-			var r = view.toJSON();
+			var r = view.describeAsJSON();
 			out.println(r.toPrettyString());
 		}
 	}
@@ -179,12 +172,7 @@ public class ShellServer extends SystemNode {
 	}
 
 	@Override
-	public String whatIsThis() {
-		return "the TCP server for command line interaction with the graph";
-	}
-
-	@Override
-	public String prettyName() {
-		return "shell server";
+	public String toString() {
+		return socket.getInetAddress().getHostName() + ":" + socket.getPort();
 	}
 }

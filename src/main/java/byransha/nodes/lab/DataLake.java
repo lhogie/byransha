@@ -84,7 +84,7 @@ public class DataLake extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "datalake at " + dir.getAbsolutePath();
 	}
 

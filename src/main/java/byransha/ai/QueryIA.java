@@ -18,9 +18,9 @@ public class QueryIA extends NodeAction<BNode, TextNode> {
 	OllamaModel ollamaModel = new OllamaModel();
 
 	public QueryIA(BGraph g, BNode n) {
-		super(g, n);
+		super(g, n, "IA");
 		prompt = new StringNode(g, "", ".+");
-		inputJSON = new JSONNode(g, n.toJSONNode());
+		inputJSON = new JSONNode(g, n.describeAsJSON());
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class QueryIA extends NodeAction<BNode, TextNode> {
 
 	@Override
 	public ActionResult<BNode, TextNode> exec(ChatNode chat) throws Throwable {
-		var iaResponse = queryIA(inputNode.toJSONNode(), prompt.get());
+		var iaResponse = queryIA(inputNode.describeAsJSON(), prompt.get());
 		var textNode = new TextNode(g, "IA response", iaResponse);
 		textNode.info = true;
 		return createResultNode(textNode, true);

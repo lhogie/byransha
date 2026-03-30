@@ -1,10 +1,10 @@
 package byransha.ui.swing;
 
-import byransha.graph.BNode;
+import byransha.translate.Translator;
 
 public class TextDisplayComponent extends TranslatableTextArea {
-	public TextDisplayComponent(BNode n, String s) {
-		super(n);
+	public TextDisplayComponent(Translator translator, String s) {
+		super(translator);
 		setText(s);
 		setEditable(false);
 		setBackground(null);

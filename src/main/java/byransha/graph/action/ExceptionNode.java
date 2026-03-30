@@ -19,7 +19,7 @@ public class ExceptionNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return err.getMessage();
 	}
 

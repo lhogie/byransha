@@ -22,8 +22,8 @@ public class Contract extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return name.get() + "(held by " + holder.prettyName() + ")";
+	public String toString() {
+		return name.get() + "(held by " + holder + ")";
 	}
 
 	@Override

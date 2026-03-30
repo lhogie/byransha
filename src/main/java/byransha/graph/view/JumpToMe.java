@@ -6,12 +6,14 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.nodes.system.ChatNode;
+import byransha.ui.swing.Sheet;
 import javafx.scene.layout.Pane;
 
 public class JumpToMe extends NodeView<BNode> {
 	private String label;
 	private JButton b;
+	private ChatNode targetChat;
 
 	public JumpToMe(BGraph g, BNode node) {
 		super(g, node);
@@ -35,13 +37,13 @@ public class JumpToMe extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public JsonNode jsonView() {
 		return new com.fasterxml.jackson.databind.node.IntNode(viewedNode.id());
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
-		pane.appendToCurrentFlow(viewedNode.createJumpButton(pane.chat));
+	public void writeTo(Sheet pane) {
+		pane.appendToCurrentLine(viewedNode.createJumpButton(targetChat));
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package byransha.ui.swing;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -17,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.SwingUtilities;
+import javax.swing.ToolTipManager;
 
 /**
  * A Swing component that renders a filled circle with customizable size and
@@ -46,8 +48,21 @@ public class CircleComponent extends JComponent {
 		this.borderWidth = borderWidth;
 		setOpaque(false);
 		updatePreferredSize();
+		ToolTipManager.sharedInstance().registerComponent(this);
 	}
 
+	@Override
+	public String getToolTipText() {
+		String tip = super.getToolTipText();
+		if (tip == null) {
+			for (Component c = getParent(); c instanceof JComponent jc; c = c.getParent()) {
+				tip = jc.getToolTipText();
+				if (tip != null)
+					return tip;
+			}
+		}
+		return tip;
+	}
 	// ── Painting ──────────────────────────────────────────────────────────────
 
 	@Override

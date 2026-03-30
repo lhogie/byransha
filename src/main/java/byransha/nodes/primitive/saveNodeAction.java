@@ -20,7 +20,7 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	@Override
 	public ActionResult<TextNode, FileNode> exec(ChatNode chat)
 			throws IllegalArgumentException, IllegalAccessException, IOException {
-		var path = Path.of(fileNameNode.getOrDefault(prettyName() + "-" + id() + ".txt"));
+		var path = Path.of(fileNameNode.getOrDefault(inputNode + "-" + inputNode.id() + ".txt"));
 		Files.write(path, inputNode.get().getBytes());
 		var fileNode = new FileNode(g);
 		fileNode.file = path.toFile();
@@ -33,7 +33,7 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Save";
 	}
 

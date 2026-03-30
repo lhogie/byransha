@@ -36,7 +36,7 @@ public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, T
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return inputNode.size() > 0;
+		return inputNode.elements.size() > 0;
 	}
 
 }

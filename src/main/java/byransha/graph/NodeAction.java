@@ -19,11 +19,16 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	public boolean stopRequested = false;
 	public Thread thread;
 //	public final boolean execStraightAway;
-	String category;
+	public final String category;
 
 	public NodeAction(BGraph g, IN inputNode) {
+		this(g, inputNode, null);
+	}
+
+	public NodeAction(BGraph g, IN inputNode, String category) {
 		super(g);
 		this.inputNode = inputNode;
+		this.category = category;
 	}
 
 	public List<BNode> parameters() {
@@ -39,8 +44,8 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public ObjectNode toJSONNode() {
-		var r = super.toJSONNode();
+	public ObjectNode describeAsJSON() {
+		var r = (ObjectNode) super.describeAsJSON();
 		r.put("canExecute", canExecute(currentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;
@@ -52,7 +57,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
 		var applies = applies(chat);
 
-		if (applies || g.ui.proposeUnapplicableActions.get()) {
+		if (applies) {
 			b.setToolTipText(whatItDoes());
 			b.setEnabled(applies);
 		}
@@ -73,12 +78,12 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
 	}
 
 	public String technicalName() {
-		return prettyName().replace(' ', '_').toLowerCase();
+		return toString().replace(' ', '_').toLowerCase();
 	}
 
 	public abstract String whatItDoes();
@@ -115,7 +120,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		}
 
 		@Override
-		public String prettyName() {
+		public String toString() {
 			return "Run";
 		}
 

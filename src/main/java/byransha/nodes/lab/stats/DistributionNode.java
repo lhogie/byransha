@@ -11,11 +11,12 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public abstract class DistributionNode<V> extends BNode {
 	public DistributionNode(BGraph g) {
@@ -55,6 +56,12 @@ public abstract class DistributionNode<V> extends BNode {
 
 			return null;
 		}
+
+		public ObjectNode toJSON() {
+			var r = new ObjectNode(factory);
+			forEach(e -> r.put(e.element.toString(), e.n));
+			return r;
+		}
 	}
 
 	public final Distribution<V> entries = new Distribution<>();
@@ -71,7 +78,7 @@ public abstract class DistributionNode<V> extends BNode {
 		}
 
 		@Override
-		public void writeTo(ChatSheet pane) {
+		public void writeTo(Sheet sheet) {
 			DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 			viewedNode.entries.forEach(e -> dataset.setValue(e.element.toString(), e.n));
 
@@ -91,14 +98,13 @@ public abstract class DistributionNode<V> extends BNode {
 			chartPanel.setBackground(new Color(0, 0, 0, 0));
 			chartPanel.setOpaque(false);
 			chartPanel.setPreferredSize(new Dimension(300, 300));
-			DraggableChart.makeFileDraggable(chartPanel, viewedNode.prettyName());
-			pane.appendToCurrentFlow(chartPanel);
+			DraggableChart.makeFileDraggable(chartPanel, viewedNode.toString());
+			sheet.appendToCurrentLine(chartPanel);
 		}
 
 		@Override
-		public JsonNode toJSON() {
-			// TODO Auto-generated method stub
-			return null;
+		public JsonNode jsonView() {
+			return viewedNode.entries.toJSON();
 		}
 
 		@Override

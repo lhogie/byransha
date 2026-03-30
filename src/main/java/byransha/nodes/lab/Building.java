@@ -16,7 +16,7 @@ public class Building extends BusinessNode {
 	}
 
 	public Office findOffice(String name) {
-		for (var o : offices.elements()) {
+		for (var o : offices.elements) {
 			if (o.name.get().equals(name)) {
 				return o;
 			}
@@ -26,7 +26,7 @@ public class Building extends BusinessNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return name.get();
 	}
 

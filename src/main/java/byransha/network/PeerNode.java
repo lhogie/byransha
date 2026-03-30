@@ -22,8 +22,8 @@ public class PeerNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return null;
+	public String toString() {
+		return address.getHostName() + ":" + port + "/" + peerID();
 	}
 
 	public int peerID() {

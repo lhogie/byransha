@@ -15,8 +15,8 @@ import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
 import byransha.nodes.lab.Person;
 import byransha.nodes.system.ChatNode;
-import byransha.ui.ShellServer;
 import byransha.ui.javafx.JavaFXFrontend;
+import byransha.ui.shell.ShellServer;
 import byransha.ui.swing.SwingFrontend;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
@@ -27,6 +27,8 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 
+//		System.out.println("IA".split("/").length);
+		
 		// java.awt.Toolkit.getDefaultToolkit();
 //		Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 		var argMap = mapArgs(args);
@@ -41,8 +43,8 @@ public class Main {
 		new ChatNode(g.currentUser()).append(g.application);
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
+		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + ShellServer.DEFAULT_PORT)));
 		new SwingFrontend(g);
-		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "1000")));
 		// new JavaFXFrontend(g);
 
 		g.eventList.add(createPersonEvent("Luc"));

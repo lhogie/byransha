@@ -33,7 +33,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "result for action " + runningAction;
 	}
 

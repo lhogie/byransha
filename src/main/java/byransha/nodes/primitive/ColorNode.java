@@ -37,9 +37,5 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 		return "a color";
 	}
 
-	@Override
-	public String prettyName() {
-		return get() != null ? get().toString() : "null";
-	}
 
 }

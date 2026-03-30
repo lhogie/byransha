@@ -19,10 +19,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 		return "DateNode";
 	}
 
-	@Override
-	public String prettyName() {
-		return "Date";
-	}
+
 
 	@Override
 	public OffsetDateTime valueFromString(String s) {

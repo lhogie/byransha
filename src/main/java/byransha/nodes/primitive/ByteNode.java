@@ -33,10 +33,10 @@ public class ByteNode extends PrimitiveValueNode<byte[]> {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		if (get() == null)
 			return "0 bytes";
-		return get().length + " bytes";
+		return "no data";
 	}
 
 	@Override

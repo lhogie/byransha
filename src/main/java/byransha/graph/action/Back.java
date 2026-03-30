@@ -17,7 +17,7 @@ final public class Back extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult exec(ChatNode chat) {
-		var h = chat.get();
+		var h = chat.nodes.elements;
 
 		if (applies(chat)) {
 			h.remove(h.size() - 1);
@@ -30,7 +30,7 @@ final public class Back extends NodeAction<BNode, BNode> {
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return chat.get().size() > 1;
+		return chat.nodes.elements.size() > 1;
 	}
 
 }

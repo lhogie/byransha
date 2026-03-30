@@ -1,35 +1,31 @@
 package byransha.graph;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
+import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.LongNode;
 
 public class AllIndexesNode extends BNode {
 
-	final LongNode nbClasses;
-	final ListNode<ClassNode> classes;
+	final DynamicValuedNode<LongNode> nbClasses = new DynamicValuedNode<>(this) {
+		@Override
+		public LongNode exec() {
+			return new LongNode(this, (long) g.indexes.byClass.m.keys().size());
+		}
+	};
+
+	final DynamicValuedNode<ListNode<ClassNode>> classes = new DynamicValuedNode<ListNode<ClassNode>>(this) {
+		@Override
+		public ListNode<ClassNode> exec() {
+			ListNode<ClassNode> r = new ListNode<ClassNode>(g, "classes");
+			g.indexes.byClass.m.get(ClassNode.class).forEach(c -> r.elements.add((ClassNode) c));
+			return r;
+		}
+	};
 
 	protected AllIndexesNode(BGraph g) {
 		super(g);
-		nbClasses = new LongNode(g) {
-			@Override
-			public Long get() {
-				return (long) g.indexes.byClass.m.keys().size();
-			}
-		};
 		nbClasses.readOnly = true;
-
-		classes = new ListNode<>(g, "classes") {
-			@Override
-			public List<ClassNode> get() {
-				return new ArrayList<>((Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class));
-			}
-		};
-
 	}
 
 	@Override
@@ -38,7 +34,7 @@ public class AllIndexesNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "indexes";
 	}
 

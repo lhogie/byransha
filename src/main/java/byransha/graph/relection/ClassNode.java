@@ -36,14 +36,18 @@ public class ClassNode extends BNode {
 		}
 
 		@Override
-		public String prettyName() {
-			return name.prettyName();
+		public String toString() {
+			return name.toString();
 		}
 	}
 
 	public ClassNode(BGraph g, Class c) {
 		super(g);
 		this.clazz = c;
+	}
+
+	public String whatItRepresents() {
+		return "a " + clazz.getSimpleName();
 	}
 
 	public void link() {
@@ -90,7 +94,7 @@ public class ClassNode extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return clazz.getName();
 	}
 

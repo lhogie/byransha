@@ -43,7 +43,7 @@ public class User extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return name.get();
 	}
 

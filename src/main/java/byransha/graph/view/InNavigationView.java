@@ -1,11 +1,10 @@
 package byransha.graph.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public class InNavigationView extends NodeView<BNode> {
 
@@ -19,14 +18,14 @@ public class InNavigationView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public ObjectNode describeAsJSON() {
 		ObjectNode r = new ObjectNode(BNode.factory);
 
 		return r;
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet pane) {
 		g.indexes.reverseNavigation.forEachInOf(viewedNode, in -> in.source().findView(JumpToMe.class).writeTo(pane));
 	}
 

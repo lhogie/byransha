@@ -31,13 +31,9 @@ public class ACMClassifier extends BusinessNode {
 		super(g);
 	}
 
-	@Override
-	public String toString() {
-		return prettyName();
-	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return code + ": " + descr;
 	}
 

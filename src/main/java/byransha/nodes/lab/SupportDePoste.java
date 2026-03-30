@@ -18,8 +18,8 @@ public class SupportDePoste extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
-		return id.prettyName();
+	public String toString() {
+		return id.toString();
 	}
 
 }

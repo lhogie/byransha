@@ -25,6 +25,6 @@ public class DotAction extends NodeAction<ListNode, TextNode> {
 
 	@Override
 	public boolean applies(ChatNode chat) {
-		return inputNode.size() > 0;
+		return inputNode.elements.size() > 0;
 	}
 }

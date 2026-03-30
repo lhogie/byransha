@@ -1,11 +1,8 @@
 package byransha.graph.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public class AvailableViewsView extends NodeView<BNode> {
 	int edgeSize = 60;
@@ -15,18 +12,8 @@ public class AvailableViewsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
-		ArrayNode r = new ArrayNode(null);
-		var views = viewedNode.views();
-		views.forEach(v -> r.add(v.toJSONNode()));
-		return r;
-	}
-
-	@Override
-	public void writeTo(ChatSheet pane) {
-		viewedNode.views().forEach(v -> {
-			v.findView(JumpToMe.class).writeTo(pane);
-		});
+	public void writeTo(Sheet pane) {
+		viewedNode.views().forEach(v -> v.findView(JumpToMe.class).writeTo(pane));
 	}
 
 	@Override

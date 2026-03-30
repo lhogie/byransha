@@ -2,19 +2,21 @@ package byransha.translate;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
+
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.ui.swing.Translatable;
+import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
 public abstract class Translator extends BNode {
 	public enum Language {
@@ -54,7 +56,9 @@ public abstract class Translator extends BNode {
 
 		targetLanguage.valueChangeListeners.add((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
-				new Thread(() -> translateRecursively(g.swing.f.getContentPane(), new HashSet<>())).start();
+				new Thread(() -> {
+					g.swing.frames.values().forEach(f -> translateRecursively(f.getContentPane(), new HashSet<>()));
+				}).start();
 			}
 		});
 	}
@@ -62,16 +66,24 @@ public abstract class Translator extends BNode {
 	private void translateRecursively(Component c, Set<Component> visited) {
 		visited.add(c);
 
-		if (c instanceof Translatable tr) {
+		if (c instanceof ComponentShowingTextAndToolTip tr) {
 			String initialText = tr.getText();
 			var translated = translate(initialText);
 
 			if (translated != null) {
 				tr.setText(translated);
+
+				if (c instanceof JComponent jc) {
+					SwingUtilities.invokeLater(() -> {
+						Rectangle rect = new Rectangle(0, 0, c.getWidth(), c.getHeight());
+						jc.scrollRectToVisible(rect);
+					});
+				}
 			}
 		} else if (c instanceof Container l) {
 			for (int i = 0; i < l.getComponentCount(); ++i) {
 				var child = l.getComponent(i);
+
 				if (!visited.contains(child)) {
 					translateRecursively(child, visited);
 				}
@@ -136,8 +148,6 @@ public abstract class Translator extends BNode {
 		}
 	}
 
-	
-
 	public abstract String googleTranslate(String text, Language from, Language to) throws Exception;
 
 	@Override
@@ -146,7 +156,7 @@ public abstract class Translator extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "Google translate";
 	}
 }

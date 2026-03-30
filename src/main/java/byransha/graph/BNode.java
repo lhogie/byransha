@@ -24,6 +24,7 @@ import javax.swing.JButton;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -36,7 +37,6 @@ import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.relection.ClassNode;
-import byransha.graph.view.AvailableActionsView;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
 import byransha.graph.view.JumpToMe;
@@ -203,10 +203,8 @@ public abstract class BNode {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
 
-						if (outNode != null) {
 							var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
 							consumer.accept(f, outNode, isFinal);
-						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						error(e);
 					}
@@ -236,13 +234,12 @@ public abstract class BNode {
 	}
 
 	public void createViews() {
-		cachedViews.elements.add(new KishanView(g, this));
+		cachedViews.elements.add(new KishanView(this));
 		cachedViews.elements.add(new SmallInfoView(g, this));
 		cachedViews.elements.add(new JumpToMe(g, this));
 //		cachedViews.elements.add(new OutNavigationView(g, this));
 //		cachedViews.elements.add(new InNavigationView(g, this));
 		cachedViews.elements.add(new ErrorsView(g, this));
-		cachedViews.elements.add(new AvailableActionsView(g, this));
 		cachedViews.elements.add(new DebugView(g, this));
 	}
 
@@ -259,7 +256,9 @@ public abstract class BNode {
 		consumer.accept(until);
 	}
 
-	public abstract String whatIsThis();
+	public String whatIsThis() {
+		return getClassNode().whatItRepresents();
+	}
 
 	public static class BFSResult {
 		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
@@ -314,11 +313,7 @@ public abstract class BNode {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return prettyName();
-	}
-
+	
 	public final int id() {
 		return id;
 	}
@@ -334,12 +329,12 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		return ColorPalette.forClass(getClass(), g.ui.colorStyle.style);
+		return ColorPalette.forClass(getClass(), g.swing.colorStyle.style);
 	}
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		int alpha = (int) g.ui.transparencyForNodeBackground.get().longValue();
+		int alpha = (int) g.swing.transparencyForNodeBackground.get().longValue();
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
@@ -352,7 +347,6 @@ public abstract class BNode {
 		return null;
 	}
 
-	public abstract String prettyName();
 
 	public boolean isReadOnly() {
 		return readOnly;
@@ -369,7 +363,7 @@ public abstract class BNode {
 
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 
-	public ObjectNode toJSONNode() {
+	public ObjectNode describeAsJSON() {
 		return toJSONNode(1);
 	}
 
@@ -381,7 +375,7 @@ public abstract class BNode {
 		r.put("id", id());
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
-		r.put("prettyName", prettyName());
+		r.put("toString", toString());
 
 		var iconBytes = getIconBytes();
 
@@ -392,16 +386,12 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions",
-				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.technicalName())).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new IntNode(e.id())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views",
-				new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.technicalName())).toList()));
+		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.id() + "")).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> {
-			outsNode.put(f.getName(), out.toJSONNode(depth - 1));
-		});
+		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out != null? out.id() : -1));
 		r.set("outs", outsNode);
 
 		return r;
@@ -417,7 +407,7 @@ public abstract class BNode {
 		return null;
 	}
 
-	public NodeView<BNode> getFirstView() {
+	public NodeView<BNode> getViewForKishanView() {
 		for (var v : views()) {
 			if (!(v instanceof KishanView)) {
 				return v;
@@ -444,8 +434,8 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpButton(ChatNode chat) {
-		var b = new TranslatableButton(chat);
-		b.setText(prettyName());
+		var b = new TranslatableButton(chat.g.translator);
+		b.setText(toString());
 
 //		b.setContentAreaFilled(true);
 		b.setPreferredSize(new Dimension(100, 30));
@@ -457,7 +447,7 @@ public abstract class BNode {
 	}
 
 	public JButton createJumpButton2(ChatNode chat) {
-		var b = new JButton(prettyName()) {
+		var b = new JButton(toString()) {
 			@Override
 			public Color getBackground() {
 				return getColor();
@@ -491,6 +481,11 @@ public abstract class BNode {
 	public String t(String s) {
 		var translation = g.translator.translate(s);
 		return translation == null ? s : translation;
+	}
+
+	public void highlight(boolean b) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

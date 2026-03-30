@@ -13,8 +13,10 @@ import javax.swing.JPanel;
 public class WrapPanel extends JPanel {
     public WrapPanel() {
         super(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        
     }
 
+   
     @Override
     public Dimension getPreferredSize() {
         int width = getSize().width;

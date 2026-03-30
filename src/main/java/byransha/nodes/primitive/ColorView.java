@@ -1,21 +1,20 @@
 package byransha.nodes.primitive;
 
 import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
-import byransha.graph.view.NodeView;
-import byransha.ui.swing.ChatSheet;
 
-public class ColorView extends NodeView<ColorNode> {
+public class ColorView extends TradUINodeView<ColorNode> {
 
 	public ColorView(BGraph g, ColorNode node) {
 		super(g, node);
 	}
 
 	@Override
-	public JsonNode toJSON() {
+	public ObjectNode describeAsJSON() {
 		return null;
 	}
 
@@ -29,13 +28,11 @@ public class ColorView extends NodeView<ColorNode> {
 		return true;
 	}
 
-	public void writeTo(ChatSheet pane) {
+	@Override
+	public JComponent getComponent() {
 		var cc = new JColorChooser();
-		cc.getSelectionModel().addChangeListener(e -> {
-			viewedNode.set(cc.getColor());
-		});
-
-		pane.appendToCurrentFlow(cc);
+		cc.getSelectionModel().addChangeListener(e -> viewedNode.set(cc.getColor()));
+		return cc;
 	}
 
 }

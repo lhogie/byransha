@@ -26,11 +26,6 @@ public class TextNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public String prettyName() {
-		return labelNode.get();
-	}
-
-	@Override
 	public String valueFromString(String s) {
 		return s.replaceAll("\\n", "\n");
 	}

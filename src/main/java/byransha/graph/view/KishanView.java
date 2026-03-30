@@ -1,30 +1,29 @@
 package byransha.graph.view;
 
-import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DropTarget;
-import java.awt.dnd.DropTargetAdapter;
-import java.awt.dnd.DropTargetDragEvent;
-import java.awt.dnd.DropTargetDropEvent;
-import java.io.IOException;
+import java.awt.Dimension;
 import java.util.List;
+
+import javax.swing.JMenuItem;
+import javax.swing.JPopupMenu;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.lab.OnTheFlyNode;
+import byransha.graph.action.list.ListNode;
+import byransha.nodes.lab.DynamicValuedNode;
+import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.ErrorIndicator;
+import byransha.ui.swing.Sheet;
+import byransha.ui.swing.TextDisplayComponent;
 import byransha.ui.swing.Utils;
-import byransha.util.Base62;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
 public class KishanView extends NodeView<BNode> {
-	public KishanView(BGraph g, BNode node) {
-		super(g, node);
+	public KishanView(BNode node) {
+		super(node.g, node);
 	}
 
 	@Override
@@ -33,63 +32,53 @@ public class KishanView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
-		return viewedNode.toJSONNode();
+	public JsonNode jsonView() {
+		return viewedNode.describeAsJSON();
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeTo(Sheet sheet) {
 		viewedNode.forEachOutInFields(viewedNode.getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != viewedNode) {
-				if (out instanceof OnTheFlyNode otf) {
-					out = otf.compute();
+				if (out instanceof DynamicValuedNode otf) {
+					out = otf.exec();
 				}
 
-				pane.appendToCurrentFlow(Utils.idShower(out, 18, 2));
+				if (out == viewedNode)
+					throw new IllegalStateException();
 
-				var jumpButton = out.createJumpButton(pane.chat);
-				jumpButton.setText(f.getName());
-				jumpButton.setToolTipText(f.getName());
-				pane.appendToCurrentFlow(jumpButton);
-				new DropTarget(jumpButton, new DropTargetAdapter() {
-					@Override
-					public void dragOver(DropTargetDragEvent dtde) {
+				var fieldNameComponent = new TextDisplayComponent(g.translator, f.getName());
 
-					}
-
-					@Override
-					public void drop(DropTargetDropEvent e) {
-						try {
-							var droppedNode = node(e);
-
-							if (droppedNode.getClass().isAssignableFrom(f.getType())) {
-								e.acceptDrop(DnDConstants.ACTION_COPY);
-								viewedNode.set(f, droppedNode);
-							} else {
-								e.rejectDrop();
-							}
-							e.dropComplete(true);
-						} catch (Exception ex) {
-							e.dropComplete(false);
-							error(ex);
-						}
-					}
-
-					private BNode node(DropTargetDropEvent e) throws UnsupportedFlavorException, IOException {
-						String text = (String) e.getTransferable().getTransferData(DataFlavor.stringFlavor);
-						long id = Base62.decode(text);
-						return g.indexes.byId.get(id);
-					}
+				var popup = new JPopupMenu();
+				var setToNull = new JMenuItem("set to null");
+				var replace = new JMenuItem("replace");
+				popup.add(out == null ? replace : setToNull);
+				popup.add(replace);
+				fieldNameComponent.setComponentPopupMenu(popup);
+				//setToNull.addActionListener(e -> viewedNode.set(f, null));
+				replace.addActionListener(e -> {
+					var list = new ListNode(g, "all nodes of class " + f.getType().getName());
+					list.elements.addAll(g.indexes.byClass.m.get(f.getClass()));
+					var newChat = new ChatNode(currentUser());
+					newChat.append(list);
 				});
+				
+				
 
-				out.getFirstView().writeTo(pane);
-				pane.newLine();
+				fieldNameComponent.setPreferredSize(new Dimension(60, fieldNameComponent.getPreferredSize().height));
+				fieldNameComponent.setToolTipText(f.getName());
+				Utils.IdDropTarget(g, fieldNameComponent, dn -> viewedNode.set(f, dn));
+				sheet.currentLine.add(fieldNameComponent);
+//				sheet.newLine();
+
+				if (out != null) {
+					sheet.currentLine.add(Utils.idShower(out, 18, 2, ((ChatSheet) sheet).chat));
+					sheet.appendToCurrentLine(new ErrorIndicator(out));
+					out.getViewForKishanView().writeToWithErrors(sheet);
+				}
+				sheet.newLine();
 			}
 		});
-	}
-
-	public List<BNode> alternatives(java.lang.reflect.Field f) {
-		return get((Class<BNode>) (Class) f.getClass());
 	}
 
 	public <N extends BNode> List<N> get(Class<N> c) {
@@ -105,7 +94,7 @@ public class KishanView extends NodeView<BNode> {
 				var jt = (JumpToMe) out.findView(JumpToMe.class);
 				jt.setLabel(f.getName());
 				jt.writeTo(flow);
-				out.getFirstView().writeTo(flow);
+				out.getViewForKishanView().writeTo(flow);
 				lines.getChildren().add(flow);
 			}
 		});

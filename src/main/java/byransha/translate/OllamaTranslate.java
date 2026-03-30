@@ -15,7 +15,7 @@ public class OllamaTranslate extends Translator {
 	}
 
 	@Override
-	public String prettyName() {
-		return "libretranslate.com";
+	public String toString() {
+		return "ollama";
 	}
 }

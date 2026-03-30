@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.node.TextNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.Sheet;
 
 public class SmallInfoView extends NodeView<BNode> {
 
@@ -19,13 +19,14 @@ public class SmallInfoView extends NodeView<BNode> {
 	}
 
 	@Override
-	public JsonNode toJSON() {
-		return new TextNode(viewedNode.prettyName());
+	public JsonNode jsonView() {
+		return new TextNode(viewedNode.toString());
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
-		pane.appendToCurrentFlow(viewedNode + " - " + viewedNode.prettyName() + " (" + viewedNode.whatIsThis() + ")");
+	public void writeTo(Sheet pane) {
+		pane.appendToCurrentLine(viewedNode + " - " + viewedNode + " (" + viewedNode.whatIsThis() + ")",
+				g.translator);
 	}
 
 	@Override

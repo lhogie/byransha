@@ -31,7 +31,7 @@ public class LibreTranslate extends Translator {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return "libretranslate.com";
 	}
 }

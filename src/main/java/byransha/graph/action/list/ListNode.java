@@ -2,10 +2,12 @@ package byransha.graph.action.list;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
+
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
@@ -21,7 +23,7 @@ import byransha.nodes.system.ChatNode;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
 
-public class ListNode<T extends BNode> extends BNode {
+public final class ListNode<T extends BNode> extends BNode {
 	String label;
 	final public ListenableList<T> elements = new ListenableList<>();
 	final public ListenableList<T> selection = new ListenableList<>();
@@ -29,10 +31,6 @@ public class ListNode<T extends BNode> extends BNode {
 	public ListNode(BGraph g, String label) {
 		super(g);
 		this.label = label;
-	}
-
-	public T get(int i) {
-		return elements.get(i);
 	}
 
 	@Override
@@ -82,11 +80,13 @@ public class ListNode<T extends BNode> extends BNode {
 		return classes().size() <= 1;
 	}
 
-	public Set<Class<? extends BNode>> classes() {
-		var r = new HashSet<Class<? extends BNode>>();
-		elements.forEach(e -> r.add(e.getClass()));
+	public MultiValuedMap<Class<? extends BNode>, BNode> classes() {
+		var r = new HashSetValuedHashMap<Class<? extends BNode> , BNode>();
+		elements.forEach(e -> r.put(e.getClass(), e));
 		return r;
 	}
+	
+	
 
 	@Override
 	public String whatIsThis() {
@@ -94,7 +94,7 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	@Override
-	public String prettyName() {
+	public String toString() {
 		return label == null ? "a list" : label;
 	}
 
@@ -130,18 +130,10 @@ public class ListNode<T extends BNode> extends BNode {
 		return elements;
 	}
 
-	public int size() {
-		return elements.size();
-	}
-
 	public void set(List<T> l) {
 		elements.clear();
 		selection.clear();
 		elements.addAll(l);
-	}
-
-	public List<T> elements() {
-		return elements;
 	}
 
 	public boolean isSelected(T n) {
@@ -164,9 +156,10 @@ public class ListNode<T extends BNode> extends BNode {
 			var d = new DistributionNode<V>(g) {
 
 				@Override
-				public String prettyName() {
+				public String toString() {
 					return inputNode.label;
-				}};
+				}
+			};
 			inputNode.get().forEach(e -> d.entries.addOccurence(e, 1));
 			return createResultNode(d, readOnly);
 		}
