@@ -57,6 +57,27 @@ else
     MISSING+=("bun")
 fi
 
+if command -v scoop >/dev/null 2>&1; then
+    echo "Scoop is installed ($(scoop --version))"
+else
+    echo "Scoop is not installed"
+    MISSING+=("scoop")
+fi
+
+if command -v llmfit >/dev/null 2>&1; then
+    echo "LLMFit is installed ($(llmfit --version))"
+else
+    echo "LLMFit is not installed"
+    MISSING+=("llmfit")
+fi
+
+if command -v ollama >/dev/null 2>&1; then
+    echo "Ollama is installed ($(ollama --version))"
+else
+    echo "Ollama is not installed"
+    MISSING+=("ollama")
+fi
+
 # Si des outils manquent, proposer l'installation
 if [ ${#MISSING[@]} -gt 0 ]; then
     echo "***" 
@@ -104,7 +125,7 @@ if [ ${#MISSING[@]} -gt 0 ]; then
                     if [ "$HAS_CHOCO" = true ]; then
                         install_tool "Node.js & npm" "choco install nodejs --version=\"24.11.1\""
                     else
-                        echo "📥 Node.js & npm - Download from: https://nodejs.org/"
+                        echo " Node.js & npm - Download from: https://nodejs.org/"
                     fi
                 fi
                 ;;
@@ -131,11 +152,41 @@ if [ ${#MISSING[@]} -gt 0 ]; then
                     fi
                 fi
                 ;;
+            scoop)
+                if [ "$OS" == "windows" ]; then
+                    install_tool "Scoop" "powershell -c \"Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser; iwr -useb get.scoop.sh | iex\""
+                fi
+                ;;
+            llmfit)
+                if [ "$OS" == "windows" ]; then
+                    install_tool "LLMFit" "scoop install llmfit"
+                elif [ "$OS" == "macos" ]; then
+                    install_tool "LLMfit" "brew install llmfit"
+                  elif [ "$OS" == "linux" ]; then
+                      install_tool "LLMfit" "curl -fsSL https://llmfit.axjns.dev/install.sh | sh"
+                fi
+                echo "***"
+                echo "LLMfit -  outil permettant de savoir quel modele IA fonctionnera le mieux sur votre machine"
+                echo "***"
+                ;;
+            ollama)
+                if [ "$OS" == "windows" ]; then
+                  install_tool "ollama" "irm https://ollama.com/install.ps1 | iex"
+                elif [ "$OS" == "macos" ] || [ "$OS" == "linux" ]; then
+                  install_tool "ollama" "curl -fsSL https://ollama.com/install.sh | sh"
+                fi
+                echo "***"
+                echo "Ollama - outil de gestion de modèles d'IA locaux"
+                echo "***"
+                ;;
+
         esac
     done
     
     echo "***"
-    echo " Redo this script after installing the missing tools"
+    echo " Redo this script after installing the missing tools to verify everything is set up correctly."
+    echo "dont forget to reload your terminal or run 'source ~/.bashrc' (or equivalent) to update your PATH if needed."
+    echo "***"
     exit 1
 fi
 
