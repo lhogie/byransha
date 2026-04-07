@@ -25,6 +25,11 @@ module byransha {
 	requires java.net.http;
 	requires java.naming;
 
+    requires langchain4j.ollama;
+    requires org.jfree.jfreechart;
+    requires org.jfree.jfreesvg;
+    requires langchain4j.core;
+
 
 	// Allow other modules to use your code
 	exports byransha;
