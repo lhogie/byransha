@@ -28,6 +28,9 @@ module byransha {
 	// The themes pack module (where FlatDraculaIJTheme lives)
 	requires com.formdev.flatlaf.intellijthemes;
     requires langchain4j.ollama;
+    requires org.jfree.jfreechart;
+    requires org.jfree.jfreesvg;
+    requires langchain4j.core;
 
     // 2. Allow JavaFX to access your classes (important for start() method)
 	opens byransha to javafx.graphics, javafx.fxml;
