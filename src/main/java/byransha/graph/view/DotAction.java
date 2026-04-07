@@ -9,7 +9,7 @@ import byransha.nodes.system.ChatNode;
 
 public class DotAction extends NodeAction<ListNode, TextNode> {
 	public DotAction(BGraph g, ListNode node) {
-		super(g, node);
+		super(g, node, "list/export");
 	}
 
 	@Override

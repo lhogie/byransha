@@ -11,6 +11,6 @@ public interface BDropTarget {
 	BGraph g();
 
 	public default void IdDropTarget(JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
-		Utils.IdDropTarget(g(), c, dropAction);
+		Utils.idDropTarget(g(), c, dropAction);
 	}
 }

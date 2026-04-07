@@ -17,7 +17,7 @@ import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
 
 public class ClassNode extends BNode {
-	public final Class clazz;
+	public final Class representedClass;
 	public ClassNode superClass;
 	public ListNode<ClassNode> interfaces;
 	public MapNode<ClassNode> aggregations;
@@ -43,26 +43,26 @@ public class ClassNode extends BNode {
 
 	public ClassNode(BGraph g, Class c) {
 		super(g);
-		this.clazz = c;
+		this.representedClass = c;
 	}
 
 	public String whatItRepresents() {
-		return "a " + clazz.getSimpleName();
+		return "a " + representedClass.getSimpleName();
 	}
 
 	public void link() {
 		this.interfaces = new ListNode<>(g, "interfaces");
 		this.aggregations = new MapNode<>(g, "aggregations");
 
-		for (var superInterface : clazz.getInterfaces()) {
-			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == superInterface);
+		for (var superInterface : representedClass.getInterfaces()) {
+			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == superInterface);
 
 			if (superInterfaceNode != null) {
 				interfaces.get().add(superInterfaceNode);
 			}
 		}
 
-		this.superClass = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == clazz.getSuperclass());
+		this.superClass = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == representedClass.getSuperclass());
 
 		{
 			record A(String name, Class c) {
@@ -70,16 +70,16 @@ public class ClassNode extends BNode {
 
 			var set = new HashSet<A>();
 
-			for (var f : clazz.getDeclaredFields()) {
+			for (var f : representedClass.getDeclaredFields()) {
 				set.add(new A(f.getName(), f.getType()));
 			}
 
-			for (var m : clazz.getDeclaredMethods()) {
+			for (var m : representedClass.getDeclaredMethods()) {
 				set.add(new A(m.getName(), m.getReturnType()));
 			}
 
 			for (var a : set) {
-				var classNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.clazz == a.c);
+				var classNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == a.c);
 
 				if (classNode != null) {
 					aggregations.map.put(a.name, classNode);
@@ -95,7 +95,7 @@ public class ClassNode extends BNode {
 
 	@Override
 	public String toString() {
-		return clazz.getName();
+		return representedClass.getName();
 	}
 
 	public String toPlantUML(int depth, Predicate<ClassNode> filter) {
@@ -107,20 +107,20 @@ public class ClassNode extends BNode {
 	public String toPlantUML(boolean tag) {
 		link();
 		var buf = new StringBuilder(tag ? "@startuml\n" : "");
-		buf.append("class ").append(clazz.getSimpleName()).append("\n");
+		buf.append("class ").append(representedClass.getSimpleName()).append("\n");
 
 		if (superClass != null) {
-			buf.append(superClass.clazz.getSimpleName()).append(" <|-- ").append(clazz.getSimpleName()).append("\n");
+			buf.append(superClass.representedClass.getSimpleName()).append(" <|-- ").append(representedClass.getSimpleName()).append("\n");
 		}
 
 		for (var i : interfaces.get()) {
-			buf.append(i.clazz.getSimpleName()).append(" <|.. ").append(clazz.getSimpleName()).append("\n");
+			buf.append(i.representedClass.getSimpleName()).append(" <|.. ").append(representedClass.getSimpleName()).append("\n");
 		}
 
 		for (var i : aggregations.map.entrySet()) {
-			var c = i.getValue().clazz;
+			var c = i.getValue().representedClass;
 			if (!c.isPrimitive() && !c.getName().startsWith("java.lang")) {
-				buf.append(clazz.getSimpleName()).append(" o-- ").append(c.getSimpleName()).append(": ")
+				buf.append(representedClass.getSimpleName()).append(" o-- ").append(c.getSimpleName()).append(": ")
 						.append(i.getKey()).append("\n");
 			}
 		}
@@ -152,7 +152,7 @@ public class ClassNode extends BNode {
 
 	public BNode newInstance() {
 		try {
-			return (BNode) clazz.getConstructor(BGraph.class).newInstance(g);
+			return (BNode) representedClass.getConstructor(BGraph.class).newInstance(g);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 				| NoSuchMethodException err) {
 			g.errorLog.add(err);
@@ -161,7 +161,7 @@ public class ClassNode extends BNode {
 	}
 
 	public static ClassNode find(BGraph g, Class cla) {
-		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.clazz == cla, () -> new ClassNode(g, cla));
+		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.representedClass == cla, () -> new ClassNode(g, cla));
 	}
 
 }

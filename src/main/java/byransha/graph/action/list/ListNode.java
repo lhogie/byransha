@@ -2,8 +2,8 @@ package byransha.graph.action.list;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.apache.commons.collections4.MultiValuedMap;
@@ -33,6 +33,29 @@ public final class ListNode<T extends BNode> extends BNode {
 		this.label = label;
 	}
 
+	public void selectAll() {
+		selection.clear();
+		selection.addAll(elements);
+	}
+
+	public void selectNone() {
+		selection.clear();
+	}
+
+	public void invertSelection() {
+		for (T e : elements) {
+			if (selection.contains(e)) {
+				selection.remove(e);
+			} else {
+				selection.add(e);
+			}
+		}
+	}
+
+	public void shuffle() {
+		Collections.shuffle(elements);
+	}
+
 	@Override
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
 		super.forEachOut(consumer);
@@ -57,6 +80,61 @@ public final class ListNode<T extends BNode> extends BNode {
 	public void createActions() {
 		cachedActions.elements.add(new EDistribution(g, this));
 		cachedActions.elements.add(new RetainSelected<>(g, this));
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, "") {
+
+			@Override
+			public String whatItDoes() {
+				return "select all";
+			}
+
+			@Override
+			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
+				inputNode.selectAll();
+				return createResultNode(null, true);
+			}
+
+			@Override
+			public boolean applies(ChatNode chat) {
+				return inputNode.selection.size() < inputNode.elements.size();
+			}
+		});
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, "") {
+
+			@Override
+			public String whatItDoes() {
+				return "invert selection";
+			}
+
+			@Override
+			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
+				inputNode.invertSelection();
+				return createResultNode(null, true);
+			}
+
+			@Override
+			public boolean applies(ChatNode chat) {
+				return true;
+			}
+		});
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, "") {
+
+			@Override
+			public String whatItDoes() {
+				return "shuffle";
+			}
+
+			@Override
+			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
+				inputNode.shuffle();
+				return createResultNode(null, true);
+			}
+
+			@Override
+			public boolean applies(ChatNode chat) {
+				return true;
+			}
+		});
+
 		cachedActions.elements.add(new DotAction(g, this));
 		cachedActions.elements.add(new GeneratePlantUML(g, this));
 		super.createActions();
@@ -81,12 +159,10 @@ public final class ListNode<T extends BNode> extends BNode {
 	}
 
 	public MultiValuedMap<Class<? extends BNode>, BNode> classes() {
-		var r = new HashSetValuedHashMap<Class<? extends BNode> , BNode>();
+		var r = new HashSetValuedHashMap<Class<? extends BNode>, BNode>();
 		elements.forEach(e -> r.put(e.getClass(), e));
 		return r;
 	}
-	
-	
 
 	@Override
 	public String whatIsThis() {
@@ -143,7 +219,7 @@ public final class ListNode<T extends BNode> extends BNode {
 	public static class EDistribution<V extends BNode> extends NodeAction<ListNode<V>, DistributionNode<V>> {
 
 		public EDistribution(BGraph g, ListNode<V> inputNode) {
-			super(g, inputNode);
+			super(g, inputNode, "list/statistics");
 		}
 
 		@Override

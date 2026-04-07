@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.layout.Pane;
 
 public class JumpToMe extends NodeView<BNode> {
@@ -38,18 +38,14 @@ public class JumpToMe extends NodeView<BNode> {
 
 	@Override
 	public JsonNode jsonView() {
-		return new com.fasterxml.jackson.databind.node.IntNode(viewedNode.id());
+		return new com.fasterxml.jackson.databind.node.LongNode(viewedNode.id());
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		pane.appendToCurrentLine(viewedNode.createJumpButton(targetChat));
 	}
 
-	@Override
-	public void writeTo(Pane pane) {
-
-	}
 
 	public boolean showInViewList() {
 		return false;

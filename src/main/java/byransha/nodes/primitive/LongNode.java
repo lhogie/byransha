@@ -1,5 +1,8 @@
 package byransha.nodes.primitive;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
 
 import javax.swing.JSlider;
@@ -19,7 +22,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 
 public class LongNode extends PrimitiveValueNode<Long> {
 	public static record Bounds(long min, long max) {
@@ -45,11 +48,6 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	public void setBounds(Bounds b) {
 		this.bounds = b;
-	}
-
-	@Override
-	public Long valueFromString(String s) {
-		return Long.valueOf(s);
 	}
 
 	@Override
@@ -98,7 +96,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		}
 
 		@Override
-		public void writeTo(Sheet sheet) {
+		public void writeTo(ChatSheet sheet) {
 			var tf = new JTextField(String.valueOf(viewedNode.get()));
 			tf.setColumns(10);
 			tf.setEditable(!viewedNode.readOnly);
@@ -157,12 +155,26 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 			if (viewedNode.bounds != null) {
 				var slider = new JSlider((int) viewedNode.bounds.min, (int) viewedNode.bounds.max);
-				slider.setValue(viewedNode.get().intValue());
+				
+				if (viewedNode.get() != null) {
+					slider.setValue(viewedNode.get().intValue());
+				}
+
 				slider.setEnabled(!viewedNode.readOnly);
 				viewedNode.valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
 				sheet.appendToCurrentLine(slider);
 			}
 		}
 
+	}
+
+	@Override
+	protected void writeValue(Long v, ObjectOutput out) throws IOException {
+		out.writeLong(v);
+	}
+
+	@Override
+	protected Long readValue(ObjectInput in) throws IOException {
+		return in.readLong();
 	}
 }

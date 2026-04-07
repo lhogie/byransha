@@ -54,7 +54,6 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	@Override
 	public JButton createJumpButton(ChatNode chat) {
 		var b = super.createJumpButton(chat);
-		inputNode.changeListeners.add(n -> b.setEnabled(applies(chat)));
 		var applies = applies(chat);
 
 		if (applies) {

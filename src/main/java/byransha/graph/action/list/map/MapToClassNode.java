@@ -14,7 +14,7 @@ public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassN
 
 	@Override
 	protected ClassNode map(A n) {
-		return g.indexes.byClass.findFirstOr(ClassNode.class, cn -> cn.clazz == n.getClass(), null);
+		return g.indexes.byClass.findFirstOr(ClassNode.class, cn -> cn.representedClass == n.getClass(), null);
 	}
 
 	@Override

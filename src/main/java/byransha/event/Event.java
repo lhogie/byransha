@@ -1,20 +1,20 @@
 package byransha.event;
 
-import java.io.Serializable;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import byransha.graph.BGraph;
 import byransha.network.PeerNode;
 
-public abstract class Event implements Serializable, Comparable<Event> {
-	final LocalDateTime date;
+public abstract class Event implements Externalizable, Comparable<Event> {
+	LocalDateTime date;
 	Set<PeerNode> owners = new HashSet<>();
-	public long ID;
 	final protected BGraph g;
 
 	public Event(BGraph g, LocalDateTime date) {
@@ -51,18 +51,34 @@ public abstract class Event implements Serializable, Comparable<Event> {
 
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-	public void provideCSVElements(Consumer<String> l) {
-		l.accept(getClass().getName());
-		l.accept(date.toString());
-	}
-
 	public void markReceivedBy(PeerNode from) {
 		owners.add(from);
 	}
 
-	public void commitToDisk() {
+	public long id() {
+		return date.toEpochSecond(java.time.ZoneOffset.UTC);
 	}
 
-	protected abstract void fromCSV(Iterator<String> elementIterator, BGraph g) throws ClassNotFoundException;
+	@Override
+	public void writeExternal(ObjectOutput out) throws IOException {
+		out.writeLong(id());
+		out.writeInt(owners.size());
+
+		for (var o : owners) {
+			out.writeLong(o.id);
+		}
+	}
+
+	@Override
+	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+		date = LocalDateTime.ofEpochSecond(in.readLong(), 0, java.time.ZoneOffset.UTC);
+		var ownersSize = in.readInt();
+
+		for (int i = 0; i < ownersSize; i++) {
+			var ownerId = in.readInt();
+			var owner = g.networkAgent.findPeer(ownerId);
+			owners.add(owner);
+		}
+	}
 
 }

@@ -8,12 +8,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.javafx.Utils;
+import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.Sheet;
 import byransha.util.ByUtils;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TreeView;
-import javafx.scene.layout.Pane;
 
 public abstract class NodeView<N extends BNode> extends BNode {
 	public final N viewedNode;
@@ -57,25 +54,11 @@ public abstract class NodeView<N extends BNode> extends BNode {
 		return ByUtils.JsonToTreeConverter.buildTreeModel(jsonView());
 	}
 
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		byransha.ui.swing.Utils.resizableScrollPane(getJSONDisplayComponent());
 	}
 
-	public void writeTo(Pane pane) {
-		var rootItem = Utils.buildTree(describeAsJSON());
-		TreeView<String> treeView = new TreeView<>(rootItem);
-		ScrollPane scrollPane = new ScrollPane(treeView);
-		scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-		scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-		scrollPane.setPrefWidth(500);
-		scrollPane.setPrefHeight(300);
-		treeView.setPrefWidth(500);
-		treeView.setPrefHeight(300);
-		scrollPane.setFitToWidth(true);
-		pane.getChildren().add(scrollPane);
-	}
-
-	public void writeToWithErrors(Sheet pane) {
+	public void writeToWithErrors(ChatSheet pane) {
 		writeTo(pane);
 
 		for (var err : viewedNode.errors()) {

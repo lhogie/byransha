@@ -12,18 +12,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.action.Jump;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.shell.ShellServer;
+import byransha.util.ListenableList;
 
 public class ChatPanel extends JPanel {
 
@@ -33,37 +32,11 @@ public class ChatPanel extends JPanel {
 
 	public CloseListener closeListener;
 	private final ChatSheet sheet;
+	private ChatPanelNode node;
 
-	public class ChatPanelNode extends BNode
-	{
-		ChatSheetNode sheet;
-		
-		protected ChatPanelNode(BGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String toString() {
-			return "chat panel";
-		}
-	}
-	
-	public class ChatSheetNode extends BNode
-	{
-
-		protected ChatSheetNode(BGraph g) {
-			super(g);
-		}
-
-		@Override
-		public String toString() {
-			return "chat sheet";
-		}
-	}
-	
 	public ChatPanel(ChatNode chat) {
-		new ChatPanelNode (chat.g);
-		
+		this.node = new ChatPanelNode(chat.g);
+
 		setLayout(new BorderLayout());
 		setBackground(chat.g.swing.backgroundColor.get());
 		setOpaque(true);
@@ -73,6 +46,31 @@ public class ChatPanel extends JPanel {
 			mousePanel.setOpaque(false);
 
 			sheet = new ChatSheet(chat);
+			chat.nodes.elements.forEach(node -> sheet.appendNode(node));
+			chat.nodes.elements.addListener(new ListenableList.Listener<BNode>() {
+
+				@Override
+				public void onAdded(int index, BNode element) {
+					if (index != chat.nodes.elements.size() - 1)
+						throw new IllegalStateException("nodes should only be added at the end of the list");
+
+					sheet.appendNode(element);
+				}
+
+				@Override
+				public void onRemoved(int index, BNode oldElement) {
+					if (index != chat.nodes.elements.size() - 1)
+						throw new IllegalStateException("nodes should only be removed at the end of the list");
+
+					sheet.removeNode(oldElement);
+				}
+
+				@Override
+				public void onSet(int index, BNode oldElement, BNode newElement) {
+					throw new UnsupportedOperationException("nodes should not be replaced");
+				}
+			});
+
 			var scroll = new JScrollPane(sheet);
 			scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -82,7 +80,7 @@ public class ChatPanel extends JPanel {
 				JPanel topBar = new WrapPanel();
 				topBar.setOpaque(false);
 
-				topBar.add(addButton("organize frames", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
+				topBar.add(addButton("organize frames", "auto_awesome_mosaic_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> WindowGridManager.arrangeInGrid(new ArrayList<>(chat.g.swing.frames.values()))));
 				topBar.add(addButton("clear chat", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> chat.nodes.elements.clear()));
@@ -100,6 +98,7 @@ public class ChatPanel extends JPanel {
 						"chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
 				topBar.add(addButton("starts a new chat", "add_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> new ChatNode(chat.currentUser())));
+				topBar.add(Utils.idShower(this.node, 20, 20, chat));
 				mousePanel.add(topBar, BorderLayout.NORTH);
 			}
 
@@ -109,7 +108,7 @@ public class ChatPanel extends JPanel {
 				dropb.setToolTipText("anything you drop here will be appended to the sheet");
 				dropb.setFocusable(false);
 				dropb.setBorder(new EmptyBorder(new Insets(15, 0, 15, 0)));
-				Utils.IdDropTarget(chat.g, dropb, droppedNode -> chat.nodes.elements.add(droppedNode));
+				Utils.idDropTarget(chat.g, dropb, droppedNode -> chat.nodes.elements.add(droppedNode));
 				dropb.setOpaque(false);
 				mousePanel.add(dropb, BorderLayout.SOUTH);
 			}
@@ -168,12 +167,14 @@ public class ChatPanel extends JPanel {
 		return addButton(text, null, l);
 	}
 
-	JButton addButton(String text, String pathToIcon, ActionListener l) {
+	JButton addButton(String text, String iconName, ActionListener l) {
 		JButton b = new JButton();
 		b.setToolTipText(text);
 
-		if (pathToIcon != null)
-			b.setIcon(new ImageIcon(ChatPanel.class.getResource("icon/" + pathToIcon + ".png")));
+		if (iconName != null) {
+			b.setIcon(Utils.icon(iconName, 1));
+		}
+
 		b.setPreferredSize(new Dimension(40, 40));
 		b.setMargin(new Insets(0, 4, 0, 4));
 		b.setFocusable(false);

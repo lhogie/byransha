@@ -1,18 +1,17 @@
 package byransha.graph.index;
 
 import java.util.Objects;
+import java.util.Random;
 
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.util.Base62;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 
 public class ByID extends Index {
 	private final Long2ObjectMap<BNode> m = new Long2ObjectOpenHashMap<>();
-	private final IntList freeSlots = new IntArrayList();
+	final Random r = new Random();
 
 	public synchronized long forceIndex(BNode n, long newID) {
 		Objects.requireNonNull(n);
@@ -24,6 +23,7 @@ public class ByID extends Index {
 		if (m.remove(n.id()) != n)
 			throw new IllegalStateException();
 
+		n.id = newID;
 		m.put(newID, n);
 		return newID;
 	}
@@ -32,13 +32,10 @@ public class ByID extends Index {
 		if (n.id != -1)
 			throw new IllegalStateException();
 
-		int id = freeSlots.isEmpty() ? m.size() : freeSlots.removeLast();
-
-		while (m.containsKey(id))
-			++id;
-
-		m.put(id, n);
-		n.id = id;
+		n.id = r.nextLong();
+		while (m.containsKey(++n.id))
+			;
+		m.put(n.id, n);
 	}
 
 	@Override
@@ -48,9 +45,8 @@ public class ByID extends Index {
 
 	@Override
 	public void delete(BNode n) {
-		int id = n.id();
+		long id = n.id();
 		m.remove(id);
-		freeSlots.add(id);
 	}
 
 	@Override

@@ -1,5 +1,8 @@
 package byransha.nodes.primitive;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +27,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	public StringNode(BGraph g, String init, String re) {
 		this(g);
-		if (g==null)
+		if (g == null)
 			throw new NullPointerException();
 		this.re = re;
 		set(init);
@@ -35,10 +38,6 @@ public class StringNode extends PrimitiveValueNode<String> {
 		return get();
 	}
 
-	@Override
-	public String valueFromString(String s) {
-		return s;
-	}
 
 	@Override
 	public String whatIsThis() {
@@ -63,4 +62,13 @@ public class StringNode extends PrimitiveValueNode<String> {
 		return null;
 	}
 
+	@Override
+	protected void writeValue(String v, ObjectOutput out) throws IOException {
+		out.writeUTF(v);
+	}
+
+	@Override
+	protected String readValue(ObjectInput in) throws IOException {
+		return in.readUTF();
+	}
 }

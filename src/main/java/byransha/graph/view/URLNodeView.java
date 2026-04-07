@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 
 public class URLNodeView extends StringNodeView {
 
@@ -34,7 +34,7 @@ public class URLNodeView extends StringNodeView {
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		super.writeTo(pane);
 		var b = new JButton("browse");
 		b.addActionListener(e -> {

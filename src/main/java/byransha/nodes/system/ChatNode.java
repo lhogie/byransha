@@ -28,13 +28,12 @@ public class ChatNode extends BNode {
 
 		if (n instanceof NodeAction action && action.parameters().isEmpty()) {
 			try {
-				var result = action.exec(this);
+				var actionController = action.exec(this);
 
-				if (result.jumpStraightAwayToOutNode) {
-					append(result.outNode);
-				} else {
-					if (result != null)
-						append(result);
+				if (actionController.jumpStraightAwayToResult && actionController.result != null) {
+					append(actionController.result);
+				} else if (actionController != null) {
+					append(actionController);
 				}
 
 			} catch (Throwable err) {

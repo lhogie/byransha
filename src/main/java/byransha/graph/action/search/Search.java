@@ -13,7 +13,7 @@ public class Search extends NodeAction<BNode, ListNode> {
 	public LongNode depth;
 
 	public Search(BGraph g, BNode src) {
-		super(g, src);
+		super(g, src, "search");
 		depth = new LongNode(g);
 		depth.set(1L);
 		depth.setBounds(new Bounds(0, 1000));

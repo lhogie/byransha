@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Enumeration;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
@@ -29,7 +31,23 @@ import byransha.util.PossiblyFailingConsumer;
 
 public class Utils {
 
-	public static void IdDropTarget(BGraph g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
+	public static JScrollPane getScrollPane(JComponent c) {
+		var parent = c.getParent();
+
+		while (true) {
+			if (parent == null) {
+				return null;
+			}
+
+			if (parent instanceof JScrollPane sc) {
+				return sc;
+			}
+
+			parent = parent.getParent();
+		}
+	}
+
+	public static void idDropTarget(BGraph g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
 		new DropTarget(c, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
@@ -166,6 +184,19 @@ public class Utils {
 		});
 
 		return c;
+	}
+
+	public static Icon icon(String s, double scaleFactor) {
+		var i = new ImageIcon(Utils.class.getResource("icon/" + s + ".png"));
+
+		if (scaleFactor != 1) {
+			var img = i.getImage();
+			var newImg = img.getScaledInstance((int) (img.getWidth(null) * scaleFactor),
+					(int) (img.getHeight(null) * scaleFactor), java.awt.Image.SCALE_SMOOTH);
+			i = new ImageIcon(newImg);
+		}
+
+		return i;
 	}
 
 }

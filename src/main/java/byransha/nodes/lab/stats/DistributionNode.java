@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.view.NodeView;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 
 public abstract class DistributionNode<V> extends BNode {
 	public DistributionNode(BGraph g) {
@@ -78,7 +78,7 @@ public abstract class DistributionNode<V> extends BNode {
 		}
 
 		@Override
-		public void writeTo(Sheet sheet) {
+		public void writeTo(ChatSheet sheet) {
 			DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 			viewedNode.entries.forEach(e -> dataset.setValue(e.element.toString(), e.n));
 

@@ -20,13 +20,13 @@ public class SearchByClass extends Search {
 		availableClasses = new ListNode(g, "searcheable classes");
 
 		// update the list of classes when the depth changes
-		depth.changeListeners.add(e -> {
+		depth.valueChangeListeners.add((depthNode, oldValue, newValue) -> {
 			var classes = new HashSet<Class>();
 			bfs(depth.get(), n -> true, (node, d) -> classes.add(node.getClass()));
 			var classList = new ArrayList<Class>(classes);
 			Collections.sort(classList, (a, b) -> a.getSimpleName().compareTo(b.getSimpleName()));
 			List<ClassNode> l = classes.stream()
-					.map(c -> g.indexes.byClass.forEachNodeOfClass(ClassNode.class, n -> Stop.no)).toList();
+					.map(c -> g.indexes.byClass.forEachNodeAssignableTo(ClassNode.class, n -> Stop.no)).toList();
 			availableClasses.set(l);
 		});
 	}

@@ -121,7 +121,7 @@ public class Client extends SystemNode {
 		} else {
 			var r = action.exec(currentChat);
 
-			for (var v : r.outNode.views()) {
+			for (var v : r.result.views()) {
 				out.println(v + ":");
 				out.println(v.describeAsJSON().toPrettyString());
 			}

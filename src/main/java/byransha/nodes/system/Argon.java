@@ -4,6 +4,7 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 
 public class Argon {
+
 	private static final Argon2 i = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
 
 	public static String hash(String password) {

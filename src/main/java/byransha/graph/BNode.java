@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -36,6 +37,8 @@ import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
+import byransha.graph.action.search.SearchRegexp;
+import byransha.graph.action.search.SearchText;
 import byransha.graph.relection.ClassNode;
 import byransha.graph.view.DebugView;
 import byransha.graph.view.ErrorsView;
@@ -57,13 +60,7 @@ public abstract class BNode {
 	@Hide
 	public final BGraph g;
 	public boolean readOnly;
-	public int id = -1;
-
-	public static interface NodeChangeListener {
-		void changed(BNode n);
-	}
-
-	public List<NodeChangeListener> changeListeners = new ArrayList<>();
+	public long id = -1;
 
 	@Hide
 	protected ListNode<NodeView> cachedViews;
@@ -78,6 +75,11 @@ public abstract class BNode {
 			this.g = g;
 			this.g.indexes.add(this);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " #" + idAsText();
 	}
 
 	public BNode error(Throwable err) {
@@ -203,8 +205,8 @@ public abstract class BNode {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
 
-							var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
-							consumer.accept(f, outNode, isFinal);
+						var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
+						consumer.accept(f, outNode, isFinal);
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						error(e);
 					}
@@ -228,8 +230,8 @@ public abstract class BNode {
 		cachedActions.elements.add(new Export(g, this));
 		cachedActions.elements.add(new Delete(g, this));
 		cachedActions.elements.add(new Search(g, this));
-//		cachedActions.elements.add(new SearchText(g, this));
-//		cachedActions.elements.add(new SearchRegexp(g, this));
+		cachedActions.elements.add(new SearchText(g, this));
+		cachedActions.elements.add(new SearchRegexp(g, this));
 //		cachedActions.elements.add(new OpenInNewChat(g, this));
 	}
 
@@ -313,14 +315,13 @@ public abstract class BNode {
 		return true;
 	}
 
-	
-	public final int id() {
+	public final long id() {
 		return id;
 	}
 
 	@Override
 	public final int hashCode() {
-		return id;
+		return Long.hashCode(id);
 	}
 
 	@Override
@@ -346,7 +347,6 @@ public abstract class BNode {
 	public byte[] getIconBytes() {
 		return null;
 	}
-
 
 	public boolean isReadOnly() {
 		return readOnly;
@@ -386,12 +386,13 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new IntNode(e.id())).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new LongNode(e.id())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.id() + "")).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out != null? out.id() : -1));
+		forEachOutInFields(getClass(), BNode.class,
+				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.id() : -1));
 		r.set("outs", outsNode);
 
 		return r;
@@ -466,12 +467,12 @@ public abstract class BNode {
 
 	public <N extends BNode> ClassNode getClassNode() {
 		for (ClassNode c : (Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class)) {
-			if (c.clazz == getClass()) {
+			if (c.representedClass == getClass()) {
 				return c;
 			}
 		}
 
-		throw new IllegalStateException("class node should be registered");
+		throw new IllegalStateException("class node should be registered: " + getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -485,7 +486,7 @@ public abstract class BNode {
 
 	public void highlight(boolean b) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

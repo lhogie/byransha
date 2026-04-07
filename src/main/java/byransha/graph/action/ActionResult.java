@@ -9,16 +9,16 @@ import byransha.nodes.system.ChatNode;
 public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 
 	public final LongNode durationMs;
-	public final R outNode;
+	public final R result;
 	public final NodeAction<T, R> runningAction;
-	public final boolean jumpStraightAwayToOutNode;
+	public final boolean jumpStraightAwayToResult;
 
 	public ActionResult(BGraph g, NodeAction<T, R> runningAction, R result, boolean jumpStraightAwayToResult) {
 		super(g);
 		this.runningAction = runningAction;
-		this.outNode = result;
+		this.result = result;
 		this.durationMs = new LongNode(g);
-		this.jumpStraightAwayToOutNode = jumpStraightAwayToResult;
+		this.jumpStraightAwayToResult = jumpStraightAwayToResult;
 	}
 
 	@Override

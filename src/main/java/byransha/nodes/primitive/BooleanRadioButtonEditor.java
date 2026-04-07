@@ -49,7 +49,7 @@ public class BooleanRadioButtonEditor extends TradUINodeView<BooleanNode> {
 		p.add(no);
 		yes.addActionListener(e -> viewedNode.set(true));
 		no.addActionListener(e -> viewedNode.set(false));
-		viewedNode.changeListeners.add(n -> (viewedNode.get() ? yes : no).setSelected(true));
+		viewedNode.valueChangeListeners.add((node, oldV, newV) -> (newV ? yes : no).setSelected(true));
 		return p;
 	}
 

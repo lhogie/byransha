@@ -14,7 +14,7 @@ import byransha.nodes.system.ChatNode;
 
 public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(BGraph g, ListNode<N> node) {
-		super(g, node);
+		super(g, node, "list/export");
 	}
 
 	@Override

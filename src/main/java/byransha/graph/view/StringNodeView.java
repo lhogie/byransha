@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.StringNode;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
@@ -45,7 +45,7 @@ public class StringNodeView extends NodeView<StringNode> {
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		String s = viewedNode.get();
 		var tf = viewedNode.hideText ? new JPasswordField(s) : new JTextField(s);
 
@@ -87,24 +87,6 @@ public class StringNodeView extends NodeView<StringNode> {
 		pane.currentLine.add(tf);
 	}
 
-	@Override
-	public void writeTo(Pane pane) {
-		String s = viewedNode.get();
-		var tf = viewedNode.hideText ? new PasswordField() : new TextField();
-		tf.setText(s);
-		tf.setPrefColumnCount(50);
-		tf.textProperty().addListener((o, old, newValue) -> viewedNode.set(tf.getText()));
 
-		int caret = tf.getCaretPosition();
-		viewedNode.changeListeners.add(n -> {
-			var newValue = ((StringNode) n).get();
-
-			if (!tf.getText().equals(newValue)) {
-				tf.setText(newValue);
-			}
-		});
-		tf.positionCaret(caret);
-		pane.getChildren().add(tf);
-	}
 
 }

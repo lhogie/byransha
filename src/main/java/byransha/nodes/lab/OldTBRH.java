@@ -45,7 +45,7 @@ class OldTBRH {
 
 			for (var campusName : List.of(l.set(10, null), l.set(11, null))) {
 				if (!campusName.isBlank()) {
-					var campus = i3s.g.indexes.byClass.forEachNodeOfClass(Campus.class,
+					var campus = i3s.g.indexes.byClass.forEachNodeAssignableTo(Campus.class,
 							n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(campusName)));
 
 					if (campus != null && !officeName.isBlank()) {
@@ -73,8 +73,8 @@ class OldTBRH {
 			email.set(l.set(19, null));
 			person.emailAddresses.elements.add(email);
 			String researchGroupName = l.set(20, null);
-			person.researchGroup = i3s.g.indexes.byClass.forEachNodeOfClass(ResearchGroup.class,
-					n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(researchGroupName)));
+			person.structures.elements.add(i3s.g.indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
+					n -> Stop.stopIf(n.name.get() != null && n.name.get().equalsIgnoreCase(researchGroupName))));
 			boolean doctor = l.set(21, null).equalsIgnoreCase("oui");
 			String phdDate = l.set(22, null);
 
@@ -90,7 +90,7 @@ class OldTBRH {
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, null);
 				person.position = new Position(i3s.g); // new Position(graph);
-				person.position.employer = i3s.g.indexes.byClass.forEachNodeOfClass(ResearchGroup.class,
+				person.position.employer = i3s.g.indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
 						n -> Stop.stopIf(n.name.get() != null && n.name.get().equals(employer)));
 
 				var corps = l.set(i - 2, null);
@@ -112,7 +112,7 @@ class OldTBRH {
 			}
 
 			person.enposte = l.set(27, null).equals("en poste");
-			
+
 			try {
 				var quotite = new LongNode(i3s.g);
 				quotite.set(Long.valueOf(l.set(29, null)));

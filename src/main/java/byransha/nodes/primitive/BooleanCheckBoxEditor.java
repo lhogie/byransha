@@ -37,7 +37,7 @@ public class BooleanCheckBoxEditor extends TradUINodeView<BooleanNode> {
 	public JComponent getComponent() {
 		var c = new JCheckBox();
 		c.addActionListener(e -> viewedNode.set(c.isSelected()));
-		viewedNode.changeListeners.add(n -> c.setSelected(viewedNode.get()));
+		viewedNode.valueChangeListeners.add((n, oldV, newV) -> c.setSelected(viewedNode.get()));
 		return c;
 	}
 

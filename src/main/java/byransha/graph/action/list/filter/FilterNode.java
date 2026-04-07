@@ -9,8 +9,8 @@ import byransha.nodes.system.ChatNode;
 
 public abstract class FilterNode<N extends BNode> extends NodeAction<ListNode<N>, ListNode<N>> {
 
-	public FilterNode(BGraph g, ListNode<N> inputNode) {
-		super(g, inputNode);
+	public FilterNode(BGraph g, ListNode<N> inputNode, String cat) {
+		super(g, inputNode,  cat);
 	}
 
 	@Override

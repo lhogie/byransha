@@ -15,13 +15,7 @@ public class Jump extends NodeAction<BNode, BNode> {
 	public Jump(BGraph g, BNode in) {
 		super(g, in);
 		targetID = new LongNode(g);
-
-		targetID.changeListeners.add(l -> {
-			var node = g.indexes.byId.get(targetID.get());
-			target = node;
-		});
-
-		target = g;
+		targetID.valueChangeListeners.add((node, oldV, newV) -> this.target = g.indexes.byId.get(newV));
 	}
 
 	@Override

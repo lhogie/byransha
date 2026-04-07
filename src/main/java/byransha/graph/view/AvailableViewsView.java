@@ -2,6 +2,7 @@ package byransha.graph.view;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.Sheet;
 
 public class AvailableViewsView extends NodeView<BNode> {
@@ -12,7 +13,7 @@ public class AvailableViewsView extends NodeView<BNode> {
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		viewedNode.views().forEach(v -> v.findView(JumpToMe.class).writeTo(pane));
 	}
 

@@ -1,5 +1,9 @@
 package byransha.nodes.primitive;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import byransha.graph.BGraph;
 import byransha.graph.view.TextNodeView;
 
@@ -25,15 +29,6 @@ public class TextNode extends PrimitiveValueNode<String> {
 		super.createActions();
 	}
 
-	@Override
-	public String valueFromString(String s) {
-		return s.replaceAll("\\n", "\n");
-	}
-
-	@Override
-	public String getValueAsString() {
-		return super.getValueAsString().replace("\n", "\\n");
-	}
 
 	@Override
 	public String whatIsThis() {
@@ -43,5 +38,15 @@ public class TextNode extends PrimitiveValueNode<String> {
 	@Override
 	public String defaultValue() {
 		return null;
+	}
+	
+	@Override
+	protected void writeValue(String v, ObjectOutput out) throws IOException {
+		out.writeUTF(v);
+	}
+
+	@Override
+	protected String readValue(ObjectInput in) throws IOException {
+		return in.readUTF();
 	}
 }

@@ -1,24 +1,23 @@
 package byransha.ui.swing;
 
 import java.awt.Color;
-import java.awt.Dimension;
 
 import javax.swing.JLabel;
-import javax.swing.border.LineBorder;
 
 import byransha.graph.BNode;
+import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.primitive.ValuedNode.ValueChangeListener;
+import byransha.util.ListenableList;
 
 public class ErrorIndicator extends JLabel {
 	final BNode n;
 
 	public ErrorIndicator(BNode n) {
 		this.n = n;
-//		setBorder(new LineBorder(Color.black));
-		setOpaque(false);
+		setForeground(Color.red);
+		setOpaque(true);
 		update();
-		n.changeListeners.add(c -> update());
 
 		if (n instanceof ValuedNode vn) {
 			vn.valueChangeListeners.add(new ValueChangeListener() {
@@ -28,16 +27,28 @@ public class ErrorIndicator extends JLabel {
 					update();
 				}
 			});
+		} else if (n instanceof ListNode l) {
+			l.elements.addListener(new ListenableList.Listener() {
+
+				@Override
+				public void onAdded(int index, Object element) {
+					update();
+				}
+
+				@Override
+				public void onRemoved(int index, Object oldElement) {
+					update();
+				}
+
+				@Override
+				public void onSet(int index, Object oldElement, Object newElement) {
+					update();
+				}
+			});
 		}
 	}
 
 	private void update() {
-		if (n.errors().isEmpty()) {
-			setText("");
-			setForeground(Color.green);
-		} else {
-			setText("!");
-			setForeground(Color.red);
-		}
+		setText(n.errors().isEmpty() ? "" : "!");
 	}
 }

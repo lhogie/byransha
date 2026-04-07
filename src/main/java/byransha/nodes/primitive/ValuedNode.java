@@ -1,5 +1,8 @@
 package byransha.nodes.primitive;
 
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,15 +26,10 @@ public abstract class ValuedNode<V> extends BNode {
 	@Override
 	public ObjectNode describeAsJSON() {
 		var r = super.describeAsJSON();
-		r.put("value", getValueAsString());
+		r.put("value", toString());
 		return r;
 	}
 
-	public String getValueAsString() {
-		return value != null ? value.toString() : "";
-	}
-
-	public abstract V valueFromString(String s);
 
 	public V get() {
 		if (!canSee(currentUser()))
@@ -83,9 +81,13 @@ public abstract class ValuedNode<V> extends BNode {
 		var v = get();
 
 		if (v == null) {
-			return "undefined";
+			return super.toString();
 		} else {
 			return v.toString();
 		}
 	}
+
+	protected abstract void writeValue(V v, ObjectOutput out) throws IOException;
+
+	protected abstract V readValue(ObjectInput in) throws IOException;
 }

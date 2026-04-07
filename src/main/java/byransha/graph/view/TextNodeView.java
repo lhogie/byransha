@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.nodes.primitive.TextNode;
-import byransha.ui.swing.Sheet;
+import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 
@@ -41,7 +41,7 @@ public class TextNodeView extends NodeView<TextNode> {
 	}
 
 	@Override
-	public void writeTo(Sheet pane) {
+	public void writeTo(ChatSheet pane) {
 		String s = viewedNode.get();
 
 		if (info) {
@@ -73,8 +73,8 @@ public class TextNodeView extends NodeView<TextNode> {
 			});
 
 			int caret = p.getCaretPosition();
-			viewedNode.changeListeners.add(n -> {
-				var newValue = ((TextNode) n).get();
+			viewedNode.valueChangeListeners.add((a, o, n) -> {
+				var newValue = viewedNode.get();
 
 				if (!p.getText().equals(newValue)) {
 					p.setText(newValue);
