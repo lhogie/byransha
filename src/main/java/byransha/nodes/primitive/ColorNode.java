@@ -5,8 +5,12 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
+
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.system.ChatNode;
 
 public class ColorNode extends PrimitiveValueNode<Color> {
 
@@ -17,12 +21,6 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	public ColorNode(BNode parent, Color c) {
 		super(parent.g);
 		set(c);
-	}
-
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new ColorView(g, this));
-		super.createViews();
 	}
 
 	@Override
@@ -46,6 +44,13 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	@Override
 	protected Color readValue(ObjectInput in) throws IOException {
 		return new Color(in.read(), in.read(), in.read(), in.read());
+	}
+
+	@Override
+	public JComponent getAsComponent(ChatNode chat) {
+		var cc = new JColorChooser();
+		cc.getSelectionModel().addChangeListener(e -> set(cc.getColor()));
+		return cc;
 	}
 
 }

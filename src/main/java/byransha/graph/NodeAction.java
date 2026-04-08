@@ -21,14 +21,22 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 //	public final boolean execStraightAway;
 	public final String category;
 
-	public NodeAction(BGraph g, IN inputNode) {
-		this(g, inputNode, null);
-	}
-
 	public NodeAction(BGraph g, IN inputNode, String category) {
 		super(g);
 		this.inputNode = inputNode;
 		this.category = category;
+	}
+
+	public NodeAction(BGraph g, IN inputNode, Class<? extends Category> category) {
+		super(g);
+		this.inputNode = inputNode;
+		this.category = path(category);
+	}
+
+	private static String path(Class<? extends Category> c) {
+		String s = c.getName();
+		s = s.substring(s.indexOf('$') + 1).replace("$", "/");
+		return s;
 	}
 
 	public List<BNode> parameters() {
@@ -40,7 +48,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new exec<OUT>(g, this));
-//		super.createActions();
+		super.createActions();
 	}
 
 	@Override
@@ -97,16 +105,12 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 	static public class exec<OUT extends BNode> extends NodeAction<NodeAction, OUT> {
 
 		public exec(BGraph g, NodeAction inputNode) {
-			super(g, inputNode);
+			super(g, inputNode, "action");
 		}
 
 		@Override
 		public String whatItDoes() {
 			return "trigger the action on the source node";
-		}
-
-		boolean execStraight() {
-			return getClass().getEnclosingClass() == NodeAction.class;
 		}
 
 		@Override
@@ -120,7 +124,7 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 
 		@Override
 		public String toString() {
-			return "Run";
+			return "run " + inputNode;
 		}
 
 		@Override

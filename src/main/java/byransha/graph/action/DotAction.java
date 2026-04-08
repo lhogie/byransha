@@ -1,8 +1,7 @@
-package byransha.graph.view;
+package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;

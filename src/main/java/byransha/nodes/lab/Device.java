@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
-import byransha.nodes.NetworkAddressNode;
+import byransha.graph.NetworkAddressNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Device extends BusinessNode {

@@ -54,7 +54,7 @@ public class Person extends BusinessNode {
 	@Override
 	public String toString() {
 		if (etatCivil == null) {
-			return null;
+			return "unnamed";
 		}
 
 		return etatCivil.toString();

@@ -7,12 +7,12 @@ import byransha.graph.action.ActionResult;
 public class Export extends NodeAction<ChatNode, JSONNode> {
 
 	public Export(ChatNode chatNode) {
-		super(chatNode.g, chatNode);
+		super(chatNode.g, chatNode, "export");
 	}
 
 	@Override
 	public String whatItDoes() {
-		return "export history to JSON";
+		return "export to JSON";
 	}
 
 	@Override

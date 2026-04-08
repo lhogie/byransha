@@ -13,7 +13,7 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	StringNode fileNameNode;
 
 	protected saveNodeAction(BGraph g, TextNode textNode) {
-		super(g, textNode);
+		super(g, textNode, "file");
 		fileNameNode = new StringNode(g, "example.txt", ".+\\..+");
 	}
 

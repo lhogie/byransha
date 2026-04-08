@@ -6,38 +6,39 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Objects;
 
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import byransha.graph.BGraph;
 import byransha.graph.NodeError;
-import byransha.graph.view.StringNodeView;
+import byransha.ui.swing.ChatSheet;
 
 public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean hideText;
 
 	public StringNode(BGraph g) {
-		super(g);
+		this(g, null, null);
 		Objects.requireNonNull(g);
 	}
 
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new StringNodeView(g, this));
-		super.createViews();
-	}
-
 	public StringNode(BGraph g, String init, String re) {
-		this(g);
-		if (g == null)
-			throw new NullPointerException();
+		super(g);
 		this.re = re;
 		set(init);
+	}
+
+	public boolean accept(String s) {
+		return s != null && (re == null || re.matches(s));
 	}
 
 	@Override
 	public String toString() {
 		return get();
 	}
-
 
 	@Override
 	public String whatIsThis() {
@@ -71,4 +72,49 @@ public class StringNode extends PrimitiveValueNode<String> {
 	protected String readValue(ObjectInput in) throws IOException {
 		return in.readUTF();
 	}
+
+	@Override
+	public void writeTo(ChatSheet pane) {
+		String s = get();
+		var tf = hideText ? new JPasswordField(s) : new JTextField(s);
+
+		tf.setEditable(!readOnly);
+		tf.setColumns(20);
+		tf.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				changed(e);
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				changed(e);
+			}
+
+			private void changed(DocumentEvent e) {
+				var v = tf.getText();
+				set(v);
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+		});
+
+		valueChangeListeners.add((n, old, newValue) -> {
+			SwingUtilities.invokeLater(() -> {
+				int caret = tf.getCaretPosition();
+
+				if (!tf.getText().equals(newValue)) {
+					tf.setText(newValue);
+				}
+
+				// tf.setCaretPosition(caret);
+			});
+		});
+
+		pane.currentLine.add(tf);
+	}
+
 }

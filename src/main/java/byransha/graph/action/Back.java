@@ -7,7 +7,7 @@ import byransha.nodes.system.ChatNode;
 
 final public class Back extends NodeAction<BNode, BNode> {
 	public Back(BGraph g, BNode n) {
-		super(g, n);
+		super(g, n, "chat");
 	}
 
 	@Override

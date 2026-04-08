@@ -12,17 +12,13 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
 import byransha.graph.BGraph;
+import byransha.nodes.system.ChatNode;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 	public DateNode(BGraph g) {
 		super(g);
 	}
 
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new DateView(g, this));
-		super.createViews();
-	}
 
 	@Override
 	public OffsetDateTime defaultValue() {
@@ -44,33 +40,15 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 		return Instant.ofEpochSecond(in.readLong()).atOffset(ZoneOffset.UTC);
 	}
 
-	public static class DateView extends TradUINodeView<DateNode> {
+	@Override
+	public JComponent getAsComponent(ChatNode chat) {
+		SpinnerDateModel model = new SpinnerDateModel();
+		JSpinner dateSpinner = new JSpinner(model);
 
-		public DateView(BGraph g, DateNode n) {
-			super(g, n);
-		}
-
-		@Override
-		public String whatItShows() {
-			return "a date";
-		}
-
-		@Override
-		protected boolean allowsEditing() {
-			return true;
-		}
-
-		@Override
-		public JComponent getComponent() {
-			SpinnerDateModel model = new SpinnerDateModel();
-			JSpinner dateSpinner = new JSpinner(model);
-
-			// Customize the editor to show a specific format
-			JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy");
-			dateSpinner.setEditor(editor);
-			return dateSpinner;
-		}
-
+		// Customize the editor to show a specific format
+		JSpinner.DateEditor editor = new JSpinner.DateEditor(dateSpinner, "dd/MM/yyyy");
+		dateSpinner.setEditor(editor);
+		return dateSpinner;
 	}
 
 }

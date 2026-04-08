@@ -18,6 +18,7 @@ import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.User;
 import byransha.security.Authenticate;
+import byransha.security.LdapAuthenticator;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
@@ -44,6 +45,7 @@ public class BGraph extends BNode {
 	private User currentUser = guest;
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
 	public final Translator translator = new GoogleTranslator(this);
+//	public final Authenticate auth = new LdapAuthenticator(this);
 
 	public BGraph(File directory) throws Exception {
 		super(null);

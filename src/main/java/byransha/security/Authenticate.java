@@ -12,10 +12,10 @@ import byransha.nodes.system.User;
 import byransha.util.Stop;
 
 public abstract class Authenticate extends NodeAction<BNode, User> implements BiPredicate<String, String> {
-	public StringNode username, password;
+	public final StringNode username, password;
 
 	public Authenticate(BGraph g) {
-		super(g, g);
+		super(g, g, "security");
 		username = new StringNode(g, "", ".+");
 		password = new StringNode(g, "", ".+");
 	}

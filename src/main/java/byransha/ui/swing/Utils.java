@@ -103,50 +103,6 @@ public class Utils {
 		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
 	}
 
-	public static JComponent idShower(BNode n, int diameter, int border, ChatNode chat) {
-		var c = new CircleComponent(diameter, n.getColor());
-		c.setBorderWidth(border);
-		c.setOpaque(false);
-		c.setFocusable(false);
-		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
-				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.idAsText())));
-
-		c.setComponentPopupMenu(MenuBuilder.buildPopupMenu(n.actions(), chat));
-
-		c.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				n.highlight(false);
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				n.highlight(true);
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					chat.append(n);
-				}
-			}
-		});
-
-		return c;
-	}
 
 	public static JComponent noNodeShower(int diameter, int border, ChatNode chat, Class clazz) {
 		var c = new CircleComponent(diameter, Color.orange);

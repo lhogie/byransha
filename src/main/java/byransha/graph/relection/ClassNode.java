@@ -3,6 +3,7 @@ package byransha.graph.relection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -46,6 +47,13 @@ public class ClassNode extends BNode {
 		this.representedClass = c;
 	}
 
+	@Override
+	public void createActions() {
+		cachedActions.elements.add(new ShowInstances(g, this));
+		cachedActions.elements.add(new MakeNewInstance(g, this));
+		super.createActions();
+	}
+
 	public String whatItRepresents() {
 		return "a " + representedClass.getSimpleName();
 	}
@@ -55,14 +63,16 @@ public class ClassNode extends BNode {
 		this.aggregations = new MapNode<>(g, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
-			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == superInterface);
+			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class,
+					n -> n.representedClass == superInterface);
 
 			if (superInterfaceNode != null) {
 				interfaces.get().add(superInterfaceNode);
 			}
 		}
 
-		this.superClass = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == representedClass.getSuperclass());
+		this.superClass = g.indexes.byClass.findFirst(ClassNode.class,
+				n -> n.representedClass == representedClass.getSuperclass());
 
 		{
 			record A(String name, Class c) {
@@ -110,11 +120,13 @@ public class ClassNode extends BNode {
 		buf.append("class ").append(representedClass.getSimpleName()).append("\n");
 
 		if (superClass != null) {
-			buf.append(superClass.representedClass.getSimpleName()).append(" <|-- ").append(representedClass.getSimpleName()).append("\n");
+			buf.append(superClass.representedClass.getSimpleName()).append(" <|-- ")
+					.append(representedClass.getSimpleName()).append("\n");
 		}
 
 		for (var i : interfaces.get()) {
-			buf.append(i.representedClass.getSimpleName()).append(" <|.. ").append(representedClass.getSimpleName()).append("\n");
+			buf.append(i.representedClass.getSimpleName()).append(" <|.. ").append(representedClass.getSimpleName())
+					.append("\n");
 		}
 
 		for (var i : aggregations.map.entrySet()) {
@@ -161,7 +173,12 @@ public class ClassNode extends BNode {
 	}
 
 	public static ClassNode find(BGraph g, Class cla) {
-		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.representedClass == cla, () -> new ClassNode(g, cla));
+		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.representedClass == cla,
+				() -> new ClassNode(g, cla));
+	}
+
+	public Collection<BNode> allInstances() {
+		return g.indexes.byClass.m.get(representedClass);
 	}
 
 }

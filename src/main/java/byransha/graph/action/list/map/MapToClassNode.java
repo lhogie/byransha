@@ -6,14 +6,14 @@ import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.system.ChatNode;
 
-public class MapToClassNode<A extends BNode> extends AbstractMapAction<A, ClassNode> {
+public class MapToClassNode<IN extends BNode> extends AbstractMapAction<IN, ClassNode> {
 
-	public MapToClassNode(BGraph g, ListNode<A> l) {
-		super(g, l);
+	public MapToClassNode(BGraph g, ListNode<IN> l) {
+		super(g, l, "node/map");
 	}
 
 	@Override
-	protected ClassNode map(A n) {
+	protected ClassNode map(IN n) {
 		return g.indexes.byClass.findFirstOr(ClassNode.class, cn -> cn.representedClass == n.getClass(), null);
 	}
 

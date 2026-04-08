@@ -1,23 +1,20 @@
-package byransha.nodes;
+package byransha.graph;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.net.InetAddress;
 
-import byransha.graph.BGraph;
+import javax.swing.JLabel;
+
 import byransha.nodes.primitive.ValuedNode;
+import byransha.ui.swing.ChatSheet;
 
 public class NetworkAddressNode extends ValuedNode<InetAddress> {
 
 	public NetworkAddressNode(BGraph g) {
 		super(g);
-	}
-
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new NetworkAddressView(g, this));
-		super.createViews();
 	}
 
 	@Override
@@ -40,4 +37,20 @@ public class NetworkAddressNode extends ValuedNode<InetAddress> {
 		return InetAddress.getByAddress(a);
 	}
 
+	@Override
+	public void writeTo(ChatSheet pane) {
+		pane.add(new JLabel(get().getHostName()));
+		boolean reachable = reach();
+		var label = new JLabel(reachable ? "reached" : "unreachable");
+		label.setForeground(reachable ? Color.GREEN : Color.RED);
+		pane.add(label);
+	}
+
+	public boolean reach() {
+		try {
+			return get().isReachable(1);
+		} catch (IOException e) {
+			return false;
+		}
+	}
 }

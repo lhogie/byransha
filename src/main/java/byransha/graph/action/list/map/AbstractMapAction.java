@@ -9,8 +9,8 @@ import byransha.nodes.system.ChatNode;
 
 public abstract class AbstractMapAction<A extends BNode, B extends BNode> extends NodeAction<ListNode<A>, ListNode<B>> {
 
-	public AbstractMapAction(BGraph g, ListNode<A> input) {
-		super(g, input);
+	public AbstractMapAction(BGraph g, ListNode<A> input, String cat) {
+		super(g, input, cat);
 	}
 
 	@Override

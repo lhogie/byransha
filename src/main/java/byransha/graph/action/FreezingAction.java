@@ -7,7 +7,7 @@ import byransha.nodes.system.ChatNode;
 
 public final class FreezingAction extends NodeAction<BNode, BNode> {
 	public FreezingAction(BGraph g, BNode node) {
-		super(g, node);
+		super(g, node, "test");
 	}
 
 	@Override

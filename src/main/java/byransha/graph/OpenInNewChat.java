@@ -6,16 +6,16 @@ import byransha.nodes.system.ChatNode;
 public class OpenInNewChat extends NodeAction<BNode, BNode> {
 
 	public OpenInNewChat(BGraph g, BNode inputNode) {
-		super(g, inputNode);
+		super(g, inputNode, "node");
 	}
 
 	@Override
 	public String whatItDoes() {
-		return "opens in a new chat";
+		return "open in a new chat";
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
+	public ActionResult<BNode, BNode> exec(ChatNode chat) throws Throwable {
 		var newChat = new ChatNode(currentUser());
 		return createResultNode(inputNode, true);
 	}

@@ -10,12 +10,10 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.general.DefaultPieDataset;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.view.NodeView;
 import byransha.ui.swing.ChatSheet;
 
 public abstract class DistributionNode<V> extends BNode {
@@ -26,12 +24,6 @@ public abstract class DistributionNode<V> extends BNode {
 	public static class Entry<V> {
 		public V element;
 		public double n;
-	}
-
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new DistributionView<>(g, this));
-		super.createViews();
 	}
 
 	public static class Distribution<V> extends HashSet<Entry<V>> {
@@ -71,51 +63,28 @@ public abstract class DistributionNode<V> extends BNode {
 		return "a distribution";
 	}
 
-	public static class DistributionView<V> extends NodeView<DistributionNode<V>> {
+	@Override
+	public void writeTo(ChatSheet sheet) {
+		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
+		entries.forEach(e -> dataset.setValue(e.element.toString(), e.n));
 
-		public DistributionView(BGraph g, DistributionNode<V> node) {
-			super(g, node);
-		}
+		JFreeChart chart = ChartFactory.createPieChart("", dataset, false, true, false);
+		chart.setBackgroundPaint(new Color(0, 0, 0, 0)); // chart background
+		chart.setBackgroundImageAlpha(0f);
+		chart.setBorderVisible(false);
 
-		@Override
-		public void writeTo(ChatSheet sheet) {
-			DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
-			viewedNode.entries.forEach(e -> dataset.setValue(e.element.toString(), e.n));
+		PiePlot plot = (PiePlot) chart.getPlot();
+		plot.setBackgroundPaint(new Color(0, 0, 0, 0)); // plot background
+		plot.setOutlineVisible(false); // remove plot border
+		plot.setShadowPaint(new Color(0, 0, 0, 0)); // remove shadow
 
-			JFreeChart chart = ChartFactory.createPieChart("", dataset, false, true, false);
-			chart.setBackgroundPaint(new Color(0, 0, 0, 0)); // chart background
-			chart.setBackgroundImageAlpha(0f);
-			chart.setBorderVisible(false);
-
-			PiePlot plot = (PiePlot) chart.getPlot();
-			plot.setBackgroundPaint(new Color(0, 0, 0, 0)); // plot background
-			plot.setOutlineVisible(false); // remove plot border
-			plot.setShadowPaint(new Color(0, 0, 0, 0)); // remove shadow
-
-// Make ChartPanel transparent too
-			ChartPanel chartPanel = new ChartPanel(chart);
-			chartPanel.setOpaque(false);
-			chartPanel.setBackground(new Color(0, 0, 0, 0));
-			chartPanel.setOpaque(false);
-			chartPanel.setPreferredSize(new Dimension(300, 300));
-			DraggableChart.makeFileDraggable(chartPanel, viewedNode.toString());
-			sheet.appendToCurrentLine(chartPanel);
-		}
-
-		@Override
-		public JsonNode jsonView() {
-			return viewedNode.entries.toJSON();
-		}
-
-		@Override
-		public String whatItShows() {
-			return "a distribution";
-		}
-
-		@Override
-		protected boolean allowsEditing() {
-			return false;
-		}
-
+//Make ChartPanel transparent too
+		ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel.setOpaque(false);
+		chartPanel.setBackground(new Color(0, 0, 0, 0));
+		chartPanel.setOpaque(false);
+		chartPanel.setPreferredSize(new Dimension(300, 300));
+		DraggableChart.makeFileDraggable(chartPanel, toString());
+		sheet.appendToCurrentLine(chartPanel);
 	}
 }

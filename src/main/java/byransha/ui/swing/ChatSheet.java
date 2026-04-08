@@ -1,7 +1,8 @@
 package byransha.ui.swing;
 
+import javax.swing.JSeparator;
+
 import byransha.graph.BNode;
-import byransha.graph.view.ErrorsView;
 import byransha.nodes.system.ChatNode;
 
 public class ChatSheet extends Sheet {
@@ -10,27 +11,22 @@ public class ChatSheet extends Sheet {
 	public ChatSheet(ChatNode chat) {
 		super();
 		this.chat = chat;
-		Utils.idDropTarget(chat.g, this, n -> chat.nodes.elements.add(n));
+//		Utils.idDropTarget(chat.g, this, n -> chat.nodes.elements.add(n));
 	}
 
 	void appendNode(BNode n) {
+		if (!chat.nodes.elements.isEmpty()) {
+			add(new JSeparator());
+			newLine();
+		}
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		appendToCurrentLine(Utils.idShower(n, 20, 0, chat));
+		appendToCurrentLine(n.createBall(20, 0, chat));
 		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();
-		n.views().getFirst().writeTo(this);
-		newLine();
-
-		var err = n.findView(ErrorsView.class);
-
-		if (err.showInViewList()) {
-			err.writeTo(this);
-			newLine();
-		}
-
+		n.writeTo(this);
 		newLine();
 		newLine();
 		end();

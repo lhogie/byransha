@@ -15,13 +15,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
-import byransha.graph.view.NodeView;
 import byransha.ui.swing.ChatSheet;
 
 public class LongNode extends PrimitiveValueNode<Long> {
@@ -38,12 +34,6 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	public LongNode(BNode parent, long value) {
 		super(parent.g);
 		set(value);
-	}
-
-	@Override
-	public void createViews() {
-		cachedViews.elements.add(new LongNodeView(this));
-		super.createViews();
 	}
 
 	public void setBounds(Bounds b) {
@@ -73,99 +63,76 @@ public class LongNode extends PrimitiveValueNode<Long> {
 		}
 	}
 
-	public static class LongNodeView extends NodeView<LongNode> {
+	@Override
+	public void writeTo(ChatSheet sheet) {
+		var tf = new JTextField(String.valueOf(get()));
+		tf.setColumns(10);
+		tf.setEditable(!readOnly);
+		sheet.appendToCurrentLine(tf);
 
-		public LongNodeView(LongNode i) {
-			super(i.g, i);
-		}
-
-		@Override
-		public JsonNode jsonView() {
-			var l = viewedNode.get();
-			return l != null ? new com.fasterxml.jackson.databind.node.LongNode(l) : new TextNode("");
-		}
-
-		@Override
-		public String whatItShows() {
-			return "number editor";
-		}
-
-		@Override
-		protected boolean allowsEditing() {
-			return true;
-		}
-
-		@Override
-		public void writeTo(ChatSheet sheet) {
-			var tf = new JTextField(String.valueOf(viewedNode.get()));
-			tf.setColumns(10);
-			tf.setEditable(!viewedNode.readOnly);
-			sheet.appendToCurrentLine(tf);
-
-			((PlainDocument) tf.getDocument()).setDocumentFilter(new DocumentFilter() {
-				@Override
-				public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
-						throws BadLocationException {
-					if (string.matches("\\d*")) { // Only allow digits
-						super.insertString(fb, offset, string, attr);
-					}
+		((PlainDocument) tf.getDocument()).setDocumentFilter(new DocumentFilter() {
+			@Override
+			public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+					throws BadLocationException {
+				if (string.matches("\\d*")) { // Only allow digits
+					super.insertString(fb, offset, string, attr);
 				}
-
-				@Override
-				public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
-						throws BadLocationException {
-					if (text.matches("\\d*")) { // Only allow digits
-						super.replace(fb, offset, length, text, attrs);
-					}
-				}
-			});
-
-			tf.getDocument().addDocumentListener(new DocumentListener() {
-
-				@Override
-				public void removeUpdate(DocumentEvent e) {
-					changed(e);
-				}
-
-				@Override
-				public void insertUpdate(DocumentEvent e) {
-					changed(e);
-				}
-
-				private void changed(DocumentEvent e) {
-					viewedNode.set(Long.valueOf(tf.getText()));
-				}
-
-				@Override
-				public void changedUpdate(DocumentEvent e) {
-				}
-			});
-
-			viewedNode.valueChangeListeners.add((n, old, newValue) -> {
-				SwingUtilities.invokeLater(() -> {
-					int caret = tf.getCaretPosition();
-
-					if (!tf.getText().equals(newValue)) {
-						tf.setText("" + newValue);
-					}
-
-					// tf.setCaretPosition(caret);
-				});
-			});
-
-			if (viewedNode.bounds != null) {
-				var slider = new JSlider((int) viewedNode.bounds.min, (int) viewedNode.bounds.max);
-				
-				if (viewedNode.get() != null) {
-					slider.setValue(viewedNode.get().intValue());
-				}
-
-				slider.setEnabled(!viewedNode.readOnly);
-				viewedNode.valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
-				sheet.appendToCurrentLine(slider);
 			}
-		}
 
+			@Override
+			public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+					throws BadLocationException {
+				if (text.matches("\\d*")) { // Only allow digits
+					super.replace(fb, offset, length, text, attrs);
+				}
+			}
+		});
+
+		tf.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				changed(e);
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				changed(e);
+			}
+
+			private void changed(DocumentEvent e) {
+				var s = tf.getText().trim();
+				set(s.isEmpty() ? null : Long.valueOf(s));
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+		});
+
+		valueChangeListeners.add((n, old, newValue) -> {
+			SwingUtilities.invokeLater(() -> {
+				int caret = tf.getCaretPosition();
+
+				if (!tf.getText().equals(newValue)) {
+					tf.setText("" + newValue);
+				}
+
+				// tf.setCaretPosition(caret);
+			});
+		});
+
+		if (bounds != null) {
+			var slider = new JSlider((int) bounds.min, (int) bounds.max);
+
+			if (get() != null) {
+				slider.setValue(get().intValue());
+			}
+
+			slider.setEnabled(!readOnly);
+			valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
+			sheet.appendToCurrentLine(slider);
+		}
 	}
 
 	@Override

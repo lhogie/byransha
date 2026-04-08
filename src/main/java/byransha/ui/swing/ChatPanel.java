@@ -19,7 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import byransha.graph.BNode;
-import byransha.graph.action.Jump;
+import byransha.graph.action.JumpToAnotherNode;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.shell.ShellServer;
 import byransha.util.ListenableList;
@@ -89,7 +89,7 @@ public class ChatPanel extends JPanel {
 				topBar.add(addButton("settings", "settings_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> chat.append(chat.g)));
 				topBar.add(addButton("jump to a specific node", "search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(new Jump(chat.g, chat))));
+						e -> chat.append(new JumpToAnotherNode(chat.g, chat))));
 				topBar.add(addButton("see the current user", "user_attributes_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> chat.append(chat.g.currentUser())));
 				topBar.add(addButton("authenticate a new user", "person_check_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
@@ -98,7 +98,7 @@ public class ChatPanel extends JPanel {
 						"chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
 				topBar.add(addButton("starts a new chat", "add_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> new ChatNode(chat.currentUser())));
-				topBar.add(Utils.idShower(this.node, 20, 20, chat));
+				topBar.add(node.createBall(20, 20, chat));
 				mousePanel.add(topBar, BorderLayout.NORTH);
 			}
 
