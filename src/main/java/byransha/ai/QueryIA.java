@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
@@ -22,8 +23,10 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 	public final StringNode prompt;
 	public final JSONNode inputJSON;
 
+	class AI extends Category{}
+	
 	public QueryIA(BGraph g, BNode n) {
-		super(g, n, "IA");
+		super(g, n, AI.class);
 		prompt = new StringNode(g, "", ".+");
 		inputJSON = new JSONNode(g, n.describeAsJSON());
 	}
@@ -74,13 +77,14 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 		return createResultNode(textNode, true);
 	}
 
-		static String buildLlmPrompt(JsonNode inputJSON, String question) {
-			return "Given the graph below, answer the user request. If possible, return valid JSON only. Graph: "
-					+ inputJSON.toPrettyString() + "\nUser request: " + question;
-		}
+	static String buildLlmPrompt(JsonNode inputJSON, String question) {
+		return "Given the graph below, answer the user request. If possible, return valid JSON only. Graph: "
+				+ inputJSON.toPrettyString() + "\nUser request: " + question;
+	}
 
-	protected String queryIA(JsonNode inputJSON, String question) throws JsonMappingException, JsonProcessingException, IOException {
-			var llmPrompt = buildLlmPrompt(inputJSON, question);
+	protected String queryIA(JsonNode inputJSON, String question)
+			throws JsonMappingException, JsonProcessingException, IOException {
+		var llmPrompt = buildLlmPrompt(inputJSON, question);
 		return OllamaModel.chat(llmPrompt);
 	}
 

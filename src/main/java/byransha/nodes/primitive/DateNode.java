@@ -41,7 +41,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 	}
 
 	@Override
-	public JComponent getAsComponent(ChatNode chat) {
+	public JComponent getListItemComponent(ChatNode chat) {
 		SpinnerDateModel model = new SpinnerDateModel();
 		JSpinner dateSpinner = new JSpinner(model);
 

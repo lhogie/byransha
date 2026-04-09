@@ -2,6 +2,7 @@ package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.system.ChatNode;
@@ -9,8 +10,8 @@ import byransha.nodes.system.ChatNode;
 public abstract class ConfirmRequiredNodeAction<A extends BNode, R extends BNode> extends NodeAction<A, R> {
 	private final BooleanNode confirmed;
 
-	public ConfirmRequiredNodeAction(BGraph g, A action, String category) {
-		super(g, action, category);
+	public ConfirmRequiredNodeAction(BGraph g, A action, Class<? extends Category> cat) {
+		super(g, action, cat);
 		this.confirmed = new BooleanNode(g, null);
 	}
 

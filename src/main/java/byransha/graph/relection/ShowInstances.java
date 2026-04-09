@@ -5,12 +5,13 @@ import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
+import byransha.graph.relection.LinkAction.type;
 import byransha.nodes.system.ChatNode;
 
 public class ShowInstances extends NodeAction<ClassNode, ListNode<BNode>> {
 
 	public ShowInstances(BGraph g, ClassNode inputNode) {
-		super(g, inputNode, "navigation");
+		super(g, inputNode, type.class);
 	}
 
 	@Override

@@ -1,10 +1,15 @@
 package byransha.ai;
 
+import javax.swing.JComponent;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.system.ChatNode;
+import byransha.ui.swing.ChatSheet;
+import byransha.util.JsonToTreeConverter;
 
 final public class JSONNode extends BNode {
 	private final JsonNode node;
@@ -31,4 +36,13 @@ final public class JSONNode extends BNode {
 		return "some JSON data";
 	}
 
+	@Override
+	public void writeTo(ChatSheet sheet) {
+		sheet.currentLine.add(JsonToTreeConverter.buildTreeModel(node));
+	}
+
+	@Override
+	public JComponent getListItemComponent(ChatNode sheet) {
+		return JsonToTreeConverter.buildTreeModel(node);
+	}
 }

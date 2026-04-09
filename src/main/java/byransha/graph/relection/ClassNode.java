@@ -51,6 +51,7 @@ public class ClassNode extends BNode {
 	public void createActions() {
 		cachedActions.elements.add(new ShowInstances(g, this));
 		cachedActions.elements.add(new MakeNewInstance(g, this));
+		cachedActions.elements.add(new LinkAction(g, this));
 		super.createActions();
 	}
 

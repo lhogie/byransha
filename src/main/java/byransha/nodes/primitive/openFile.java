@@ -3,14 +3,17 @@ package byransha.nodes.primitive;
 import java.awt.Desktop;
 
 import byransha.graph.BGraph;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.system.ChatNode;
 
 public class openFile extends NodeAction<FileNode, FileNode> {
 
-	protected openFile(BGraph g, FileNode f, String cat) {
-		super(g, f, cat);
+	public static class file extends Category{}
+	
+	protected openFile(BGraph g, FileNode f) {
+		super(g, f, file.class);
 	}
 
 	@Override

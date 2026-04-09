@@ -47,6 +47,8 @@ public class BGraph extends BNode {
 	public final Translator translator = new GoogleTranslator(this);
 //	public final Authenticate auth = new LdapAuthenticator(this);
 
+	class graph extends Category{}
+	
 	public BGraph(File directory) throws Exception {
 		super(null);
 		indexes.add(this);
@@ -56,6 +58,7 @@ public class BGraph extends BNode {
 		new NotGenred(g);
 	}
 
+	
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new AllNodes(g));

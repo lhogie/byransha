@@ -39,7 +39,7 @@ public class ActionResult<T extends BNode, R extends BNode> extends BNode {
 
 	public static class stop extends NodeAction<ActionResult, ActionResult> {
 		protected stop(BGraph g, ActionResult r) {
-			super(g, r, "action");
+			super(g, r, action.class);
 		}
 
 		@Override

@@ -2,11 +2,14 @@ package byransha.ui.swing;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.swing.AbstractButton;
+import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -24,7 +27,7 @@ public class MenuBuilder {
 		UIManager.put("Menu.selectionBackground", Color.red);
 		UIManager.put("Menu.selectionForeground", Color.WHITE);
 		JPopupMenu popup = new JPopupMenu();
-		
+
 		Map<String, JMenu> menus = new HashMap<>();
 
 		for (var a : actions) {
@@ -36,7 +39,16 @@ public class MenuBuilder {
 			}
 		}
 
+		sort(popup);
 		return popup;
+	}
+
+	private static void sort(JComponent c) {
+		var l = Arrays.stream(c.getComponents()).map(cc -> (AbstractButton) cc)
+				.sorted((a, b) -> a.getText().compareTo(b.getText())).toList();
+//		l.forEach(cc -> sort(cc));
+		c.removeAll();
+		l.forEach(cc -> c.add(cc));
 	}
 
 	private static JMenu menu(JPopupMenu popup, List<String> segments, Map<String, JMenu> menus) {
@@ -48,7 +60,7 @@ public class MenuBuilder {
 
 			if (segments.isEmpty()) {
 				popup.add(m);
-			}else {
+			} else {
 				menu(popup, segments, menus).add(m);
 			}
 		}

@@ -75,25 +75,30 @@ public final class ListNode<T extends BNode> extends BNode {
 		}
 	}
 
-	interface list extends Category {
-		interface selection extends Category {
-			interface all extends Category {
-			}
+	public static class list extends Category {
+	}
 
-			interface none extends Category {
-			}
+	public static class export extends Category {
+	}
 
-			interface invert extends Category {
-			}
-		}
+	public static class selection extends Category {
+	}
+
+	public static class statistics extends Category {
 	}
 
 	@Override
 	public void createActions() {
+		cachedActions.elements.add(new Clear(g, this));
+		cachedActions.elements.add(new SortByString(g, this));
+		cachedActions.elements.add(new SortByValue(g, this));
+		cachedActions.elements.add(new SortByClass(g, this));
+		cachedActions.elements.add(new Uniq(g, this));
+		cachedActions.elements.add(new Shuffle(g, this));
 		cachedActions.elements.add(new MapToClassNode(g, this));
 		cachedActions.elements.add(new EDistribution(g, this));
 		cachedActions.elements.add(new RetainSelected<>(g, this));
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.selection.class) {
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
 
 			@Override
 			public String whatItDoes() {
@@ -111,7 +116,7 @@ public final class ListNode<T extends BNode> extends BNode {
 				return inputNode.selection.size() < inputNode.elements.size();
 			}
 		});
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this,  list.selection.class) {
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
 
 			@Override
 			public String whatItDoes() {
@@ -129,7 +134,7 @@ public final class ListNode<T extends BNode> extends BNode {
 				return true;
 			}
 		});
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.selection.class) {
+		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
 
 			@Override
 			public String whatItDoes() {
@@ -232,7 +237,7 @@ public final class ListNode<T extends BNode> extends BNode {
 	public static class EDistribution<V extends BNode> extends NodeAction<ListNode<V>, DistributionNode<V>> {
 
 		public EDistribution(BGraph g, ListNode<V> inputNode) {
-			super(g, inputNode, "list/statistics");
+			super(g, inputNode, list.class, statistics.class);
 		}
 
 		@Override

@@ -12,7 +12,7 @@ import byransha.security.Authenticate;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	public Export(BGraph g, BNode node) {
-		super(g, node, "node");
+		super(g, node, BNode.node.class);
 	}
 
 	@Override

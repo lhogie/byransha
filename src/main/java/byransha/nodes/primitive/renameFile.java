@@ -5,13 +5,14 @@ import java.io.File;
 import byransha.graph.BGraph;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.ConfirmRequiredNodeAction;
+import byransha.nodes.primitive.openFile.file;
 import byransha.nodes.system.ChatNode;
 
 public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 	StringNode newName;
 
-	public renameFile(BGraph g, FileNode inputNode, String cat) {
-		super(g, inputNode, cat);
+	public renameFile(BGraph g, FileNode inputNode) {
+		super(g, inputNode, file.class);
 		this.newName = new StringNode(g, inputNode.file.getName(), ".+");
 	}
 

@@ -2,6 +2,7 @@ package byransha.graph.action.list.map;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
@@ -9,7 +10,7 @@ import byransha.nodes.system.ChatNode;
 
 public abstract class AbstractMapAction<A extends BNode, B extends BNode> extends NodeAction<ListNode<A>, ListNode<B>> {
 
-	public AbstractMapAction(BGraph g, ListNode<A> input, String cat) {
+	public AbstractMapAction(BGraph g, ListNode<A> input, Class<? extends Category>...cat) {
 		super(g, input, cat);
 	}
 

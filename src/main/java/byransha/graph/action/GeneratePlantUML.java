@@ -7,13 +7,15 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
 import byransha.graph.action.list.ListNode;
+import byransha.graph.action.list.ListNode.export;
+import byransha.graph.action.list.ListNode.list;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 
 public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(BGraph g, ListNode<N> node) {
-		super(g, node, "list/export");
+		super(g, node, list.class, export.class);
 	}
 
 	@Override

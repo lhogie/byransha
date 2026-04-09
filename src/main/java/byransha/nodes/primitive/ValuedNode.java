@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.ui.swing.ChatSheet;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
@@ -30,7 +29,6 @@ public abstract class ValuedNode<V> extends BNode {
 		r.put("value", toString());
 		return r;
 	}
-
 
 	public V get() {
 		if (!canSee(currentUser()))
@@ -76,27 +74,14 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public abstract V defaultValue();
-	
+
 	@Override
 	public String toString() {
 		var v = get();
-
-		if (v == null) {
-			return super.toString();
-		} else {
-			return v.toString();
-		}
+		return v == null ? super.toString() : v.toString();
 	}
 
 	protected abstract void writeValue(V v, ObjectOutput out) throws IOException;
 
 	protected abstract V readValue(ObjectInput in) throws IOException;
-	
-	@Override
-	public void writeTo(ChatSheet pane) {
-		for (var err : errors()) {
-			pane.appendToCurrentLine("Error: " + err.msg, g.translator);
-			pane.newLine();
-		}
-	}
 }

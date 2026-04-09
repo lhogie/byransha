@@ -31,12 +31,10 @@ import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -48,7 +46,6 @@ import byransha.graph.action.FreezingAction;
 import byransha.graph.action.JumpToAnotherNode;
 import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
-import byransha.graph.action.list.map.MapToClassNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
@@ -79,6 +76,8 @@ public abstract class BNode {
 	public boolean readOnly;
 	public long id = -1;
 
+	public static class node extends Category{}
+	
 	@Hide
 	protected ListNode<NodeAction> cachedActions;
 
@@ -89,6 +88,12 @@ public abstract class BNode {
 			this.g = g;
 			this.g.indexes.add(this);
 		}
+	}
+
+	public int computeLongestPathLength() {
+		var r = bfs(Long.MAX_VALUE, n -> true, (n, d) -> {
+		});
+		return r.longestDistance();
 	}
 
 	@Override
@@ -215,8 +220,9 @@ public abstract class BNode {
 	}
 
 	public void createActions() {
-		
+
 //		cachedActions.add(new Back(g, this));
+		cachedActions.elements.add(new QueryIA(g, this));
 		cachedActions.elements.add(new SeeClassNode(g, this));
 		cachedActions.elements.add(new CopyIDToClipboard(g, this));
 		cachedActions.elements.add(new FreezingAction(g, this));
@@ -250,6 +256,16 @@ public abstract class BNode {
 	public static class BFSResult {
 		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
 		public Set<BNode> visited = new HashSet<>();
+
+		public int longestDistance() {
+			int max = 0;
+			for (int d : distances.values()) {
+				if (d > max) {
+					max = d;
+				}
+			}
+			return max;
+		}
 	}
 
 	public BFSResult bfs(long maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
@@ -274,7 +290,7 @@ public abstract class BNode {
 
 			final var c_tmp = c;
 			c.forEachOut(o -> {
-				if (!r.visited.contains(o)) {
+				if (o != null && !r.visited.contains(o)) {
 					r.visited.add(o);
 
 					if (nodeFilter.test(c_tmp)) {
@@ -357,7 +373,7 @@ public abstract class BNode {
 			return null;
 
 		ObjectNode r = new ObjectNode(factory);
-		r.put("id", id());
+		r.put("id", idAsText());
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
 		r.put("toString", toString());
@@ -371,12 +387,13 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new LongNode(e.id())).toList()));
+		r.set("actions",
+				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.idAsText())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 
 		var outsNode = new ObjectNode(factory);
 		forEachOutInFields(getClass(), BNode.class,
-				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.id() : -1));
+				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.idAsText() : ""));
 		r.set("outs", outsNode);
 
 		return r;
@@ -459,29 +476,42 @@ public abstract class BNode {
 	}
 
 	public void writeTo(ChatSheet sheet) {
+		int fieldNameSize = fieldMaxLenght();
+
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this) {
 				if (out instanceof DynamicValuedNode otf) {
 					out = otf.exec();
 				}
 
-				fillLine(sheet.currentLine, f, sheet, out);
+				fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
 				sheet.newLine();
 			}
 		});
 	}
 
-	private void fillLine(WrapPanel currentLine, Field f, ChatSheet sheet, BNode out) {
+	public int fieldMaxLenght() {
+		int[] max = { 0 };
+		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
+			if (out != this)
+				max[0] = Math.max(max[0], f.getName().length());
+		});
+		return max[0];
+	}
+
+	private void fillLine(WrapPanel currentLine, Field f, ChatSheet sheet, BNode out, int left) {
 		var fieldNameComponent = new TextDisplayComponent(g.translator, f.getName() + ":");
-		fieldNameComponent.setPreferredSize(new Dimension(60, fieldNameComponent.getPreferredSize().height));
+		fieldNameComponent.setColumns(left);
 		fieldNameComponent.setToolTipText(f.getName());
 		Utils.idDropTarget(g, fieldNameComponent, dn -> set(f, dn));
 		currentLine.add(fieldNameComponent);
 
 		if (out != null) {
-			currentLine.add(out.createBall( 18, 2, ((ChatSheet) sheet).chat));
+			currentLine.add(out.createBall(18, 2, ((ChatSheet) sheet).chat));
 			currentLine.add(new ErrorIndicator(out));
 			out.writeTo(sheet);
+		} else {
+			sheet.appendToCurrentLine("field has no value");
 		}
 
 		{
@@ -491,7 +521,7 @@ public abstract class BNode {
 				try {
 					set(f, null);
 					sheet.currentLine.removeAll();
-					fillLine(currentLine, f, sheet, out);
+					fillLine(currentLine, f, sheet, out, left);
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
@@ -521,7 +551,9 @@ public abstract class BNode {
 		c.setBorderWidth(border);
 		c.setOpaque(false);
 		c.setFocusable(false);
-//		c.setToolTipText(idAsText());
+		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "</ul></html>";
+		c.setToolTipText(tooltip);
+//		SelectableTooltip.addSelectableTooltip(c,tooltip);
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
 				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
 
@@ -556,7 +588,7 @@ public abstract class BNode {
 		return c;
 	}
 
-	Component getListItemComponent(ChatNode chat) {
+	public Component getListItemComponent(ChatNode chat) {
 		var p = new JPanel();
 		p.setOpaque(false);
 		p.add(createBall(20, 15, chat));
@@ -570,9 +602,4 @@ public abstract class BNode {
 		}
 		return p;
 	}
-
-	public Component getAsComponent(ChatNode chat) {
-		return createBall(20, 10, chat);
-	}
-
 }

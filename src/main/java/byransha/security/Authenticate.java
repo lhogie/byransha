@@ -4,6 +4,7 @@ import java.util.function.BiPredicate;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.StringNode;
@@ -14,8 +15,11 @@ import byransha.util.Stop;
 public abstract class Authenticate extends NodeAction<BNode, User> implements BiPredicate<String, String> {
 	public final StringNode username, password;
 
+	public static class security extends Category {
+	}
+
 	public Authenticate(BGraph g) {
-		super(g, g, "security");
+		super(g, g, security.class);
 		username = new StringNode(g, "", ".+");
 		password = new StringNode(g, "", ".+");
 	}

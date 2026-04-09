@@ -1,7 +1,9 @@
 package byransha.graph;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 
@@ -21,22 +23,10 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 //	public final boolean execStraightAway;
 	public final String category;
 
-	public NodeAction(BGraph g, IN inputNode, String category) {
+	public NodeAction(BGraph g, IN inputNode, Class<? extends Category>... category) {
 		super(g);
 		this.inputNode = inputNode;
-		this.category = category;
-	}
-
-	public NodeAction(BGraph g, IN inputNode, Class<? extends Category> category) {
-		super(g);
-		this.inputNode = inputNode;
-		this.category = path(category);
-	}
-
-	private static String path(Class<? extends Category> c) {
-		String s = c.getName();
-		s = s.substring(s.indexOf('$') + 1).replace("$", "/");
-		return s;
+		this.category = Arrays.stream(category).map(c -> c.getSimpleName()).collect(Collectors.joining("/"));
 	}
 
 	public List<BNode> parameters() {
@@ -102,10 +92,12 @@ public abstract class NodeAction<IN extends BNode, OUT extends BNode> extends BN
 		return "an action which " + whatItDoes();
 	}
 
+	public class action extends Category{}
+	
 	static public class exec<OUT extends BNode> extends NodeAction<NodeAction, OUT> {
 
 		public exec(BGraph g, NodeAction inputNode) {
-			super(g, inputNode, "action");
+			super(g, inputNode, action.class);
 		}
 
 		@Override

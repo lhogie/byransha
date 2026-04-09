@@ -96,7 +96,7 @@ public class SwingFrontend extends SystemNode {
 		var chatPanel = new ChatPanel(chatNode);
 		f.setContentPane(chatPanel);
 		frames.put(chatNode, f);
-		f.setSize(600, 800);
+		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
 		f.setVisible(true);
 	}
 

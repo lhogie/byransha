@@ -6,7 +6,7 @@ import byransha.nodes.system.ChatNode;
 public class OpenInNewChat extends NodeAction<BNode, BNode> {
 
 	public OpenInNewChat(BGraph g, BNode inputNode) {
-		super(g, inputNode, "node");
+		super(g, inputNode, node.class);
 	}
 
 	@Override

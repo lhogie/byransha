@@ -3,6 +3,7 @@ package byransha.graph.action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.graph.action.FreezingAction.misc;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.lab.BusinessNode;
@@ -14,7 +15,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	ListNode<ClassNode> classes;
 
 	public NewNodeCreator(BGraph g) {
-		super(g, g, "node");
+		super(g, g, misc.class);
 		classes = new ListNode<>(g, "Business class(es)");
 	}
 

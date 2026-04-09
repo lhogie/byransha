@@ -3,12 +3,14 @@ package byransha.graph.action;
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
 import byransha.graph.action.list.ListNode;
+import byransha.graph.action.list.ListNode.export;
+import byransha.graph.action.list.ListNode.list;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 
 public class DotAction extends NodeAction<ListNode, TextNode> {
 	public DotAction(BGraph g, ListNode node) {
-		super(g, node, "list/export");
+		super(g, node, list.class, export.class);
 	}
 
 	@Override

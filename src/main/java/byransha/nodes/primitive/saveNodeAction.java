@@ -7,13 +7,14 @@ import java.nio.file.Path;
 import byransha.graph.BGraph;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
+import byransha.nodes.primitive.openFile.file;
 import byransha.nodes.system.ChatNode;
 
 public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	StringNode fileNameNode;
 
 	protected saveNodeAction(BGraph g, TextNode textNode) {
-		super(g, textNode, "file");
+		super(g, textNode, file.class);
 		fileNameNode = new StringNode(g, "example.txt", ".+\\..+");
 	}
 

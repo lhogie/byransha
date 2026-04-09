@@ -1,12 +1,16 @@
 package byransha.nodes.system;
 
 import byransha.graph.BGraph;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 
 final class Restart extends NodeAction<Byransha, Byransha> {
+	public static class byransha extends Category {
+	}
+
 	public Restart(BGraph g, Byransha inputNode) {
-		super(g, inputNode, "byransha");
+		super(g, inputNode, byransha.class);
 	}
 
 	@Override

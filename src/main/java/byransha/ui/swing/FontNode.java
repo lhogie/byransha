@@ -29,7 +29,7 @@ public class FontNode extends BNode {
 	}
 
 	@Override
-	public JComponent getAsComponent(ChatNode chat) {
+	public JComponent getListItemComponent(ChatNode chat) {
 		var l = new JLabel();
 		l.setFont(font);
 		l.setText(font.getFontName());

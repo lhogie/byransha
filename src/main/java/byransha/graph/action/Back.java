@@ -3,11 +3,12 @@ package byransha.graph.action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
+import byransha.graph.action.FreezingAction.misc;
 import byransha.nodes.system.ChatNode;
 
 final public class Back extends NodeAction<BNode, BNode> {
 	public Back(BGraph g, BNode n) {
-		super(g, n, "chat");
+		super(g, n, misc.class);
 	}
 
 	@Override

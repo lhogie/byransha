@@ -8,7 +8,7 @@ import byransha.nodes.system.SystemNode;
 public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
 
 	public Delete(BGraph g, BNode node) {
-		super(g, node, "node");
+		super(g, node, node.class);
 	}
 
 	@Override

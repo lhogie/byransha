@@ -2,6 +2,7 @@ package byransha.graph.action.list.filter;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
@@ -9,7 +10,8 @@ import byransha.nodes.system.ChatNode;
 
 public abstract class FilterNode<N extends BNode> extends NodeAction<ListNode<N>, ListNode<N>> {
 
-	public FilterNode(BGraph g, ListNode<N> inputNode, String cat) {
+	
+	public FilterNode(BGraph g, ListNode<N> inputNode, Class<? extends Category>... cat) {
 		super(g, inputNode,  cat);
 	}
 

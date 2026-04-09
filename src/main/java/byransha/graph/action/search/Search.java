@@ -2,6 +2,7 @@ package byransha.graph.action.search;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
@@ -12,11 +13,14 @@ import byransha.nodes.system.ChatNode;
 public class Search extends NodeAction<BNode, ListNode> {
 	public LongNode depth;
 
+	
+	public static class search extends Category{}
+	
 	public Search(BGraph g, BNode src) {
-		super(g, src, "search");
+		super(g, src, search.class);
 		depth = new LongNode(g);
 		depth.set(1L);
-		depth.setBounds(new Bounds(0, 1000));
+		depth.setBounds(new Bounds(0, src.computeLongestPathLength()));
 	}
 
 	@Override

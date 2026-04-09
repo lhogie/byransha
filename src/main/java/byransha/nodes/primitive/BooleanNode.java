@@ -42,7 +42,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	}
 
 	@Override
-	public JComponent getAsComponent(ChatNode pane) {
+	public JComponent getListItemComponent(ChatNode pane) {
 		return true ? checkbox(pane) : getComponent_radioButtons();
 	}
 

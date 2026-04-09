@@ -1,6 +1,6 @@
 package byransha.graph;
 
-public interface Category {
+public class Category {
 
 	
 }

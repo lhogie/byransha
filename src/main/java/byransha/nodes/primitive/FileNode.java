@@ -15,8 +15,8 @@ public class FileNode extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new openFile(g, this, "file"));
-		cachedActions.elements.add(new renameFile(g, this, "file"));
+		cachedActions.elements.add(new openFile(g, this));
+		cachedActions.elements.add(new renameFile(g, this));
 		super.createActions();
 	}
 

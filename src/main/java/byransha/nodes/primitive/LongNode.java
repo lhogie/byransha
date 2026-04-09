@@ -129,6 +129,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 				slider.setValue(get().intValue());
 			}
 
+			slider.addChangeListener(e -> set((long) slider.getValue()));
 			slider.setEnabled(!readOnly);
 			valueChangeListeners.add((n, o, newValue) -> slider.setValue(newValue.intValue()));
 			sheet.appendToCurrentLine(slider);

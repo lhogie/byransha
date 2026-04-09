@@ -1,7 +1,6 @@
 package byransha.graph;
 
 import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
 import byransha.graph.action.ActionResult;
@@ -10,7 +9,7 @@ import byransha.nodes.system.ChatNode;
 public class CopyIDToClipboard extends NodeAction {
 
 	public CopyIDToClipboard(BGraph g, BNode inputNode) {
-		super(g, inputNode, "node");
+		super(g, inputNode, node.class);
 	}
 
 	@Override

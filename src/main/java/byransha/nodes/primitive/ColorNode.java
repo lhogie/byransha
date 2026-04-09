@@ -47,7 +47,7 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	}
 
 	@Override
-	public JComponent getAsComponent(ChatNode chat) {
+	public JComponent getListItemComponent(ChatNode chat) {
 		var cc = new JColorChooser();
 		cc.getSelectionModel().addChangeListener(e -> set(cc.getColor()));
 		return cc;

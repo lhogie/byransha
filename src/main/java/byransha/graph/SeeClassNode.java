@@ -7,7 +7,7 @@ import byransha.nodes.system.ChatNode;
 public class SeeClassNode extends NodeAction<BNode, ClassNode> {
 
 	public SeeClassNode(BGraph g, BNode inputNode) {
-		super(g, inputNode, "node");
+		super(g, inputNode, node.class);
 	}
 
 	@Override

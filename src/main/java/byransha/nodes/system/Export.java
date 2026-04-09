@@ -1,13 +1,17 @@
 package byransha.nodes.system;
 
 import byransha.ai.JSONNode;
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
+import byransha.graph.action.list.ListNode.export;
 
 public class Export extends NodeAction<ChatNode, JSONNode> {
 
+	public static class chat extends Category{}
+	
 	public Export(ChatNode chatNode) {
-		super(chatNode.g, chatNode, "export");
+		super(chatNode.g, chatNode, chat.class, export.class);
 	}
 
 	@Override

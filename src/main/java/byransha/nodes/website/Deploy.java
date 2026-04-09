@@ -2,6 +2,7 @@ package byransha.nodes.website;
 
 import java.nio.file.Files;
 
+import byransha.graph.Category;
 import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 import byransha.nodes.primitive.FileNode;
@@ -10,8 +11,11 @@ import byransha.nodes.system.ChatNode;
 public class Deploy extends NodeAction<Website, FileNode> {
 	FileNode directory;
 
+	public static class website extends Category {
+	}
+
 	public Deploy(Website website) {
-		super(website.g, website, "website");
+		super(website.g, website, website.class);
 	}
 
 	@Override
