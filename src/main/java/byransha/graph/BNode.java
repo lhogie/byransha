@@ -1,7 +1,13 @@
 package byransha.graph;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.datatransfer.StringSelection;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DragSource;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -21,11 +27,16 @@ import java.util.stream.Collectors;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -33,23 +44,32 @@ import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
+import byransha.graph.action.FreezingAction;
+import byransha.graph.action.JumpToAnotherNode;
 import byransha.graph.action.Reset;
 import byransha.graph.action.list.ListNode;
+import byransha.graph.action.list.map.MapToClassNode;
 import byransha.graph.action.search.Search;
+import byransha.graph.action.search.SearchRegexp;
+import byransha.graph.action.search.SearchText;
 import byransha.graph.relection.ClassNode;
-import byransha.graph.view.DebugView;
-import byransha.graph.view.ErrorsView;
-import byransha.graph.view.JumpToMe;
-import byransha.graph.view.KishanView;
-import byransha.graph.view.NodeView;
-import byransha.graph.view.SmallInfoView;
+import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
+import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.CircleComponent;
 import byransha.ui.swing.ColorPalette;
+import byransha.ui.swing.ErrorIndicator;
+import byransha.ui.swing.MenuBuilder;
+import byransha.ui.swing.TextDisplayComponent;
 import byransha.ui.swing.TranslatableButton;
+import byransha.ui.swing.TranslatableTextArea;
+import byransha.ui.swing.Utils;
+import byransha.ui.swing.WrapPanel;
 import byransha.util.Base62;
 import byransha.util.ByUtils;
+import byransha.util.Stop;
 import byransha.util.TriConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
@@ -57,16 +77,7 @@ public abstract class BNode {
 	@Hide
 	public final BGraph g;
 	public boolean readOnly;
-	public int id = -1;
-
-	public static interface NodeChangeListener {
-		void changed(BNode n);
-	}
-
-	public List<NodeChangeListener> changeListeners = new ArrayList<>();
-
-	@Hide
-	protected ListNode<NodeView> cachedViews;
+	public long id = -1;
 
 	@Hide
 	protected ListNode<NodeAction> cachedActions;
@@ -78,6 +89,11 @@ public abstract class BNode {
 			this.g = g;
 			this.g.indexes.add(this);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " #" + idAsText();
 	}
 
 	public BNode error(Throwable err) {
@@ -95,18 +111,6 @@ public abstract class BNode {
 		}
 	}
 
-	public List<NodeView<BNode>> views() {
-		if (cachedViews == null) {
-			cachedViews = new ListNode(g, "views for node " + this);
-			createViews();
-
-			if (findView(JumpToMe.class) == null)
-				error(new IllegalStateException("no jump view found for node " + getClass().getName()));
-		}
-
-		return (List<NodeView<BNode>>) (List) cachedViews.get();
-	}
-
 	public List<NodeAction> actions() {
 		if (cachedActions == null) {
 			cachedActions = new ListNode<>(g, "actions for node " + this);
@@ -117,18 +121,7 @@ public abstract class BNode {
 	}
 
 	public void invalidateCache() {
-		cachedViews = null;
 		cachedActions = null;
-	}
-
-	public NodeView findView(Class<? extends NodeView> c) {
-		for (var v : views()) {
-			if (c.isAssignableFrom(v.getClass())) {
-				return v;
-			}
-		}
-
-		return null;
 	}
 
 	public User currentUser() {
@@ -203,8 +196,8 @@ public abstract class BNode {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
 
-							var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
-							consumer.accept(f, outNode, isFinal);
+						var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
+						consumer.accept(f, outNode, isFinal);
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						error(e);
 					}
@@ -222,25 +215,19 @@ public abstract class BNode {
 	}
 
 	public void createActions() {
-		cachedActions.elements.add(new QueryIA(g, this));
+		
 //		cachedActions.add(new Back(g, this));
+		cachedActions.elements.add(new SeeClassNode(g, this));
+		cachedActions.elements.add(new CopyIDToClipboard(g, this));
+		cachedActions.elements.add(new FreezingAction(g, this));
+		cachedActions.elements.add(new JumpToAnotherNode(g, this));
 		cachedActions.elements.add(new Reset(g, this));
 		cachedActions.elements.add(new Export(g, this));
 		cachedActions.elements.add(new Delete(g, this));
 		cachedActions.elements.add(new Search(g, this));
-//		cachedActions.elements.add(new SearchText(g, this));
-//		cachedActions.elements.add(new SearchRegexp(g, this));
+		cachedActions.elements.add(new SearchText(g, this));
+		cachedActions.elements.add(new SearchRegexp(g, this));
 //		cachedActions.elements.add(new OpenInNewChat(g, this));
-	}
-
-	public void createViews() {
-		cachedViews.elements.add(new KishanView(this));
-		cachedViews.elements.add(new SmallInfoView(g, this));
-		cachedViews.elements.add(new JumpToMe(g, this));
-//		cachedViews.elements.add(new OutNavigationView(g, this));
-//		cachedViews.elements.add(new InNavigationView(g, this));
-		cachedViews.elements.add(new ErrorsView(g, this));
-		cachedViews.elements.add(new DebugView(g, this));
 	}
 
 	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -313,14 +300,13 @@ public abstract class BNode {
 		return true;
 	}
 
-	
-	public final int id() {
+	public final long id() {
 		return id;
 	}
 
 	@Override
 	public final int hashCode() {
-		return id;
+		return Long.hashCode(id);
 	}
 
 	@Override
@@ -346,7 +332,6 @@ public abstract class BNode {
 	public byte[] getIconBytes() {
 		return null;
 	}
-
 
 	public boolean isReadOnly() {
 		return readOnly;
@@ -386,12 +371,12 @@ public abstract class BNode {
 		r.put("whatIsThis", whatIsThis());
 		r.put("canSee", canSee(currentUser()));
 		r.put("canEdit", canEdit(currentUser()));
-		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new IntNode(e.id())).toList()));
+		r.set("actions", new ArrayNode(null, actions().stream().map(e -> (JsonNode) new LongNode(e.id())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
-		r.set("views", new ArrayNode(null, views().stream().map(v -> (JsonNode) new TextNode(v.id() + "")).toList()));
 
 		var outsNode = new ObjectNode(factory);
-		forEachOutInFields(getClass(), BNode.class, (f, out, ro) -> outsNode.put(f.getName(), out != null? out.id() : -1));
+		forEachOutInFields(getClass(), BNode.class,
+				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.id() : -1));
 		r.set("outs", outsNode);
 
 		return r;
@@ -405,16 +390,6 @@ public abstract class BNode {
 		}
 
 		return null;
-	}
-
-	public NodeView<BNode> getViewForKishanView() {
-		for (var v : views()) {
-			if (!(v instanceof KishanView)) {
-				return v;
-			}
-		}
-
-		throw new IllegalStateException("no kishanable view found for node " + this);
 	}
 
 	public void reset() {
@@ -466,12 +441,12 @@ public abstract class BNode {
 
 	public <N extends BNode> ClassNode getClassNode() {
 		for (ClassNode c : (Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class)) {
-			if (c.clazz == getClass()) {
+			if (c.representedClass == getClass()) {
 				return c;
 			}
 		}
 
-		throw new IllegalStateException("class node should be registered");
+		throw new IllegalStateException("class node should be registered: " + getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -483,9 +458,121 @@ public abstract class BNode {
 		return translation == null ? s : translation;
 	}
 
-	public void highlight(boolean b) {
-		// TODO Auto-generated method stub
-		
+	public void writeTo(ChatSheet sheet) {
+		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
+			if (out != this) {
+				if (out instanceof DynamicValuedNode otf) {
+					out = otf.exec();
+				}
+
+				fillLine(sheet.currentLine, f, sheet, out);
+				sheet.newLine();
+			}
+		});
+	}
+
+	private void fillLine(WrapPanel currentLine, Field f, ChatSheet sheet, BNode out) {
+		var fieldNameComponent = new TextDisplayComponent(g.translator, f.getName() + ":");
+		fieldNameComponent.setPreferredSize(new Dimension(60, fieldNameComponent.getPreferredSize().height));
+		fieldNameComponent.setToolTipText(f.getName());
+		Utils.idDropTarget(g, fieldNameComponent, dn -> set(f, dn));
+		currentLine.add(fieldNameComponent);
+
+		if (out != null) {
+			currentLine.add(out.createBall( 18, 2, ((ChatSheet) sheet).chat));
+			currentLine.add(new ErrorIndicator(out));
+			out.writeTo(sheet);
+		}
+
+		{
+			var popup = new JPopupMenu();
+			var setToNull = new JMenuItem("unset");
+			setToNull.addActionListener(e -> {
+				try {
+					set(f, null);
+					sheet.currentLine.removeAll();
+					fillLine(currentLine, f, sheet, out);
+					sheet.doLayout();
+					sheet.revalidate();
+				} catch (Throwable e1) {
+					error(e1);
+				}
+			});
+			var replace = new JMenuItem("see candidates");
+			replace.addActionListener(e -> {
+				var list = new ListNode(g, "all nodes of class " + f.getType().getName());
+				g.indexes.byClass.forEachNodeAssignableTo((Class) f.getType(), a -> {
+					list.elements.add(a);
+					return Stop.no;
+				});
+				new ChatNode(currentUser()).append(list);
+			});
+
+			if (!this.readOnly) {
+				popup.add(out == null ? replace : setToNull);
+			}
+
+			fieldNameComponent.setComponentPopupMenu(popup);
+		}
+	}
+
+	public JComponent createBall(int diameter, int border, ChatNode chat) {
+		var c = new CircleComponent(diameter, getColor());
+		c.setBorderWidth(border);
+		c.setOpaque(false);
+		c.setFocusable(false);
+//		c.setToolTipText(idAsText());
+		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
+				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
+
+		c.setComponentPopupMenu(MenuBuilder.buildPopupMenu(actions(), chat));
+
+		c.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					chat.append(BNode.this);
+				}
+			}
+		});
+
+		return c;
+	}
+
+	Component getListItemComponent(ChatNode chat) {
+		var p = new JPanel();
+		p.setOpaque(false);
+		p.add(createBall(20, 15, chat));
+		var ta = new TranslatableTextArea(chat.g.translator);
+		ta.setToolTipText(whatIsThis());
+		ta.setText(toString());
+		p.add(ta);
+
+		for (var c : p.getComponents()) {
+//			((JComponent) c).setBorder(LineBorder.createBlackLineBorder());
+		}
+		return p;
+	}
+
+	public Component getAsComponent(ChatNode chat) {
+		return createBall(20, 10, chat);
 	}
 
 }

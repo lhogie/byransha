@@ -28,13 +28,14 @@ public class ChatNode extends BNode {
 
 		if (n instanceof NodeAction action && action.parameters().isEmpty()) {
 			try {
-				var result = action.exec(this);
+				var actionController = action.exec(this);
 
-				if (result.jumpStraightAwayToOutNode) {
-					append(result.outNode);
-				} else {
-					if (result != null)
-						append(result);
+				if (actionController.hideOutputNode) {
+					if (actionController.result != null) {
+						append(actionController.result);
+					}
+				} else if (actionController != null) {
+					append(actionController);
 				}
 
 			} catch (Throwable err) {
@@ -58,7 +59,7 @@ public class ChatNode extends BNode {
 			var on = new ObjectNode(factory);
 			r.add(on);
 			on.put("id", n.id());
-			on.put("pretty name", n.toString());
+			on.put("toString", n.toString());
 
 			if (n instanceof NodeAction action) {
 				var parmNode = new ObjectNode(factory);

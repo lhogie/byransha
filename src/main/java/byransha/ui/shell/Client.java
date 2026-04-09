@@ -12,7 +12,6 @@ import java.util.Map;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.view.NodeView;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.util.ByUtils;
@@ -36,7 +35,7 @@ public class Client extends SystemNode {
 		this.socket = clientSocket;
 		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		var out = new PrintWriter(clientSocket.getOutputStream(), true);
-		var chatID = Integer.valueOf(in.readLine());
+		var chatID = Long.valueOf(in.readLine());
 		currentChat = (ChatNode) g.indexes.byId.get(chatID);
 		initializeCommands(g);
 
@@ -56,8 +55,6 @@ public class Client extends SystemNode {
 						var username = line.substring("auth ".length() + 1).trim();
 						var userhash = username.hashCode();
 						out.println(userhash);
-					} else if (line.startsWith(".")) {
-						showView(line.substring(1), out);
 					} else if (line.startsWith("/")) {
 						execLocalCommand(line.substring(1), out);
 					} else {
@@ -89,9 +86,6 @@ public class Client extends SystemNode {
 		commands.put("actions", new Command("list actions available on this node",
 				(out, parms) -> currentNode().actions().forEach(a -> out.println(a.technicalName()))));
 
-		commands.put("views", new Command("list views available on this node",
-				(out, parms) -> currentNode().views().forEach(v -> out.println(v.technicalName()))));
-
 		commands.put("ls", new Command("list outs",
 				(out, parms) -> currentNode().forEachOut((name, node) -> out.println(name + ": " + node))));
 
@@ -120,24 +114,9 @@ public class Client extends SystemNode {
 					"no such action " + actionName + " on node " + currentNode() + " of " + currentNode().getClass());
 		} else {
 			var r = action.exec(currentChat);
-
-			for (var v : r.outNode.views()) {
-				out.println(v + ":");
-				out.println(v.describeAsJSON().toPrettyString());
-			}
+			out.println(r.describeAsJSON().toPrettyString());
 
 			out.println("*" + action + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
-		}
-	}
-
-	private void showView(String viewName, PrintWriter out) {
-		var view = findView(currentNode(), viewName);
-
-		if (view == null) {
-			out.println("no such view " + viewName + " on node " + currentNode() + " of " + currentNode().getClass());
-		} else {
-			var r = view.describeAsJSON();
-			out.println(r.toPrettyString());
 		}
 	}
 
@@ -155,16 +134,6 @@ public class Client extends SystemNode {
 		} else {
 			out.println("Unknown command: " + cmdName);
 		}
-	}
-
-	public static NodeView<BNode> findView(BNode n, String name) {
-		for (var v : n.views()) {
-			if (v.technicalName().equals(name)) {
-				return v;
-			}
-		}
-
-		return null;
 	}
 
 	private BNode currentNode() {

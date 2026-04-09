@@ -61,9 +61,6 @@ public class Sheet extends JPanel implements Scrollable {
 	}
 
 	public void appendToCurrentLine(JComponent c) {
-//		c.setBackground(null);
-//		c.setBorder(null);
-//		c.setOpaque(true);
 		currentLine.add(c);
 	}
 

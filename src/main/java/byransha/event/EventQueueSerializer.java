@@ -1,19 +1,14 @@
 package byransha.event;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import byransha.graph.BGraph;
 
 public interface EventQueueSerializer {
-	void write(List<Event> q, OutputStream out) throws IOException;
+	void write(InMemoryEventList q, File out) throws IOException;
 
-	List<Event> read(InputStream in, BGraph g)
-			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
-			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException;
+	InMemoryEventList read(File in, BGraph g) throws Exception;
 
 	String ext();
 }

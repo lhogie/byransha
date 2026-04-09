@@ -22,7 +22,7 @@ public class Person extends BusinessNode {
 	public StringNode badgeNumber;
 	public StringNode website;
 	public StringNode faxNumber;
-	public ResearchGroup researchGroup;
+	public final ListNode<Structure> structures = new ListNode<>(g, "structures");
 	public DateNode phdDate;
 	public ListNode<PhoneNumberNode> phoneNumbers;
 	protected ListNode<EmailNode> emailAddresses;
@@ -54,7 +54,7 @@ public class Person extends BusinessNode {
 	@Override
 	public String toString() {
 		if (etatCivil == null) {
-			return null;
+			return "unnamed";
 		}
 
 		return etatCivil.toString();

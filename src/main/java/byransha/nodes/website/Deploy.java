@@ -11,7 +11,7 @@ public class Deploy extends NodeAction<Website, FileNode> {
 	FileNode directory;
 
 	public Deploy(Website website) {
-		super(website.g, website);
+		super(website.g, website, "website");
 	}
 
 	@Override

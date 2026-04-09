@@ -15,7 +15,6 @@ import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
 import byransha.nodes.lab.Person;
 import byransha.nodes.system.ChatNode;
-import byransha.ui.javafx.JavaFXFrontend;
 import byransha.ui.shell.ShellServer;
 import byransha.ui.swing.SwingFrontend;
 import javafx.scene.Scene;
@@ -28,7 +27,7 @@ public class Main {
 	public static void main(String[] args) throws Throwable {
 
 //		System.out.println("IA".split("/").length);
-		
+
 		// java.awt.Toolkit.getDefaultToolkit();
 //		Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
 		var argMap = mapArgs(args);
@@ -84,7 +83,5 @@ public class Main {
 		primaryStage.setY(location.y);
 		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
 		primaryStage.show();
-
-		new JavaFXFrontend(g, vbox);
 	}
 }

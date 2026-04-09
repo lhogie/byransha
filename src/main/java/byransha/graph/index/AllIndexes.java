@@ -2,6 +2,7 @@ package byransha.graph.index;
 
 import java.util.Objects;
 
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 
@@ -11,9 +12,9 @@ public class AllIndexes extends Index {
 	public final NodeList nodesList;
 	public final ReverseNavigation reverseNavigation;
 
-	public AllIndexes() {
+	public AllIndexes(BGraph g) {
 		byId = new ByID();
-		byClass = new ByClass();
+		byClass = new ByClass(g);
 		nodesList = new NodeList();
 		reverseNavigation = new ReverseNavigation();
 	}

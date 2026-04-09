@@ -15,6 +15,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Enumeration;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
@@ -29,7 +31,23 @@ import byransha.util.PossiblyFailingConsumer;
 
 public class Utils {
 
-	public static void IdDropTarget(BGraph g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
+	public static JScrollPane getScrollPane(JComponent c) {
+		var parent = c.getParent();
+
+		while (true) {
+			if (parent == null) {
+				return null;
+			}
+
+			if (parent instanceof JScrollPane sc) {
+				return sc;
+			}
+
+			parent = parent.getParent();
+		}
+	}
+
+	public static void idDropTarget(BGraph g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
 		new DropTarget(c, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
@@ -85,50 +103,6 @@ public class Utils {
 		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
 	}
 
-	public static JComponent idShower(BNode n, int diameter, int border, ChatNode chat) {
-		var c = new CircleComponent(diameter, n.getColor());
-		c.setBorderWidth(border);
-		c.setOpaque(false);
-		c.setFocusable(false);
-		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
-				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(n.idAsText())));
-
-		c.setComponentPopupMenu(MenuBuilder.buildPopupMenu(n.actions(), chat));
-
-		c.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-				n.highlight(false);
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-				n.highlight(true);
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					chat.append(n);
-				}
-			}
-		});
-
-		return c;
-	}
 
 	public static JComponent noNodeShower(int diameter, int border, ChatNode chat, Class clazz) {
 		var c = new CircleComponent(diameter, Color.orange);
@@ -166,6 +140,19 @@ public class Utils {
 		});
 
 		return c;
+	}
+
+	public static Icon icon(String s, double scaleFactor) {
+		var i = new ImageIcon(Utils.class.getResource("icon/" + s + ".png"));
+
+		if (scaleFactor != 1) {
+			var img = i.getImage();
+			var newImg = img.getScaledInstance((int) (img.getWidth(null) * scaleFactor),
+					(int) (img.getHeight(null) * scaleFactor), java.awt.Image.SCALE_SMOOTH);
+			i = new ImageIcon(newImg);
+		}
+
+		return i;
 	}
 
 }

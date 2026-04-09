@@ -19,7 +19,7 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
 import byransha.ui.ColorSchemeNode;
-import byransha.util.ListChangeListener;
+import byransha.util.ListenableList;
 
 public class SwingFrontend extends SystemNode {
 	public final ColorSchemeNode colorStyle;
@@ -28,10 +28,11 @@ public class SwingFrontend extends SystemNode {
 
 	public final Map<ChatNode, JFrame> frames = new HashMap<>();
 
-	public final ListNode<FontNode> fonts= new ListNode<>(g, "available fonts");
+	public final ListNode<FontNode> fonts = new ListNode<>(g, "available fonts");
 
 	public SwingFrontend(BGraph g) {
 		super(g);
+		
 		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
 		this.colorStyle = schemeNodes.getFirst();
 
@@ -39,7 +40,6 @@ public class SwingFrontend extends SystemNode {
 			fonts.elements.add(new FontNode(g, font));
 		}
 
-//		 setLookAndFeel("WebLaf");
 		g.swing = this;
 
 		FontUIResource customFont = new FontUIResource("ProximaNova-Medium", Font.PLAIN, 14);
@@ -58,22 +58,28 @@ public class SwingFrontend extends SystemNode {
 	private void considerUser(User newUser) {
 		newUser.chatList.elements.forEach(chat -> addChatPanelFor(chat));
 
-		newUser.chatList.elements.listeners.add(new ListChangeListener<ChatNode>() {
+		newUser.chatList.elements.addListener(new ListenableList.Listener<ChatNode>() {
+
 			@Override
-			public void onAdd(ChatNode chatNode) {
+			public void onAdded(int index, ChatNode chatNode) {
 				addChatPanelFor(chatNode);
 			}
 
 			@Override
-			public void onRemove(ChatNode chat) {
+			public void onRemoved(int index, ChatNode chat) {
 				var frame = frames.remove(chat);
 				frame.dispose();
+			}
+
+			@Override
+			public void onSet(int index, ChatNode oldElement, ChatNode newElement) {
+				throw new UnsupportedOperationException("not implemented yet");
 			}
 		});
 	}
 
 	private void addChatPanelFor(ChatNode chatNode) {
-		var ref = frames.isEmpty() ? null: frames.values().iterator().next();
+		var ref = frames.isEmpty() ? null : frames.values().iterator().next();
 		var f = new JFrame();
 		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
 
@@ -86,20 +92,12 @@ public class SwingFrontend extends SystemNode {
 			location.x += ref.getSize().width;
 			f.setLocation(location);
 		}
-		
+
 		var chatPanel = new ChatPanel(chatNode);
 		f.setContentPane(chatPanel);
 		frames.put(chatNode, f);
-		f.setSize(400, 800);
+		f.setSize(600, 800);
 		f.setVisible(true);
-	}
-
-	private static void setLookAndFeel(String name) {
-		System.setProperty("awt.useSystemAAFontSettings", "on");
-		System.setProperty("swing.aatext", "true");
-		// https://github.com/JFormDesigner/FlatLaf/tree/main/flatlaf-intellij-themes#how-to-use
-		System.setProperty("flatlaf.useNativeFont", "false");
-		com.formdev.flatlaf.intellijthemes.FlatDraculaIJTheme.setup();
 	}
 
 	@Override

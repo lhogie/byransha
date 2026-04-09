@@ -20,7 +20,7 @@ public class User extends BNode {
 		chatList = new ListNode<>(g, "chats");
 //		chats.get().add(new ChatNode(this, g));
 
-		passwordNode.changeListeners.add(n -> argon2Hash.set(Argon.hash(passwordNode.get())));
+		passwordNode.valueChangeListeners.add((n, oldV, newV) -> argon2Hash.set(Argon.hash(newV)));
 	}
 
 	@Override

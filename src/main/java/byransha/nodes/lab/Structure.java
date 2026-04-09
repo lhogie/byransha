@@ -3,6 +3,7 @@ package byransha.nodes.lab;
 import byransha.graph.BGraph;
 import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.util.ListenableList;
 
 public class Structure extends BusinessNode {
 	public final StringNode name = new StringNode(g, null, ".+");;
@@ -13,9 +14,27 @@ public class Structure extends BusinessNode {
 		@Override
 		public ListNode<Person> exec() {
 			var s = g.indexes.byClass.m.get(Person.class).stream().map(n -> (Person) n)
-					.filter(p -> p.researchGroup == Structure.this).toList();
+					.filter(p -> p.structures.elements.contains(Structure.this)).toList();
 			var l = new ListNode<Person>(g, "members");
 			l.elements.addAll(s);
+			l.elements.addListener(new ListenableList.Listener<Person>() {
+
+				@Override
+				public void onSet(int index, Person oldElement, Person p) {
+					throw new UnsupportedOperationException("not supported");
+				}
+
+				@Override
+				public void onRemoved(int index, Person p) {
+					p.structures.elements.remove(Structure.this);
+				}
+
+				@Override
+				public void onAdded(int index, Person p) {
+					p.structures.elements.add(Structure.this);
+				}
+			});
+
 			return l;
 		}
 	};

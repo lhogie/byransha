@@ -53,16 +53,13 @@ public abstract class EventList extends BNode {
 
 	public LongList collectIDs() {
 		var l = new LongArrayList();
-		forEachEvent(e -> l.add(e.ID));
+		forEachEvent(e -> l.add(e.date.toEpochSecond(java.time.ZoneOffset.UTC)));
 		return l;
 	}
 
-	private void forEachEvent(Consumer<Event> c) {
-		// TODO Auto-generated method stub
+	protected abstract void forEachEvent(Consumer<Event> c);
 
-	}
-
-	public abstract void add(Event e);
+	public abstract void add(Event e) throws IOException;
 
 	public abstract Event forward() throws Throwable;
 
@@ -91,7 +88,7 @@ public abstract class EventList extends BNode {
 		}
 	}
 
-	public Event findEvent(long eventID) {
-		return null;
-	}
+	public abstract Event findEvent(long eventID);
+
+	public abstract Event remove(long id) throws IOException;
 }

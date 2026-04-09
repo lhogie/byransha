@@ -1,8 +1,10 @@
 package byransha.event;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import byransha.graph.BGraph;
 
@@ -15,9 +17,39 @@ public class InMemoryEventList extends EventList {
 	}
 
 	@Override
-	public void add(Event e) {
-		q.add(e);
-		Collections.sort(q);
+	public void add(Event e) throws IOException {
+		int index = Collections.binarySearch(q, e);
+
+		if (index > 0)
+			throw new IllegalStateException("event with id " + e.id() + " already exists");
+
+		int insertionPoint = -(index + 1);
+		q.add(insertionPoint, e);
+	}
+
+	@Override
+	public Event remove(long id) throws IOException {
+		int index = indexedBinarySearch(q, id);
+		return q.remove(index);
+	}
+
+	private static <T> int indexedBinarySearch(List<Event> l, long id) {
+		int low = 0;
+		int high = l.size() - 1;
+
+		while (low <= high) {
+			int mid = (low + high) >>> 1;
+			var midVal = l.get(mid);
+			int cmp = Long.compare(midVal.id(), id);
+
+			if (cmp < 0)
+				low = mid + 1;
+			else if (cmp > 0)
+				high = mid - 1;
+			else
+				return mid; // key found
+		}
+		return -(low + 1); // key not found
 	}
 
 	@Override
@@ -47,5 +79,20 @@ public class InMemoryEventList extends EventList {
 	@Override
 	public String whatIsThis() {
 		return "an event-list in RAM";
+	}
+
+	@Override
+	protected void forEachEvent(Consumer<Event> c) {
+		q.forEach(c);
+	}
+
+	@Override
+	public Event findEvent(long eventID) {
+		for (var e : q) {
+			if (e.id() == eventID)
+				return e;
+		}
+
+		return null;
 	}
 }

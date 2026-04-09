@@ -5,8 +5,8 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.ActionResult;
 
 final class Restart extends NodeAction<Byransha, Byransha> {
-	Restart(BGraph g, Byransha inputNode) {
-		super(g, inputNode);
+	public Restart(BGraph g, Byransha inputNode) {
+		super(g, inputNode, "byransha");
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import byransha.graph.NodeAction;
 import byransha.graph.action.list.ListNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
+import byransha.security.Authenticate;
 
 public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	public Export(BGraph g, BNode node) {

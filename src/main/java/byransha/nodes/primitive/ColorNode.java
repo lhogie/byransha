@@ -1,9 +1,16 @@
 package byransha.nodes.primitive;
 
 import java.awt.Color;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import javax.swing.JColorChooser;
+import javax.swing.JComponent;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.nodes.system.ChatNode;
 
 public class ColorNode extends PrimitiveValueNode<Color> {
 
@@ -17,19 +24,8 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	}
 
 	@Override
-	public void createViews() {
-		cachedViews.elements.add(new ColorView(g, this));
-		super.createViews();
-	}
-
-	@Override
 	public Color defaultValue() {
 		return Color.white;
-	}
-
-	@Override
-	public Color valueFromString(String s) {
-		return Color.decode(s);
 	}
 
 	@Override
@@ -37,5 +33,24 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 		return "a color";
 	}
 
+	@Override
+	protected void writeValue(Color v, ObjectOutput out) throws IOException {
+		out.write(v.getRed());
+		out.write(v.getGreen());
+		out.write(v.getBlue());
+		out.write(v.getAlpha());
+	}
+
+	@Override
+	protected Color readValue(ObjectInput in) throws IOException {
+		return new Color(in.read(), in.read(), in.read(), in.read());
+	}
+
+	@Override
+	public JComponent getAsComponent(ChatNode chat) {
+		var cc = new JColorChooser();
+		cc.getSelectionModel().addChangeListener(e -> set(cc.getColor()));
+		return cc;
+	}
 
 }

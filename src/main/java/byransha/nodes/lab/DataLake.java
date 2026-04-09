@@ -100,14 +100,12 @@ public class DataLake extends BNode {
 
 		ACMClassifier.createNodes(g, dir);
 
-		
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);
 			c.set(l);
 		});
 
-		 
 		for (var n : List.of("CNRS", "Inria")) {
 			var epst = new EPST(g);
 			epst.name.set(n);

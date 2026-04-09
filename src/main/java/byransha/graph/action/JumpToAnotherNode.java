@@ -4,24 +4,22 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Hide;
 import byransha.graph.NodeAction;
-import byransha.nodes.primitive.LongNode;
+import byransha.nodes.primitive.IDNode;
 import byransha.nodes.system.ChatNode;
+import byransha.util.Base62;
 
-public class Jump extends NodeAction<BNode, BNode> {
-	final LongNode targetID;
+public class JumpToAnotherNode extends NodeAction<BNode, BNode> {
+	final IDNode targetID = new IDNode(g);
 	@Hide
 	BNode target;
 
-	public Jump(BGraph g, BNode in) {
-		super(g, in);
-		targetID = new LongNode(g);
-
-		targetID.changeListeners.add(l -> {
-			var node = g.indexes.byId.get(targetID.get());
-			target = node;
+	public JumpToAnotherNode(BGraph g, BNode in) {
+		super(g, in, "navigation");
+		targetID.valueChangeListeners.add((node, oldV, newV) -> {
+			if (targetID.accept(newV)) {
+				this.target = g.indexes.byId.get(Base62.decode(newV));
+			}
 		});
-
-		target = g;
 	}
 
 	@Override
@@ -36,7 +34,6 @@ public class Jump extends NodeAction<BNode, BNode> {
 
 	@Override
 	public ActionResult<BNode, BNode> exec(ChatNode chat) {
-		chat.append(target);
 		return createResultNode(target, true);
 	}
 

@@ -8,7 +8,7 @@ import byransha.nodes.system.ChatNode;
 public class RetainSelected<N extends BNode> extends FilterNode<N> {
 
 	public RetainSelected(BGraph g, ListNode<N> inputNode) {
-		super(g, inputNode);
+		super(g, inputNode, "list/selection");
 	}
 
 	@Override

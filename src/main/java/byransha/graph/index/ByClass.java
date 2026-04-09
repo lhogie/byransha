@@ -7,15 +7,22 @@ import java.util.function.Supplier;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
+import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.graph.relection.ClassNode;
 import byransha.util.Stop;
 
 public class ByClass extends Index {
 
 	public MultiValuedMap<Class, BNode> m = new HashSetValuedHashMap<>();
+	public final BGraph g;
 
-	public <C extends BNode> C forEachNodeOfClass(Class<C> nodeClass, Function<C, Stop> f) {
+	public ByClass(BGraph g) {
+		this.g = g;
+	}
+
+	public <C extends BNode> C forEachNodeAssignableTo(Class<C> nodeClass, Function<C, Stop> f) {
 		for (var c : m.keySet()) {
 			if (nodeClass.isAssignableFrom(c)) {
 				for (var n : m.get(c)) {
@@ -30,7 +37,7 @@ public class ByClass extends Index {
 	}
 
 	public <C extends BNode> C findFirst(Class<C> c, Predicate<C> p) {
-		return forEachNodeOfClass(c, n -> Stop.stopIf(p.test(n)));
+		return forEachNodeAssignableTo(c, n -> Stop.stopIf(p.test(n)));
 	}
 
 	public <C extends BNode> C findFirstOr(Class<C> c, Predicate<C> p, Supplier<C> defaultValue) {
@@ -39,8 +46,39 @@ public class ByClass extends Index {
 	}
 
 	@Override
-	public void add(BNode n) {
+	public void add(final BNode n) {
+		ensureThereAreClassesForTheHierarchyOf(n.getClass());
 		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.put(clazz, n));
+	}
+
+	private void ensureThereAreClassesForTheHierarchyOf(Class c) {
+		if (c == null || c == ClassNode.class) {
+			return;
+		}
+
+		var cn = getClassNodeFor(c);
+
+		if (cn != null) {
+			return;
+		}
+
+		cn = new ClassNode(g, c);
+		m.put(ClassNode.class, cn);
+		ensureThereAreClassesForTheHierarchyOf(c.getSuperclass());
+
+		for (var i : c.getInterfaces()) {
+			ensureThereAreClassesForTheHierarchyOf(i);
+		}
+	}
+
+	ClassNode getClassNodeFor(Class clazz) {
+		for (var cn : m.get(ClassNode.class)) {
+			if (((ClassNode) cn).representedClass == clazz) {
+				return (ClassNode) cn;
+			}
+		}
+
+		return null;
 	}
 
 	@Override

@@ -39,7 +39,7 @@ public class NetworkAgent extends BNode {
 	public static final int port = 9876;
 	final StringNode publicKeyInfo;
 	final StringNode inOutInfo;
-	final ListNode<PeerNode> peers;
+	public final ListNode<PeerNode> peers;
 	String name;
 	DatagramSocket socket;
 	private int packetReceived;
@@ -110,7 +110,7 @@ public class NetworkAgent extends BNode {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}, "network agent reception thread").start();
+		}, "network agent UDP reception thread").start();
 	}
 
 	public static PrivateKey readPrivateKey(Path path) throws Exception {
@@ -156,10 +156,9 @@ public class NetworkAgent extends BNode {
 		if (received instanceof Ack ack) {
 			g.eventList.findEvent(ack.id).markReceivedBy(from);
 		} else if (received instanceof Event e) {
-			var alreadyKnownEvent = g.eventList.findEvent(e.ID);
+			var alreadyKnownEvent = g.eventList.findEvent(e.id());
 
 			if (alreadyKnownEvent != null) {
-				alreadyKnownEvent.commitToDisk();
 				alreadyKnownEvent.markReceivedBy(from);
 			} else {
 				g.eventList.add(e);
@@ -167,7 +166,7 @@ public class NetworkAgent extends BNode {
 			}
 
 			try {
-				send(new Ack(e.ID));
+				send(new Ack(e.id()));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -192,6 +191,17 @@ public class NetworkAgent extends BNode {
 				return p;
 			}
 		}
+
+		return null;
+	}
+	
+
+	public PeerNode findPeer(int id) {
+		for (var p : g.networkAgent.peers.get()) {
+			if (p.id == id) {
+				return p;
+			}
+		}  
 
 		return null;
 	}

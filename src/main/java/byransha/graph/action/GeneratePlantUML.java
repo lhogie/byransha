@@ -1,4 +1,4 @@
-package byransha.graph.view;
+package byransha.graph.action;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -6,7 +6,6 @@ import java.util.HashSet;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
 import byransha.graph.action.list.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.TextNode;
@@ -14,7 +13,7 @@ import byransha.nodes.system.ChatNode;
 
 public class GeneratePlantUML<N extends BNode> extends NodeAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(BGraph g, ListNode<N> node) {
-		super(g, node);
+		super(g, node, "list/export");
 	}
 
 	@Override

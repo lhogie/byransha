@@ -8,7 +8,7 @@ import byransha.util.Stop;
 public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
 
 	public AllNodes(BGraph g) {
-		super(g, g);
+		super(g, g, "graph");
 	}
 
 	@Override
@@ -17,7 +17,7 @@ public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
+	public ActionResult<BGraph, ListNode<BNode>> exec(ChatNode chat) throws Throwable {
 		var r = new ListNode<>(g, "all nodes in the graph");
 		g.indexes.nodesList.forEachNode(n -> {
 			r.get().add(n);

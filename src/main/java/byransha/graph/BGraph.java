@@ -6,7 +6,6 @@ import java.util.List;
 
 import byransha.event.EventList;
 import byransha.event.InMemoryEventList;
-import byransha.graph.action.Authenticate;
 import byransha.graph.action.NewNodeCreator;
 import byransha.graph.index.AllIndexes;
 import byransha.network.NetworkAgent;
@@ -18,6 +17,8 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.User;
+import byransha.security.Authenticate;
+import byransha.security.LdapAuthenticator;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
@@ -26,7 +27,7 @@ public class BGraph extends BNode {
 	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
-	public AllIndexes indexes = new AllIndexes();
+	public AllIndexes indexes = new AllIndexes(this);
 	public final AllIndexesNode inode = new AllIndexesNode(this);
 	public final User admin = new User(this, "admin", Argon.hash("admin"));
 	public final User guest = new User(this, "guest", Argon.hash(""));
@@ -37,13 +38,14 @@ public class BGraph extends BNode {
 	public final ErrorLog errorLog = new ErrorLog(this);
 	public final EventList eventList = new InMemoryEventList(this);
 	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
-	public final Authenticate authenticator = new Authenticate(this, this);
+	public Authenticate authenticator;
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
 	private User currentUser = guest;
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
 	public final Translator translator = new GoogleTranslator(this);
+//	public final Authenticate auth = new LdapAuthenticator(this);
 
 	public BGraph(File directory) throws Exception {
 		super(null);

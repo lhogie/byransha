@@ -14,7 +14,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	ListNode<ClassNode> classes;
 
 	public NewNodeCreator(BGraph g) {
-		super(g, g);
+		super(g, g, "node");
 		classes = new ListNode<>(g, "Business class(es)");
 	}
 
