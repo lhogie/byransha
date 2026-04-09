@@ -82,9 +82,8 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 				+ inputJSON.toPrettyString() + "\nUser request: " + question;
 	}
 
-	protected String queryIA(JsonNode inputJSON, String question)
-			throws JsonMappingException, JsonProcessingException, IOException {
-		var llmPrompt = buildLlmPrompt(inputJSON, question);
+	protected String queryIA(JsonNode inputJSON, String question) throws JsonMappingException, JsonProcessingException, IOException, InterruptedException, Exception {
+			var llmPrompt = buildLlmPrompt(inputJSON, question);
 		return OllamaModel.chat(llmPrompt);
 	}
 

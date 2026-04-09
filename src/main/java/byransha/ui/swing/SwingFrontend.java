@@ -85,7 +85,7 @@ public class SwingFrontend extends SystemNode {
 
 		if (ref == null) {
 			f.setSize(Utils.initialSize);
-			f.setLocation(Utils.initialLocation);
+			f.setLocation(0, 0);
 		} else {
 			f.setSize(ref.getSize());
 			var location = ref.getLocation();
