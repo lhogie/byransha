@@ -17,10 +17,28 @@ public class QueryIALiveOllamaDemo {
                 }
                 """);
 
-        var question = "Donne une distribution JSON des heures de travail par employe (cle=nom, valeur=heures). Retourne uniquement du JSON.";
+        var question = "Rajoute un employe nommé Pierre, il a 50 ans et il travaille 40 heures par semaine. Retourne uniquement du JSON.";
         var prompt = QueryIA.buildLlmPrompt(inputJson, question);
         System.out.println("**** Prompt envoye a Ollama ****");
         System.out.println(prompt);
+
+        System.out.println("\n(Appuyez sur 'p' puis 'Entrée' pour interrompre le modèle Ollama en cas de besoin)\n");
+        Thread keyListenerThread = new Thread(() -> {
+            try {
+                while (true) {
+                    int c = System.in.read();
+                    if (c == 'p' || c == 'P') {
+                        System.out.println("\narrêt d'Ollama demandé...");
+                        OllamaModel.stopPrimaryModel();
+                    }
+                }
+            } catch (Exception e) {
+                // Ignorer l'erreur
+            }
+        });
+        keyListenerThread.setDaemon(true);
+        keyListenerThread.start();
+
         var rawResponse = OllamaModel.chat(prompt);
         System.out.println("\n**** Reponse brute Ollama ****");
         System.out.println(rawResponse);
