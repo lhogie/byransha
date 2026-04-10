@@ -30,16 +30,15 @@ public class Person extends BusinessNode {
 	public LongNode quotite = new LongNode(g);
 	public Position position;
 	public boolean enposte;
-	public StringNode researchActivity;
-	public ListNode<Publication> publications;
-	public final StringNode orcid;
+	public ListNode<Publication> publications = new ListNode<>(g, "publications");
+	public final StringNode orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
+	public final StringNode authID = new StringNode(g, null, "^A\\d{7}$");
 
 	public Person(BGraph g) {
 		super(g);
 		quotite.setBounds(new Bounds(0, 100));
-		orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
 		etatCivil = new EtatCivil(g);
-		positions = new ListNode(g, "positions");
+		positions = new ListNode<Position>(g, "positions");
 		pics = new DocumentNode(g);
 		hdr = new BooleanNode(g, null);
 		badgeNumber = new StringNode(g);
@@ -47,8 +46,8 @@ public class Person extends BusinessNode {
 		faxNumber = new StringNode(g);
 		phdDate = new DateNode(g);
 		phoneNumbers = new ListNode<PhoneNumberNode>(g, "phone number(s)");
-		emailAddresses = new ListNode(g, "email adresses");
-		offices = new ListNode(g, "offices");
+		emailAddresses = new ListNode<EmailNode>(g, "email adresses");
+		offices = new ListNode<Office>(g, "offices");
 	}
 
 	@Override

@@ -8,7 +8,7 @@ import byransha.nodes.primitive.StringNode;
 public class Publication extends BusinessNode {
 	public StringNode title;
 	public ListNode<Person> authors;
-	public LongNode halID;
+	public final StringNode halID = new StringNode(g, null, "^hal-\\d+$");
 
 	public ListNode<ACMClassifier> acmClassifier;
 
