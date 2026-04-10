@@ -33,6 +33,7 @@ public class Person extends BusinessNode {
 	public ListNode<Publication> publications = new ListNode<>(g, "publications");
 	public final StringNode orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
 	public final StringNode authID = new StringNode(g, null, "^A\\d{7}$");
+	public StringNode researchActivity;
 
 	public Person(BGraph g) {
 		super(g);
