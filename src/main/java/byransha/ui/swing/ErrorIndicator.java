@@ -16,7 +16,7 @@ public class ErrorIndicator extends JLabel {
 	public ErrorIndicator(BNode n) {
 		this.n = n;
 		setForeground(Color.red);
-		setOpaque(true);
+		setOpaque(false);
 		update();
 
 		if (n instanceof ValuedNode vn) {
@@ -49,7 +49,8 @@ public class ErrorIndicator extends JLabel {
 	}
 
 	private void update() {
-		setText(n.errors().isEmpty() ? "" : "!");
+		var errors = n.errors();
+		setText(errors.isEmpty() ? "" : errors.size()+"");
 		setToolTipText("<html>" + n.errors().size() + " error(s): <br><ul>");
 		n.errors().forEach(err -> setToolTipText(getToolTipText() + "<li>" + err.toString()));
 		setToolTipText(getToolTipText() + "</ul></html>");

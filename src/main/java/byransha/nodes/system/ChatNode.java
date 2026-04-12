@@ -1,5 +1,7 @@
 package byransha.nodes.system;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -25,21 +27,20 @@ public class ChatNode extends BNode {
 	}
 
 	public void append(BNode n) {
+		Objects.requireNonNull(n, "cannot append null node to chat");
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node
 			return;
 
 		if (n instanceof Action action) {
 			if (action.parameters().isEmpty()) {
 				action.outputConsumer = feedback -> append(new StringNode(g, (String) feedback, ".*"));
-				System.out.println("executing action: " + action);
 				action.chat = this;
-				action.execAsync();
+				action.execSync();
 
 				if (action instanceof FunctionAction fa) {
 					append(fa.result);
 				}
 			} else {
-				System.out.println("parameters not empty, not executing: " + action.parameters());
 				nodes.elements.add(action);
 			}
 		} else {

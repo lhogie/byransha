@@ -356,6 +356,11 @@ public abstract class BNode {
 	}
 
 	protected void fillErrors(List<NodeError> errs) {
+		forEachOutInFields(getClass(), BNode.class, (f, v, ro) -> {
+			if (v instanceof ValuedNode vn) {
+				errs.addAll(vn.errors());
+			}
+		});
 	}
 
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);

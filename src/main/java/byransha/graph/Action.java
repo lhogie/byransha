@@ -123,7 +123,7 @@ public abstract class Action extends BNode {
 		}
 	}
 
-	public final void execSync() throws Throwable {
+	public final void execSync()  {
 		execAsync();
 		waitForCompletion();
 	}

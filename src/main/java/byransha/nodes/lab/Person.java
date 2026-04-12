@@ -15,7 +15,6 @@ import byransha.nodes.primitive.URLNode;
 public class Person extends BusinessNode {
 
 	public Genre genre;
-	public EtatCivil etatCivil;
 	public ListNode<Position> positions;
 	public DocumentNode pics;
 	public BooleanNode hdr;
@@ -34,11 +33,29 @@ public class Person extends BusinessNode {
 	public final StringNode orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
 	public final StringNode authID = new StringNode(g, null, "^A\\d{7}$");
 	public StringNode researchActivity;
+	public StringNode name = new StringNode(g, null, ".+");
+	public StringNode firstName = new StringNode(g, null, ".+");
 
+	public StringNode familyNameBeforeMariage = new StringNode(g);
+	public StringNode cityOfBirth = new StringNode(g, null, ".+");
+	public StringNode address = new StringNode(g, null, ".+");
+
+	public ListNode<Country> countryOfBirth = new ListNode<Country>(g, "countries");;
+
+	public ListNode<Nationality> nationality = new ListNode<Nationality>(g, "nationalities");;
+
+	public DateNode birthDate = new DateNode(g);
+
+	public PhoneNumberNode telephone = new PhoneNumberNode(g);;
+
+	public DocumentNode pic;
+	
 	public Person(BGraph g) {
 		super(g);
 		quotite.setBounds(new Bounds(0, 100));
-		etatCivil = new EtatCivil(g);
+		
+		
+		
 		positions = new ListNode<Position>(g, "positions");
 		pics = new DocumentNode(g);
 		hdr = new BooleanNode(g, null);
@@ -53,11 +70,17 @@ public class Person extends BusinessNode {
 
 	@Override
 	public String toString() {
-		if (etatCivil == null) {
-			return "unnamed";
+		String prettyName = "";
+		if (name != null && name.get() != null && !name.get().isBlank()) {
+			prettyName = name.get();
 		}
-
-		return etatCivil.toString();
+		if (firstName != null && firstName.get() != null && !firstName.get().isBlank()) {
+			prettyName += " " + firstName.get();
+		}
+		if (prettyName.isBlank()) {
+			prettyName = null;
+		}
+		return prettyName;
 	}
 
 	@Override
