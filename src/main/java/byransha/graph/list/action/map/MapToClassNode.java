@@ -1,16 +1,14 @@
-package byransha.graph.action.list.map;
+package byransha.graph.list.action.map;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Category;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.system.ChatNode;
 
 public class MapToClassNode<IN extends BNode> extends AbstractMapAction<IN, ClassNode> {
 
-	public MapToClassNode(BGraph g, ListNode<IN> l) {
-		super(g, l, node.class, map.class);
+	public MapToClassNode( ListNode<IN> l) {
+		super(l, node.class, map.class);
 	}
 
 	public static class map extends Category{}
@@ -26,7 +24,7 @@ public class MapToClassNode<IN extends BNode> extends AbstractMapAction<IN, Clas
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return inputNode.elements.size() > 0;
 	}
 }

@@ -1,7 +1,6 @@
 package byransha.graph;
 
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
@@ -45,10 +44,10 @@ import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.FreezingAction;
 import byransha.graph.action.JumpToAnotherNode;
 import byransha.graph.action.Reset;
-import byransha.graph.action.list.ListNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.ValuedNode;
@@ -71,15 +70,16 @@ import byransha.util.TriConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public abstract class BNode {
-	@Hide
+	@DoNotShowOnChat
 	public final BGraph g;
 	public boolean readOnly;
 	public long id = -1;
 
-	public static class node extends Category{}
-	
-	@Hide
-	protected ListNode<NodeAction> cachedActions;
+	public static class node extends Category {
+	}
+
+	@DoNotShowOnChat
+	protected ListNode<Action> cachedActions;
 
 	protected BNode(BGraph g) {
 		if (g == null) {
@@ -105,7 +105,7 @@ public abstract class BNode {
 		return error(err, true);
 	}
 
-	protected BNode error(Throwable err, boolean rethrow) {
+	public BNode error(Throwable err, boolean rethrow) {
 		g.errorLog.add(err);
 
 		if (rethrow) {
@@ -116,21 +116,17 @@ public abstract class BNode {
 		}
 	}
 
-	public List<NodeAction> actions() {
+	public List<Action> actions() {
 		if (cachedActions == null) {
 			cachedActions = new ListNode<>(g, "actions for node " + this);
 			createActions();
 		}
 
-		return (List<NodeAction>) cachedActions.get();
+		return (List<Action>) cachedActions.get();
 	}
 
 	public void invalidateCache() {
 		cachedActions = null;
-	}
-
-	public User currentUser() {
-		return g == null ? null : g.getCurrentUser();
 	}
 
 	public void delete() {
@@ -196,7 +192,7 @@ public abstract class BNode {
 			TriConsumer<Field, BNode, Boolean> consumer) {
 		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
-				if (BNode.class.isAssignableFrom(f.getType()) && !f.isAnnotationPresent(Hide.class)) {
+				if (BNode.class.isAssignableFrom(f.getType()) && !f.isAnnotationPresent(DoNotShowOnChat.class)) {
 					try {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
@@ -222,18 +218,18 @@ public abstract class BNode {
 	public void createActions() {
 
 //		cachedActions.add(new Back(g, this));
-		cachedActions.elements.add(new QueryIA(g, this));
-		cachedActions.elements.add(new SeeClassNode(g, this));
-		cachedActions.elements.add(new CopyIDToClipboard(g, this));
-		cachedActions.elements.add(new FreezingAction(g, this));
-		cachedActions.elements.add(new JumpToAnotherNode(g, this));
-		cachedActions.elements.add(new Reset(g, this));
-		cachedActions.elements.add(new Export(g, this));
-		cachedActions.elements.add(new Delete(g, this));
-		cachedActions.elements.add(new Search(g, this));
-		cachedActions.elements.add(new SearchText(g, this));
-		cachedActions.elements.add(new SearchRegexp(g, this));
-//		cachedActions.elements.add(new OpenInNewChat(g, this));
+		cachedActions.elements.add(new QueryIA(this));
+		cachedActions.elements.add(new SeeClassNode(this));
+		cachedActions.elements.add(new CopyIDToClipboard(this));
+		cachedActions.elements.add(new FreezingAction(g));
+		cachedActions.elements.add(new JumpToAnotherNode(g));
+		cachedActions.elements.add(new Reset(this));
+		cachedActions.elements.add(new Export(this));
+		cachedActions.elements.add(new Delete(this));
+		cachedActions.elements.add(new Search(this));
+		cachedActions.elements.add(new SearchText(this));
+		cachedActions.elements.add(new SearchRegexp(this));
+		cachedActions.elements.add(new OpenInNewChat(this));
 	}
 
 	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -399,7 +395,11 @@ public abstract class BNode {
 		return r;
 	}
 
-	public NodeAction findAction(String actionName) {
+	public User currentUser() {
+		return g.getCurrentUser();
+	}
+
+	public Action findAction(String actionName) {
 		for (var a : actions()) {
 			if (a.technicalName().equals(actionName)) {
 				return a;
@@ -588,7 +588,7 @@ public abstract class BNode {
 		return c;
 	}
 
-	public Component getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(ChatNode chat) {
 		var p = new JPanel();
 		p.setOpaque(false);
 		p.add(createBall(20, 15, chat));

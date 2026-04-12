@@ -4,6 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import byransha.graph.BGraph;
+import byransha.translate.Translator.Language;
 
 public class LibreTranslate extends Translator {
 

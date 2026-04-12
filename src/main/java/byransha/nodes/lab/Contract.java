@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Contract extends BusinessNode {

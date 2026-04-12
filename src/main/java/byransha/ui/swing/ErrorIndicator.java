@@ -5,7 +5,7 @@ import java.awt.Color;
 import javax.swing.JLabel;
 
 import byransha.graph.BNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.primitive.ValuedNode.ValueChangeListener;
 import byransha.util.ListenableList;

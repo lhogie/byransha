@@ -1,25 +1,23 @@
 package byransha.nodes.system;
 
-import byransha.graph.BGraph;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
+import byransha.graph.ProcedureAction;
 
-final class Restart extends NodeAction<Byransha, Byransha> {
+final class Restart extends ProcedureAction<Byransha> {
 	public static class byransha extends Category {
 	}
 
-	public Restart(BGraph g, Byransha inputNode) {
-		super(g, inputNode, byransha.class);
+	public Restart(Byransha inputNode) {
+		super(inputNode, byransha.class);
 	}
 
 	@Override
 	public String whatItDoes() {
-		return "restarts Byransha";
+		return "restart";
 	}
 
 	@Override
-	public ActionResult<Byransha, Byransha> exec(ChatNode chat) throws Throwable {
+	public void impl() throws Throwable {
 		for (int s = 5; s >= 0 && !stopRequested; --s) {
 			inputNode.versionNode.set("restart in " + s + "s");
 			Thread.sleep(1);
@@ -28,12 +26,10 @@ final class Restart extends NodeAction<Byransha, Byransha> {
 		if (!stopRequested) {
 			System.exit(1); // 1 means restart is required
 		}
-
-		return createResultNode(inputNode, false);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 }

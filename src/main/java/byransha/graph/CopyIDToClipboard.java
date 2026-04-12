@@ -3,13 +3,12 @@ package byransha.graph;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 
-import byransha.graph.action.ActionResult;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.BNode.node;
 
-public class CopyIDToClipboard extends NodeAction {
+public class CopyIDToClipboard extends ProcedureAction<BNode> {
 
-	public CopyIDToClipboard(BGraph g, BNode inputNode) {
-		super(g, inputNode, node.class);
+	public CopyIDToClipboard(BNode inputNode) {
+		super(inputNode, node.class);
 	}
 
 	@Override
@@ -18,14 +17,13 @@ public class CopyIDToClipboard extends NodeAction {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
+	public void impl() throws Throwable {
 		StringSelection selection = new StringSelection(inputNode.idAsText());
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
-		return createResultNode(null, true);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

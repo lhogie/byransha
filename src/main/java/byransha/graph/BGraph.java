@@ -12,25 +12,24 @@ import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
 import byransha.nodes.lab.Genre.Male;
 import byransha.nodes.lab.Genre.NotGenred;
-import byransha.nodes.system.Argon;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OSNode;
 import byransha.nodes.system.User;
-import byransha.security.Authenticate;
+import byransha.security.AuthAction;
+import byransha.security.Authenticator;
 import byransha.security.LdapAuthenticator;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
-	public final List<GraphListener> listeners = new ArrayList<GraphListener>();
-	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
-
 	public AllIndexes indexes = new AllIndexes(this);
-	public final AllIndexesNode inode = new AllIndexesNode(this);
-	public final User admin = new User(this, "admin", Argon.hash("admin"));
-	public final User guest = new User(this, "guest", Argon.hash(""));
+	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
+
+	public Authenticator authenticator = new LdapAuthenticator(null, null, null, readOnly);
+	public AuthAction authenticatorNode = new AuthAction(g);
+
 	public BNode application;
 	public final JVMNode jvm = new JVMNode(this);
 	public final Byransha byransha = new Byransha(this);
@@ -38,17 +37,17 @@ public class BGraph extends BNode {
 	public final ErrorLog errorLog = new ErrorLog(this);
 	public final EventList eventList = new InMemoryEventList(this);
 	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
-	public Authenticate authenticator;
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
-	private User currentUser = guest;
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
 	public final Translator translator = new GoogleTranslator(this);
 //	public final Authenticate auth = new LdapAuthenticator(this);
+	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
-	class graph extends Category{}
-	
+	class graph extends Category {
+	}
+
 	public BGraph(File directory) throws Exception {
 		super(null);
 		indexes.add(this);
@@ -58,12 +57,7 @@ public class BGraph extends BNode {
 		new NotGenred(g);
 	}
 
-	
-	@Override
-	public void createActions() {
-		cachedActions.elements.add(new AllNodes(g));
-		super.createActions();
-	}
+	public User currentUser;
 
 	public void setCurrentUser(User newUser) {
 		if (newUser != currentUser) {
@@ -74,6 +68,12 @@ public class BGraph extends BNode {
 
 	public User getCurrentUser() {
 		return currentUser;
+	}
+
+	@Override
+	public void createActions() {
+		cachedActions.elements.add(new AllNodes(g));
+		super.createActions();
 	}
 
 	@Override

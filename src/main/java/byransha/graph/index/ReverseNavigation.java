@@ -9,6 +9,7 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.graph.index.ReverseNavigation.InLink;
 
 public class ReverseNavigation extends Index {
 	MultiValuedMap<BNode, InLink> m = new HashSetValuedHashMap<>();

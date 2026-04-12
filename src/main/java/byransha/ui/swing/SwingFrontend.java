@@ -12,7 +12,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.ColorNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
@@ -32,7 +32,7 @@ public class SwingFrontend extends SystemNode {
 
 	public SwingFrontend(BGraph g) {
 		super(g);
-		
+
 		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
 		this.colorStyle = schemeNodes.getFirst();
 

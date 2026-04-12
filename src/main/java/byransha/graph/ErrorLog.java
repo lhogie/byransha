@@ -3,7 +3,7 @@ package byransha.graph;
 import java.time.LocalDateTime;
 
 import byransha.graph.action.ExceptionNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.system.SystemNode;
 
 public class ErrorLog extends SystemNode {

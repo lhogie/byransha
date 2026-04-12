@@ -1,12 +1,11 @@
-package byransha.graph.action.list;
+package byransha.graph.list.action;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class SortByClass extends Sort {
 
-	public SortByClass(BGraph g, ListNode inputNode) {
-		super(g, inputNode);
+	public SortByClass( ListNode inputNode) {
+		super(inputNode);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package byransha.translate;
 import java.net.HttpURLConnection;
 
 import byransha.graph.BGraph;
+import byransha.translate.Translator.Language;
 
 public class GoogleTranslator extends Translator {
 

@@ -4,28 +4,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import byransha.graph.BGraph;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
+import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.primitive.openFile.file;
-import byransha.nodes.system.ChatNode;
 
-public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
-	StringNode fileNameNode;
+public final class saveNodeAction extends FunctionAction<TextNode, FileNode> {
+	StringNode fileNameNode = new StringNode(g, "example.txt", ".+\\..+");
 
-	protected saveNodeAction(BGraph g, TextNode textNode) {
-		super(g, textNode, file.class);
-		fileNameNode = new StringNode(g, "example.txt", ".+\\..+");
+	protected saveNodeAction(TextNode textNode) {
+		super(textNode, file.class);
 	}
 
 	@Override
-	public ActionResult<TextNode, FileNode> exec(ChatNode chat)
-			throws IllegalArgumentException, IllegalAccessException, IOException {
+	public void impl() throws IllegalArgumentException, IllegalAccessException, IOException {
 		var path = Path.of(fileNameNode.getOrDefault(inputNode + "-" + inputNode.id() + ".txt"));
 		Files.write(path, inputNode.get().getBytes());
 		var fileNode = new FileNode(g);
 		fileNode.file = path.toFile();
-		return createResultNode(fileNode, true);
+		result = fileNode;
 	}
 
 	@Override
@@ -39,7 +34,7 @@ public final class saveNodeAction extends NodeAction<TextNode, FileNode> {
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 }

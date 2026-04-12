@@ -2,20 +2,19 @@ package byransha.graph.action;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
 import byransha.graph.action.FreezingAction.misc;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.lab.BusinessNode;
-import byransha.nodes.system.ChatNode;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
-public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
+public class NewNodeCreator extends FunctionAction<BNode, ListNode<BNode>> {
 	ListNode<ClassNode> classes;
 
 	public NewNodeCreator(BGraph g) {
-		super(g, g, misc.class);
+		super(g, misc.class);
 		classes = new ListNode<>(g, "Business class(es)");
 	}
 
@@ -31,7 +30,7 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 
@@ -51,9 +50,8 @@ public class NewNodeCreator extends NodeAction<BNode, ListNode<BNode>> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode<BNode>> exec(ChatNode chat) {
-		var instanceList = new ListNode<BNode>(g, "newly created node(s)");
-		instanceList.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
-		return createResultNode(instanceList, false);
+	public void impl() {
+		result = new ListNode<BNode>(g, "newly created node(s)");
+		result.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
 	}
 }

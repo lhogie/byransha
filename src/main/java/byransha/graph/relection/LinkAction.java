@@ -1,17 +1,15 @@
 package byransha.graph.relection;
 
-import byransha.graph.BGraph;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.ProcedureAction;
 
-public class LinkAction extends NodeAction<ClassNode, ClassNode> {
+public class LinkAction extends ProcedureAction<ClassNode> {
 
-	public static class type extends Category{} 
-	
-	public LinkAction(BGraph g, ClassNode inputNode) {
-		super(g, inputNode, type.class);
+	public static class type extends Category {
+	}
+
+	public LinkAction(ClassNode inputNode) {
+		super(inputNode, type.class);
 	}
 
 	@Override
@@ -20,13 +18,12 @@ public class LinkAction extends NodeAction<ClassNode, ClassNode> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
+	public void impl() throws Throwable {
 		inputNode.link();
-		return createResultNode(null, true);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

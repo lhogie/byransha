@@ -1,6 +1,6 @@
 package byransha.graph;
 
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.LongNode;

@@ -1,12 +1,12 @@
 package byransha.graph;
 
-import byransha.graph.action.ActionResult;
+import byransha.graph.BNode.node;
 import byransha.nodes.system.ChatNode;
 
-public class OpenInNewChat extends NodeAction<BNode, BNode> {
+public class OpenInNewChat extends ProcedureAction<BNode> {
 
-	public OpenInNewChat(BGraph g, BNode inputNode) {
-		super(g, inputNode, node.class);
+	public OpenInNewChat(BNode inputNode) {
+		super(inputNode, node.class);
 	}
 
 	@Override
@@ -15,13 +15,12 @@ public class OpenInNewChat extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec(ChatNode chat) throws Throwable {
+	public void impl() throws Throwable {
 		var newChat = new ChatNode(currentUser());
-		return createResultNode(inputNode, true);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

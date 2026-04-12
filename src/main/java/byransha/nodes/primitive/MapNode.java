@@ -5,6 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
+import org.checkerframework.checker.units.qual.N;
+
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 

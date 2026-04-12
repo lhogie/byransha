@@ -1,13 +1,12 @@
 package byransha.graph;
 
-import byransha.graph.action.ActionResult;
+import byransha.graph.list.action.FunctionAction;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.system.ChatNode;
 
-public class SeeClassNode extends NodeAction<BNode, ClassNode> {
+public class SeeClassNode extends FunctionAction<BNode, ClassNode> {
 
-	public SeeClassNode(BGraph g, BNode inputNode) {
-		super(g, inputNode, node.class);
+	public SeeClassNode(BNode inputNode) {
+		super(inputNode, node.class);
 	}
 
 	@Override
@@ -16,12 +15,12 @@ public class SeeClassNode extends NodeAction<BNode, ClassNode> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
-		return createResultNode(inputNode.getClassNode(), true);
+	public void impl() throws Throwable {
+		result = inputNode.getClassNode();
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

@@ -1,8 +1,11 @@
 package byransha.ui.swing;
 
+import javax.swing.JButton;
 import javax.swing.JSeparator;
 
+import byransha.graph.Action;
 import byransha.graph.BNode;
+import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.system.ChatNode;
 
 public class ChatSheet extends Sheet {
@@ -27,6 +30,24 @@ public class ChatSheet extends Sheet {
 		newLine();
 		newLine();
 		n.writeTo(this);
+
+		if (n instanceof Action action) {
+			newLine();
+			var b = new JButton("Ok");
+			b.addActionListener(e -> {
+				try {
+					action.execSync();
+
+					if (n instanceof FunctionAction fa) {
+						chat.append(fa.result);
+					}
+				} catch (Throwable err) {
+					chat.append(chat.error(err, false));
+				}
+			});
+			appendToCurrentLine(b);
+		}
+
 		newLine();
 		newLine();
 		end();

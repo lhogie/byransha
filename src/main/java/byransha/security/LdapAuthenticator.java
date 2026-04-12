@@ -6,17 +6,14 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
 
-import byransha.graph.BGraph;
-
-public class LdapAuthenticator extends Authenticate {
+public class LdapAuthenticator extends Authenticator {
 
 	private final String ldapUrl; // e.g. "ldap://ldap.example.com:389"
 	private final String baseDn; // e.g. "dc=example,dc=com"
 	private final String userAttr; // e.g. "uid" (OpenLDAP) or "sAMAccountName" (Active Directory)
 	private boolean ssl;
 
-	public LdapAuthenticator(BGraph g, String ldapUrl, String baseDn, String userAttr, boolean ssl) {
-		super(g);
+	public LdapAuthenticator(String ldapUrl, String baseDn, String userAttr, boolean ssl) {
 		int port = ssl ? 636 : 389;
 		this.ldapUrl = ldapUrl + ":" + port; // "ldap://ldap.example.com:" + port,
 		this.baseDn = baseDn; // "dc=example,dc=com"
@@ -50,8 +47,7 @@ public class LdapAuthenticator extends Authenticate {
 
 	@Override
 	public String authenticationMethods() {
-		// TODO Auto-generated method stub
-		return null;
+		return "LDAP";
 	}
 
 }

@@ -1,17 +1,14 @@
 package byransha.graph.relection;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.LinkAction.type;
-import byransha.nodes.system.ChatNode;
 
-public class ShowInstances extends NodeAction<ClassNode, ListNode<BNode>> {
+public class ShowInstances extends FunctionAction<ClassNode, ListNode<BNode>> {
 
-	public ShowInstances(BGraph g, ClassNode inputNode) {
-		super(g, inputNode, type.class);
+	public ShowInstances(ClassNode inputNode) {
+		super(inputNode, type.class);
 	}
 
 	@Override
@@ -20,14 +17,13 @@ public class ShowInstances extends NodeAction<ClassNode, ListNode<BNode>> {
 	}
 
 	@Override
-	public ActionResult<ClassNode, ListNode<BNode>> exec(ChatNode chat) throws Throwable {
-		var r = new ListNode<>(g, "all instances");
-		r.elements.addAll(inputNode.allInstances());
-		return createResultNode(r, readOnly);
+	public void impl() throws Throwable {
+		result = new ListNode<>(g, "all instances");
+		result.elements.addAll(inputNode.allInstances());
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

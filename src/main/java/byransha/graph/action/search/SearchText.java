@@ -1,6 +1,5 @@
 package byransha.graph.action.search;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
@@ -9,8 +8,8 @@ public class SearchText extends Search {
 	public StringNode searchText;
 	public BooleanNode caseSensitive;
 
-	public SearchText(BGraph g, BNode src) {
-		super(g, src);
+	public SearchText( BNode src) {
+		super( src);
 		searchText = new StringNode(g, "", ".*");
 		caseSensitive = new BooleanNode(g, false);
 	}

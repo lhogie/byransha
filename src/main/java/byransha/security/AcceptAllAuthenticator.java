@@ -1,12 +1,6 @@
 package byransha.security;
 
-import byransha.graph.BGraph;
-
-public class AcceptAllAuthenticator extends Authenticate {
-
-	public AcceptAllAuthenticator(BGraph g) {
-		super(g);
-	}
+public class AcceptAllAuthenticator extends Authenticator {
 
 	@Override
 	public boolean test(String t, String u) {
@@ -15,6 +9,6 @@ public class AcceptAllAuthenticator extends Authenticate {
 
 	@Override
 	public String authenticationMethods() {
-		return "none";
+		return "no";
 	}
 }

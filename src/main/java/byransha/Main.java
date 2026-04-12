@@ -15,6 +15,7 @@ import byransha.graph.BNode;
 import byransha.nodes.lab.I3S;
 import byransha.nodes.lab.Person;
 import byransha.nodes.system.ChatNode;
+import byransha.nodes.system.User;
 import byransha.ui.shell.ShellServer;
 import byransha.ui.swing.SwingFrontend;
 import javafx.scene.Scene;
@@ -38,8 +39,9 @@ public class Main {
 				.getConstructor(BGraph.class).newInstance(g);
 
 		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
-
-		new ChatNode(g.currentUser()).append(g.application);
+		g.currentUser = new User(g, "guest");
+		
+		new ChatNode(g.currentUser).append(g.application);
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + ShellServer.DEFAULT_PORT)));

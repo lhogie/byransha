@@ -28,7 +28,7 @@ import byransha.event.Event;
 import byransha.graph.Ack;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.RSA;
 import byransha.util.GZip;

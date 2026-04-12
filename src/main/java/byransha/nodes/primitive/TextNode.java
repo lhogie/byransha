@@ -22,10 +22,15 @@ public class TextNode extends PrimitiveValueNode<String> {
 		set(data);
 		labelNode = new StringNode(g, label, ".+");
 	}
+	@Override
+	public String toString() {
+		return labelNode.toString();
+	}
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new saveNodeAction(g, this));
+		cachedActions.elements.add(new saveNodeAction( this));
+		cachedActions.elements.add(new textStats( this));
 		super.createActions();
 	}
 

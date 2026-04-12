@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractButton;
 import javax.swing.JComponent;
@@ -15,12 +16,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 
-import byransha.graph.NodeAction;
+import byransha.graph.Action;
+import byransha.graph.Category;
 import byransha.nodes.system.ChatNode;
 
 public class MenuBuilder {
 
-	public static JPopupMenu buildPopupMenu(List<? extends NodeAction> actions, ChatNode chat) {
+	public static JPopupMenu buildPopupMenu(List<? extends Action> actions, ChatNode chat) {
 		Collections.reverse(actions);
 		UIManager.put("MenuItem.selectionBackground", Color.red);
 		UIManager.put("MenuItem.selectionForeground", Color.WHITE);
@@ -34,7 +36,7 @@ public class MenuBuilder {
 			if (a.category == null) {
 				popup.add(makeItem(a, chat));
 			} else {
-				var segments = new ArrayList<>(List.of(a.category.split("/")));
+				var segments = new ArrayList<>(List.of(a.category));
 				menu(popup, segments, menus).add(makeItem(a, chat));
 			}
 		}
@@ -51,12 +53,12 @@ public class MenuBuilder {
 		l.forEach(cc -> c.add(cc));
 	}
 
-	private static JMenu menu(JPopupMenu popup, List<String> segments, Map<String, JMenu> menus) {
-		final var path = String.join("/", segments);
+	private static JMenu menu(JPopupMenu popup, List<Class<? extends Category>> segments, Map<String, JMenu> menus) {
+		final var path = segments.stream().map(s -> s.getSimpleName()).collect(Collectors.joining("/"));
 		var m = menus.get(path);
 
 		if (m == null) {
-			menus.put(path, m = new JMenu(segments.removeLast()));
+			menus.put(path, m = new JMenu(segments.removeLast().getSimpleName()));
 
 			if (segments.isEmpty()) {
 				popup.add(m);
@@ -68,9 +70,9 @@ public class MenuBuilder {
 		return m;
 	}
 
-	private static JMenuItem makeItem(NodeAction a, ChatNode chat) {
+	private static JMenuItem makeItem(Action a, ChatNode chat) {
 		var i = new JMenuItem(a.whatItDoes());
-		i.setEnabled(a.applies(chat));
+		i.setEnabled(a.applies());
 		i.addActionListener(e -> {
 			chat.append(a);
 		});

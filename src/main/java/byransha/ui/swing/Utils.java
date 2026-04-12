@@ -5,9 +5,7 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
-import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
-import java.awt.dnd.DragSource;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
@@ -24,7 +22,7 @@ import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.system.ChatNode;
 import byransha.util.Base62;
 import byransha.util.PossiblyFailingConsumer;

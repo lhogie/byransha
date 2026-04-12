@@ -1,42 +1,44 @@
 package byransha.graph.action;
 
+import java.util.Arrays;
+
+import byransha.graph.Action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.nodes.primitive.IDNode;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.action.FreezingAction.misc;
+import byransha.graph.list.action.ListNode;
+import byransha.nodes.primitive.TextNode;
 import byransha.util.Base62;
 
-public class JumpToAnotherNode extends NodeAction<BNode, BNode> {
-	final IDNode targetID = new IDNode(g);
-	BNode target;
+public class JumpToAnotherNode extends Action {
+	final TextNode text = new TextNode(g, "list of IDs", "");
+	ListNode<BNode> nodes = new ListNode<>(g, "nodes");
 
-	public JumpToAnotherNode(BGraph g, BNode in) {
-		super(g, in, node.class);
-		targetID.valueChangeListeners.add((node, oldV, newV) -> {
-			if (targetID.accept(newV)) {
-				this.target = g.indexes.byId.get(Base62.decode(newV));
-			}
+	public JumpToAnotherNode(BGraph g) {
+		super(g, misc.class);
+		text.valueChangeListeners.add((a, b, c) -> {
+			nodes.elements.clear();
+			Arrays.stream(text.get().replace(',', '\n').split("\n")).forEach(s -> {
+				try {
+					nodes.elements.add(g.indexes.byId.get(Base62.decode(s.trim())));
+				} catch (Throwable err) {
+					error(err, false);
+				}
+			});
 		});
 	}
 
 	@Override
-	public String toString() {
-		return "jump to node " + target;
-	}
-
-	@Override
 	public String whatItDoes() {
-		return "jumps to another node";
+		return "convert IDs to nodes";
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec(ChatNode chat) {
-		return createResultNode(target, true);
+	public void impl() {
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 }

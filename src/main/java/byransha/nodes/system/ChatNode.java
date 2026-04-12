@@ -3,19 +3,21 @@ package byransha.nodes.system;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import byransha.graph.Action;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.ProcedureAction;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
+import byransha.nodes.primitive.StringNode;
 
 public class ChatNode extends BNode {
-	public ListNode<BNode> nodes = new ListNode<BNode>(g, "history");
+	public ListNode<BNode> nodes = new ListNode<>(g, "history");
 	final User user;
 
 	public ChatNode(User user) {
 		super(user.g);
 		this.user = user;
 		user.chatList.elements.add(this);
-		// append(initialNode);
 	}
 
 	public BNode currentNode() {
@@ -26,20 +28,19 @@ public class ChatNode extends BNode {
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node
 			return;
 
-		if (n instanceof NodeAction action && action.parameters().isEmpty()) {
-			try {
-				var actionController = action.exec(this);
+		if (n instanceof Action action) {
+			if (action.parameters().isEmpty()) {
+				action.outputConsumer = feedback -> append(new StringNode(g, (String) feedback, ".*"));
+				System.out.println("executing action: " + action);
+				action.chat = this;
+				action.execAsync();
 
-				if (actionController.hideOutputNode) {
-					if (actionController.result != null) {
-						append(actionController.result);
-					}
-				} else if (actionController != null) {
-					append(actionController);
+				if (action instanceof FunctionAction fa) {
+					append(fa.result);
 				}
-
-			} catch (Throwable err) {
-				append(error(err, false));
+			} else {
+				System.out.println("parameters not empty, not executing: " + action.parameters());
+				nodes.elements.add(action);
 			}
 		} else {
 			nodes.elements.add(n);
@@ -61,11 +62,11 @@ public class ChatNode extends BNode {
 			on.put("id", n.id());
 			on.put("toString", n.toString());
 
-			if (n instanceof NodeAction action) {
+			if (n instanceof ProcedureAction action) {
 				var parmNode = new ObjectNode(factory);
 				on.set("parameters", parmNode);
 
-				n.forEachOutInFields(n.getClass(), NodeAction.class,
+				n.forEachOutInFields(n.getClass(), ProcedureAction.class,
 						(f, o, ro) -> parmNode.put(f.getName(), o.toString()));
 			}
 		}

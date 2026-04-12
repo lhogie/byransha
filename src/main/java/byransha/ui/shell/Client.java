@@ -12,6 +12,7 @@ import java.util.Map;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.util.ByUtils;
@@ -113,10 +114,14 @@ public class Client extends SystemNode {
 			out.println(
 					"no such action " + actionName + " on node " + currentNode() + " of " + currentNode().getClass());
 		} else {
-			var r = action.exec(currentChat);
-			out.println(r.describeAsJSON().toPrettyString());
+			action.chat = currentChat;
+			action.execSync();
 
-			out.println("*" + action + " completed in " + ByUtils.ms2string(r.durationMs.get()) + "ms:");
+			if (action instanceof FunctionAction fa) {
+				out.println(fa.result.describeAsJSON().toPrettyString());
+			}
+
+			out.println("*" + action + " completed in " + ByUtils.ms2string(action.durationMs.get()) + "ms:");
 		}
 	}
 

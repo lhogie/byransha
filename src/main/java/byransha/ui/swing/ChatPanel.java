@@ -89,15 +89,15 @@ public class ChatPanel extends JPanel {
 				topBar.add(addButton("settings", "settings_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
 						e -> chat.append(chat.g)));
 				topBar.add(addButton("jump to a specific node", "search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(new JumpToAnotherNode(chat.g, chat))));
+						e -> chat.append(new JumpToAnotherNode(chat.g))));
 				topBar.add(addButton("see the current user", "user_attributes_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g.currentUser())));
+						e -> chat.append(chat.g.getCurrentUser())));
 				topBar.add(addButton("authenticate a new user", "person_check_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g.authenticator)));
+						e -> chat.append(chat.g.authenticatorNode)));
 				topBar.add(addButton("see the node corresponding to this chat",
 						"chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
 				topBar.add(addButton("starts a new chat", "add_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> new ChatNode(chat.currentUser())));
+						e -> new ChatNode(chat.g.getCurrentUser())));
 				topBar.add(node.createBall(20, 20, chat));
 				mousePanel.add(topBar, BorderLayout.NORTH);
 			}

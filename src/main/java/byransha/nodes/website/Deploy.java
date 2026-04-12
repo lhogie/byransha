@@ -1,21 +1,20 @@
 package byransha.nodes.website;
 
+import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
+import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.primitive.FileNode;
-import byransha.nodes.system.ChatNode;
 
-public class Deploy extends NodeAction<Website, FileNode> {
+public class Deploy extends FunctionAction<Website, FileNode> {
 	FileNode directory;
 
 	public static class website extends Category {
 	}
 
 	public Deploy(Website website) {
-		super(website.g, website, website.class);
+		super(website, website.class);
 	}
 
 	@Override
@@ -24,13 +23,13 @@ public class Deploy extends NodeAction<Website, FileNode> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) throws Throwable {
+	public void impl() throws IOException {
 		Files.writeString(directory.file.toPath(), inputNode.toHTMLPage().toHTML());
-		return createResultNode(directory, false);
+		result = directory;
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

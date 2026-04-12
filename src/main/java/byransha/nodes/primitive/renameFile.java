@@ -2,17 +2,14 @@ package byransha.nodes.primitive;
 
 import java.io.File;
 
-import byransha.graph.BGraph;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.ConfirmRequiredNodeAction;
+import byransha.graph.ProcedureAction;
 import byransha.nodes.primitive.openFile.file;
-import byransha.nodes.system.ChatNode;
 
-public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
+public class renameFile extends ProcedureAction<FileNode> {
 	StringNode newName;
 
-	public renameFile(BGraph g, FileNode inputNode) {
-		super(g, inputNode, file.class);
+	public renameFile(FileNode inputNode) {
+		super(inputNode, file.class);
 		this.newName = new StringNode(g, inputNode.file.getName(), ".+");
 	}
 
@@ -22,16 +19,13 @@ public class renameFile extends ConfirmRequiredNodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	protected ActionResult<FileNode, FileNode> execConfirmed() {
+	public void impl() throws Throwable {
 		inputNode.file.renameTo(new File(inputNode.file.getParent(), newName.get()));
-		return createResultNode(inputNode, true);
 	}
 
-
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return inputNode.file.exists();
 	}
 
-	
 }

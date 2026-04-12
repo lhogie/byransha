@@ -2,6 +2,7 @@ package byransha.translate;
 
 import byransha.ai.OllamaModel;
 import byransha.graph.BGraph;
+import byransha.translate.Translator.Language;
 
 public class OllamaTranslate extends Translator {
 

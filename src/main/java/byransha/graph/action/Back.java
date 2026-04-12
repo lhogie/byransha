@@ -1,14 +1,12 @@
 package byransha.graph.action;
 
-import byransha.graph.BGraph;
-import byransha.graph.BNode;
-import byransha.graph.NodeAction;
+import byransha.graph.ProcedureAction;
 import byransha.graph.action.FreezingAction.misc;
 import byransha.nodes.system.ChatNode;
 
-final public class Back extends NodeAction<BNode, BNode> {
-	public Back(BGraph g, BNode n) {
-		super(g, n, misc.class);
+final public class Back extends ProcedureAction<ChatNode> {
+	public Back(ChatNode n) {
+		super(n, misc.class);
 	}
 
 	@Override
@@ -17,20 +15,13 @@ final public class Back extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) {
+	public void impl() {
 		var h = chat.nodes.elements;
-
-		if (applies(chat)) {
-			h.remove(h.size() - 1);
-			var next = h.remove(h.size() - 1);
-			return createResultNode(next, true);
-		} else {
-			return createResultNode(inputNode, true);
-		}
+		h.remove(h.size() - 1);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return chat.nodes.elements.size() > 1;
 	}
 

@@ -2,22 +2,14 @@ package byransha.graph.action;
 
 import java.util.ArrayList;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.TextNode;
-import byransha.nodes.system.ChatNode;
-import byransha.security.Authenticate;
 
-public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
-	public Export(BGraph g, BNode node) {
-		super(g, node, BNode.node.class);
-	}
-
-	@Override
-	public boolean wantToBeProposedFor(BNode n) {
-		return n.getClass() != Authenticate.class;
+public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
+	public Export(BNode node) {
+		super(node, BNode.node.class);
 	}
 
 	@Override
@@ -31,18 +23,17 @@ public final class Export extends NodeAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	public ActionResult<BNode, ListNode<TextNode>> exec(ChatNode chat) throws Throwable {
-		var r = new ListNode<byransha.nodes.primitive.TextNode>(g, "export texts");
+	public void impl() throws Throwable {
+		result = new ListNode<byransha.nodes.primitive.TextNode>(g, "export texts");
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
 		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
-				.forEach(n -> r.get().add(n));
-		r.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", describeAsJSON().toPrettyString()));
-		return new exportNodeResult(g, this, r);
+				.forEach(n -> result.get().add(n));
+		result.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", describeAsJSON().toPrettyString()));
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 //		return inputNode instanceof BusinessNode;
 	}

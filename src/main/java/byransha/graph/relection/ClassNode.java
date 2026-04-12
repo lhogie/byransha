@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.MapNode;
 import byransha.nodes.primitive.StringNode;
 import net.sourceforge.plantuml.FileFormat;
@@ -49,9 +49,9 @@ public class ClassNode extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new ShowInstances(g, this));
-		cachedActions.elements.add(new MakeNewInstance(g, this));
-		cachedActions.elements.add(new LinkAction(g, this));
+		cachedActions.elements.add(new ShowInstances( this));
+		cachedActions.elements.add(new MakeNewInstance( this));
+		cachedActions.elements.add(new LinkAction( this));
 		super.createActions();
 	}
 

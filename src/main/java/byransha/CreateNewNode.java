@@ -5,6 +5,8 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.time.LocalDateTime;
 
+import org.checkerframework.checker.units.qual.N;
+
 import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;

@@ -2,18 +2,16 @@ package byransha.nodes.primitive;
 
 import java.awt.Desktop;
 
-import byransha.graph.BGraph;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.ProcedureAction;
 
-public class openFile extends NodeAction<FileNode, FileNode> {
+public class openFile extends ProcedureAction<FileNode> {
 
-	public static class file extends Category{}
-	
-	protected openFile(BGraph g, FileNode f) {
-		super(g, f, file.class);
+	public static class file extends Category {
+	}
+
+	public openFile(FileNode f) {
+		super(f, file.class);
 	}
 
 	@Override
@@ -22,14 +20,8 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	public ActionResult<FileNode, FileNode> exec(ChatNode chat) throws Throwable {
-		Desktop desktop = Desktop.getDesktop();
-
-		if (inputNode.file.exists()) {
-			desktop.open(inputNode.file);
-		}
-
-		return createResultNode(inputNode, true);
+	public void impl() throws Throwable {
+		Desktop.getDesktop().open(inputNode.file);
 	}
 
 	@Override
@@ -38,7 +30,7 @@ public class openFile extends NodeAction<FileNode, FileNode> {
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return inputNode.file.exists();
 	}
 

@@ -3,7 +3,6 @@ package byransha.graph;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.util.Base64;
 
 import byransha.nodes.primitive.PrimitiveValueNode;
 

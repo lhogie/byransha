@@ -7,26 +7,24 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.lab.stats.DistributionNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.TextNode;
-import byransha.nodes.system.ChatNode;
 
-public class QueryIA extends NodeAction<BNode, BNode> {
+public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ObjectMapper mapper = new ObjectMapper();
 	public final StringNode prompt;
 	public final JSONNode inputJSON;
 
-	class AI extends Category{}
-	
-	public QueryIA(BGraph g, BNode n) {
-		super(g, n, AI.class);
+	class AI extends Category {
+	}
+
+	public QueryIA(BNode n) {
+		super(n, AI.class);
 		prompt = new StringNode(g, "", ".+");
 		inputJSON = new JSONNode(g, n.describeAsJSON());
 	}
@@ -37,26 +35,24 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec(ChatNode chat) throws Throwable {
+	public void impl() throws Throwable {
 		var iaResponse = queryIA(inputNode.describeAsJSON(), prompt.get());
 		var extractedJson = AiResponseAnalyser.extractFirstJsonPayload(iaResponse);
 		var analysableResponse = extractedJson != null ? extractedJson : iaResponse;
 
 		if (AiResponseAnalyser.isArrayOfNumbers(analysableResponse)) {
 			JsonNode parsed = mapper.readTree(analysableResponse);
-			var numericArrayNode = new ListNode<BNode>(g, "IA numeric array");
+			var l = new ListNode<BNode>(g, "IA numeric array");
 			for (JsonNode value : parsed) {
-				numericArrayNode.elements.add(new TextNode(g, "value", value.asText()));
+				l.elements.add(new TextNode(g, "value", value.asText()));
 			}
-			return createResultNode(numericArrayNode, true);
-		}
-
-		if (AiResponseAnalyser.isDistribution(analysableResponse)) {
+			result = l;
+		} else if (AiResponseAnalyser.isDistribution(analysableResponse)) {
 			var distributionNode = new DistributionNode<String>(g) {
 				@Override
 				public String toString() {
@@ -69,12 +65,10 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 				distributionNode.entries.addOccurence(entry.getKey(), entry.getValue().asDouble());
 			}
 
-			return createResultNode(distributionNode, true);
+			result = distributionNode;
+		} else {
+			result = new TextNode(g, "IA response", iaResponse);
 		}
-
-		var textNode = new TextNode(g, "IA response", iaResponse);
-		textNode.info = true;
-		return createResultNode(textNode, true);
 	}
 
 	static String buildLlmPrompt(JsonNode inputJSON, String question) {
@@ -82,8 +76,9 @@ public class QueryIA extends NodeAction<BNode, BNode> {
 				+ inputJSON.toPrettyString() + "\nUser request: " + question;
 	}
 
-	protected String queryIA(JsonNode inputJSON, String question) throws JsonMappingException, JsonProcessingException, IOException, InterruptedException, Exception {
-			var llmPrompt = buildLlmPrompt(inputJSON, question);
+	protected String queryIA(JsonNode inputJSON, String question)
+			throws JsonMappingException, JsonProcessingException, IOException, InterruptedException, Exception {
+		var llmPrompt = buildLlmPrompt(inputJSON, question);
 		return OllamaModel.chat(llmPrompt);
 	}
 

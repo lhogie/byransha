@@ -1,8 +1,7 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
-import byransha.graph.action.list.ListNode;
-import byransha.nodes.primitive.LongNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Publication extends BusinessNode {

@@ -1,14 +1,13 @@
 package byransha.graph.action;
 
+import byransha.graph.Action;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.nodes.system.ChatNode;
 
-public final class FreezingAction extends NodeAction<BNode, BNode> {
-	public FreezingAction(BGraph g, BNode node) {
-		super(g, node, misc.class);
+public final class FreezingAction extends Action {
+	public FreezingAction(BGraph g) {
+		super(g, misc.class);
 	}
 
 	public static class misc extends Category {
@@ -25,9 +24,7 @@ public final class FreezingAction extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult<BNode, BNode> exec(ChatNode chat) throws Throwable {
-		var r = createResultNode(null, false);
-
+	public void impl() throws Throwable {
 		new Thread(() -> {
 			while (true) {
 				if (stopRequested) {
@@ -35,12 +32,10 @@ public final class FreezingAction extends NodeAction<BNode, BNode> {
 				}
 			}
 		}).start();
-
-		return r;
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 }

@@ -2,16 +2,15 @@ package byransha.nodes.system;
 
 import byransha.ai.JSONNode;
 import byransha.graph.Category;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.list.ListNode.export;
+import byransha.graph.list.action.FunctionAction;
 
-public class Export extends NodeAction<ChatNode, JSONNode> {
+public class Export extends FunctionAction<ChatNode, JSONNode> {
 
-	public static class chat extends Category{}
-	
-	public Export(ChatNode chatNode) {
-		super(chatNode.g, chatNode, chat.class, export.class);
+	public Export(ChatNode inputNode) {
+		super(inputNode, chat.class);
+	}
+
+	public static class chat extends Category {
 	}
 
 	@Override
@@ -20,14 +19,12 @@ public class Export extends NodeAction<ChatNode, JSONNode> {
 	}
 
 	@Override
-	public ActionResult<ChatNode, JSONNode> exec(ChatNode chat) throws Throwable {
-		var json = new JSONNode(g, inputNode.export());
-		return createResultNode(json, true);
-	}
-
-	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 
+	@Override
+	public void impl() {
+		result = new JSONNode(g, inputNode.export());
+	}
 }

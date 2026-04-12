@@ -1,14 +1,12 @@
 package byransha.graph.action;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.ProcedureAction;
 import byransha.nodes.system.SystemNode;
 
-final public class Reset extends NodeAction<BNode, BNode> {
-	public Reset(BGraph g, BNode n) {
-		super(g, n, node.class);
+final public class Reset extends ProcedureAction<BNode> {
+	public Reset(BNode n) {
+		super(n, node.class);
 	}
 
 	@Override
@@ -17,14 +15,12 @@ final public class Reset extends NodeAction<BNode, BNode> {
 	}
 
 	@Override
-	public ActionResult exec(ChatNode chat) {
+	public void impl() {
 		inputNode.reset();
-
-		return createResultNode(inputNode, true);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return !(inputNode instanceof SystemNode);
 	}
 }

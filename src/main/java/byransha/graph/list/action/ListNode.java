@@ -1,4 +1,4 @@
-package byransha.graph.action.list;
+package byransha.graph.list.action;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -12,17 +12,15 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.Category;
+import byransha.graph.Category.list;
+import byransha.graph.Category.selection;
+import byransha.graph.Category.statistics;
 import byransha.graph.ListItemPanel;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.DotAction;
+import byransha.graph.ProcedureAction;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.action.GeneratePlantUML;
-import byransha.graph.action.list.filter.RetainSelected;
-import byransha.graph.action.list.map.MapToClassNode;
+import byransha.graph.list.action.filter.RetainSelected;
+import byransha.graph.list.action.map.MapToClassNode;
 import byransha.nodes.lab.stats.DistributionNode;
-import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TextDisplayComponent;
 import byransha.util.IntObjectBiConsumer;
@@ -75,48 +73,39 @@ public final class ListNode<T extends BNode> extends BNode {
 		}
 	}
 
-	public static class list extends Category {
-	}
-
-	public static class export extends Category {
-	}
-
-	public static class selection extends Category {
-	}
-
-	public static class statistics extends Category {
-	}
-
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new Clear(g, this));
-		cachedActions.elements.add(new SortByString(g, this));
-		cachedActions.elements.add(new SortByValue(g, this));
-		cachedActions.elements.add(new SortByClass(g, this));
-		cachedActions.elements.add(new Uniq(g, this));
-		cachedActions.elements.add(new Shuffle(g, this));
-		cachedActions.elements.add(new MapToClassNode(g, this));
-		cachedActions.elements.add(new EDistribution(g, this));
-		cachedActions.elements.add(new RetainSelected<>(g, this));
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
+		cachedActions.elements.add(new Clear(this));
+		cachedActions.elements.add(new SortByString(this));
+		cachedActions.elements.add(new SortByValue(this));
+		cachedActions.elements.add(new SortByClass(this));
+		cachedActions.elements.add(new Uniq(this));
+		cachedActions.elements.add(new Shuffle(this));
+		cachedActions.elements.add(new MapToClassNode(this));
+		cachedActions.elements.add(new EDistribution(this));
+		cachedActions.elements.add(new RetainSelected<>(this));
+		cachedActions.elements.add(new DotAction(this));
+		cachedActions.elements.add(new GeneratePlantUML(this));
+		cachedActions.elements.add(new ExportAsListOfIDs(this));
+		cachedActions.elements
+				.add(new ProcedureAction<ListNode>(this, list.class, byransha.graph.Category.selection.class) {
 
-			@Override
-			public String whatItDoes() {
-				return "select all";
-			}
+					@Override
+					public String whatItDoes() {
+						return "select all";
+					}
 
-			@Override
-			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
-				inputNode.selectAll();
-				return createResultNode(null, true);
-			}
+					@Override
+					public void impl() {
+						inputNode.selectAll();
+					}
 
-			@Override
-			public boolean applies(ChatNode chat) {
-				return inputNode.selection.size() < inputNode.elements.size();
-			}
-		});
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
+					@Override
+					public boolean applies() {
+						return inputNode.selection.size() < inputNode.elements.size();
+					}
+				});
+		cachedActions.elements.add(new ProcedureAction<ListNode>(this, list.class, selection.class) {
 
 			@Override
 			public String whatItDoes() {
@@ -124,17 +113,16 @@ public final class ListNode<T extends BNode> extends BNode {
 			}
 
 			@Override
-			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
+			public void impl() {
 				inputNode.invertSelection();
-				return createResultNode(null, true);
 			}
 
 			@Override
-			public boolean applies(ChatNode chat) {
+			public boolean applies() {
 				return true;
 			}
 		});
-		cachedActions.elements.add(new NodeAction<ListNode, ListNode>(g, this, list.class, selection.class) {
+		cachedActions.elements.add(new ProcedureAction<ListNode>(this, list.class, selection.class) {
 
 			@Override
 			public String whatItDoes() {
@@ -142,19 +130,16 @@ public final class ListNode<T extends BNode> extends BNode {
 			}
 
 			@Override
-			public ActionResult<ListNode, ListNode> exec(ChatNode chat) throws Throwable {
+			public void impl() {
 				inputNode.shuffle();
-				return createResultNode(null, true);
 			}
 
 			@Override
-			public boolean applies(ChatNode chat) {
+			public boolean applies() {
 				return true;
 			}
 		});
 
-		cachedActions.elements.add(new DotAction(g, this));
-		cachedActions.elements.add(new GeneratePlantUML(g, this));
 		super.createActions();
 	}
 
@@ -234,10 +219,10 @@ public final class ListNode<T extends BNode> extends BNode {
 		return selection.contains(n);
 	}
 
-	public static class EDistribution<V extends BNode> extends NodeAction<ListNode<V>, DistributionNode<V>> {
+	public static class EDistribution<V extends BNode> extends FunctionAction<ListNode<V>, DistributionNode<V>> {
 
-		public EDistribution(BGraph g, ListNode<V> inputNode) {
-			super(g, inputNode, list.class, statistics.class);
+		public EDistribution(ListNode<V> inputNode) {
+			super(inputNode, list.class, statistics.class);
 		}
 
 		@Override
@@ -246,20 +231,20 @@ public final class ListNode<T extends BNode> extends BNode {
 		}
 
 		@Override
-		public ActionResult<ListNode<V>, DistributionNode<V>> exec(ChatNode chat) throws Throwable {
-			var d = new DistributionNode<V>(g) {
+		public void impl() throws Throwable {
+			result = new DistributionNode<V>(g) {
 
 				@Override
 				public String toString() {
 					return inputNode.label;
 				}
 			};
-			inputNode.get().forEach(e -> d.entries.addOccurence(e, 1));
-			return createResultNode(d, readOnly);
+
+			inputNode.get().forEach(e -> result.entries.addOccurence(e, 1));
 		}
 
 		@Override
-		public boolean applies(ChatNode chat) {
+		public boolean applies() {
 			return true;
 		}
 	}

@@ -1,15 +1,14 @@
 package byransha.graph;
 
 import byransha.graph.BGraph.graph;
-import byransha.graph.action.ActionResult;
-import byransha.graph.action.list.ListNode;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.util.Stop;
 
-public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
+public class AllNodes extends FunctionAction<BGraph, ListNode<BNode>> {
 
 	public AllNodes(BGraph g) {
-		super(g, g, graph.class);
+		super(g, graph.class);
 	}
 
 	@Override
@@ -18,17 +17,16 @@ public class AllNodes extends NodeAction<BGraph, ListNode<BNode>> {
 	}
 
 	@Override
-	public ActionResult<BGraph, ListNode<BNode>> exec(ChatNode chat) throws Throwable {
-		var r = new ListNode<>(g, "all nodes in the graph");
+	public void impl() throws Throwable {
+		result = new ListNode<>(g, "all nodes in the graph");
 		g.indexes.nodesList.forEachNode(n -> {
-			r.get().add(n);
+			result.get().add(n);
 			return Stop.no;
 		});
-		return createResultNode(r, true);
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

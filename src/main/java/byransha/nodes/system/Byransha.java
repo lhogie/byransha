@@ -65,7 +65,7 @@ public class Byransha extends SystemNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new Restart(g, this));
+		cachedActions.elements.add(new Restart( this));
 		super.createActions();
 	}
 

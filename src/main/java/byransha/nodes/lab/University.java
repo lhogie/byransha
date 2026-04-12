@@ -1,7 +1,7 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 
 public class University extends Structure {
 	ListNode<Campus> campuses;

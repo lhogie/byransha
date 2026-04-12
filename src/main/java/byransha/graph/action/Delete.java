@@ -1,14 +1,13 @@
 package byransha.graph.action;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.nodes.system.ChatNode;
+import byransha.graph.ProcedureAction;
 import byransha.nodes.system.SystemNode;
 
-public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
+public class Delete extends ProcedureAction<BNode> {
 
-	public Delete(BGraph g, BNode node) {
-		super(g, node, node.class);
+	public Delete(BNode node) {
+		super(node, node.class);
 	}
 
 	@Override
@@ -17,13 +16,12 @@ public class Delete extends ConfirmRequiredNodeAction<BNode, BNode> {
 	}
 
 	@Override
-	protected ActionResult execConfirmed() {
+	public void impl() {
 		inputNode.delete();
-		return null;
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return !(inputNode instanceof SystemNode);
 	}
 }

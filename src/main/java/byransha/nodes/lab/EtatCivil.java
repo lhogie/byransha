@@ -2,7 +2,7 @@ package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
 import byransha.graph.DocumentNode;
-import byransha.graph.action.list.ListNode;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.PhoneNumberNode;
 import byransha.nodes.primitive.StringNode;

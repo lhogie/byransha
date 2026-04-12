@@ -1,16 +1,13 @@
 package byransha.graph.relection;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.NodeAction;
-import byransha.graph.action.ActionResult;
+import byransha.graph.list.action.FunctionAction;
 import byransha.graph.relection.LinkAction.type;
-import byransha.nodes.system.ChatNode;
 
-public class MakeNewInstance extends NodeAction<ClassNode, BNode> {
+public class MakeNewInstance extends FunctionAction<ClassNode, BNode> {
 
-	public MakeNewInstance(BGraph g, ClassNode inputNode) {
-		super(g, inputNode, type.class);
+	public MakeNewInstance(ClassNode inputNode) {
+		super(inputNode, type.class);
 	}
 
 	@Override
@@ -19,12 +16,12 @@ public class MakeNewInstance extends NodeAction<ClassNode, BNode> {
 	}
 
 	@Override
-	public ActionResult<ClassNode, BNode> exec(ChatNode chat) throws Throwable {
-		return createResultNode(inputNode.newInstance(), readOnly);
+	public void impl() throws Throwable {
+		result = inputNode.newInstance();
 	}
 
 	@Override
-	public boolean applies(ChatNode chat) {
+	public boolean applies() {
 		return true;
 	}
 

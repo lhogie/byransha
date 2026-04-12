@@ -6,7 +6,6 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class FileNode extends BNode {
-
 	public File file;
 
 	protected FileNode(BGraph g) {
@@ -15,8 +14,8 @@ public class FileNode extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new openFile(g, this));
-		cachedActions.elements.add(new renameFile(g, this));
+		cachedActions.elements.add(new openFile(this));
+		cachedActions.elements.add(new renameFile(this));
 		super.createActions();
 	}
 
