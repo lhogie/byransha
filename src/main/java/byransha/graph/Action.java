@@ -14,21 +14,18 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
-import byransha.ui.swing.ChatSheet;
 import byransha.util.ByUtils;
 
 public abstract class Action extends BNode {
-
 	public boolean stopRequested = false;
 	private Thread thread;
 	public final Class<? extends Category>[] category;
-	@DoNotShowOnChat
 	public final LongNode durationMs = new LongNode(g);
-	@DoNotShowOnChat
 	public ChatNode chat;
 	public Consumer<Object> outputConsumer;
 	public Consumer<Double> progressConsumer;
 	public JProgressBar progressBar;
+	public boolean confirmationRequired = false;
 
 	public Action(BGraph g, Class<? extends Category>... category) {
 		super(g);
@@ -38,7 +35,7 @@ public abstract class Action extends BNode {
 	public List<BNode> parameters() {
 		var r = new ArrayList<BNode>();
 		forEachOutInFields(getClass(), Action.class, (field, out, readOnly) -> {
-			if (field.isAnnotationPresent(ActionParameter.class)) {
+			if (field.isAnnotationPresent(ShowInKishanView.class)) {
 				r.add(out);
 			}
 		});
@@ -123,7 +120,7 @@ public abstract class Action extends BNode {
 		}
 	}
 
-	public final void execSync()  {
+	public final void execSync() {
 		execAsync();
 		waitForCompletion();
 	}
@@ -148,17 +145,12 @@ public abstract class Action extends BNode {
 
 		if (isRunning()) {
 			var p = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-			p.add(c);
 			p.add(getProgressBar());
+			p.add(c);
 			return p;
 		} else {
 			return c;
 		}
-	}
-
-	@Override
-	public void writeTo(ChatSheet sheet) {
-		sheet.appendToCurrentLine(getListItemComponent(sheet.chat));
 	}
 
 }

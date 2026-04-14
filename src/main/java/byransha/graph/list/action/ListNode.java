@@ -12,28 +12,36 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.Category.list;
-import byransha.graph.Category.selection;
-import byransha.graph.Category.statistics;
 import byransha.graph.ListItemPanel;
-import byransha.graph.ProcedureAction;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.action.Export.CSVData;
+import byransha.graph.action.NewNodeCreator;
+import byransha.graph.list.action.export.ExportAsListOfIDs;
+import byransha.graph.list.action.filter.RemoveSelected;
 import byransha.graph.list.action.filter.RetainSelected;
 import byransha.graph.list.action.map.MapToClassNode;
-import byransha.nodes.lab.stats.DistributionNode;
+import byransha.graph.relection.ClassNode;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TextDisplayComponent;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
 
-public final class ListNode<T extends BNode> extends BNode {
+public class ListNode<T extends BNode> extends BNode {
 	String label;
 	final public ListenableList<T> elements = new ListenableList<>();
 	final public ListenableList<T> selection = new ListenableList<>();
+	public Class<T> contentClass;
 
-	public ListNode(BGraph g, String label) {
+
+	public ListNode(BGraph g, String label, Class<T> contentClass) {
 		super(g);
 		this.label = label;
+		this.contentClass = contentClass;
+	}
+
+	@ShowInKishanView
+	public ClassNode<T> contentClass() {
+		return g.indexes.byClass.getClassNodeFor(contentClass);
 	}
 
 	public void selectAll() {
@@ -76,69 +84,28 @@ public final class ListNode<T extends BNode> extends BNode {
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new Clear(this));
+		cachedActions.elements.add(new NewNodeCreator(this));
+
 		cachedActions.elements.add(new SortByString(this));
 		cachedActions.elements.add(new SortByValue(this));
 		cachedActions.elements.add(new SortByClass(this));
+
 		cachedActions.elements.add(new Uniq(this));
-		cachedActions.elements.add(new Shuffle(this));
 		cachedActions.elements.add(new MapToClassNode(this));
 		cachedActions.elements.add(new EDistribution(this));
+
 		cachedActions.elements.add(new RetainSelected<>(this));
+		cachedActions.elements.add(new RemoveSelected<>(this));
+
 		cachedActions.elements.add(new DotAction(this));
 		cachedActions.elements.add(new GeneratePlantUML(this));
 		cachedActions.elements.add(new ExportAsListOfIDs(this));
-		cachedActions.elements
-				.add(new ProcedureAction<ListNode>(this, list.class, byransha.graph.Category.selection.class) {
 
-					@Override
-					public String whatItDoes() {
-						return "select all";
-					}
+		cachedActions.elements.add(new selectAll(this));
+		cachedActions.elements.add(new selectNone(this));
+		cachedActions.elements.add(new invertSelection(this));
 
-					@Override
-					public void impl() {
-						inputNode.selectAll();
-					}
-
-					@Override
-					public boolean applies() {
-						return inputNode.selection.size() < inputNode.elements.size();
-					}
-				});
-		cachedActions.elements.add(new ProcedureAction<ListNode>(this, list.class, selection.class) {
-
-			@Override
-			public String whatItDoes() {
-				return "invert selection";
-			}
-
-			@Override
-			public void impl() {
-				inputNode.invertSelection();
-			}
-
-			@Override
-			public boolean applies() {
-				return true;
-			}
-		});
-		cachedActions.elements.add(new ProcedureAction<ListNode>(this, list.class, selection.class) {
-
-			@Override
-			public String whatItDoes() {
-				return "shuffle";
-			}
-
-			@Override
-			public void impl() {
-				inputNode.shuffle();
-			}
-
-			@Override
-			public boolean applies() {
-				return true;
-			}
-		});
+		cachedActions.elements.add(new Shuffle(this));
 
 		super.createActions();
 	}
@@ -153,7 +120,8 @@ public final class ListNode<T extends BNode> extends BNode {
 			throws IllegalArgumentException, IllegalAccessException {
 
 		for (int i = 0; i < elements.size(); ++i) {
-			elements.get(i).fieldsToCSV(i == 0 ? printHeaders : false);
+			var line = elements.get(i);
+			line.fieldsToCSV(i == 0 ? printHeaders : false);
 		}
 	}
 
@@ -219,36 +187,6 @@ public final class ListNode<T extends BNode> extends BNode {
 		return selection.contains(n);
 	}
 
-	public static class EDistribution<V extends BNode> extends FunctionAction<ListNode<V>, DistributionNode<V>> {
-
-		public EDistribution(ListNode<V> inputNode) {
-			super(inputNode, list.class, statistics.class);
-		}
-
-		@Override
-		public String whatItDoes() {
-			return "computes distribution";
-		}
-
-		@Override
-		public void impl() throws Throwable {
-			result = new DistributionNode<V>(g) {
-
-				@Override
-				public String toString() {
-					return inputNode.label;
-				}
-			};
-
-			inputNode.get().forEach(e -> result.entries.addOccurence(e, 1));
-		}
-
-		@Override
-		public boolean applies() {
-			return true;
-		}
-	}
-
 	private String label() {
 		if (elements.size() == 0) {
 			return "empty list";
@@ -269,20 +207,23 @@ public final class ListNode<T extends BNode> extends BNode {
 	}
 
 	@Override
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
+		super.writeKishanView(sheet);
+		writeToKishanView(sheet);
+	}
+	
+	@Override
+	protected void writeToKishanView(ChatSheet sheet) {
 		var label = new TextDisplayComponent(g.translator, label());
 		sheet.currentLine.add(label);
 		sheet.newLine();
 		final var line = sheet.currentLine;
 
 		for (int i = 0; i < elements.size(); ++i) {
-			var element = elements.get(i);
-			var elementPanel = new ListItemPanel(element, this, i + 1, sheet.chat);
-			line.add(elementPanel);
+			line.add(new ListItemPanel(elements.get(i), this, i + 1, sheet.chat));
 		}
 
-		sheet.newLine();
-
+//		sheet.newLine();
 		elements.addListener(new ListenableList.Listener<T>() {
 
 			@Override
@@ -296,7 +237,7 @@ public final class ListNode<T extends BNode> extends BNode {
 				int i = 1;
 				for (var c : line.getComponents()) {
 					var p = (ListItemPanel) c;
-					p.label.setText(String.valueOf(++i));
+//					p.label.setText(String.valueOf(++i));
 				}
 				line.revalidate();
 				line.repaint();
@@ -334,7 +275,6 @@ public final class ListNode<T extends BNode> extends BNode {
 				// selectionsBoxes.get(newElement).setSelected(true);
 			}
 
-		});
-	}
+		});	}
 
 }

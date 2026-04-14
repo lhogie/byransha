@@ -1,5 +1,6 @@
 package byransha.graph.action.search;
 
+import byransha.graph.ShowInKishanView;
 import byransha.graph.BNode;
 import byransha.graph.Category;
 import byransha.graph.list.action.FunctionAction;
@@ -8,6 +9,7 @@ import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.LongNode.Bounds;
 
 public class Search extends FunctionAction<BNode, ListNode> {
+	@ShowInKishanView
 	public LongNode depth;
 
 	
@@ -17,12 +19,12 @@ public class Search extends FunctionAction<BNode, ListNode> {
 		super( src, search.class);
 		depth = new LongNode(g);
 		depth.set(1L);
-		depth.setBounds(new Bounds(0, src.computeLongestPathLength()));
+		depth.setBounds(new Bounds(0, 20));//src.computeLongestPathLength()));
 	}
 
 	@Override
 	public void impl() {
-		var list = new ListNode(g, "search result at depth " + depth);
+		var list = new ListNode<>(g, "search result at depth " + depth, BNode.class);
 		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.elements.add(n));
 		result = list;
 	}

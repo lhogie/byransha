@@ -1,16 +1,17 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 
 public class University extends Structure {
-	ListNode<Campus> campuses;
+	@ShowInKishanView
+	ListNode<Campus> campuses = new ListNode(g, "campus", Campus.class);
 
 	public University(BGraph g) {
 		super(g);
-		campuses = new ListNode(g, "campus");
 	}
-	
+
 	@Override
 	public String whatIsThis() {
 		return "an university";

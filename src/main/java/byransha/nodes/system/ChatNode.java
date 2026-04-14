@@ -13,7 +13,7 @@ import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class ChatNode extends BNode {
-	public ListNode<BNode> nodes = new ListNode<>(g, "history");
+	public ListNode<BNode> nodes = new ListNode<>(g, "history", BNode.class);
 	final User user;
 
 	public ChatNode(User user) {

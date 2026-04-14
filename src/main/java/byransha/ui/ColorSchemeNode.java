@@ -1,7 +1,10 @@
 package byransha.ui;
 
+import java.awt.Color;
+
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ColorPalette.Style;
 
 public class ColorSchemeNode extends BNode {
@@ -21,6 +24,10 @@ public class ColorSchemeNode extends BNode {
 	@Override
 	public String toString() {
 		return style.name();
+	}
+	
+	public Color[] get() {
+		return ColorPalette.forStyle(style);
 	}
 
 }

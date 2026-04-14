@@ -39,7 +39,7 @@ public class NetworkAgent extends BNode {
 	public static final int port = 9876;
 	final StringNode publicKeyInfo;
 	final StringNode inOutInfo;
-	public final ListNode<PeerNode> peers;
+	public final ListNode<PeerNode> peers= new ListNode<>(g, "peers", PeerNode.class);
 	String name;
 	DatagramSocket socket;
 	private int packetReceived;
@@ -48,7 +48,7 @@ public class NetworkAgent extends BNode {
 
 	public NetworkAgent(BGraph g) throws FileNotFoundException, IOException {
 		super(g);
-		this.peers = new ListNode<>(g, "peers");
+
 		File securityDir = new File(g.byransha.configDirectory, "security");
 		File authorizedKeys = new File(securityDir, "authorized_keys");
 

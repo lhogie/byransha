@@ -10,9 +10,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.NodeError;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
+	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 
 	public static interface ValueChangeListener<V> {
@@ -28,6 +30,13 @@ public abstract class ValuedNode<V> extends BNode {
 		var r = super.describeAsJSON();
 		r.put("value", toString());
 		return r;
+	}
+
+	@Override
+	protected void fillErrors(List<NodeError> errs) {
+		if (valueRequired && value == null) {
+			errs.add(new NodeError(this, "a value is required"));
+		}
 	}
 
 	public V get() {

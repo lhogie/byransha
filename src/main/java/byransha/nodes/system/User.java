@@ -8,14 +8,13 @@ import byransha.nodes.primitive.StringNode;
 public class User extends BNode {
 	public final StringNode name;
 	public final StringNode passwordNode;
-	public final ListNode<ChatNode> chatList;
+	public final ListNode<ChatNode> chatList = new ListNode<>(g, "chats", ChatNode.class);
 
 	public User(BGraph g, String userName) {
 		super(g);
 		name = new StringNode(g, userName, ".+");
 		passwordNode = new StringNode(g, null, ".+");
 		passwordNode.hideText = true;
-		chatList = new ListNode<>(g, "chats");
 	}
 
 	@Override

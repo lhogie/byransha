@@ -1,17 +1,19 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Building extends BusinessNode {
 
-	public ListNode<Office> offices;
+	@ShowInKishanView
+	public ListNode<Office> offices = new ListNode(g, "office(s)", Office.class);
+	@ShowInKishanView
 	public StringNode name;
 
 	public Building(BGraph g) {
 		super(g);
-		offices = new ListNode(g, "office(s)");
 		name = new StringNode(g, "", ".+");
 	}
 

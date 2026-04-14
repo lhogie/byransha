@@ -29,7 +29,7 @@ public class ChatSheet extends Sheet {
 		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();
-		n.writeTo(this);
+		n.writeKishanView(this);
 
 		if (n instanceof Action action) {
 			newLine();

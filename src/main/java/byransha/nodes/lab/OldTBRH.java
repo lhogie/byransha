@@ -68,7 +68,7 @@ class OldTBRH {
 
 			person.badgeNumber.set(l.set(16, null));
 			person.website.set(l.set(17, null));
-			person.faxNumber.set(l.set(18, null));
+			l.set(18, null); // remove Fax number person.faxNumber.set();
 			var email = new EmailNode(i3s.g, null);
 			email.set(l.set(19, null));
 			person.emailAddresses.elements.add(email);
@@ -89,9 +89,10 @@ class OldTBRH {
 
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, null);
-				person.position = new Position(i3s.g); // new Position(graph);
-				person.position.employer = i3s.g.indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
+				var p = new Position(i3s.g);
+				p.employer = i3s.g.indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
 						n -> Stop.stopIf(n.name.get() != null && n.name.get().equals(employer)));
+				person.positions.elements.add(p); // new Position(graph);
 
 				var corps = l.set(i - 2, null);
 //                person.position.status = graph.find(Status(g), s ->
@@ -101,13 +102,13 @@ class OldTBRH {
 				if (!startDate.isBlank()) {
 					var startDateNode = new DateNode(i3s.g);
 					startDateNode.set(DataLake.parseDate(startDate));
-					person.position.from = startDateNode;
+					person.positions.elements.getLast().from = startDateNode;
 				}
 
 				if (!endDate.isBlank()) {
 					var endDateNode = new DateNode(i3s.g);
 					endDateNode.set(DataLake.parseDate(endDate));
-					person.position.to = endDateNode;
+					person.positions.elements.getLast().to = endDateNode;
 				}
 			}
 

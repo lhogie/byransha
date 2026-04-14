@@ -1,6 +1,5 @@
 package byransha.ui.swing;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.HashMap;
@@ -12,6 +11,7 @@ import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.ColorNode;
 import byransha.nodes.primitive.LongNode;
@@ -22,19 +22,20 @@ import byransha.ui.ColorSchemeNode;
 import byransha.util.ListenableList;
 
 public class SwingFrontend extends SystemNode {
-	public final ColorSchemeNode colorStyle;
+	@ShowInKishanView
+	public final ColorSchemeNode colorStyle = List.of(ColorPalette.Style.values()).stream()
+			.map(s -> new ColorSchemeNode(g, s)).toList().getFirst();
+	@ShowInKishanView
 	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
-	public ColorNode backgroundColor = new ColorNode(this, Color.pink);
+	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	public final Map<ChatNode, JFrame> frames = new HashMap<>();
 
-	public final ListNode<FontNode> fonts = new ListNode<>(g, "available fonts");
+	@ShowInKishanView
+	public final ListNode<FontNode> fonts = new ListNode<>(g, "available fonts", FontNode.class);
 
 	public SwingFrontend(BGraph g) {
 		super(g);
-
-		var schemeNodes = List.of(ColorPalette.Style.values()).stream().map(s -> new ColorSchemeNode(g, s)).toList();
-		this.colorStyle = schemeNodes.getFirst();
 
 		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
 			fonts.elements.add(new FontNode(g, font));

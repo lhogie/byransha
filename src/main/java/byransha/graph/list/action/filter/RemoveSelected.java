@@ -3,20 +3,20 @@ package byransha.graph.list.action.filter;
 import byransha.graph.BNode;
 import byransha.graph.list.action.ListNode;
 
-public class RetainSelected<N extends BNode> extends ListFilter<N> {
+public class RemoveSelected<N extends BNode> extends ListFilter<N> {
 
-	public RetainSelected(ListNode<N> inputNode) {
+	public RemoveSelected(ListNode<N> inputNode) {
 		super(inputNode);
 	}
 
 	@Override
 	public String retainsOnly() {
-		return "selected nodes";
+		return "non-selected nodes";
 	}
 
 	@Override
 	public boolean retains(N n) {
-		return inputNode.isSelected(n);
+		return !inputNode.isSelected(n);
 	}
 
 	@Override

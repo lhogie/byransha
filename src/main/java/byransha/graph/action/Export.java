@@ -3,13 +3,14 @@ package byransha.graph.action;
 import java.util.ArrayList;
 
 import byransha.graph.BNode;
+import byransha.graph.Category.node;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.TextNode;
 
 public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 	public Export(BNode node) {
-		super(node, BNode.node.class);
+		super(node, node.class);
 	}
 
 	@Override
@@ -23,13 +24,14 @@ public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 	}
 
 	@Override
-	public void impl() throws Throwable {
-		result = new ListNode<byransha.nodes.primitive.TextNode>(g, "export texts");
+	public void impl() throws IllegalArgumentException, IllegalAccessException {
+		result = new ListNode<TextNode>(g, "export texts", TextNode.class);
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
-		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + "(CSV)", csv.data))
+		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(g, csv.name + " (CSV)", csv.data))
 				.forEach(n -> result.get().add(n));
-		result.get().add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", describeAsJSON().toPrettyString()));
+		result.elements
+				.add(new byransha.nodes.primitive.TextNode(g, id() + " (JSON)", describeAsJSON().toPrettyString()));
 	}
 
 	@Override

@@ -1,15 +1,18 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 
 public class ResearchGroup extends Structure {
-	public ListNode<ACMClassifier> keywords;
+
+	public ResearchGroup(BGraph g) {
+		super(g);
+	}
 
 	public ResearchGroup(BGraph g, String name) {
-		super(g);
+		this(g);
 		this.name.set(name);
-		keywords = new ListNode<>(g, "research group(s)");
 	}
 
 	@Override
@@ -17,4 +20,8 @@ public class ResearchGroup extends Structure {
 		return "a research group";
 	}
 
+	@ShowInKishanView
+	public ListNode<ACMClassifier> keywords() {
+		return null;// get from publications;
+	}
 }

@@ -27,8 +27,8 @@ public class URLNode extends StringNode {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
-		super.writeTo(pane);
+	public void writeKishanView(ChatSheet pane) {
+		super.writeKishanView(pane);
 		var b = new JButton("browse");
 		b.addActionListener(e -> {
 			try {

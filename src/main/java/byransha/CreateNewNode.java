@@ -12,7 +12,6 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class CreateNewNode<N extends BNode> extends Event {
-
 	Class<N> clazz;
 	int nodeId = -1;
 

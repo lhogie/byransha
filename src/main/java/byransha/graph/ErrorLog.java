@@ -7,11 +7,10 @@ import byransha.graph.list.action.ListNode;
 import byransha.nodes.system.SystemNode;
 
 public class ErrorLog extends SystemNode {
-	public final ListNode<ExceptionNode> errors;
+	public final ListNode<ExceptionNode> errors = new ListNode<>(g, "error(s)", ExceptionNode.class);
 
 	public ErrorLog(BGraph g) {
 		super(g);
-		errors = new ListNode<>(g, "error(s)");
 	}
 
 	@Override

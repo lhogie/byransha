@@ -8,14 +8,13 @@ import byransha.graph.list.action.ListNode;
 
 public class Lab extends Structure {
 
-	final ListNode<Structure> tutelles;
+	final ListNode<Structure> tutelles = new ListNode(g, "tutelles", Structure.class);
 	public Person HFDS; // haut fonctionnaire defense securité
 	final Map<Person, HFDSAvisE> HFDSAvisfds;
 
 	public Lab(BGraph g) {
 		super(g);
 		HFDSAvisfds = new HashMap<>();
-		tutelles = new ListNode(g, "tutelles");
 	}
 
 	enum HFDSAvisE {

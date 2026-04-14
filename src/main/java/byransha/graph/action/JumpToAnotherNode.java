@@ -12,7 +12,7 @@ import byransha.util.Base62;
 
 public class JumpToAnotherNode extends Action {
 	final TextNode text = new TextNode(g, "list of IDs", "");
-	ListNode<BNode> nodes = new ListNode<>(g, "nodes");
+	ListNode<BNode> nodes = new ListNode<>(g, "nodes", BNode.class);
 
 	public JumpToAnotherNode(BGraph g) {
 		super(g, misc.class);

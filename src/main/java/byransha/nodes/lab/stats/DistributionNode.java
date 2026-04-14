@@ -64,7 +64,7 @@ public abstract class DistributionNode<V> extends BNode {
 	}
 
 	@Override
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 		entries.forEach(e -> dataset.setValue(e.element.toString(), e.n));
 

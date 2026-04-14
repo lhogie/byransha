@@ -37,7 +37,7 @@ final public class JSONNode extends BNode {
 	}
 
 	@Override
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
 		sheet.currentLine.add(JsonToTreeConverter.buildTreeModel(node));
 	}
 

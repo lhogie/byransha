@@ -101,7 +101,6 @@ public class Utils {
 		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
 	}
 
-
 	public static JComponent noNodeShower(int diameter, int border, ChatNode chat, Class clazz) {
 		var c = new CircleComponent(diameter, Color.orange);
 		c.setBorderWidth(border);
@@ -129,7 +128,7 @@ public class Utils {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					var list = new ListNode(chat.g, "all nodes of class " + clazz.getName());
+					var list = new ListNode(chat.g, "all nodes of class " + clazz.getName(), clazz);
 					list.elements.addAll(chat.g.indexes.byClass.m.get(clazz));
 					var newChat = new ChatNode(chat.currentUser());
 					newChat.append(list);

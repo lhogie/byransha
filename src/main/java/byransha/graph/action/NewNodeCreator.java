@@ -1,29 +1,38 @@
 package byransha.graph.action;
 
 import byransha.graph.BGraph;
-import byransha.graph.BNode;
-import byransha.graph.action.FreezingAction.misc;
-import byransha.graph.list.action.FunctionAction;
+import byransha.graph.Category.list;
+import byransha.graph.ProcedureAction;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.lab.BusinessNode;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
-public class NewNodeCreator extends FunctionAction<BNode, ListNode<BNode>> {
-	ListNode<ClassNode> classes;
+public class NewNodeCreator extends ProcedureAction<ListNode> {
+	@ShowInKishanView
+	ListNode<ClassNode> classes = new ListNode<>(g, "business class(es)", ClassNode.class);
 
-	public NewNodeCreator(BGraph g) {
-		super(g, misc.class);
-		classes = new ListNode<>(g, "Business class(es)");
+	public NewNodeCreator(ListNode list) {
+		super(list, list.class);
+		addBusinessClassesIn(list.g.application.getClass().getPackage());
 	}
 
 	public void addBusinessClassesIn(Package p) {
+		var contentClass = inputNode.contentClass;
+
 		try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan()) {
 			for (var c : scanResult.getAllClasses().loadClasses()) {
-				if (BusinessNode.class.isAssignableFrom(c)) {
-//					System.out.println("adding " + c);
-					addClass(c);
+				try {
+					if ((contentClass == null || contentClass.isAssignableFrom(c))
+							&& c.getConstructor(BGraph.class) != null
+							&& (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
+							&& c.getDeclaringClass() == null) {
+						System.out.println("adding " + c);
+						addClass(c);
+					}
+				} catch (NoSuchMethodException e) {
+					System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
 				}
 			}
 		}
@@ -35,8 +44,7 @@ public class NewNodeCreator extends FunctionAction<BNode, ListNode<BNode>> {
 	}
 
 	public void addClass(Class cla) {
-		ClassNode cn = ClassNode.find(g, cla);
-		classes.get().add(cn);
+		classes.get().add(g.indexes.byClass.getClassNodeFor(cla));
 	}
 
 	@Override
@@ -51,7 +59,6 @@ public class NewNodeCreator extends FunctionAction<BNode, ListNode<BNode>> {
 
 	@Override
 	public void impl() {
-		result = new ListNode<BNode>(g, "newly created node(s)");
-		result.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
+		inputNode.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
 	}
 }

@@ -55,7 +55,7 @@ public class TextNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeKishanView(ChatSheet pane) {
 		String s = get();
 
 		if (info) {

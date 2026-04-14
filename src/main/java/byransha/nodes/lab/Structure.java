@@ -1,63 +1,38 @@
 package byransha.nodes.lab;
 
+import javax.swing.JComponent;
+
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.util.ListenableList;
+import byransha.nodes.system.ChatNode;
 
 public class Structure extends BusinessNode {
+	@ShowInKishanView
 	public final StringNode name = new StringNode(g, null, ".+");;
-	public final ListNode<Structure> subStructures;
-	public final ListNode<Office> offices;
-	public final DynamicValuedNode<ListNode<Person>> members = new DynamicValuedNode<ListNode<Person>>(this) {
+	@ShowInKishanView
+	public final ListNode<Structure> subStructures = new ListNode(g, "sub-structure(s)", Structure.class);
+	@ShowInKishanView
+	public final ListNode<Office> offices = new ListNode(g, "offices", Office.class);
 
-		@Override
-		public ListNode<Person> exec() {
-			var s = g.indexes.byClass.m.get(Person.class).stream().map(n -> (Person) n)
-					.filter(p -> p.structures.elements.contains(Structure.this)).toList();
-			var l = new ListNode<Person>(g, "members");
-			l.elements.addAll(s);
-			l.elements.addListener(new ListenableList.Listener<Person>() {
+	public Structure(BGraph g) {
+		super(g);
+	}
 
-				@Override
-				public void onSet(int index, Person oldElement, Person p) {
-					throw new UnsupportedOperationException("not supported");
-				}
+	@ShowInKishanView
+	public ListNode<Person> members() {
+		return exec("members", Person.class, p -> p.structures);
+	}
 
-				@Override
-				public void onRemoved(int index, Person p) {
-					p.structures.elements.remove(Structure.this);
-				}
-
-				@Override
-				public void onAdded(int index, Person p) {
-					p.structures.elements.add(Structure.this);
-				}
-			});
-
-			return l;
-		}
-	};
-
-	public final DynamicValuedNode<ListNode<Person>> members2 = new DynamicValuedNode<ListNode<Person>>(this) {
-
-		@Override
-		public ListNode<Person> exec() {
-			var l = new ListNode<Person>(g, "members");
-			l.elements.add(new Person(g));
-			return l;
-		}
-	};
+	@Override
+	public JComponent getListItemComponent(ChatNode chat) {
+		return name.getListItemComponent(chat);
+	}
 
 	@Override
 	public void createActions() {
 		super.createActions();
-	}
-
-	public Structure(BGraph g) {
-		super(g);
-		subStructures = new ListNode(g, "sub-structure(s)");
-		offices = new ListNode(g, "offices");
 	}
 
 	@Override

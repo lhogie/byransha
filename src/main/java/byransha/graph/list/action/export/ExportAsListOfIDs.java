@@ -1,10 +1,12 @@
-package byransha.graph.list.action;
+package byransha.graph.list.action.export;
 
 import java.util.stream.Collectors;
 
 import byransha.graph.BNode;
 import byransha.graph.Category.export;
 import byransha.graph.Category.list;
+import byransha.graph.list.action.FunctionAction;
+import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.TextNode;
 
 public class ExportAsListOfIDs extends FunctionAction<ListNode<? extends BNode>, TextNode> {

@@ -12,11 +12,10 @@ import byransha.nodes.primitive.PrimitiveValueNode;
 import byransha.util.Stop;
 
 public class SearchByClass extends Search {
-	public ListNode<ClassNode> availableClasses;
+	public ListNode<ClassNode> availableClasses = new ListNode<>(g, "searcheable classes", ClassNode.class);
 
 	public SearchByClass( BNode src) {
 		super( src);
-		availableClasses = new ListNode(g, "searcheable classes");
 
 		// update the list of classes when the depth changes
 		depth.valueChangeListeners.add((depthNode, oldValue, newValue) -> {

@@ -10,15 +10,18 @@ import java.awt.event.MouseListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -28,7 +31,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,7 +51,6 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
@@ -65,20 +66,16 @@ import byransha.ui.swing.Utils;
 import byransha.ui.swing.WrapPanel;
 import byransha.util.Base62;
 import byransha.util.ByUtils;
+import byransha.util.ListenableList;
 import byransha.util.Stop;
 import byransha.util.TriConsumer;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public abstract class BNode {
-	@DoNotShowOnChat
 	public final BGraph g;
 	public boolean readOnly;
 	public long id = -1;
 
-	public static class node extends Category {
-	}
-
-	@DoNotShowOnChat
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BGraph g) {
@@ -88,6 +85,39 @@ public abstract class BNode {
 			this.g = g;
 			this.g.indexes.add(this);
 		}
+	}
+
+	public <N extends BNode> ListNode<N> exec(String label, Class<N> c, Function<N, ListNode> f) {
+		var r = new ListNode<N>(g, label, c);
+
+		for (var n : g.indexes.byClass.m.get(c)) {
+			var nn = (N) n;
+			var remoteList = f.apply(nn);
+
+			if (remoteList.elements.contains(BNode.this)) {
+				r.elements.add(nn);
+			}
+		}
+
+		r.elements.addListener(new ListenableList.Listener<N>() {
+
+			@Override
+			public void onSet(int index, N oldElement, N p) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onRemoved(int index, N n) {
+				f.apply(n).elements.remove(BNode.this);
+			}
+
+			@Override
+			public void onAdded(int index, N n) {
+				f.apply(n).elements.add(BNode.this);
+			}
+		});
+
+		return r;
 	}
 
 	public int computeLongestPathLength() {
@@ -118,7 +148,7 @@ public abstract class BNode {
 
 	public List<Action> actions() {
 		if (cachedActions == null) {
-			cachedActions = new ListNode<>(g, "actions for node " + this);
+			cachedActions = new ListNode<>(g, "actions for node " + this, Action.class);
 			createActions();
 		}
 
@@ -145,7 +175,7 @@ public abstract class BNode {
 		l.add(c);
 	}
 
-	public String fieldsToCSV(boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
+	public final String fieldsToCSV(boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
 		var sw = new StringWriter();
 		var pw = new PrintWriter(sw);
 		fieldsToCSV(pw, printHeaders);
@@ -154,7 +184,7 @@ public abstract class BNode {
 		return s;
 	}
 
-	public void fieldsToCSV(PrintWriter ps, boolean printHeaders)
+	private void fieldsToCSV(PrintWriter ps, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
 		var fields = new ArrayList<Field>();
 
@@ -192,7 +222,7 @@ public abstract class BNode {
 			TriConsumer<Field, BNode, Boolean> consumer) {
 		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
-				if (BNode.class.isAssignableFrom(f.getType()) && !f.isAnnotationPresent(DoNotShowOnChat.class)) {
+				if (f.isAnnotationPresent(ShowInKishanView.class)) {
 					try {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
@@ -207,12 +237,22 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
+	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
+			TriConsumer<Method, BNode, Boolean> consumer) {
+		for (var m : getClass().getMethods()) {
+			if (m.isAnnotationPresent(ShowInKishanView.class)) {
+				try {
+					var outNode = (BNode) m.invoke(this);
+					consumer.accept(m, outNode, outNode.isReadOnly());
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+					error(e);
+				}
+			}
+		}
 	}
 
-	public void forEachOut(Consumer<BNode> consumer) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o));
+	public void forEachOut(BiConsumer<BNode, String> consumer) {
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
 	}
 
 	public void createActions() {
@@ -246,7 +286,7 @@ public abstract class BNode {
 	}
 
 	public String whatIsThis() {
-		return getClassNode().whatItRepresents();
+		return type().whatItRepresents();
 	}
 
 	public static class BFSResult {
@@ -285,7 +325,8 @@ public abstract class BNode {
 			}
 
 			final var c_tmp = c;
-			c.forEachOut(o -> {
+
+			c.forEachOut((o, role) -> {
 				if (o != null && !r.visited.contains(o)) {
 					r.visited.add(o);
 
@@ -461,14 +502,9 @@ public abstract class BNode {
 		return Base62.encode(id());
 	}
 
-	public <N extends BNode> ClassNode getClassNode() {
-		for (ClassNode c : (Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class)) {
-			if (c.representedClass == getClass()) {
-				return c;
-			}
-		}
-
-		throw new IllegalStateException("class node should be registered: " + getClass());
+	@ShowInKishanView
+	public ClassNode<?> type() {
+		return g.indexes.byClass.getClassNodeFor(getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -480,16 +516,19 @@ public abstract class BNode {
 		return translation == null ? s : translation;
 	}
 
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
 		int fieldNameSize = fieldMaxLenght();
 
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this) {
-				if (out instanceof DynamicValuedNode otf) {
-					out = otf.exec();
-				}
-
 				fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
+				sheet.newLine();
+			}
+		});
+
+		forEachOutInMethods(getClass(), BNode.class, (method, out, readOnly) -> {
+			if (out != this) {
+				fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
 				sheet.newLine();
 			}
 		});
@@ -501,32 +540,38 @@ public abstract class BNode {
 			if (out != this)
 				max[0] = Math.max(max[0], f.getName().length());
 		});
+		forEachOutInMethods(getClass(), BNode.class, (m, out, readOnly) -> {
+			if (out != this)
+				max[0] = Math.max(max[0], m.getName().length());
+		});
 		return max[0];
 	}
 
-	private void fillLine(WrapPanel currentLine, Field f, ChatSheet sheet, BNode out, int left) {
-		var fieldNameComponent = new TextDisplayComponent(g.translator, f.getName() + ":");
-		fieldNameComponent.setColumns(left);
-		fieldNameComponent.setToolTipText(f.getName());
-		Utils.idDropTarget(g, fieldNameComponent, dn -> set(f, dn));
-		currentLine.add(fieldNameComponent);
+	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
+		var roleComponent = new TextDisplayComponent(g.translator, m.getName() + ":");
+		roleComponent.setColumns(left);
+		roleComponent.setToolTipText(m.getName());
+
+		currentLine.add(roleComponent);
 
 		if (out != null) {
 			currentLine.add(out.createBall(18, 2, ((ChatSheet) sheet).chat));
 			currentLine.add(new ErrorIndicator(out));
-			out.writeTo(sheet);
+			out.writeToKishanView(sheet);
 		} else {
 			sheet.appendToCurrentLine("field has no value");
 		}
 
-		{
+		if (m instanceof Field field) {
+			Utils.idDropTarget(g, roleComponent, dn -> set(field, dn));
+
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
 			setToNull.addActionListener(e -> {
 				try {
-					set(f, null);
+					set(field, null);
 					sheet.currentLine.removeAll();
-					fillLine(currentLine, f, sheet, out, left);
+					fillLine(currentLine, m, sheet, out, left);
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
@@ -535,8 +580,8 @@ public abstract class BNode {
 			});
 			var replace = new JMenuItem("see candidates");
 			replace.addActionListener(e -> {
-				var list = new ListNode(g, "all nodes of class " + f.getType().getName());
-				g.indexes.byClass.forEachNodeAssignableTo((Class) f.getType(), a -> {
+				var list = new ListNode(g, "all nodes of class " + field.getType().getName(), (Class) field.getType());
+				g.indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
 					list.elements.add(a);
 					return Stop.no;
 				});
@@ -547,8 +592,12 @@ public abstract class BNode {
 				popup.add(out == null ? replace : setToNull);
 			}
 
-			fieldNameComponent.setComponentPopupMenu(popup);
+			roleComponent.setComponentPopupMenu(popup);
 		}
+	}
+
+	protected void writeToKishanView(ChatSheet sheet) {
+		sheet.appendToCurrentLine(getSmallComponent(sheet.chat));
 	}
 
 	public JComponent createBall(int diameter, int border, ChatNode chat) {
@@ -593,18 +642,14 @@ public abstract class BNode {
 		return c;
 	}
 
-	public JComponent getListItemComponent(ChatNode chat) {
-		var p = new JPanel();
-		p.setOpaque(false);
-		p.add(createBall(20, 15, chat));
+	protected JComponent getListItemComponent(ChatNode chat) {
+		return getSmallComponent(chat);
+	}
+
+	protected JComponent getSmallComponent(ChatNode chat) {
 		var ta = new TranslatableTextArea(chat.g.translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
-		p.add(ta);
-
-		for (var c : p.getComponents()) {
-//			((JComponent) c).setBorder(LineBorder.createBlackLineBorder());
-		}
-		return p;
+		return ta;
 	}
 }

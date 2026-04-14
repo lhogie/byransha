@@ -3,13 +3,13 @@ package byransha.graph.relection;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.MapNode;
 import byransha.nodes.primitive.StringNode;
@@ -17,11 +17,15 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
 
-public class ClassNode extends BNode {
-	public final Class representedClass;
-	public ClassNode superClass;
+public class ClassNode<T extends BNode> extends BNode {
+	public final Class<T> representedClass;
+	public ClassNode<?> superClass;
+
+	@ShowInKishanView
 	public ListNode<ClassNode> interfaces;
-	public MapNode<ClassNode> aggregations;
+
+	@ShowInKishanView
+	public MapNode<ClassNode<?>> aggregations;
 
 	public static class Aggregation extends BNode {
 		protected Aggregation(BGraph g) {
@@ -49,9 +53,9 @@ public class ClassNode extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new ShowInstances( this));
-		cachedActions.elements.add(new MakeNewInstance( this));
-		cachedActions.elements.add(new LinkAction( this));
+		cachedActions.elements.add(new ShowInstances(this));
+		cachedActions.elements.add(new MakeNewInstance(this));
+		cachedActions.elements.add(new LinkAction(this));
 		super.createActions();
 	}
 
@@ -60,7 +64,7 @@ public class ClassNode extends BNode {
 	}
 
 	public void link() {
-		this.interfaces = new ListNode<>(g, "interfaces");
+		this.interfaces = new ListNode<ClassNode>(g, "interfaces", ClassNode.class);
 		this.aggregations = new MapNode<>(g, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
@@ -173,13 +177,11 @@ public class ClassNode extends BNode {
 		}
 	}
 
-	public static ClassNode find(BGraph g, Class cla) {
-		return g.indexes.byClass.findFirstOr(ClassNode.class, n -> n.representedClass == cla,
-				() -> new ClassNode(g, cla));
-	}
-
-	public Collection<BNode> allInstances() {
-		return g.indexes.byClass.m.get(representedClass);
+	@ShowInKishanView
+	public ListNode<T> allInstances() {
+		var l = new ListNode<T>(g, "instances of " + representedClass.getSimpleName(), representedClass);
+		g.indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
+		return l;
 	}
 
 }

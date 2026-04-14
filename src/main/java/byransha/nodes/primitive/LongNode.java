@@ -52,6 +52,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	@Override
 	protected void fillErrors(List<NodeError> errs) {
+		super.fillErrors(errs);
 		var v = get();
 
 		if (v != null && bounds != null) {
@@ -64,7 +65,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
 		var tf = new JTextField(String.valueOf(get()));
 		tf.setColumns(10);
 		tf.setEditable(!readOnly);
@@ -124,6 +125,8 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 		if (bounds != null) {
 			var slider = new JSlider((int) bounds.min, (int) bounds.max);
+			slider.setPaintTicks(true);
+			slider.setPaintLabels(true);
 
 			if (get() != null) {
 				slider.setValue(get().intValue());

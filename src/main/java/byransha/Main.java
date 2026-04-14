@@ -38,7 +38,6 @@ public class Main {
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BGraph.class).newInstance(g);
 
-		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
 		g.currentUser = new User(g, "guest");
 		
 		new ChatNode(g.currentUser).append(g.application);

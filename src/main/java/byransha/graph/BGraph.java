@@ -6,7 +6,6 @@ import java.util.List;
 
 import byransha.event.EventList;
 import byransha.event.InMemoryEventList;
-import byransha.graph.action.NewNodeCreator;
 import byransha.graph.index.AllIndexes;
 import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
@@ -36,7 +35,6 @@ public class BGraph extends BNode {
 	public final OSNode os = new OSNode(this);
 	public final ErrorLog errorLog = new ErrorLog(this);
 	public final EventList eventList = new InMemoryEventList(this);
-	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;

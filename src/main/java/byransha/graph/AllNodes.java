@@ -18,7 +18,7 @@ public class AllNodes extends FunctionAction<BGraph, ListNode<BNode>> {
 
 	@Override
 	public void impl() throws Throwable {
-		result = new ListNode<>(g, "all nodes in the graph");
+		result = new ListNode<>(g, "all nodes in the graph", BNode.class);
 		g.indexes.nodesList.forEachNode(n -> {
 			result.get().add(n);
 			return Stop.no;

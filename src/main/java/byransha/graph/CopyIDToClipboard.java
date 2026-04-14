@@ -3,7 +3,7 @@ package byransha.graph;
 import java.awt.Toolkit;
 import java.awt.datatransfer.StringSelection;
 
-import byransha.graph.BNode.node;
+import byransha.graph.Category.node;
 
 public class CopyIDToClipboard extends ProcedureAction<BNode> {
 

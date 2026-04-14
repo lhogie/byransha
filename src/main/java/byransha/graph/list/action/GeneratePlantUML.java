@@ -25,7 +25,7 @@ public class GeneratePlantUML<N extends BNode> extends FunctionAction<ListNode<N
 		var classNode = new HashSet<ClassNode>();
 
 		for (var n : l) {
-			classNode.add(n instanceof ClassNode cn ? cn : ClassNode.find(g, n.getClass()));
+			classNode.add(n instanceof ClassNode cn ? cn : g.indexes.byClass.getClassNodeFor(n.getClass()));
 		}
 
 		result = new TextNode(g, "PlantUML", ClassNode.toPlantUML(classNode, true));

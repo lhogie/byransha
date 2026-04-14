@@ -15,7 +15,7 @@ public abstract class AbstractMapAction<A extends BNode, B extends BNode> extend
 
 	@Override
 	public void impl() {
-		result = new ListNode<B>(g, "mapping to " + mapTo());
+		result = new ListNode<B>(g, "mapping to " + mapTo(), null);
 		inputNode.get().forEach(n -> result.get().add(map(n)));
 	}
 

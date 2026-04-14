@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import byransha.graph.ShowInKishanView;
 import byransha.graph.BNode;
 import byransha.graph.Category;
 import byransha.graph.list.action.FunctionAction;
@@ -17,6 +18,8 @@ import byransha.nodes.primitive.TextNode;
 
 public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ObjectMapper mapper = new ObjectMapper();
+	
+	@ShowInKishanView
 	public final StringNode prompt;
 	public final JSONNode inputJSON;
 
@@ -47,7 +50,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 		if (AiResponseAnalyser.isArrayOfNumbers(analysableResponse)) {
 			JsonNode parsed = mapper.readTree(analysableResponse);
-			var l = new ListNode<BNode>(g, "IA numeric array");
+			var l = new ListNode<TextNode>(g, "IA numeric array", TextNode.class);
 			for (JsonNode value : parsed) {
 				l.elements.add(new TextNode(g, "value", value.asText()));
 			}
