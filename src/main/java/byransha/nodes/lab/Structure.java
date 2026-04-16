@@ -3,6 +3,7 @@ package byransha.nodes.lab;
 import javax.swing.JComponent;
 
 import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;

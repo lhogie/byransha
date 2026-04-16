@@ -1,6 +1,7 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
 import byransha.graph.DocumentNode;
 import byransha.graph.ShowInKishanView;
 

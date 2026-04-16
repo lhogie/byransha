@@ -2,11 +2,11 @@ package byransha.ui.swing;
 
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
-import java.util.HashMap;
+import java.awt.GridLayout;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
@@ -29,10 +29,9 @@ public class SwingFrontend extends SystemNode {
 	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
-	public final Map<ChatNode, JFrame> frames = new HashMap<>();
-
 	@ShowInKishanView
 	public final ListNode<FontNode> fonts = new ListNode<>(g, "available fonts", FontNode.class);
+	public final JFrame f;
 
 	public SwingFrontend(BGraph g) {
 		super(g);
@@ -53,52 +52,24 @@ public class SwingFrontend extends SystemNode {
 
 		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
 
+
+		this.f = new JFrame();
+		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
+
+		f.setSize(Utils.initialSize);
+		f.setLocation(0, 0);
+
+		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
+		f.setVisible(true);
 		considerUser(g.currentUser());
 	}
 
 	private void considerUser(User newUser) {
-		newUser.chatList.elements.forEach(chat -> addChatPanelFor(chat));
-
-		newUser.chatList.elements.addListener(new ListenableList.Listener<ChatNode>() {
-
-			@Override
-			public void onAdded(int index, ChatNode chatNode) {
-				addChatPanelFor(chatNode);
-			}
-
-			@Override
-			public void onRemoved(int index, ChatNode chat) {
-				var frame = frames.remove(chat);
-				frame.dispose();
-			}
-
-			@Override
-			public void onSet(int index, ChatNode oldElement, ChatNode newElement) {
-				throw new UnsupportedOperationException("not implemented yet");
-			}
-		});
-	}
-
-	private void addChatPanelFor(ChatNode chatNode) {
-		var ref = frames.isEmpty() ? null : frames.values().iterator().next();
-		var f = new JFrame();
-		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
-
-		if (ref == null) {
-			f.setSize(Utils.initialSize);
-			f.setLocation(0, 0);
-		} else {
-			f.setSize(ref.getSize());
-			var location = ref.getLocation();
-			location.x += ref.getSize().width;
-			f.setLocation(location);
-		}
-
-		var chatPanel = new ChatPanel(chatNode);
-		f.setContentPane(chatPanel);
-		frames.put(chatNode, f);
-		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
-		f.setVisible(true);
+		f.getContentPane().removeAll();
+		var panelList = newUser.chatList.elements.stream().map(c -> new ChatPanel(c)).toList();
+		var p = new JPanel(new GridLayout(1, panelList.size()));
+		panelList.forEach(p::add);
+		f.setContentPane(p);
 	}
 
 	@Override

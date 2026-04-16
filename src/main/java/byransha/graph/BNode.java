@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -85,6 +86,8 @@ public abstract class BNode {
 			this.g = g;
 			this.g.indexes.add(this);
 		}
+
+		g.eventList.add(new NewNodeEvent<>(this));
 	}
 
 	public <N extends BNode> ListNode<N> exec(String label, Class<N> c, Function<N, ListNode> f) {

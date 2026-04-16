@@ -4,11 +4,17 @@ import java.io.File;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 
 public class FileNode extends BNode {
 	public File file;
 
-	protected FileNode(BGraph g) {
+	@ShowInKishanView
+	public StringNode name() {
+		return new StringNode(g, file.getName(), ".+");
+	}
+
+	public FileNode(BGraph g) {
 		super(g);
 	}
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html

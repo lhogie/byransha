@@ -17,7 +17,7 @@ public class InMemoryEventList extends EventList {
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public void add(Event e) {
 		int index = Collections.binarySearch(q, e);
 
 		if (index > 0)

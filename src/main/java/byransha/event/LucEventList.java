@@ -25,7 +25,7 @@ public class LucEventList extends SegmentedFilesEventList {
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public void add(Event e) {
 		var q = getLocalList(e);
 
 		if (q.f.length() > threshold) {

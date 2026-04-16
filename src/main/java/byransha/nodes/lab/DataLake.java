@@ -16,15 +16,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
+import byransha.graph.ShowInKishanView;
+import byransha.nodes.primitive.FileNode;
 import byransha.util.Cout;
 
 public class DataLake extends BNode {
-
-	public final File dir;
+	@ShowInKishanView
+	public final FileNode dir;
 
 	public DataLake(BGraph g, File dir) {
 		super(g);
-		this.dir = dir;
+		this.dir = new FileNode(g);
+		this.dir.file = dir;
 	}
 
 	static JsonNode countryCodes;
@@ -85,23 +88,23 @@ public class DataLake extends BNode {
 
 	@Override
 	public String toString() {
-		return "datalake at " + dir.getAbsolutePath();
+		return "datalake at " + dir.file.getAbsolutePath();
 	}
 
 	public void load(Lab i3s) throws IOException {
 		if (dir == null)
 			throw new NullPointerException();
 
-		if (!dir.exists() || !dir.isDirectory())
+		if (!dir.file.exists() || !dir.file.isDirectory())
 			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
 		Cout.progress("Loading datalake from " + dir);
-		loadCountries(g, dir);
+		loadCountries(g, dir.file);
 
-		ACMClassifier.createNodes(g, dir);
+		ACMClassifier.createNodes(g, dir.file);
 
 		Cout.progress("\tLoading nationalities");
-		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
+		Files.readAllLines(new File(dir.file, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
 			var c = new Nationality(g);
 			c.set(l);
 		});
@@ -128,7 +131,7 @@ public class DataLake extends BNode {
 		}
 
 		Cout.progress("\tLoading old TBRH");
-		new OldTBRH().loadOLDTBRH(i3s, new File(dir, "i3s/tbrh"));
+		new OldTBRH().loadOLDTBRH(i3s, new File(dir.file, "i3s/tbrh"));
 
 		Cout.progress("End loading");
 

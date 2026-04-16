@@ -3,6 +3,7 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +79,7 @@ public abstract class ValuedNode<V> extends BNode {
 		}
 
 		if (g.eventList != null) {
-//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), id(), oldValue, newValue));
+			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), this, oldValue, newValue));
 		}
 	}
 

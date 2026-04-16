@@ -15,9 +15,14 @@ public class SingleFileEventList extends InMemoryEventList {
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public void add(Event e) {
+		System.out.println("adding event " + e);
 		super.add(e);
-		ser.write(this, f);
+		try {
+			ser.write(this, f);
+		} catch (IOException e1) {
+			e.g.error(e1);
+		}
 	}
 
 	@Override

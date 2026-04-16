@@ -58,7 +58,7 @@ public class Main {
 	}
 
 	private static Event createPersonEvent(String name) {
-		var e = new CreateNewNode<Person>(g, LocalDateTime.now());
+		var e = new NewNodeEvent<Person>(g, LocalDateTime.now());
 		e.clazz = Person.class;
 		return e;
 	}

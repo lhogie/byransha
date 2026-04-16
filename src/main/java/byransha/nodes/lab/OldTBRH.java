@@ -13,10 +13,10 @@ import byransha.util.Stop;
 
 class OldTBRH {
 	public void loadOLDTBRH(Lab i3s, File inputDir) throws IOException {
-		loadPersonnel(i3s, inputDir);
+		loadPersonnelIT(i3s, inputDir);
 	}
 
-	private static void loadPersonnel(Lab i3s, File extractionDir) throws IOException {
+	private static void loadPersonnelIT(Lab i3s, File extractionDir) throws IOException {
 
 		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
 

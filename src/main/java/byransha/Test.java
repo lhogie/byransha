@@ -2,8 +2,8 @@ package byransha;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.BusinessNode;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.lab.BusinessNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Test {

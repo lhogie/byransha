@@ -59,7 +59,7 @@ public abstract class EventList extends BNode {
 
 	protected abstract void forEachEvent(Consumer<Event> c);
 
-	public abstract void add(Event e) throws IOException;
+	public abstract void add(Event e);
 
 	public abstract Event forward() throws Throwable;
 

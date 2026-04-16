@@ -1,10 +1,7 @@
-package byransha.nodes.lab;
+package byransha.graph;
 
-import byransha.graph.BGraph;
-import byransha.graph.BNode;
-import byransha.graph.DocumentNode;
-import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.nodes.lab.Issue;
 
 public abstract class BusinessNode extends BNode {
 	@ShowInKishanView

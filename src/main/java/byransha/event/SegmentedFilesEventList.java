@@ -32,7 +32,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public void add(Event e) {
 		var f = getFileStoring(e.id());
 
 		if (f == currentSegment.f) {

@@ -11,11 +11,17 @@ import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
-public class CreateNewNode<N extends BNode> extends Event {
+public class NewNodeEvent<N extends BNode> extends Event {
 	Class<N> clazz;
-	int nodeId = -1;
+	long nodeId = -1;
 
-	public CreateNewNode(BGraph g, LocalDateTime date) {
+	public NewNodeEvent(BNode n) {
+		super(n.g, LocalDateTime.now());
+		this.clazz = (Class<N>) n.getClass();
+		this.nodeId = n.id;
+	}
+
+	public NewNodeEvent(BGraph g, LocalDateTime date) {
 		super(g, date);
 	}
 
@@ -37,14 +43,14 @@ public class CreateNewNode<N extends BNode> extends Event {
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeObject(clazz);
-		out.writeInt(nodeId);
+		out.writeLong(nodeId);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal(in);
 		clazz = (Class) in.readObject();
-		nodeId = in.readInt();
+		nodeId = in.readLong();
 	}
 
 }

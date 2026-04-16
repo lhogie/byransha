@@ -1,6 +1,9 @@
 package byransha.graph;
 
 public class Category {
+	public class chatpanel extends Category{
+
+	}
 	public static class list extends Category {
 	}
 	public static class filter extends Category {

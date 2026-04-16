@@ -56,9 +56,7 @@ public abstract class Translator extends BNode {
 
 		targetLanguage.valueChangeListeners.add((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
-				new Thread(() -> {
-					g.swing.frames.values().forEach(f -> translateRecursively(f.getContentPane(), new HashSet<>()));
-				}).start();
+				new Thread(() -> translateRecursively(g.swing.f.getContentPane(), new HashSet<>())).start();
 			}
 		});
 	}

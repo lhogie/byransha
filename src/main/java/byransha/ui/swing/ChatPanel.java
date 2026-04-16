@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -26,16 +25,12 @@ import byransha.util.ListenableList;
 
 public class ChatPanel extends JPanel {
 
-	public interface CloseListener {
-		void onClose(ChatPanel panel);
-	}
-
-	public CloseListener closeListener;
-	private final ChatSheet sheet;
+	public ChatPanelCloseListener closeListener;
+	public final ChatSheet sheet;
 	private ChatPanelNode node;
 
 	public ChatPanel(ChatNode chat) {
-		this.node = new ChatPanelNode(chat.g);
+		this.node = new ChatPanelNode(chat.g, this);
 
 		setLayout(new BorderLayout());
 		setBackground(chat.g.swing.backgroundColor.get());
@@ -79,25 +74,6 @@ public class ChatPanel extends JPanel {
 			{
 				JPanel topBar = new WrapPanel();
 				topBar.setOpaque(false);
-
-				topBar.add(addButton("organize frames", "auto_awesome_mosaic_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> WindowGridManager.arrangeInGrid(new ArrayList<>(chat.g.swing.frames.values()))));
-				topBar.add(addButton("clear chat", "ink_eraser_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.nodes.elements.clear()));
-				topBar.add(addButton("go the root node", "home_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g.application)));
-				topBar.add(addButton("settings", "settings_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g)));
-				topBar.add(addButton("jump to a specific node", "search_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(new JumpToAnotherNode(chat.g))));
-				topBar.add(addButton("see the current user", "user_attributes_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g.getCurrentUser())));
-				topBar.add(addButton("authenticate a new user", "person_check_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> chat.append(chat.g.authenticatorNode)));
-				topBar.add(addButton("see the node corresponding to this chat",
-						"chat_info_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24", e -> chat.append(chat)));
-				topBar.add(addButton("starts a new chat", "add_24dp_1F1F1F_FILL0_wght400_GRAD0_opsz24",
-						e -> new ChatNode(chat.g.getCurrentUser())));
 				topBar.add(node.createBall(20, 20, chat));
 				mousePanel.add(topBar, BorderLayout.NORTH);
 			}
@@ -182,7 +158,7 @@ public class ChatPanel extends JPanel {
 		return b;
 	}
 
-	public void setCloseListener(CloseListener listener) {
+	public void setCloseListener(ChatPanelCloseListener listener) {
 		this.closeListener = listener;
 	}
 }
