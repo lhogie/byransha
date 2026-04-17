@@ -33,9 +33,13 @@ public class SingleFileEventList extends InMemoryEventList {
 		return e;
 
 	}
+	@Override
+	public String toString() {
+		return whatIsThis();
+	}
 
 	@Override
 	public String whatIsThis() {
-		return "an event-list backed up in a file";
+		return "single file: " + f.getPath();
 	}
 }

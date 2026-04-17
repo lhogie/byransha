@@ -9,5 +9,5 @@ public abstract class Authenticator implements BiPredicate<String, String> {
 	public static class security extends Category {
 	}
 
-	public abstract String authenticationMethods();
+	public abstract String authenticationMethod();
 }

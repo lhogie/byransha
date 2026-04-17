@@ -66,7 +66,7 @@ public abstract class Action<T extends BNode> extends BNode {
 
 	@Override
 	public String toString() {
-		return ByUtils.camelToWords(getClass().getSimpleName()).replaceAll(" view", "");
+		return whatItDoes();
 	}
 
 	public String technicalName() {

@@ -14,18 +14,24 @@ public class ChatSheet extends Sheet {
 	public ChatSheet(ChatNode chat) {
 		super();
 		this.chat = chat;
-//		Utils.idDropTarget(chat.g, this, n -> chat.nodes.elements.add(n));
+		Utils.idDropTarget(chat.g(), this, n -> chat.nodes.elements.add(n));
 	}
 
 	void appendNode(BNode n) {
-		if (!chat.nodes.elements.isEmpty()) {
+		if (getComponentCount() > 1) {
 			add(new JSeparator());
 			newLine();
 		}
+		
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		appendToCurrentLine(n.createBall(20, 0, chat));
+		appendToCurrentLine("path:");
+		n.path().elements.forEach(e -> {
+			appendToCurrentLine(e.createBall(20, 20, chat));
+			appendToCurrentLine(e.toString());
+		});
+		newLine();
 		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();

@@ -21,10 +21,14 @@ public class AuthAction extends Action {
 		var p = password.get();
 		var g = g();
 
-		if (!(u == null || u.isBlank() || p == null || p.isBlank() || !g.authenticator.test(u, p))) {
+		if (!(u == null || u.isBlank() || p == null || p.isBlank() || !g.authenticatorMethod.test(u, p))) {
 			g.currentUser = g.indexes.byClass.forEachNodeAssignableTo(User.class,
 					uu -> Stop.stopIf(uu.name.get().equals(u)));
 		}
+	}
+	@Override
+	public String toString() {
+		return g().authenticatorMethod.authenticationMethod();
 	}
 
 	@Override
@@ -34,7 +38,7 @@ public class AuthAction extends Action {
 
 	@Override
 	public String whatItDoes() {
-		return g().authenticator.authenticationMethods() + " authentication";
+		return g().authenticatorMethod.authenticationMethod() + " authentication";
 	}
 
 }

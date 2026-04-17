@@ -46,7 +46,7 @@ public class LdapAuthenticator extends Authenticator {
 	}
 
 	@Override
-	public String authenticationMethods() {
+	public String authenticationMethod() {
 		return "LDAP";
 	}
 

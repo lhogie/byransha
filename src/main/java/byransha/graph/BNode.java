@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -98,6 +99,19 @@ public abstract class BNode {
 
 	public int depth() {
 		return parent == null ? 0 : parent.depth() + 1;
+	}
+
+	public ListNode<BNode> path() {
+		var r = new ListNode<BNode>(this, "path", BNode.class);
+		var a = this;
+
+		while (a != null) {
+			r.elements.add(a);
+			a = a.parent;
+		}
+
+		Collections.reverse(r.elements);
+		return r;
 	}
 
 	protected <N extends BNode> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
@@ -240,12 +254,12 @@ public abstract class BNode {
 	}
 
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
-			TriConsumer<Method, BNode, Boolean> consumer) {
+			BiConsumer<Method, BNode> consumer) {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
 				try {
 					var outNode = (BNode) m.invoke(this);
-					consumer.accept(m, outNode, outNode.isReadOnly());
+					consumer.accept(m, outNode);
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					error(e);
 				}
@@ -255,7 +269,7 @@ public abstract class BNode {
 
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
 		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
-		forEachOutInMethods(getClass(), BNode.class, (m, o, ro) -> consumer.accept(o, m.getName()));
+		forEachOutInMethods(getClass(), BNode.class, (m, o) -> consumer.accept(o, m.getName()));
 	}
 
 	public void createActions() {
@@ -463,7 +477,6 @@ public abstract class BNode {
 		return Base62.encode(id());
 	}
 
-	@ShowInKishanView
 	public ClassNode<?> type() {
 		return g().indexes.byClass.getClassNodeFor(getClass());
 	}
@@ -478,7 +491,7 @@ public abstract class BNode {
 	}
 
 	public void writeKishanView(ChatSheet sheet) {
-		int fieldNameSize = fieldMaxLenght();
+		int fieldNameSize = fieldMaxLength();
 
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this) {
@@ -487,7 +500,7 @@ public abstract class BNode {
 			}
 		});
 
-		forEachOutInMethods(getClass(), BNode.class, (method, out, readOnly) -> {
+		forEachOutInMethods(getClass(), BNode.class, (method, out) -> {
 			if (out != this) {
 				fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
 				sheet.newLine();
@@ -495,13 +508,13 @@ public abstract class BNode {
 		});
 	}
 
-	private int fieldMaxLenght() {
+	private int fieldMaxLength() {
 		int[] max = { 0 };
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this)
 				max[0] = Math.max(max[0], f.getName().length());
 		});
-		forEachOutInMethods(getClass(), BNode.class, (m, out, readOnly) -> {
+		forEachOutInMethods(getClass(), BNode.class, (m, out) -> {
 			if (out != this)
 				max[0] = Math.max(max[0], m.getName().length());
 		});

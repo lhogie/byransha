@@ -18,6 +18,7 @@ public class ByClass extends Index {
 	public final BGraph g;
 
 	public ByClass(BGraph g) {
+		super(g);
 		this.g = g;
 	}
 

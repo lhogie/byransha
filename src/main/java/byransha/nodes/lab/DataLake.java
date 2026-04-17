@@ -24,6 +24,10 @@ public class DataLake extends BNode {
 	@ShowInKishanView
 	public final FileNode dir;
 
+	public DataLake(BGraph g) {
+		this(g, null);
+	}
+	
 	public DataLake(BGraph g, File dir) {
 		super(g);
 		this.dir = new FileNode(g);

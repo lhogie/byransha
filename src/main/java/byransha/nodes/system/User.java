@@ -2,12 +2,16 @@ package byransha.nodes.system;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class User extends BNode {
+	@ShowInKishanView
 	public final StringNode name;
+	@ShowInKishanView
 	public final StringNode passwordNode;
+	@ShowInKishanView
 	public final ListNode<ChatNode> chatList = new ListNode<>(parent, "chats", ChatNode.class);
 
 	public User(BGraph g, String userName) {

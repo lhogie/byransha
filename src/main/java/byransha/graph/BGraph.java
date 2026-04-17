@@ -24,24 +24,36 @@ import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
 	public AllIndexes indexes = new AllIndexes(this);
+	@ShowInKishanView
 	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
 
-	public Authenticator authenticator = new LdapAuthenticator(null, null, null, readOnly);
-	public AuthAction authenticatorNode = new AuthAction(this);
+	public Authenticator authenticatorMethod = new LdapAuthenticator(null, null, null, readOnly);
+	@ShowInKishanView
+	public AuthAction authenticator = new AuthAction(this);
 
+	@ShowInKishanView
 	public BNode application;
+	@ShowInKishanView
 	public final JVMNode jvm = new JVMNode(this);
+	@ShowInKishanView
 	public final Byransha byransha = new Byransha(this);
+	@ShowInKishanView
 	public final OSNode os = new OSNode(this);
+	@ShowInKishanView
 	public final ErrorLog errorLog = new ErrorLog(this);
+	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
+	@ShowInKishanView
 	public SwingFrontend swing;
+	@ShowInKishanView
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
+	@ShowInKishanView
 	public final Translator translator = new GoogleTranslator(this);
 //	public final Authenticate auth = new LdapAuthenticator(this);
+
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
 	class graph extends Category {
@@ -56,6 +68,7 @@ public class BGraph extends BNode {
 		new NotGenred(this);
 	}
 
+	@ShowInKishanView
 	public User currentUser;
 
 	public void setCurrentUser(User newUser) {

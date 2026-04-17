@@ -25,6 +25,10 @@ public abstract class SegmentedFilesEventList extends EventList {
 		this.directory = directory;
 		this.directory.mkdirs();
 	}
+	@Override
+	public String toString() {
+		return "path: " + directory.getAbsolutePath();
+	}
 
 	@Override
 	public String whatIsThis() {

@@ -7,6 +7,7 @@ import byransha.graph.list.action.ListNode;
 import byransha.nodes.system.SystemNode;
 
 public class ErrorLog extends SystemNode {
+	@ShowInKishanView
 	public final ListNode<ExceptionNode> errors = new ListNode<>(parent, "error(s)", ExceptionNode.class);
 
 	public ErrorLog(BGraph g) {
@@ -20,7 +21,7 @@ public class ErrorLog extends SystemNode {
 
 	@Override
 	public String toString() {
-		return "error log";
+		return errors.elements.size() + " error(s)";
 	}
 
 	public ExceptionNode add(Throwable err) {

@@ -8,7 +8,7 @@ public class AcceptAllAuthenticator extends Authenticator {
 	}
 
 	@Override
-	public String authenticationMethods() {
+	public String authenticationMethod() {
 		return "no";
 	}
 }

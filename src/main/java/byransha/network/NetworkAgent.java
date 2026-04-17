@@ -113,6 +113,9 @@ public class NetworkAgent extends BNode {
 		}, "network agent UDP reception thread").start();
 	}
 
+	
+	
+	
 	public static PrivateKey readPrivateKey(Path path) throws Exception {
 		String pem = Files.readString(path);
 
@@ -237,6 +240,6 @@ public class NetworkAgent extends BNode {
 
 	@Override
 	public String toString() {
-		return "network agent";
+		return "received: " + packetReceived+ ", sent: " + packetSent;
 	}
 }
