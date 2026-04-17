@@ -16,7 +16,7 @@ public class NewNodeEvent<N extends BNode> extends Event {
 	long nodeId = -1;
 
 	public NewNodeEvent(BNode n) {
-		super(n.g, LocalDateTime.now());
+		super(n.g(), LocalDateTime.now());
 		this.clazz = (Class<N>) n.getClass();
 		this.nodeId = n.id;
 	}

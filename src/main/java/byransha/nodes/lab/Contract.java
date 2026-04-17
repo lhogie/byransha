@@ -8,17 +8,17 @@ import byransha.nodes.primitive.StringNode;
 
 public class Contract extends BusinessNode {
 	@ShowInKishanView
-	public final StringNode name = new StringNode(g);
+	public final StringNode name = new StringNode(parent);
 	@ShowInKishanView
 	public Person holder;
 	@ShowInKishanView
-	public final ListNode<Person> subHolders = new ListNode<>(g, "subHolder(s)", Person.class);
+	public final ListNode<Person> subHolders = new ListNode<>(parent, "subHolder(s)", Person.class);
 	@ShowInKishanView
-	public final ListNode<Person> coordinators = new ListNode<>(g, "coordinators", Person.class);
+	public final ListNode<Person> coordinators = new ListNode<>(parent, "coordinators", Person.class);
 	@ShowInKishanView
-	public final ListNode<Person> partners = new ListNode<>(g, "partners", Person.class);
+	public final ListNode<Person> partners = new ListNode<>(parent, "partners", Person.class);
 	@ShowInKishanView
-	public final ListNode<Person> misc = new ListNode<>(g, "misc", Person.class);
+	public final ListNode<Person> misc = new ListNode<>(parent, "misc", Person.class);
 
 	public Contract(BGraph g) {
 		super(g);

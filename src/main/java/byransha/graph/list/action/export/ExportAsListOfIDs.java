@@ -22,7 +22,7 @@ public class ExportAsListOfIDs extends FunctionAction<ListNode<? extends BNode>,
 
 	@Override
 	public void impl() {
-		result = new TextNode(g, "list of node IDs",
+		result = new TextNode(parent, "list of node IDs",
 				inputNode.elements.stream().map(n -> n.idAsText()).collect(Collectors.joining("\n")));
 	}
 

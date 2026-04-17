@@ -25,9 +25,9 @@ public class ChatPanelNode extends BNode {
 		cachedActions.elements.add(new Explode(this));
 		cachedActions.elements.add(new ShowSuperNode(this));
 		cachedActions.elements.add(new ShowApplication(this));
-		cachedActions.elements.add(new JumpToAnotherNode(g));
+		cachedActions.elements.add(new JumpToAnotherNode(parent));
 //		cachedActions.elements.add(chat);
-		cachedActions.elements.add(new JumpToAnotherNode(g));
+		cachedActions.elements.add(new JumpToAnotherNode(parent));
 		super.createActions();
 	}
 

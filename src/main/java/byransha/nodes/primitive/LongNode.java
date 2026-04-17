@@ -15,7 +15,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.ui.swing.ChatSheet;
@@ -27,12 +26,12 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	public Bounds bounds;
 
-	public LongNode(BGraph g) {
-		super(g);
+	public LongNode(BNode parent) {
+		super(parent);
 	}
 
 	public LongNode(BNode parent, long value) {
-		super(parent.g);
+		this(parent);
 		set(value);
 	}
 

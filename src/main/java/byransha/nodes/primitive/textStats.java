@@ -22,7 +22,7 @@ public class textStats extends FunctionAction<TextNode, TextNode> {
 		int words = text.split("\\s+").length;
 		int characters = text.length();
 
-		result = new TextNode(g, "text stats",
+		result = new TextNode(parent, "text stats",
 				String.format("lines: %d\nwords: %d\ncharacters: %d", lines, words, characters));
 	}
 

@@ -128,8 +128,8 @@ public class Utils {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					var list = new ListNode(chat.g, "all nodes of class " + clazz.getName(), clazz);
-					list.elements.addAll(chat.g.indexes.byClass.m.get(clazz));
+					var list = new ListNode(chat.parent, "all nodes of class " + clazz.getName(), clazz);
+					list.elements.addAll(chat.g().indexes.byClass.m.get(clazz));
 					var newChat = new ChatNode(chat.currentUser());
 					newChat.append(list);
 				}

@@ -42,7 +42,7 @@ public class ChatSheet extends Sheet {
 						chat.append(fa.result);
 					}
 				} catch (Throwable err) {
-					chat.append(chat.error(err, false));
+					chat.append(chat.error(err));
 				}
 			});
 			appendToCurrentLine(b);
@@ -62,7 +62,7 @@ public class ChatSheet extends Sheet {
 	}
 
 	public void appendToCurrentLine(String s) {
-		super.appendToCurrentLine(s, chat.g.translator);
+		super.appendToCurrentLine(s, chat.g().translator);
 	}
 
 }

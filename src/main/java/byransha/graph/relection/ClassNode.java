@@ -2,7 +2,9 @@ package byransha.graph.relection;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -11,6 +13,7 @@ import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.nodes.Factory;
 import byransha.nodes.primitive.MapNode;
 import byransha.nodes.primitive.StringNode;
 import net.sourceforge.plantuml.FileFormat;
@@ -64,11 +67,11 @@ public class ClassNode<T extends BNode> extends BNode {
 	}
 
 	public void link() {
-		this.interfaces = new ListNode<ClassNode>(g, "interfaces", ClassNode.class);
-		this.aggregations = new MapNode<>(g, "aggregations");
+		this.interfaces = new ListNode<ClassNode>(parent, "interfaces", ClassNode.class);
+		this.aggregations = new MapNode<>(this, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
-			var superInterfaceNode = g.indexes.byClass.findFirst(ClassNode.class,
+			var superInterfaceNode = g().indexes.byClass.findFirst(ClassNode.class,
 					n -> n.representedClass == superInterface);
 
 			if (superInterfaceNode != null) {
@@ -76,7 +79,7 @@ public class ClassNode<T extends BNode> extends BNode {
 			}
 		}
 
-		this.superClass = g.indexes.byClass.findFirst(ClassNode.class,
+		this.superClass = g().indexes.byClass.findFirst(ClassNode.class,
 				n -> n.representedClass == representedClass.getSuperclass());
 
 		{
@@ -94,7 +97,7 @@ public class ClassNode<T extends BNode> extends BNode {
 			}
 
 			for (var a : set) {
-				var classNode = g.indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == a.c);
+				var classNode = g().indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == a.c);
 
 				if (classNode != null) {
 					aggregations.map.put(a.name, classNode);
@@ -167,20 +170,42 @@ public class ClassNode<T extends BNode> extends BNode {
 		return new String(out.toByteArray());
 	}
 
-	public BNode newInstance() {
+	public T newInstance(BNode parent) {
 		try {
-			return (BNode) representedClass.getConstructor(BGraph.class).newInstance(g);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException err) {
-			g.errorLog.add(err);
+			return constructor().newInstance(parent);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException err) {
+			g().errorLog.add(err);
 			throw new IllegalStateException(err);
 		}
 	}
 
+	public Constructor<T> constructor() {
+		var candidates = new ArrayList<Constructor<T>>();
+
+		for (var c : representedClass.getConstructors()) {
+			if (c.getParameterCount() == 1 && BNode.class.isAssignableFrom(c.getParameterTypes()[0])) {
+				candidates.add((Constructor<T>) c);
+			}
+		}
+
+		if (candidates.size() == 1) {
+			return candidates.getFirst();
+		}
+
+		for (var c : candidates) {
+			if (c.isAnnotationPresent(Factory.class)) {
+				return c;
+			}
+		}
+
+		throw new IllegalStateException(representedClass + "");
+	}
+
 	@ShowInKishanView
 	public ListNode<T> allInstances() {
-		var l = new ListNode<T>(g, "instances of " + representedClass.getSimpleName(), representedClass);
-		g.indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
+		var l = new ListNode<T>(parent, "instances of " + representedClass.getSimpleName(), representedClass);
+		g().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
 		return l;
 	}
 

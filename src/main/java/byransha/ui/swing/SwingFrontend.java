@@ -24,13 +24,13 @@ import byransha.util.ListenableList;
 public class SwingFrontend extends SystemNode {
 	@ShowInKishanView
 	public final ColorSchemeNode colorStyle = List.of(ColorPalette.Style.values()).stream()
-			.map(s -> new ColorSchemeNode(g, s)).toList().getFirst();
+			.map(s -> new ColorSchemeNode(this, s)).toList().getFirst();
 	@ShowInKishanView
 	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	@ShowInKishanView
-	public final ListNode<FontNode> fonts = new ListNode<>(g, "available fonts", FontNode.class);
+	public final ListNode<FontNode> fonts = new ListNode<>(parent, "available fonts", FontNode.class);
 	public final JFrame f;
 
 	public SwingFrontend(BGraph g) {

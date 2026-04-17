@@ -10,7 +10,7 @@ public class renameFile extends ProcedureAction<FileNode> {
 
 	public renameFile(FileNode inputNode) {
 		super(inputNode, file.class);
-		this.newName = new StringNode(g, inputNode.file.getName(), ".+");
+		this.newName = new StringNode(parent, inputNode.file.getName(), ".+");
 	}
 
 	@Override

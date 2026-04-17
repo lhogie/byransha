@@ -33,15 +33,15 @@ public class ListNode<T extends BNode> extends BNode {
 	public Class<T> contentClass;
 
 
-	public ListNode(BGraph g, String label, Class<T> contentClass) {
-		super(g);
+	public ListNode(BNode parent, String label, Class<T> contentClass) {
+		super(parent);
 		this.label = label;
 		this.contentClass = contentClass;
 	}
 
 	@ShowInKishanView
 	public ClassNode<T> contentClass() {
-		return g.indexes.byClass.getClassNodeFor(contentClass);
+		return g().indexes.byClass.getClassNodeFor(contentClass);
 	}
 
 	public void selectAll() {
@@ -214,7 +214,7 @@ public class ListNode<T extends BNode> extends BNode {
 	
 	@Override
 	protected void writeToKishanView(ChatSheet sheet) {
-		var label = new TextDisplayComponent(g.translator, label());
+		var label = new TextDisplayComponent(g().translator, label());
 		sheet.currentLine.add(label);
 		sheet.newLine();
 		final var line = sheet.currentLine;

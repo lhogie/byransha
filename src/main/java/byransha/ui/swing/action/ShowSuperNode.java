@@ -18,7 +18,7 @@ public class ShowSuperNode extends FunctionAction<ChatPanelNode, BGraph> {
 
 	@Override
 	protected void impl() throws Throwable {
-		result = g;
+		result = g();
 	}
 
 	@Override

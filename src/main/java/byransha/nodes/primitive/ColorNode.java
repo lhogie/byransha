@@ -19,7 +19,7 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	}
 
 	public ColorNode(BNode parent, Color c) {
-		super(parent.g);
+		super(parent.parent);
 		set(c);
 	}
 

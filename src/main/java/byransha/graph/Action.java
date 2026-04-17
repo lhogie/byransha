@@ -16,20 +16,20 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.util.ByUtils;
 
-public abstract class Action extends BNode {
+public abstract class Action<T extends BNode> extends BNode {
 	public boolean stopRequested = false;
 	private Thread thread;
-	public final Class<? extends Category>[] category;
-	public final LongNode durationMs = new LongNode(g);
+	public final Class<? extends Category>[] path;
+	public final LongNode durationMs = new LongNode(this);
 	public ChatNode chat;
 	public Consumer<Object> outputConsumer;
 	public Consumer<Double> progressConsumer;
 	public JProgressBar progressBar;
 	public boolean confirmationRequired = false;
 
-	public Action(BGraph g, Class<? extends Category>... category) {
-		super(g);
-		this.category = category;
+	public Action(T parent, Class<? extends Category>... pathInMenu) {
+		super(parent);
+		this.path = pathInMenu;
 	}
 
 	public List<BNode> parameters() {
@@ -51,7 +51,7 @@ public abstract class Action extends BNode {
 	@Override
 	public ObjectNode describeAsJSON() {
 		var r = (ObjectNode) super.describeAsJSON();
-		r.put("canExecute", canExecute(g.getCurrentUser()));
+		r.put("canExecute", canExecute(g().getCurrentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;
 	}
@@ -83,7 +83,7 @@ public abstract class Action extends BNode {
 				impl();
 				this.durationMs.set(System.currentTimeMillis() - startDateMs);
 			} catch (Throwable err) {
-				g.error(err);
+				parent.error(err);
 			}
 		});
 

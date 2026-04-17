@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 /*
  * https://codimd.math.cnrs.fr/_ivy9aRUQK2o4ue-p9RHKg?both
@@ -12,14 +13,14 @@ import byransha.graph.BGraph;
 
 public class I3S extends Lab {
 
-	public I3S(BGraph g) {
+	public I3S(BNode g) {
 		super(g);
 		name.set("I3S");
 
 
 		
-		var lakeD = new File(g.byransha.configDirectory, "data_lake");
-		var lake = new DataLake(this.g, lakeD);
+		var lakeD = new File(g().byransha.configDirectory, "data_lake");
+		var lake = new DataLake(g(), lakeD);
 
 		try {
 			lake.load(this);

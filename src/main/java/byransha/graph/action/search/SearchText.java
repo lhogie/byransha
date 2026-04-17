@@ -5,13 +5,11 @@ import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
 
 public class SearchText extends Search {
-	public StringNode searchText;
-	public BooleanNode caseSensitive;
+	public final StringNode searchText = new StringNode(this, "", ".*");
+	public final BooleanNode caseSensitive = new BooleanNode(this, false);
 
-	public SearchText( BNode src) {
-		super( src);
-		searchText = new StringNode(g, "", ".*");
-		caseSensitive = new BooleanNode(g, false);
+	public SearchText(BNode src) {
+		super(src);
 	}
 
 	@Override

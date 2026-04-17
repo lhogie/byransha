@@ -11,8 +11,8 @@ public abstract class SegmentedFilesEventList extends EventList {
 	private final File directory;
 
 	static class Segment extends SingleFileEventList {
-		public Segment(BGraph g, File f) {
-			super(g, f);
+		public Segment(SegmentedFilesEventList parent, File f) {
+			super(parent, f);
 		}
 	}
 
@@ -38,7 +38,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 		if (f == currentSegment.f) {
 			currentSegment.add(e);
 		} else {
-			var s = new Segment(g, f);
+			var s = new Segment(this, f);
 			s.add(e);
 		}
 	}
@@ -51,7 +51,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 			if (f == currentSegment.f) {
 				currentSegment.forEachEvent(c);
 			} else {
-				new Segment(g, f).forEachEvent(c);
+				new Segment(this, f).forEachEvent(c);
 			}
 		});
 	}
@@ -61,7 +61,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 	@Override
 	public Event forward() throws Throwable {
 		if (currentSegment.forward() == null) {
-			currentSegment = new Segment(g, nextSegment(currentSegment.f));
+			currentSegment = new Segment(this, nextSegment(currentSegment.f));
 
 			if (currentSegment == null) {
 				return null;
@@ -80,7 +80,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 	@Override
 	public Event rewind() throws Throwable {
 		if (currentSegment.rewind() == null) {
-			currentSegment = new Segment(g, previousSegment(currentSegment.f));
+			currentSegment = new Segment(this, previousSegment(currentSegment.f));
 
 			if (currentSegment == null) {
 				return null;
@@ -98,7 +98,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 		if (f == currentSegment.f) {
 			return currentSegment.findEvent(eventID);
 		} else {
-			return new Segment(g, f).findEvent(eventID);
+			return new Segment(this, f).findEvent(eventID);
 		}
 	}
 
@@ -109,7 +109,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 		if (f == currentSegment.f) {
 			return currentSegment.remove(eventID);
 		} else {
-			return new Segment(g, f).remove(eventID);
+			return new Segment(this, f).remove(eventID);
 		}
 	}
 

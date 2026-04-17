@@ -39,7 +39,7 @@ public class NetworkAgent extends BNode {
 	public static final int port = 9876;
 	final StringNode publicKeyInfo;
 	final StringNode inOutInfo;
-	public final ListNode<PeerNode> peers= new ListNode<>(g, "peers", PeerNode.class);
+	public final ListNode<PeerNode> peers= new ListNode<>(parent, "peers", PeerNode.class);
 	String name;
 	DatagramSocket socket;
 	private int packetReceived;
@@ -154,14 +154,14 @@ public class NetworkAgent extends BNode {
 		var received = serializer.fromBytes(msg.data);
 
 		if (received instanceof Ack ack) {
-			g.eventList.findEvent(ack.id).markReceivedBy(from);
+			g().eventList.findEvent(ack.id).markReceivedBy(from);
 		} else if (received instanceof Event e) {
-			var alreadyKnownEvent = g.eventList.findEvent(e.id());
+			var alreadyKnownEvent = g().eventList.findEvent(e.id());
 
 			if (alreadyKnownEvent != null) {
 				alreadyKnownEvent.markReceivedBy(from);
 			} else {
-				g.eventList.add(e);
+				g().eventList.add(e);
 				e.markReceivedBy(from);
 			}
 
@@ -197,7 +197,7 @@ public class NetworkAgent extends BNode {
 	
 
 	public PeerNode findPeer(int id) {
-		for (var p : g.networkAgent.peers.get()) {
+		for (var p : g().networkAgent.peers.get()) {
 			if (p.id == id) {
 				return p;
 			}

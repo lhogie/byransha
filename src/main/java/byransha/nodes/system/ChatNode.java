@@ -13,11 +13,11 @@ import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class ChatNode extends BNode {
-	public ListNode<BNode> nodes = new ListNode<>(g, "history", BNode.class);
+	public ListNode<BNode> nodes = new ListNode<>(parent, "history", BNode.class);
 	final User user;
 
 	public ChatNode(User user) {
-		super(user.g);
+		super(user.parent);
 		this.user = user;
 		user.chatList.elements.add(this);
 	}
@@ -33,7 +33,7 @@ public class ChatNode extends BNode {
 
 		if (n instanceof Action action) {
 			if (action.parameters().isEmpty()) {
-				action.outputConsumer = feedback -> append(new StringNode(g, (String) feedback, ".*"));
+				action.outputConsumer = feedback -> append(new StringNode(parent, (String) feedback, ".*"));
 				action.chat = this;
 				action.execSync();
 

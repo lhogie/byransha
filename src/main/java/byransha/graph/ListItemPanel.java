@@ -63,7 +63,7 @@ public class ListItemPanel extends JPanel {
 					setBorder(new LineBorder(Color.lightGray, 1));
 				} else {
 					list.selection.add(node);
-					setBorder(new LineBorder(chat.g.swing.backgroundColor.get(), 1));
+					setBorder(new LineBorder(chat.g().swing.backgroundColor.get(), 1));
 				}
 			}
 		};

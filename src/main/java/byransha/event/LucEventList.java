@@ -50,11 +50,11 @@ public class LucEventList extends SegmentedFilesEventList {
 			var f = new File(directory, concatPath(pathElements, i) + "/events.ser");
 
 			if (f.exists()) {
-				return new SingleFileEventList(g, f);
+				return new SingleFileEventList(parent, f);
 			}
 		}
 
-		return new SingleFileEventList(g, new File(directory, "events.ser"));
+		return new SingleFileEventList(parent, new File(directory, "events.ser"));
 	}
 
 	private String concatPath(int[] pathElements, int i) {

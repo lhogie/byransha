@@ -19,9 +19,9 @@ public abstract class EventList extends BNode {
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
 	Key encryptionKey = AES.createStringBasedOnHardware();
 
-	public EventList(BGraph g) {
-		super(g);
-		status = new StringNode(g);
+	public EventList(BNode parent) {
+		super(parent);
+		status = new StringNode(parent);
 
 		new Thread(() -> {
 			while (true) {
@@ -31,7 +31,7 @@ public abstract class EventList extends BNode {
 					if (e.owners.size() < 1) {
 						try {
 							candidates.add(e);
-							g.networkAgent.send(e);
+							g().networkAgent.send(e);
 							status.set("running " + candidates.size() + " event(s) sent");
 						} catch (IOException err) {
 

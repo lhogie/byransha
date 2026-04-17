@@ -1,17 +1,22 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.DateNode;
 
 public class Position extends BNode {
-	Structure employer;
-	DateNode from;
-	DateNode to;
-	Status status;
-	SupportDePoste support;
+	@ShowInKishanView
+	public Structure employer;
+	@ShowInKishanView
+	public DateNode from;
+	@ShowInKishanView
+	public DateNode to;
+	@ShowInKishanView
+	public Status status;
+	@ShowInKishanView
+	public SupportDePoste support;
 
-	public Position(BGraph g) {
+	public Position(Person g) {
 		super(g);
 	}
 

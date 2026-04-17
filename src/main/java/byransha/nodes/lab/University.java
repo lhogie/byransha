@@ -6,7 +6,7 @@ import byransha.graph.list.action.ListNode;
 
 public class University extends Structure {
 	@ShowInKishanView
-	ListNode<Campus> campuses = new ListNode(g, "campus", Campus.class);
+	ListNode<Campus> campuses = new ListNode(parent, "campus", Campus.class);
 
 	public University(BGraph g) {
 		super(g);

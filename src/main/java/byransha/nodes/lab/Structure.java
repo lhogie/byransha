@@ -3,6 +3,7 @@ package byransha.nodes.lab;
 import javax.swing.JComponent;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -11,19 +12,19 @@ import byransha.nodes.system.ChatNode;
 
 public class Structure extends BusinessNode {
 	@ShowInKishanView
-	public final StringNode name = new StringNode(g, null, ".+");;
+	public final StringNode name = new StringNode(parent, null, ".+");;
 	@ShowInKishanView
-	public final ListNode<Structure> subStructures = new ListNode(g, "sub-structure(s)", Structure.class);
+	public final ListNode<Structure> subStructures = new ListNode(parent, "sub-structure(s)", Structure.class);
 	@ShowInKishanView
-	public final ListNode<Office> offices = new ListNode(g, "offices", Office.class);
+	public final ListNode<Office> offices = new ListNode(parent, "offices", Office.class);
 
-	public Structure(BGraph g) {
+	public Structure(BNode g) {
 		super(g);
 	}
 
 	@ShowInKishanView
 	public ListNode<Person> members() {
-		return exec("members", Person.class, p -> p.structures);
+		return inverseRelation("members", Person.class, p -> p.structures);
 	}
 
 	@Override

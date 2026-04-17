@@ -17,8 +17,8 @@ import byransha.graph.BNode;
 import byransha.ui.swing.ChatSheet;
 
 public abstract class DistributionNode<V> extends BNode {
-	public DistributionNode(BGraph g) {
-		super(g);
+	public DistributionNode(BNode parent) {
+		super(parent);
 	}
 
 	public static class Entry<V> {

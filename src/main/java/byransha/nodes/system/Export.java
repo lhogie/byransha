@@ -25,6 +25,6 @@ public class Export extends FunctionAction<ChatNode, JSONNode> {
 
 	@Override
 	public void impl() {
-		result = new JSONNode(g, inputNode.export());
+		result = new JSONNode(parent, inputNode.export());
 	}
 }

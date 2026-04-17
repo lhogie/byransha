@@ -8,8 +8,8 @@ import byransha.security.Authenticator.security;
 import byransha.util.Stop;
 
 public class AuthAction extends Action {
-	public final StringNode username = new StringNode(g, "", ".+");
-	public final StringNode password = new StringNode(g, "", ".+");
+	public final StringNode username = new StringNode(parent, "", ".+");
+	public final StringNode password = new StringNode(parent, "", ".+");
 
 	public AuthAction(BGraph g) {
 		super(g, security.class);
@@ -19,6 +19,7 @@ public class AuthAction extends Action {
 	public void impl() {
 		var u = username.get();
 		var p = password.get();
+		var g = g();
 
 		if (!(u == null || u.isBlank() || p == null || p.isBlank() || !g.authenticator.test(u, p))) {
 			g.currentUser = g.indexes.byClass.forEachNodeAssignableTo(User.class,
@@ -33,7 +34,7 @@ public class AuthAction extends Action {
 
 	@Override
 	public String whatItDoes() {
-		return g.authenticator.authenticationMethods() + " authentication";
+		return g().authenticator.authenticationMethods() + " authentication";
 	}
 
 }

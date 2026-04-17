@@ -8,13 +8,13 @@ public class AllIndexesNode extends BNode {
 
 	@ShowInKishanView
 	final LongNode nbClasses() {
-		return new LongNode(this, (long) g.indexes.byClass.m.keys().size());
+		return new LongNode(this, (long) g().indexes.byClass.m.keys().size());
 	}
 
 	@ShowInKishanView
 	ListNode<ClassNode> classes() {
-		ListNode<ClassNode> r = new ListNode<ClassNode>(g, "classes", ClassNode.class);
-		g.indexes.byClass.m.get(ClassNode.class).forEach(c -> r.elements.add((ClassNode) c));
+		ListNode<ClassNode> r = new ListNode<ClassNode>(parent, "classes", ClassNode.class);
+		g().indexes.byClass.m.get(ClassNode.class).forEach(c -> r.elements.add((ClassNode) c));
 		return r;
 	}
 

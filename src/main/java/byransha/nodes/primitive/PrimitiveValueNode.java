@@ -1,11 +1,11 @@
 package byransha.nodes.primitive;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
 
-	public PrimitiveValueNode(BGraph g) {
-		super(g);
+	public PrimitiveValueNode(BNode parent) {
+		super(parent);
 	}
 
 }

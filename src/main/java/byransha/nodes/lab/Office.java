@@ -1,6 +1,5 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -10,13 +9,13 @@ import byransha.nodes.primitive.StringNode;
 
 public class Office extends BusinessNode {
 	@ShowInKishanView
-	public StringNode name = new StringNode(g);;
+	public StringNode name = new StringNode(parent);;
 
 	@ShowInKishanView
-	public final ListNode<Person> users = new ListNode(g, "users", Person.class);
+	public final ListNode<Person> users = new ListNode(parent, "users", Person.class);
 
 	@ShowInKishanView
-	public LongNode surface = new LongNode(g), capacity = new LongNode(g);
+	public LongNode surface = new LongNode(parent), capacity = new LongNode(parent);
 
 	@ShowInKishanView
 	public BooleanNode isZZR;
@@ -24,7 +23,7 @@ public class Office extends BusinessNode {
 	@ShowInKishanView
 	public LongNode floorNumber;
 
-	public Office(BGraph g) {
+	public Office(Building g) {
 		super(g);
 	}
 

@@ -14,7 +14,7 @@ import byransha.util.JsonToTreeConverter;
 final public class JSONNode extends BNode {
 	private final JsonNode node;
 
-	public JSONNode(BGraph g, JsonNode n) {
+	public JSONNode(BNode g, JsonNode n) {
 		super(g);
 		this.node = n;
 	}

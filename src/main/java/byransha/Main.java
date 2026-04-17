@@ -36,7 +36,7 @@ public class Main {
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
 		g = new BGraph(d);
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
-				.getConstructor(BGraph.class).newInstance(g);
+				.getConstructor(BNode.class).newInstance(g);
 
 		g.currentUser = new User(g, "guest");
 		
@@ -46,10 +46,6 @@ public class Main {
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + ShellServer.DEFAULT_PORT)));
 		new SwingFrontend(g);
 		// new JavaFXFrontend(g);
-
-		g.eventList.add(createPersonEvent("Luc"));
-		g.eventList.add(createPersonEvent("Dylan"));
-		g.eventList.add(createPersonEvent("Sophie"));
 
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));

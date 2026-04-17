@@ -14,8 +14,8 @@ public class MapNode<N extends BNode> extends BNode {
 	public final ConcurrentMap<String, N> map = new ConcurrentHashMap<>();
 	private String label;
 
-	public MapNode(BGraph g, String label) {
-		super(g);
+	public MapNode(BNode parent, String label) {
+		super(parent);
 		this.label = label;
 	}
 

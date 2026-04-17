@@ -20,7 +20,7 @@ public abstract class ListFilter<N extends BNode> extends FunctionAction<ListNod
 
 	@Override
 	public void impl() {
-		result = new ListNode<N>(g, retainsOnly(), inputNode.contentClass);
+		result = new ListNode<N>(parent, retainsOnly(), inputNode.contentClass);
 
 		inputNode.get().forEach(n -> {
 			if (retains(n)) {

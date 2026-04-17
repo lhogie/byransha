@@ -18,7 +18,7 @@ public class ShowApplication extends FunctionAction<ChatPanelNode, BNode> {
 
 	@Override
 	protected void impl() throws Throwable {
-		result = g.application;
+		result = g().application;
 	}
 
 	@Override

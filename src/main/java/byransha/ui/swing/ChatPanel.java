@@ -30,10 +30,10 @@ public class ChatPanel extends JPanel {
 	private ChatPanelNode node;
 
 	public ChatPanel(ChatNode chat) {
-		this.node = new ChatPanelNode(chat.g, this);
+		this.node = new ChatPanelNode(chat.g(), this);
 
 		setLayout(new BorderLayout());
-		setBackground(chat.g.swing.backgroundColor.get());
+		setBackground(chat.g().swing.backgroundColor.get());
 		setOpaque(true);
 
 		{
@@ -79,12 +79,12 @@ public class ChatPanel extends JPanel {
 			}
 
 			{
-				TranslatableButton dropb = new TranslatableButton(chat.g.translator);
+				TranslatableButton dropb = new TranslatableButton(chat.g().translator);
 				dropb.setText("Drop anything here");
 				dropb.setToolTipText("anything you drop here will be appended to the sheet");
 				dropb.setFocusable(false);
 				dropb.setBorder(new EmptyBorder(new Insets(15, 0, 15, 0)));
-				Utils.idDropTarget(chat.g, dropb, droppedNode -> chat.nodes.elements.add(droppedNode));
+				Utils.idDropTarget(chat.g(), dropb, droppedNode -> chat.nodes.elements.add(droppedNode));
 				dropb.setOpaque(false);
 				mousePanel.add(dropb, BorderLayout.SOUTH);
 			}

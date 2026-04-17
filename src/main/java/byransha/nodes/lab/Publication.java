@@ -10,11 +10,11 @@ public class Publication extends BusinessNode {
 	@ShowInKishanView
 	public StringNode title;
 	@ShowInKishanView
-	public ListNode<Person> authors = new ListNode<>(g, "author(s)", Person.class);
+	public ListNode<Person> authors = new ListNode<>(parent, "author(s)", Person.class);
 	@ShowInKishanView
-	public final StringNode halID = new StringNode(g, null, "^hal-\\d+$");
+	public final StringNode halID = new StringNode(parent, null, "^hal-\\d+$");
 
-	public ListNode<ACMClassifier> acmClassifier = new ListNode<>(g, "ACM classifiers", ACMClassifier.class);
+	public ListNode<ACMClassifier> acmClassifier = new ListNode<>(parent, "ACM classifiers", ACMClassifier.class);
 
 	public Publication(BGraph g) {
 		super(g);

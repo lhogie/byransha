@@ -17,14 +17,14 @@ public class Search extends FunctionAction<BNode, ListNode> {
 	
 	public Search( BNode src) {
 		super( src, search.class);
-		depth = new LongNode(g);
+		depth = new LongNode(parent);
 		depth.set(1L);
 		depth.setBounds(new Bounds(0, 20));//src.computeLongestPathLength()));
 	}
 
 	@Override
 	public void impl() {
-		var list = new ListNode<>(g, "search result at depth " + depth, BNode.class);
+		var list = new ListNode<>(parent, "search result at depth " + depth, BNode.class);
 		inputNode.bfs(depth.get(), n -> accept(n), (n, depth) -> list.elements.add(n));
 		result = list;
 	}

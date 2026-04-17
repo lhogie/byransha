@@ -99,33 +99,35 @@ public class DataLake extends BNode {
 			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
 		Cout.progress("Loading datalake from " + dir);
-		loadCountries(g, dir.file);
+		loadCountries(g(), dir.file);
 
-		ACMClassifier.createNodes(g, dir.file);
+		ACMClassifier.createNodes(g(), dir.file);
 
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir.file, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-			var c = new Nationality(g);
+			var c = new Nationality(g());
 			c.set(l);
 		});
 
+		var france = g().indexes.byClass.findFirst(Country.class, c -> c.name.equals("France"));
+
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = new EPST(g);
+			var epst = new EPST(france);
 			epst.name.set(n);
 			i3s.tutelles.elements.add(epst);
 		}
 
-		var UniCA = new University(g); // new University(graph);
+		var UniCA = new University(g()); // new University(graph);
 		UniCA.name.set("UniCA");
 		i3s.tutelles.elements.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(g, n); // new ResearchGroup(graph);
+			var group = new ResearchGroup(i3s, n); // new ResearchGroup(graph);
 			i3s.subStructures.elements.add(group);
 		}
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = new Campus(g); // new Campus(graph);
+			var campus = new Campus(UniCA); // new Campus(graph);
 			campus.name.set(n);
 			UniCA.campuses.elements.add(campus);
 		}

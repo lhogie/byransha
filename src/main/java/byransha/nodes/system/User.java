@@ -8,7 +8,7 @@ import byransha.nodes.primitive.StringNode;
 public class User extends BNode {
 	public final StringNode name;
 	public final StringNode passwordNode;
-	public final ListNode<ChatNode> chatList = new ListNode<>(g, "chats", ChatNode.class);
+	public final ListNode<ChatNode> chatList = new ListNode<>(parent, "chats", ChatNode.class);
 
 	public User(BGraph g, String userName) {
 		super(g);

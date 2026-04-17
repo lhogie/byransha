@@ -22,7 +22,7 @@ import byransha.nodes.system.ChatNode;
 
 public class MenuBuilder {
 
-	public static JPopupMenu buildPopupMenu(List<? extends Action> actions, ChatNode chat) {
+	public static JPopupMenu buildPopupMenu(List<? extends Action<?>> actions, ChatNode chat) {
 		Collections.reverse(actions);
 		UIManager.put("MenuItem.selectionBackground", Color.red);
 		UIManager.put("MenuItem.selectionForeground", Color.WHITE);
@@ -33,10 +33,11 @@ public class MenuBuilder {
 		Map<String, JMenu> menus = new HashMap<>();
 
 		for (var a : actions) {
-			if (a.category == null) {
+			if (a.path == null) {
 				popup.add(makeItem(a, chat));
 			} else {
-				var segments = new ArrayList<>(List.of(a.category));
+				 List<Class<? extends Category>> aa = List.of(a.path);
+				var segments = new ArrayList<>(aa);
 				menu(popup, segments, menus).add(makeItem(a, chat));
 			}
 		}
@@ -53,7 +54,7 @@ public class MenuBuilder {
 		l.forEach(cc -> c.add(cc));
 	}
 
-	private static JMenu menu(JPopupMenu popup, List<Class<? extends Category>> segments, Map<String, JMenu> menus) {
+	private static JMenu menu(JPopupMenu popup, ArrayList<Class<? extends Category>> segments, Map<String, JMenu> menus) {
 		final var path = segments.stream().map(s -> s.getSimpleName()).collect(Collectors.joining("/"));
 		var m = menus.get(path);
 

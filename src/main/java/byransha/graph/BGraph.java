@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import byransha.event.EventList;
-import byransha.event.InMemoryEventList;
 import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
 import byransha.network.NetworkAgent;
@@ -28,14 +27,15 @@ public class BGraph extends BNode {
 	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
 
 	public Authenticator authenticator = new LdapAuthenticator(null, null, null, readOnly);
-	public AuthAction authenticatorNode = new AuthAction(g);
+	public AuthAction authenticatorNode = new AuthAction(this);
 
 	public BNode application;
 	public final JVMNode jvm = new JVMNode(this);
 	public final Byransha byransha = new Byransha(this);
 	public final OSNode os = new OSNode(this);
 	public final ErrorLog errorLog = new ErrorLog(this);
-	public final EventList eventList = new SingleFileEventList(this, new File(System.getProperty("user.home"), "byransha-events.bin"));
+	public final EventList eventList = new SingleFileEventList(this,
+			new File(System.getProperty("user.home"), "byransha-events.bin"));
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
 	public SwingFrontend swing;
@@ -51,9 +51,9 @@ public class BGraph extends BNode {
 		super(null);
 		indexes.add(this);
 
-		new Male(g);
-		new Female(g);
-		new NotGenred(g);
+		new Male(this);
+		new Female(this);
+		new NotGenred(this);
 	}
 
 	public User currentUser;
@@ -71,7 +71,6 @@ public class BGraph extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new AllNodes(g));
 		super.createActions();
 	}
 

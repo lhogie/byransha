@@ -17,7 +17,7 @@ public class MapToClassNode<IN extends BNode> extends AbstractMapAction<IN, Clas
 
 	@Override
 	protected ClassNode map(IN n) {
-		return g.indexes.byClass.getClassNodeFor(n.getClass());
+		return g().indexes.byClass.getClassNodeFor(n.getClass());
 	}
 
 	@Override

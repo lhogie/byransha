@@ -1,7 +1,6 @@
 package byransha.graph;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
@@ -16,9 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -28,7 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -39,7 +35,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -61,7 +56,6 @@ import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ErrorIndicator;
 import byransha.ui.swing.MenuBuilder;
 import byransha.ui.swing.TextDisplayComponent;
-import byransha.ui.swing.TranslatableButton;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 import byransha.ui.swing.WrapPanel;
@@ -70,30 +64,46 @@ import byransha.util.ByUtils;
 import byransha.util.ListenableList;
 import byransha.util.Stop;
 import byransha.util.TriConsumer;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public abstract class BNode {
-	public final BGraph g;
+	public final BNode parent;
 	public boolean readOnly;
 	public long id = -1;
-
+	public BGraph graph;
 	protected ListNode<Action> cachedActions;
 
-	protected BNode(BGraph g) {
-		if (g == null) {
-			this.g = (BGraph) this;
+	protected BNode(BNode parent) {
+		if (parent == null) {
+			ByUtils.ensure(this instanceof BGraph);
+			this.parent = null;
 		} else {
-			this.g = g;
-			this.g.indexes.add(this);
+			this.parent = parent;
+			this.g().indexes.add(this);
 		}
-
-		g.eventList.add(new NewNodeEvent<>(this));
 	}
 
-	public <N extends BNode> ListNode<N> exec(String label, Class<N> c, Function<N, ListNode> f) {
-		var r = new ListNode<N>(g, label, c);
+	public BGraph g() {
+		return parent == null ? (BGraph) this : parent.g();
+	}
 
-		for (var n : g.indexes.byClass.m.get(c)) {
+	public BusinessNode businessNode() {
+		if (this instanceof BusinessNode bn) {
+			return bn;
+		} else if (parent != null) {
+			return parent.businessNode();
+		} else {
+			return null;
+		}
+	}
+
+	public int depth() {
+		return parent == null ? 0 : parent.depth() + 1;
+	}
+
+	protected <N extends BNode> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
+		var r = new ListNode<N>(this, label, c);
+
+		for (var n : g().indexes.byClass.m.get(c)) {
 			var nn = (N) n;
 			var remoteList = f.apply(nn);
 
@@ -135,35 +145,24 @@ public abstract class BNode {
 	}
 
 	public BNode error(Throwable err) {
-		return error(err, true);
+		return g().errorLog.add(err, true);
 	}
 
-	public BNode error(Throwable err, boolean rethrow) {
-		g.errorLog.add(err);
-
-		if (rethrow) {
-			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
-		} else {
-			err.printStackTrace();
-			return g.errorLog;
-		}
-	}
-
-	public List<Action> actions() {
+	public List<Action<?>> actions() {
 		if (cachedActions == null) {
-			cachedActions = new ListNode<>(g, "actions for node " + this, Action.class);
+			cachedActions = new ListNode<>(this, "actions for node " + this, Action.class);
 			createActions();
 		}
 
-		return (List<Action>) cachedActions.get();
+		return (List<Action<?>>) (List) cachedActions.get();
 	}
 
-	public void invalidateCache() {
+	public void invalidateActionCache() {
 		cachedActions = null;
 	}
 
 	public void delete() {
-		g.indexes.delete(this);
+		g().indexes.delete(this);
 	}
 
 	public int sizeOf() {
@@ -256,6 +255,7 @@ public abstract class BNode {
 
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
 		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
+		forEachOutInMethods(getClass(), BNode.class, (m, o, ro) -> consumer.accept(o, m.getName()));
 	}
 
 	public void createActions() {
@@ -264,8 +264,8 @@ public abstract class BNode {
 		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new SeeClassNode(this));
 		cachedActions.elements.add(new CopyIDToClipboard(this));
-		cachedActions.elements.add(new FreezingAction(g));
-		cachedActions.elements.add(new JumpToAnotherNode(g));
+		cachedActions.elements.add(new FreezingAction(this));
+		cachedActions.elements.add(new JumpToAnotherNode(this));
 		cachedActions.elements.add(new Reset(this));
 		cachedActions.elements.add(new Export(this));
 		cachedActions.elements.add(new Delete(this));
@@ -290,21 +290,6 @@ public abstract class BNode {
 
 	public String whatIsThis() {
 		return type().whatItRepresents();
-	}
-
-	public static class BFSResult {
-		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
-		public Set<BNode> visited = new HashSet<>();
-
-		public int longestDistance() {
-			int max = 0;
-			for (int d : distances.values()) {
-				if (d > max) {
-					max = d;
-				}
-			}
-			return max;
-		}
 	}
 
 	public BFSResult bfs(long maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
@@ -371,12 +356,12 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		return ColorPalette.forClass(getClass(), g.swing.colorStyle.style);
+		return ColorPalette.forClass(getClass(), g().swing.colorStyle.style);
 	}
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		int alpha = (int) g.swing.transparencyForNodeBackground.get().longValue();
+		int alpha = (int) g().swing.transparencyForNodeBackground.get().longValue();
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
@@ -445,7 +430,7 @@ public abstract class BNode {
 	}
 
 	public User currentUser() {
-		return g.getCurrentUser();
+		return g().getCurrentUser();
 	}
 
 	public Action findAction(String actionName) {
@@ -474,40 +459,13 @@ public abstract class BNode {
 		});
 	}
 
-	public JButton createJumpButton(ChatNode chat) {
-		var b = new TranslatableButton(chat.g.translator);
-		b.setText(toString());
-
-//		b.setContentAreaFilled(true);
-		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> chat.append(this));
-		b.setToolTipText(whatIsThis());
-		b.setFocusable(false);
-
-		return b;
-	}
-
-	public JButton createJumpButton2(ChatNode chat) {
-		var b = new JButton(toString()) {
-			@Override
-			public Color getBackground() {
-				return getColor();
-			}
-		};
-//		b.setContentAreaFilled(true);
-		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> chat.append(this));
-		b.setToolTipText(whatIsThis());
-		return b;
-	}
-
 	public String idAsText() {
 		return Base62.encode(id());
 	}
 
 	@ShowInKishanView
 	public ClassNode<?> type() {
-		return g.indexes.byClass.getClassNodeFor(getClass());
+		return g().indexes.byClass.getClassNodeFor(getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -515,7 +473,7 @@ public abstract class BNode {
 	}
 
 	public String t(String s) {
-		var translation = g.translator.translate(s);
+		var translation = g().translator.translate(s);
 		return translation == null ? s : translation;
 	}
 
@@ -537,7 +495,7 @@ public abstract class BNode {
 		});
 	}
 
-	public int fieldMaxLenght() {
+	private int fieldMaxLenght() {
 		int[] max = { 0 };
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this)
@@ -551,7 +509,7 @@ public abstract class BNode {
 	}
 
 	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
-		var roleComponent = new TextDisplayComponent(g.translator, m.getName() + ":");
+		var roleComponent = new TextDisplayComponent(g().translator, m.getName() + ":");
 		roleComponent.setColumns(left);
 		roleComponent.setToolTipText(m.getName());
 
@@ -566,7 +524,7 @@ public abstract class BNode {
 		}
 
 		if (m instanceof Field field) {
-			Utils.idDropTarget(g, roleComponent, dn -> set(field, dn));
+			Utils.idDropTarget(g(), roleComponent, dn -> set(field, dn));
 
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
@@ -583,8 +541,9 @@ public abstract class BNode {
 			});
 			var replace = new JMenuItem("see candidates");
 			replace.addActionListener(e -> {
-				var list = new ListNode(g, "all nodes of class " + field.getType().getName(), (Class) field.getType());
-				g.indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
+				var list = new ListNode(parent, "all nodes of class " + field.getType().getName(),
+						(Class) field.getType());
+				g().indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
 					list.elements.add(a);
 					return Stop.no;
 				});
@@ -650,7 +609,7 @@ public abstract class BNode {
 	}
 
 	protected JComponent getSmallComponent(ChatNode chat) {
-		var ta = new TranslatableTextArea(chat.g.translator);
+		var ta = new TranslatableTextArea(g().translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
 		return ta;

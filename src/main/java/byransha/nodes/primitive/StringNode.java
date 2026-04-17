@@ -15,6 +15,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
@@ -23,12 +24,12 @@ public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean hideText;
 
-	public StringNode(BGraph g) {
+	public StringNode(BNode g) {
 		this(g, null, null);
 		Objects.requireNonNull(g);
 	}
 
-	public StringNode(BGraph g, String init, String re) {
+	public StringNode(BNode g, String init, String re) {
 		super(g);
 		this.re = re;
 		set(init);

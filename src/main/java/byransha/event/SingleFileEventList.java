@@ -4,12 +4,13 @@ import java.io.File;
 import java.io.IOException;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class SingleFileEventList extends InMemoryEventList {
 	final File f;
 	protected EventQueueSerializer ser = new FSTSerializer();
 
-	public SingleFileEventList(BGraph g, File f) {
+	public SingleFileEventList(BNode g, File f) {
 		super(g);
 		this.f = f;
 	}

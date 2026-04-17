@@ -1,6 +1,8 @@
 package byransha.graph.action;
 
-import byransha.graph.BGraph;
+import java.lang.reflect.Constructor;
+
+import byransha.graph.BNode;
 import byransha.graph.Category.list;
 import byransha.graph.ProcedureAction;
 import byransha.graph.ShowInKishanView;
@@ -10,12 +12,15 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
 public class NewNodeCreator extends ProcedureAction<ListNode> {
+	
+	
+	
 	@ShowInKishanView
-	ListNode<ClassNode> classes = new ListNode<>(g, "business class(es)", ClassNode.class);
+	ListNode<ClassNode> classes = new ListNode<>(parent, "business class(es)", ClassNode.class);
 
 	public NewNodeCreator(ListNode list) {
 		super(list, list.class);
-		addBusinessClassesIn(list.g.application.getClass().getPackage());
+		addBusinessClassesIn(g().application.getClass().getPackage());
 	}
 
 	public void addBusinessClassesIn(Package p) {
@@ -23,19 +28,28 @@ public class NewNodeCreator extends ProcedureAction<ListNode> {
 
 		try (ScanResult scanResult = new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan()) {
 			for (var c : scanResult.getAllClasses().loadClasses()) {
-				try {
-					if ((contentClass == null || contentClass.isAssignableFrom(c))
-							&& c.getConstructor(BGraph.class) != null
-							&& (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
-							&& c.getDeclaringClass() == null) {
-						System.out.println("adding " + c);
+				if ((contentClass == null || contentClass.isAssignableFrom(c)
+						&& (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
+						&& c.getDeclaringClass() == null)) {
+					var constr = getC(c);
+
+					if (constr != null) {
 						addClass(c);
+					} else {
+						System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
 					}
-				} catch (NoSuchMethodException e) {
-					System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
 				}
 			}
 		}
+	}
+
+	private Constructor getC(Class c) {
+		for (var constr : c.getConstructors()) {
+			if (constr.getParameterCount() == 1 && BNode.class.isAssignableFrom(constr.getParameterTypes()[0])) {
+				return constr;
+			}
+		}
+		return null;
 	}
 
 	@Override
@@ -44,7 +58,7 @@ public class NewNodeCreator extends ProcedureAction<ListNode> {
 	}
 
 	public void addClass(Class cla) {
-		classes.get().add(g.indexes.byClass.getClassNodeFor(cla));
+		classes.get().add(g().indexes.byClass.getClassNodeFor(cla));
 	}
 
 	@Override
@@ -59,6 +73,6 @@ public class NewNodeCreator extends ProcedureAction<ListNode> {
 
 	@Override
 	public void impl() {
-		inputNode.get().addAll(classes.getSelected().stream().map(c -> c.newInstance()).toList());
+		inputNode.get().addAll(classes.getSelected().stream().map(c -> c.newInstance(this)).toList());
 	}
 }

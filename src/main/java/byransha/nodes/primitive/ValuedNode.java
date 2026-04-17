@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 
@@ -18,12 +17,8 @@ public abstract class ValuedNode<V> extends BNode {
 	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 
-	public static interface ValueChangeListener<V> {
-		void changed(ValuedNode<V> n, V formerValue, V newValue);
-	}
-
-	public ValuedNode(BGraph g) {
-		super(g);
+	public ValuedNode(BNode parent) {
+		super(parent);
 	}
 
 	@Override
@@ -78,8 +73,9 @@ public abstract class ValuedNode<V> extends BNode {
 			valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
 		}
 
+		var g = g();
 		if (g.eventList != null) {
-			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), this, oldValue, newValue));
+//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g(), LocalDateTime.now(), this, oldValue, newValue));
 		}
 	}
 

@@ -50,13 +50,13 @@ public class Byransha extends SystemNode {
 							versionNode.set(versionNode.get() + " - new version installed");
 						}
 
-						Thread.sleep(60);
+						Thread.sleep(60000);
 					} catch (IOException | InterruptedException e) {
 						error(e);
 					}
 				}
 
-			}, "check new version thread").start();
+			}, "check new version thread");//.start();
 
 		} catch (IOException err) {
 			error(err);

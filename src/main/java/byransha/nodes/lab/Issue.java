@@ -8,10 +8,10 @@ import byransha.nodes.primitive.TextNode;
 
 public class Issue extends BusinessNode {
 	@ShowInKishanView
-	public final ListNode<BusinessNode> relatedTo = new ListNode<>(g, "related to", BusinessNode.class);
+	public final ListNode<BusinessNode> relatedTo = new ListNode<>(parent, "related to", BusinessNode.class);
 
 	@ShowInKishanView
-	TextNode description = new TextNode(g, "", ".+");
+	TextNode description = new TextNode(parent, "", ".+");
 
 	public Issue(BGraph g) {
 		super(g);

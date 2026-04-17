@@ -18,7 +18,7 @@ public class EDistribution<V extends BNode> extends FunctionAction<ListNode<V>, 
 
 	@Override
 	public void impl() throws Throwable {
-		result = new DistributionNode<V>(g) {
+		result = new DistributionNode<V>(parent) {
 
 			@Override
 			public String toString() {

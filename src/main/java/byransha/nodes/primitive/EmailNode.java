@@ -2,15 +2,19 @@ package byransha.nodes.primitive;
 
 import java.util.List;
 
-import byransha.graph.BGraph;
 import byransha.graph.NodeError;
+import byransha.nodes.lab.Person;
 
 public class EmailNode extends StringNode {
 
 	public static final String re = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
 
-	public EmailNode(BGraph g, String s) {
+	public EmailNode(Person g, String s) {
 		super(g, s, re);
+	}
+	
+	public Person owner() {
+		return (Person) parent;
 	}
 
 	@Override
