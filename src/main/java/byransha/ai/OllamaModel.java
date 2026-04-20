@@ -6,9 +6,11 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import byransha.ai.OllamaModel.ProgressUpdate;
 import byransha.util.Cout;
 
 public class OllamaModel {
@@ -44,21 +46,24 @@ public class OllamaModel {
 
     public static boolean stopModel(String modelName, ProgressListener listener) {
         emitProgress("Arret de l'application...", listener);
-        System.exit(0);
         return true;
     }
 
 
 	public static synchronized String chat(String prompt) throws IOException, InterruptedException, Exception {
-    return chat(prompt, null);
+    return chat(prompt, null, null);
 }
 
 
     public static synchronized String chat(String prompt, ProgressListener listener) throws IOException, InterruptedException, Exception {
+        return chat(prompt, listener, null);
+    }
+
+    public static synchronized String chat(String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer) throws IOException, InterruptedException, Exception {
         emitProgress( "Requete IA recue", listener);
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                String response = callModelWithStream(PRIMARY_MODEL, prompt, listener);
+                String response = callModelWithStream(PRIMARY_MODEL, prompt, listener, chunkConsumer);
                 emitProgress( "Requete IA terminee", listener);
                 return response;
             } catch (Exception e) {
@@ -68,55 +73,78 @@ public class OllamaModel {
                 }
             }
         }
-        stopModel(PRIMARY_MODEL, listener);
-        String fallbackResponse = callModelWithStream(FALLBACK_MODEL, prompt, listener);
+        String fallbackResponse = callModelWithStream(FALLBACK_MODEL, prompt, listener, chunkConsumer);
         emitProgress( "Requete IA terminee via fallback", listener);
         return fallbackResponse;
     }
 
-    private static String callModelWithStream(String modelName, String prompt, ProgressListener listener) throws Exception {
-        emitProgress("Connexion a Ollama en streaming", listener);
-        
-        ObjectMapper mapper = new ObjectMapper();
-        var payload = java.util.Map.of(
-            "model", modelName,
-            "stream", true,
-            "messages", java.util.List.of(java.util.Map.of("role", "user", "content", prompt))
-        );
 
-        HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:11434/api/chat"))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(payload)))
-                .build();
+    
+   public static void initialModel(ProgressListener listener) {
+    new Thread(() -> {
+        try {
+            emitProgress("Chargement du modèle en mémoire vive...", listener);
+            var payload = java.util.Map.of(
+                "model", PRIMARY_MODEL,
+                "keep_alive", "24h" 
+            );
 
-        var response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofLines());
-        
-        StringBuilder content = new StringBuilder(), thinking = new StringBuilder();
-        boolean[] inThinking = {false}; // Array 1 case pour modifier dans un lambda/stream
-        
-        response.body().filter(line -> !line.isEmpty()).forEach(line -> {
-            try {
-                JsonNode msg = mapper.readTree(line).path("message");
-                String t = msg.path("thinking").asText("");
-                String c = msg.path("content").asText("");
-                
-                if (!t.isEmpty()) {
-                    if (!inThinking[0]) { inThinking[0] = true; System.out.print("Thinking:\n"); }
-                    System.out.print(t);
-                    thinking.append(t);
-                } else if (!c.isEmpty()) {
-                    if (inThinking[0]) { inThinking[0] = false; System.out.print("\n\nAnswer:\n"); }
-                    System.out.print(c);
-                    content.append(c);
-                }
-                System.out.flush();
-            } catch (Exception e) {}
-        });
-        
-        System.out.println(); // Final newline
-        emitProgress("Finalisation de la reponse", listener);
-        return content.toString();
-    }
+            HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:11434/api/generate"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(new ObjectMapper().writeValueAsString(payload)))
+                    .build();
+            HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.discarding());
+
+            emitProgress("Modèle IA prêt et chaud !", listener);
+            System.out.println("Ollama : Modèle " + PRIMARY_MODEL + " est chargé en RAM.");
+            
+        } catch (Exception e) {
+            emitProgress("Échec du pré-chargement : " + e.getMessage(), listener);
+        }
+    }).start();
+}
+    
+private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
+        .version(HttpClient.Version.HTTP_1_1) 
+        .build();
+
+private static final ObjectMapper MAPPER = new ObjectMapper();
+
+private static String callModelWithStream(String modelName, String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer) throws Exception {
+    emitProgress("Connexion...", listener);
+    var payload = java.util.Map.of(
+        "model", modelName,
+        "stream", true,
+        "messages", java.util.List.of(java.util.Map.of("role", "user", "content", prompt)),
+        "options", java.util.Map.of(       
+            "low_vram", true       
+        ),
+        "keep_alive", "24h"        // Garde le modèle en RAM pendant 24h
+    );
+
+    HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:11434/api/chat"))
+            .header("Content-Type", "application/json")
+            .POST(HttpRequest.BodyPublishers.ofString(MAPPER.writeValueAsString(payload)))
+            .build();
+
+    // Utiliser sendAsync pour ne pas bloquer le thread principal inutilement
+    return HTTP_CLIENT.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
+            .thenApply(response -> {
+                StringBuilder content = new StringBuilder();
+                response.body().forEach(line -> {
+                    try {
+                        JsonNode node = MAPPER.readTree(line);
+                        String c = node.path("message").path("content").asText("");
+                        
+                        if (!c.isEmpty()) {
+                            content.append(c);
+                            if (chunkConsumer != null) chunkConsumer.accept(c);
+                        }
+                    } catch (Exception e) { /* ignore */ }
+                });
+                return content.toString();
+            }).join();
+}
 
     private static void sleepBeforeRetry() {
         try {

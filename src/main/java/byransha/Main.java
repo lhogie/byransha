@@ -21,11 +21,13 @@ import byransha.ui.swing.SwingFrontend;
 import javafx.scene.Scene;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import byransha.ai.OllamaModel;
 
 public class Main {
 	static BGraph g;
 
 	public static void main(String[] args) throws Throwable {
+		OllamaModel.initialModel(null);
 
 //		System.out.println("IA".split("/").length);
 
@@ -48,7 +50,7 @@ public class Main {
 		new SwingFrontend(g);
 		// new JavaFXFrontend(g);
 
-		g.eventList.add(createPersonEvent("Luc"));
+		g.eventList.add(createPersonEvent("Luc")	);
 		g.eventList.add(createPersonEvent("Dylan"));
 		g.eventList.add(createPersonEvent("Sophie"));
 
@@ -86,4 +88,5 @@ public class Main {
 		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
 		primaryStage.show();
 	}
+	
 }

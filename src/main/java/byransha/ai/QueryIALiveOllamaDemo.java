@@ -18,7 +18,7 @@ public class QueryIALiveOllamaDemo {
                 """);
 
         var question = "Rajoute un employe nommé Pierre, il a 50 ans et il travaille 40 heures par semaine. Retourne uniquement du JSON.";
-        var prompt = QueryIA.buildLlmPrompt(inputJson, question);
+        var prompt = QueryIA.buildLlmPrompt(inputJson, question, QueryIA.ResponseMode.JSON_ONLY);
         System.out.println("**** Prompt envoye a Ollama ****");
         System.out.println(prompt);
 

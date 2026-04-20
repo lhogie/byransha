@@ -9,6 +9,7 @@ module byransha {
 	requires com.fasterxml.jackson.annotation;
 
 	requires io.github.classgraph; // for classpath scanning 
+	requires fst;
 
 	requires java.desktop;  
 

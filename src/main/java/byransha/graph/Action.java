@@ -94,6 +94,11 @@ public abstract class Action extends BNode {
 	}
 
 	protected abstract void impl() throws Throwable;
+	protected void handleIAResponseChunk(Object chunk) {
+		if (outputConsumer != null) {
+			outputConsumer.accept(chunk);
+		}
+	}
 
 	public abstract boolean applies();
 
