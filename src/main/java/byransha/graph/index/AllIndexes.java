@@ -5,6 +5,7 @@ import java.util.Objects;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Index;
+import byransha.graph.ShowInKishanView;
 
 public class AllIndexes extends Index {
 	public final ByID byId;
@@ -18,6 +19,7 @@ public class AllIndexes extends Index {
 		nodesList = new NodeList(this);
 	}
 
+	@ShowInKishanView
 	public long numberOfNodes() {
 		return nodesList.size();
 	}

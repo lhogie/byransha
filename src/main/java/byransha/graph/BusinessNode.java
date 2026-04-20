@@ -10,7 +10,6 @@ public abstract class BusinessNode extends BNode {
 
 	public BusinessNode(BNode parent) {
 		super(parent);
-//		g().eventList.add(new NewNodeEvent<>(this));
 	}
 
 	@ShowInKishanView

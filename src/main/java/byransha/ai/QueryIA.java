@@ -7,10 +7,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import byransha.graph.ShowInKishanView;
-import byransha.graph.ActionParameter;
 import byransha.graph.BNode;
 import byransha.graph.Category;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.lab.stats.DistributionNode;
@@ -19,31 +18,27 @@ import byransha.nodes.primitive.TextNode;
 
 public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ObjectMapper mapper = new ObjectMapper();
-	
-	@ShowInKishanView
 
 	public enum ResponseMode {
-		JSON_ONLY,
-		TEXT_PLUS_JSON
+		JSON_ONLY, TEXT_PLUS_JSON
 	}
 
-	@ActionParameter()
-	public final StringNode prompt;
-	public final JSONNode inputJSON;
+	@ShowInKishanView
+	public final StringNode prompt = new StringNode(this, "", ".+");;
+	public final JSONNode inputJSON ;
 	private volatile ResponseMode responseMode = ResponseMode.JSON_ONLY;
 
 	class AI extends Category {
 	}
-	
+
 	public QueryIA(BNode n) {
 		super(n, AI.class);
-		prompt = new StringNode(this, "", ".+");
 		inputJSON = new JSONNode(this, n.describeAsJSON());
 	}
 
 	@Override
 	public String whatItDoes() {
-		return "Demander a l'ia";
+		return "ask AI";
 	}
 
 	@Override
@@ -56,16 +51,15 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		var focusedNodeJson = inputNode.describeAsJSON();
 		var userQuestion = prompt.get();
 		if (userQuestion == null || userQuestion.trim().isEmpty()) {
-			result = new TextNode(g, "IA response",
-					"Erreur: la question envoyee a l'IA est vide. Saisissez une instruction (ex: remplace la cle offices par bureau)."
-			);
+			result = new TextNode(g(), "IA response",
+					"Erreur: la question envoyee a l'IA est vide. Saisissez une instruction (ex: remplace la cle offices par bureau).");
 			return;
 		}
 
 		var iaResponse = queryIA(focusedNodeJson, userQuestion);
 
 		if (responseMode == ResponseMode.TEXT_PLUS_JSON) {
-			result = new TextNode(g, "IA response", iaResponse);
+			result = new TextNode(g(), "IA response", iaResponse);
 			return;
 		}
 
@@ -102,13 +96,6 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		this.responseMode = responseMode == null ? ResponseMode.JSON_ONLY : responseMode;
 	}
 
-	public ResponseMode getResponseMode() {
-		return responseMode;
-	}
-
-	public void setResponseMode(ResponseMode responseMode) {
-		this.responseMode = responseMode == null ? ResponseMode.JSON_ONLY : responseMode;
-	}
 
 	public ResponseMode getResponseMode() {
 		return responseMode;
@@ -119,11 +106,15 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		var prompt = new StringBuilder();
 		prompt.append("Your personality: You are a helpful assistant.\n");
 		prompt.append("You are an expert JSON transformation system.\n");
-		prompt.append("Your task is to take the original JSON and create an updated JSON by following the user's instructions.\n");
-		prompt.append("The user's instructions might be in French (e.g. 'remplace ... par ...', 'ajoute ...'). You must understand and execute these modifications correctly on the JSON keys and values.\n");
-		prompt.append("If the user asks to replace one name by another in the JSON, interpret it as a rename of the JSON key or value, not as a free-form rewrite. Example: 'remplace le nom offices par bureau' means rename the key 'offices' to 'bureau' inside the JSON, and keep every other field unchanged.\n");
-		prompt.append("All fields that are not targeted by the request must be kept EXACTLY as they are in the original JSON. Do not invent new fields and do not change unrelated field names or values.\n\n");
-		
+		prompt.append(
+				"Your task is to take the original JSON and create an updated JSON by following the user's instructions.\n");
+		prompt.append(
+				"The user's instructions might be in French (e.g. 'remplace ... par ...', 'ajoute ...'). You must understand and execute these modifications correctly on the JSON keys and values.\n");
+		prompt.append(
+				"If the user asks to replace one name by another in the JSON, interpret it as a rename of the JSON key or value, not as a free-form rewrite. Example: 'remplace le nom offices par bureau' means rename the key 'offices' to 'bureau' inside the JSON, and keep every other field unchanged.\n");
+		prompt.append(
+				"All fields that are not targeted by the request must be kept EXACTLY as they are in the original JSON. Do not invent new fields and do not change unrelated field names or values.\n\n");
+
 		prompt.append("--- USER INSTRUCTIONS ---\n");
 		prompt.append(normalizedQuestion).append("\n\n");
 
@@ -134,7 +125,8 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		if (mode == ResponseMode.TEXT_PLUS_JSON) {
 			prompt.append("Provide a short explanation.\n");
 		} else {
-			prompt.append("Output STRICTLY valid JSON ONLY. Do NOT output any intro text, summary, or markdown formatting like ```json. Your entire response must be parseable by a JSON parser.\n");
+			prompt.append(
+					"Output STRICTLY valid JSON ONLY. Do NOT output any intro text, summary, or markdown formatting like ```json. Your entire response must be parseable by a JSON parser.\n");
 		}
 		System.out.println("**** Prompt construit pour l'IA ****");
 		System.out.println(prompt);

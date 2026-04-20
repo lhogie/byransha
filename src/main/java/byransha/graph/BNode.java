@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -74,24 +75,32 @@ public abstract class BNode {
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
-		if (parent == null) {
-			ByUtils.ensure(this instanceof BGraph);
-			this.parent = null;
-		} else {
-			this.parent = parent;
+		this.parent = parent;
+
+		if (parent != null) {
 			this.g().indexes.add(this);
+		}
+
+		if (enclosingBusinessNode() != null) {
+		//	g().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
 
 	public BGraph g() {
-		return parent == null ? (BGraph) this : parent.g();
+		if (this instanceof BGraph g) {
+			return g;
+		} else if (parent != null) {
+			return parent.g();
+		} else {
+			return null;
+		}
 	}
 
-	public BusinessNode businessNode() {
+	public BusinessNode enclosingBusinessNode() {
 		if (this instanceof BusinessNode bn) {
 			return bn;
 		} else if (parent != null) {
-			return parent.businessNode();
+			return parent.enclosingBusinessNode();
 		} else {
 			return null;
 		}
@@ -102,12 +111,10 @@ public abstract class BNode {
 	}
 
 	public ListNode<BNode> path() {
-		var r = new ListNode<BNode>(this, "path", BNode.class);
-		var a = this;
+		var r = new ListNode<BNode>(null, "path", BNode.class);
 
-		while (a != null) {
+		for (BNode a = this; a != null; a = a.parent) {
 			r.elements.add(a);
-			a = a.parent;
 		}
 
 		Collections.reverse(r.elements);

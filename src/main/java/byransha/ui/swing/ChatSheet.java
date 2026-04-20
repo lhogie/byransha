@@ -92,7 +92,7 @@ public class ChatSheet extends Sheet {
 				final StringBuilder liveResponseText = new StringBuilder();
 
 				if (action instanceof FunctionAction<?, ?>) {
-					liveResponseNode = new TextNode(chat.g, "IA response", "");
+					liveResponseNode = new TextNode(chat.g(), "IA response", "");
 					chat.append(liveResponseNode);
 
 					final var targetNode = liveResponseNode;
@@ -151,16 +151,7 @@ public class ChatSheet extends Sheet {
 	}
 
 	public void appendToCurrentLine(String s) {
-		super.appendToCurrentLine(s, chat.g.translator);
-	}
-
-	private JToggleButton createResponseModeBubble(String text) {
-		var bubble = new JToggleButton(text);
-		bubble.setFocusPainted(false);
-		bubble.setMargin(new Insets(4, 10, 4, 10));
-		bubble.setBackground(new Color(0xF2, 0xF2, 0xF2));
-		bubble.setOpaque(true);
-		return bubble;
+		super.appendToCurrentLine(s, chat.g().translator);
 	}
 
 	private JToggleButton createResponseModeBubble(String text) {
