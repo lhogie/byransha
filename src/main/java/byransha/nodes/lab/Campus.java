@@ -1,19 +1,19 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Campus extends BusinessNode {
+	@ShowInKishanView
+	public StringNode name = new StringNode(parent, "", ".+");
 
-	public StringNode name;
+	@ShowInKishanView
+	public ListNode<Building> buildings = new ListNode(parent, "building(s)", Building.class);
 
-	public ListNode<Building> buildings;
-
-	public Campus(BGraph g) {
+	public Campus(University g) {
 		super(g);
-		name = new StringNode(g, "", ".+");
-		buildings = new ListNode(g, "campus(es)");
 	}
 
 	@Override

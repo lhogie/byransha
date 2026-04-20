@@ -4,20 +4,26 @@ import java.io.File;
 import java.io.IOException;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class SingleFileEventList extends InMemoryEventList {
 	final File f;
 	protected EventQueueSerializer ser = new FSTSerializer();
 
-	public SingleFileEventList(BGraph g, File f) {
+	public SingleFileEventList(BNode g, File f) {
 		super(g);
 		this.f = f;
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public void add(Event e) {
+		System.out.println("adding event " + e);
 		super.add(e);
-		ser.write(this, f);
+		try {
+			ser.write(this, f);
+		} catch (IOException e1) {
+			e.g.error(e1);
+		}
 	}
 
 	@Override
@@ -27,9 +33,13 @@ public class SingleFileEventList extends InMemoryEventList {
 		return e;
 
 	}
+	@Override
+	public String toString() {
+		return whatIsThis();
+	}
 
 	@Override
 	public String whatIsThis() {
-		return "an event-list backed up in a file";
+		return "single file: " + f.getPath();
 	}
 }

@@ -38,7 +38,7 @@ public class NetworkAddressNode extends ValuedNode<InetAddress> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeKishanView(ChatSheet pane) {
 		pane.add(new JLabel(get().getHostName()));
 		boolean reachable = reach();
 		var label = new JLabel(reachable ? "reached" : "unreachable");

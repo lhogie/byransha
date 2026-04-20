@@ -6,18 +6,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class InMemoryEventList extends EventList {
 	List<Event> q = new ArrayList<>();
 	int lastExecutedEventIndex = -1;
 
-	public InMemoryEventList(BGraph g) {
+	public InMemoryEventList(BNode g) {
 		super(g);
 	}
 
 	@Override
-	public void add(Event e) throws IOException {
+	public String toString() {
+		return whatIsThis();
+	}
+	
+	@Override
+	public void add(Event e) {
 		int index = Collections.binarySearch(q, e);
 
 		if (index > 0)
@@ -56,7 +61,7 @@ public class InMemoryEventList extends EventList {
 	public Event forward() throws Throwable {
 		if (lastExecutedEventIndex < q.size() - 1) {
 			var e = q.get(++lastExecutedEventIndex);
-			e.apply(g);
+			e.apply(g());
 			currentDate = e.date;
 			return e;
 		} else {
@@ -68,7 +73,7 @@ public class InMemoryEventList extends EventList {
 	public Event rewind() throws Throwable {
 		if (lastExecutedEventIndex >= 0) {
 			var e = q.get(lastExecutedEventIndex--);
-			e.undo(g);
+			e.undo(g());
 			currentDate = e.date;
 			return e;
 		} else {

@@ -1,13 +1,12 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 
 public class SupportDePoste extends BNode {
 	StringNode id;
 
-	protected SupportDePoste(BGraph g) {
+	public SupportDePoste(Structure g) {
 		super(g);
 		id = new StringNode(g);
 	}

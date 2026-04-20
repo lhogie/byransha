@@ -3,24 +3,22 @@ package byransha.nodes.primitive;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.NodeError;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
+	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 
-	public static interface ValueChangeListener<V> {
-		void changed(ValuedNode<V> n, V formerValue, V newValue);
-	}
-
-	public ValuedNode(BGraph g) {
-		super(g);
+	public ValuedNode(BNode parent) {
+		super(parent);
 	}
 
 	@Override
@@ -28,6 +26,13 @@ public abstract class ValuedNode<V> extends BNode {
 		var r = super.describeAsJSON();
 		r.put("value", toString());
 		return r;
+	}
+
+	@Override
+	protected void fillErrors(List<NodeError> errs) {
+		if (valueRequired && value == null) {
+			errs.add(new NodeError(this, "a value is required"));
+		}
 	}
 
 	public V get() {
@@ -68,8 +73,9 @@ public abstract class ValuedNode<V> extends BNode {
 			valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
 		}
 
+		var g = g();
 		if (g.eventList != null) {
-//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), id(), oldValue, newValue));
+//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g(), LocalDateTime.now(), this, oldValue, newValue));
 		}
 	}
 

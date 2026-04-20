@@ -5,8 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import byransha.event.EventList;
-import byransha.event.InMemoryEventList;
-import byransha.graph.action.NewNodeCreator;
+import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
 import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
@@ -25,24 +24,36 @@ import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
 	public AllIndexes indexes = new AllIndexes(this);
+	@ShowInKishanView
 	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
 
-	public Authenticator authenticator = new LdapAuthenticator(null, null, null, readOnly);
-	public AuthAction authenticatorNode = new AuthAction(g);
+	public Authenticator authenticatorMethod = new LdapAuthenticator(null, null, null, readOnly);
+	@ShowInKishanView
+	public AuthAction authenticator = new AuthAction(this);
 
+	@ShowInKishanView
 	public BNode application;
+	@ShowInKishanView
 	public final JVMNode jvm = new JVMNode(this);
+	@ShowInKishanView
 	public final Byransha byransha = new Byransha(this);
+	@ShowInKishanView
 	public final OSNode os = new OSNode(this);
+	@ShowInKishanView
 	public final ErrorLog errorLog = new ErrorLog(this);
-	public final EventList eventList = new InMemoryEventList(this);
-	public final NewNodeCreator nodeCreator = new NewNodeCreator(this);
+	@ShowInKishanView
+	public final EventList eventList = new SingleFileEventList(this,
+			new File(System.getProperty("user.home"), "byransha-events.bin"));
 //	public WebServer webServer;
 //	public ByranshaWebSocketServer webSocketServer;
+	@ShowInKishanView
 	public SwingFrontend swing;
+	@ShowInKishanView
 	public final NetworkAgent networkAgent = new NetworkAgent(this);
+	@ShowInKishanView
 	public final Translator translator = new GoogleTranslator(this);
 //	public final Authenticate auth = new LdapAuthenticator(this);
+
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
 	class graph extends Category {
@@ -52,11 +63,12 @@ public class BGraph extends BNode {
 		super(null);
 		indexes.add(this);
 
-		new Male(g);
-		new Female(g);
-		new NotGenred(g);
+		new Male(this);
+		new Female(this);
+		new NotGenred(this);
 	}
 
+	@ShowInKishanView
 	public User currentUser;
 
 	public void setCurrentUser(User newUser) {
@@ -72,7 +84,6 @@ public class BGraph extends BNode {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new AllNodes(g));
 		super.createActions();
 	}
 

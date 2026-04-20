@@ -1,0 +1,5 @@
+pop click gauche, ou appairition d'une petite fleche pour indiquer qu'il s'agit d'un popup
+incident et la liste des elements touchés
+
+
+

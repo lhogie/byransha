@@ -31,14 +31,14 @@ public class Client extends SystemNode {
 	private final Map<String, Command> commands = new HashMap<>();
 	private Socket socket;
 
-	public Client(Socket clientSocket, BGraph g) throws IOException {
+	public Client(Socket clientSocket, ShellServer g) throws IOException {
 		super(g);
 		this.socket = clientSocket;
 		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		var out = new PrintWriter(clientSocket.getOutputStream(), true);
 		var chatID = Long.valueOf(in.readLine());
-		currentChat = (ChatNode) g.indexes.byId.get(chatID);
-		initializeCommands(g);
+		currentChat = (ChatNode) g().indexes.byId.get(chatID);
+		initializeCommands(g());
 
 		new Thread(() -> {
 			try {

@@ -12,11 +12,12 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(BGraph g, Boolean v) {
+	public BooleanNode(BNode g, Boolean v) {
 		super(g);
 		set(v);
 	}

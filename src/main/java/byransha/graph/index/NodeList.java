@@ -10,6 +10,12 @@ import byransha.graph.Index;
 import byransha.util.Stop;
 
 public class NodeList extends Index {
+	 public NodeList(AllIndexes allIndexes) {
+		 super(null);
+//		super(allIndexes);
+		// TODO Auto-generated constructor stub
+	}
+
 	 final List<BNode> l = new ArrayList<>();
 
 	

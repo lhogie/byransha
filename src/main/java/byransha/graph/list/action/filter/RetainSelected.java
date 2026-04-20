@@ -1,14 +1,12 @@
 package byransha.graph.list.action.filter;
 
 import byransha.graph.BNode;
-import byransha.graph.Category.list;
-import byransha.graph.Category.selection;
 import byransha.graph.list.action.ListNode;
 
-public class RetainSelected<N extends BNode> extends FilterNode<N> {
+public class RetainSelected<N extends BNode> extends ListFilter<N> {
 
 	public RetainSelected(ListNode<N> inputNode) {
-		super(inputNode, list.class, selection.class);
+		super(inputNode);
 	}
 
 	@Override

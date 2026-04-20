@@ -7,7 +7,7 @@ import java.io.ObjectOutput;
 import byransha.nodes.primitive.PrimitiveValueNode;
 
 public class RawDataNode extends PrimitiveValueNode<byte[]> {
-	public RawDataNode(BGraph g) {
+	public RawDataNode(BNode g) {
 		super(g);
 	}
 

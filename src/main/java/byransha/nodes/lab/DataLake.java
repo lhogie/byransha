@@ -16,15 +16,22 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.DocumentNode;
+import byransha.graph.ShowInKishanView;
+import byransha.nodes.primitive.FileNode;
 import byransha.util.Cout;
 
 public class DataLake extends BNode {
+	@ShowInKishanView
+	public final FileNode dir;
 
-	public final File dir;
-
+	public DataLake(BGraph g) {
+		this(g, null);
+	}
+	
 	public DataLake(BGraph g, File dir) {
 		super(g);
-		this.dir = dir;
+		this.dir = new FileNode(g);
+		this.dir.file = dir;
 	}
 
 	static JsonNode countryCodes;
@@ -85,50 +92,52 @@ public class DataLake extends BNode {
 
 	@Override
 	public String toString() {
-		return "datalake at " + dir.getAbsolutePath();
+		return "datalake at " + dir.file.getAbsolutePath();
 	}
 
 	public void load(Lab i3s) throws IOException {
 		if (dir == null)
 			throw new NullPointerException();
 
-		if (!dir.exists() || !dir.isDirectory())
+		if (!dir.file.exists() || !dir.file.isDirectory())
 			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
 		Cout.progress("Loading datalake from " + dir);
-		loadCountries(g, dir);
+		loadCountries(g(), dir.file);
 
-		ACMClassifier.createNodes(g, dir);
+		ACMClassifier.createNodes(g(), dir.file);
 
 		Cout.progress("\tLoading nationalities");
-		Files.readAllLines(new File(dir, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-			var c = new Nationality(g);
+		Files.readAllLines(new File(dir.file, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
+			var c = new Nationality(g());
 			c.set(l);
 		});
 
+		var france = g().indexes.byClass.findFirst(Country.class, c -> c.name.equals("France"));
+
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = new EPST(g);
+			var epst = new EPST(france);
 			epst.name.set(n);
 			i3s.tutelles.elements.add(epst);
 		}
 
-		var UniCA = new University(g); // new University(graph);
+		var UniCA = new University(g()); // new University(graph);
 		UniCA.name.set("UniCA");
 		i3s.tutelles.elements.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(g, n); // new ResearchGroup(graph);
+			var group = new ResearchGroup(i3s, n); // new ResearchGroup(graph);
 			i3s.subStructures.elements.add(group);
 		}
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = new Campus(g); // new Campus(graph);
+			var campus = new Campus(UniCA); // new Campus(graph);
 			campus.name.set(n);
 			UniCA.campuses.elements.add(campus);
 		}
 
 		Cout.progress("\tLoading old TBRH");
-		new OldTBRH().loadOLDTBRH(i3s, new File(dir, "i3s/tbrh"));
+		new OldTBRH().loadOLDTBRH(i3s, new File(dir.file, "i3s/tbrh"));
 
 		Cout.progress("End loading");
 

@@ -18,8 +18,8 @@ public class ShowInstances extends FunctionAction<ClassNode, ListNode<BNode>> {
 
 	@Override
 	public void impl() throws Throwable {
-		result = new ListNode<>(g, "all instances");
-		result.elements.addAll(inputNode.allInstances());
+		result = new ListNode<>(parent, "all instances", BNode.class);
+		result.elements.addAll(inputNode.allInstances().elements);
 	}
 
 	@Override

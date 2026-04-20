@@ -1,13 +1,19 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
 import byransha.graph.NetworkAddressNode;
+import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
 
 public class Device extends BusinessNode {
+	@ShowInKishanView
 	public StringNode serialNumber;
+	@ShowInKishanView
 	public StringNode brand;
+	@ShowInKishanView
 	public StringNode modelName;
+	@ShowInKishanView
 	public NetworkAddressNode ip;
 
 	public Device(BGraph g) {

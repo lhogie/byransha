@@ -1,7 +1,6 @@
 package byransha.graph;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.datatransfer.StringSelection;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
@@ -10,25 +9,25 @@ import java.awt.event.MouseListener;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,7 +48,6 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.lab.DynamicValuedNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
@@ -59,35 +57,94 @@ import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ErrorIndicator;
 import byransha.ui.swing.MenuBuilder;
 import byransha.ui.swing.TextDisplayComponent;
-import byransha.ui.swing.TranslatableButton;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 import byransha.ui.swing.WrapPanel;
 import byransha.util.Base62;
 import byransha.util.ByUtils;
+import byransha.util.ListenableList;
 import byransha.util.Stop;
 import byransha.util.TriConsumer;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 public abstract class BNode {
-	@DoNotShowOnChat
-	public final BGraph g;
+	public final BNode parent;
 	public boolean readOnly;
 	public long id = -1;
-
-	public static class node extends Category {
-	}
-
-	@DoNotShowOnChat
+	public BGraph graph;
 	protected ListNode<Action> cachedActions;
 
-	protected BNode(BGraph g) {
-		if (g == null) {
-			this.g = (BGraph) this;
+	protected BNode(BNode parent) {
+		if (parent == null) {
+			ByUtils.ensure(this instanceof BGraph);
+			this.parent = null;
 		} else {
-			this.g = g;
-			this.g.indexes.add(this);
+			this.parent = parent;
+			this.g().indexes.add(this);
 		}
+	}
+
+	public BGraph g() {
+		return parent == null ? (BGraph) this : parent.g();
+	}
+
+	public BusinessNode businessNode() {
+		if (this instanceof BusinessNode bn) {
+			return bn;
+		} else if (parent != null) {
+			return parent.businessNode();
+		} else {
+			return null;
+		}
+	}
+
+	public int depth() {
+		return parent == null ? 0 : parent.depth() + 1;
+	}
+
+	public ListNode<BNode> path() {
+		var r = new ListNode<BNode>(this, "path", BNode.class);
+		var a = this;
+
+		while (a != null) {
+			r.elements.add(a);
+			a = a.parent;
+		}
+
+		Collections.reverse(r.elements);
+		return r;
+	}
+
+	protected <N extends BNode> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
+		var r = new ListNode<N>(this, label, c);
+
+		for (var n : g().indexes.byClass.m.get(c)) {
+			var nn = (N) n;
+			var remoteList = f.apply(nn);
+
+			if (remoteList.elements.contains(BNode.this)) {
+				r.elements.add(nn);
+			}
+		}
+
+		r.elements.addListener(new ListenableList.Listener<N>() {
+
+			@Override
+			public void onSet(int index, N oldElement, N p) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onRemoved(int index, N n) {
+				f.apply(n).elements.remove(BNode.this);
+			}
+
+			@Override
+			public void onAdded(int index, N n) {
+				f.apply(n).elements.add(BNode.this);
+			}
+		});
+
+		return r;
 	}
 
 	public int computeLongestPathLength() {
@@ -102,35 +159,24 @@ public abstract class BNode {
 	}
 
 	public BNode error(Throwable err) {
-		return error(err, true);
+		return g().errorLog.add(err, true);
 	}
 
-	public BNode error(Throwable err, boolean rethrow) {
-		g.errorLog.add(err);
-
-		if (rethrow) {
-			throw err instanceof RuntimeException re ? re : new RuntimeException(err);
-		} else {
-			err.printStackTrace();
-			return g.errorLog;
-		}
-	}
-
-	public List<Action> actions() {
+	public List<Action<?>> actions() {
 		if (cachedActions == null) {
-			cachedActions = new ListNode<>(g, "actions for node " + this);
+			cachedActions = new ListNode<>(this, "actions for node " + this, Action.class);
 			createActions();
 		}
 
-		return (List<Action>) cachedActions.get();
+		return (List<Action<?>>) (List) cachedActions.get();
 	}
 
-	public void invalidateCache() {
+	public void invalidateActionCache() {
 		cachedActions = null;
 	}
 
 	public void delete() {
-		g.indexes.delete(this);
+		g().indexes.delete(this);
 	}
 
 	public int sizeOf() {
@@ -145,7 +191,7 @@ public abstract class BNode {
 		l.add(c);
 	}
 
-	public String fieldsToCSV(boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
+	public final String fieldsToCSV(boolean printHeaders) throws IllegalArgumentException, IllegalAccessException {
 		var sw = new StringWriter();
 		var pw = new PrintWriter(sw);
 		fieldsToCSV(pw, printHeaders);
@@ -154,7 +200,7 @@ public abstract class BNode {
 		return s;
 	}
 
-	public void fieldsToCSV(PrintWriter ps, boolean printHeaders)
+	private void fieldsToCSV(PrintWriter ps, boolean printHeaders)
 			throws IllegalArgumentException, IllegalAccessException {
 		var fields = new ArrayList<Field>();
 
@@ -192,7 +238,7 @@ public abstract class BNode {
 			TriConsumer<Field, BNode, Boolean> consumer) {
 		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
-				if (BNode.class.isAssignableFrom(f.getType()) && !f.isAnnotationPresent(DoNotShowOnChat.class)) {
+				if (f.isAnnotationPresent(ShowInKishanView.class)) {
 					try {
 						f.setAccessible(true);
 						var outNode = (BNode) f.get(this);
@@ -207,12 +253,23 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
+	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
+			BiConsumer<Method, BNode> consumer) {
+		for (var m : getClass().getMethods()) {
+			if (m.isAnnotationPresent(ShowInKishanView.class)) {
+				try {
+					var outNode = (BNode) m.invoke(this);
+					consumer.accept(m, outNode);
+				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+					error(e);
+				}
+			}
+		}
 	}
 
-	public void forEachOut(Consumer<BNode> consumer) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o));
+	public void forEachOut(BiConsumer<BNode, String> consumer) {
+		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
+		forEachOutInMethods(getClass(), BNode.class, (m, o) -> consumer.accept(o, m.getName()));
 	}
 
 	public void createActions() {
@@ -221,8 +278,8 @@ public abstract class BNode {
 		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new SeeClassNode(this));
 		cachedActions.elements.add(new CopyIDToClipboard(this));
-		cachedActions.elements.add(new FreezingAction(g));
-		cachedActions.elements.add(new JumpToAnotherNode(g));
+		cachedActions.elements.add(new FreezingAction(this));
+		cachedActions.elements.add(new JumpToAnotherNode(this));
 		cachedActions.elements.add(new Reset(this));
 		cachedActions.elements.add(new Export(this));
 		cachedActions.elements.add(new Delete(this));
@@ -246,22 +303,7 @@ public abstract class BNode {
 	}
 
 	public String whatIsThis() {
-		return getClassNode().whatItRepresents();
-	}
-
-	public static class BFSResult {
-		public Object2IntOpenHashMap<BNode> distances = new Object2IntOpenHashMap<>();
-		public Set<BNode> visited = new HashSet<>();
-
-		public int longestDistance() {
-			int max = 0;
-			for (int d : distances.values()) {
-				if (d > max) {
-					max = d;
-				}
-			}
-			return max;
-		}
+		return type().whatItRepresents();
 	}
 
 	public BFSResult bfs(long maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
@@ -285,7 +327,8 @@ public abstract class BNode {
 			}
 
 			final var c_tmp = c;
-			c.forEachOut(o -> {
+
+			c.forEachOut((o, role) -> {
 				if (o != null && !r.visited.contains(o)) {
 					r.visited.add(o);
 
@@ -327,12 +370,12 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		return ColorPalette.forClass(getClass(), g.swing.colorStyle.style);
+		return ColorPalette.forClass(getClass(), g().swing.colorStyle.style);
 	}
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		int alpha = (int) g.swing.transparencyForNodeBackground.get().longValue();
+		int alpha = (int) g().swing.transparencyForNodeBackground.get().longValue();
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
@@ -401,7 +444,7 @@ public abstract class BNode {
 	}
 
 	public User currentUser() {
-		return g.getCurrentUser();
+		return g().getCurrentUser();
 	}
 
 	public Action findAction(String actionName) {
@@ -430,45 +473,12 @@ public abstract class BNode {
 		});
 	}
 
-	public JButton createJumpButton(ChatNode chat) {
-		var b = new TranslatableButton(chat.g.translator);
-		b.setText(toString());
-
-//		b.setContentAreaFilled(true);
-		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> chat.append(this));
-		b.setToolTipText(whatIsThis());
-		b.setFocusable(false);
-
-		return b;
-	}
-
-	public JButton createJumpButton2(ChatNode chat) {
-		var b = new JButton(toString()) {
-			@Override
-			public Color getBackground() {
-				return getColor();
-			}
-		};
-//		b.setContentAreaFilled(true);
-		b.setPreferredSize(new Dimension(100, 30));
-		b.addActionListener(e -> chat.append(this));
-		b.setToolTipText(whatIsThis());
-		return b;
-	}
-
 	public String idAsText() {
 		return Base62.encode(id());
 	}
 
-	public <N extends BNode> ClassNode getClassNode() {
-		for (ClassNode c : (Collection<ClassNode>) (Collection) g.indexes.byClass.m.get(ClassNode.class)) {
-			if (c.representedClass == getClass()) {
-				return c;
-			}
-		}
-
-		throw new IllegalStateException("class node should be registered: " + getClass());
+	public ClassNode<?> type() {
+		return g().indexes.byClass.getClassNodeFor(getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -476,57 +486,66 @@ public abstract class BNode {
 	}
 
 	public String t(String s) {
-		var translation = g.translator.translate(s);
+		var translation = g().translator.translate(s);
 		return translation == null ? s : translation;
 	}
 
-	public void writeTo(ChatSheet sheet) {
-		int fieldNameSize = fieldMaxLenght();
+	public void writeKishanView(ChatSheet sheet) {
+		int fieldNameSize = fieldMaxLength();
 
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this) {
-				if (out instanceof DynamicValuedNode otf) {
-					out = otf.exec();
-				}
-
 				fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
+				sheet.newLine();
+			}
+		});
+
+		forEachOutInMethods(getClass(), BNode.class, (method, out) -> {
+			if (out != this) {
+				fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
 				sheet.newLine();
 			}
 		});
 	}
 
-	public int fieldMaxLenght() {
+	private int fieldMaxLength() {
 		int[] max = { 0 };
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
 			if (out != this)
 				max[0] = Math.max(max[0], f.getName().length());
 		});
+		forEachOutInMethods(getClass(), BNode.class, (m, out) -> {
+			if (out != this)
+				max[0] = Math.max(max[0], m.getName().length());
+		});
 		return max[0];
 	}
 
-	private void fillLine(WrapPanel currentLine, Field f, ChatSheet sheet, BNode out, int left) {
-		var fieldNameComponent = new TextDisplayComponent(g.translator, f.getName() + ":");
-		fieldNameComponent.setColumns(left);
-		fieldNameComponent.setToolTipText(f.getName());
-		Utils.idDropTarget(g, fieldNameComponent, dn -> set(f, dn));
-		currentLine.add(fieldNameComponent);
+	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
+		var roleComponent = new TextDisplayComponent(g().translator, m.getName() + ":");
+		roleComponent.setColumns(left);
+		roleComponent.setToolTipText(m.getName());
+
+		currentLine.add(roleComponent);
 
 		if (out != null) {
 			currentLine.add(out.createBall(18, 2, ((ChatSheet) sheet).chat));
 			currentLine.add(new ErrorIndicator(out));
-			out.writeTo(sheet);
+			out.writeToKishanView(sheet);
 		} else {
 			sheet.appendToCurrentLine("field has no value");
 		}
 
-		{
+		if (m instanceof Field field) {
+			Utils.idDropTarget(g(), roleComponent, dn -> set(field, dn));
+
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
 			setToNull.addActionListener(e -> {
 				try {
-					set(f, null);
+					set(field, null);
 					sheet.currentLine.removeAll();
-					fillLine(currentLine, f, sheet, out, left);
+					fillLine(currentLine, m, sheet, out, left);
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
@@ -535,8 +554,9 @@ public abstract class BNode {
 			});
 			var replace = new JMenuItem("see candidates");
 			replace.addActionListener(e -> {
-				var list = new ListNode(g, "all nodes of class " + f.getType().getName());
-				g.indexes.byClass.forEachNodeAssignableTo((Class) f.getType(), a -> {
+				var list = new ListNode(parent, "all nodes of class " + field.getType().getName(),
+						(Class) field.getType());
+				g().indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
 					list.elements.add(a);
 					return Stop.no;
 				});
@@ -547,8 +567,12 @@ public abstract class BNode {
 				popup.add(out == null ? replace : setToNull);
 			}
 
-			fieldNameComponent.setComponentPopupMenu(popup);
+			roleComponent.setComponentPopupMenu(popup);
 		}
+	}
+
+	protected void writeToKishanView(ChatSheet sheet) {
+		sheet.appendToCurrentLine(getSmallComponent(sheet.chat));
 	}
 
 	public JComponent createBall(int diameter, int border, ChatNode chat) {
@@ -593,18 +617,14 @@ public abstract class BNode {
 		return c;
 	}
 
-	public JComponent getListItemComponent(ChatNode chat) {
-		var p = new JPanel();
-		p.setOpaque(false);
-		p.add(createBall(20, 15, chat));
-		var ta = new TranslatableTextArea(chat.g.translator);
+	protected JComponent getListItemComponent(ChatNode chat) {
+		return getSmallComponent(chat);
+	}
+
+	protected JComponent getSmallComponent(ChatNode chat) {
+		var ta = new TranslatableTextArea(g().translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
-		p.add(ta);
-
-		for (var c : p.getComponents()) {
-//			((JComponent) c).setBorder(LineBorder.createBlackLineBorder());
-		}
-		return p;
+		return ta;
 	}
 }

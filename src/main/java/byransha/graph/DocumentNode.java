@@ -8,11 +8,11 @@ public class DocumentNode extends BNode {
 	public StringNode title;
 	public MimeTypeNode mimeType;
 
-	public DocumentNode(BGraph g) {
-		super(g);
-		data = new RawDataNode(g);
-		title = new StringNode(g);
-		mimeType = new MimeTypeNode(g);
+	public DocumentNode(BNode parent) {
+		super(parent);
+		data = new RawDataNode(parent);
+		title = new StringNode(parent);
+		mimeType = new MimeTypeNode(g());
 	}
 
 	@Override

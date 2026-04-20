@@ -38,9 +38,8 @@ public class Main {
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
 		g = new BGraph(d);
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
-				.getConstructor(BGraph.class).newInstance(g);
+				.getConstructor(BNode.class).newInstance(g);
 
-		g.nodeCreator.addBusinessClassesIn(g.application.getClass().getPackage());
 		g.currentUser = new User(g, "guest");
 		
 		new ChatNode(g.currentUser).append(g.application);
@@ -50,10 +49,6 @@ public class Main {
 		new SwingFrontend(g);
 		// new JavaFXFrontend(g);
 
-		g.eventList.add(createPersonEvent("Luc")	);
-		g.eventList.add(createPersonEvent("Dylan"));
-		g.eventList.add(createPersonEvent("Sophie"));
-
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
 
@@ -61,7 +56,7 @@ public class Main {
 	}
 
 	private static Event createPersonEvent(String name) {
-		var e = new CreateNewNode<Person>(g, LocalDateTime.now());
+		var e = new NewNodeEvent<Person>(g, LocalDateTime.now());
 		e.clazz = Person.class;
 		return e;
 	}

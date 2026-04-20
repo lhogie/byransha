@@ -8,20 +8,23 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 
 public class TextNode extends PrimitiveValueNode<String> {
+	@ShowInKishanView
 	StringNode labelNode;
 	public boolean info;
 
-	public TextNode(BGraph g, String label, String data) {
-		super(g);
+	public TextNode(BNode parent, String label, String data) {
+		super(parent);
 		set(data);
-		labelNode = new StringNode(g, label, ".+");
+		labelNode = new StringNode(this, label, ".+");
 	}
+
 	@Override
 	public String toString() {
 		return labelNode.toString();
@@ -29,8 +32,8 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public void createActions() {
-		cachedActions.elements.add(new saveNodeAction( this));
-		cachedActions.elements.add(new textStats( this));
+		cachedActions.elements.add(new saveNodeAction(this));
+		cachedActions.elements.add(new textStats(this));
 		super.createActions();
 	}
 
@@ -55,11 +58,11 @@ public class TextNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
+	public void writeKishanView(ChatSheet pane) {
 		String s = get();
 
 		if (info) {
-			var ta = new TranslatableTextArea(g.translator);
+			var ta = new TranslatableTextArea(g().translator);
 			ta.setText(s);
 			pane.appendToCurrentLine(Utils.resizableScrollPane(ta));
 		} else {

@@ -1,6 +1,5 @@
 package byransha.ui.swing;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -9,8 +8,6 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetAdapter;
 import java.awt.dnd.DropTargetDropEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Enumeration;
 
 import javax.swing.Icon;
@@ -22,8 +19,6 @@ import javax.swing.plaf.FontUIResource;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.list.action.ListNode;
-import byransha.nodes.system.ChatNode;
 import byransha.util.Base62;
 import byransha.util.PossiblyFailingConsumer;
 
@@ -97,47 +92,8 @@ public class Utils {
 
 	static {
 		chatWidth = (9 * screenSize.height) / 16;
-		initialSize = new Dimension(5, screenSize.height);
+		initialSize = new Dimension(chatWidth, screenSize.height);
 		initialLocation = new Point((screenSize.width - chatWidth) / 2, 0);
-	}
-
-
-	public static JComponent noNodeShower(int diameter, int border, ChatNode chat, Class clazz) {
-		var c = new CircleComponent(diameter, Color.orange);
-		c.setBorderWidth(border);
-		c.setOpaque(false);
-		c.setFocusable(false);
-
-		c.addMouseListener(new MouseListener() {
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					var list = new ListNode(chat.g, "all nodes of class " + clazz.getName());
-					list.elements.addAll(chat.g.indexes.byClass.m.get(clazz));
-					var newChat = new ChatNode(chat.currentUser());
-					newChat.append(list);
-				}
-			}
-		});
-
-		return c;
 	}
 
 	public static Icon icon(String s, double scaleFactor) {

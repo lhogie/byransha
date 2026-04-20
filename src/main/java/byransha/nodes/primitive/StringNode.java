@@ -6,6 +6,8 @@ import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Objects;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
@@ -13,19 +15,21 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.NodeError;
+import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
 
 public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean hideText;
 
-	public StringNode(BGraph g) {
+	public StringNode(BNode g) {
 		this(g, null, null);
 		Objects.requireNonNull(g);
 	}
 
-	public StringNode(BGraph g, String init, String re) {
+	public StringNode(BNode g, String init, String re) {
 		super(g);
 		this.re = re;
 		set(init);
@@ -47,14 +51,11 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	@Override
 	protected void fillErrors(List<NodeError> errs) {
-		if (re != null) {
-			var s = get();
+		super.fillErrors(errs);
+		var s = get();
 
-			if (s == null) {
-				errs.add(new NodeError(this, "no value"));
-			} else if (!s.matches(re)) {
-				errs.add(new NodeError(this, "does not match " + re));
-			}
+		if (re != null && s != null && !s.matches(re)) {
+			errs.add(new NodeError(this, "does not match " + re));
 		}
 	}
 
@@ -74,12 +75,16 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet pane) {
-		String s = get();
-		var tf = hideText ? new JPasswordField(s) : new JTextField(s);
+	public void writeKishanView(ChatSheet pane) {
+		var s = get();
+		var tf = hideText ? new JPasswordField() : new JTextField();
+
+		if (s != null) {
+			tf.setColumns(Math.min(5, s.length()));
+			tf.setText(s);
+		}
 
 		tf.setEditable(!readOnly);
-		tf.setColumns(20);
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -113,8 +118,12 @@ public class StringNode extends PrimitiveValueNode<String> {
 				// tf.setCaretPosition(caret);
 			});
 		});
-
 		pane.currentLine.add(tf);
+	}
+
+	@Override
+	public JComponent getListItemComponent(ChatNode chat) {
+		return new JLabel(get());
 	}
 
 }

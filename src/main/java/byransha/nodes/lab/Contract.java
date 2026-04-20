@@ -1,24 +1,27 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Contract extends BusinessNode {
-	private StringNode name;
-	private Person holder;
-	ListNode<Person> subHolders;
-	ListNode<Person> coordinators;
-	ListNode<Person> partners;
-	ListNode<Person> misc;
+	@ShowInKishanView
+	public final StringNode name = new StringNode(parent);
+	@ShowInKishanView
+	public Person holder;
+	@ShowInKishanView
+	public final ListNode<Person> subHolders = new ListNode<>(parent, "subHolder(s)", Person.class);
+	@ShowInKishanView
+	public final ListNode<Person> coordinators = new ListNode<>(parent, "coordinators", Person.class);
+	@ShowInKishanView
+	public final ListNode<Person> partners = new ListNode<>(parent, "partners", Person.class);
+	@ShowInKishanView
+	public final ListNode<Person> misc = new ListNode<>(parent, "misc", Person.class);
 
 	public Contract(BGraph g) {
 		super(g);
-		name = new StringNode(g);
-		subHolders = new ListNode<>(g, "contracts");
-		coordinators = new ListNode<>(g, "coordinators");
-		partners = new ListNode<>(g, "partners");
-		misc = new ListNode<>(g, "misc");
 	}
 
 	@Override

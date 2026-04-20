@@ -1,8 +1,12 @@
 package byransha.nodes.lab;
 
 import byransha.graph.BGraph;
+import byransha.graph.BNode;
+import byransha.graph.BusinessNode;
 import byransha.graph.DocumentNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.nodes.Factory;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.DateNode;
 import byransha.nodes.primitive.EmailNode;
@@ -13,59 +17,60 @@ import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
 
 public class Person extends BusinessNode {
-
+	@ShowInKishanView
 	public Genre genre;
-	public ListNode<Position> positions;
-	public DocumentNode pics;
-	public BooleanNode hdr;
-	public StringNode badgeNumber;
-	public StringNode website;
-	public StringNode faxNumber;
-	public final ListNode<Structure> structures = new ListNode<>(g, "structures");
-	public DateNode phdDate;
-	public ListNode<PhoneNumberNode> phoneNumbers;
-	protected ListNode<EmailNode> emailAddresses;
-	public ListNode<Office> offices;
-	public LongNode quotite = new LongNode(g);
-	public Position position;
+	@ShowInKishanView
+	public ListNode<Position> positions = new ListNode<Position>(parent, "positions", Position.class);
+	@ShowInKishanView
+	public DocumentNode pics = new DocumentNode(this);
+	@ShowInKishanView
+	public BooleanNode hdr = new BooleanNode(this, null);
+	@ShowInKishanView
+	public StringNode badgeNumber = new StringNode(this);
+	@ShowInKishanView
+	public StringNode website = new URLNode(this, null);
+	@ShowInKishanView
+	public final ListNode<Structure> structures = new ListNode<>(parent, "structures", Structure.class);
+	@ShowInKishanView
+	public DateNode phdDate = new DateNode(this);
+	@ShowInKishanView
+	public ListNode<PhoneNumberNode> phoneNumbers = new ListNode<PhoneNumberNode>(parent, "phone number(s)",
+			PhoneNumberNode.class);
+	@ShowInKishanView
+	public ListNode<EmailNode> emailAddresses = new ListNode<EmailNode>(parent, "email adresses", EmailNode.class);
+	@ShowInKishanView
+	public ListNode<Office> offices = new ListNode<Office>(parent, "offices", Office.class);
+	@ShowInKishanView
+	public LongNode quotite = new LongNode(parent);
 	public boolean enposte;
-	public ListNode<Publication> publications = new ListNode<>(g, "publications");
-	public final StringNode orcid = new StringNode(g, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
-	public final StringNode authID = new StringNode(g, null, "^A\\d{7}$");
+	@ShowInKishanView
+	public ListNode<Publication> publications = new ListNode<>(parent, "publications", Publication.class);
+	@ShowInKishanView
+	public final StringNode orcid = new StringNode(parent, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$");
+	@ShowInKishanView
+	public final StringNode authID = new StringNode(parent, null, "^A\\d{7}$");
+	@ShowInKishanView
 	public StringNode researchActivity;
-	public StringNode name = new StringNode(g, null, ".+");
-	public StringNode firstName = new StringNode(g, null, ".+");
+	@ShowInKishanView
+	public StringNode name = new StringNode(parent, null, ".+");
+	@ShowInKishanView
+	public StringNode firstName = new StringNode(parent, null, ".+");
+	@ShowInKishanView
+	public StringNode familyNameBeforeMariage = new StringNode(parent);
+	@ShowInKishanView
+	public StringNode cityOfBirth = new StringNode(parent, null, ".+");
+	@ShowInKishanView
+	public StringNode address = new StringNode(parent, null, ".+");
+	public Country countryOfBirth;
 
-	public StringNode familyNameBeforeMariage = new StringNode(g);
-	public StringNode cityOfBirth = new StringNode(g, null, ".+");
-	public StringNode address = new StringNode(g, null, ".+");
+	public ListNode<Nationality> nationality = new ListNode<Nationality>(parent, "nationalities", Nationality.class);
+	public DateNode birthDate = new DateNode(this);
+	public PhoneNumberNode telephone = new PhoneNumberNode(this);
 
-	public ListNode<Country> countryOfBirth = new ListNode<Country>(g, "countries");;
-
-	public ListNode<Nationality> nationality = new ListNode<Nationality>(g, "nationalities");;
-
-	public DateNode birthDate = new DateNode(g);
-
-	public PhoneNumberNode telephone = new PhoneNumberNode(g);;
-
-	public DocumentNode pic;
-	
-	public Person(BGraph g) {
-		super(g);
+	@Factory
+	public Person(BNode parent) {
+		super(parent);
 		quotite.setBounds(new Bounds(0, 100));
-		
-		
-		
-		positions = new ListNode<Position>(g, "positions");
-		pics = new DocumentNode(g);
-		hdr = new BooleanNode(g, null);
-		badgeNumber = new StringNode(g);
-		website = new URLNode(g, null);
-		faxNumber = new StringNode(g);
-		phdDate = new DateNode(g);
-		phoneNumbers = new ListNode<PhoneNumberNode>(g, "phone number(s)");
-		emailAddresses = new ListNode<EmailNode>(g, "email adresses");
-		offices = new ListNode<Office>(g, "offices");
 	}
 
 	@Override

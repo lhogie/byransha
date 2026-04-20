@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import byransha.graph.ShowInKishanView;
 import byransha.graph.ActionParameter;
 import byransha.graph.BNode;
 import byransha.graph.Category;
@@ -18,6 +19,8 @@ import byransha.nodes.primitive.TextNode;
 
 public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ObjectMapper mapper = new ObjectMapper();
+	
+	@ShowInKishanView
 
 	public enum ResponseMode {
 		JSON_ONLY,
@@ -34,8 +37,8 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	
 	public QueryIA(BNode n) {
 		super(n, AI.class);
-		prompt = new StringNode(g, "", ".+");
-		inputJSON = new JSONNode(g, n.describeAsJSON());
+		prompt = new StringNode(this, "", ".+");
+		inputJSON = new JSONNode(this, n.describeAsJSON());
 	}
 
 	@Override
@@ -71,13 +74,13 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 		if (AiResponseAnalyser.isArrayOfNumbers(analysableResponse)) {
 			JsonNode parsed = mapper.readTree(analysableResponse);
-			var l = new ListNode<BNode>(g, "IA numeric array");
+			var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
 			for (JsonNode value : parsed) {
-				l.elements.add(new TextNode(g, "value", value.asText()));
+				l.elements.add(new TextNode(this, "value", value.asText()));
 			}
 			result = l;
 		} else if (AiResponseAnalyser.isDistribution(analysableResponse)) {
-			var distributionNode = new DistributionNode<String>(g) {
+			var distributionNode = new DistributionNode<String>(this) {
 				@Override
 				public String toString() {
 					return "IA distribution";
@@ -91,9 +94,16 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 			result = distributionNode;
 		} else {
-			result = new TextNode(g, "IA response", iaResponse);
-
+			result = new TextNode(parent, "IA response", iaResponse);
 		}
+	}
+
+	public void setResponseMode(ResponseMode responseMode) {
+		this.responseMode = responseMode == null ? ResponseMode.JSON_ONLY : responseMode;
+	}
+
+	public ResponseMode getResponseMode() {
+		return responseMode;
 	}
 
 	public void setResponseMode(ResponseMode responseMode) {

@@ -39,7 +39,7 @@ public class NetworkAgent extends BNode {
 	public static final int port = 9876;
 	final StringNode publicKeyInfo;
 	final StringNode inOutInfo;
-	public final ListNode<PeerNode> peers;
+	public final ListNode<PeerNode> peers= new ListNode<>(parent, "peers", PeerNode.class);
 	String name;
 	DatagramSocket socket;
 	private int packetReceived;
@@ -48,7 +48,7 @@ public class NetworkAgent extends BNode {
 
 	public NetworkAgent(BGraph g) throws FileNotFoundException, IOException {
 		super(g);
-		this.peers = new ListNode<>(g, "peers");
+
 		File securityDir = new File(g.byransha.configDirectory, "security");
 		File authorizedKeys = new File(securityDir, "authorized_keys");
 
@@ -113,6 +113,9 @@ public class NetworkAgent extends BNode {
 		}, "network agent UDP reception thread").start();
 	}
 
+	
+	
+	
 	public static PrivateKey readPrivateKey(Path path) throws Exception {
 		String pem = Files.readString(path);
 
@@ -154,14 +157,14 @@ public class NetworkAgent extends BNode {
 		var received = serializer.fromBytes(msg.data);
 
 		if (received instanceof Ack ack) {
-			g.eventList.findEvent(ack.id).markReceivedBy(from);
+			g().eventList.findEvent(ack.id).markReceivedBy(from);
 		} else if (received instanceof Event e) {
-			var alreadyKnownEvent = g.eventList.findEvent(e.id());
+			var alreadyKnownEvent = g().eventList.findEvent(e.id());
 
 			if (alreadyKnownEvent != null) {
 				alreadyKnownEvent.markReceivedBy(from);
 			} else {
-				g.eventList.add(e);
+				g().eventList.add(e);
 				e.markReceivedBy(from);
 			}
 
@@ -197,7 +200,7 @@ public class NetworkAgent extends BNode {
 	
 
 	public PeerNode findPeer(int id) {
-		for (var p : g.networkAgent.peers.get()) {
+		for (var p : g().networkAgent.peers.get()) {
 			if (p.id == id) {
 				return p;
 			}
@@ -237,6 +240,6 @@ public class NetworkAgent extends BNode {
 
 	@Override
 	public String toString() {
-		return "network agent";
+		return "received: " + packetReceived+ ", sent: " + packetSent;
 	}
 }

@@ -1,24 +1,30 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BusinessNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Office extends BusinessNode {
+	@ShowInKishanView
+	public StringNode name = new StringNode(parent);;
 
-	public StringNode name;
+	@ShowInKishanView
+	public final ListNode<Person> users = new ListNode(parent, "users", Person.class);
 
-	public ListNode<Person> users;
+	@ShowInKishanView
+	public LongNode surface = new LongNode(parent), capacity = new LongNode(parent);
 
-	public LongNode surface, capacity;
+	@ShowInKishanView
+	public BooleanNode isZZR;
 
-	public Office(BGraph g) {
+	@ShowInKishanView
+	public LongNode floorNumber;
+
+	public Office(Building g) {
 		super(g);
-		name = new StringNode(g);
-		users = new ListNode(g, "users");
-		surface = new LongNode(g);
-		capacity = new LongNode(g);
 	}
 
 	@Override

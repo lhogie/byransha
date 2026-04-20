@@ -1,6 +1,6 @@
 package byransha.graph;
 
-import byransha.graph.BNode.node;
+import byransha.graph.Category.node;
 import byransha.nodes.system.ChatNode;
 
 public class OpenInNewChat extends ProcedureAction<BNode> {

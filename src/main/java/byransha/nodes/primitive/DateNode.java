@@ -11,11 +11,11 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
-	public DateNode(BGraph g) {
+	public DateNode(BNode g) {
 		super(g);
 	}
 

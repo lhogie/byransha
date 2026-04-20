@@ -1,10 +1,13 @@
 package byransha.graph.relection;
 
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.relection.LinkAction.type;
 
 public class MakeNewInstance extends FunctionAction<ClassNode, BNode> {
+	@ShowInKishanView
+	BNode parent = this;
 
 	public MakeNewInstance(ClassNode inputNode) {
 		super(inputNode, type.class);
@@ -17,7 +20,7 @@ public class MakeNewInstance extends FunctionAction<ClassNode, BNode> {
 
 	@Override
 	public void impl() throws Throwable {
-		result = inputNode.newInstance();
+		result = inputNode.newInstance(parent);
 	}
 
 	@Override

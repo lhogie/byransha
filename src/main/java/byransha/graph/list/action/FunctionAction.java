@@ -10,5 +10,4 @@ public abstract class FunctionAction<IN extends BNode, OUT extends BNode> extend
 	public FunctionAction(IN inputNode, Class<? extends Category>... category) {
 		super(inputNode, category);
 	}
-
 }

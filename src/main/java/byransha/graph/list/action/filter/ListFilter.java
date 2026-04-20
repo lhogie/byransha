@@ -1,16 +1,14 @@
 package byransha.graph.list.action.filter;
 
-import org.checkerframework.checker.units.qual.N;
-
 import byransha.graph.BNode;
-import byransha.graph.Category;
+import byransha.graph.Category.list;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 
-public abstract class FilterNode<N extends BNode> extends FunctionAction<ListNode<N>, ListNode<N>> {
+public abstract class ListFilter<N extends BNode> extends FunctionAction<ListNode<N>, ListNode<N>> {
 
-	public FilterNode(ListNode<N> inputNode, Class<? extends Category>... cat) {
-		super(inputNode,  cat);
+	public ListFilter(ListNode<N> inputNode) {
+		super(inputNode, list.class);
 	}
 
 	@Override
@@ -22,7 +20,7 @@ public abstract class FilterNode<N extends BNode> extends FunctionAction<ListNod
 
 	@Override
 	public void impl() {
-		result = new ListNode<N>(g, retainsOnly());
+		result = new ListNode<N>(parent, retainsOnly(), inputNode.contentClass);
 
 		inputNode.get().forEach(n -> {
 			if (retains(n)) {

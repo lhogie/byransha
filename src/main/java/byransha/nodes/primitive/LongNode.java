@@ -15,7 +15,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.ui.swing.ChatSheet;
@@ -27,12 +26,12 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	public Bounds bounds;
 
-	public LongNode(BGraph g) {
-		super(g);
+	public LongNode(BNode parent) {
+		super(parent);
 	}
 
 	public LongNode(BNode parent, long value) {
-		super(parent.g);
+		this(parent);
 		set(value);
 	}
 
@@ -52,6 +51,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 	@Override
 	protected void fillErrors(List<NodeError> errs) {
+		super.fillErrors(errs);
 		var v = get();
 
 		if (v != null && bounds != null) {
@@ -64,7 +64,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	}
 
 	@Override
-	public void writeTo(ChatSheet sheet) {
+	public void writeKishanView(ChatSheet sheet) {
 		var tf = new JTextField(String.valueOf(get()));
 		tf.setColumns(10);
 		tf.setEditable(!readOnly);
@@ -124,6 +124,8 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 		if (bounds != null) {
 			var slider = new JSlider((int) bounds.min, (int) bounds.max);
+			slider.setPaintTicks(true);
+			slider.setPaintLabels(true);
 
 			if (get() != null) {
 				slider.setValue(get().intValue());

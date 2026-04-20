@@ -1,12 +1,11 @@
 package byransha.graph.action;
 
 import byransha.graph.Action;
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.Category;
 
 public final class FreezingAction extends Action {
-	public FreezingAction(BGraph g) {
+	public FreezingAction(BNode g) {
 		super(g, misc.class);
 	}
 
