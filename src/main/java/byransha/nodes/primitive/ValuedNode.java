@@ -1,16 +1,18 @@
 package byransha.nodes.primitive;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.io.Files;
 
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
+import byransha.nodes.system.Byransha;
 
 public abstract class ValuedNode<V> extends BNode {
 	V value;
@@ -61,7 +63,7 @@ public abstract class ValuedNode<V> extends BNode {
 		if (readOnly)
 			throw new RuntimeException("can't change a read only valued node");
 
-		if (!canEdit(currentUser()))
+		if (g() != null && !canEdit(g().currentUser()))
 			throw new RuntimeException(currentUser() + " is not allowed to set value");
 
 		V oldValue = value;
@@ -73,10 +75,25 @@ public abstract class ValuedNode<V> extends BNode {
 			valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
 		}
 
-		var g = g();
-		if (g.eventList != null) {
-//			g.eventList.add(new ValuedNodeValueChangeEvent<V>(g(), LocalDateTime.now(), this, oldValue, newValue));
+		if (shouldGenerateEvent()) {
+			var g = g();
+			if (g.eventList != null) {
+//	g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), this, oldValue, newValue));
+			}
 		}
+
+		try {
+			var f = new File(Byransha.configDirectory, "valued_nodes/" + pathString() + ".txt");
+			f.getParentFile().mkdirs();
+			Files.write(toString().getBytes(), f);
+		} catch (IOException ioError) {
+			error(ioError);
+		}
+
+	}
+
+	private boolean shouldGenerateEvent() {
+		return enclosingBusinessNode() != null;
 	}
 
 	public abstract V defaultValue();

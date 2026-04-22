@@ -40,7 +40,6 @@ public class Main {
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BNode.class).newInstance(g);
 
-		g.currentUser = new User(g, "guest");
 		
 		new ChatNode(g.currentUser).append(g.application);
 
@@ -51,6 +50,7 @@ public class Main {
 
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
+		g.currentUser = new User(g, "guest");
 
 		// launch(args);
 	}
@@ -80,7 +80,7 @@ public class Main {
 		primaryStage.setHeight(size.getHeight());
 		primaryStage.setX(location.x);
 		primaryStage.setY(location.y);
-		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
+		primaryStage.setTitle("Byransha v" + g.byransha.currentVersionNode.get());
 		primaryStage.show();
 	}
 	

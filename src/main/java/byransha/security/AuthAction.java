@@ -8,8 +8,8 @@ import byransha.security.Authenticator.security;
 import byransha.util.Stop;
 
 public class AuthAction extends Action {
-	public final StringNode username = new StringNode(parent, "", ".+");
-	public final StringNode password = new StringNode(parent, "", ".+");
+	public final StringNode username = new StringNode(this, "", ".+");
+	public final StringNode password = new StringNode(this, "", ".+");
 
 	public AuthAction(BGraph g) {
 		super(g, security.class);

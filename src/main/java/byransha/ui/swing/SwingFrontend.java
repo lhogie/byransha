@@ -48,7 +48,7 @@ public class SwingFrontend extends SystemNode {
 
 	private void considerUser(User newUser) {
 		f.getContentPane().removeAll();
-		var panelList = newUser.chatList.elements.stream().map(c -> new ChatPanel(c)).toList();
+		var panelList = newUser.chats.elements.stream().map(c -> new ChatPanel(c)).toList();
 		var p = new JPanel(new GridLayout(1, panelList.size()));
 		panelList.forEach(p::add);
 		f.setContentPane(p);

@@ -4,32 +4,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Properties;
-
-import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
-import org.bouncycastle.openssl.PEMKeyPair;
-import org.bouncycastle.openssl.PEMParser;
-import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 
 import byransha.event.Event;
 import byransha.graph.Ack;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.nodes.system.Byransha;
 import byransha.security.RSA;
 import byransha.util.GZip;
 import toools.io.ser.JavaSerializer;
@@ -37,20 +29,27 @@ import toools.io.ser.Serializer;
 
 public class NetworkAgent extends BNode {
 	public static final int port = 9876;
-	final StringNode publicKeyInfo;
-	final StringNode inOutInfo;
-	public final ListNode<PeerNode> peers= new ListNode<>(parent, "peers", PeerNode.class);
-	String name;
-	DatagramSocket socket;
+	@ShowInKishanView
+	File securityDir = new File(Byransha.configDirectory, "security");
+	@ShowInKishanView
+	File authorizedKeys = new File(securityDir, "authorized_keys");
+
+	@ShowInKishanView
+	final StringNode publicKeyInfo = new StringNode(this);
+	@ShowInKishanView
+	final StringNode inOutInfo = new StringNode(this);
+	@ShowInKishanView
+	public final ListNode<PeerNode> peers = new ListNode<>(parent, "peers", PeerNode.class);
+	@ShowInKishanView
+	String peerName;
 	private int packetReceived;
 	private int packetSent;
 	private KeyPair keyPair;
+	IPDriver tcpDriver = new TCPDriver(this);
+	final Serializer serializer = new JavaSerializer<>();
 
 	public NetworkAgent(BGraph g) throws FileNotFoundException, IOException {
 		super(g);
-
-		File securityDir = new File(g.byransha.configDirectory, "security");
-		File authorizedKeys = new File(securityDir, "authorized_keys");
 
 		if (authorizedKeys.exists()) {
 			var props = new Properties();
@@ -76,8 +75,6 @@ public class NetworkAgent extends BNode {
 			Files.write(authorizedKeys.toPath(), "".getBytes());
 		}
 
-		publicKeyInfo = new StringNode(g);
-		inOutInfo = new StringNode(g);
 		File keyPairFile = new File(securityDir, "keyPair.ser");
 
 		if (keyPairFile.exists()) {
@@ -92,62 +89,12 @@ public class NetworkAgent extends BNode {
 			publicKeyInfo.set(pub);
 		}
 
-		new Thread(() -> {
-			try {
-				socket = new DatagramSocket(port);
-				System.out.println("UDP Server is listening on port " + port);
-
-				byte[] receiveBuffer = new byte[1024];
-
-				while (true) {
-					DatagramPacket packet = new DatagramPacket(receiveBuffer, receiveBuffer.length);
-					socket.receive(packet);
-					var msg = (Message) serializer.fromBytes(GZip.gunzip(packet.getData()));
-					++packetReceived;
-					updateInOutInfo();
-					handle(msg);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}, "network agent UDP reception thread").start();
 	}
 
-	
-	
-	
-	public static PrivateKey readPrivateKey(Path path) throws Exception {
-		String pem = Files.readString(path);
+	void handle(Message msg) throws IOException {
+		++packetReceived;
+		updateInOutInfo();
 
-		String base64 = pem.replaceAll("-----BEGIN [A-Z ]+-----", "").replaceAll("-----END [A-Z ]+-----", "")
-				.replaceAll("\\s", "");
-
-		byte[] der = Base64.getDecoder().decode(base64);
-
-		// Try PKCS#8 first (BEGIN PRIVATE KEY)
-		try {
-			return KeyFactory.getInstance("RSA").generatePrivate(new PKCS8EncodedKeySpec(der));
-		} catch (InvalidKeySpecException e) {
-			// Fall back to PKCS#1 (BEGIN RSA PRIVATE KEY) via BouncyCastle
-			return readPkcs1PrivateKey(path);
-		}
-	}
-
-	// BouncyCastle fallback for PKCS#1 format
-	private static PrivateKey readPkcs1PrivateKey(Path path) throws Exception {
-		try (PEMParser parser = new PEMParser(Files.newBufferedReader(path))) {
-			Object obj = parser.readObject();
-			if (obj instanceof PEMKeyPair pemKeyPair) {
-				return new JcaPEMKeyConverter().setProvider("BC").getKeyPair(pemKeyPair).getPrivate();
-			}
-			if (obj instanceof PrivateKeyInfo info) {
-				return new JcaPEMKeyConverter().setProvider("BC").getPrivateKey(info);
-			}
-			throw new IllegalArgumentException("Unrecognized key format: " + obj.getClass());
-		}
-	}
-
-	private void handle(Message msg) throws IOException, ClassNotFoundException {
 		var from = findPeer(msg.from.getLast());
 
 		if (from.publicKey != null) {
@@ -178,7 +125,7 @@ public class NetworkAgent extends BNode {
 		}
 	}
 
-	private PeerNode findPeer(InetAddress address) {
+	public PeerNode findPeer(InetAddress address) {
 		for (var p : peers.get()) {
 			if (p.address.equals(address)) {
 				return p;
@@ -197,28 +144,24 @@ public class NetworkAgent extends BNode {
 
 		return null;
 	}
-	
 
 	public PeerNode findPeer(int id) {
 		for (var p : g().networkAgent.peers.get()) {
 			if (p.id == id) {
 				return p;
 			}
-		}  
+		}
 
 		return null;
 	}
 
-	private final Serializer serializer = new JavaSerializer<>();
-
 	public synchronized void send(Object o, PeerNode to) throws IOException {
 		var msg = new Message();
-		msg.from.add(name);
+		msg.from.add(peerName);
 		msg.data = serializer.toBytes(o);
 		msg.data = RSA.encrypt(msg.data, to.publicKey);
 		var msgBytes = GZip.gzip(serializer.toBytes(msg));
-		var sendPacket = new DatagramPacket(msgBytes, msgBytes.length, to.address, to.port);
-		socket.send(sendPacket);
+		tcpDriver.send(msgBytes, to);
 		++packetSent;
 		updateInOutInfo();
 	}
@@ -240,6 +183,6 @@ public class NetworkAgent extends BNode {
 
 	@Override
 	public String toString() {
-		return "received: " + packetReceived+ ", sent: " + packetSent;
+		return "received: " + packetReceived + ", sent: " + packetSent;
 	}
 }

@@ -6,6 +6,7 @@ import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragSource;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -36,7 +37,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -49,6 +49,8 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
+import byransha.nodes.primitive.FileNode;
+import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
@@ -77,13 +79,25 @@ public abstract class BNode {
 	protected BNode(BNode parent) {
 		this.parent = parent;
 
-		if (parent != null) {
-			this.g().indexes.add(this);
+		var g = g();
+
+		if (g != null && g.indexes != null) {
+			g.indexes.add(this);
 		}
 
 		if (enclosingBusinessNode() != null) {
-		//	g().eventList.add(new NewNodeEvent<>(this));
+			// g().eventList.add(new NewNodeEvent<>(this));
 		}
+	}
+
+	public String findRoleInParent() {
+		var s = new String[1];
+		parent.forEachOut((o, r) -> {
+			if (s[0] != null && o == this) {
+				s[0] = r;
+			}
+		});
+		return s[0];
 	}
 
 	public BGraph g() {
@@ -108,6 +122,17 @@ public abstract class BNode {
 
 	public int depth() {
 		return parent == null ? 0 : parent.depth() + 1;
+	}
+
+	public String pathString() {
+		var r = new ArrayList<String>();
+
+		for (BNode a = this; a != null; a = a.parent) {
+			r.add(a.findRoleInParent());
+		}
+
+		Collections.reverse(r);
+		return r.stream().collect(Collectors.joining("/"));
 	}
 
 	public ListNode<BNode> path() {
@@ -248,16 +273,31 @@ public abstract class BNode {
 				if (f.isAnnotationPresent(ShowInKishanView.class)) {
 					try {
 						f.setAccessible(true);
-						var outNode = (BNode) f.get(this);
-
+						var out = f.get(this);
 						var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
-						consumer.accept(f, outNode, isFinal);
+
+						if (out instanceof BNode outNode) {
+							consumer.accept(f, outNode, isFinal);
+						} else {
+							var outNode = instantiateRenderingNodeFor(out);
+							outNode.readOnly = true;
+							consumer.accept(f, outNode, isFinal);
+						}
+
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						error(e);
 					}
 				}
 			}
 		});
+	}
+
+	private BNode instantiateRenderingNodeFor(Object o) {
+		if (o instanceof File f) {
+			return new FileNode(null, f);
+		} else {
+			return new StringNode(null, o.toString(), "*");
+		}
 	}
 
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -355,7 +395,19 @@ public abstract class BNode {
 	}
 
 	public boolean canEdit(User user) {
-		return !isReadOnly();
+		if (isReadOnly())
+			return false;
+
+		if (user == null)
+			return true;
+
+		for (var r : user.roles.elements) {
+			if (r.isAllowedToEdit(this)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	public boolean canCreate(User user) {

@@ -19,7 +19,7 @@ public class ChatNode extends BNode {
 	public ChatNode(User user) {
 		super(user.parent);
 		this.user = user;
-		user.chatList.elements.add(this);
+		user.chats.elements.add(this);
 	}
 
 	public BNode currentNode() {
