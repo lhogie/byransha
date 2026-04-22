@@ -24,12 +24,11 @@ public class Byransha extends SystemNode {
 	public final URLNode sourceRepoURL = new URLNode(this, "https://github.com/lhogie/byransha");
 
 	@ShowInKishanView
-	public static final File configDirectory = new File(ByUtils.home, ".byransha");
+	public static final File homeDirectory = new File(ByUtils.home, ".byransha");
 	@ShowInKishanView
-	public static final File binDirectory = new File(configDirectory, "/bin/");
+	public static final File binDirectory = new File(homeDirectory, "bin");
 	@ShowInKishanView
-	public static final File jarDirectory = new File(binDirectory, "/jar/");
-	public static final File lastVersionFile = new File(configDirectory, "/last-version.txt");
+	public static final File jarDirectory = new File(binDirectory, "jar");
 	@ShowInKishanView
 	public static final String homepage = "https://webusers.i3s.unice.fr/~hogie/software/byransha/";
 	public static final String downloads = "https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/";
@@ -37,9 +36,6 @@ public class Byransha extends SystemNode {
 	public static final String lastVersionURL = downloadBinaries + "last-version.txt";
 	public static byte[] currentExeBytes = "".getBytes();
 	public final StringNode versionNode = new StringNode(this, "0.0.1", "[0-9]+\\.[0-9]+\\.[0-9]+");
-	public final StringNode scpHost = new StringNode(this, "bastion.i3s.unice.fr", ".+");
-	public final StringNode scpRemoteDir = new StringNode(this, "public_html/software/byransha/downloads/",
-			".+");
 
 	public Byransha(BGraph g) {
 		super(g);
@@ -54,8 +50,6 @@ public class Byransha extends SystemNode {
 						var zip = download(versionOnline);
 						Arrays.stream(jarDirectory.listFiles()).forEach(jar -> jar.delete());
 						extractZipByteArray(zip, jarDirectory);
-						Files.write(lastVersionFile.toPath(), versionOnline.toString().getBytes());
-						versionNode.set(versionOnline.toString());
 					}
 
 					Thread.sleep(10000);

@@ -49,7 +49,7 @@ public abstract class Translator extends BNode {
 			}
 		}).start();
 
-		translateDir = new File(g.byransha.configDirectory, "translate");
+		translateDir = new File(g.byransha.homeDirectory, "translate");
 		translateDir.mkdirs();
 
 		targetLanguage = new StringNode(g, "en", ".+");

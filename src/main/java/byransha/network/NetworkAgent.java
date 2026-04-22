@@ -30,7 +30,7 @@ import toools.io.ser.Serializer;
 public class NetworkAgent extends BNode {
 	public static final int port = 9876;
 	@ShowInKishanView
-	File securityDir = new File(Byransha.configDirectory, "security");
+	File securityDir = new File(Byransha.homeDirectory, "security");
 	@ShowInKishanView
 	File authorizedKeys = new File(securityDir, "authorized_keys");
 

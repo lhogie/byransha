@@ -18,9 +18,11 @@ public abstract class ValuedNode<V> extends BNode {
 	V value;
 	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
+	private boolean shownOnDisk;
 
 	public ValuedNode(BNode parent) {
 		super(parent);
+		shownOnDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
 	}
 
 	@Override
@@ -65,7 +67,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 		set(newValue);
 	}
-	
+
 	public void set(V newValue) {
 		if (readOnly)
 			throw new RuntimeException("can't change a read only valued node");
@@ -86,12 +88,14 @@ public abstract class ValuedNode<V> extends BNode {
 			}
 		}
 
-		writeValueToDisk();
+		if (shownOnDisk) {
+			writeValueToDisk();
+		}
 	}
 
 	private void writeValueToDisk() {
 		try {
-			var f = new File(Byransha.configDirectory, "valued_nodes/" + pathString() + ".txt");
+			var f = new File(Byransha.homeDirectory, "valued_nodes/" + pathString() + ".txt");
 			f.getParentFile().mkdirs();
 			var s = toString();
 

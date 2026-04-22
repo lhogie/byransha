@@ -19,7 +19,7 @@ public class I3S extends Lab {
 
 
 		
-		var lakeD = new File(g().byransha.configDirectory, "data_lake");
+		var lakeD = new File(g().byransha.homeDirectory, "data_lake");
 		var lake = new DataLake(g(), lakeD);
 
 		try {
