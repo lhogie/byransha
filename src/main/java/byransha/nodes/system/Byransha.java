@@ -49,7 +49,7 @@ public class Byransha extends SystemNode {
 
 						Thread.sleep(10000);
 					} catch (IOException | InterruptedException e) {
-						error(e);
+						g().errorLog.add(e);
 					}
 				}
 			}, "check new version thread");// .start();

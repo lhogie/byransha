@@ -34,7 +34,7 @@ public class URLNode extends StringNode {
 			try {
 				Desktop.getDesktop().browse(new URI(get()));
 			} catch (IOException | URISyntaxException e1) {
-				error(e1);
+				g().errorLog.add(e1);
 			}
 		});
 		pane.appendToCurrentLine(b);

@@ -63,7 +63,7 @@ public class Client extends SystemNode {
 					}
 				}
 			} catch (Throwable err) {
-				g.error(err);
+				g().errorLog.add(err);
 			}
 
 			try {

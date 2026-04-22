@@ -39,7 +39,7 @@ public class NetworkAgent extends BNode {
 	@ShowInKishanView
 	final StringNode inOutInfo = new StringNode(this);
 	@ShowInKishanView
-	public final ListNode<PeerNode> peers = new ListNode<>(parent, "peers", PeerNode.class);
+	public final ListNode<PeerNode> peers = new ListNode<>(this, "peers", PeerNode.class);
 	@ShowInKishanView
 	String peerName;
 	private int packetReceived;
@@ -67,7 +67,7 @@ public class NetworkAgent extends BNode {
 					p.publicKey = pk;
 					peers.elements.add(p);
 				} catch (InvalidKeySpecException | NoSuchAlgorithmException err) {
-					error(err);
+					g().errorLog.add(err);
 				}
 			}
 		} else {

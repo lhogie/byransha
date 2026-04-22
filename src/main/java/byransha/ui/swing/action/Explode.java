@@ -27,7 +27,7 @@ public class Explode extends ProcedureAction<ChatPanelNode> {
 		int i = container.getComponentZOrder(inputNode.panel);
 		var newPanel = new JPanel(new GridLayout(1, 2));
 		newPanel.add(inputNode.panel);
-		var newChat = new ChatNode(parent.currentUser());
+		var newChat = new ChatNode(g().currentUser());
 		newPanel.add(new ChatPanel(newChat));
 		container.add(newPanel, i);
 		container.revalidate();

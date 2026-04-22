@@ -37,7 +37,7 @@ class OldTBRH {
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
 			person.address.set(l.set(8, null));
-			var inter = new PhoneNumberNode(i3s.parent);
+			var inter = new PhoneNumberNode(person);
 			inter.set(l.set(9, null));
 			person.phoneNumbers.elements.add(inter);
 
@@ -61,7 +61,7 @@ class OldTBRH {
 			}
 
 			for (var phoneNumber : List.of(l.set(12, null), l.set(13, null), l.set(14, null))) {
-				var n = new PhoneNumberNode(i3s.parent);
+				var n = new PhoneNumberNode(person);
 				n.set(phoneNumber);
 				person.phoneNumbers.elements.add(n);
 			}
@@ -89,10 +89,10 @@ class OldTBRH {
 
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, null);
-				var p = new Position(person);
-				p.employer = i3s.g().indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
+				var position = new Position(person);
+				position.employer = i3s.g().indexes.byClass.forEachNodeAssignableTo(ResearchGroup.class,
 						n -> Stop.stopIf(n.name.get() != null && n.name.get().equals(employer)));
-				person.positions.elements.add(p); // new Position(graph);
+				person.positions.elements.add(position); // new Position(graph);
 
 				var corps = l.set(i - 2, null);
 //                person.position.status = graph.find(Status(g), s ->
@@ -100,13 +100,13 @@ class OldTBRH {
 //                );
 
 				if (!startDate.isBlank()) {
-					var startDateNode = new DateNode(i3s.parent);
+					var startDateNode = new DateNode(position);
 					startDateNode.set(DataLake.parseDate(startDate));
 					person.positions.elements.getLast().from = startDateNode;
 				}
 
 				if (!endDate.isBlank()) {
-					var endDateNode = new DateNode(i3s.parent);
+					var endDateNode = new DateNode(position);
 					endDateNode.set(DataLake.parseDate(endDate));
 					person.positions.elements.getLast().to = endDateNode;
 				}
@@ -115,14 +115,14 @@ class OldTBRH {
 			person.enposte = l.set(27, null).equals("en poste");
 
 			try {
-				var quotite = new LongNode(i3s.parent);
+				var quotite = new LongNode(person);
 				quotite.set(Long.valueOf(l.set(29, null)));
 				person.quotite = quotite;
 			} catch (NumberFormatException err) {
 
 			}
 
-			var researchActivity = new StringNode(i3s.parent);
+			var researchActivity = new StringNode(person);
 			researchActivity.set(l.set(33, null));
 			person.researchActivity = researchActivity;
 

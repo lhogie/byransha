@@ -16,7 +16,7 @@ public class NewNodeCreator extends ProcedureAction<ListNode> {
 	
 	
 	@ShowInKishanView
-	ListNode<ClassNode> classes = new ListNode<>(parent, "business class(es)", ClassNode.class);
+	ListNode<ClassNode> classes = new ListNode<>(this, "business class(es)", ClassNode.class);
 
 	public NewNodeCreator(ListNode list) {
 		super(list, list.class);

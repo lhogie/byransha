@@ -64,16 +64,16 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-		indexes.add(this);
+		//indexes.add(this);
 
 		new Male(this);
 		new Female(this);
 		new NotGenred(this);
 
 		var visitor = new VisitorRole(this);
-		new AdminRole(this);
+		var admin = new AdminRole(this);
 
-		currentUser.roles.elements.add(visitor);
+		currentUser.roles.elements.add(admin);
 	}
 
 	public void setCurrentUser(User newUser) {

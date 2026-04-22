@@ -83,7 +83,7 @@ public abstract class Action<T extends BNode> extends BNode {
 				impl();
 				this.durationMs.set(System.currentTimeMillis() - startDateMs);
 			} catch (Throwable err) {
-				parent.error(err);
+				g().errorLog.add(err);
 			}
 		});
 

@@ -127,7 +127,7 @@ public abstract class BNode {
 	public String pathString() {
 		var r = new ArrayList<String>();
 
-		for (BNode a = this; a != null; a = a.parent) {
+		for (BNode a = this; a != null && a.parent != null; a = a.parent) {
 			r.add(a.findRoleInParent());
 		}
 
@@ -190,9 +190,6 @@ public abstract class BNode {
 		return getClass().getSimpleName() + " #" + idAsText();
 	}
 
-	public BNode error(Throwable err) {
-		return g().errorLog.add(err, true);
-	}
 
 	public List<Action<?>> actions() {
 		if (cachedActions == null) {
@@ -261,7 +258,7 @@ public abstract class BNode {
 					f.set(this, null);
 				}
 			} catch (IllegalAccessException err) {
-				error(err);
+				g().errorLog.add(err);
 			}
 		});
 	}
@@ -278,14 +275,14 @@ public abstract class BNode {
 
 						if (out instanceof BNode outNode) {
 							consumer.accept(f, outNode, isFinal);
-						} else {
+						} else if (out != null) {
 							var outNode = instantiateRenderingNodeFor(out);
 							outNode.readOnly = true;
 							consumer.accept(f, outNode, isFinal);
 						}
 
 					} catch (IllegalArgumentException | IllegalAccessException e) {
-						error(e);
+						g().errorLog.add(e);
 					}
 				}
 			}
@@ -308,7 +305,7 @@ public abstract class BNode {
 					var outNode = (BNode) m.invoke(this);
 					consumer.accept(m, outNode);
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-					error(e);
+					g().errorLog.add(e);
 				}
 			}
 		}
@@ -401,7 +398,9 @@ public abstract class BNode {
 		if (user == null)
 			return true;
 
+		System.out.println("roles");
 		for (var r : user.roles.elements) {
+			System.out.println(r);
 			if (r.isAllowedToEdit(this)) {
 				return true;
 			}
@@ -608,7 +607,7 @@ public abstract class BNode {
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
-					error(e1);
+					g().errorLog.add(e1);
 				}
 			});
 			var replace = new JMenuItem("see candidates");

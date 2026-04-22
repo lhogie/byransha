@@ -9,13 +9,13 @@ import byransha.nodes.primitive.StringNode;
 
 public class Office extends BusinessNode {
 	@ShowInKishanView
-	public StringNode name = new StringNode(parent);;
+	public StringNode name = new StringNode(this);
 
 	@ShowInKishanView
-	public final ListNode<Person> users = new ListNode(parent, "users", Person.class);
+	public final ListNode<Person> users = new ListNode(this, "users", Person.class);
 
 	@ShowInKishanView
-	public LongNode surface = new LongNode(parent), capacity = new LongNode(parent);
+	public LongNode surface = new LongNode(this), capacity = new LongNode(this);
 
 	@ShowInKishanView
 	public BooleanNode isZZR;

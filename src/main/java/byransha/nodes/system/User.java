@@ -18,7 +18,7 @@ public class User extends BNode {
 
 	public User(BGraph g, String userName) {
 		super(g);
-		name = new StringNode(parent, userName, ".+");
+		name = new StringNode(g, userName, ".+");
 		passwordNode.hideText = true;
 	}
 

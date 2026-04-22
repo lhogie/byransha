@@ -8,7 +8,7 @@ import byransha.nodes.primitive.StringNode;
 public class Building extends BusinessNode {
 
 	@ShowInKishanView
-	public ListNode<Office> offices = new ListNode(parent, "office(s)", Office.class);
+	public ListNode<Office> offices = new ListNode(this, "office(s)", Office.class);
 	@ShowInKishanView
 	public StringNode name;
 

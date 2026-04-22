@@ -39,7 +39,7 @@ public class TCPDriver extends IPDriver {
 							}
 						}
 						catch (IOException err) {
-							error(err);
+							g().errorLog.add(err);
 						}
 					}).start();
 				}

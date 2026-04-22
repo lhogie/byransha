@@ -25,7 +25,7 @@ public class SwingFrontend extends SystemNode {
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	@ShowInKishanView
-	public final ListNode<FontNode> fonts = new ListNode<>(parent, "available fonts", FontNode.class);
+	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
 	public final JFrame f;
 
 	public SwingFrontend(BGraph g) {

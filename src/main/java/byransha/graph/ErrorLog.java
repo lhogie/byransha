@@ -8,7 +8,7 @@ import byransha.nodes.system.SystemNode;
 
 public class ErrorLog extends SystemNode {
 	@ShowInKishanView
-	public final ListNode<ExceptionNode> errors = new ListNode<>(parent, "error(s)", ExceptionNode.class);
+	public final ListNode<ExceptionNode> errors = new ListNode<>(this, "error(s)", ExceptionNode.class);
 
 	public ErrorLog(BGraph g) {
 		super(g);
@@ -16,7 +16,7 @@ public class ErrorLog extends SystemNode {
 
 	@Override
 	public String whatIsThis() {
-		return "log of errors in the system";
+		return "log otf errors in the system";
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ErrorLog extends SystemNode {
 	}
 
 	public ExceptionNode add(Throwable err, boolean rethrow) {
-		var errN = new ExceptionNode(parent);
+		var errN = new ExceptionNode(this);
 		errN.err = err;
 		errN.date = LocalDateTime.now();
 		errors.elements.add(errN);

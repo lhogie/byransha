@@ -10,8 +10,8 @@ import byransha.nodes.primitive.TextNode;
 import byransha.util.Base62;
 
 public class JumpToAnotherNode extends Action {
-	final TextNode text = new TextNode(parent, "list of IDs", "");
-	ListNode<BNode> nodes = new ListNode<>(parent, "nodes", BNode.class);
+	final TextNode text = new TextNode(this, "list of IDs", "");
+	ListNode<BNode> nodes = new ListNode<>(this, "nodes", BNode.class);
 
 	public JumpToAnotherNode(BNode g) {
 		super(g, misc.class);
@@ -21,7 +21,7 @@ public class JumpToAnotherNode extends Action {
 				try {
 					nodes.elements.add(g().indexes.byId.get(Base62.decode(s.trim())));
 				} catch (Throwable err) {
-					error(err);
+					g().errorLog.add(err);
 				}
 			});
 		});

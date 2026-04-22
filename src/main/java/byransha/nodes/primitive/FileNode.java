@@ -20,7 +20,7 @@ public class FileNode extends BNode {
 
 	@ShowInKishanView
 	public StringNode name() {
-		return new StringNode(parent, file.getName(), ".+");
+		return new StringNode(null, file.getName(), ".+");
 	}
 
 	@Override

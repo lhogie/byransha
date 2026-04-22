@@ -7,10 +7,10 @@ import byransha.nodes.primitive.StringNode;
 
 public class Campus extends BusinessNode {
 	@ShowInKishanView
-	public StringNode name = new StringNode(parent, "", ".+");
+	public StringNode name = new StringNode(this, "", ".+");
 
 	@ShowInKishanView
-	public ListNode<Building> buildings = new ListNode(parent, "building(s)", Building.class);
+	public ListNode<Building> buildings = new ListNode(this, "building(s)", Building.class);
 
 	public Campus(University g) {
 		super(g);

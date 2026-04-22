@@ -16,7 +16,7 @@ public class DotAction extends FunctionAction<ListNode, TextNode> {
 
 	@Override
 	public void impl() throws Throwable {
-		result = new TextNode(parent, "DOT", inputNode.toDot());
+		result = new TextNode(null, "DOT", inputNode.toDot());
 	}
 
 	@Override

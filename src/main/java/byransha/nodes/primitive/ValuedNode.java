@@ -59,12 +59,16 @@ public abstract class ValuedNode<V> extends BNode {
 		set(defaultValue());
 	}
 
+	public void set_checkPermissions(V newValue) {
+		if (g() != null && !canEdit(g().currentUser()))
+			throw new RuntimeException(currentUser() + " is not allowed to set value");
+
+		set(newValue);
+	}
+	
 	public void set(V newValue) {
 		if (readOnly)
 			throw new RuntimeException("can't change a read only valued node");
-
-		if (g() != null && !canEdit(g().currentUser()))
-			throw new RuntimeException(currentUser() + " is not allowed to set value");
 
 		V oldValue = value;
 		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
@@ -82,14 +86,23 @@ public abstract class ValuedNode<V> extends BNode {
 			}
 		}
 
+		writeValueToDisk();
+	}
+
+	private void writeValueToDisk() {
 		try {
 			var f = new File(Byransha.configDirectory, "valued_nodes/" + pathString() + ".txt");
 			f.getParentFile().mkdirs();
-			Files.write(toString().getBytes(), f);
-		} catch (IOException ioError) {
-			error(ioError);
-		}
+			var s = toString();
 
+			if (s != null) {
+				Files.write(s.getBytes(), f);
+			} else if (f.exists()) {
+				f.delete();
+			}
+		} catch (IOException ioError) {
+			g().errorLog.add(ioError);
+		}
 	}
 
 	private boolean shouldGenerateEvent() {
