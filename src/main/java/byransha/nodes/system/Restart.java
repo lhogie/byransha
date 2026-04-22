@@ -19,7 +19,7 @@ final class Restart extends ProcedureAction<Byransha> {
 	@Override
 	public void impl() throws Throwable {
 		for (int s = 5; s >= 0 && !stopRequested; --s) {
-			inputNode.currentVersionNode.set("restart in " + s + "s");
+			inputNode.versionNode.set("restart in " + s + "s");
 			Thread.sleep(1);
 		}
 
