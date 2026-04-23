@@ -169,12 +169,14 @@
 		</resources>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.8.1</version>
 				<configuration>
 					<source>25</source>
 					<target>25</target>
 					<release>25</release>
+					<compilerArgs>--enable-preview</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -182,7 +184,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>3.0.0</version>
 				<configuration>
-					<mainClass>byransha.web.WebServer</mainClass>
+					<mainClass>byransha.Main</mainClass>
 					<commandlineArgs>-Dfile.encoding=UTF-8
 						appClass=byransha.nodes.lab.I3SApplication</commandlineArgs>
 					<systemProperties>
@@ -191,15 +193,6 @@
 							<value>UTF-8</value>
 						</systemProperty>
 					</systemProperties>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>25</source>
-					<target>25</target>
-					<compilerArgs>--enable-preview</compilerArgs>
 				</configuration>
 			</plugin>
 		</plugins>

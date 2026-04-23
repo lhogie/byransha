@@ -55,23 +55,24 @@ public class ChatSheet extends Sheet {
 				appendToCurrentLine(queryPromptField);
 
 				var jsonOnly = createResponseModeBubble("JSON only");
-				var textPlusJson = createResponseModeBubble("Conversation");
+				var Conversation = createResponseModeBubble("Conversation");
 
 				var group = new ButtonGroup();
 				group.add(jsonOnly);
-				group.add(textPlusJson);
+				group.add(Conversation);
 
-				if (queryIA.getResponseMode() == QueryIA.ResponseMode.TEXT_PLUS_JSON) {
-					textPlusJson.setSelected(true);
+				if (queryIA.getResponseMode() == QueryIA.ResponseMode.CONVERSATION) {
+					Conversation.setSelected(true);
+					
 				} else {
 					jsonOnly.setSelected(true);
 				}
 
 				jsonOnly.addActionListener(e -> queryIA.setResponseMode(QueryIA.ResponseMode.JSON_ONLY));
-				textPlusJson.addActionListener(e -> queryIA.setResponseMode(QueryIA.ResponseMode.TEXT_PLUS_JSON));
+				Conversation.addActionListener(e -> queryIA.setResponseMode(QueryIA.ResponseMode.CONVERSATION));
 
 				appendToCurrentLine(jsonOnly);
-				appendToCurrentLine(textPlusJson);
+				appendToCurrentLine(Conversation);
 			}
 
 			var b = new JButton("Ok");

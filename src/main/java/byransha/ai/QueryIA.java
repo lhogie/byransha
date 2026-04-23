@@ -20,7 +20,11 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ObjectMapper mapper = new ObjectMapper();
 
 	public enum ResponseMode {
-		JSON_ONLY, TEXT_PLUS_JSON
+		JSON_ONLY, CONVERSATION
+	}
+	
+	public enum Temerature {
+		LOW,MEDIUM
 	}
 
 	@ShowInKishanView
@@ -46,6 +50,8 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		return true;
 	}
 
+
+
 	@Override
 	public void impl() throws Throwable {
 		var focusedNodeJson = inputNode.describeAsJSON();
@@ -58,7 +64,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 		var iaResponse = queryIA(focusedNodeJson, userQuestion);
 
-		if (responseMode == ResponseMode.TEXT_PLUS_JSON) {
+		if (responseMode == ResponseMode.CONVERSATION) {
 			result = new TextNode(g(), "IA response", iaResponse);
 			return;
 		}
@@ -122,7 +128,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		prompt.append(inputJSON.toPrettyString()).append("\n\n");
 
 		prompt.append("--- FINAL OUTPUT REQUIREMENT ---\n");
-		if (mode == ResponseMode.TEXT_PLUS_JSON) {
+		if (mode == ResponseMode.CONVERSATION) {
 			prompt.append("Provide a short explanation.\n");
 		} else {
 			prompt.append(
@@ -136,7 +142,9 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	protected String queryIA(JsonNode inputJSON, String question)
 			throws JsonMappingException, JsonProcessingException, IOException, InterruptedException, Exception {
 		var llmPrompt = buildLlmPrompt(inputJSON, question, responseMode);
-		return OllamaModel.chat(llmPrompt, null, this::handleIAResponseChunk);
+		var format = responseMode == ResponseMode.JSON_ONLY ? OllamaModel.FORMAT_JSON : OllamaModel.FORMAT_NONE;
+		var temperature = responseMode == ResponseMode.JSON_ONLY ? OllamaModel.LOW : OllamaModel.MEDIUM;
+		return OllamaModel.chat(llmPrompt, null, this::handleIAResponseChunk, format, temperature);
 	}
 
 }

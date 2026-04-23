@@ -6,7 +6,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -19,6 +18,10 @@ public class OllamaModel {
     private static final String PRIMARY_MODEL = "granite4:tiny-h";
     private static final String FALLBACK_MODEL = "yi-coder:1.5b";
     private static volatile ProgressListener globalProgressListener;
+    public static final String FORMAT_JSON = "json";
+    public static final String FORMAT_NONE = "";
+    public static final float LOW = 0.2f;
+    public static final float MEDIUM = 0.7f;
 
     @FunctionalInterface
     public interface ProgressListener {
@@ -60,10 +63,14 @@ public class OllamaModel {
     }
 
     public static synchronized String chat(String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer) throws IOException, InterruptedException, Exception {
+        return chat(prompt, listener, chunkConsumer, FORMAT_JSON, LOW);
+    }
+
+    public static synchronized String chat(String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer, String format,double temperature) throws IOException, InterruptedException, Exception {
         emitProgress( "Requete IA recue", listener);
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                String response = callModelWithStream(PRIMARY_MODEL, prompt, listener, chunkConsumer);
+                String response = callModelWithStream(PRIMARY_MODEL, prompt, listener, chunkConsumer, format, temperature);
                 emitProgress( "Requete IA terminee", listener);
                 return response;
             } catch (Exception e) {
@@ -73,7 +80,7 @@ public class OllamaModel {
                 }
             }
         }
-        String fallbackResponse = callModelWithStream(FALLBACK_MODEL, prompt, listener, chunkConsumer);
+        String fallbackResponse = callModelWithStream(FALLBACK_MODEL, prompt, listener, chunkConsumer, format, temperature);
         emitProgress( "Requete IA terminee via fallback", listener);
         return fallbackResponse;
     }
@@ -98,8 +105,11 @@ public class OllamaModel {
             emitProgress("Modèle IA prêt et chaud !", listener);
             System.out.println("Ollama : Modèle " + PRIMARY_MODEL + " est chargé en RAM.");
             
-        } catch (Exception e) {
-            emitProgress("Échec du pré-chargement : " + e.getMessage(), listener);
+        } catch (IOException e) {
+            emitProgress("Échec du pré-chargement : " + sanitizeErrorMessage(e), listener);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            emitProgress("Échec du pré-chargement : interruption", listener);
         }
     }).start();
 }
@@ -110,17 +120,20 @@ private static final HttpClient HTTP_CLIENT = HttpClient.newBuilder()
 
 private static final ObjectMapper MAPPER = new ObjectMapper();
 
-private static String callModelWithStream(String modelName, String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer) throws Exception {
+private static String callModelWithStream(String modelName, String prompt, ProgressListener listener, java.util.function.Consumer<String> chunkConsumer, String format,double temperature) throws Exception {
     emitProgress("Connexion...", listener);
-    var payload = java.util.Map.of(
-        "model", modelName,
-        "stream", true,
-        "messages", java.util.List.of(java.util.Map.of("role", "user", "content", prompt)),
-        "options", java.util.Map.of(       
-            "low_vram", true       
-        ),
-        "keep_alive", "24h"        // Garde le modèle en RAM pendant 24h
-    );
+    java.util.Map<String, Object> payload = new java.util.HashMap<>();
+    payload.put("model", modelName);
+    payload.put("stream", true);
+    payload.put("messages", java.util.List.of(java.util.Map.of("role", "user", "content", prompt)));
+    payload.put("options", java.util.Map.of(
+        "low_vram", true
+    ));
+    payload.put("temperature", temperature);
+    payload.put("keep_alive", "24h");        // Garde le modèle en RAM pendant 24h
+    if (format!=null && !format.isBlank()) {
+            payload.put("format", format);
+        }
 
     HttpRequest request = HttpRequest.newBuilder(URI.create("http://localhost:11434/api/chat"))
             .header("Content-Type", "application/json")
@@ -140,7 +153,9 @@ private static String callModelWithStream(String modelName, String prompt, Progr
                             content.append(c);
                             if (chunkConsumer != null) chunkConsumer.accept(c);
                         }
-                    } catch (Exception e) { /* ignore */ }
+                    } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                        Cout.warning("Ligne Ollama JSON ignoree: " + sanitizeErrorMessage(e));
+                    }
                 });
                 return content.toString();
             }).join();
