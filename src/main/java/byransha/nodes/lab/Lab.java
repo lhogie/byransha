@@ -8,7 +8,7 @@ import byransha.graph.list.action.ListNode;
 
 public class Lab extends Structure {
 
-	final ListNode<Structure> tutelles = new ListNode(parent, "tutelles", Structure.class);
+	final ListNode<Structure> tutelles = new ListNode(this, "tutelles", Structure.class);
 	public Person HFDS; // haut fonctionnaire defense securité
 	final Map<Person, HFDSAvisE> HFDSAvisfds;
 

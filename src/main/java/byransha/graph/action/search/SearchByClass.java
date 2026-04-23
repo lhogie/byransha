@@ -12,7 +12,7 @@ import byransha.nodes.primitive.PrimitiveValueNode;
 import byransha.util.Stop;
 
 public class SearchByClass extends Search {
-	public ListNode<ClassNode> availableClasses = new ListNode<>(parent, "searcheable classes", ClassNode.class);
+	public ListNode<ClassNode> availableClasses = new ListNode<>(this, "searcheable classes", ClassNode.class);
 
 	public SearchByClass(BNode src) {
 		super(src);

@@ -18,7 +18,7 @@ public class ShellServer extends SystemNode {
 			try {
 				startServer(port);
 			} catch (Throwable err) {
-				error(err);
+				g().errorLog.add(err);
 			}
 		}).start();
 	}

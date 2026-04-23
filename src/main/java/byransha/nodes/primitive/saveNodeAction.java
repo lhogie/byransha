@@ -8,7 +8,7 @@ import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.primitive.openFile.file;
 
 public final class saveNodeAction extends FunctionAction<TextNode, FileNode> {
-	StringNode fileNameNode = new StringNode(parent, "example.txt", ".+\\..+");
+	StringNode fileNameNode = new StringNode(this, "example.txt", ".+\\..+");
 
 	protected saveNodeAction(TextNode textNode) {
 		super(textNode, file.class);

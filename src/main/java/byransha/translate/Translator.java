@@ -34,7 +34,7 @@ public abstract class Translator extends BNode {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
-					error(e);
+					g().errorLog.add(e);
 				}
 
 				dictionaries.stream().filter(d -> d.needSave).forEach(d -> {
@@ -43,13 +43,13 @@ public abstract class Translator extends BNode {
 							d.save();
 						}
 					} catch (IOException err) {
-						error(err);
+						g().errorLog.add(err);
 					}
 				});
 			}
 		}).start();
 
-		translateDir = new File(g.byransha.configDirectory, "translate");
+		translateDir = new File(g.byransha.homeDirectory, "translate");
 		translateDir.mkdirs();
 
 		targetLanguage = new StringNode(g, "en", ".+");
@@ -121,7 +121,7 @@ public abstract class Translator extends BNode {
 				dictionary = new Dictionary(from, to, file);
 				dictionaries.add(dictionary);
 			} catch (IOException err) {
-				error(err);
+				g().errorLog.add(err);
 				return null;
 			}
 		}
@@ -141,7 +141,7 @@ public abstract class Translator extends BNode {
 			}
 
 		} catch (Exception e) {
-			error(e);
+			g().errorLog.add(e);
 			return null;
 		}
 	}

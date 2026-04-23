@@ -1,5 +1,6 @@
 package byransha.network;
 
+import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.security.PublicKey;
 
@@ -11,6 +12,7 @@ public class PeerNode extends BNode {
 	public PublicKey publicKey;
 	public int port;
 	public String name;
+	public DataOutputStream out;
 
 	public PeerNode(BGraph g) {
 		super(g);

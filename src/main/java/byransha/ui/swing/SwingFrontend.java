@@ -25,7 +25,7 @@ public class SwingFrontend extends SystemNode {
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	@ShowInKishanView
-	public final ListNode<FontNode> fonts = new ListNode<>(parent, "available fonts", FontNode.class);
+	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
 	public final JFrame f;
 
 	public SwingFrontend(BGraph g) {
@@ -39,7 +39,7 @@ public class SwingFrontend extends SystemNode {
 		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
 
 		this.f = new JFrame();
-		f.setTitle("Byransha v" + g.byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
+		f.setTitle("Byransha v" + g.byransha.versionNode.get() + " (contact: luc.hogie@cnrs.fr)");
 		f.setLocation(0, 0);
 		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
 		f.setVisible(true);
@@ -48,7 +48,7 @@ public class SwingFrontend extends SystemNode {
 
 	private void considerUser(User newUser) {
 		f.getContentPane().removeAll();
-		var panelList = newUser.chatList.elements.stream().map(c -> new ChatPanel(c)).toList();
+		var panelList = newUser.chats.elements.stream().map(c -> new ChatPanel(c)).toList();
 		var p = new JPanel(new GridLayout(1, panelList.size()));
 		panelList.forEach(p::add);
 		f.setContentPane(p);

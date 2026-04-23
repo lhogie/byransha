@@ -23,6 +23,9 @@ import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
+	@ShowInKishanView
+	public User currentUser = new User(this, "guest");
+
 	public AllIndexes indexes = new AllIndexes(this);
 	@ShowInKishanView
 	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
@@ -61,15 +64,17 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-		indexes.add(this);
+		//indexes.add(this);
 
 		new Male(this);
 		new Female(this);
 		new NotGenred(this);
-	}
 
-	@ShowInKishanView
-	public User currentUser;
+		var visitor = new VisitorRole(this);
+		var admin = new AdminRole(this);
+
+		currentUser.roles.elements.add(admin);
+	}
 
 	public void setCurrentUser(User newUser) {
 		if (newUser != currentUser) {

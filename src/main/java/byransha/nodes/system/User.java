@@ -10,16 +10,18 @@ public class User extends BNode {
 	@ShowInKishanView
 	public final StringNode name;
 	@ShowInKishanView
-	public final StringNode passwordNode;
+	public final StringNode passwordNode = new StringNode(this, null, ".+");
 	@ShowInKishanView
-	public final ListNode<ChatNode> chatList = new ListNode<>(parent, "chats", ChatNode.class);
+	public final ListNode<ChatNode> chats = new ListNode<>(this, "chats", ChatNode.class);
+	@ShowInKishanView
+	public final ListNode<Role> roles = new ListNode<>(this, "roles", Role.class);
 
 	public User(BGraph g, String userName) {
 		super(g);
 		name = new StringNode(g, userName, ".+");
-		passwordNode = new StringNode(g, null, ".+");
 		passwordNode.hideText = true;
 	}
+
 
 	@Override
 	public String whatIsThis() {

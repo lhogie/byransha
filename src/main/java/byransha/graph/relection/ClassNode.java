@@ -67,7 +67,7 @@ public class ClassNode<T extends BNode> extends BNode {
 	}
 
 	public void link() {
-		this.interfaces = new ListNode<ClassNode>(parent, "interfaces", ClassNode.class);
+		this.interfaces = new ListNode<ClassNode>(this, "interfaces", ClassNode.class);
 		this.aggregations = new MapNode<>(this, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
@@ -204,7 +204,7 @@ public class ClassNode<T extends BNode> extends BNode {
 
 	@ShowInKishanView
 	public ListNode<T> allInstances() {
-		var l = new ListNode<T>(parent, "instances of " + representedClass.getSimpleName(), representedClass);
+		var l = new ListNode<T>(null, "instances of " + representedClass.getSimpleName(), representedClass);
 		g().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
 		return l;
 	}

@@ -8,7 +8,7 @@ public class SearchRegexp extends Search {
 
 	public SearchRegexp( BNode srcNode) {
 		super(srcNode);
-		regexp = new StringNode(parent, ".*", ".+");
+		regexp = new StringNode(this, ".*", ".+");
 	}
 
 	@Override

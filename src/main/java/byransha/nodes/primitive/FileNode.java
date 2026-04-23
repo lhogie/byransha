@@ -8,13 +8,19 @@ import byransha.graph.ShowInKishanView;
 public class FileNode extends BNode {
 	public File file;
 
-	@ShowInKishanView
-	public StringNode name() {
-		return new StringNode(parent, file.getName(), ".+");
-	}
 
 	public FileNode(BNode g) {
 		super(g);
+	}
+	
+	public FileNode(BNode g, File f) {
+		super(g);
+		this.file = f;
+	}
+
+	@ShowInKishanView
+	public StringNode name() {
+		return new StringNode(null, file.getName(), ".+");
 	}
 
 	@Override

@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
-import byransha.util.ByUtils;
 
 public abstract class Action<T extends BNode> extends BNode {
 	public boolean stopRequested = false;
@@ -83,7 +82,7 @@ public abstract class Action<T extends BNode> extends BNode {
 				impl();
 				this.durationMs.set(System.currentTimeMillis() - startDateMs);
 			} catch (Throwable err) {
-				parent.error(err);
+				g().errorLog.add(err);
 			}
 		});
 

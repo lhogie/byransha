@@ -14,7 +14,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.nodes.system.ChatNode;

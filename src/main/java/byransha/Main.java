@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import byransha.ai.OllamaModel;
 import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
@@ -18,10 +19,6 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.shell.ShellServer;
 import byransha.ui.swing.SwingFrontend;
-import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import byransha.ai.OllamaModel;
 
 public class Main {
 	static BGraph g;
@@ -40,8 +37,6 @@ public class Main {
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BNode.class).newInstance(g);
 
-		g.currentUser = new User(g, "guest");
-		
 		new ChatNode(g.currentUser).append(g.application);
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
@@ -51,6 +46,7 @@ public class Main {
 
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
+		g.currentUser = new User(g, "guest");
 
 		// launch(args);
 	}
@@ -66,22 +62,4 @@ public class Main {
 		List.of(args).stream().map(a -> a.split("=")).forEach(a -> r.put(a[0], a[1]));
 		return r;
 	}
-
-	// @Override
-	public void start(Stage primaryStage) throws Exception {
-		var vbox = new VBox();
-		primaryStage.setScene(new Scene(vbox));
-		primaryStage.setWidth(0);
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		var width = (9 * screenSize.height) / 16;
-		var size = new Dimension(width, screenSize.height);
-		var location = new Point((screenSize.width - width) / 2, 0);
-		primaryStage.setWidth(size.getWidth());
-		primaryStage.setHeight(size.getHeight());
-		primaryStage.setX(location.x);
-		primaryStage.setY(location.y);
-		primaryStage.setTitle("Byransha v" + g.byransha.versionNode.get());
-		primaryStage.show();
-	}
-	
 }

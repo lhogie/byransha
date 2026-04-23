@@ -59,7 +59,7 @@ public class Utils {
 					e.dropComplete(true);
 				} catch (Throwable ex) {
 					e.dropComplete(false);
-					g.error(ex);
+					g.errorLog.add(ex);
 				}
 			}
 		});

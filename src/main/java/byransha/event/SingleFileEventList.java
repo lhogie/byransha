@@ -3,7 +3,6 @@ package byransha.event;
 import java.io.File;
 import java.io.IOException;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 
 public class SingleFileEventList extends InMemoryEventList {
@@ -22,7 +21,7 @@ public class SingleFileEventList extends InMemoryEventList {
 		try {
 			ser.write(this, f);
 		} catch (IOException e1) {
-			e.g.error(e1);
+			g().errorLog.add(e1);
 		}
 	}
 

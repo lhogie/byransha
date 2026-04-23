@@ -35,10 +35,9 @@ public class ChatSheet extends Sheet {
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		appendToCurrentLine("path:");
 		n.path().elements.forEach(e -> {
-			appendToCurrentLine(e.createBall(20, 20, chat));
-			appendToCurrentLine(e.toString());
+			appendToCurrentLine(e.createBall(18,2, chat));
+			appendToCurrentLine(e.toString() + " >");
 		});
 		newLine();
 		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");

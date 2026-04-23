@@ -12,11 +12,11 @@ import byransha.nodes.system.ChatNode;
 
 public class Structure extends BusinessNode {
 	@ShowInKishanView
-	public final StringNode name = new StringNode(parent, null, ".+");;
+	public final StringNode name = new StringNode(this, null, ".+");;
 	@ShowInKishanView
-	public final ListNode<Structure> subStructures = new ListNode(parent, "sub-structure(s)", Structure.class);
+	public final ListNode<Structure> subStructures = new ListNode(this, "sub-structure(s)", Structure.class);
 	@ShowInKishanView
-	public final ListNode<Office> offices = new ListNode(parent, "offices", Office.class);
+	public final ListNode<Office> offices = new ListNode(this, "offices", Office.class);
 
 	public Structure(BNode g) {
 		super(g);
