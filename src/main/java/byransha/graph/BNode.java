@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -77,6 +78,8 @@ public abstract class BNode {
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
+		if (!(this instanceof BGraph) && parent ==null )
+			throw new NullPointerException();
 		this.parent = parent;
 
 		var g = g();
@@ -90,24 +93,18 @@ public abstract class BNode {
 		}
 	}
 
-	public String findRoleInParent() {
-		var s = new String[1];
-		parent.forEachOut((o, r) -> {
-			if (s[0] != null && o == this) {
-				s[0] = r;
+	public String findRoleOf(BNode n) {
+		var foundRole = new String[1];
+		forEachOut((out, role) -> {
+			if (foundRole[0] != null && out == n) {
+				foundRole[0] = role;
 			}
 		});
-		return s[0];
+		return foundRole[0];
 	}
 
 	public BGraph g() {
-		if (this instanceof BGraph g) {
-			return g;
-		} else if (parent != null) {
-			return parent.g();
-		} else {
-			return null;
-		}
+		return parent != null ? parent.g() : null;
 	}
 
 	public BusinessNode enclosingBusinessNode() {
@@ -127,8 +124,8 @@ public abstract class BNode {
 	public String pathString() {
 		var r = new ArrayList<String>();
 
-		for (BNode a = this; a != null && a.parent != null; a = a.parent) {
-			r.add(a.findRoleInParent());
+		for (BNode a = this; a.parent != null; a = a.parent) {
+			r.add(a.parent.findRoleOf(a));
 		}
 
 		Collections.reverse(r);
@@ -136,7 +133,7 @@ public abstract class BNode {
 	}
 
 	public ListNode<BNode> path() {
-		var r = new ListNode<BNode>(null, "path", BNode.class);
+		var r = new ListNode<BNode>(this, "path", BNode.class);
 
 		for (BNode a = this; a != null; a = a.parent) {
 			r.elements.add(a);
@@ -189,7 +186,6 @@ public abstract class BNode {
 	public String toString() {
 		return getClass().getSimpleName() + " #" + idAsText();
 	}
-
 
 	public List<Action<?>> actions() {
 		if (cachedActions == null) {
@@ -291,9 +287,9 @@ public abstract class BNode {
 
 	private BNode instantiateRenderingNodeFor(Object o) {
 		if (o instanceof File f) {
-			return new FileNode(null, f);
+			return new FileNode(this, f);
 		} else {
-			return new StringNode(null, o.toString(), "*");
+			return new StringNode(this, o.toString(), null);
 		}
 	}
 
@@ -317,7 +313,6 @@ public abstract class BNode {
 	}
 
 	public void createActions() {
-
 //		cachedActions.add(new Back(g, this));
 		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new SeeClassNode(this));
@@ -387,20 +382,27 @@ public abstract class BNode {
 		return r;
 	}
 
-	public boolean canSee(User user) {
-		return true;
+	public final boolean canSee(User user) {
+		if (user == null)
+			return true;
+
+		for (var r : user.roles.elements) {
+			if (r.isAllowedToSee(this)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
-	public boolean canEdit(User user) {
+	public final boolean canEdit(User user) {
 		if (isReadOnly())
 			return false;
 
 		if (user == null)
 			return true;
 
-		System.out.println("roles");
 		for (var r : user.roles.elements) {
-			System.out.println(r);
 			if (r.isAllowedToEdit(this)) {
 				return true;
 			}
@@ -487,8 +489,8 @@ public abstract class BNode {
 		}
 
 		r.put("whatIsThis", whatIsThis());
-		r.put("canSee", canSee(currentUser()));
-		r.put("canEdit", canEdit(currentUser()));
+		r.put("canSee", canSee(g().currentUser()));
+		r.put("canEdit", canEdit(g().currentUser()));
 		r.set("actions",
 				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.idAsText())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
@@ -499,10 +501,6 @@ public abstract class BNode {
 		r.set("outs", outsNode);
 
 		return r;
-	}
-
-	public User currentUser() {
-		return g().getCurrentUser();
 	}
 
 	public Action findAction(String actionName) {
@@ -618,7 +616,7 @@ public abstract class BNode {
 					list.elements.add(a);
 					return Stop.no;
 				});
-				new ChatNode(currentUser()).append(list);
+				new ChatNode(g().currentUser()).append(list);
 			});
 
 			if (!this.readOnly) {

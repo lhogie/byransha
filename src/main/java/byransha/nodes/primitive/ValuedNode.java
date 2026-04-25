@@ -40,8 +40,8 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public V get() {
-		if (!canSee(currentUser()))
-			throw new RuntimeException(currentUser() + " is not allowed to read the value");
+		if (false)//!canSee(g().currentUser()))
+			throw new RuntimeException(g().currentUser() + " is not allowed to read the value");
 
 		return value;
 	}
@@ -63,7 +63,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 	public void set_checkPermissions(V newValue) {
 		if (g() != null && !canEdit(g().currentUser()))
-			throw new RuntimeException(currentUser() + " is not allowed to set value");
+			throw new RuntimeException(g().currentUser() + " is not allowed to set value");
 
 		set(newValue);
 	}
@@ -89,7 +89,7 @@ public abstract class ValuedNode<V> extends BNode {
 		}
 
 		if (shownOnDisk) {
-			writeValueToDisk();
+//			writeValueToDisk();
 		}
 	}
 

@@ -13,4 +13,9 @@ public class AdminRole extends Role {
 		return true;
 	}
 
+	@Override
+	public boolean isAllowedToSee(BNode n) {
+		return true;
+	}
+
 }

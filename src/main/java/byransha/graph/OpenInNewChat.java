@@ -16,7 +16,7 @@ public class OpenInNewChat extends ProcedureAction<BNode> {
 
 	@Override
 	public void impl() throws Throwable {
-		var newChat = new ChatNode(currentUser());
+		var newChat = new ChatNode(g().currentUser());
 	}
 
 	@Override

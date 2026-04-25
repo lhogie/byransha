@@ -24,7 +24,7 @@ import byransha.ui.swing.SwingFrontend;
 
 public class BGraph extends BNode {
 	@ShowInKishanView
-	public User currentUser = new User(this, "guest");
+	private User currentUser = new User(this, "guest");
 
 	public AllIndexes indexes = new AllIndexes(this);
 	@ShowInKishanView
@@ -64,7 +64,7 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-		//indexes.add(this);
+		// indexes.add(this);
 
 		new Male(this);
 		new Female(this);
@@ -81,6 +81,11 @@ public class BGraph extends BNode {
 			this.currentUser = newUser;
 			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
 		}
+	}
+
+	@Override
+	public BGraph g() {
+		return this;
 	}
 
 	public User getCurrentUser() {
@@ -100,6 +105,10 @@ public class BGraph extends BNode {
 	@Override
 	public String toString() {
 		return "super node";
+	}
+
+	public User currentUser() {
+		return currentUser;
 	}
 
 }

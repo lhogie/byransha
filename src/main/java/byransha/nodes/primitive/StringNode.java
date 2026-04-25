@@ -5,6 +5,7 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -31,6 +32,8 @@ public class StringNode extends PrimitiveValueNode<String> {
 	public StringNode(BNode g, String init, String re) {
 		super(g);
 		this.re = re;
+		if (re!= null)
+		Pattern.compile(re);
 		set(init);
 	}
 

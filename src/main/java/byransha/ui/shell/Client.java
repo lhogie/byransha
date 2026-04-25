@@ -98,7 +98,7 @@ public class Client extends SystemNode {
 		commands.put("name", new Command("print current node name", (out, parms) -> out.println(currentNode())));
 		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
-				.println(currentChat.currentUser().chats.elements.stream().map(c -> c.idAsText()).toList())));
+				.println(currentChat.g().currentUser().chats.elements.stream().map(c -> c.idAsText()).toList())));
 		commands.put("newchat",
 				new Command("create new chat", (out, parms) -> out.println(new ChatNode(graph.currentUser()).id())));
 		commands.put("setcurrentchat", new Command("change chat", (out, parms) -> out

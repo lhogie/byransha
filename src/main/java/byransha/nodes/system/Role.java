@@ -8,6 +8,8 @@ public abstract class Role extends BNode{
 		super(parent);
 	}
 
-	public abstract boolean isAllowedToEdit(BNode bNode);
+	public abstract boolean isAllowedToEdit(BNode n);
+
+	public abstract boolean isAllowedToSee(BNode n);
 
 }

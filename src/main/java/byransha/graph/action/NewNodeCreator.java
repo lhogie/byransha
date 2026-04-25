@@ -12,14 +12,14 @@ import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
 
 public class NewNodeCreator extends ProcedureAction<ListNode> {
-	
-	
-	
+
 	@ShowInKishanView
 	ListNode<ClassNode> classes = new ListNode<>(this, "business class(es)", ClassNode.class);
+	private final BNode pp;
 
-	public NewNodeCreator(ListNode list) {
+	public NewNodeCreator(ListNode list, BNode pp) {
 		super(list, list.class);
+		this.pp = pp;
 		addBusinessClassesIn(g().application.getClass().getPackage());
 	}
 
@@ -73,6 +73,7 @@ public class NewNodeCreator extends ProcedureAction<ListNode> {
 
 	@Override
 	public void impl() {
-		inputNode.get().addAll(classes.getSelected().stream().map(c -> c.newInstance(this)).toList());
+		var list = inputNode.get();
+		classes.getSelected().forEach(c -> list.add(c.newInstance(pp)));
 	}
 }

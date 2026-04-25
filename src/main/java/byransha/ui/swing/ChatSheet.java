@@ -31,16 +31,23 @@ public class ChatSheet extends Sheet {
 			add(new JSeparator());
 			newLine();
 		}
-		
+
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		n.path().elements.forEach(e -> {
-			appendToCurrentLine(e.createBall(18,2, chat));
-			appendToCurrentLine(e.toString() + " >");
-		});
-		newLine();
-		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
+		var path = n.path().elements;
+
+		for (int i = 0; i < path.size(); ++i) {
+			var e = path.get(i);
+			appendToCurrentLine(e.createBall(18, 2, chat));
+			appendToCurrentLine(e.toString());
+
+			if (i < path.size() - 1) {
+				appendToCurrentLine(">");
+			}
+		}
+
+//		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		newLine();
 		newLine();
 		n.writeKishanView(this);
@@ -62,7 +69,7 @@ public class ChatSheet extends Sheet {
 
 				if (queryIA.getResponseMode() == QueryIA.ResponseMode.CONVERSATION) {
 					Conversation.setSelected(true);
-					
+
 				} else {
 					jsonOnly.setSelected(true);
 				}

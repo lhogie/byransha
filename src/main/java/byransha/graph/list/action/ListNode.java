@@ -84,7 +84,7 @@ public class ListNode<T extends BNode> extends BNode {
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new Clear(this));
-		cachedActions.elements.add(new NewNodeCreator(this));
+		cachedActions.elements.add(new NewNodeCreator(this, parent));
 
 		cachedActions.elements.add(new SortByString(this));
 		cachedActions.elements.add(new SortByValue(this));
