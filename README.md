@@ -1,15 +1,17 @@
 Byransha is an innovative development middleware that streamlines the creation of
-business-centric applications. The platform is built on five core pillars:
+business-centric applications. The platform is built on six core pillars:
 
-- Decentralization: Eliminating single points of failure, maximizing availability of data.
-- Event Sourcing: simplifying the organisation of business data and the monitoring of the distributed
-system, and enabling historizaation/navigation in time
-remote monitoring of what happens in other peers
-- Object-oriented modeling: Organizing data to mirror real-world complexities.
-- Graph-oriented architecture: Defining the inter-dependencies between system and technical concepts,
-driving the navigation both in data and the workflow of the user interface.
-- Integrated AI: Utilizing machine learning for advanced data analysis and content generation.
-- Chat-Oriented UX: Prioritizing intuitive, natural language workflows.
+- Decentralization: Ensures high availability and resilience by eliminating single points of failure across the data landscape.
+
+- Event Sourcing: Simplifies data orchestration and real-time monitoring while enabling native versioning and time-travel navigation.
+
+- Object-Oriented Modeling: Maps complex business logic to intuitive data structures that mirror real-world requirements.
+
+- Graph-Driven Architecture: Maps the interdependencies between system concepts to power seamless navigation across both data and user workflows.
+
+- Integrated AI: Embeds machine learning directly into the core for advanced predictive analysis and automated content generation.
+
+- Conversational UX: Puts natural language at the forefront, creating intuitive, chat-oriented workflows for the end-user.
 
 # Team
 - Luc Hogie (CNRS Research Engineer)
