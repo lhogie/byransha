@@ -1,9 +1,9 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class MCF extends Status {
-	public MCF(BGraph g) {
+	public MCF(BNode g) {
 		super(g);
 		name.set("Maitre de Conference");
 	}

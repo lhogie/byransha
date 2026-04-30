@@ -19,7 +19,7 @@ public class MakeNewInstance extends FunctionAction<ClassNode, BNode> {
 	}
 
 	@Override
-	public void impl() throws Throwable {
+	public void impl() {
 		result = inputNode.newInstance(parent);
 	}
 

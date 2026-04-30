@@ -15,7 +15,7 @@ import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 
-public abstract class Action<T extends BNode> extends BNode {
+public abstract class Action<HOOK extends BNode> extends BNode {
 	public boolean stopRequested = false;
 	private Thread thread;
 	public final Class<? extends Category>[] path;
@@ -26,7 +26,7 @@ public abstract class Action<T extends BNode> extends BNode {
 	public JProgressBar progressBar;
 	public boolean confirmationRequired = false;
 
-	public Action(T parent, Class<? extends Category>... pathInMenu) {
+	public Action(HOOK parent, Class<? extends Category>... pathInMenu) {
 		super(parent);
 		this.path = pathInMenu;
 	}
@@ -90,6 +90,7 @@ public abstract class Action<T extends BNode> extends BNode {
 	}
 
 	protected abstract void impl() throws Throwable;
+
 	protected void handleIAResponseChunk(Object chunk) {
 		if (outputConsumer != null) {
 			outputConsumer.accept(chunk);

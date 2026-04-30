@@ -6,7 +6,7 @@ import byransha.nodes.primitive.StringNode;
 public class SupportDePoste extends BNode {
 	StringNode id;
 
-	public SupportDePoste(Structure g) {
+	public SupportDePoste(BNode g) {
 		super(g);
 		id = new StringNode(g);
 	}

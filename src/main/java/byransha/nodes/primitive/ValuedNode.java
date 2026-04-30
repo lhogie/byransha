@@ -40,7 +40,7 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public V get() {
-		if (false)//!canSee(g().currentUser()))
+		if (false)// !canSee(g().currentUser()))
 			throw new RuntimeException(g().currentUser() + " is not allowed to read the value");
 
 		return value;
@@ -95,11 +95,11 @@ public abstract class ValuedNode<V> extends BNode {
 
 	private void writeValueToDisk() {
 		try {
-			var f = new File(Byransha.homeDirectory, "valued_nodes/" + pathString() + ".txt");
-			f.getParentFile().mkdirs();
 			var s = toString();
+			var f = new File(Byransha.homeDirectory, "valued_nodes/" + rolePath() + ".txt");
 
 			if (s != null) {
+				f.getParentFile().mkdirs();
 				Files.write(s.getBytes(), f);
 			} else if (f.exists()) {
 				f.delete();
@@ -118,7 +118,7 @@ public abstract class ValuedNode<V> extends BNode {
 	@Override
 	public String toString() {
 		var v = get();
-		return v == null ? super.toString() : v.toString();
+		return v == null ? "null" : v.toString();
 	}
 
 	protected abstract void writeValue(V v, ObjectOutput out) throws IOException;

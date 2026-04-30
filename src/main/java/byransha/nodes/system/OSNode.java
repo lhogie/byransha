@@ -7,6 +7,7 @@ import java.net.UnknownHostException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.BGraph;
+import byransha.graph.ShowInKishanView;
 
 public class OSNode extends SystemNode {
 
@@ -14,23 +15,64 @@ public class OSNode extends SystemNode {
 		super(g);
 	}
 
+	@ShowInKishanView
+	public String name() {
+		return System.getProperty("os.name");
+	}
+
+	@ShowInKishanView
+	public String version() {
+		return System.getProperty("os.version");
+	}
+
+	@ShowInKishanView
+	public String arch() {
+		return System.getProperty("os.arch");
+	}
+
+	@ShowInKishanView
+	public double loadAvg() {
+		return ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage();
+	}
+
+	@ShowInKishanView
+	public int nbCores() {
+		return Runtime.getRuntime().availableProcessors();
+	}
+
+	@ShowInKishanView
+	public double busy() {
+		return loadAvg() / (double) nbCores();
+	}
+
+	@ShowInKishanView
+	public String hostAddress() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			return null;
+		}
+	}
+
+	@ShowInKishanView
+	public String hostName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return null;
+		}
+	}
+
 	@Override
 	public ObjectNode describeAsJSON() {
 		var r = new ObjectNode(factory);
-
-		try {
-			r.put("IP address", InetAddress.getLocalHost().getHostAddress());
-			r.put("hostname", InetAddress.getLocalHost().getHostName());
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-
-		r.put("arch", ManagementFactory.getOperatingSystemMXBean().getArch());
-		r.put("OS name", ManagementFactory.getOperatingSystemMXBean().getName());
-		r.put("load average", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage());
-		r.put("#cores", Runtime.getRuntime().availableProcessors());
-		r.put("%busy", ManagementFactory.getOperatingSystemMXBean().getSystemLoadAverage()
-				/ (double) Runtime.getRuntime().availableProcessors());
+		r.put("IP address", hostAddress());
+		r.put("hostname", hostName());
+		r.put("arch", arch());
+		r.put("OS name", name());
+		r.put("load average", loadAvg());
+		r.put("#cores", nbCores());
+		r.put("%busy", busy());
 		return r;
 	}
 

@@ -1,5 +1,6 @@
 package byransha.nodes.lab;
 
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -7,7 +8,7 @@ import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 
-public class Office extends BusinessNode {
+public class Room extends BusinessNode {
 	@ShowInKishanView
 	public StringNode name = new StringNode(this);
 
@@ -23,8 +24,8 @@ public class Office extends BusinessNode {
 	@ShowInKishanView
 	public LongNode floorNumber;
 
-	public Office(Building g) {
-		super(g);
+	public Room(BNode parent) {
+		super(parent);
 	}
 
 	@Override

@@ -1,9 +1,9 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class IR extends Status {
-	public IR(BGraph g) {
+	public IR(BNode g) {
 		super(g);
 		name.set("Ingénieur de Recherche");
 	}

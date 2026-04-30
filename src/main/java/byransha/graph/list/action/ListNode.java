@@ -5,17 +5,15 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.ListItemPanel;
 import byransha.graph.ShowInKishanView;
+import byransha.graph.action.CreateNewListElement;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.action.NewNodeCreator;
 import byransha.graph.list.action.export.ExportAsListOfIDs;
 import byransha.graph.list.action.filter.RemoveSelected;
 import byransha.graph.list.action.filter.RetainSelected;
@@ -32,11 +30,18 @@ public class ListNode<T extends BNode> extends BNode {
 	final public ListenableList<T> selection = new ListenableList<>();
 	public Class<T> contentClass;
 
-
 	public ListNode(BNode parent, String label, Class<T> contentClass) {
 		super(parent);
 		this.label = label;
 		this.contentClass = contentClass;
+	}
+
+	@Override
+	protected boolean acceptDrop(BNode droppedNode) {
+		if (!contentClass.getClass().isAssignableFrom(droppedNode.getClass()))
+			return false;
+
+		return elements.add((T) droppedNode);
 	}
 
 	@ShowInKishanView
@@ -84,7 +89,7 @@ public class ListNode<T extends BNode> extends BNode {
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new Clear(this));
-		cachedActions.elements.add(new NewNodeCreator(this, parent));
+		cachedActions.elements.add(new CreateNewListElement(this, this));
 
 		cachedActions.elements.add(new SortByString(this));
 		cachedActions.elements.add(new SortByValue(this));
@@ -189,21 +194,10 @@ public class ListNode<T extends BNode> extends BNode {
 
 	private String label() {
 		if (elements.size() == 0) {
-			return "empty list";
+			return "0 element";
 		}
 
-		var s = getSelected().size() + " selected, among " + elements.size();
-
-		if (elements.size() > 0) {
-			s += " (";
-			var map = elements.stream().collect(Collectors.groupingBy(Object::getClass));
-			for (var e : map.entrySet()) {
-				s += e.getValue().size() + " " + e.getValue().getFirst().whatIsThis() + "(s)";
-			}
-			s += ")";
-		}
-
-		return s;
+		return getSelected().size() + " selected element(s), among " + elements.size();
 	}
 
 	@Override
@@ -211,7 +205,7 @@ public class ListNode<T extends BNode> extends BNode {
 		super.writeKishanView(sheet);
 		writeToKishanView(sheet);
 	}
-	
+
 	@Override
 	protected void writeToKishanView(ChatSheet sheet) {
 		var label = new TextDisplayComponent(g().translator, label());
@@ -275,6 +269,7 @@ public class ListNode<T extends BNode> extends BNode {
 				// selectionsBoxes.get(newElement).setSelected(true);
 			}
 
-		});	}
+		});
+	}
 
 }

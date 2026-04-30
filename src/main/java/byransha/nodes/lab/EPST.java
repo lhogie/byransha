@@ -1,8 +1,10 @@
 package byransha.nodes.lab;
 
+import byransha.graph.BNode;
+
 public class EPST extends Structure {
 
-	public EPST(Country g) {
+	public EPST(BNode g) {
 		super(g);
 	}
 	

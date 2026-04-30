@@ -14,15 +14,17 @@ business-centric applications. The platform is built on six core pillars:
 - Conversational UX: Puts natural language at the forefront, creating intuitive, chat-oriented workflows for the end-user.
 
 # Team
-- Luc Hogie (CNRS Research Engineer)
-- Dylan Malausena (Master 2 student)
+- Luc Hogie (CNRS Research Engineer, leader and main contributor)
+- Dylan Malausena (Master 2 student, work on AI-powered data analysis)
+- Charles-Axelle Essaga (integrating publication datas from HAL)
+- Mourtada-Essadik Ennouni (deployment)
 
 ## former members
 - Kishan Turpin (Master 2 student)
 - Quentin Nicolini (Master 1 student)
 - Lamyae Fakir
-- Mathéo BALAZUC
-- CELESTE Maxime
+- Mathéo Balazuc
+- Maxime Céleste
 - Matthias Carré
-- EL BAZZAL Nour
-- Mourad HADDOUDI
+- Nour El Bazzal
+- Mourad Haddoudi

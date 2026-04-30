@@ -7,6 +7,7 @@ import java.util.List;
 import byransha.event.EventList;
 import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
+import byransha.graph.relection.ClassNode;
 import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
 import byransha.nodes.lab.Genre.Male;
@@ -21,6 +22,7 @@ import byransha.security.LdapAuthenticator;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
+import io.github.classgraph.ClassGraph;
 
 public class BGraph extends BNode {
 	@ShowInKishanView
@@ -109,6 +111,35 @@ public class BGraph extends BNode {
 
 	public User currentUser() {
 		return currentUser;
+	}
+
+	@ShowInKishanView
+	public List<ClassNode> businessClasses() {
+		return classesIn(application.getClass().getPackage(), BusinessNode.class);
+	}
+
+	public List<ClassNode> classesIn(Package p, Class superclass) {
+		var r = new ArrayList<ClassNode>();
+
+		for (var c : new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan().getAllClasses()
+				.loadClasses()) {
+			if (superclass.isAssignableFrom(c) && (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
+					&& c.getDeclaringClass() == null) {
+				try {
+					var constr = c.getConstructor(BNode.class);
+
+					if (constr != null) {
+						r.add(g().indexes.byClass.getClassNodeFor(c));
+					} else {
+						System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
+					}
+				} catch (NoSuchMethodException err) {
+					System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
+				}
+			}
+		}
+
+		return r;
 	}
 
 }

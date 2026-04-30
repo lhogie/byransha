@@ -2,17 +2,15 @@ package byransha.graph;
 
 import byransha.nodes.primitive.MimeTypeNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.nodes.primitive.URLNode;
 
 public class DocumentNode extends BNode {
-	public RawDataNode data;
-	public StringNode title;
-	public MimeTypeNode mimeType;
+	public URLNode url = new URLNode(this, null);
+	public StringNode title= new StringNode(this);
+	public MimeTypeNode mimeType = new MimeTypeNode(this);
 
 	public DocumentNode(BNode parent) {
 		super(parent);
-		data = new RawDataNode(parent);
-		title = new StringNode(parent);
-		mimeType = new MimeTypeNode(g());
 	}
 
 	@Override

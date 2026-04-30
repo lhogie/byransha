@@ -16,15 +16,15 @@ import byransha.ui.swing.ErrorIndicator;
 
 public class ListItemPanel extends JPanel {
 	public final JCheckBox selectionBox = new JCheckBox();
-	public final javax.swing.JLabel label;
+//	public final javax.swing.JLabel label;
 
 	public ListItemPanel(BNode node, ListNode list, int i, ChatNode chat) {
 		super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setOpaque(false);
-		setBorder(new LineBorder(Color.lightGray, 1));
+		//setBorder(new LineBorder(Color.lightGray, 1));
 		setToolTipText(this + ", " + node.whatIsThis());
 
-		add(label = new javax.swing.JLabel(i + ""));
+		//add(label = new javax.swing.JLabel(i + ""));
 		add(node.createBall(16, 4, chat));
 		add(new ErrorIndicator(node));
 		var c = node.getListItemComponent(chat);

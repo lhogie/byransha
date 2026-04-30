@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -51,6 +50,7 @@ import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.FileNode;
+import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
@@ -73,12 +73,13 @@ import byransha.util.TriConsumer;
 public abstract class BNode {
 	public final BNode parent;
 	public boolean readOnly;
+	protected boolean resilient = false;
 	public long id = -1;
 	public BGraph graph;
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
-		if (!(this instanceof BGraph) && parent ==null )
+		if (!(this instanceof BGraph) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
 
@@ -117,11 +118,31 @@ public abstract class BNode {
 		}
 	}
 
+	public boolean isResilient() {
+		if (resilient) {
+			return true;
+		} else if (parent != null) {
+			return parent.isResilient();
+		} else {
+			return false;
+		}
+	}
+
+	public Action enclosingActionNode() {
+		if (this instanceof Action bn) {
+			return bn;
+		} else if (parent != null) {
+			return parent.enclosingActionNode();
+		} else {
+			return null;
+		}
+	}
+
 	public int depth() {
 		return parent == null ? 0 : parent.depth() + 1;
 	}
 
-	public String pathString() {
+	public List<String> rolePathElements() {
 		var r = new ArrayList<String>();
 
 		for (BNode a = this; a.parent != null; a = a.parent) {
@@ -129,7 +150,11 @@ public abstract class BNode {
 		}
 
 		Collections.reverse(r);
-		return r.stream().collect(Collectors.joining("/"));
+		return r;
+	}
+
+	public String rolePath() {
+		return rolePathElements().stream().collect(Collectors.joining("/"));
 	}
 
 	public ListNode<BNode> path() {
@@ -285,25 +310,38 @@ public abstract class BNode {
 		});
 	}
 
-	private BNode instantiateRenderingNodeFor(Object o) {
-		if (o instanceof File f) {
-			return new FileNode(this, f);
-		} else {
-			return new StringNode(this, o.toString(), null);
-		}
-	}
-
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
 			BiConsumer<Method, BNode> consumer) {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
 				try {
-					var outNode = (BNode) m.invoke(this);
-					consumer.accept(m, outNode);
+					var out = m.invoke(this);
+
+					if (out instanceof BNode outNode) {
+						consumer.accept(m, outNode);
+					} else if (out != null) {
+						var outNode = instantiateRenderingNodeFor(out);
+						outNode.readOnly = true;
+						consumer.accept(m, outNode);
+					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					g().errorLog.add(e);
 				}
 			}
+		}
+	}
+
+	private BNode instantiateRenderingNodeFor(Object o) {
+		if (o instanceof File f) {
+			return new FileNode(this, f);
+		} else if (o instanceof List l) {
+			var ln = new ListNode(this, "list", Object.class);
+			ln.elements.addAll(l);
+			return ln;
+		} else if (o instanceof Long l) {
+			return new LongNode(this, l);
+		} else {
+			return new StringNode(this, o.toString(), null);
 		}
 	}
 
@@ -421,7 +459,7 @@ public abstract class BNode {
 
 	@Override
 	public final int hashCode() {
-		return Long.hashCode(id);
+		return Long.hashCode(id());
 	}
 
 	@Override
@@ -547,33 +585,24 @@ public abstract class BNode {
 	}
 
 	public void writeKishanView(ChatSheet sheet) {
-		int fieldNameSize = fieldMaxLength();
+		int fieldNameSize = 10;// fieldMaxLength();
 
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
-			if (out != this) {
-				fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
-				sheet.newLine();
-			}
+			fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
+			sheet.newLine();
 		});
 
 		forEachOutInMethods(getClass(), BNode.class, (method, out) -> {
-			if (out != this) {
-				fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
-				sheet.newLine();
-			}
+			fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
+			sheet.newLine();
 		});
 	}
 
 	private int fieldMaxLength() {
 		int[] max = { 0 };
-		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
-			if (out != this)
-				max[0] = Math.max(max[0], f.getName().length());
-		});
-		forEachOutInMethods(getClass(), BNode.class, (m, out) -> {
-			if (out != this)
-				max[0] = Math.max(max[0], m.getName().length());
-		});
+		forEachOutInFields(getClass(), BNode.class,
+				(f, out, readOnly) -> max[0] = Math.max(max[0], f.getName().length()));
+		forEachOutInMethods(getClass(), BNode.class, (m, out) -> max[0] = Math.max(max[0], m.getName().length()));
 		return max[0];
 	}
 
@@ -593,7 +622,7 @@ public abstract class BNode {
 		}
 
 		if (m instanceof Field field) {
-			Utils.idDropTarget(g(), roleComponent, dn -> set(field, dn));
+			Utils.idDropTarget(g(), roleComponent, droppedNode -> set(field, droppedNode));
 
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
@@ -639,6 +668,8 @@ public abstract class BNode {
 		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "</ul></html>";
 		c.setToolTipText(tooltip);
 //		SelectableTooltip.addSelectableTooltip(c,tooltip);
+		Utils.idDropTarget(g(), c, droppedNode -> acceptDrop(droppedNode));
+
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
 				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
 
@@ -673,7 +704,11 @@ public abstract class BNode {
 		return c;
 	}
 
-	protected JComponent getListItemComponent(ChatNode chat) {
+	protected boolean acceptDrop(BNode droppedNode) {
+		return false;
+	}
+
+	public JComponent getListItemComponent(ChatNode chat) {
 		return getSmallComponent(chat);
 	}
 
@@ -681,6 +716,7 @@ public abstract class BNode {
 		var ta = new TranslatableTextArea(g().translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
+		ta.setEditable(false);
 		return ta;
 	}
 }

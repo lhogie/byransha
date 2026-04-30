@@ -16,7 +16,7 @@ public class Position extends BNode {
 	@ShowInKishanView
 	public SupportDePoste support;
 
-	public Position(Person g) {
+	public Position(BNode g) {
 		super(g);
 	}
 

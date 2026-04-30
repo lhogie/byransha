@@ -1,17 +1,16 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
-import byransha.graph.DocumentNode;
 import byransha.graph.ShowInKishanView;
 
 public class Country extends BusinessNode {
 
 	public String name, code;
 	@ShowInKishanView
-	public DocumentNode flag;
+	public byte[] flag;
 
-	public Country(BGraph g) {
+	public Country(BNode g) {
 		super(g);
 	}
 

@@ -1,10 +1,10 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class PR extends Status {
 
-	public PR(BGraph g) {
+	public PR(BNode g) {
 		super(g);
 		name.set("Professeur des Universités");
 	}

@@ -36,7 +36,7 @@ class OldTBRH {
 			person.cityOfBirth.set(l.set(5, null));
 //            person.etatCivil.countryOfBirth.set(l.set(6, null));
 //            person.etatCivil.nationality.set(l.set(7, null));
-			person.address.set(l.set(8, null));
+			person.address.text.set(l.set(8, null));
 			var inter = new PhoneNumberNode(person);
 			inter.set(l.set(9, null));
 			person.phoneNumbers.elements.add(inter);
@@ -53,7 +53,7 @@ class OldTBRH {
 							var office = b.findOffice(officeName);
 
 							if (office != null) {
-								person.offices.elements.add((Office) office);
+								person.offices.elements.add((Room) office);
 							}
 						}
 					}

@@ -113,7 +113,7 @@ public class ClassNode<T extends BNode> extends BNode {
 
 	@Override
 	public String toString() {
-		return representedClass.getName();
+		return representedClass.getSimpleName();
 	}
 
 	public String toPlantUML(int depth, Predicate<ClassNode> filter) {
@@ -204,7 +204,7 @@ public class ClassNode<T extends BNode> extends BNode {
 
 	@ShowInKishanView
 	public ListNode<T> allInstances() {
-		var l = new ListNode<T>(null, "instances of " + representedClass.getSimpleName(), representedClass);
+		var l = new ListNode<T>(this, "instances of " + representedClass.getSimpleName(), representedClass);
 		g().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
 		return l;
 	}

@@ -1,5 +1,6 @@
 package byransha.nodes.lab;
 
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -8,16 +9,16 @@ import byransha.nodes.primitive.StringNode;
 public class Building extends BusinessNode {
 
 	@ShowInKishanView
-	public ListNode<Office> offices = new ListNode(this, "office(s)", Office.class);
+	public ListNode<Room> offices = new ListNode(this, "office(s)", Room.class);
 	@ShowInKishanView
 	public StringNode name;
 
-	public Building(Campus g) {
-		super(g);
-		name = new StringNode(g, "", ".+");
+	public Building(BNode parent) {
+		super(parent);
+		name = new StringNode(parent, "", ".+");
 	}
 
-	public Office findOffice(String name) {
+	public Room findOffice(String name) {
 		for (var o : offices.elements) {
 			if (o.name.get().equals(name)) {
 				return o;

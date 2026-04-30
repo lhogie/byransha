@@ -1,5 +1,6 @@
 package byransha.nodes.lab;
 
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -12,8 +13,8 @@ public class Campus extends BusinessNode {
 	@ShowInKishanView
 	public ListNode<Building> buildings = new ListNode(this, "building(s)", Building.class);
 
-	public Campus(University g) {
-		super(g);
+	public Campus(BNode parent) {
+		super(parent);
 	}
 
 	@Override

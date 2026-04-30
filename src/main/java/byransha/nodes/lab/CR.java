@@ -1,9 +1,9 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 
 public class CR extends Status {
-	public CR(BGraph g) {
+	public CR(BNode g) {
 		super(g);
 		name.set("Chargé de Recherche");
 		name.readOnly = true;
