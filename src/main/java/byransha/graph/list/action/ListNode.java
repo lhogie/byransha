@@ -11,7 +11,6 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BNode;
 import byransha.graph.ListItemPanel;
-import byransha.graph.ShowInKishanView;
 import byransha.graph.action.CreateNewListElement;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.list.action.export.ExportAsListOfIDs;
@@ -44,7 +43,6 @@ public class ListNode<T extends BNode> extends BNode {
 		return elements.add((T) droppedNode);
 	}
 
-	@ShowInKishanView
 	public ClassNode<T> contentClass() {
 		return g().indexes.byClass.getClassNodeFor(contentClass);
 	}
@@ -195,9 +193,9 @@ public class ListNode<T extends BNode> extends BNode {
 	private String label() {
 		if (elements.size() == 0) {
 			return "0 element";
+		} else {
+			return getSelected().size() + " selected element(s), among " + elements.size();
 		}
-
-		return getSelected().size() + " selected element(s), among " + elements.size();
 	}
 
 	@Override
@@ -224,24 +222,12 @@ public class ListNode<T extends BNode> extends BNode {
 			public void onAdded(int index, T element) {
 				label.setText(label());
 				line.add(new ListItemPanel(element, ListNode.this, index, sheet.chat), index);
-				reindex();
-			}
-
-			private void reindex() {
-				int i = 1;
-				for (var c : line.getComponents()) {
-					var p = (ListItemPanel) c;
-//					p.label.setText(String.valueOf(++i));
-				}
-				line.revalidate();
-				line.repaint();
 			}
 
 			@Override
 			public void onRemoved(int index, T oldElement) {
 				label.setText(label());
 				line.remove(index);
-				reindex();
 			}
 
 			@Override
@@ -254,19 +240,18 @@ public class ListNode<T extends BNode> extends BNode {
 			@Override
 			public void onAdded(int index, T element) {
 				label.setText(label());
-				// selectionsBoxes.get(element).setSelected(true);
+				((ListItemPanel) line.getComponent(elements.indexOf(element))).showSelectionStatus(true);
 			}
 
 			@Override
 			public void onRemoved(int index, T element) {
 				label.setText(label());
-				// selectionsBoxes.get(element).setSelected(true);
+				((ListItemPanel) line.getComponent(elements.indexOf(element))).showSelectionStatus(false);
 			}
 
 			@Override
 			public void onSet(int index, T oldElement, T newElement) {
-				// selectionsBoxes.get(oldElement).setSelected(false);
-				// selectionsBoxes.get(newElement).setSelected(true);
+				throw new IllegalStateException();
 			}
 
 		});

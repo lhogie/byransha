@@ -3,6 +3,7 @@ package byransha.nodes.lab;
 import java.util.List;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
@@ -35,7 +36,7 @@ public class Structure extends BusinessNode {
 
 	@Override
 	public JComponent getListItemComponent(ChatNode chat) {
-		return name.getListItemComponent(chat);
+		return new JLabel(name.get());
 	}
 
 	@Override

@@ -27,11 +27,6 @@ public class ChatSheet extends Sheet {
 	}
 
 	void appendNode(BNode n) {
-		if (getComponentCount() > 1) {
-			add(new JSeparator());
-			newLine();
-		}
-
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
@@ -51,6 +46,9 @@ public class ChatSheet extends Sheet {
 				is.appendToCurrentLine(">");
 			}
 		}
+		
+		is.currentLine.setBackground(chat.g().swing.getBackgroundColor());
+		is.currentLine.setOpaque(true);
 
 //		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
 		is.newLine();

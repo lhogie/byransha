@@ -22,7 +22,7 @@ public class SwingFrontend extends SystemNode {
 	public final ColorSchemeNode colorStyle = List.of(ColorPalette.Style.values()).stream()
 			.map(s -> new ColorSchemeNode(this, s)).toList().getFirst();
 	@ShowInKishanView
-	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
+	public final LongNode transparencyForNodeBackground = new LongNode(this, 20);
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	@ShowInKishanView

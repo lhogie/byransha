@@ -1,13 +1,15 @@
 package byransha.graph;
 
-import byransha.nodes.primitive.MimeTypeNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
 
 public class DocumentNode extends BNode {
+	@ShowInKishanView
 	public URLNode url = new URLNode(this, null);
-	public StringNode title= new StringNode(this);
-	public MimeTypeNode mimeType = new MimeTypeNode(this);
+	@ShowInKishanView
+	public StringNode name = new StringNode(this);
+	@ShowInKishanView
+	public BNode relatedTo;
 
 	public DocumentNode(BNode parent) {
 		super(parent);
@@ -15,11 +17,11 @@ public class DocumentNode extends BNode {
 
 	@Override
 	public String whatIsThis() {
-		return "a document of type " + mimeType;
+		return "a document";
 	}
 
 	@Override
 	public String toString() {
-		return title.get();
+		return name + " for " + relatedTo;
 	}
 }

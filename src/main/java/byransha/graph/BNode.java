@@ -30,6 +30,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -93,6 +94,7 @@ public abstract class BNode {
 			// g().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
+
 
 	public String findRoleOf(BNode n) {
 		var foundRole = new String[1];
@@ -195,6 +197,38 @@ public abstract class BNode {
 			@Override
 			public void onAdded(int index, N n) {
 				f.apply(n).elements.add(BNode.this);
+			}
+		});
+
+		return r;
+	}
+
+	protected <N extends BNode> ListNode<N> inverseRelation2(String label, Class<N> c, Function<N, BNode> f) {
+		var r = new ListNode<N>(this, label, c);
+
+		for (var n : g().indexes.byClass.m.get(c)) {
+			var nn = (N) n;
+
+			if (f.apply(nn) == BNode.this) {
+				r.elements.add(nn);
+			}
+		}
+
+		r.elements.addListener(new ListenableList.Listener<N>() {
+
+			@Override
+			public void onSet(int index, N oldElement, N p) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onRemoved(int index, N n) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onAdded(int index, N n) {
+				throw new UnsupportedOperationException("not supported");
 			}
 		});
 

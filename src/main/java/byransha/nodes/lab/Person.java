@@ -1,9 +1,7 @@
 package byransha.nodes.lab;
 
-import java.awt.FlowLayout;
-
 import javax.swing.JComponent;
-import javax.swing.JPanel;
+import javax.swing.JLabel;
 
 import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
@@ -28,9 +26,9 @@ public class Person extends BusinessNode {
 	@ShowInKishanView
 	public URLNode pics = new URLNode(this, "");
 	@ShowInKishanView
-	public BooleanNode hdr = new BooleanNode(this, null);
+	public final BooleanNode hdr = new BooleanNode(this, null);
 	@ShowInKishanView
-	public BadgeNode badgeNumber = new BadgeNode(this);
+	public final BadgeNode badgeNumber = new BadgeNode(this);
 	@ShowInKishanView
 	public URLNode website = new URLNode(this, null);
 	@ShowInKishanView
@@ -79,17 +77,7 @@ public class Person extends BusinessNode {
 
 	@Override
 	public String toString() {
-		String prettyName = "";
-		if (name != null && name.get() != null && !name.get().isBlank()) {
-			prettyName = name.get();
-		}
-		if (firstName != null && firstName.get() != null && !firstName.get().isBlank()) {
-			prettyName += " " + firstName.get();
-		}
-		if (prettyName.isBlank()) {
-			prettyName = null;
-		}
-		return prettyName;
+		return firstName.toString() + " "+ name.toString();
 	}
 
 	@Override
@@ -99,10 +87,7 @@ public class Person extends BusinessNode {
 
 	@Override
 	public JComponent getListItemComponent(ChatNode chat) {
-		var c = new JPanel(new FlowLayout());
-		c.add(firstName.getListItemComponent(chat));
-		c.add(name.getListItemComponent(chat));
-		return c;
+		return new JLabel(firstName.get() + " "  + name.get());
 	}
 
 }
