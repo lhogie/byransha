@@ -1,11 +1,11 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 
 public class Nationality extends StringNode {
 
-    public Nationality(BGraph g){
+    public Nationality(BNode g){
         super(g);
     }
 

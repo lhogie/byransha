@@ -5,17 +5,14 @@ import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.ListItemPanel;
-import byransha.graph.ShowInKishanView;
+import byransha.graph.action.CreateNewListElement;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.action.NewNodeCreator;
 import byransha.graph.list.action.export.ExportAsListOfIDs;
 import byransha.graph.list.action.filter.RemoveSelected;
 import byransha.graph.list.action.filter.RetainSelected;
@@ -32,14 +29,20 @@ public class ListNode<T extends BNode> extends BNode {
 	final public ListenableList<T> selection = new ListenableList<>();
 	public Class<T> contentClass;
 
-
 	public ListNode(BNode parent, String label, Class<T> contentClass) {
 		super(parent);
 		this.label = label;
 		this.contentClass = contentClass;
 	}
 
-	@ShowInKishanView
+	@Override
+	protected boolean acceptDrop(BNode droppedNode) {
+		if (!contentClass.getClass().isAssignableFrom(droppedNode.getClass()))
+			return false;
+
+		return elements.add((T) droppedNode);
+	}
+
 	public ClassNode<T> contentClass() {
 		return g().indexes.byClass.getClassNodeFor(contentClass);
 	}
@@ -84,7 +87,7 @@ public class ListNode<T extends BNode> extends BNode {
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new Clear(this));
-		cachedActions.elements.add(new NewNodeCreator(this));
+		cachedActions.elements.add(new CreateNewListElement(this, this));
 
 		cachedActions.elements.add(new SortByString(this));
 		cachedActions.elements.add(new SortByValue(this));
@@ -189,21 +192,10 @@ public class ListNode<T extends BNode> extends BNode {
 
 	private String label() {
 		if (elements.size() == 0) {
-			return "empty list";
+			return "0 element";
+		} else {
+			return getSelected().size() + " selected element(s), among " + elements.size();
 		}
-
-		var s = getSelected().size() + " selected, among " + elements.size();
-
-		if (elements.size() > 0) {
-			s += " (";
-			var map = elements.stream().collect(Collectors.groupingBy(Object::getClass));
-			for (var e : map.entrySet()) {
-				s += e.getValue().size() + " " + e.getValue().getFirst().whatIsThis() + "(s)";
-			}
-			s += ")";
-		}
-
-		return s;
 	}
 
 	@Override
@@ -211,7 +203,7 @@ public class ListNode<T extends BNode> extends BNode {
 		super.writeKishanView(sheet);
 		writeToKishanView(sheet);
 	}
-	
+
 	@Override
 	protected void writeToKishanView(ChatSheet sheet) {
 		var label = new TextDisplayComponent(g().translator, label());
@@ -230,24 +222,12 @@ public class ListNode<T extends BNode> extends BNode {
 			public void onAdded(int index, T element) {
 				label.setText(label());
 				line.add(new ListItemPanel(element, ListNode.this, index, sheet.chat), index);
-				reindex();
-			}
-
-			private void reindex() {
-				int i = 1;
-				for (var c : line.getComponents()) {
-					var p = (ListItemPanel) c;
-//					p.label.setText(String.valueOf(++i));
-				}
-				line.revalidate();
-				line.repaint();
 			}
 
 			@Override
 			public void onRemoved(int index, T oldElement) {
 				label.setText(label());
 				line.remove(index);
-				reindex();
 			}
 
 			@Override
@@ -260,21 +240,21 @@ public class ListNode<T extends BNode> extends BNode {
 			@Override
 			public void onAdded(int index, T element) {
 				label.setText(label());
-				// selectionsBoxes.get(element).setSelected(true);
+				((ListItemPanel) line.getComponent(elements.indexOf(element))).showSelectionStatus(true);
 			}
 
 			@Override
 			public void onRemoved(int index, T element) {
 				label.setText(label());
-				// selectionsBoxes.get(element).setSelected(true);
+				((ListItemPanel) line.getComponent(elements.indexOf(element))).showSelectionStatus(false);
 			}
 
 			@Override
 			public void onSet(int index, T oldElement, T newElement) {
-				// selectionsBoxes.get(oldElement).setSelected(false);
-				// selectionsBoxes.get(newElement).setSelected(true);
+				throw new IllegalStateException();
 			}
 
-		});	}
+		});
+	}
 
 }

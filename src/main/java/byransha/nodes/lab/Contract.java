@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -20,7 +20,7 @@ public class Contract extends BusinessNode {
 	@ShowInKishanView
 	public final ListNode<Person> misc = new ListNode<>(this, "misc", Person.class);
 
-	public Contract(BGraph g) {
+	public Contract(BNode g) {
 		super(g);
 	}
 

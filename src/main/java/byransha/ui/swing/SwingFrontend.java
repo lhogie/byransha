@@ -12,6 +12,7 @@ import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.ColorNode;
 import byransha.nodes.primitive.LongNode;
+import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
 import byransha.ui.ColorSchemeNode;
@@ -21,7 +22,7 @@ public class SwingFrontend extends SystemNode {
 	public final ColorSchemeNode colorStyle = List.of(ColorPalette.Style.values()).stream()
 			.map(s -> new ColorSchemeNode(this, s)).toList().getFirst();
 	@ShowInKishanView
-	public final LongNode transparencyForNodeBackground = new LongNode(this, 5);
+	public final LongNode transparencyForNodeBackground = new LongNode(this, 20);
 	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
 
 	@ShowInKishanView
@@ -43,13 +44,19 @@ public class SwingFrontend extends SystemNode {
 		f.setLocation(0, 0);
 		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
 		f.setVisible(true);
-		considerUser(g.currentUser());
-	}
+//		considerUser(g.currentUser());
+	}	
 
 	private void considerUser(User newUser) {
 		f.getContentPane().removeAll();
+		
+		if( newUser.chats.elements.isEmpty()) {
+			new ChatNode(newUser).nodes.elements.add(g());
+		}
+		
 		var panelList = newUser.chats.elements.stream().map(c -> new ChatPanel(c)).toList();
 		var p = new JPanel(new GridLayout(1, panelList.size()));
+		System.out.println(newUser +  "  " + panelList.size());
 		panelList.forEach(p::add);
 		f.setContentPane(p);
 		f.doLayout();

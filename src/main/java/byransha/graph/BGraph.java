@@ -7,6 +7,7 @@ import java.util.List;
 import byransha.event.EventList;
 import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
+import byransha.graph.relection.ClassNode;
 import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
 import byransha.nodes.lab.Genre.Male;
@@ -21,10 +22,11 @@ import byransha.security.LdapAuthenticator;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
+import io.github.classgraph.ClassGraph;
 
 public class BGraph extends BNode {
 	@ShowInKishanView
-	public User currentUser = new User(this, "guest");
+	private User currentUser = new User(this, "guest");
 
 	public AllIndexes indexes = new AllIndexes(this);
 	@ShowInKishanView
@@ -64,7 +66,7 @@ public class BGraph extends BNode {
 
 	public BGraph(File directory) throws Exception {
 		super(null);
-		//indexes.add(this);
+		// indexes.add(this);
 
 		new Male(this);
 		new Female(this);
@@ -81,6 +83,11 @@ public class BGraph extends BNode {
 			this.currentUser = newUser;
 			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
 		}
+	}
+
+	@Override
+	public BGraph g() {
+		return this;
 	}
 
 	public User getCurrentUser() {
@@ -100,6 +107,39 @@ public class BGraph extends BNode {
 	@Override
 	public String toString() {
 		return "super node";
+	}
+
+	public User currentUser() {
+		return currentUser;
+	}
+
+	@ShowInKishanView
+	public List<ClassNode> businessClasses() {
+		return classesIn(application.getClass().getPackage(), BusinessNode.class);
+	}
+
+	public List<ClassNode> classesIn(Package p, Class superclass) {
+		var r = new ArrayList<ClassNode>();
+
+		for (var c : new ClassGraph().enableAllInfo().acceptPackages(p.getName()).scan().getAllClasses()
+				.loadClasses()) {
+			if (superclass.isAssignableFrom(c) && (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
+					&& c.getDeclaringClass() == null) {
+				try {
+					var constr = c.getConstructor(BNode.class);
+
+					if (constr != null) {
+						r.add(g().indexes.byClass.getClassNodeFor(c));
+					} else {
+						System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
+					}
+				} catch (NoSuchMethodException err) {
+					System.err.println("class " + c + " does not have a constructor with a BGraph parameter");
+				}
+			}
+		}
+
+		return r;
 	}
 
 }

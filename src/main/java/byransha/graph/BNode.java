@@ -30,6 +30,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -50,6 +51,7 @@ import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.FileNode;
+import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.ChatNode;
@@ -72,11 +74,14 @@ import byransha.util.TriConsumer;
 public abstract class BNode {
 	public final BNode parent;
 	public boolean readOnly;
+	protected boolean resilient = false;
 	public long id = -1;
 	public BGraph graph;
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
+		if (!(this instanceof BGraph) && parent == null)
+			throw new NullPointerException();
 		this.parent = parent;
 
 		var g = g();
@@ -90,24 +95,19 @@ public abstract class BNode {
 		}
 	}
 
-	public String findRoleInParent() {
-		var s = new String[1];
-		parent.forEachOut((o, r) -> {
-			if (s[0] != null && o == this) {
-				s[0] = r;
+
+	public String findRoleOf(BNode n) {
+		var foundRole = new String[1];
+		forEachOut((out, role) -> {
+			if (foundRole[0] != null && out == n) {
+				foundRole[0] = role;
 			}
 		});
-		return s[0];
+		return foundRole[0];
 	}
 
 	public BGraph g() {
-		if (this instanceof BGraph g) {
-			return g;
-		} else if (parent != null) {
-			return parent.g();
-		} else {
-			return null;
-		}
+		return parent != null ? parent.g() : null;
 	}
 
 	public BusinessNode enclosingBusinessNode() {
@@ -120,23 +120,47 @@ public abstract class BNode {
 		}
 	}
 
+	public boolean isResilient() {
+		if (resilient) {
+			return true;
+		} else if (parent != null) {
+			return parent.isResilient();
+		} else {
+			return false;
+		}
+	}
+
+	public Action enclosingActionNode() {
+		if (this instanceof Action bn) {
+			return bn;
+		} else if (parent != null) {
+			return parent.enclosingActionNode();
+		} else {
+			return null;
+		}
+	}
+
 	public int depth() {
 		return parent == null ? 0 : parent.depth() + 1;
 	}
 
-	public String pathString() {
+	public List<String> rolePathElements() {
 		var r = new ArrayList<String>();
 
-		for (BNode a = this; a != null && a.parent != null; a = a.parent) {
-			r.add(a.findRoleInParent());
+		for (BNode a = this; a.parent != null; a = a.parent) {
+			r.add(a.parent.findRoleOf(a));
 		}
 
 		Collections.reverse(r);
-		return r.stream().collect(Collectors.joining("/"));
+		return r;
+	}
+
+	public String rolePath() {
+		return rolePathElements().stream().collect(Collectors.joining("/"));
 	}
 
 	public ListNode<BNode> path() {
-		var r = new ListNode<BNode>(null, "path", BNode.class);
+		var r = new ListNode<BNode>(this, "path", BNode.class);
 
 		for (BNode a = this; a != null; a = a.parent) {
 			r.elements.add(a);
@@ -179,6 +203,38 @@ public abstract class BNode {
 		return r;
 	}
 
+	protected <N extends BNode> ListNode<N> inverseRelation2(String label, Class<N> c, Function<N, BNode> f) {
+		var r = new ListNode<N>(this, label, c);
+
+		for (var n : g().indexes.byClass.m.get(c)) {
+			var nn = (N) n;
+
+			if (f.apply(nn) == BNode.this) {
+				r.elements.add(nn);
+			}
+		}
+
+		r.elements.addListener(new ListenableList.Listener<N>() {
+
+			@Override
+			public void onSet(int index, N oldElement, N p) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onRemoved(int index, N n) {
+				throw new UnsupportedOperationException("not supported");
+			}
+
+			@Override
+			public void onAdded(int index, N n) {
+				throw new UnsupportedOperationException("not supported");
+			}
+		});
+
+		return r;
+	}
+
 	public int computeLongestPathLength() {
 		var r = bfs(Long.MAX_VALUE, n -> true, (n, d) -> {
 		});
@@ -189,7 +245,6 @@ public abstract class BNode {
 	public String toString() {
 		return getClass().getSimpleName() + " #" + idAsText();
 	}
-
 
 	public List<Action<?>> actions() {
 		if (cachedActions == null) {
@@ -312,8 +367,15 @@ public abstract class BNode {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
 				try {
-					var outNode = (BNode) m.invoke(this);
-					consumer.accept(m, outNode);
+					var out = m.invoke(this);
+
+					if (out instanceof BNode outNode) {
+						consumer.accept(m, outNode);
+					} else if (out != null) {
+						var outNode = instantiateRenderingNodeFor(out);
+						outNode.readOnly = true;
+						consumer.accept(m, outNode);
+					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
 					BGraph graph = g();
 					if (graph != null && graph.errorLog != null) {
@@ -327,13 +389,26 @@ public abstract class BNode {
 		}
 	}
 
+	private BNode instantiateRenderingNodeFor(Object o) {
+		if (o instanceof File f) {
+			return new FileNode(this, f);
+		} else if (o instanceof List l) {
+			var ln = new ListNode(this, "list", Object.class);
+			ln.elements.addAll(l);
+			return ln;
+		} else if (o instanceof Long l) {
+			return new LongNode(this, l);
+		} else {
+			return new StringNode(this, o.toString(), null);
+		}
+	}
+
 	public void forEachOut(BiConsumer<BNode, String> consumer) {
 		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
 		forEachOutInMethods(getClass(), BNode.class, (m, o) -> consumer.accept(o, m.getName()));
 	}
 
 	public void createActions() {
-
 //		cachedActions.add(new Back(g, this));
 		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new SeeClassNode(this));
@@ -403,20 +478,27 @@ public abstract class BNode {
 		return r;
 	}
 
-	public boolean canSee(User user) {
-		return true;
+	public final boolean canSee(User user) {
+		if (user == null)
+			return true;
+
+		for (var r : user.roles.elements) {
+			if (r.isAllowedToSee(this)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
-	public boolean canEdit(User user) {
+	public final boolean canEdit(User user) {
 		if (isReadOnly())
 			return false;
 
 		if (user == null)
 			return true;
 
-		System.out.println("roles");
 		for (var r : user.roles.elements) {
-			System.out.println(r);
 			if (r.isAllowedToEdit(this)) {
 				return true;
 			}
@@ -435,7 +517,7 @@ public abstract class BNode {
 
 	@Override
 	public final int hashCode() {
-		return Long.hashCode(id);
+		return Long.hashCode(id());
 	}
 
 	@Override
@@ -503,8 +585,8 @@ public abstract class BNode {
 		}
 
 		r.put("whatIsThis", whatIsThis());
-		r.put("canSee", canSee(currentUser()));
-		r.put("canEdit", canEdit(currentUser()));
+		r.put("canSee", canSee(g().currentUser()));
+		r.put("canEdit", canEdit(g().currentUser()));
 		r.set("actions",
 				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.idAsText())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
@@ -515,10 +597,6 @@ public abstract class BNode {
 		r.set("outs", outsNode);
 
 		return r;
-	}
-
-	public User currentUser() {
-		return g().getCurrentUser();
 	}
 
 	public Action findAction(String actionName) {
@@ -565,33 +643,24 @@ public abstract class BNode {
 	}
 
 	public void writeKishanView(ChatSheet sheet) {
-		int fieldNameSize = fieldMaxLength();
+		int fieldNameSize = 10;// fieldMaxLength();
 
 		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
-			if (out != this) {
-				fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
-				sheet.newLine();
-			}
+			fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
+			sheet.newLine();
 		});
 
 		forEachOutInMethods(getClass(), BNode.class, (method, out) -> {
-			if (out != this) {
-				fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
-				sheet.newLine();
-			}
+			fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
+			sheet.newLine();
 		});
 	}
 
 	private int fieldMaxLength() {
 		int[] max = { 0 };
-		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
-			if (out != this)
-				max[0] = Math.max(max[0], f.getName().length());
-		});
-		forEachOutInMethods(getClass(), BNode.class, (m, out) -> {
-			if (out != this)
-				max[0] = Math.max(max[0], m.getName().length());
-		});
+		forEachOutInFields(getClass(), BNode.class,
+				(f, out, readOnly) -> max[0] = Math.max(max[0], f.getName().length()));
+		forEachOutInMethods(getClass(), BNode.class, (m, out) -> max[0] = Math.max(max[0], m.getName().length()));
 		return max[0];
 	}
 
@@ -611,7 +680,7 @@ public abstract class BNode {
 		}
 
 		if (m instanceof Field field) {
-			Utils.idDropTarget(g(), roleComponent, dn -> set(field, dn));
+			Utils.idDropTarget(g(), roleComponent, droppedNode -> set(field, droppedNode));
 
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
@@ -639,7 +708,7 @@ public abstract class BNode {
 					list.elements.add(a);
 					return Stop.no;
 				});
-				new ChatNode(currentUser()).append(list);
+				new ChatNode(g().currentUser()).append(list);
 			});
 
 			if (!this.readOnly) {
@@ -662,6 +731,8 @@ public abstract class BNode {
 		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "</ul></html>";
 		c.setToolTipText(tooltip);
 //		SelectableTooltip.addSelectableTooltip(c,tooltip);
+		Utils.idDropTarget(g(), c, droppedNode -> acceptDrop(droppedNode));
+
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
 				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
 
@@ -696,7 +767,11 @@ public abstract class BNode {
 		return c;
 	}
 
-	protected JComponent getListItemComponent(ChatNode chat) {
+	protected boolean acceptDrop(BNode droppedNode) {
+		return false;
+	}
+
+	public JComponent getListItemComponent(ChatNode chat) {
 		return getSmallComponent(chat);
 	}
 
@@ -704,6 +779,7 @@ public abstract class BNode {
 		var ta = new TranslatableTextArea(g().translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
+		ta.setEditable(false);
 		return ta;
 	}
 }

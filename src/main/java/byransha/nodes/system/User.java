@@ -28,15 +28,6 @@ public class User extends BNode {
 		return "a user of the system";
 	}
 
-	@Override
-	public boolean canSee(User user) {
-		return user == this;
-	}
-
-	@Override
-	public boolean canEdit(User user) {
-		return user == this;
-	}
 
 	public boolean accept(String username, String p) {
 		return name.get().equals(username) && passwordNode.get().equals(p);

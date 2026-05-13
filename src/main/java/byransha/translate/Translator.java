@@ -15,6 +15,7 @@ import javax.swing.SwingUtilities;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
 import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
@@ -23,7 +24,10 @@ public abstract class Translator extends BNode {
 		fr, en, auto, es, it, de, lu
 	};
 
+	@ShowInKishanView
 	final File translateDir;
+	
+	@ShowInKishanView
 	public final StringNode targetLanguage;
 	List<Dictionary> dictionaries = new ArrayList<>();
 

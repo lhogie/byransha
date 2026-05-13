@@ -27,31 +27,41 @@ public class ChatSheet extends Sheet {
 	}
 
 	void appendNode(BNode n) {
-		if (getComponentCount() > 1) {
-			add(new JSeparator());
-			newLine();
-		}
-		
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();
-		n.path().elements.forEach(e -> {
-			appendToCurrentLine(e.createBall(18,2, chat));
-			appendToCurrentLine(e.toString() + " >");
-		});
 		newLine();
-		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
-		newLine();
-		newLine();
-		n.writeKishanView(this);
+
+		// TODO enable sheets in sheets
+		var is = this;// new ChatSheet(chat);
+
+		var path = n.path().elements;
+
+		for (int i = 0; i < path.size(); ++i) {
+			var e = path.get(i);
+			is.appendToCurrentLine(e.createBall(18, 2, chat));
+			is.appendToCurrentLine(e.toString());
+
+			if (i < path.size() - 1) {
+				is.appendToCurrentLine(">");
+			}
+		}
+		
+		is.currentLine.setBackground(chat.g().swing.getBackgroundColor());
+		is.currentLine.setOpaque(true);
+
+//		appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
+		is.newLine();
+		is.newLine();
+		n.writeKishanView(is);
 
 		if (n instanceof Action action) {
-			newLine();
+			is.newLine();
 			JTextField queryPromptField = null;
 
 			if (action instanceof QueryIA queryIA) {
 				queryPromptField = new JTextField(queryIA.prompt.get() == null ? "" : queryIA.prompt.get(), 28);
-				appendToCurrentLine(queryPromptField);
+				is.appendToCurrentLine(queryPromptField);
 
 				var jsonOnly = createResponseModeBubble("JSON only");
 				var Conversation = createResponseModeBubble("Conversation");
@@ -62,7 +72,7 @@ public class ChatSheet extends Sheet {
 
 				if (queryIA.getResponseMode() == QueryIA.ResponseMode.CONVERSATION) {
 					Conversation.setSelected(true);
-					
+
 				} else {
 					jsonOnly.setSelected(true);
 				}
@@ -70,8 +80,8 @@ public class ChatSheet extends Sheet {
 				jsonOnly.addActionListener(e -> queryIA.setResponseMode(QueryIA.ResponseMode.JSON_ONLY));
 				Conversation.addActionListener(e -> queryIA.setResponseMode(QueryIA.ResponseMode.CONVERSATION));
 
-				appendToCurrentLine(jsonOnly);
-				appendToCurrentLine(Conversation);
+				is.appendToCurrentLine(jsonOnly);
+				is.appendToCurrentLine(Conversation);
 			}
 
 			var b = new JButton("Ok");
@@ -134,12 +144,11 @@ public class ChatSheet extends Sheet {
 					});
 				}, action.technicalName() + "-ui-waiter").start();
 			});
-			appendToCurrentLine(b);
+			is.appendToCurrentLine(b);
 		}
 
+		// appendToCurrentLine(is);
 		newLine();
-		newLine();
-		end();
 
 		revalidate();
 		repaint();

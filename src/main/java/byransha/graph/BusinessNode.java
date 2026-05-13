@@ -1,6 +1,5 @@
 package byransha.graph;
 
-import byransha.NewNodeEvent;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.lab.Issue;
 
@@ -10,6 +9,7 @@ public abstract class BusinessNode extends BNode {
 
 	public BusinessNode(BNode parent) {
 		super(parent);
+		resilient = true;
 	}
 
 	@ShowInKishanView

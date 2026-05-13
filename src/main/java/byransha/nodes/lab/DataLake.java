@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.graph.DocumentNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.FileNode;
 import byransha.util.Cout;
@@ -27,7 +26,7 @@ public class DataLake extends BNode {
 	public DataLake(BGraph g) {
 		this(g, null);
 	}
-	
+
 	public DataLake(BGraph g, File dir) {
 		super(g);
 		this.dir = new FileNode(g);
@@ -44,15 +43,11 @@ public class DataLake extends BNode {
 		countryCodes.fieldNames().forEachRemaining(code -> {
 			var country = new Country(g);
 			country.code = code;
-
 			country.name = countryCodes.get(code).asText();
-			country.flag = new DocumentNode(g);
 
 			try {
 				var fileFlag = new File(dir, "svg/" + code.toLowerCase() + ".svg");
-				country.flag.data.set(Files.readAllBytes(fileFlag.toPath()));
-				country.flag.mimeType.set("image/svg+xml");
-				country.flag.title.set(country.name + ".svg");
+				country.flag = Files.readAllBytes(fileFlag.toPath());
 			} catch (IOException err) {
 				throw new RuntimeException(err);
 			}
@@ -126,9 +121,22 @@ public class DataLake extends BNode {
 		i3s.tutelles.elements.add(UniCA);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(i3s, n); // new ResearchGroup(graph);
+			var group = new ResearchGroup(i3s, n); 
 			i3s.subStructures.elements.add(group);
 		}
+		
+		var adminGroup = new Structure(i3s);
+		adminGroup.name.set("SG/Administration");
+		i3s.subStructures.elements.add(adminGroup);
+
+		var infoGroup = new Structure(i3s);
+		infoGroup.name.set("SG/Informatique");
+		i3s.subStructures.elements.add(infoGroup);
+
+		var ds4h = new EUR(i3s);
+		ds4h.name.set("DS4H");
+		i3s.subStructures.elements.add(ds4h);
+
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
 			var campus = new Campus(UniCA); // new Campus(graph);

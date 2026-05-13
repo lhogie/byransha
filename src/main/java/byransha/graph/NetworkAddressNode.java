@@ -13,8 +13,8 @@ import byransha.ui.swing.ChatSheet;
 
 public class NetworkAddressNode extends ValuedNode<InetAddress> {
 
-	public NetworkAddressNode(BGraph g) {
-		super(g);
+	public NetworkAddressNode(BNode parent) {
+		super(parent);
 	}
 
 	@Override

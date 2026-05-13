@@ -19,7 +19,6 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 		super(g);
 	}
 
-
 	@Override
 	public OffsetDateTime defaultValue() {
 		return OffsetDateTime.now();

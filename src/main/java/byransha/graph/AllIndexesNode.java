@@ -15,6 +15,7 @@ public class AllIndexesNode extends BNode {
 	public ListNode<ClassNode> classes() {
 		ListNode<ClassNode> r = new ListNode<ClassNode>(this, "classes", ClassNode.class);
 		g().indexes.byClass.m.get(ClassNode.class).forEach(c -> r.elements.add((ClassNode) c));
+		r.elements.sort((a, b) -> a.toString().compareTo(b.toString()));
 		return r;
 	}
 

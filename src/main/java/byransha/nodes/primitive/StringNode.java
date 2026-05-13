@@ -1,16 +1,18 @@
 package byransha.nodes.primitive;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -28,9 +30,11 @@ public class StringNode extends PrimitiveValueNode<String> {
 		Objects.requireNonNull(g);
 	}
 
-	public StringNode(BNode g, String init, String re) {
-		super(g);
+	public StringNode(BNode parent, String init, String re) {
+		super(parent);
 		this.re = re;
+		if (re != null)
+			Pattern.compile(re);
 		set(init);
 	}
 
@@ -75,15 +79,42 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public void writeKishanView(ChatSheet pane) {
-		var s = get();
-		var tf = hideText ? new JPasswordField() : new JTextField();
+		pane.currentLine.add(getListItemComponent(pane.chat));
+	}
 
-		if (s != null) {
-			tf.setColumns(Math.min(5, s.length()));
-			tf.setText(s);
+	@Override
+	public JComponent getListItemComponent(ChatNode chat) {
+		var c = getSmallComponent(chat);
+
+		if (c.getText() != null) {
+			c.setColumns(c.getText().length());
 		}
 
+		return c;
+	}
+
+	@Override
+	public JTextField getSmallComponent(ChatNode chat) {
+		var text = get();
+		var tf = hideText ? new JPasswordField() : new JTextField();
+
+		if (text != null) {
+			tf.setText(text);
+		}
+
+		tf.setColumns(20);
 		tf.setEditable(!readOnly);
+		
+		if(readOnly) {
+			tf.setBorder(null);
+		}
+		else {
+			tf.setBorder(new LineBorder(Color.lightGray));
+		}
+		ValueChangeListener<String> changeListener = (n, old, newValue) -> SwingUtilities
+				.invokeLater(() -> tf.setText(newValue));
+		valueChangeListeners.add(changeListener);
+
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -98,7 +129,9 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 			private void changed(DocumentEvent e) {
 				var v = tf.getText();
+				valueChangeListeners.remove(changeListener);
 				set(v);
+				valueChangeListeners.add(changeListener);
 			}
 
 			@Override
@@ -106,23 +139,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 			}
 		});
 
-		valueChangeListeners.add((n, old, newValue) -> {
-			SwingUtilities.invokeLater(() -> {
-				int caret = tf.getCaretPosition();
-
-				if (!tf.getText().equals(newValue)) {
-					tf.setText(newValue);
-				}
-
-				// tf.setCaretPosition(caret);
-			});
-		});
-		pane.currentLine.add(tf);
-	}
-
-	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
-		return new JLabel(get());
+		return tf;
 	}
 
 }

@@ -1,8 +1,10 @@
 package byransha.nodes.lab;
 
-import javax.swing.JComponent;
+import java.util.List;
 
-import byransha.graph.BGraph;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
 import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
@@ -16,7 +18,7 @@ public class Structure extends BusinessNode {
 	@ShowInKishanView
 	public final ListNode<Structure> subStructures = new ListNode(this, "sub-structure(s)", Structure.class);
 	@ShowInKishanView
-	public final ListNode<Office> offices = new ListNode(this, "offices", Office.class);
+	public final ListNode<Room> offices = new ListNode(this, "offices", Room.class);
 
 	public Structure(BNode g) {
 		super(g);
@@ -27,9 +29,14 @@ public class Structure extends BusinessNode {
 		return inverseRelation("members", Person.class, p -> p.structures);
 	}
 
+	@ShowInKishanView
+	public List<Person> allMembers() {
+		return subStructures.elements.stream().flatMap(ss -> ss.members().elements.stream()).toList();
+	}
+
 	@Override
 	public JComponent getListItemComponent(ChatNode chat) {
-		return name.getListItemComponent(chat);
+		return new JLabel(name.get());
 	}
 
 	@Override
@@ -43,11 +50,11 @@ public class Structure extends BusinessNode {
 	}
 
 	public double occupationRatio() {
-		return offices.elements.stream().mapToDouble(Office::occupationRatio).average().getAsDouble();
+		return offices.elements.stream().mapToDouble(Room::occupationRatio).average().getAsDouble();
 	}
 
 	public double avgSurfacePerUser() {
-		return offices.elements.stream().mapToDouble(Office::surfacePerUser).average().getAsDouble();
+		return offices.elements.stream().mapToDouble(Room::surfacePerUser).average().getAsDouble();
 	}
 
 	public double totalSurface() {

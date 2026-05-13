@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -8,7 +8,7 @@ import byransha.nodes.primitive.StringNode;
 
 public class Publication extends BusinessNode {
 	@ShowInKishanView
-	public StringNode title;
+	public final StringNode title = new StringNode(this, null, ".+");
 	@ShowInKishanView
 	public ListNode<Person> authors = new ListNode<>(this, "author(s)", Person.class);
 	@ShowInKishanView
@@ -16,20 +16,17 @@ public class Publication extends BusinessNode {
 
 	public ListNode<ACMClassifier> acmClassifier = new ListNode<>(this, "ACM classifiers", ACMClassifier.class);
 
-	public Publication(BGraph g) {
+	public Publication(BNode g) {
 		super(g);
-		this.title = new StringNode(g);
 	}
 
 	@Override
 	public String whatIsThis() {
-		return "Publication: " + title.get();
+		return "a publication";
 	}
 
 	@Override
 	public String toString() {
-		if (title != null && title.get() != null)
-			return title.get();
-		return "" + id();
+		return title.toString();
 	}
 }

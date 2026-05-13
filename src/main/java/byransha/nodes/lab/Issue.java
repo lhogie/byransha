@@ -1,6 +1,6 @@
 package byransha.nodes.lab;
 
-import byransha.graph.BGraph;
+import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -13,7 +13,7 @@ public class Issue extends BusinessNode {
 	@ShowInKishanView
 	TextNode description = new TextNode(this, "", ".+");
 
-	public Issue(BGraph g) {
-		super(g);
+	public Issue(BNode parent) {
+		super(parent);
 	}
 }

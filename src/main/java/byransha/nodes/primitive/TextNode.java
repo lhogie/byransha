@@ -16,12 +16,12 @@ import byransha.ui.swing.Utils;
 
 public class TextNode extends PrimitiveValueNode<String> {
 	@ShowInKishanView
-	StringNode labelNode;
+	final StringNode labelNode;
 	public boolean info;
 
 	public TextNode(BNode parent, String label, String data) {
 		super(parent);
-		labelNode = new StringNode(this, label, ".+");
+		this.labelNode = new StringNode(this, label, ".+");
 		set(data);
 	}
 

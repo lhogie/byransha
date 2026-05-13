@@ -1,8 +1,10 @@
 package byransha.nodes.lab;
 
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
 import byransha.graph.BNode;
 import byransha.graph.BusinessNode;
-import byransha.graph.DocumentNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.Factory;
@@ -14,6 +16,7 @@ import byransha.nodes.primitive.LongNode.Bounds;
 import byransha.nodes.primitive.PhoneNumberNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
+import byransha.nodes.system.ChatNode;
 
 public class Person extends BusinessNode {
 	@ShowInKishanView
@@ -21,11 +24,11 @@ public class Person extends BusinessNode {
 	@ShowInKishanView
 	public ListNode<Position> positions = new ListNode<Position>(this, "positions", Position.class);
 	@ShowInKishanView
-	public DocumentNode pics = new DocumentNode(this);
+	public URLNode pics = new URLNode(this, "");
 	@ShowInKishanView
-	public BooleanNode hdr = new BooleanNode(this, null);
+	public final BooleanNode hdr = new BooleanNode(this, null);
 	@ShowInKishanView
-	public BadgeNode badgeNumber = new BadgeNode(this);
+	public final BadgeNode badgeNumber = new BadgeNode(this);
 	@ShowInKishanView
 	public URLNode website = new URLNode(this, null);
 	@ShowInKishanView
@@ -38,7 +41,7 @@ public class Person extends BusinessNode {
 	@ShowInKishanView
 	public ListNode<EmailNode> emailAddresses = new ListNode<EmailNode>(this, "email adresses", EmailNode.class);
 	@ShowInKishanView
-	public ListNode<Office> offices = new ListNode<Office>(this, "offices", Office.class);
+	public ListNode<Room> offices = new ListNode<Room>(this, "offices", Room.class);
 	@ShowInKishanView
 	public LongNode quotite = new LongNode(this);
 	public boolean enposte;
@@ -59,7 +62,7 @@ public class Person extends BusinessNode {
 	@ShowInKishanView
 	public StringNode cityOfBirth = new StringNode(this, null, ".+");
 	@ShowInKishanView
-	public StringNode address = new StringNode(this, null, ".+");
+	public AddressNode address = new AddressNode(this);
 	public Country countryOfBirth;
 
 	public ListNode<Nationality> nationality = new ListNode<Nationality>(this, "nationalities", Nationality.class);
@@ -74,21 +77,17 @@ public class Person extends BusinessNode {
 
 	@Override
 	public String toString() {
-		String prettyName = "";
-		if (name != null && name.get() != null && !name.get().isBlank()) {
-			prettyName = name.get();
-		}
-		if (firstName != null && firstName.get() != null && !firstName.get().isBlank()) {
-			prettyName += " " + firstName.get();
-		}
-		if (prettyName.isBlank()) {
-			prettyName = null;
-		}
-		return prettyName;
+		return firstName.toString() + " "+ name.toString();
 	}
 
 	@Override
 	public String whatIsThis() {
 		return "a physical person working in the lab";
 	}
+
+	@Override
+	public JComponent getListItemComponent(ChatNode chat) {
+		return new JLabel(firstName.get() + " "  + name.get());
+	}
+
 }

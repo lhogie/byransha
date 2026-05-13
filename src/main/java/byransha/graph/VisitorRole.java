@@ -2,7 +2,7 @@ package byransha.graph;
 
 import byransha.nodes.system.Role;
 
-public class VisitorRole extends Role{
+public class VisitorRole extends Role {
 
 	public VisitorRole(BGraph g) {
 		super(g);
@@ -11,6 +11,11 @@ public class VisitorRole extends Role{
 	@Override
 	public boolean isAllowedToEdit(BNode bNode) {
 		return false;
+	}
+
+	@Override
+	public boolean isAllowedToSee(BNode n) {
+		return true;
 	}
 
 }

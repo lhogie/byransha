@@ -3,6 +3,7 @@ package byransha.util;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 public class ListenableList<T> extends ArrayList<T> {
 
@@ -62,6 +63,7 @@ public class ListenableList<T> extends ArrayList<T> {
 
 	@Override
 	public boolean add(T element) {
+		Objects.requireNonNull(element);
 		super.add(element);
 		fireAdded(size() - 1, element);
 		return true;
@@ -69,6 +71,7 @@ public class ListenableList<T> extends ArrayList<T> {
 
 	@Override
 	public void add(int index, T element) {
+		Objects.requireNonNull(element);
 		super.add(index, element);
 		fireAdded(index, element);
 	}

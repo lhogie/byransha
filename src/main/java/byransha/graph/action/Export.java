@@ -25,7 +25,7 @@ public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public void impl() throws IllegalArgumentException, IllegalAccessException {
-		result = new ListNode<TextNode>(null, "export texts", TextNode.class);
+		result = new ListNode<TextNode>(this, "export texts", TextNode.class);
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
 		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(null, csv.name + " (CSV)", csv.data))

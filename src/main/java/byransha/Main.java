@@ -1,8 +1,5 @@
 package byransha;
 
-import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.Toolkit;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -37,7 +34,7 @@ public class Main {
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BNode.class).newInstance(g);
 
-		new ChatNode(g.currentUser).append(g.application);
+		new ChatNode(g.currentUser()).append(g.application);
 
 //		new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port", "8080")));
 		new ShellServer(g, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + ShellServer.DEFAULT_PORT)));
@@ -46,9 +43,9 @@ public class Main {
 
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
-		g.currentUser = new User(g, "guest");
+		g.setCurrentUser(new User(g, "guest"));
+		System.out.println("start ok");
 
-		// launch(args);
 	}
 
 	private static Event createPersonEvent(String name) {

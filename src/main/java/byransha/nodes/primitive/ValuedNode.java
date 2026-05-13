@@ -40,8 +40,8 @@ public abstract class ValuedNode<V> extends BNode {
 	}
 
 	public V get() {
-		if (!canSee(currentUser()))
-			throw new RuntimeException(currentUser() + " is not allowed to read the value");
+		if (false)// !canSee(g().currentUser()))
+			throw new RuntimeException(g().currentUser() + " is not allowed to read the value");
 
 		return value;
 	}
@@ -63,7 +63,7 @@ public abstract class ValuedNode<V> extends BNode {
 
 	public void set_checkPermissions(V newValue) {
 		if (g() != null && !canEdit(g().currentUser()))
-			throw new RuntimeException(currentUser() + " is not allowed to set value");
+			throw new RuntimeException(g().currentUser() + " is not allowed to set value");
 
 		set(newValue);
 	}
@@ -89,17 +89,17 @@ public abstract class ValuedNode<V> extends BNode {
 		}
 
 		if (shownOnDisk) {
-			writeValueToDisk();
+//			writeValueToDisk();
 		}
 	}
 
 	private void writeValueToDisk() {
 		try {
-			var f = new File(Byransha.homeDirectory, "valued_nodes/" + pathString() + ".txt");
-			f.getParentFile().mkdirs();
 			var s = toString();
+			var f = new File(Byransha.homeDirectory, "valued_nodes/" + rolePath() + ".txt");
 
 			if (s != null) {
+				f.getParentFile().mkdirs();
 				Files.write(s.getBytes(), f);
 			} else if (f.exists()) {
 				f.delete();
@@ -118,7 +118,7 @@ public abstract class ValuedNode<V> extends BNode {
 	@Override
 	public String toString() {
 		var v = get();
-		return v == null ? super.toString() : v.toString();
+		return v == null ? "null" : v.toString();
 	}
 
 	protected abstract void writeValue(V v, ObjectOutput out) throws IOException;

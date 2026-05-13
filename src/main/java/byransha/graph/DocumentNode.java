@@ -1,27 +1,27 @@
 package byransha.graph;
 
-import byransha.nodes.primitive.MimeTypeNode;
 import byransha.nodes.primitive.StringNode;
+import byransha.nodes.primitive.URLNode;
 
 public class DocumentNode extends BNode {
-	public RawDataNode data;
-	public StringNode title;
-	public MimeTypeNode mimeType;
+	@ShowInKishanView
+	public URLNode url = new URLNode(this, null);
+	@ShowInKishanView
+	public StringNode name = new StringNode(this);
+	@ShowInKishanView
+	public BNode relatedTo;
 
 	public DocumentNode(BNode parent) {
 		super(parent);
-		data = new RawDataNode(parent);
-		title = new StringNode(parent);
-		mimeType = new MimeTypeNode(g());
 	}
 
 	@Override
 	public String whatIsThis() {
-		return "a document of type " + mimeType;
+		return "a document";
 	}
 
 	@Override
 	public String toString() {
-		return title.get();
+		return name + " for " + relatedTo;
 	}
 }
