@@ -21,13 +21,13 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	public TextNode(BNode parent, String label, String data) {
 		super(parent);
-		set(data);
 		labelNode = new StringNode(this, label, ".+");
+		set(data);
 	}
 
 	@Override
 	public String toString() {
-		return labelNode.toString();
+		return labelNode == null ? "text" : labelNode.toString();
 	}
 
 	@Override
