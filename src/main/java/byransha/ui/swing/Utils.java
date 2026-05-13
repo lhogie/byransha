@@ -53,6 +53,7 @@ public class Utils {
 						e.acceptDrop(DnDConstants.ACTION_COPY);
 						dropAction.accept(droppedNode);
 					} catch (Throwable err) {
+						err.printStackTrace();
 						e.rejectDrop();
 					}
 

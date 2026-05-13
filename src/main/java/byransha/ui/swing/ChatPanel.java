@@ -6,6 +6,7 @@ import java.awt.Insets;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
@@ -30,7 +31,8 @@ public class ChatPanel extends JPanel {
 		{ // north
 			JPanel topBar = new WrapPanel();
 			topBar.setOpaque(false);
-			topBar.add(node.createBall(20, 20, chat));
+			topBar.add(node.createBall(18, 2, chat));
+			topBar.add(chat.createBall(18, 2, chat));
 			add(topBar, BorderLayout.NORTH);
 		}
 		{ // center

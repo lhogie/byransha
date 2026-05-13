@@ -1,26 +1,29 @@
 package byransha.graph.list.action.filter;
 
 import byransha.graph.BNode;
+import byransha.graph.Category.list;
+import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 
-public class RemoveSelected<N extends BNode> extends ListFilter<N> {
+public class RemoveSelected<N extends BNode> extends FunctionAction<ListNode<N>, ListNode<N>> {
 
-	public RemoveSelected(ListNode<N> inputNode) {
-		super(inputNode);
-	}
-
-	@Override
-	public String retainsOnly() {
-		return "non-selected nodes";
-	}
-
-	@Override
-	public boolean retains(N n) {
-		return !inputNode.isSelected(n);
+	public RemoveSelected(ListNode<N> l) {
+		super(l, list.class);
 	}
 
 	@Override
 	public boolean applies() {
-		return inputNode.elements.size() > 0;
+		return true;// inputNode.selection.size() > 0;
+	}
+
+	@Override
+	public String whatItDoes() {
+		return "remove selection";
+	}
+
+	@Override
+	protected void impl() throws Throwable {
+		inputNode.elements.removeAll(inputNode.selection);
+		inputNode.selection.clear();
 	}
 }

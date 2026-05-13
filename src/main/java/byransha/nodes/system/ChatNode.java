@@ -8,11 +8,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.graph.Action;
 import byransha.graph.BNode;
 import byransha.graph.ProcedureAction;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class ChatNode extends BNode {
+	@ShowInKishanView
 	public ListNode<BNode> nodes = new ListNode<>(this, "history", BNode.class);
 	final User user;
 
