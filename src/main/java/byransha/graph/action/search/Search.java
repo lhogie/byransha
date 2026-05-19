@@ -12,7 +12,6 @@ public class Search extends FunctionAction<BNode, ListNode> {
 	@ShowInKishanView
 	public LongNode depth;
 
-	
 	public static class search extends Category{}
 	
 	public Search( BNode src) {

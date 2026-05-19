@@ -56,7 +56,6 @@ public abstract class ValuedNode<V> extends BNode {
 		return value;
 	}
 
-	@Override
 	public void reset() {
 		set(defaultValue());
 	}

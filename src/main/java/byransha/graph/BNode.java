@@ -30,7 +30,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -44,7 +43,6 @@ import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.FreezingAction;
 import byransha.graph.action.JumpToAnotherNode;
-import byransha.graph.action.Reset;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
@@ -94,7 +92,6 @@ public abstract class BNode {
 			// g().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
-
 
 	public String findRoleOf(BNode n) {
 		var foundRole = new String[1];
@@ -250,6 +247,12 @@ public abstract class BNode {
 		if (cachedActions == null) {
 			cachedActions = new ListNode<>(this, "actions for node " + this, Action.class);
 			createActions();
+
+			for (var m : getClass().getDeclaredMethods()) {
+				if (m.isAnnotationPresent(ActionMethod.class)) {
+					cachedActions.elements.add(new MethodAction(this, m));
+				}
+			}
 		}
 
 		return (List<Action<?>>) (List) cachedActions.get();
@@ -391,7 +394,6 @@ public abstract class BNode {
 		cachedActions.elements.add(new CopyIDToClipboard(this));
 		cachedActions.elements.add(new FreezingAction(this));
 		cachedActions.elements.add(new JumpToAnotherNode(this));
-		cachedActions.elements.add(new Reset(this));
 		cachedActions.elements.add(new Export(this));
 		cachedActions.elements.add(new Delete(this));
 		cachedActions.elements.add(new Search(this));
@@ -583,22 +585,6 @@ public abstract class BNode {
 		}
 
 		return null;
-	}
-
-	public void reset() {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> {
-			if (!ro) {
-				try {
-					var v = (BNode) f.get(this);
-
-					if (v instanceof ValuedNode) {
-						v.reset();
-					}
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
 	}
 
 	public String idAsText() {
