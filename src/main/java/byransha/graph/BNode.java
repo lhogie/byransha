@@ -316,7 +316,12 @@ public abstract class BNode {
 					f.set(this, null);
 				}
 			} catch (IllegalAccessException err) {
-				g().errorLog.add(err);
+				BGraph graph = g();
+				if (graph != null && graph.errorLog != null) {
+					graph.errorLog.add(err);
+				} else {
+					err.printStackTrace();
+				}
 			}
 		});
 	}
@@ -340,11 +345,24 @@ public abstract class BNode {
 						}
 
 					} catch (IllegalArgumentException | IllegalAccessException e) {
-						g().errorLog.add(e);
+						BGraph graph = g();
+						if (graph != null && graph.errorLog != null) {
+							graph.errorLog.add(e);
+						} else {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
 		});
+	}
+
+	private BNode instantiateRenderingNodeFor(Object o) {
+		if (o instanceof File f) {
+			return new FileNode(this, f);
+		} else {
+			return new StringNode(this, o.toString(), "*");
+		}
 	}
 
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -362,7 +380,13 @@ public abstract class BNode {
 						consumer.accept(m, outNode);
 					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-					g().errorLog.add(e);
+					BGraph graph = g();
+					if (graph != null && graph.errorLog != null) {
+						graph.errorLog.add(e);
+					} else {
+						System.err.println("Erreur pour la méthode " + m.getName() + " sur " + this.getClass().getName());
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -654,7 +678,12 @@ public abstract class BNode {
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
-					g().errorLog.add(e1);
+					BGraph graph = g();
+					if (graph != null && graph.errorLog != null) {
+						graph.errorLog.add(e1);
+					} else {
+						e1.printStackTrace();
+					}
 				}
 			});
 			var replace = new JMenuItem("see candidates");

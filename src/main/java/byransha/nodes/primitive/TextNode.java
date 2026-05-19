@@ -27,7 +27,7 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	@Override
 	public String toString() {
-		return labelNode.toString();
+		return labelNode == null ? "text" : labelNode.toString();
 	}
 
 	@Override
