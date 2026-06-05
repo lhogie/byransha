@@ -1,15 +1,9 @@
 package byransha.nodes.system;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import byransha.graph.BGraph;
 import byransha.graph.ShowInKishanView;
@@ -19,7 +13,7 @@ import byransha.util.ByUtils;
 import byransha.util.Version;
 
 public class Byransha extends SystemNode {
-	public final StringNode remoteVersionNode = new StringNode(this, null, ".*");
+
 	@ShowInKishanView
 	public final URLNode sourceRepoURL = new URLNode(this, "https://github.com/lhogie/byransha");
 
@@ -27,8 +21,6 @@ public class Byransha extends SystemNode {
 	public static final File homeDirectory = new File(ByUtils.home, ".byransha");
 	@ShowInKishanView
 	public static final File binDirectory = new File(homeDirectory, "bin");
-	@ShowInKishanView
-	public static final File jarDirectory = new File(binDirectory, "jar");
 	@ShowInKishanView
 	public static final String homepage = "https://webusers.i3s.unice.fr/~hogie/software/byransha/";
 	public static final String downloads = "https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/";
@@ -47,9 +39,7 @@ public class Byransha extends SystemNode {
 					Version localVersion = new Version(versionNode.get());
 
 					if (versionOnline.isNewerThan(localVersion)) {
-						var zip = download(versionOnline);
-						Arrays.stream(jarDirectory.listFiles()).forEach(jar -> jar.delete());
-						extractZipByteArray(zip, jarDirectory);
+
 					}
 
 					Thread.sleep(10000);
@@ -60,12 +50,9 @@ public class Byransha extends SystemNode {
 		}, "check new version thread");// .start();
 	}
 
+	@ShowInKishanView
 	public Version lastVersionOnline() throws MalformedURLException, IOException {
 		return new Version(new String(new URL(lastVersionURL).openStream().readAllBytes()));
-	}
-
-	public byte[] download(Version v) throws MalformedURLException, IOException {
-		return new URL(downloadBinaries + "/byransha-" + v).openStream().readAllBytes();
 	}
 
 	@Override
@@ -84,20 +71,4 @@ public class Byransha extends SystemNode {
 	public String whatIsThis() {
 		return "Byransha";
 	}
-
-	public static void extractZipByteArray(byte[] zipData, File to) throws IOException {
-		to.mkdirs();
-
-		try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(zipData))) {
-			ZipEntry entry;
-
-			while ((entry = zis.getNextEntry()) != null) {
-				File f = new File(to, entry.getName());
-				Files.copy(zis, to.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			}
-
-			zis.closeEntry();
-		}
-	}
-
 }

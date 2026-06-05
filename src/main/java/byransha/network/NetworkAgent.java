@@ -91,11 +91,12 @@ public class NetworkAgent extends BNode {
 
 	}
 
-	void handle(Message msg) throws IOException {
+	@Override
+	protected void handle(Message msg)  {
 		++packetReceived;
 		updateInOutInfo();
 
-		var from = findPeer(msg.from.getLast());
+		var from = findPeer(msg.route.getLast());
 
 		if (from.publicKey != null) {
 			msg.data = RSA.decrypt(msg.data, keyPair.getPrivate());
@@ -157,7 +158,7 @@ public class NetworkAgent extends BNode {
 
 	public synchronized void send(Object o, PeerNode to) throws IOException {
 		var msg = new Message();
-		msg.from.add(peerName);
+		msg.route.add(peerName);
 		msg.data = serializer.toBytes(o);
 		msg.data = RSA.encrypt(msg.data, to.publicKey);
 		var msgBytes = GZip.gzip(serializer.toBytes(msg));

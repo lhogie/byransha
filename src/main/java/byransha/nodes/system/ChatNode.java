@@ -32,6 +32,7 @@ public class ChatNode extends BNode {
 
 	public void append(BNode n) {
 		Objects.requireNonNull(n, "cannot append null node to chat");
+
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node
 			return;
 
