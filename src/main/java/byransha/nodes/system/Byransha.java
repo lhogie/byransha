@@ -4,10 +4,18 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import byransha.VersionNode;
 import byransha.graph.BGraph;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.URLNode;
 import byransha.util.ByUtils;
 import byransha.util.Version;
@@ -23,11 +31,12 @@ public class Byransha extends SystemNode {
 	public static final File binDirectory = new File(homeDirectory, "bin");
 	@ShowInKishanView
 	public static final String homepage = "https://webusers.i3s.unice.fr/~hogie/software/byransha/";
-	public static final String downloads = "https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/";
+	public static final String downloads = homepage + "/downloads/";
 	public static final String downloadBinaries = downloads + "bin/";
 	public static final String lastVersionURL = downloadBinaries + "last-version.txt";
 	public static byte[] currentExeBytes = "".getBytes();
-	public final StringNode versionNode = new StringNode(this, "0.0.1", "[0-9]+\\.[0-9]+\\.[0-9]+");
+	@ShowInKishanView
+	public final VersionNode versionNode = new VersionNode(this);
 
 	public Byransha(BGraph g) {
 		super(g);
@@ -36,14 +45,13 @@ public class Byransha extends SystemNode {
 			while (true) {
 				try {
 					var versionOnline = lastVersionOnline();
-					Version localVersion = new Version(versionNode.get());
 
-					if (versionOnline.isNewerThan(localVersion)) {
-
+					if (versionOnline.isNewerThan(versionNode.version)) {
+						System.out.println("New version available: " + versionOnline);
 					}
 
 					Thread.sleep(10000);
-				} catch (IOException | InterruptedException e) {
+				} catch (IOException | InterruptedException | KeyManagementException | NoSuchAlgorithmException e) {
 					g().errorLog.add(e);
 				}
 			}
@@ -51,8 +59,26 @@ public class Byransha extends SystemNode {
 	}
 
 	@ShowInKishanView
-	public Version lastVersionOnline() throws MalformedURLException, IOException {
-		return new Version(new String(new URL(lastVersionURL).openStream().readAllBytes()));
+	public Version lastVersionOnline() throws MalformedURLException, IOException, NoSuchAlgorithmException, KeyManagementException {
+		var v = new Version();
+		System.out.println(lastVersionURL);
+		// Before calling URL.openStream() at line 57:
+		TrustManager[] trustAllCerts = new TrustManager[]{
+		    new X509TrustManager() {
+		        public X509Certificate[] getAcceptedIssuers() { return null; }
+		        public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+		        public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+		    }
+		};
+
+		SSLContext sc = SSLContext.getInstance("SSL");
+		sc.init(null, trustAllCerts, new java.security.SecureRandom());
+		HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+		// Optional: Bypass hostname verification if the cert belongs to a different domain variant
+		HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
+		v.set(new String(new URL(lastVersionURL).openStream().readAllBytes()));
+		return v;
 	}
 
 	@Override

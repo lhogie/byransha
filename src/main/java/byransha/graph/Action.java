@@ -44,7 +44,7 @@ public abstract class Action<HOOK extends BNode> extends BNode {
 	}
 	
 	@ActionMethod
-	public void run(ChatSheet chatSheet) {
+	public void run() {
 		execSync();
 	}
 

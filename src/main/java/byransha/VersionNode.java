@@ -5,9 +5,9 @@ import byransha.nodes.system.Byransha;
 import byransha.util.Version;
 
 public class VersionNode extends BNode{
-	Version version;
+	public Version version = new Version();
 	
-	protected VersionNode(Byransha b) {
+	public VersionNode(Byransha b) {
 		super(b);
 	}
 

@@ -639,13 +639,18 @@ public abstract class BNode {
 			sheet.newLine();
 		});
 
-		for (var a : actions()) {
-			if (a.hasButtonOnKishanView()) {
-				var b = new JButton(a.whatItDoes());
-				b.setEnabled(a.applies());
-				b.addActionListener(e -> sheet.chat.append(a));
-				sheet.newLine();
-				sheet.appendToCurrentLine(b);
+		var actionsWithButtons = actions().stream().filter(Action::hasButtonOnKishanView).toList();
+
+		if (!actionsWithButtons.isEmpty()) {
+			sheet.newLine();
+
+			for (var a : actionsWithButtons) {
+				if (a.hasButtonOnKishanView()) {
+					var b = new JButton(a.whatItDoes());
+					b.setEnabled(a.applies());
+					b.addActionListener(e -> sheet.chat.append(a));
+					sheet.appendToCurrentLine(b);
+				}
 			}
 		}
 	}
