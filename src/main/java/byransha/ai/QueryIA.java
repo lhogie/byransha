@@ -19,6 +19,7 @@ import byransha.ai.QueryIA.AI;
 import byransha.ai.QueryIA.AiResult;
 import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
+import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
 import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
@@ -60,8 +61,10 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	@ShowInKishanView
 	public final StringNode prompt = new StringNode(this, "", ".+");
 	public final JSONNode inputJSON ;
+	
 	@ShowInKishanView
-	public final BooleanNode useGraphTools = new BooleanNode(this, false);
+	public final BooleanNode conversation = new BooleanNode(this, false);
+	
 	private static final String PRIMARY_MODEL = "granite4:tiny-h";
 	private volatile ResponseMode responseMode = ResponseMode.JSON_ONLY;
 	private static volatile double myCurrentSpeed = 10.0;
@@ -139,6 +142,9 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		return "ask AI";
 	}
 
+
+
+	
 	@Override
 	public boolean applies() {
 		return true;

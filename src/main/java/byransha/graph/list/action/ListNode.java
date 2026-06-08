@@ -161,8 +161,8 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	public void reset() {
-		super.reset();
 		elements.clear();
+		selection.clear();
 	}
 
 	public String toDot() {

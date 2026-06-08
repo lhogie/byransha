@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.border.LineBorder;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -44,12 +44,12 @@ import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.action.FreezingAction;
 import byransha.graph.action.JumpToAnotherNode;
-import byransha.graph.action.Reset;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
+import byransha.network.Message;
 import byransha.nodes.primitive.FileNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
@@ -95,6 +95,8 @@ public abstract class BNode {
 		}
 	}
 
+	protected void handle(Message msg) {
+	};
 
 	public String findRoleOf(BNode n) {
 		var foundRole = new String[1];
@@ -250,6 +252,12 @@ public abstract class BNode {
 		if (cachedActions == null) {
 			cachedActions = new ListNode<>(this, "actions for node " + this, Action.class);
 			createActions();
+
+			for (var m : getClass().getMethods()) {
+				if (m.isAnnotationPresent(ActionMethod.class)) {
+					cachedActions.elements.add(new MethodAction(this, m));
+				}
+			}
 		}
 
 		return (List<Action<?>>) (List) cachedActions.get();
@@ -375,7 +383,8 @@ public abstract class BNode {
 					if (graph != null && graph.errorLog != null) {
 						graph.errorLog.add(e);
 					} else {
-						System.err.println("Erreur pour la méthode " + m.getName() + " sur " + this.getClass().getName());
+						System.err
+								.println("Erreur pour la méthode " + m.getName() + " sur " + this.getClass().getName());
 						e.printStackTrace();
 					}
 				}
@@ -409,7 +418,6 @@ public abstract class BNode {
 		cachedActions.elements.add(new CopyIDToClipboard(this));
 		cachedActions.elements.add(new FreezingAction(this));
 		cachedActions.elements.add(new JumpToAnotherNode(this));
-		cachedActions.elements.add(new Reset(this));
 		cachedActions.elements.add(new Export(this));
 		cachedActions.elements.add(new Delete(this));
 		cachedActions.elements.add(new Search(this));
@@ -603,22 +611,6 @@ public abstract class BNode {
 		return null;
 	}
 
-	public void reset() {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> {
-			if (!ro) {
-				try {
-					var v = (BNode) f.get(this);
-
-					if (v instanceof ValuedNode) {
-						v.reset();
-					}
-				} catch (IllegalAccessException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		});
-	}
-
 	public String idAsText() {
 		return Base62.encode(id());
 	}
@@ -648,14 +640,21 @@ public abstract class BNode {
 			fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
 			sheet.newLine();
 		});
-	}
 
-	private int fieldMaxLength() {
-		int[] max = { 0 };
-		forEachOutInFields(getClass(), BNode.class,
-				(f, out, readOnly) -> max[0] = Math.max(max[0], f.getName().length()));
-		forEachOutInMethods(getClass(), BNode.class, (m, out) -> max[0] = Math.max(max[0], m.getName().length()));
-		return max[0];
+		var actionsWithButtons = actions().stream().filter(Action::hasButtonOnKishanView).toList();
+
+		if (!actionsWithButtons.isEmpty()) {
+			sheet.newLine();
+
+			for (var a : actionsWithButtons) {
+				if (a.hasButtonOnKishanView()) {
+					var b = new JButton(a.whatItDoes());
+					b.setEnabled(a.applies());
+					b.addActionListener(e -> sheet.chat.append(a));
+					sheet.appendToCurrentLine(b);
+				}
+			}
+		}
 	}
 
 	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
@@ -722,7 +721,8 @@ public abstract class BNode {
 		c.setBorderWidth(border);
 		c.setOpaque(false);
 		c.setFocusable(false);
-		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "</ul></html>";
+		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "<li>" + getClass().getName()
+				+ "</ul></html>";
 		c.setToolTipText(tooltip);
 //		SelectableTooltip.addSelectableTooltip(c,tooltip);
 		Utils.idDropTarget(g(), c, droppedNode -> acceptDrop(droppedNode));

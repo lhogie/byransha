@@ -16,6 +16,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.nodes.system.ChatNode;
@@ -47,6 +48,14 @@ public class StringNode extends PrimitiveValueNode<String> {
 		return get();
 	}
 
+	@ActionMethod
+	public void reverse() {
+		var s = get();
+		if (s != null) {
+			set(new StringBuilder(s).reverse().toString());
+		}
+	}
+	
 	@Override
 	public String whatIsThis() {
 		return "a sequence of characters";

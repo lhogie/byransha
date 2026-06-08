@@ -11,6 +11,7 @@ import byransha.nodes.primitive.TextNode;
 public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 	public Export(BNode node) {
 		super(node, node.class);
+		hasButtonOnKishanView=true;
 	}
 
 	@Override

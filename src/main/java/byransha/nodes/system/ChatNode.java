@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.graph.Action;
+import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
 import byransha.graph.ProcedureAction;
 import byransha.graph.ShowInKishanView;
+import byransha.graph.action.JumpToAnotherNode;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
@@ -30,6 +32,7 @@ public class ChatNode extends BNode {
 
 	public void append(BNode n) {
 		Objects.requireNonNull(n, "cannot append null node to chat");
+
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node
 			return;
 
@@ -54,7 +57,8 @@ public class ChatNode extends BNode {
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new Export(this));
-//		super.createActions();
+		cachedActions.elements.add(new JumpToAnotherNode(this));
+		super.createActions();
 	}
 
 	ArrayNode export() {
@@ -86,6 +90,11 @@ public class ChatNode extends BNode {
 	@Override
 	public String toString() {
 		return user + "'s chat";
+	}
+
+	@ActionMethod
+	public void showSuperNode() {
+		append(g());
 	}
 
 }
