@@ -19,7 +19,7 @@ import byransha.Main;
 import byransha.graph.Action;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.Restart.byransha;
+import byransha.nodes.system.Update.byransha;
 import byransha.util.MinaScpUploader;
 import byransha.util.Version.Level;
 
