@@ -4,6 +4,7 @@ import byransha.graph.BNode;
 import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
+import byransha.graph.list.action.ListNode;
 import dev.langchain4j.agent.tool.Tool;
 
 public class GraphTools {
@@ -187,4 +188,30 @@ public class GraphTools {
             return "Erreur lors de la récupération des détails: " + e.getMessage();
         }
     }
+    @Tool("cherche UNIQUEMENT les IDs des noeuds et renvoie un listNode contenant les IDs des noeuds trouvés")
+    public ListNode<BNode> searchNodeIdsByText(String searchText, int maxDepth) {
+        var result = new ListNode<BNode>(contextNode, "searchNodeIdsByText", BNode.class);
+        if (searchText == null || searchText.trim().isEmpty()) {
+            return result; // Retourner une liste vide
+        }
+        if (maxDepth < 0 || maxDepth > 20) {
+            maxDepth = 5; // Valeur par défaut
+        }
+        try {
+            var search = new SearchText(contextNode);
+            search.depth.set((long) maxDepth);
+            search.impl();
+            var searchResult = search.result;
+            if (searchResult != null && !searchResult.elements.isEmpty()) {
+                for (var node : searchResult.elements) {
+                    if (node instanceof BNode bnode) {
+                        result.get().add(bnode);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+        return result;
+    }
+   
 }

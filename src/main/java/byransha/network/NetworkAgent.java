@@ -120,6 +120,14 @@ public class NetworkAgent extends BNode {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
+		} else if (received instanceof PeerTelemetry t) {
+			if (from != null) {
+				from.TokensPerSecond = t.tokensPerSecond;
+				from.IsComputing = t.isComputing;
+                from.promptLag = t.promptLag;
+                from.queueSize = t.queueSize;
+                if (t.alpha > 0) from.alpha = t.alpha;
+			}
 		} else {
 			throw new IllegalStateException("received " + received.getClass());
 		}

@@ -354,13 +354,7 @@ public abstract class BNode {
 		});
 	}
 
-	private BNode instantiateRenderingNodeFor(Object o) {
-		if (o instanceof File f) {
-			return new FileNode(this, f);
-		} else {
-			return new StringNode(this, o.toString(), "*");
-		}
-	}
+	
 
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
 			BiConsumer<Method, BNode> consumer) {

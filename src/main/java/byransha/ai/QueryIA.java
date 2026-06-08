@@ -1,13 +1,22 @@
 package byransha.ai;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+
+import org.checkerframework.checker.units.qual.g;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.ai.QueryIA.AI;
+import byransha.ai.QueryIA.AiResult;
 import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
 import byransha.graph.BNode;
@@ -15,10 +24,12 @@ import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
+import byransha.network.PeerNode;
 import byransha.nodes.lab.stats.DistributionNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.TextNode;
+import byransha.network.PeerTelemetry;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
@@ -47,14 +58,67 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	}
 
 	@ShowInKishanView
-	public final StringNode prompt = new StringNode(this, "", ".+");;
+	public final StringNode prompt = new StringNode(this, "", ".+");
 	public final JSONNode inputJSON ;
 	@ShowInKishanView
 	public final BooleanNode useGraphTools = new BooleanNode(this, false);
 	private static final String PRIMARY_MODEL = "granite4:tiny-h";
-	
-	public final String ollamaBaseUrl = "http://localhost:11434";
 	private volatile ResponseMode responseMode = ResponseMode.JSON_ONLY;
+	private static volatile double myCurrentSpeed = 10.0;
+    private static volatile double myAlpha = -1.0;
+    private static volatile double myPromptLagMs = 1500.0;
+	private static volatile boolean ollamaVerified = false;
+	private boolean ActivateListNodeResponse = false; 
+
+    
+	@ShowInKishanView
+	private final ListNode<PeerNode> ShowPeersInfo = getPeersFromNetworkAgent();
+	
+	 private ListNode<PeerNode> getPeersFromNetworkAgent() {
+	 	ListNode<PeerNode> peerList = new ListNode<>(this, " peers", PeerNode.class);
+	 	try {			var peers = g().networkAgent.peers.get();
+			for (var peer : peers) {
+				peerList.elements.add(peer);
+			}
+	 	} catch (Exception e) {
+			System.out.println("Pas de pairs disponibles, utilisation de l'instance locale d'Ollama.");
+	 	}
+	 	return peerList;
+				 }
+				 
+    public static double calculerAlphaAutomatique(long totalParameters, int expertCount) {
+        double activeParameters;
+        if (expertCount > 0) {
+            activeParameters = (totalParameters / 1_000_000_000.0) * 0.4; 
+        } else {
+            activeParameters = totalParameters / 1_000_000_000.0;
+        }
+        double alpha = 1.0 + (activeParameters * 0.1);
+        return Math.clamp(alpha, 1.0, 10.0); 
+    }
+
+
+
+    public static double recupererAlphaDepuisOllama(String ollamaUrl, String modelName) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
+            String jsonPayload = "{\"name\": \"" + modelName + "\"}";
+            HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(ollamaUrl + "/api/show"))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+                .header("Content-Type", "application/json")
+                .build();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            JsonNode root = mapper.readTree(response.body());
+            long totalParams = root.path("model_info").path("general.parameter_count").asLong(3_000_000_000L);
+            int experts = root.path("model_info").path("general.expert_count").asInt(0);
+			System.out.println("Test Alpha: " + calculerAlphaAutomatique(totalParams, experts));
+            return calculerAlphaAutomatique(totalParams, experts);
+        } catch (Exception e) {
+            System.out.println("  Impossible de lire les specs d'Ollama, alpha par défaut = 1.0");
+            return 1.0; 
+        }
+    }
 
 	interface ToolEnabledAssistant {
 		@SystemMessage("{{system}}")
@@ -91,14 +155,92 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
             return;
         }
 
+		// (on s'exclut du Load-Balancing)
+		try {
+            if (myAlpha < 0) {
+                myAlpha = recupererAlphaDepuisOllama("http://localhost:11434", PRIMARY_MODEL);
+            }
+			if (g() != null && g().networkAgent != null) {
+                // On met isComputing=true avec queueSize=1
+				g().networkAgent.send(new byransha.network.PeerTelemetry(myCurrentSpeed, myPromptLagMs, 1, myAlpha));
+			}
+		} catch(Exception e) {}
         String iaResponse;
-    
+		long startTime = System.currentTimeMillis();
+		int[] tokensGeneratedCount = {0}; 
+		try {
             var focusedNodeJson = inputNode.describeAsJSON();
-            iaResponse = queryIA(focusedNodeJson, userQuestion);
+            AiResult aiResult = queryIA(focusedNodeJson, userQuestion);
+            iaResponse = aiResult.text;
+			tokensGeneratedCount[0] = aiResult.tokenCount; 
+		} finally {
+			// Recalcule notre score de vitesse et on l'annonce
+			long durationMs = System.currentTimeMillis() - (startTime + (long)myPromptLagMs);
+			if (durationMs > 0 && tokensGeneratedCount[0] > 0) {
+				myCurrentSpeed = (tokensGeneratedCount[0] / (double) durationMs) * 1000.0;
+				System.out.println("Test speed: " + myCurrentSpeed + " tokens/s");
+			}
+			try {
+				if (g() != null && g().networkAgent != null) {
+                    // Fin du calcul : queueSize=0
+					g().networkAgent.send(new byransha.network.PeerTelemetry(myCurrentSpeed, myPromptLagMs, 0, myAlpha));
+				}
+			} catch(Exception e) {}
+		}
         
         
         // Traiter la réponse
+        if (iaResponse != null) {
+            if (iaResponse.contains("```json")) {
+                iaResponse = iaResponse.substring(iaResponse.indexOf("```json") + 7);
+                if (iaResponse.contains("```")) {
+                    iaResponse = iaResponse.substring(0, iaResponse.lastIndexOf("```"));
+                }
+            } else if (iaResponse.startsWith("```") && iaResponse.endsWith("```")) {
+                iaResponse = iaResponse.substring(3, iaResponse.length() - 3);
+            }
+            iaResponse = iaResponse.trim();
+			if (iaResponse.startsWith("[") && iaResponse.endsWith("]")) {
+				try {
+					JsonNode parsed = mapper.readTree(iaResponse);
+					if (parsed.isArray() && parsed.size() > 0 && parsed.get(0).isTextual()) {
+						ActivateListNodeResponse = true;
+						System.out.println("Activation du mode ListNode pour la réponse de l'IA");
+					}
+				} catch (Exception e) {
+					// Ignore JSON parsing errors
+				}
+			}
+		}
+
         if (responseMode == ResponseMode.CONVERSATION) {
+			if (ActivateListNodeResponse) {
+				try {					JsonNode parsed = mapper.readTree(iaResponse);
+					var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
+					for (JsonNode value : parsed) {
+						l.elements.add(new TextNode(this, "value", value.asText()));
+					}
+					result = l;
+					return;
+				} catch (Exception e) {
+					// Ignore JSON parsing errors
+				}
+			}
+		} else if (responseMode == ResponseMode.JSON_ONLY) {
+			if (ActivateListNodeResponse) {
+				try {					JsonNode parsed = mapper.readTree(iaResponse);
+					var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
+					for (JsonNode value : parsed) {
+						l.elements.add(new TextNode(this, "value", value.asText()));
+					}
+					result = l;
+					return;
+				} catch (Exception e) {
+					// Ignore JSON parsing errors
+				}
+			}
+        }
+		 else {
             result = new TextNode(g(), "IA response", iaResponse);
             return;
         }
@@ -176,49 +318,103 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			SystemPrompt.append("Provide a short explanation.\n");
 		} else {
 			SystemPrompt.append(
-					"Output STRICTLY valid JSON ONLY. Do NOT output any intro text, summary, or markdown formatting like ```json. Your entire response must be parseable by a JSON parser.\n");
+					"Output STRICTLY valid JSON ONLY. Do NOT output any intro text, summary, or markdown formatting like ```json.\nCRITICAL RULE: You must NOT use markdown code blocks. Start your response directly with { or [.\n");
 		}
 		
 		return new String[] { SystemPrompt.toString(), UserPrompt.toString() };
 	}
 
-	protected String queryIA(JsonNode inputJSON, String question)
+	public static class AiResult {
+		public String text;
+		public int tokenCount;
+		public AiResult(String text, int tokenCount) {
+			this.text = text;
+			this.tokenCount = tokenCount;
+		}
+	}
+
+	protected AiResult queryIA(JsonNode inputJSON, String question)
 			throws Exception {
+            
+			if (!ollamaVerified) {
+				if (!OllamaRequire.checkRequirements()) {
+					System.out.println(" Ollama n'est pas installé impossible de faire une requête IA.");
+					return new AiResult("Erreur: Ollama n'est pas installé", 0);
+			}
+			ollamaVerified = true;
+		}
 		
 		var assistant = getOrCreateAssistant();
 		var prompts = buildLlmPrompt(inputJSON, question, responseMode);
 
 		// Synchronous fallback wrapper since `impl()` doesn't support async streams yet.
-		// Future dev: Link `assistant.chat(...)` .onNext directly to `TextNode` real-time UI.
-		java.util.concurrent.CompletableFuture<String> future = new java.util.concurrent.CompletableFuture<>();
+		java.util.concurrent.CompletableFuture<AiResult> future = new java.util.concurrent.CompletableFuture<>();
 		
+		long requestStartTime = System.currentTimeMillis();
+		boolean[] isFirstToken = {true};
+
 		assistant.chat(prompts[0], prompts[1])
 			.onNext(token -> {
-				// Temporary: print to console to prove stream is working
+				if (isFirstToken[0]) {
+					isFirstToken[0] = false;
+					myPromptLagMs = System.currentTimeMillis() - requestStartTime;
+					System.out.println("Test prompt lag: " + myPromptLagMs + " ms");
+				}
 				System.out.print(token);
+				System.out.flush(); // FORCE L'AFFICHAGE IMMEDIAT DU TOKEN
 			})
 			.onComplete(response -> {
 				System.out.println(); // newline after stream
-				future.complete(response.content().text());
+				int tokenCount = 0;
+				if (response.tokenUsage() != null && response.tokenUsage().outputTokenCount() != null) {
+					tokenCount = response.tokenUsage().outputTokenCount();
+				}
+				future.complete(new AiResult(response.content().text(), tokenCount));
 			})
-			.onError(future::completeExceptionally)
+			.onError(error -> {
+				System.err.println("\n  Erreur pendant le stream IA : " + error.getMessage());
+				error.printStackTrace();
+				future.completeExceptionally(error);
+			})
 			.start();
 
 		return future.join();
 	}
 
 
- private ToolEnabledAssistant getOrCreateAssistant() {
-        var cacheKey = ollamaBaseUrl + "|" + PRIMARY_MODEL;
-        
-        return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
-            var model = getOrCreateModel();
-
+ private ToolEnabledAssistant getOrCreateAssistant() throws IOException {
+		String currentOllamaUrl = "http://localhost:11434";
+		try {
+			var peers = g().networkAgent.peers.get();
+			if (!peers.isEmpty() ) {
+				byransha.network.PeerNode bestPeer = null;
+				double bestScore = -1.0;
+				
+				// On cherche le pair avec le meilleur score qui n'est pas occupé
+				for (var peer : peers) {
+					if (peer.getScore() > bestScore) {
+						bestScore = peer.getScore();
+						bestPeer = peer;
+						
+					}
+				}
+				
+				if (bestPeer != null && bestPeer.address != null) {
+					currentOllamaUrl = "http://" + bestPeer.address.getHostAddress() + ":11434";
+					System.out.println(" requete donner au pair le plus qualifié : " + bestPeer.name + " (" + currentOllamaUrl + ") avec score : " + bestScore);
+				}
+        	}
+		 } catch (Exception e) {
+			System.out.println("Pas de pairs disponibles, utilisation de l'instance locale d'Ollama.");
+		 }
+		final String selectedOllamaUrl = currentOllamaUrl;
+		var cacheKey = selectedOllamaUrl + "|" + PRIMARY_MODEL;
+		return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
+			var model = getOrCreateModel(selectedOllamaUrl);
 			ChatMemory memory = MessageWindowChatMemory.builder()
 				.maxMessages(MAX_MESSAGES)
 				.chatMemoryStore(MEMORY_STORE)
 				.build();
-            
             return AiServices.builder(ToolEnabledAssistant.class)
                     .streamingChatLanguageModel(model)
                     .tools(new GraphTools(inputNode))
@@ -226,15 +422,17 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
                     .build();
         });
     }
-	private OllamaStreamingChatModel getOrCreateModel() {
-        var cacheKey = ollamaBaseUrl + "|" + PRIMARY_MODEL;
+
+
+	private OllamaStreamingChatModel getOrCreateModel(String ollamaUrl) {
+        var cacheKey = ollamaUrl + "|" + PRIMARY_MODEL;
         
         return MODEL_CACHE.computeIfAbsent(cacheKey, key -> 
             OllamaStreamingChatModel.builder()
-                .baseUrl(ollamaBaseUrl)
+                .baseUrl(ollamaUrl)
                 .modelName(PRIMARY_MODEL)
                 .numCtx(8192)
-                .temperature((double) OllamaModel.LOW)
+                .temperature(0.2)
                 .timeout(java.time.Duration.ofMinutes(5))
                 .logRequests(false)   // Mettre à true pour déboguer
                 .logResponses(false)  // Mettre à true pour déboguer
