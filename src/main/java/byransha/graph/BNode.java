@@ -362,6 +362,8 @@ public abstract class BNode {
 		});
 	}
 
+	
+
 	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
 			BiConsumer<Method, BNode> consumer) {
 		for (var m : getClass().getMethods()) {
