@@ -32,7 +32,6 @@ function Download-Artifacts {
     # Udpdate this script
 	Get-RemoteFile -FileName "byransha.jar"  -DestinationDir $BinDir
 	Get-RemoteFile -FileName "run.ps1"       -DestinationDir $BinDir
-	Get-RemoteFile -FileName "byransha.ico"  -DestinationDir $BinDir
 
     # Determine OS platform target
     if ($IsWindows -or $env:OS -like "*Windows*") { 
@@ -42,6 +41,8 @@ function Download-Artifacts {
         $ScriptPath = $MyInvocation.MyCommand.Path
         $ShortcutPath = Join-Path [Environment]::GetFolderPath("Desktop") "Launch App.lnk"
         $IconPath = Join-Path $BinDir "byransha.ico"
+
+		Get-RemoteFile -FileName "byransha.ico"  -DestinationDir $BinDir
 
         # Create Windows COM object to build a shortcut
         $WshShell = New-Object -ComObject WScript.Shell
@@ -58,13 +59,14 @@ function Download-Artifacts {
     }
     elseif ($IsMacOS) { 
         $OS = "mac-aarch64" 
+		Get-RemoteFile -FileName "byransha.png"  -DestinationDir $BinDir
     }
     else { 
         $OS = "linux-x64" 
     }
 
     # Download JRE archive/zip (Target: JDK 26 Architecture)
-    $JreUrl = "https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/jvm/$OS.zip"
+    $JreUrl = "https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/bin/jvm/$OS.zip"
     Write-Host "Downloading $JreUrl..." -ForegroundColor Cyan
     $JrePath = Join-Path $BinDir "jre-$OS.zip"
     Invoke-WebRequest -Uri $JreUrl -OutFile $JrePath
