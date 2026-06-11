@@ -37,25 +37,36 @@ function Download-Artifacts {
     if ($IsWindows -or $env:OS -like "*Windows*") { 
         $OS = "windows"
         
-        # Define Windows Shortcut attributes
-        $ScriptPath = $MyInvocation.MyCommand.Path
-        $ShortcutPath = Join-Path [Environment]::GetFolderPath("Desktop") "Launch App.lnk"
-        $IconPath = Join-Path $BinDir "byransha.ico"
-
-		Get-RemoteFile -FileName "byransha.ico"  -DestinationDir $BinDir
-
-        # Create Windows COM object to build a shortcut
-        $WshShell = New-Object -ComObject WScript.Shell
-        $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
-
-        # Configure target to launch PowerShell invisibly running your file
-        $Shortcut.TargetPath = "powershell.exe"
-        $Shortcut.Arguments = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$ScriptPath`""
-        $Shortcut.IconLocation = "$IconPath, 0"
-        $Shortcut.Description = "Launch Byransha"
-
-        # Save shortcut to desktop
-        $Shortcut.Save()
+        # Gestion du bug OneDrive
+        $DesktopPath = [Environment]::GetFolderPath("Desktop")
+        if ([string]::IsNullOrEmpty($DesktopPath) -or -not (Test-Path $DesktopPath)) {
+            $DesktopPath = Join-Path $HOME "Desktop"
+        }
+         # Define Windows Shortcut attributes
+        $ScriptPath   = $PSCommandPath
+        $ShortcutPath = Join-Path $DesktopPath "Launch App.lnk"
+        $IconPath     = Join-Path $BinDir "byransha.ico"
+        Get-RemoteFile -FileName "byransha.ico" -DestinationDir $BinDir
+        try {
+            Write-Host "Création du raccourci sur le Bureau ($ShortcutPath)..." -ForegroundColor Cyan
+            $WshShell = New-Object -ComObject WScript.Shell
+             # Configure target to launch PowerShell invisibly running your file
+            $Shortcut = $WshShell.CreateShortcut($ShortcutPath)
+            $Shortcut.TargetPath = "powershell.exe"
+            if (-not [string]::IsNullOrEmpty($ScriptPath)) {
+                $Shortcut.Arguments = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$ScriptPath`""
+            } else {
+                $Shortcut.Arguments = "-ExecutionPolicy Bypass -WindowStyle Hidden -File `"$PSScriptRoot\run.ps1`""
+            }
+            $Shortcut.IconLocation = "$IconPath,0"
+            $Shortcut.Description = "Launch Byransha"
+              # Save shortcut to desktop
+            $Shortcut.Save()
+            Write-Host "Raccourci crée" -ForegroundColor Green
+        }
+        catch {
+            Write-Warning "Impossible de créer le raccourci"
+        }
     }
     elseif ($IsMacOS) { 
         $OS = "mac-aarch64" 
