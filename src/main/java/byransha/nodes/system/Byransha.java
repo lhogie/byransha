@@ -58,7 +58,6 @@ public class Byransha extends SystemNode {
 		}, "check new version thread");// .start();
 	}
 
-	@ShowInKishanView
 	public Version lastVersionOnline() throws MalformedURLException, IOException, NoSuchAlgorithmException, KeyManagementException {
 		var v = new Version();
 		System.out.println(lastVersionURL);

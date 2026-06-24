@@ -1,6 +1,8 @@
 package byransha.ai;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -8,6 +10,7 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.swing.SwingUtilities;
 import org.checkerframework.checker.units.qual.g;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +33,8 @@ import byransha.nodes.lab.stats.DistributionNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.TextNode;
-import byransha.network.PeerTelemetry;
+import byransha.nodes.system.ChatNode;
+import byransha.ui.shell.Client;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
@@ -61,33 +65,52 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	@ShowInKishanView
 	public final StringNode prompt = new StringNode(this, "", ".+");
 	public final JSONNode inputJSON ;
+	@ShowInKishanView
+	public final TextNode info = new TextNode(this, "La question est envoyé a l'IA, elle peut se tromper, verifier les réponses","La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");
 	
 	@ShowInKishanView
 	public final BooleanNode conversation = new BooleanNode(this, false);
 	
 	private static final String PRIMARY_MODEL = "granite4:tiny-h";
-	private volatile ResponseMode responseMode = ResponseMode.JSON_ONLY;
+	private volatile ResponseMode responseMode = ResponseMode.CONVERSATION;
 	private static volatile double myCurrentSpeed = 10.0;
     private static volatile double myAlpha = -1.0;
     private static volatile double myPromptLagMs = 1500.0;
 	private static volatile boolean ollamaVerified = false;
 	private boolean ActivateListNodeResponse = false; 
+	private volatile ChatNode currentChat;
 
     
 	@ShowInKishanView
 	private final ListNode<PeerNode> ShowPeersInfo = getPeersFromNetworkAgent();
 	
 	 private ListNode<PeerNode> getPeersFromNetworkAgent() {
+		try {
 	 	ListNode<PeerNode> peerList = new ListNode<>(this, " peers", PeerNode.class);
-	 	try {			var peers = g().networkAgent.peers.get();
+			try {	
+			var peers = g().networkAgent.peers.get();
 			for (var peer : peers) {
 				peerList.elements.add(peer);
 			}
 	 	} catch (Exception e) {
 			System.out.println("Pas de pairs disponibles, utilisation de l'instance locale d'Ollama.");
 	 	}
-	 	return peerList;
-				 }
+	 	PeerNode localPeer = new PeerNode(g());
+		localPeer.name = "Local Ollama (Moi)";
+		localPeer.address = InetAddress.getByName("localhost");
+		try {
+			localPeer.publicKey = g().networkAgent.getPublicKey();
+				 } catch (Exception e) {
+				System.out.println("Impossible de lier la clé publique au nœud local.");
+			}
+			peerList.elements.add(localPeer);
+			return peerList;
+		} catch (UnknownHostException ex) {
+			System.getLogger(QueryIA.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+		}
+		return null;
+	}
+
 				 
     public static double calculerAlphaAutomatique(long totalParameters, int expertCount) {
         double activeParameters;
@@ -154,6 +177,17 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 	@Override
 	public void impl() throws Throwable {
+		ActivateListNodeResponse = false;
+		if (this.chat instanceof ChatNode) {
+			this.currentChat = (ChatNode) this.chat;
+		} else if (this.parent instanceof ChatNode) {
+			this.currentChat = (ChatNode) this.parent;
+		} else if (Client.lastActiveChat != null) {
+			this.currentChat = Client.lastActiveChat;
+		} else {
+			throw new IllegalStateException("QueryIA must be used within a ChatNode context");
+		}
+
         var userQuestion = prompt.get();
         if (userQuestion == null || userQuestion.trim().isEmpty()) {
             result = new TextNode(g(), "IA response",
@@ -218,14 +252,24 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 				}
 			}
 		}
-
+		try {
         if (responseMode == ResponseMode.CONVERSATION) {
 			if (ActivateListNodeResponse) {
-				try {					JsonNode parsed = mapper.readTree(iaResponse);
-					var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
+				try {
+					JsonNode parsed = mapper.readTree(iaResponse);
+					var l = new ListNode<BNode>(parent, "IA numeric array", BNode.class);
 					for (JsonNode value : parsed) {
-						l.elements.add(new TextNode(this, "value", value.asText()));
-					}
+						String idText = value.asText().trim();
+							if (idText.isEmpty())
+								continue;
+							BNode realNode = g().indexes.byId.getByText(idText);
+							if (realNode != null) {
+								l.elements.add(realNode);
+							} else {
+								System.out.println("-> Aucun nœud ne possède l'ID '" + idText + "' dans le graphe.");
+							}
+						}
+
 					result = l;
 					return;
 				} catch (Exception e) {
@@ -234,11 +278,21 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			}
 		} else if (responseMode == ResponseMode.JSON_ONLY) {
 			if (ActivateListNodeResponse) {
-				try {					JsonNode parsed = mapper.readTree(iaResponse);
-					var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
+				try {
+					JsonNode parsed = mapper.readTree(iaResponse);
+					var l = new ListNode<BNode>(parent, "IA numeric array", BNode.class);
 					for (JsonNode value : parsed) {
-						l.elements.add(new TextNode(this, "value", value.asText()));
-					}
+						String idText = value.asText().trim();
+							if (idText.isEmpty())
+								continue;
+							BNode realNode = g().indexes.byId.getByText(idText);
+							if (realNode != null) {
+								l.elements.add(realNode);
+							} else {
+								System.out.println("-> Aucun nœud ne possède l'ID '" + idText + "' dans le graphe.");
+							}
+						}
+
 					result = l;
 					return;
 				} catch (Exception e) {
@@ -277,7 +331,14 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			result = distributionNode;
 		} else {
 			result = new TextNode(parent, "IA response", iaResponse);
+		} }   finally {
+			if (currentChat != null) {
+				final ChatNode chatToAppend = currentChat;
+				final BNode resToAppend = result;
+				SwingUtilities.invokeLater(() -> chatToAppend.append(resToAppend));
+			}
 		}
+
 	}
 
 	public void setResponseMode(ResponseMode responseMode) {
@@ -289,36 +350,50 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		return responseMode;
 	}
 
-	static String[] buildLlmPrompt(JsonNode inputJSON, String question, ResponseMode mode) {
+	static String[] buildLlmPrompt(JsonNode inputJSON, String question, ResponseMode mode, BNode inputNode) {
 		var normalizedQuestion = question == null ? "" : question.trim();
 		var SystemPrompt = new StringBuilder();
-		
+		SystemPrompt.append("Your personality: You are a helpful assistant specialized in exploring a data graph..\n");
 		if (mode == ResponseMode.JSON_ONLY) {
-			SystemPrompt.append("You have access to the graph tools. Before producing the output, call the necessary tools to gather evidence. After using the tools, provide STRICTLY valid JSON that meets the requirements below.\n");
+			SystemPrompt.append("You have access to the graph tools. Before producing the output, call the necessary tools to gather evidence. After using the tools, provide STRICTLY valid JSON .\n");
 		} else {
-			SystemPrompt.append("Tu peux utiliser les outils du graphe si nécessaire pour répondre. Donne une réponse conversationnelle courte et claire.\n");
+			SystemPrompt.append("Give a conversational answer to the user \n");
 		}
-		
-		SystemPrompt.append("Your personality: You are a helpful assistant.\n");
-		SystemPrompt.append("You are an expert JSON transformation system.\n");
-		SystemPrompt.append(
-				"Your task is to take the original JSON and create an updated JSON by following the user's instructions.\n");
-		SystemPrompt.append(
-				"The user's instructions might be in French (e.g. 'remplace ... par ...', 'ajoute ...'). You must understand and execute these modifications correctly on the JSON keys and values.\n");
-		SystemPrompt.append(
-				"If the user asks to replace one name by another in the JSON, interpret it as a rename of the JSON key or value, not as a free-form rewrite. Example: 'remplace le nom offices par bureau' means rename the key 'offices' to 'bureau' inside the JSON, and keep every other field unchanged.\n");
-		SystemPrompt.append(
-				"All fields that are not targeted by the request must be kept EXACTLY as they are in the original JSON. Do not invent new fields and do not change unrelated field names or values.\n\n");
-		
 		var UserPrompt = new StringBuilder();
-		UserPrompt.append("--- USER INSTRUCTIONS ---\n");
+		UserPrompt.append("--- USER QUESTION ---\n");
 		UserPrompt.append(normalizedQuestion).append("\n\n");
-
-		// Au lieu d'envoyer tout le JSON et saturer la mémoire, on donne juste une mini-info
-		UserPrompt.append("--- CONTEXT ---\n");
-		UserPrompt.append("Focused Node ID: ").append(inputJSON.has("id") ? inputJSON.get("id").asText() : "unknown").append("\n");
-		UserPrompt.append("If you need to know the properties, children, or content of this node, YOU MUST use your GraphTools (searchByText, getNodeDetails, etc.). Do not guess.\n\n");
-
+		UserPrompt.append("--- SYSTEM INSTRUCTIONS FOR GRAPH AGENT ---\n");
+		UserPrompt.append("You are an AI connected to a live graph database via GraphTools.\n");
+		if (inputNode != null) {
+			UserPrompt.append("The current root context node is: ").append(inputNode.idAsText()).append(inputNode.getClass().getSimpleName()).append("\n");
+		}
+		UserPrompt.append("You do not know the answer until you call a tool.\n\n");
+		UserPrompt.append("METHODOLOGY FOR ANY QUESTION:\n");
+        UserPrompt.append("1. FIRST STEP DECISION:\n");
+		UserPrompt.append("   - If you didnt find any result for your research try to use searchByDepth");
+        UserPrompt.append("   - If the user asks to filter people by a property (e.g. 'né à Nice', 'born in X'), DO NOT use searchByText. Immediately call 'filterMembersByProperty' using the *current root context node ID* (provided above) to get all members, the property value , and the property name.\n");
+        UserPrompt.append("   - If the user is looking for a specific concept or name (e.g. 'cherche le centre X'), extract the main concept and call 'searchByText' with it.\n");
+		UserPrompt.append("	  - For general details about a structure, use getStructureDetails");
+        UserPrompt.append("3. If the user asks for members or people ('qui travaille', 'membres', 'personnes'), call 'getMembersDetails' with the ID. This tool returns names, first names  for ALL members OR the members the user asks for,  (and you will ONLY return the birth cities, and emails if and ONLY if the user asks for them for ALL members OR the members the user asks for).\n");
+        UserPrompt.append("4. For general details about a node (not members), use 'getNodeDetails'.\n");
+        UserPrompt.append("5. Loop through ALL relevant IDs and property tools until you have collected everything requested.\n");
+        UserPrompt.append("6. Answer the user using ONLY the combined text and details returned by all your tool calls.\n\n");
+		UserPrompt.append("7. If you dont find the main concept, try with the current node.\n");
+		UserPrompt.append("CRITICAL RULES AGAINST HALLUCINATION:\n");
+        UserPrompt.append("- Most questions are in French. Answer in French.\n");
+        UserPrompt.append("- MULTI-STEP MANDATE: NEVER assume an information (like birth city, age, etc.) is missing just because it wasn't in the first tool call. If a specific tool exists for that property, you MUST call it for each ID.\n");
+        UserPrompt.append("- Do not use the email informations to get the name and surname of a person. Get them from the node details.\n");
+        UserPrompt.append("- If the user asks for members ('membres' or 'qui travaille chez'), use 'searchByText' then 'getMembersDetails'. The getMembersDetails tool already returns nom, prénom, ville de naissance, and emails. DO NOT call getNodeDetails for listing members.\n");
+        UserPrompt.append("- When the users asks for \"tout\", list all that he requested, using the tools sequentially to get the data.\n");
+        UserPrompt.append("- Dont repeat the same information twice, for exemple if you have already given the name of a person, do not give it again when you list the members.\n");
+        UserPrompt.append("- STRICT RULE FOR NAMES: Output ONLY the exact names returned by the tools. NEVER invent, guess, or add a first name (prénom) if it is not explicitly written in the tool output.\n");
+        UserPrompt.append("- STRICT FILTERING: When asked to find people matching a condition (e.g. born in Nice), read the tool output carefully. In your final answer, ONLY list the exact people who match the condition. DO NOT list people who do not match, and do NOT mention them at all.\n");
+        UserPrompt.append("- EXAMPLE: If the tool returns 'Martin', you must write 'Martin'. DO NOT write 'Jean Martin' or 'Pierre Martin'. Adding an unprovided first name is strictly forbidden.\n");
+        UserPrompt.append("- If a tool returns no results, say clearly that you found nothing in the database.\n");
+        UserPrompt.append("- DO NOT explain your tools or say 'I don't have access'. Just give the final data.\n");
+		
+		
+        UserPrompt.append("--- END OF INSTRUCTIONS ---\n\n");
 		SystemPrompt.append("--- FINAL OUTPUT REQUIREMENT ---\n");
 		if (mode == ResponseMode.CONVERSATION) {
 			SystemPrompt.append("Provide a short explanation.\n");
@@ -351,7 +426,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		}
 		
 		var assistant = getOrCreateAssistant();
-		var prompts = buildLlmPrompt(inputJSON, question, responseMode);
+		var prompts = buildLlmPrompt(inputJSON, question, responseMode,inputNode);
 
 		// Synchronous fallback wrapper since `impl()` doesn't support async streams yet.
 		java.util.concurrent.CompletableFuture<AiResult> future = new java.util.concurrent.CompletableFuture<>();
@@ -437,7 +512,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
             OllamaStreamingChatModel.builder()
                 .baseUrl(ollamaUrl)
                 .modelName(PRIMARY_MODEL)
-                .numCtx(8192)
+                .numCtx(10000)
                 .temperature(0.2)
                 .timeout(java.time.Duration.ofMinutes(5))
                 .logRequests(false)   // Mettre à true pour déboguer
