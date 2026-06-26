@@ -48,6 +48,7 @@ public class ChatNode extends BNode {
 			} else {
 				System.out.println("parmeters: " + action.parameters());
 				nodes.elements.add(action);
+				action.chat = this;
 			}
 		} else {
 			nodes.elements.add(n);

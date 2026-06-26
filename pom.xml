@@ -60,7 +60,7 @@
 		</dependency>
 		<dependency>
 			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-jlama</artifactId>
+			<artifactId>langchain4j-ollama</artifactId>
 			<version>1.0.0-beta1</version>
 		</dependency>
 		<dependency>
@@ -79,11 +79,7 @@
 			<version>5.14.0</version>
 		</dependency>
 
-		<dependency>
-			<groupId>dev.langchain4j</groupId>
-			<artifactId>langchain4j-ollama</artifactId>
-			<version>1.0.0-beta1</version>
-		</dependency>
+		
 		<!-- Source: https://mvnrepository.com/artifact/org.jfree/jfreechart -->
 		<dependency>
 			<groupId>org.jfree</groupId>
@@ -107,11 +103,6 @@
 			<groupId>net.java.dev.jna</groupId>
 			<artifactId>jna-platform</artifactId>
 			<version>5.14.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.78</version>
 		</dependency>
 		<dependency>
 			<groupId>io.github.mkpaz</groupId>

@@ -194,4 +194,8 @@ public class NetworkAgent extends BNode {
 	public String toString() {
 		return "received: " + packetReceived + ", sent: " + packetSent;
 	}
+	
+	public java.security.PublicKey getPublicKey() {
+    	return this.keyPair != null ? this.keyPair.getPublic() : null;
+}
 }
