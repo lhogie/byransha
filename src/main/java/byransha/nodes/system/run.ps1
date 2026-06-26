@@ -42,6 +42,7 @@ function Download-Artifacts {
         if ([string]::IsNullOrEmpty($DesktopPath) -or -not (Test-Path $DesktopPath)) {
             $DesktopPath = Join-Path $HOME "Desktop"
         }
+ 
          # Define Windows Shortcut attributes
         $ScriptPath   = $PSCommandPath
         $ShortcutPath = Join-Path $DesktopPath "Launch App.lnk"

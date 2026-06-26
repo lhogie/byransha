@@ -1,4 +1,9 @@
-Byransha is an innovative development middleware that streamlines the creation of
+Install: 
+[Download the launch script](https://raw.githubusercontent.com/lhogie/byransha/main/src/main/java/byransha/nodes/system/run.ps1)
+
+
+Byransha is an innovative middleware that streamlines the navigation across graph-oriented systems.
+Its primary goal is to provide a unified interface for managing complex data structures and workflows, enabling developers to build robust and scalable
 business-centric applications. The platform is built on six core pillars:
 
 - Decentralization: Ensures high availability and resilience by eliminating single points of failure across the data landscape.
@@ -16,10 +21,11 @@ business-centric applications. The platform is built on six core pillars:
 # Team
 - Luc Hogie (CNRS Research Engineer, leader and main contributor)
 - Dylan Malausena (Master 2 student, work on AI-powered data analysis)
-- Charles-Axelle Essaga (integrating publication datas from HAL)
-- Mourtada-Essadik Ennouni (deployment)
+- Alexandre Boutrik (Master 1 student, work on security)
 
 ## former members
+- Charles-Axelle Essaga (integrating publication datas from HAL)
+- Mourtada-Essadik Ennouni (deployment)
 - Kishan Turpin (Master 2 student)
 - Quentin Nicolini (Master 1 student)
 - Lamyae Fakir

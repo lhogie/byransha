@@ -16,10 +16,8 @@ public class I3S extends Lab {
 		super(g);
 		name.set("I3S");
 
-
-		
 		var lakeD = new File(g().byransha.homeDirectory, "data_lake");
-		
+
 		if (lakeD.exists()) {
 			var lake = new DataLake(g(), lakeD);
 
@@ -28,7 +26,7 @@ public class I3S extends Lab {
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
-		}else {
+		} else {
 			System.out.println("data lake not found at " + lakeD.getAbsolutePath());
 		}
 

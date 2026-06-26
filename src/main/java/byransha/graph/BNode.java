@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -50,10 +51,10 @@ import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.network.Message;
-import byransha.nodes.primitive.FileNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
+import byransha.nodes.primitive.file.FileNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.ChatSheet;
@@ -72,6 +73,10 @@ import byransha.util.Stop;
 import byransha.util.TriConsumer;
 
 public abstract class BNode {
+	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
+	final public static ObjectMapper objectMapper = new ObjectMapper();
+
+	
 	public final BNode parent;
 	public boolean readOnly;
 	protected boolean resilient = false;
@@ -564,7 +569,6 @@ public abstract class BNode {
 		});
 	}
 
-	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 
 	public ObjectNode describeAsJSON() {
 		return toJSONNode(1);

@@ -16,7 +16,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.FileNode;
+import byransha.nodes.primitive.file.FileNode;
 import byransha.util.Cout;
 
 public class DataLake extends BNode {
