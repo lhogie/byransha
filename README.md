@@ -1,5 +1,8 @@
 Install: 
-[Download the launch script](https://raw.githubusercontent.com/lhogie/byransha/main/src/main/java/byransha/nodes/system/run.ps1)
+On Windows: [Download the launch script](https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/bin/run.ps1)
+
+Alternatively you can  [download the self-contained JAR file](https://webusers.i3s.unice.fr/~hogie/software/byransha/downloads/bin/byransha.jar) and run it with the command: `java -jar byransha.jar`
+
 
 
 Byransha is an innovative middleware that streamlines the navigation across graph-oriented systems.
@@ -24,10 +27,10 @@ business-centric applications. The platform is built on six core pillars:
 - Alexandre Boutrik (Master 1 student, work on security)
 
 ## former members
-- Charles-Axelle Essaga (integrating publication datas from HAL)
-- Mourtada-Essadik Ennouni (deployment)
-- Kishan Turpin (Master 2 student)
-- Quentin Nicolini (Master 1 student)
+- Charles-Axelle Essaga
+- Mourtada-Essadik Ennouni
+- Kishan Turpin
+- Quentin Nicolini
 - Lamyae Fakir
 - Mathéo Balazuc
 - Maxime Céleste

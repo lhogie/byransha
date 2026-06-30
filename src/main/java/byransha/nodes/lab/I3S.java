@@ -20,15 +20,8 @@ public class I3S extends Lab {
 
 		if (lakeD.exists()) {
 			var lake = new DataLake(g(), lakeD);
-
-			try {
-				lake.load(this);
-			} catch (IOException e) {
-				throw new RuntimeException(e);
-			}
 		} else {
 			System.out.println("data lake not found at " + lakeD.getAbsolutePath());
 		}
-
 	}
 }
