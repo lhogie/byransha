@@ -14,7 +14,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.VersionNode;
 import byransha.graph.BGraph;
@@ -39,7 +38,7 @@ public class Byransha extends SystemNode {
 	public static final String lastVersionURL = downloadBinaries + "info.json";
 	public static byte[] currentExeBytes = "".getBytes();
 	@ShowInKishanView
-	public final VersionNode versionNode = new VersionNode(this);
+	public final VersionNode version = new VersionNode(this);
 
 	public Byransha(BGraph g) {
 		super(g);
@@ -49,7 +48,7 @@ public class Byransha extends SystemNode {
 				try {
 					var versionOnline = lastVersionOnline();
 
-					if (versionOnline.isNewerThan(versionNode.version)) {
+					if (versionOnline.isNewerThan(version.version)) {
 						System.out.println("New version available: " + versionOnline);
 					}
 

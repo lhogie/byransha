@@ -24,7 +24,6 @@ import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.system.Update.byransha;
 import byransha.util.MinaScpUploader;
-import byransha.util.Version.Level;
 
 public class Deploy extends Action<Byransha> {
 	@ShowInKishanView
@@ -33,14 +32,9 @@ public class Deploy extends Action<Byransha> {
 	public final StringNode scpRemoteDir = new StringNode(this, "public_html/software/byransha/downloads/bin/", ".+");
 	@ShowInKishanView
 	public final StringNode username = new StringNode(this, "hogie", ".+");
-	@ShowInKishanView
-	public final StringNode version = new StringNode(this, "", ".+");
 
 	public Deploy(Byransha b) {
 		super(b, byransha.class);
-		var versionNode = ((Byransha) parent).versionNode;
-		versionNode.version.upgrade(Level.revision);
-		version.set(versionNode.version.toString());
 		hasButtonOnKishanView = true;
 	}
 
@@ -53,16 +47,16 @@ public class Deploy extends Action<Byransha> {
 	protected void impl() throws Throwable {
 		File outputJar = File.createTempFile(getClass().getName(), ".jar");
 
-		var versionFile = File.createTempFile(getClass().getName(), ".txt");
+		var versionFile = File.createTempFile(getClass().getName(), ".json");
 		var n = new ObjectNode(factory);
-		n.put("version", version.get());
+		n.put("version", g().byransha.version.version.toString());
 		n.put("date", LocalDateTime.now().toString());
 		n.put("java.version", System.getProperty("java.specification.version"));
 		Files.writeString(versionFile.toPath(), n.toPrettyString());
 		scp(versionFile, scpHost.get(), scpRemoteDir.get() + "/info.json", username.get(), null);
 
 		var installFile = File.createTempFile(getClass().getName(), "ps1");
-		Files.write(installFile.toPath(), getClass().getResourceAsStream("run.ps1").readAllBytes());
+		Files.write(installFile.toPath(), getClass().getResourceAsStream("/run.ps1").readAllBytes());
 		scp(installFile, scpHost.get(), scpRemoteDir.get() + "/run.ps1", username.get(), null);
 
 		JarFlattener.flattenClasspathToJar(outputJar);
@@ -80,8 +74,7 @@ public class Deploy extends Action<Byransha> {
 		 * Flattens the current system classpath into a single large uber-jar. * @param
 		 * outputJar The destination path for the consolidated fat jar.
 		 *
-		 * @throws IOException
-		 *                         If file reading or writing fails.
+		 * @throws IOException If file reading or writing fails.
 		 */
 		public static void flattenClasspathToJar(File outputJar) throws IOException {
 			// 1. Get the current classpath string split by the OS path separator
