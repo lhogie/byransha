@@ -72,16 +72,19 @@ public class BGraph extends BNode {
 		currentUser.roles.elements.add(admin);
 	}
 
-	public void setCurrentUser(User newUser) {
-		if (newUser != currentUser) {
-			this.currentUser = newUser;
-			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
-		}
-	}
-
 	@Override
 	public BGraph g() {
 		return this;
+	}
+
+	public void setCurrentUser(User newUser) {
+		if (newUser != currentUser) {
+			this.currentUser = newUser;
+
+			if (swing != null) {
+				userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
+			}
+		}
 	}
 
 	public User getCurrentUser() {

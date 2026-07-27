@@ -81,7 +81,7 @@ public class NetworkAgent extends BNode {
 		}
 
 		peersDirectory.mkdirs();
-		
+
 		for (File f : peersDirectory.listFiles()) {
 			if (f.isDirectory()) {
 				try {
@@ -133,6 +133,7 @@ public class NetworkAgent extends BNode {
 
 					if (peer == null) {
 						peer = new PeerNode(graph);
+						peers.elements.add(peer);
 					}
 
 					var p = peer;
@@ -158,22 +159,18 @@ public class NetworkAgent extends BNode {
 
 		new Thread(() -> {
 			while (true) {
-				try {
-					for (var p : peers.elements) {
-						if (!p.isConnected() && p.address != null) { // if not connexion
-							try {
-								p.setSocket(new Socket(p.address, p.port));
-							} catch (IOException e) {
-								p.disconnect();
-								g().errorLog.add(e);
-							}
+				for (var p : peers.elements) {
+					if (!p.isConnected() && p.address != null) { // if no connexion
+						try {
+							p.setSocket(new Socket(p.address, p.port));
+						} catch (IOException e) {
+							p.disconnect();
+							g().errorLog.add(e);
 						}
 					}
-
-					Thread.sleep(1012);
-				} catch (InterruptedException e) {
-					g().errorLog.add(e);
 				}
+
+				sleep(1);
 			}
 		}, "connect to peers").start();
 

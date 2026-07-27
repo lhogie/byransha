@@ -58,7 +58,9 @@ public class SwingFrontend extends SystemNode {
 	}
 
 	private void considerUser(User newUser) {
-		frame.getContentPane().removeAll();
+		if (frame != null) {
+			frame.getContentPane().removeAll();
+		}
 
 		if (newUser.chats.elements.isEmpty()) {
 			new ChatNode(newUser).nodes.elements.add(g());

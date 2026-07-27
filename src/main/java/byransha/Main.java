@@ -27,7 +27,8 @@ import byransha.util.ByUtils;
 public class Main {
 	static BGraph g;
 
-	public static void main(String[] args) throws Throwable {
+	public static void main(String... args) throws Throwable {
+		System.out.println("This is Byransha v" + Byransha.VERSION);
 		System.out.println(args.length + " args: " + Arrays.toString(args));
 
 		ByUtils.extractResource("/systemD_service/byransha.service", Byransha.homeDirectory);

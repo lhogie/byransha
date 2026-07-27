@@ -17,11 +17,16 @@ import java.util.Base64;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
 
 public class PeerNode extends BNode {
+	@ShowInKishanView
 	public InetAddress address;
+	@ShowInKishanView
 	public PublicKey publicKey;
-	public int port;
+	@ShowInKishanView
+	public int port = NetworkAgent.DEFAULT_PORT;
+	@ShowInKishanView
 	public String name;
 	public double TokensPerSecond;
 	public boolean IsComputing;
