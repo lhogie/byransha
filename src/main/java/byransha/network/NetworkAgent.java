@@ -80,6 +80,8 @@ public class NetworkAgent extends BNode {
 			}
 		}
 
+		peersDirectory.mkdirs();
+		
 		for (File f : peersDirectory.listFiles()) {
 			if (f.isDirectory()) {
 				try {
@@ -94,8 +96,6 @@ public class NetworkAgent extends BNode {
 		}
 
 		new Thread(() -> {
-			peersDirectory.mkdirs();
-
 			while (true) {
 				try {
 					for (File peerDirectory : peersDirectory.listFiles()) {
