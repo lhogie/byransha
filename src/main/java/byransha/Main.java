@@ -8,7 +8,6 @@ import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.JOptionPane;
@@ -147,7 +146,7 @@ public class Main {
 	private static Map<String, String> mapArgs(String... args) {
 		var r = new HashMap<String, String>();
 
-		for (var arg : List.of(args)) {
+		for (var arg : args) {
 			if (arg.contains("=")) {
 				var a = arg.split("=");
 				r.put(a[0], a[1]);
