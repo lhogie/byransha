@@ -31,7 +31,7 @@ public abstract class EventList extends BNode {
 					if (e.owners.size() < 1) {
 						try {
 							candidates.add(e);
-							g().networkAgent.send(e);
+							g().networkAgent.sendObject(e);
 							status.set("running " + candidates.size() + " event(s) sent");
 						} catch (IOException err) {
 

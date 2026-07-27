@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
@@ -24,7 +25,14 @@ import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 
 public class NetworkAgent extends BNode {
-	public static final int port = 9876;
+	public static final int DEFAULT_PORT = 50170;
+	ServerSocket socket;
+	@ShowInKishanView
+	public final int port;
+	protected int packetReceived;
+	protected int packetSent;
+	private int nbMessagesReceived;
+
 	@ShowInKishanView
 	public static final File peersDirectory = new File(Byransha.homeDirectory, "peers");
 
@@ -41,34 +49,48 @@ public class NetworkAgent extends BNode {
 	public final ListNode<PeerNode> peers = new ListNode<>(this, "peers", PeerNode.class);
 	@ShowInKishanView
 	String peerName;
-	private int nbMessagesReceived;
-	private int packetSent;
+	@ShowInKishanView
 	public PublicKey publicKey;
 	public PrivateKey privateKey;
-	IPDriver tcpDriver;
 	final Serializer serializer = new JavaSerializer<>();
 
-	public NetworkAgent(BGraph g, int tcpPort)
+	public NetworkAgent(BGraph g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);
-		this.tcpDriver = new TCPDriver(this, tcpPort);
-		File publicKeyFile = new File(securityDir, "public_key.pem");
-		File privateKeyFile = new File(securityDir, "private_key.pem");
+		this.port = port;
 
-		if (publicKeyFile.exists() && privateKeyFile.exists()) {
-			this.publicKey = (PublicKey) RSA.fromPem(Files.readString(publicKeyFile.toPath()));
-			this.privateKey = (PrivateKey) RSA.fromPem(Files.readString(privateKeyFile.toPath()));
-		} else {
-			System.out.println("Generating new random RSA keys");
-			var keyPair = RSA.randomKeyPair();
-			this.publicKey = keyPair.getPublic();
-			this.privateKey = keyPair.getPrivate();
-			publicKeyFile.getParentFile().mkdirs();
-			Files.writeString(publicKeyFile.toPath(), RSA.toPem(publicKey));
-			Files.writeString(privateKeyFile.toPath(), RSA.toPem(privateKey));
-			var pub = new String(RSA.toBase64(keyPair.getPublic()));
-			System.out.println("public key: " + pub);
-			publicKeyInfo.set(pub);
+		{
+			File publicKeyFile = new File(securityDir, "public_key.pem");
+			File privateKeyFile = new File(securityDir, "private_key.pem");
+
+			if (publicKeyFile.exists() && privateKeyFile.exists()) {
+				this.publicKey = (PublicKey) RSA.fromPem(Files.readString(publicKeyFile.toPath()));
+				this.privateKey = (PrivateKey) RSA.fromPem(Files.readString(privateKeyFile.toPath()));
+			} else {
+				System.out.println("Generating new random RSA keys");
+				var keyPair = RSA.randomKeyPair();
+				this.publicKey = keyPair.getPublic();
+				this.privateKey = keyPair.getPrivate();
+				publicKeyFile.getParentFile().mkdirs();
+				Files.writeString(publicKeyFile.toPath(), RSA.toPem(publicKey));
+				Files.writeString(privateKeyFile.toPath(), RSA.toPem(privateKey));
+				var pub = new String(RSA.toBase64(keyPair.getPublic()));
+				System.out.println("public key: " + pub);
+				publicKeyInfo.set(pub);
+			}
+		}
+
+		for (File f : peersDirectory.listFiles()) {
+			if (f.isDirectory()) {
+				try {
+					var peer = new PeerNode(g);
+					peer.setDirectory(f);
+					peers.elements.add(peer);
+					System.out.println("adding " + peer);
+				} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 
 		new Thread(() -> {
@@ -78,11 +100,12 @@ public class NetworkAgent extends BNode {
 				try {
 					for (File peerDirectory : peersDirectory.listFiles()) {
 						if (peerDirectory.isDirectory()) {
-							var peer = findPeer(peerDirectory.getName());
+							var peer = findPeerByName(peerDirectory.getName());
 
 							if (peer == null) {
 								try {
-									peer = new PeerNode(g, peerDirectory);
+									peer = new PeerNode(g);
+									peer.setDirectory(peerDirectory);
 									peers.elements.add(peer);
 								} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
 									e.printStackTrace();
@@ -97,6 +120,41 @@ public class NetworkAgent extends BNode {
 				}
 			}
 		}, "discover peers info on disk").start();
+
+		new Thread(() -> {
+			try {
+				socket = new ServerSocket(port);
+				System.out.println("TCP Server is listening on port " + port);
+
+				while (true) {
+					var client = socket.accept();
+					var from = client.getInetAddress();
+					var peer = findPeer(from);
+
+					if (peer == null) {
+						peer = new PeerNode(graph);
+					}
+
+					var p = peer;
+
+					new Thread(() -> {
+
+						try {
+							p.setSocket(client);
+
+							while (true) {
+								handle(p.waitForMessage());
+							}
+						} catch (IOException | ClassNotFoundException err) {
+							g().errorLog.add(err);
+							p.disconnect();
+						}
+					}, "thread waiting for messages from " + from).start();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}, "TCP listening port").start();
 
 		new Thread(() -> {
 			while (true) {
@@ -126,7 +184,7 @@ public class NetworkAgent extends BNode {
 		++nbMessagesReceived;
 		updateInOutInfo();
 
-		var from = findPeer(msg.route.getLast());
+		var from = findPeerByName(msg.route.getLast());
 
 		if (msg.content instanceof Ack ack) {
 			g().eventList.findEvent(ack.id).markReceivedBy(from);
@@ -141,7 +199,7 @@ public class NetworkAgent extends BNode {
 			}
 
 			try {
-				send(new Ack(e.id()));
+				sendObject(new Ack(e.id()));
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
@@ -169,9 +227,9 @@ public class NetworkAgent extends BNode {
 		return null;
 	}
 
-	private PeerNode findPeer(String name) {
+	private PeerNode findPeerByName(String name) {
 		for (var p : peers.get()) {
-			if (p.name.equals(name)) {
+			if (p.name != null && p.name.equals(name)) {
 				return p;
 			}
 		}
@@ -189,10 +247,10 @@ public class NetworkAgent extends BNode {
 		return null;
 	}
 
-	public synchronized void send(Object o, PeerNode to) throws IOException {
+	public synchronized void sendObject(Object o, PeerNode to) throws IOException {
 		var msg = new Message();
 		msg.route.add(peerName);
-		tcpDriver.send(serializer.toBytes(msg), to);
+		to.sendTo(msg);
 		++packetSent;
 		updateInOutInfo();
 	}
@@ -201,9 +259,9 @@ public class NetworkAgent extends BNode {
 		inOutInfo.set(nbMessagesReceived + " received, " + packetSent + " sent");
 	}
 
-	public synchronized void send(Object o) throws IOException {
+	public synchronized void sendObject(Object o) throws IOException {
 		for (var to : peers.get()) {
-			send(o, to);
+			sendObject(o, to);
 		}
 	}
 

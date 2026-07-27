@@ -6,8 +6,8 @@ Type=simple
 PIDFile=/home/byransha/byransha-systemd-service.pid 
 User=byransha
  
-ExecStart=/home/byransha/backend/start.sh
- 
+ExecStart=/home/byransha/.local/shared/systemV_service/start.sh
+
 Restart=always
  
 [Install]

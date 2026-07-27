@@ -9,7 +9,7 @@ public class VersionNode extends BNode {
 
 	public VersionNode(Byransha b) {
 		super(b);
-		version.set("0.0.6");
+		version.set(Byransha.VERSION);
 	}
 
 	@Override

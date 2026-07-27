@@ -2,20 +2,26 @@ package byransha.util;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import byransha.graph.BNode;
-import io.github.classgraph.ClassGraph;
 
 public class ByUtils {
 
-	public static final File home = new File(System.getProperty("user.home"));
+//	public static final File home = new File(System.getProperty("user.home"));
 
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
 
@@ -178,9 +184,62 @@ public class ByUtils {
 
 	public static String toHex(Color color) {
 		// %02X means: 2-digit hex, uppercase, padded with 0 if needed
-		return String.format("#%02X%02X%02X",
-				color.getRed(),
-				color.getGreen(),
-				color.getBlue());
+		return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
+	}
+
+	public static void deleteDirectory(Path directory) throws IOException {
+		if (Files.exists(directory)) {
+			Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					// Delete individual files
+					Files.delete(file);
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					// Delete directory after all its children/files are deleted
+					Files.delete(dir);
+					return FileVisitResult.CONTINUE;
+				}
+			});
+		}
+	}
+
+	public static void extractResource(String resourcePath, File targetDirectory) throws IOException {
+		try (InputStream in = ByUtils.class.getResourceAsStream(resourcePath)) {
+			if (in == null) {
+				throw new IllegalArgumentException("Resource not found on classpath: " + resourcePath);
+			}
+
+			File f = new File(targetDirectory, resourcePath);
+			f.getParentFile().mkdirs();
+			Files.copy(in, f.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		}
+	}
+
+	public static boolean isWindows() {
+		return System.getProperty("os.name").toLowerCase().contains("win");
+	}
+
+	public static File windowsMenuLink(Path exePath, String appName)
+			throws IOException, InterruptedException {
+		String appData = System.getenv("APPDATA");
+		File startMenuDir = new File(appData, "Microsoft\\Windows\\Start Menu\\Programs");
+		return new File(startMenuDir, appName + ".lnk");
+	}
+	
+	public static File createShortcutViaPowerShell(Path exePath, File link)
+			throws IOException, InterruptedException {
+		String psCommand = String.format(
+				"$s=(New-Object -COM WScript.Shell).CreateShortcut('%s'); $s.TargetPath='%s'; $s.Save()",
+				link.getAbsolutePath(), exePath);
+
+		ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-NoProfile", "-Command", psCommand);
+		Process process = pb.start();
+		process.waitFor();
+		
+		return link;
 	}
 }

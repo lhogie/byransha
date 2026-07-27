@@ -71,7 +71,7 @@ public class ChatNode extends BNode {
             "Configuration requise", 
             JOptionPane.INFORMATION_MESSAGE
         );
-    }	
+    }
 
 	@Override
 	public void createActions() {

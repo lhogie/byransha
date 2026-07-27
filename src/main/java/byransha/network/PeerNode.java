@@ -29,25 +29,38 @@ public class PeerNode extends BNode {
 	public int queueSize;
 	public double alpha = 1.0;
 	private ObjectInputStream in;
-	public ObjectOutputStream out;
+	private ObjectOutputStream out;
 	private Socket socket;
 
-	public PeerNode(BGraph g, File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+	public PeerNode(BGraph g) {
 		super(g);
-		this.name = directory.getName();
+	}
 
+	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		this.name = directory.getName();
+		
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
-			var publicKeyString = Files.readString(publicKeyFile.toPath());
-			byte[] der = Base64.getDecoder().decode(publicKeyString);
-			X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
-			this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+
+			if (publicKeyFile.exists()) {
+				var publicKeyString = Files.readString(publicKeyFile.toPath());
+				byte[] der = Base64.getDecoder().decode(publicKeyString);
+				X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
+				this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+			} else {
+				System.err.println("no public key for " + this);
+			}
 		}
 
 		{
 			var ipFile = new File(directory, "ip.txt");
-			var ipS = Files.readString(ipFile.toPath());
-			this.address = Inet4Address.getByName(ipS);
+
+			if (ipFile.exists()) {
+				var ipS = Files.readString(ipFile.toPath());
+				this.address = Inet4Address.getByName(ipS);
+			} else {
+				System.err.println("no IP known for " + this);
+			}
 		}
 	}
 
@@ -74,11 +87,16 @@ public class PeerNode extends BNode {
 
 	@Override
 	public String toString() {
-		return address.getHostName() + ":" + port + "/" + peerID();
-	}
+		if (name != null)
+			return name;
 
-	public int peerID() {
-		return publicKey.hashCode();
+		if (address != null)
+			return address.getHostName() + ":" + port;
+
+		if (publicKey != null)
+			return publicKey.toString();
+
+		return "n/a";
 	}
 
 	public double getScore() {
@@ -113,5 +131,14 @@ public class PeerNode extends BNode {
 
 	public boolean isConnected() {
 		return out != null;
+	}
+
+	public Message waitForMessage() throws ClassNotFoundException, IOException {
+		return (Message) in.readObject();
+	}
+
+	public void sendTo(Message msg) throws IOException {
+		out.writeObject(msg);
+
 	}
 }

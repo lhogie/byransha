@@ -1,10 +1,12 @@
 package byransha.nodes.system;
 
+import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -22,7 +24,7 @@ import byransha.Main;
 import byransha.graph.Action;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.Update.byransha;
+import byransha.nodes.system.Byransha.byransha;
 import byransha.util.MinaScpUploader;
 
 public class Deploy extends Action<Byransha> {
@@ -32,10 +34,18 @@ public class Deploy extends Action<Byransha> {
 	public final StringNode scpRemoteDir = new StringNode(this, "public_html/software/byransha/downloads/bin/", ".+");
 	@ShowInKishanView
 	public final StringNode username = new StringNode(this, "hogie", ".+");
+	@ShowInKishanView
+	public final StringNode versionOnline = new StringNode(this, "", ".+");
 
 	public Deploy(Byransha b) {
 		super(b, byransha.class);
 		hasButtonOnKishanView = true;
+
+		try {
+			versionOnline.set(Byransha.lastVersionOnline().toString());
+		} catch (IOException e) {
+			versionOnline.set("no internet");
+		}
 	}
 
 	@Override
@@ -45,6 +55,10 @@ public class Deploy extends Action<Byransha> {
 
 	@Override
 	protected void impl() throws Throwable {
+
+		if (Byransha.lastVersionOnline().equals(g().byransha.version.version.toString()))
+			throw new IllegalStateException("The online version is the same as the local version");
+
 		File outputJar = File.createTempFile(getClass().getName(), ".jar");
 
 		var versionFile = File.createTempFile(getClass().getName(), ".json");
@@ -55,12 +69,10 @@ public class Deploy extends Action<Byransha> {
 		Files.writeString(versionFile.toPath(), n.toPrettyString());
 		scp(versionFile, scpHost.get(), scpRemoteDir.get() + "/info.json", username.get(), null);
 
-		var installFile = File.createTempFile(getClass().getName(), "ps1");
-		Files.write(installFile.toPath(), getClass().getResourceAsStream("/run.ps1").readAllBytes());
-		scp(installFile, scpHost.get(), scpRemoteDir.get() + "/run.ps1", username.get(), null);
-
 		JarFlattener.flattenClasspathToJar(outputJar);
 		scp(outputJar, scpHost.get(), scpRemoteDir.get() + "/byransha.jar", username.get(), null);
+
+		Desktop.getDesktop().browse(new URI(Byransha.lastVersionURL));
 	}
 
 	private void scp(File f, String host, String remoteDir, String username, String password) throws IOException {

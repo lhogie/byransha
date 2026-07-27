@@ -27,7 +27,7 @@ public class SwingFrontend extends SystemNode {
 
 	@ShowInKishanView
 	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
-	public final JFrame f;
+	public JFrame frame;
 
 	public SwingFrontend(BGraph g) {
 		super(g);
@@ -39,17 +39,26 @@ public class SwingFrontend extends SystemNode {
 		g.swing = this;
 		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
 
-		this.f = new JFrame();
-		f.setTitle("Byransha v" + g().byransha.version.version + " (contact: luc.hogie@cnrs.fr)");
-		f.setLocation(0, 0);
-		f.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
-		f.setVisible(true);
-		// considerUser(g.currentUser());
+		try {
+			this.frame = new JFrame();
+			frame.setTitle("Byransha v" + g().byransha.version.version + " (contact: luc.hogie@cnrs.fr)");
+			frame.setLocation(0, 0);
+			frame.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
+			frame.setVisible(true);
+			// considerUser(g.currentUser());
+			frame.addWindowListener(new java.awt.event.WindowAdapter() {
+				@Override
+				public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+					System.exit(46);
+				}
+			});
+		} catch (Exception e) {
+			g().errorLog.add(e, false);
+		}
 	}
 
-	
 	private void considerUser(User newUser) {
-		f.getContentPane().removeAll();
+		frame.getContentPane().removeAll();
 
 		if (newUser.chats.elements.isEmpty()) {
 			new ChatNode(newUser).nodes.elements.add(g());
@@ -59,10 +68,10 @@ public class SwingFrontend extends SystemNode {
 		var p = new JPanel(new GridLayout(1, panelList.size()));
 		System.out.println(newUser + "  " + panelList.size());
 		panelList.forEach(p::add);
-		f.setContentPane(p);
-		f.doLayout();
-		f.revalidate();
-		f.repaint();
+		frame.setContentPane(p);
+		frame.doLayout();
+		frame.revalidate();
+		frame.repaint();
 	}
 
 	@Override

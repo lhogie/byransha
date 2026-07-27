@@ -99,6 +99,13 @@ public abstract class BNode {
 		}
 	}
 
+	protected final void sleep(double seconds) {
+		try {
+			Thread.sleep((long) (seconds * 1000));
+		} catch (InterruptedException e) {
+			g().errorLog.add(e);
+		}
+	}
 	protected void handle(Message msg) {
 	};
 
