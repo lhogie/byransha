@@ -31,8 +31,6 @@ public class Main {
 		if (runFromASingleJar) {
 			try {
 				Byransha.upgradeIfNecessary();
-				System.out.println("jar file : " + Byransha.jarFile);
-				System.out.println("Byransha.installedJarFile  : " + Byransha.installedJarFile);
 
 				if (!Byransha.jarFile.equals(Byransha.installedJarFile)) {
 					Byransha.install();

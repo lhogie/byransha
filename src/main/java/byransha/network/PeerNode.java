@@ -148,8 +148,10 @@ public class PeerNode extends BNode {
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
 	}
 
-	public void disconnect() {
-		connection.close();
-		connection = null;
+	public void ensureDisconnected() {
+		if (connection != null) {
+			connection.close();
+			connection = null;
+		}
 	}
 }

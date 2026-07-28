@@ -37,6 +37,9 @@ public class NetworkAgent extends BNode {
 	public static final File peersDirectory = new File(Byransha.homeDirectory, "peers");
 
 	@ShowInKishanView
+	String name = System.getProperty("user.name");
+
+	@ShowInKishanView
 	File securityDir = new File(Byransha.homeDirectory, "security");
 	@ShowInKishanView
 	File authorizedKeys = new File(securityDir, "authorized_keys");
@@ -133,7 +136,7 @@ public class NetworkAgent extends BNode {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+
 				sleep(1);
 			}
 		}, "TCP listening port").start();
@@ -145,7 +148,7 @@ public class NetworkAgent extends BNode {
 						try {
 							newSocket(new Socket(p.address, p.port));
 						} catch (IOException err) {
-							p.disconnect();
+							p.ensureDisconnected();
 						}
 					}
 				}
@@ -165,11 +168,13 @@ public class NetworkAgent extends BNode {
 				peer = new PeerNode(graph);
 				peers.elements.add(peer);
 			} else if (peer.connection != null) {
-				connection.close();
+				// already connected to that peer
+			} else {
+				sendObject(name, peer);
+				peer.connection = connection;
+				System.out.println("new connection to " + peer);
+				thread(peer);
 			}
-
-			peer.connection = connection;
-			thread(peer);
 		} catch (IOException | ClassNotFoundException err) {
 			g().errorLog.add(err);
 		}
@@ -183,7 +188,7 @@ public class NetworkAgent extends BNode {
 				}
 			} catch (IOException | ClassNotFoundException err) {
 				g().errorLog.add(err);
-				p.disconnect();
+				p.ensureDisconnected();
 			}
 		}, "thread waiting for messages from").start();
 	}
