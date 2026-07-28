@@ -56,14 +56,14 @@ public class Deploy extends Action<Byransha> {
 	@Override
 	protected void impl() throws Throwable {
 
-		if (Byransha.lastVersionOnline().equals(g().byransha.version.version.toString()))
+		if (Byransha.lastVersionOnline().equals(g().byransha.VERSION))
 			throw new IllegalStateException("The online version is the same as the local version");
 
 		File outputJar = File.createTempFile(getClass().getName(), ".jar");
 
 		var versionFile = File.createTempFile(getClass().getName(), ".json");
 		var n = new ObjectNode(factory);
-		n.put("version", g().byransha.version.version.toString());
+		n.put("version", g().byransha.VERSION);
 		n.put("date", LocalDateTime.now().toString());
 		n.put("java.version", System.getProperty("java.specification.version"));
 		Files.writeString(versionFile.toPath(), n.toPrettyString());

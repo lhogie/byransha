@@ -29,12 +29,12 @@ public class Main {
 		boolean runFromASingleJar = classPath.length == 1;
 
 		if (runFromASingleJar) {
-			var jarFile = new File(classPath[0]);
-
 			try {
 				Byransha.upgradeIfNecessary();
+				System.out.println("jar file : " + Byransha.jarFile);
+				System.out.println("Byransha.installedJarFile  : " + Byransha.installedJarFile);
 
-				if (!jarFile.equals(Byransha.installedJarFile)) {
+				if (!Byransha.jarFile.equals(Byransha.installedJarFile)) {
 					Byransha.install();
 				}
 			} catch (IOException err) {

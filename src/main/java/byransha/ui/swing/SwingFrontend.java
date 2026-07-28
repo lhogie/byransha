@@ -41,7 +41,7 @@ public class SwingFrontend extends SystemNode {
 
 		try {
 			this.frame = new JFrame();
-			frame.setTitle("Byransha v" + g().byransha.version.version + " (contact: luc.hogie@cnrs.fr)");
+			frame.setTitle("Byransha v" + g().byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
 			frame.setLocation(0, 0);
 			frame.setSize(9 * Utils.screenSize.height / 16, Utils.screenSize.height);
 			frame.setVisible(true);

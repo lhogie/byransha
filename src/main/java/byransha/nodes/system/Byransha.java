@@ -29,13 +29,14 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.26";
+	public static final String VERSION = "0.0.30";
 
 	public static class byransha extends Category {
 	}
 
 	@ShowInKishanView
-	private static final File jarFile;
+	public
+	static final File jarFile;
 
 	@ShowInKishanView
 	private static boolean runFromASingleJar;
@@ -43,7 +44,7 @@ public class Byransha extends SystemNode {
 	static {
 		var classPath = pathElements();
 		runFromASingleJar = classPath.length == 1;
-		jarFile = runFromASingleJar ? new File(classPath[0]) : null;
+		jarFile = runFromASingleJar ? new File(classPath[0]).getAbsoluteFile() : null;
 	}
 
 	@ShowInKishanView
@@ -61,9 +62,6 @@ public class Byransha extends SystemNode {
 	public static final String lastVersionURL = downloadBinaries + "info.json";
 	public static File installedJarFile = new File(binDirectory, "byransha.jar");
 
-	
-	@ShowInKishanView
-	public final VersionNode version = new VersionNode(this);
 
 	public Byransha(BGraph g) {
 		super(g);
@@ -73,7 +71,7 @@ public class Byransha extends SystemNode {
 				try {
 					String versionOnline = lastVersionOnline();
 
-					if (!versionOnline.equals(version.version.toString())) {
+					if (!versionOnline.equals(VERSION)) {
 						System.out.println("New version available: " + versionOnline);
 					}
 				} catch (IOException e) {
@@ -184,12 +182,12 @@ public class Byransha extends SystemNode {
 	}
 
 	public static void install() throws IOException, InterruptedException {
+		System.out.println("installing to " + Byransha.binDirectory);
 		installedJarFile.getParentFile().mkdirs();
 		ByUtils.extractResource("/systemD_service/byransha.service", Byransha.homeDirectory);
 		ByUtils.extractResource("/systemD_service/create.sh", Byransha.homeDirectory);
 		ByUtils.extractResource("/systemD_service/delete.sh", Byransha.homeDirectory);
 
-		System.out.println("moving " + jarFile + " to " + installedJarFile.getParentFile());
 		Files.copy(jarFile.toPath(), installedJarFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		jarFile.delete();
 
