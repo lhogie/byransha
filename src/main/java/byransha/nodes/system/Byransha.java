@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.security.KeyManagementException;
@@ -28,7 +29,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.33";
+	public static final String VERSION = "0.0.43";
 
 	public static class byransha extends Category {
 	}
@@ -190,17 +191,52 @@ public class Byransha extends SystemNode {
 		jarFile.delete();
 
 		if (ByUtils.isWindows()) {
-			var link = ByUtils.windowsMenuLink(installedJarFile.toPath(), "Byransha");
-
-			if (link.exists()) {
-				link.delete();
-			}
-
-			ByUtils.createShortcutViaPowerShell(installedJarFile.toPath(), link);
+			createDesktopShortcut(installedJarFile.toPath(), "Byransha");
 		} else {
 			// Files.write(new File(System.getProperty("user.home")).toPath(), "java -jar
 			// $HOME/.local/share/byransha/bin/byransha.jar --no-gui".getBytes(),
 			// StandardOpenOption.TRUNCATE_EXISTING);
 		}
+	}
+
+	public static File createDesktopShortcut(Path jarPath, String appName) throws IOException, InterruptedException {
+
+		File absoluteJar = jarPath.toAbsolutePath().normalize().toFile();
+		File workingDir = absoluteJar.getParentFile();
+
+		// 1. Resolve Desktop path
+		String userProfile = System.getenv("USERPROFILE");
+		File desktopDir = new File(userProfile, "Desktop");
+		File shortcutFile = new File(desktopDir, appName + ".lnk");
+
+		// 2. Locate javaw.exe from the current running JVM
+		String javaHome = System.getProperty("java.home");
+		File javawExe = new File(javaHome, "bin" + File.separator + "javaw.exe");
+
+		// Fallback to java.exe if javaw.exe isn't found
+		String targetExe = javawExe.exists() ? javawExe.getAbsolutePath() : "javaw.exe";
+
+		// 3. Arguments passed to javaw.exe
+		String arguments = "-jar \"" + absoluteJar.getAbsolutePath() + "\"";
+
+		// 4. Build PowerShell command to create the .lnk file
+		String psCommand = String.format(
+				"$WScript = New-Object -ComObject WScript.Shell; " + "$Shortcut = $WScript.CreateShortcut('%s'); "
+						+ "$Shortcut.TargetPath = '%s'; " + "$Shortcut.Arguments = '%s'; "
+						+ "$Shortcut.WorkingDirectory = '%s'; " + "$Shortcut.Save();",
+				shortcutFile.getAbsolutePath().replace("'", "''"), targetExe.replace("'", "''"),
+				arguments.replace("'", "''"), workingDir.getAbsolutePath().replace("'", "''"));
+
+		// 5. Execute PowerShell process
+		ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-NoProfile", "-NonInteractive", "-Command",
+				psCommand);
+		Process process = pb.start();
+		int exitCode = process.waitFor();
+
+		if (exitCode != 0) {
+			throw new IOException("Failed to create shortcut via PowerShell (Exit code: " + exitCode + ")");
+		}
+
+		return shortcutFile;
 	}
 }

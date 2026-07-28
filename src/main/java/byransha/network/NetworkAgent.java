@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Objects;
 
 import byransha.event.Event;
 import byransha.graph.Ack;
@@ -51,11 +52,9 @@ public class NetworkAgent extends BNode {
 	@ShowInKishanView
 	public final ListNode<PeerNode> peers = new ListNode<>(this, "peers", PeerNode.class);
 	@ShowInKishanView
-	String peerName;
-	@ShowInKishanView
 	public PublicKey publicKey;
 	public PrivateKey privateKey;
-	final Serializer serializer = new JavaSerializer<>();
+	public static final Serializer serializer = new JavaSerializer<>();
 
 	public NetworkAgent(BGraph g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
@@ -131,7 +130,7 @@ public class NetworkAgent extends BNode {
 					System.out.println("TCP Server is listening on port " + port);
 
 					while (true) {
-						newSocket(socket.accept());
+						newSocket(socket.accept(), false);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -146,7 +145,7 @@ public class NetworkAgent extends BNode {
 				for (var p : peers.elements) {
 					if (p.getConnection() == null && p.address != null) {
 						try {
-							newSocket(new Socket(p.address, p.port));
+							newSocket(new Socket(p.address, p.port), true);
 						} catch (IOException err) {
 							p.ensureDisconnected();
 						}
@@ -159,29 +158,46 @@ public class NetworkAgent extends BNode {
 
 	}
 
-	private void newSocket(Socket sock) {
+	private void newSocket(Socket sock, boolean sendNameFirst) {
+		System.out.println("new socket from " + sock.getInetAddress());
 		try {
 			Connection connection = new Connection(sock);
-			var name = (String) connection.read().content;
-			var peer = findPeerByName(name);
+			String other = handshake(sendNameFirst, connection);
+			var peer = findPeerByName(other);
 
 			if (peer == null) {
+				System.out.println("rejected peer " + other);
 				// unknown peer
 				connection.close();
 			} else if (peer.getConnection() != null) {
+				System.out.println("already connected to peer " + other);
 				// already connected to that peer
 			} else {
-				try {
-					sendObject(this.name, peer);
-					peer.setConnection(connection);
-					System.out.println("new connection to " + peer);
-					readingThread(peer);
-				} catch (IOException err) {
-					peer.disconnect();
-				}
+				peer.setConnection(connection);
+				System.out.println("new connection to " + peer);
+				readingThread(peer);
 			}
-		} catch (IOException | ClassNotFoundException err) {
+		} catch (IOException  err) {
+			System.out.println("gone before handshake");
+		}catch (ClassNotFoundException err) {
 			g().errorLog.add(err);
+		}
+	}
+
+	private String handshake(boolean sendNameFirst, Connection connection) throws IOException, ClassNotFoundException {
+		Objects.requireNonNull(this.name);
+
+		if (sendNameFirst) {
+			System.out.println("sending name");
+			sendObject(this.name, connection);
+			System.out.println("waiting for name");
+			return (String) connection.readMessage().content;
+		} else {
+			System.out.println("waiting for name");
+			var other = (String) connection.readMessage().content;
+			System.out.println("sending name");
+			sendObject(this.name, connection);
+			return other;
 		}
 	}
 
@@ -189,11 +205,13 @@ public class NetworkAgent extends BNode {
 		new Thread(() -> {
 			try {
 				while (true) {
-					handle(p.getConnection().read());
+					handle(p.getConnection().readMessage());
 				}
-			} catch (IOException | ClassNotFoundException err) {
-				g().errorLog.add(err);
+			} catch (IOException err) {
 				p.disconnect();
+				System.out.println(p + " left");
+			} catch (ClassNotFoundException err) {
+				g().errorLog.add(err);
 			}
 		}, "thread waiting for messages from").start();
 	}
@@ -267,10 +285,11 @@ public class NetworkAgent extends BNode {
 		return null;
 	}
 
-	public synchronized void sendObject(Object o, PeerNode to) throws IOException {
+	public synchronized void sendObject(Object o, Connection to) throws IOException {
 		var msg = new Message();
-		msg.route.add(peerName);
-		to.getConnection().write(msg);
+		msg.route.add(name);
+		msg.content = o;
+		to.write(msg);
 		++packetSent;
 		updateInOutInfo();
 	}
@@ -281,7 +300,7 @@ public class NetworkAgent extends BNode {
 
 	public synchronized void sendObject(Object o) throws IOException {
 		for (var to : peers.get()) {
-			sendObject(o, to);
+			sendObject(o, to.getConnection());
 		}
 	}
 

@@ -1,16 +1,16 @@
 package byransha.network;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.time.LocalDateTime;
 
 import byransha.graph.ShowInKishanView;
 
 public class Connection {
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
+	private DataInputStream in;
+	private DataOutputStream out;
 	private Socket socket;
 	@ShowInKishanView
 	private LocalDateTime since;
@@ -21,11 +21,10 @@ public class Connection {
 	private int nbMessagesSent;
 
 	public Connection(Socket socket) throws IOException {
-		this.socket = socket;
-		out = new ObjectOutputStream(socket.getOutputStream());
-		in = new ObjectInputStream(socket.getInputStream());
 		since = LocalDateTime.now();
-
+		this.socket = socket;
+		out = new DataOutputStream(socket.getOutputStream());
+		in = new DataInputStream(socket.getInputStream());
 	}
 
 	public void close() {
@@ -51,14 +50,20 @@ public class Connection {
 		return out != null;
 	}
 
-	public Message read() throws ClassNotFoundException, IOException {
-		var m = (Message) in.readObject();
+	public Message readMessage() throws ClassNotFoundException, IOException {
+		int len = in.readInt();
+		var bytes = in.readNBytes(len);
+		var m = (Message) NetworkAgent.serializer.fromBytes(bytes);
+		System.out.println("received " + m);
 		++nbMessagesReceived;
 		return m;
 	}
 
 	public void write(Message msg) throws IOException {
-		out.writeObject(msg);
+		System.out.println("send " + msg);
+		var bytes = NetworkAgent.serializer.toBytes(msg);
+		out.writeInt(bytes.length);
+		out.write(bytes);
 		++nbMessagesSent;
 	}
 

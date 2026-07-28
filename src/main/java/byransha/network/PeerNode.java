@@ -192,22 +192,27 @@ public class PeerNode extends BNode {
 	@Override
 	protected JComponent getSmallComponent(ChatNode chat) {
 		var component = super.getSmallComponent(chat);
+		updateColor(component);
 
 		listeners.add(new PeerListener() {
 
 			@Override
 			public void connectionLost() {
-				component.setBackground(Color.red);
-
+				updateColor(component);
 			}
 
 			@Override
 			public void connected(Connection c) {
-				component.setBackground(Color.green);
+				updateColor(component);
 			}
 		});
 
 		return component;
+	}
+
+	private void updateColor(JComponent component) {
+		component.setBackground(getConnection() == null ? Color.red : Color.green);
+
 	}
 
 	public Connection getConnection() {

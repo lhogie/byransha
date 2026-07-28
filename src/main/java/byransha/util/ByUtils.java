@@ -223,23 +223,5 @@ public class ByUtils {
 		return System.getProperty("os.name").toLowerCase().contains("win");
 	}
 
-	public static File windowsMenuLink(Path exePath, String appName)
-			throws IOException, InterruptedException {
-		String appData = System.getenv("APPDATA");
-		File startMenuDir = new File(appData, "Microsoft\\Windows\\Start Menu\\Programs");
-		return new File(startMenuDir, appName + ".lnk");
-	}
-	
-	public static File createShortcutViaPowerShell(Path exePath, File link)
-			throws IOException, InterruptedException {
-		String psCommand = String.format(
-				"$s=(New-Object -COM WScript.Shell).CreateShortcut('%s'); $s.TargetPath='%s'; $s.Save()",
-				link.getAbsolutePath(), exePath);
 
-		ProcessBuilder pb = new ProcessBuilder("powershell.exe", "-NoProfile", "-Command", psCommand);
-		Process process = pb.start();
-		process.waitFor();
-		
-		return link;
-	}
 }

@@ -118,7 +118,7 @@ public class Deploy extends Action<Byransha> {
 						if (cpFile.getAbsoluteFile().equals(outputJar.getAbsoluteFile()))
 							continue;
 
-						System.out.println("Flattening dependency: " + cpFile.getName());
+//						System.out.println("Flattening dependency: " + cpFile.getName());
 						flattenJarElement(cpFile, jos, processedEntries);
 					} else if (cpFile.isDirectory()) {
 						System.out.println("Packing class directory: " + cpFile.getName());
