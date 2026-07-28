@@ -55,11 +55,12 @@ public class Deploy extends Action<Byransha> {
 
 	@Override
 	protected void impl() throws Throwable {
-
 		if (Byransha.lastVersionOnline().equals(g().byransha.VERSION))
 			throw new IllegalStateException("The online version is the same as the local version");
 
 		File outputJar = File.createTempFile(getClass().getName(), ".jar");
+		JarFlattener.flattenClasspathToJar(outputJar);
+		scp(outputJar, scpHost.get(), scpRemoteDir.get() + "/byransha.jar", username.get(), null);
 
 		var versionFile = File.createTempFile(getClass().getName(), ".json");
 		var n = new ObjectNode(factory);
@@ -68,9 +69,6 @@ public class Deploy extends Action<Byransha> {
 		n.put("java.version", System.getProperty("java.specification.version"));
 		Files.writeString(versionFile.toPath(), n.toPrettyString());
 		scp(versionFile, scpHost.get(), scpRemoteDir.get() + "/info.json", username.get(), null);
-
-		JarFlattener.flattenClasspathToJar(outputJar);
-		scp(outputJar, scpHost.get(), scpRemoteDir.get() + "/byransha.jar", username.get(), null);
 
 		Desktop.getDesktop().browse(new URI(Byransha.lastVersionURL));
 	}

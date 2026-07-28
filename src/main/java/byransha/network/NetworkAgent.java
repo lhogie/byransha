@@ -144,7 +144,7 @@ public class NetworkAgent extends BNode {
 		new Thread(() -> {
 			while (true) {
 				for (var p : peers.elements) {
-					if (p.connection == null && p.address != null) {
+					if (p.getConnection() == null && p.address != null) {
 						try {
 							newSocket(new Socket(p.address, p.port));
 						} catch (IOException err) {
@@ -159,36 +159,41 @@ public class NetworkAgent extends BNode {
 
 	}
 
-	private void newSocket(Socket client) {
+	private void newSocket(Socket sock) {
 		try {
-			Connection connection = new Connection(client);
-			var peer = findPeerByName(connection.name);
+			Connection connection = new Connection(sock);
+			var name = (String) connection.read().content;
+			var peer = findPeerByName(name);
 
 			if (peer == null) {
-				peer = new PeerNode(graph);
-				peers.elements.add(peer);
-			} else if (peer.connection != null) {
+				// unknown peer
+				connection.close();
+			} else if (peer.getConnection() != null) {
 				// already connected to that peer
 			} else {
-				sendObject(name, peer);
-				peer.connection = connection;
-				System.out.println("new connection to " + peer);
-				thread(peer);
+				try {
+					sendObject(this.name, peer);
+					peer.setConnection(connection);
+					System.out.println("new connection to " + peer);
+					readingThread(peer);
+				} catch (IOException err) {
+					peer.disconnect();
+				}
 			}
 		} catch (IOException | ClassNotFoundException err) {
 			g().errorLog.add(err);
 		}
 	}
 
-	private void thread(PeerNode p) {
+	private void readingThread(PeerNode p) {
 		new Thread(() -> {
 			try {
 				while (true) {
-					handle(p.connection.read());
+					handle(p.getConnection().read());
 				}
 			} catch (IOException | ClassNotFoundException err) {
 				g().errorLog.add(err);
-				p.ensureDisconnected();
+				p.disconnect();
 			}
 		}, "thread waiting for messages from").start();
 	}
@@ -265,7 +270,7 @@ public class NetworkAgent extends BNode {
 	public synchronized void sendObject(Object o, PeerNode to) throws IOException {
 		var msg = new Message();
 		msg.route.add(peerName);
-		to.connection.write(msg);
+		to.getConnection().write(msg);
 		++packetSent;
 		updateInOutInfo();
 	}

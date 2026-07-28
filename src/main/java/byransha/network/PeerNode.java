@@ -1,5 +1,6 @@
 package byransha.network;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -10,12 +11,18 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
+
+import javax.swing.JComponent;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
+import byransha.nodes.system.ChatNode;
 
 public class PeerNode extends BNode {
 	@ShowInKishanView
@@ -37,7 +44,7 @@ public class PeerNode extends BNode {
 	public double alpha = 1.0;
 
 	@ShowInKishanView
-	public Connection connection;
+	private Connection connection;
 
 	public PeerNode(BGraph g) {
 		super(g);
@@ -69,6 +76,24 @@ public class PeerNode extends BNode {
 				System.err.println("no IP known for " + this);
 			}
 		}
+	}
+
+	public static interface PeerListener {
+		void connected(Connection c);
+
+		void connectionLost();
+	}
+
+	List<PeerListener> listeners = new ArrayList<>();
+
+	public void setConnection(Connection c) {
+		Objects.requireNonNull(c);
+
+		if (connection != null)
+			throw new IllegalStateException("already connected");
+
+		this.connection = c;
+		listeners.forEach(l -> l.connected(c));
 	}
 
 	private static final Pattern IPV4_PATTERN = Pattern
@@ -153,5 +178,39 @@ public class PeerNode extends BNode {
 			connection.close();
 			connection = null;
 		}
+	}
+
+	public void disconnect() {
+		if (connection == null)
+			throw new IllegalStateException("not connected");
+
+		connection.close();
+		connection = null;
+		listeners.forEach(l -> l.connectionLost());
+	}
+
+	@Override
+	protected JComponent getSmallComponent(ChatNode chat) {
+		var component = super.getSmallComponent(chat);
+
+		listeners.add(new PeerListener() {
+
+			@Override
+			public void connectionLost() {
+				component.setBackground(Color.red);
+
+			}
+
+			@Override
+			public void connected(Connection c) {
+				component.setBackground(Color.green);
+			}
+		});
+
+		return component;
+	}
+
+	public Connection getConnection() {
+		return connection;
 	}
 }
