@@ -2,15 +2,10 @@ package byransha;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.swing.JOptionPane;
 
 import byransha.event.Event;
 import byransha.graph.BGraph;
@@ -22,7 +17,6 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.SwingFrontend;
-import byransha.util.ByUtils;
 
 public class Main {
 	static BGraph g;
@@ -31,10 +25,6 @@ public class Main {
 		System.out.println("This is Byransha v" + Byransha.VERSION);
 		System.out.println(args.length + " args: " + Arrays.toString(args));
 
-		ByUtils.extractResource("/systemD_service/byransha.service", Byransha.homeDirectory);
-		ByUtils.extractResource("/systemD_service/create.sh", Byransha.homeDirectory);
-		ByUtils.extractResource("/systemD_service/delete.sh", Byransha.homeDirectory);
-
 		var classPath = Byransha.pathElements();
 		boolean runFromASingleJar = classPath.length == 1;
 
@@ -42,32 +32,10 @@ public class Main {
 			var jarFile = new File(classPath[0]);
 
 			try {
-				if (!Byransha.lastVersionOnline().equals(Byransha.VERSION)) {
-					System.out.println("upgrading " + jarFile);
-					Files.write(jarFile.toPath(), Byransha.downloadLastVersion(), StandardOpenOption.TRUNCATE_EXISTING);
-				}
+				Byransha.upgradeIfNecessary();
 
-				File installedJar = Byransha.getInstalledJarFile();
-				installedJar.getParentFile().mkdirs();
-
-				if (!jarFile.equals(installedJar)) {
-					System.out.println("moving " + jarFile + " to " + installedJar.getParentFile());
-					Files.copy(jarFile.toPath(), installedJar.toPath(), StandardCopyOption.REPLACE_EXISTING);
-					jarFile.delete();
-
-					if (ByUtils.isWindows()) {
-						var link = ByUtils.windowsMenuLink(installedJar.toPath(), "Byransha");
-
-						if (link.exists()) {
-							link.delete();
-						}
-
-						ByUtils.createShortcutViaPowerShell(installedJar.toPath(), link);
-					} else {
-						// Files.write(new File(System.getProperty("user.home")).toPath(), "java -jar
-						// $HOME/.local/share/byransha/bin/byransha.jar --no-gui".getBytes(),
-						// StandardOpenOption.TRUNCATE_EXISTING);
-					}
+				if (!jarFile.equals(Byransha.installedJarFile)) {
+					Byransha.install();
 				}
 			} catch (IOException err) {
 				System.err.println("no internet");
@@ -103,36 +71,7 @@ public class Main {
 		System.out.println("start ok");
 
 		if (runFromASingleJar) {
-			var jarFile = new File(classPath[0]);
-
-			new Thread(() -> {
-				while (true) {
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					try {
-						if (!Byransha.lastVersionOnline().equals(Byransha.VERSION)) {
-							System.out.println("upgrading " + jarFile);
-							Files.write(jarFile.toPath(), Byransha.downloadLastVersion(),
-									StandardOpenOption.TRUNCATE_EXISTING);
-							if (g.swing != null) {
-								JOptionPane.showMessageDialog(g.swing.frame,
-										"A new version was downloaded and installed, you must restart the application",
-										"Restart requireed", JOptionPane.INFORMATION_MESSAGE);
-							}
-
-							System.out.println("quitting");
-							System.exit(0);
-						}
-
-					} catch (IOException err) {
-						System.err.println("no internet");
-						err.printStackTrace();
-					}
-				}
-			}).start();
+			Byransha.runAutoUpdateThread(g.swing != null ? g.swing.frame : null);
 		}
 
 		Thread.sleep(Long.MAX_VALUE);
