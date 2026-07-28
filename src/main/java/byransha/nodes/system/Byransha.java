@@ -23,7 +23,7 @@ import byransha.nodes.primitive.URLNode;
 import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
-	public static final String VERSION = "0.0.24";
+	public static final String VERSION = "0.0.25";
 
 	public static class byransha extends Category {
 	}
@@ -60,7 +60,7 @@ public class Byransha extends SystemNode {
 					System.err.println("no internet");
 				}
 
-				sleep(10000);
+				sleep(10);
 			}
 		}, "check new version thread");// .start();
 	}

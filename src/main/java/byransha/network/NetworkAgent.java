@@ -122,50 +122,30 @@ public class NetworkAgent extends BNode {
 		}, "discover peers info on disk").start();
 
 		new Thread(() -> {
-			try {
-				socket = new ServerSocket(port);
-				System.out.println("TCP Server is listening on port " + port);
+			while (true) {
+				try {
+					socket = new ServerSocket(port);
+					System.out.println("TCP Server is listening on port " + port);
 
-				while (true) {
-					var client = socket.accept();
-					var from = client.getInetAddress();
-					var peer = findPeer(from);
-
-					if (peer == null) {
-						peer = new PeerNode(graph);
-						peers.elements.add(peer);
+					while (true) {
+						newSocket(socket.accept());
 					}
-
-					var p = peer;
-
-					new Thread(() -> {
-
-						try {
-							p.setSocket(client);
-
-							while (true) {
-								handle(p.waitForMessage());
-							}
-						} catch (IOException | ClassNotFoundException err) {
-							g().errorLog.add(err);
-							p.disconnect();
-						}
-					}, "thread waiting for messages from " + from).start();
+				} catch (IOException e) {
+					e.printStackTrace();
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
+				
+				sleep(1);
 			}
 		}, "TCP listening port").start();
 
 		new Thread(() -> {
 			while (true) {
 				for (var p : peers.elements) {
-					if (!p.isConnected() && p.address != null) { // if no connexion
+					if (p.connection == null && p.address != null) {
 						try {
-							p.setSocket(new Socket(p.address, p.port));
-						} catch (IOException e) {
+							newSocket(new Socket(p.address, p.port));
+						} catch (IOException err) {
 							p.disconnect();
-							g().errorLog.add(e);
 						}
 					}
 				}
@@ -176,8 +156,41 @@ public class NetworkAgent extends BNode {
 
 	}
 
+	private void newSocket(Socket client) {
+		try {
+			Connection connection = new Connection(client);
+			var peer = findPeerByName(connection.name);
+
+			if (peer == null) {
+				peer = new PeerNode(graph);
+				peers.elements.add(peer);
+			} else if (peer.connection != null) {
+				connection.close();
+			}
+
+			peer.connection = connection;
+			thread(peer);
+		} catch (IOException | ClassNotFoundException err) {
+			g().errorLog.add(err);
+		}
+	}
+
+	private void thread(PeerNode p) {
+		new Thread(() -> {
+			try {
+				while (true) {
+					handle(p.connection.read());
+				}
+			} catch (IOException | ClassNotFoundException err) {
+				g().errorLog.add(err);
+				p.disconnect();
+			}
+		}, "thread waiting for messages from").start();
+	}
+
 	@Override
 	protected synchronized void handle(Message msg) {
+		System.out.println("*** message received: " + msg);
 		++nbMessagesReceived;
 		updateInOutInfo();
 
@@ -247,7 +260,7 @@ public class NetworkAgent extends BNode {
 	public synchronized void sendObject(Object o, PeerNode to) throws IOException {
 		var msg = new Message();
 		msg.route.add(peerName);
-		to.sendTo(msg);
+		to.connection.write(msg);
 		++packetSent;
 		updateInOutInfo();
 	}

@@ -2,11 +2,8 @@ package byransha.network;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.Socket;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -21,21 +18,26 @@ import byransha.graph.ShowInKishanView;
 
 public class PeerNode extends BNode {
 	@ShowInKishanView
-	public InetAddress address;
+	public String name;
+
 	@ShowInKishanView
 	public PublicKey publicKey;
+	
+	@ShowInKishanView
+	public InetAddress address;
+
 	@ShowInKishanView
 	public int port = NetworkAgent.DEFAULT_PORT;
-	@ShowInKishanView
-	public String name;
+	
 	public double TokensPerSecond;
 	public boolean IsComputing;
 	public double promptLag;
 	public int queueSize;
 	public double alpha = 1.0;
-	private ObjectInputStream in;
-	private ObjectOutputStream out;
-	private Socket socket;
+	
+
+	@ShowInKishanView
+	public Connection connection;
 
 	public PeerNode(BGraph g) {
 		super(g);
@@ -43,7 +45,7 @@ public class PeerNode extends BNode {
 
 	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		this.name = directory.getName();
-		
+
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
 
@@ -109,41 +111,8 @@ public class PeerNode extends BNode {
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
 	}
 
-	public void setSocket(Socket socket) throws IOException {
-		this.socket = socket;
-		out = new ObjectOutputStream(socket.getOutputStream());
-		in = new ObjectInputStream(socket.getInputStream());
-	}
-
 	public void disconnect() {
-		try {
-			if (in != null) {
-				in.close();
-				in = null;
-			}
-			if (out != null) {
-				out.close();
-				out = null;
-			}
-			if (socket != null) {
-				socket.close();
-				socket = null;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public boolean isConnected() {
-		return out != null;
-	}
-
-	public Message waitForMessage() throws ClassNotFoundException, IOException {
-		return (Message) in.readObject();
-	}
-
-	public void sendTo(Message msg) throws IOException {
-		out.writeObject(msg);
-
+		connection.close();
+		connection = null;
 	}
 }
