@@ -28,7 +28,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.32";
+	public static final String VERSION = "0.0.33";
 
 	public static class byransha extends Category {
 	}
@@ -148,7 +148,7 @@ public class Byransha extends SystemNode {
 				try {
 					if (!Byransha.lastVersionOnline().equals(Byransha.VERSION)) {
 						System.out.println("upgrading " + jarFile);
-						Files.write(jarFile.toPath(), Byransha.downloadLastVersion(),
+						Files.write(installedJarFile.toPath(), Byransha.downloadLastVersion(),
 								StandardOpenOption.TRUNCATE_EXISTING);
 
 						if (c != null) {
