@@ -268,7 +268,7 @@ public class NetworkAgent extends ServiceNode {
 	private String handshake(boolean sendNameFirst, Connection to) throws IOException, ClassNotFoundException {
 		var name = this.name.get();
 		Objects.requireNonNull(name);
-		var msg = new HandshakeMessage();
+		var msg = new Message();
 		msg.content = serializer.toBytes(name);
 
 		if (sendNameFirst) {
