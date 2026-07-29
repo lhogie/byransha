@@ -36,6 +36,12 @@ public class ByUtils {
 		sizeOfPrimitive.put(double.class, 8);
 	}
 
+	public static void thread(String description, Runnable r) {
+		var t = new Thread(r);
+		t.setDaemon(true);
+		t.start();
+	}
+	
 	public static String camelToWords(String text) {
 		if (text == null || text.isBlank())
 			return text;

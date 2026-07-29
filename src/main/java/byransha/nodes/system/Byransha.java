@@ -29,7 +29,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.52";
+	public static final String VERSION = "0.0.56";
 
 	public static class byransha extends Category {
 	}
@@ -63,22 +63,6 @@ public class Byransha extends SystemNode {
 
 	public Byransha(BGraph g) {
 		super(g);
-
-		new Thread(() -> {
-			while (true) {
-				try {
-					String versionOnline = lastVersionOnline();
-
-					if (!versionOnline.equals(VERSION)) {
-						System.out.println("New version available: " + versionOnline);
-					}
-				} catch (IOException e) {
-					System.err.println("no internet");
-				}
-
-				sleep(10);
-			}
-		}, "check new version thread");// .start();
 	}
 
 	public static String[] pathElements() {
@@ -139,7 +123,7 @@ public class Byransha extends SystemNode {
 	}
 
 	public static void runAutoUpdateThread(Component c) {
-		new Thread(() -> {
+		ByUtils.thread("check new version", () -> {
 			while (true) {
 				try {
 					Thread.sleep(10);
@@ -167,7 +151,7 @@ public class Byransha extends SystemNode {
 					err.printStackTrace();
 				}
 			}
-		}).start();
+		});
 	}
 
 	public static boolean upgradeIfNecessary() throws MalformedURLException, IOException {

@@ -25,6 +25,10 @@ import byransha.graph.ShowInKishanView;
 import byransha.nodes.system.ChatNode;
 
 public class PeerNode extends BNode {
+	List<PeerListener> listeners = new ArrayList<>();
+
+	public List<PeerNode> neighbors;
+
 	@ShowInKishanView
 	public String name;
 
@@ -48,6 +52,15 @@ public class PeerNode extends BNode {
 
 	public PeerNode(BGraph g) {
 		super(g);
+	}
+
+	@ShowInKishanView
+	public List<String> neighborsName() {
+		return neighborsNames(neighbors);
+	}
+
+	static List<String> neighborsNames(List<PeerNode> peers) {
+		return peers.stream().map(p -> p.name).toList();
 	}
 
 	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
@@ -83,8 +96,6 @@ public class PeerNode extends BNode {
 
 		void connectionLost();
 	}
-
-	List<PeerListener> listeners = new ArrayList<>();
 
 	public void setConnection(Connection c) {
 		Objects.requireNonNull(c);

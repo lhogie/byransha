@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -50,7 +51,6 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.network.Message;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
@@ -79,7 +79,7 @@ public abstract class BNode {
 	public final BNode parent;
 	public boolean readOnly;
 	protected boolean resilient = false;
-	public long id = -1;
+	public long id;
 	public BGraph graph;
 	protected ListNode<Action> cachedActions;
 
@@ -106,10 +106,6 @@ public abstract class BNode {
 			g().errorLog.add(e);
 		}
 	}
-
-	protected void onNewMessage(Message msg) {
-		System.out.println(this + " received " + msg);
-	};
 
 	public String findRoleOf(BNode n) {
 		var foundRole = new String[1];

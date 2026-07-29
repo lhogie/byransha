@@ -6,9 +6,8 @@ import byransha.graph.list.action.ListNode;
 import byransha.network.Message;
 import byransha.network.MessageNode;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.SystemNode;
 
-public class TinyChat extends SystemNode {
+public class TinyChat extends ServiceNode {
 	@ShowInKishanView
 	public final StringNode input = new StringNode(this);
 	@ShowInKishanView
@@ -27,7 +26,7 @@ public class TinyChat extends SystemNode {
 	@AddButtonOnKishanView
 	public void send() {
 		try {
-			g().networkAgent.sendObject(input.get());
+			g().networkAgent.bcast(input.get(), null);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

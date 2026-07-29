@@ -1,5 +1,7 @@
 package byransha.network;
 
+import java.util.List;
+
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 
@@ -12,13 +14,27 @@ public class MessageNode extends BNode {
 	}
 
 	@ShowInKishanView
-	Object content() {
-		return m.content;
+	public Object content() {
+		return NetworkAgent.serializer.fromBytes(m.content);
 	}
 
 	@ShowInKishanView
-	Object source() {
-		return m.route;
+	public List<String> route() {
+		return m.routingInfo.actualRoute;
 	}
 
+	@ShowInKishanView
+	public String source() {
+		return m.routingInfo.suggestedRoute.getFirst();
+	}
+
+	@ShowInKishanView
+	public String recipient() {
+		return m.routingInfo.suggestedRoute.getLast();
+	}
+
+	@ShowInKishanView
+	public String routingProtocol() {
+		return m.routingInfo.getClass().getName();
+	}
 }
