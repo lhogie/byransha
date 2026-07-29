@@ -40,6 +40,8 @@ public class BGraph extends BNode {
 	@ShowInKishanView
 	public final ErrorLog errorLog = new ErrorLog(this);
 	@ShowInKishanView
+	public final TinyChat tinyChat = new TinyChat(this);
+	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
 	// public WebServer webServer;

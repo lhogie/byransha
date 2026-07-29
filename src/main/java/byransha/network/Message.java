@@ -6,7 +6,8 @@ import java.util.List;
 
 public class Message implements Serializable {
 	public List<String> route = new ArrayList<>();
-	public long targetNodeId;
+	public long recipient;
+	public long replyTo;
 	public Object content;
 
 	@Override

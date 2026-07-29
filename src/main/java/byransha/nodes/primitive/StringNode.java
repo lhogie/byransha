@@ -121,7 +121,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 		}
 		ValueChangeListener<String> changeListener = (n, old, newValue) -> SwingUtilities
 				.invokeLater(() -> tf.setText(newValue));
-		valueChangeListeners.add(changeListener);
+		addValueChangeListener(changeListener);
 
 		tf.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -137,9 +137,9 @@ public class StringNode extends PrimitiveValueNode<String> {
 
 			private void changed(DocumentEvent e) {
 				var v = tf.getText();
-				valueChangeListeners.remove(changeListener);
+				removeValueChangeListener(changeListener);
 				set(v);
-				valueChangeListeners.add(changeListener);
+				addValueChangeListener(changeListener);
 			}
 
 			@Override

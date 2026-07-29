@@ -11,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
 
@@ -43,15 +42,16 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode pane) {
+	public JComponent getSmallComponent(ChatNode pane) {
 		return true ? checkbox(pane) : getComponent_radioButtons();
 	}
 
 	public JComponent checkbox(ChatNode pane) {
-		var c = new JCheckBox();
-		c.addActionListener(e -> set(c.isSelected()));
-		valueChangeListeners.add((n, oldV, newV) -> c.setSelected(get()));
-		return c;
+		var checkbox = new JCheckBox();
+		checkbox.setSelected(get());
+		checkbox.addActionListener(e -> set(checkbox.isSelected()));
+		addValueChangeListener((n, oldV, newV) -> checkbox.setSelected(get()));
+		return checkbox;
 	}
 
 	public JComponent getComponent_radioButtons() {
@@ -65,7 +65,7 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 		p.add(no);
 		yes.addActionListener(e -> set(true));
 		no.addActionListener(e -> set(false));
-		valueChangeListeners.add((node, oldV, newV) -> (newV ? yes : no).setSelected(true));
+		addValueChangeListener((node, oldV, newV) -> (newV ? yes : no).setSelected(true));
 		return p;
 	}
 

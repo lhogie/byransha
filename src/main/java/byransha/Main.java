@@ -40,7 +40,7 @@ public class Main {
 				err.printStackTrace();
 			}
 		} else {
-			System.out.println("Development version using: " + classPath);
+			System.out.println("Development version using: " + Arrays.toString(classPath));
 		}
 
 		var argMap = mapArgs(args);

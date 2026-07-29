@@ -17,12 +17,24 @@ import byransha.nodes.system.Byransha;
 public abstract class ValuedNode<V> extends BNode {
 	V value;
 	boolean valueRequired;
-	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
+	private final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 	private boolean shownOnDisk;
 
 	public ValuedNode(BNode parent) {
 		super(parent);
 		shownOnDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
+	}
+
+	public void addValueChangeListener(ValueChangeListener<V> l) {
+		synchronized (valueChangeListeners) {
+			valueChangeListeners.add(l);
+		}
+	}
+	
+	public void removeValueChangeListener(ValueChangeListener<V> l) {
+		synchronized (valueChangeListeners) {
+			valueChangeListeners.remove(l);
+		}
 	}
 
 	@Override
@@ -77,7 +89,9 @@ public abstract class ValuedNode<V> extends BNode {
 		value = newValue;
 
 		if (valueChange) {
-			valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
+			synchronized (valueChangeListeners) {
+				valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
+			}
 		}
 
 		if (shouldGenerateEvent()) {

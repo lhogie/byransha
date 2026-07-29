@@ -15,7 +15,7 @@ public class JumpToAnotherNode extends Action {
 
 	public JumpToAnotherNode(BNode g) {
 		super(g, misc.class);
-		text.valueChangeListeners.add((a, b, c) -> {
+		text.addValueChangeListener((a, b, c) -> {
 			nodes.elements.clear();
 			Arrays.stream(text.get().replace(',', '\n').split("\n")).forEach(s -> {
 				try {

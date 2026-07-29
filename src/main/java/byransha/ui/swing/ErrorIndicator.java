@@ -20,7 +20,7 @@ public class ErrorIndicator extends JLabel {
 		update();
 
 		if (n instanceof ValuedNode vn) {
-			vn.valueChangeListeners.add(new ValueChangeListener() {
+			vn.addValueChangeListener(new ValueChangeListener() {
 
 				@Override
 				public void changed(ValuedNode n, Object formerValue, Object newValue) {

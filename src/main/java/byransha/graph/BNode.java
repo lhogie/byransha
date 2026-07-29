@@ -106,6 +106,7 @@ public abstract class BNode {
 			g().errorLog.add(e);
 		}
 	}
+
 	protected void handle(Message msg) {
 	};
 
@@ -266,7 +267,13 @@ public abstract class BNode {
 
 			for (var m : getClass().getMethods()) {
 				if (m.isAnnotationPresent(ActionMethod.class)) {
-					cachedActions.elements.add(new MethodAction(this, m));
+					var a = new MethodAction(this, m);
+
+					if (m.isAnnotationPresent(AddButtonOnKishanView.class)) {
+						a.hasButtonOnKishanView = true;
+					}
+
+					cachedActions.elements.add(a);
 				}
 			}
 		}
