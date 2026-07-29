@@ -107,7 +107,8 @@ public abstract class BNode {
 		}
 	}
 
-	protected void handle(Message msg) {
+	protected void onNewMessage(Message msg) {
+		System.out.println(this + " received " + msg);
 	};
 
 	public String findRoleOf(BNode n) {

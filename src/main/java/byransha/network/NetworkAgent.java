@@ -217,7 +217,7 @@ public class NetworkAgent extends BNode {
 		new Thread(() -> {
 			try {
 				while (true) {
-					handle(p.getConnection().readMessage());
+					onNewMessage(p.getConnection().readMessage());
 				}
 			} catch (IOException err) {
 				p.ensureDisconnected();
@@ -229,7 +229,7 @@ public class NetworkAgent extends BNode {
 	}
 
 	@Override
-	protected synchronized void handle(Message msg) {
+	protected synchronized void onNewMessage(Message msg) {
 		System.out.println("*** message received: " + msg);
 		++nbMessagesReceived;
 		updateInOutInfo();

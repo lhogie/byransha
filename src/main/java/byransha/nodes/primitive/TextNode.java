@@ -98,7 +98,6 @@ public class TextNode extends PrimitiveValueNode<String> {
 				}
 			});
 			p.setCaretPosition(caret);
-
 			pane.appendToCurrentLine(Utils.resizableScrollPane(p));
 		}
 	}
