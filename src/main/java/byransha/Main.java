@@ -1,12 +1,13 @@
 package byransha;
-
 import java.io.File;
+import java.net.InetAddress;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import byransha.ai.QueryIA;
 import byransha.event.Event;
 import byransha.graph.BNode;
 import byransha.graph.Root;
@@ -17,6 +18,7 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.SwingFrontend;
+import io.github.cdimascio.dotenv.Dotenv;
 
 public class Main {
 	static Root g;
@@ -73,7 +75,23 @@ public class Main {
 		}
 
 		Thread.sleep(Long.MAX_VALUE);
-	}
+
+		// Dotenv dotenv = Dotenv.load();
+
+    //     // Récupère la valeur
+    //     String serverName = dotenv.get("PUBLIC_SERVER_NAME");
+
+	// 	if ((InetAddress.getLocalHost().getHostName().equals(serverName))) {
+	// 		System.out.println("AI is used on the server");
+	// 		QueryIA.startOllama();
+	// }
+	// else {
+	// 	System.out.println("AI is not used on the server");
+	// 	System.out.println("name: " + InetAddress.getLocalHost().getHostName());
+	// 	System.out.println("PUBLIC_SERVER_NAME: " + serverName);
+	// 	}
+	 }
+
 
 	private static Event createPersonEvent(String name) {
 		var e = new NewNodeEvent<Person>(g, LocalDateTime.now());
@@ -96,3 +114,4 @@ public class Main {
 		return r;
 	}
 }
+

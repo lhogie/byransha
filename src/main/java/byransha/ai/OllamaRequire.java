@@ -39,17 +39,17 @@ public class OllamaRequire {
 			}
 
 			System.out.println("***");
-			System.out.println(" Veuillez relancer l'application après avoir installé les outils manquants.");
-			System.out
-					.println(" N'oubliez pas de recharger votre terminal pour mettre à jour votre PATH si nécessaire.");
 			System.out.println("***");
-			System.exit(1);
+			
 		}
 
 		System.out.println("***\n All requirements are met!\n");
 
 		// On s'assure que le modèle est téléchargé ("pull" plutôt que "run" pour éviter
 		// que le chat bloque l'appli JVM)
+		System.out.println("***");
+		System.out.println("***\nChecking/Downloading Ollama model: granite4:tiny-h...");
+		System.out.println("***");
 		downloadOllamaModel("granite4:tiny-h");
 		return true;
 	}
