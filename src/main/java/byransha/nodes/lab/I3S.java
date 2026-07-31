@@ -1,7 +1,6 @@
 package byransha.nodes.lab;
 
 import java.io.File;
-import java.io.IOException;
 
 import byransha.graph.BNode;
 

@@ -12,6 +12,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.JDialog;
+
 
 import org.checkerframework.checker.units.qual.g;
 
@@ -25,6 +27,7 @@ import byransha.ai.QueryIA.AiResult;
 import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
 import byransha.graph.ActionMethod;
+import byransha.graph.AddButtonOnKishanView;
 import byransha.graph.BNode;
 import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
@@ -67,13 +70,10 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	@ShowInKishanView
 	public final TextNode info = new TextNode(this,
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses",
-			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");
-
-	@ShowInKishanView
-	public final BooleanNode conversation = new BooleanNode(this, false);
-	
-	private static final String PRIMARY_MODEL = "ornith:9b";
+			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");	
+	private static final String PRIMARY_MODEL = "granite4:tiny-h";
 	private static final String SERVER_MODEL = "ornith:9b";
+	private static final String SERVER_MODEL_2 = "granite4:tiny-h";
 	private volatile ResponseMode responseMode = ResponseMode.CONVERSATION;
 	private static volatile double myCurrentSpeed = 10.0;
 	private static volatile double myAlpha = -1.0;
@@ -98,6 +98,130 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		}
 		return null;
 	}
+
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void setConversationMode() {
+		SwingUtilities.invokeLater(() -> {
+			try {
+		System.out.println("Changement du mode de réponse de l'IA. Mode actuel : " + responseMode);
+		if (responseMode == ResponseMode.JSON_ONLY) {
+			this.responseMode = ResponseMode.CONVERSATION;
+			System.out.println("Changement du mode de réponse de l'IA vers " +  responseMode);
+			JOptionPane.showMessageDialog(null, 
+                        "La conversation est maintenant en mode conversation.", 
+                        "Mode de réponse", 
+                        JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			this.responseMode = ResponseMode.JSON_ONLY;
+			System.out.println("Changement du mode de réponse de l'IA vers " +  responseMode);
+			JOptionPane.showMessageDialog(null, 
+						"La conversation est maintenant en mode JSON_ONLY.", 
+						"Mode de réponse", 
+						JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+	catch (Exception e) {
+		JOptionPane.showMessageDialog(null, 
+			"Erreur lors du changement du mode de réponse de l'IA: " + e.getMessage(), 
+			"Erreur", 
+			JOptionPane.ERROR_MESSAGE);
+
+	}
+	
+	
+		});
+	}
+
+
+
+	
+	@ActionMethod
+    @AddButtonOnKishanView
+    public void resetMemory() {
+        if (this.currentChat == null) {
+            if (this.chat instanceof ChatNode) {
+                this.currentChat = (ChatNode) this.chat;
+            } else if (this.parent instanceof ChatNode) {
+                this.currentChat = (ChatNode) this.parent;
+            } else if (Client.lastActiveChat != null) {
+                this.currentChat = Client.lastActiveChat;
+            }
+        }
+        final ChatNode activeChat = this.currentChat;
+		System.out.println("Réinitialisation de la mémoire pour le chat : " + (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
+        SwingUtilities.invokeLater(() -> {
+            try {
+                if (activeChat != null) {
+                    String chatId = activeChat.idAsText();
+					var messages = MEMORY_STORE.getMessages(chatId);
+                    int count = (messages != null) ? messages.size() : 0;
+					System.out.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
+					System.out.println(" messages: " + messages);
+					
+                    MEMORY_STORE.deleteMessages(messages);
+					MEMORY_STORE.deleteMessages("default_session");
+					System.out.println(MEMORY_STORE.getMessages(chatId).size() + " messages supprimés pour le chat : " + chatId);
+                    ASSISTANT_CACHE.clear();
+                    JOptionPane.showMessageDialog(null, 
+                        "La mémoire de la conversation a été réinitialisée.", 
+                        "Réinitialisation", 
+                        JOptionPane.INFORMATION_MESSAGE);
+
+                } else {
+                    JOptionPane.showMessageDialog(null, 
+                        "Aucune conversation active pour réinitialiser la mémoire.", 
+                        "Information", 
+                        JOptionPane.INFORMATION_MESSAGE);
+                }
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, 
+                    "Erreur lors de la réinitialisation de la mémoire: " + e.getMessage(), 
+                    "Erreur", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
+
+
+	// create a method that use the weighted robin round algorithm instead of using best peer method
+	public static AiNode selectBestPeer(java.util.List<AiNode> aiNodes) {
+		if (aiNodes == null || aiNodes.isEmpty()) {
+			return null;
+		}
+
+		double totalScore = 0.0;
+		for (AiNode node : aiNodes) {
+			totalScore += node.getScore();
+		}
+
+		double randomValue = ThreadLocalRandom.current().nextDouble() * totalScore;
+		double cumulativeScore = 0.0;
+
+		for (AiNode node : aiNodes) {
+			cumulativeScore += node.getScore();
+			if (cumulativeScore >= randomValue) {
+				return node;
+			}
+		}
+
+		return aiNodes.get(aiNodes.size() - 1);
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 	public static double calculerAlphaAutomatique(long totalParameters, int expertCount) {
 		double activeParameters;
@@ -152,6 +276,25 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	@Override
 	public boolean applies() {
 		return true;
+	}
+
+	public static void startOllama() {
+		if (ChatNode.NodeAIUsed) {
+				try {
+					System.out.println("Démarrage d'Ollama pour préchauffer le modèle...");
+					HttpClient client = HttpClient.newHttpClient();
+					String jsonPayload = "{\"model\": \"" + PRIMARY_MODEL + "\", \"prompt\": \"\", \"stream\": false}";
+					HttpRequest request = HttpRequest.newBuilder()
+							.uri(URI.create("http://localhost:11434/api/generate"))
+							.POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
+							.header("Content-Type", "application/json")
+							.build();
+					client.send(request, HttpResponse.BodyHandlers.discarding());
+					System.out.println("Modèle préchauffé.");
+				} catch (Exception e) {
+					System.out.println("Erreur lors du démarrage d'Ollama : ( impossible de precharger le modele) " + e.getMessage());
+				}
+	}
 	}
 
 	@Override
@@ -411,11 +554,10 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 	protected AiResult queryIA(ToolEnabledAssistant assistant, JsonNode inputJSON, String question)
 			throws Exception {
-
-		if (!ollamaVerified) {
-			if (!OllamaRequire.checkRequirements()) {
-				System.out.println(" Ollama n'est pas installé impossible de faire une requête IA.");
-				return new AiResult("Erreur: Ollama n'est pas installé", 0);
+			if (!ollamaVerified) {
+				if (!OllamaRequire.checkRequirements()) {
+					System.out.println(" Ollama n'est pas installé impossible de faire une requête IA.");
+					return new AiResult("Erreur: Ollama n'est pas installé", 0);
 			}
 			ollamaVerified = true;
 		}
@@ -459,25 +601,26 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 	private ToolEnabledAssistant getOrCreateAssistant() throws IOException {
 		String currentOllamaUrl = "http://localhost:11434";
+		if (this.currentChat == null) {
+            if (this.chat instanceof ChatNode) {
+                this.currentChat = (ChatNode) this.chat;
+            } else if (this.parent instanceof ChatNode) {
+                this.currentChat = (ChatNode) this.parent;
+            } else if (Client.lastActiveChat != null) {
+                this.currentChat = Client.lastActiveChat;
+            }
+        }
 		try {
 			var aiNodes = ShowPeersInfo.get();
-			if (aiNodes != null && !aiNodes.isEmpty()) {
-				AiNode bestNode = null;
-				double bestScore = -1.0;
+			var selectedNode = selectBestPeer(aiNodes);
+			if (selectedNode != null) {
+				currentOllamaUrl = "http://" + selectedNode.address.getHostAddress() + ":11434";
+				System.out.println("Utilisation du noeud AI sélectionné : " + selectedNode.name + " (" + currentOllamaUrl + ")");
+			} else {
+				System.out.println("Aucun noeud AI disponible, utilisation de l'instance locale d'Ollama.");
+			}
+			
 				
-				// On cherche le noeud avec le meilleur score
-				for (var node : aiNodes) {
-					if (node.getScore() > bestScore) {
-						bestScore = node.getScore();
-						bestNode = node;
-					}
-				}
-				
-				if (bestNode != null && bestNode.address != null) {
-					currentOllamaUrl = "http://" + bestNode.address.getHostAddress() + ":11434";
-					System.out.println(" requete donnee au noeud le plus qualifie : " + bestNode.name + " (" + currentOllamaUrl + ") avec score : " + bestScore);
-				}
-        	}
 		 } catch (Exception e) {
 			System.out.println("Pas de noeuds disponibles, utilisation de l'instance locale d'Ollama.");
 		 }
@@ -487,6 +630,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
 			var model = getOrCreateModel(selectedOllamaUrl);
 			ChatMemory memory = MessageWindowChatMemory.builder()
+					.id(chatId)
 					.maxMessages(MAX_MESSAGES)
 					.chatMemoryStore(MEMORY_STORE)
 					.build();
@@ -504,13 +648,14 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		return MODEL_CACHE.computeIfAbsent(cacheKey, key -> OllamaStreamingChatModel.builder()
 				.baseUrl(ollamaUrl)
 				.modelName(PRIMARY_MODEL)
-				.numCtx(8192)
+				.numCtx(32768)
 				.topP(0.95)
 				.topK(20)
-				.temperature(0.3)
+				.temperature(0.5)
 				.timeout(java.time.Duration.ofMinutes(5))
 				.logRequests(false) // Mettre à true pour déboguer
 				.logResponses(false) // Mettre à true pour déboguer
 				.build());
 	}
+	
 }

@@ -30,6 +30,7 @@ module byransha {
     requires org.jfree.jfreechart;
     requires org.jfree.jfreesvg;
     requires langchain4j.core;
+	requires io.github.cdimascio.dotenv;
 
 
 	// Allow other modules to use your code
