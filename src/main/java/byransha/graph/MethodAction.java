@@ -8,7 +8,7 @@ public class MethodAction extends Action {
 	public MethodAction(BNode parent, Method m) {
 		super(parent, m.getDeclaringClass());
 		this.m = m;
-		this.hasButtonOnKishanView = m.isAnnotationPresent(ActionMethod.class);
+		this.hasButtonOnKishanView = m.isAnnotationPresent(AddButtonOnKishanView.class);
 	}
 
 	@Override

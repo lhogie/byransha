@@ -7,6 +7,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 
 import byransha.graph.ShowInKishanView;
+import byransha.util.ByUtils;
 
 public class Connection {
 	private DataInputStream in;
@@ -53,7 +54,7 @@ public class Connection {
 	public Message readMessage() throws ClassNotFoundException, IOException {
 		int len = in.readInt();
 		var bytes = in.readNBytes(len);
-		var m = (Message) NetworkAgent.serializer.fromBytes(bytes);
+		var m = (Message) ByUtils.serializer.fromBytes(bytes);
 		System.out.println("received " + m);
 		++nbMessagesReceived;
 		return m;
@@ -61,7 +62,7 @@ public class Connection {
 
 	public void write(Message msg) throws IOException {
 		System.out.println("send " + msg);
-		var bytes = NetworkAgent.serializer.toBytes(msg);
+		var bytes = ByUtils.serializer.toBytes(msg);
 		out.writeInt(bytes.length);
 		out.write(bytes);
 		++nbMessagesSent;

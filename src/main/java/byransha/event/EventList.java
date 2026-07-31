@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.AES;
+import byransha.util.ByUtils;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 
@@ -22,19 +23,15 @@ public abstract class EventList extends BNode {
 		super(parent);
 		status = new StringNode(parent);
 
-		new Thread(() -> {
+		ByUtils.thread("event list dissemination thread", () -> {
 			while (true) {
 				List<Event> candidates = new ArrayList<>();
 				status.set("running " + candidates.size() + " event(s) sent");
 				forEachEvent(e -> {
 					if (e.owners.size() < 1) {
-						try {
-							candidates.add(e);
-							g().networkAgent.bcast(e, null);
-							status.set("running " + candidates.size() + " event(s) sent");
-						} catch (IOException err) {
-
-						}
+						candidates.add(e);
+						g().networkAgent.sendQ.sendObjectToNeighbors(e, null);
+						status.set("running " + candidates.size() + " event(s) sent");
 					}
 				});
 
@@ -47,7 +44,7 @@ public abstract class EventList extends BNode {
 					}
 				}
 			}
-		}, "event list dissemination thread");
+		});
 	}
 
 	public LongList collectIDs() {

@@ -4,7 +4,7 @@ import byransha.nodes.system.Role;
 
 public class VisitorRole extends Role {
 
-	public VisitorRole(BGraph g) {
+	public VisitorRole(Root g) {
 		super(g);
 	}
 

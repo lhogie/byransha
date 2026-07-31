@@ -2,7 +2,7 @@ package byransha.graph.index;
 
 import java.util.Objects;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.graph.ShowInKishanView;
@@ -12,7 +12,7 @@ public class AllIndexes extends Index {
 	public final ByClass byClass;
 	public final NodeList nodesList;
 
-	public AllIndexes(BGraph g) {
+	public AllIndexes(Root g) {
 		super(g);
 		byId = new ByID(this);
 		byClass = new ByClass(g);

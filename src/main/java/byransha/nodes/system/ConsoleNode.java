@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.translate.Translator;
 import byransha.ui.swing.TranslatableTextArea;
@@ -56,7 +56,7 @@ public class ConsoleNode extends BNode {
 		}
 	}
 
-	public ConsoleNode(BGraph g) {
+	public ConsoleNode(Root g) {
 		super(g);
 		System.setOut(new PrintStream(new ToQOutputStream(stdOutComponents, System.out), true));
 		System.setErr(new PrintStream(new ToQOutputStream(stdErrComponents, System.err), true));

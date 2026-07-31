@@ -115,5 +115,4 @@ public class ChatNode extends BNode {
 	public void showSuperNode() {
 		append(g());
 	}
-
 }

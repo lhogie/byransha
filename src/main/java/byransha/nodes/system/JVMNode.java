@@ -4,14 +4,14 @@ import java.lang.management.ManagementFactory;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.primitive.StringNode;
 
 public class JVMNode extends SystemNode {
 
-	public JVMNode(BGraph g) {
+	public JVMNode(Root g) {
 		super(g);
 	}
 

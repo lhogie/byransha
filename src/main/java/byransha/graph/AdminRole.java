@@ -4,7 +4,7 @@ import byransha.nodes.system.Role;
 
 public class AdminRole extends Role {
 
-	public AdminRole(BGraph g) {
+	public AdminRole(Root g) {
 		super(g);
 	}
 

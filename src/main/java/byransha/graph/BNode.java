@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -40,6 +39,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -51,6 +51,7 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
+import byransha.network.Message;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
@@ -78,13 +79,13 @@ public abstract class BNode {
 
 	public final BNode parent;
 	public boolean readOnly;
-	protected boolean resilient = false;
-	public long id;
-	public BGraph graph;
+	protected boolean global = false;
+	public long id = -1;
+	public Root graph;
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
-		if (!(this instanceof BGraph) && parent == null)
+		if (!(this instanceof Root) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
 
@@ -94,8 +95,8 @@ public abstract class BNode {
 			g.indexes.add(this);
 		}
 
-		if (enclosingBusinessNode() != null) {
-			// g().eventList.add(new NewNodeEvent<>(this));
+		if (global) {
+			g().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
 
@@ -117,7 +118,7 @@ public abstract class BNode {
 		return foundRole[0];
 	}
 
-	public BGraph g() {
+	public Root g() {
 		return parent != null ? parent.g() : null;
 	}
 
@@ -128,16 +129,6 @@ public abstract class BNode {
 			return parent.enclosingBusinessNode();
 		} else {
 			return null;
-		}
-	}
-
-	public boolean isResilient() {
-		if (resilient) {
-			return true;
-		} else if (parent != null) {
-			return parent.isResilient();
-		} else {
-			return false;
 		}
 	}
 
@@ -264,13 +255,14 @@ public abstract class BNode {
 
 			for (var m : getClass().getMethods()) {
 				if (m.isAnnotationPresent(ActionMethod.class)) {
-					var a = new MethodAction(this, m);
-
-					if (m.isAnnotationPresent(AddButtonOnKishanView.class)) {
-						a.hasButtonOnKishanView = true;
+					if (m.getReturnType() == void.class) {
+						var a = new MethodAction(this, m);
+						cachedActions.elements.add(a);
+					} else {
+						System.err.println(m.getReturnType().getName());
+						System.err.println(m.getDeclaringClass().getName() + "." + m.getName());
+						throw new IllegalStateException("function method are not yet supported");
 					}
-
-					cachedActions.elements.add(a);
 				}
 			}
 		}
@@ -336,7 +328,7 @@ public abstract class BNode {
 					f.set(this, null);
 				}
 			} catch (IllegalAccessException err) {
-				BGraph graph = g();
+				Root graph = g();
 				if (graph != null && graph.errorLog != null) {
 					graph.errorLog.add(err);
 				} else {
@@ -365,7 +357,7 @@ public abstract class BNode {
 						}
 
 					} catch (IllegalArgumentException | IllegalAccessException e) {
-						BGraph graph = g();
+						Root graph = g();
 						if (graph != null && graph.errorLog != null) {
 							graph.errorLog.add(e);
 						} else {
@@ -392,7 +384,7 @@ public abstract class BNode {
 						consumer.accept(m, outNode);
 					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-					BGraph graph = g();
+					Root graph = g();
 					if (graph != null && graph.errorLog != null) {
 						graph.errorLog.add(e);
 					} else {
@@ -696,7 +688,7 @@ public abstract class BNode {
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
-					BGraph graph = g();
+					Root graph = g();
 					if (graph != null && graph.errorLog != null) {
 						graph.errorLog.add(e1);
 					} else {
@@ -787,4 +779,9 @@ public abstract class BNode {
 		ta.setEditable(false);
 		return ta;
 	}
+
+	public void onNewMessage(Message msg) {
+		System.out.println(this + " received " + msg);
+	};
+
 }

@@ -1,9 +1,9 @@
 package byransha.graph;
 
 public class BNodeNOTNODE {
-	protected final BGraph g;
+	protected final Root g;
 
-	public BNodeNOTNODE(BGraph g) {
+	public BNodeNOTNODE(Root g) {
 		this.g = g;
 	}
 

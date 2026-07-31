@@ -2,12 +2,12 @@ package byransha.translate;
 
 import java.net.HttpURLConnection;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.translate.Translator.Language;
 
 public class GoogleTranslator extends Translator {
 
-	public GoogleTranslator(BGraph g) {
+	public GoogleTranslator(Root g) {
 		super(g);
 	}
 

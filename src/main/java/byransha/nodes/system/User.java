@@ -1,6 +1,6 @@
 package byransha.nodes.system;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -16,7 +16,7 @@ public class User extends BNode {
 	@ShowInKishanView
 	public final ListNode<Role> roles = new ListNode<>(this, "roles", Role.class);
 
-	public User(BGraph g, String userName) {
+	public User(Root g, String userName) {
 		super(g);
 		name = new StringNode(g, userName, ".+");
 		passwordNode.hideText = true;

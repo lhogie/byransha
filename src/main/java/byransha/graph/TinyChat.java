@@ -1,7 +1,5 @@
 package byransha.graph;
 
-import java.io.IOException;
-
 import byransha.graph.list.action.ListNode;
 import byransha.network.Message;
 import byransha.network.MessageNode;
@@ -13,7 +11,7 @@ public class TinyChat extends ServiceNode {
 	@ShowInKishanView
 	public final ListNode<MessageNode> incomingMessages = new ListNode(this, "messages", MessageNode.class);
 
-	public TinyChat(BGraph g) {
+	public TinyChat(Root g) {
 		super(g);
 	}
 
@@ -25,11 +23,7 @@ public class TinyChat extends ServiceNode {
 	@ActionMethod
 	@AddButtonOnKishanView
 	public void send() {
-		try {
-			g().networkAgent.bcast(input.get(), null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		g().networkAgent.sendQ.sendObjectToNeighbors(input.get(), null);
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,7 +31,7 @@ public abstract class ValuedNode<V> extends BNode {
 			valueChangeListeners.add(l);
 		}
 	}
-	
+
 	public void removeValueChangeListener(ValueChangeListener<V> l) {
 		synchronized (valueChangeListeners) {
 			valueChangeListeners.remove(l);
@@ -94,20 +95,19 @@ public abstract class ValuedNode<V> extends BNode {
 			}
 		}
 
-		if (shouldGenerateEvent()) {
+		if (global) {
 			var g = g();
 			if (g.eventList != null) {
-				// g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(),
-				// this, oldValue, newValue));
+//				g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), this, oldValue, newValue));
 			}
 		}
 
 		if (shownOnDisk) {
-			// writeValueToDisk();
+//			writeValueToDisk();
 		}
 	}
 
-	private void writeValueToDisk() {
+	public void writeValueToDisk() {
 		try {
 			var s = toString();
 			var f = new File(Byransha.homeDirectory, "valued_nodes/" + rolePath() + ".txt");
@@ -121,10 +121,6 @@ public abstract class ValuedNode<V> extends BNode {
 		} catch (IOException ioError) {
 			g().errorLog.add(ioError);
 		}
-	}
-
-	private boolean shouldGenerateEvent() {
-		return enclosingBusinessNode() != null;
 	}
 
 	public abstract V defaultValue();

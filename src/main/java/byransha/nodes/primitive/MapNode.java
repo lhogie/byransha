@@ -7,7 +7,7 @@ import java.util.function.BiConsumer;
 
 import org.checkerframework.checker.units.qual.N;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 
 public class MapNode<N extends BNode> extends BNode {

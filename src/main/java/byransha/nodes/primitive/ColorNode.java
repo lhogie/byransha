@@ -8,13 +8,13 @@ import java.io.ObjectOutput;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
 
 public class ColorNode extends PrimitiveValueNode<Color> {
 
-	public ColorNode(BGraph g) {
+	public ColorNode(Root g) {
 		super(g);
 	}
 

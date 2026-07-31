@@ -19,7 +19,7 @@ public class AllIndexesNode extends BNode {
 		return r;
 	}
 
-	protected AllIndexesNode(BGraph g) {
+	protected AllIndexesNode(Root g) {
 		super(g);
 	}
 

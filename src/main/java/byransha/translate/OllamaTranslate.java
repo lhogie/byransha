@@ -1,6 +1,6 @@
 package byransha.translate;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.translate.Translator.Language;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 
@@ -12,7 +12,7 @@ public class OllamaTranslate extends Translator {
 			.temperature(0.2)
 			.build();
 
-	public OllamaTranslate(BGraph g) {
+	public OllamaTranslate(Root g) {
 		super(g);
 	}
 

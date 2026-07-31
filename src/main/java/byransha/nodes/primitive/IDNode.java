@@ -1,10 +1,10 @@
 package byransha.nodes.primitive;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 
 public class IDNode extends StringNode {
 
-	public IDNode(BGraph g) {
+	public IDNode(Root g) {
 		super(g, null, "(-)?[0-9a-zA-Z]+");
 	}
 

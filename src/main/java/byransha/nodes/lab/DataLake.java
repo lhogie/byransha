@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.graph.ActionMethod;
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.file.FileNode;
@@ -24,11 +24,11 @@ public class DataLake extends BNode {
 	@ShowInKishanView
 	public final FileNode dir;
 
-	public DataLake(BGraph g) {
+	public DataLake(Root g) {
 		this(g, null);
 	}
 
-	public DataLake(BGraph g, File dir) {
+	public DataLake(Root g, File dir) {
 		super(g);
 		this.dir = new FileNode(g);
 		this.dir.file = dir;
@@ -36,7 +36,7 @@ public class DataLake extends BNode {
 
 	static JsonNode countryCodes;
 
-	public static void loadCountries(BGraph g, File dataLakeDir) throws IOException {
+	public static void loadCountries(Root g, File dataLakeDir) throws IOException {
 		var dir = new File(dataLakeDir, "country_flags");
 		var json = Files.readAllBytes(new File(dir, "countries.json").toPath());
 		countryCodes = new ObjectMapper().readTree(json);

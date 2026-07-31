@@ -1,11 +1,11 @@
 package byransha.nodes.website;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 
 public class Website extends BNode {
 
-	protected Website(BGraph g) {
+	protected Website(Root g) {
 		super(g);
 	}
 

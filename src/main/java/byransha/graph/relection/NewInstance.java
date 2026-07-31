@@ -4,11 +4,11 @@ import byransha.graph.BNode;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.relection.LinkAction.type;
 
-public class MakeNewInstance extends FunctionAction<ClassNode, BNode> {
+public class NewInstance extends FunctionAction<ClassNode, BNode> {
 	// @ShowInKishanView
 	BNode parent = super.parent;
 
-	public MakeNewInstance(ClassNode inputNode) {
+	public NewInstance(ClassNode inputNode) {
 		super(inputNode, type.class);
 	}
 

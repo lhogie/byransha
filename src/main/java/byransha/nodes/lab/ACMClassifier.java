@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BusinessNode;
 
 /*
@@ -13,7 +13,7 @@ import byransha.graph.BusinessNode;
 
 public class ACMClassifier extends BusinessNode {
 
-	public static void createNodes(BGraph g, File dir) throws IOException {
+	public static void createNodes(Root g, File dir) throws IOException {
 		for (var l : Files.readAllLines(new File(dir, "acm_classification.txt").toPath())) {
 			var a = l.split(";");
 
@@ -28,7 +28,7 @@ public class ACMClassifier extends BusinessNode {
 
 	public String code, descr;
 
-	public ACMClassifier(BGraph g) {
+	public ACMClassifier(Root g) {
 		super(g);
 	}
 

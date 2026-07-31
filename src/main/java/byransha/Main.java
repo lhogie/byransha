@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import byransha.event.Event;
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.network.NetworkAgent;
+import byransha.graph.Root;
+import byransha.network.TCPServer;
 import byransha.nodes.lab.I3S;
 import byransha.nodes.lab.Person;
 import byransha.nodes.system.Byransha;
@@ -19,7 +19,7 @@ import byransha.nodes.system.User;
 import byransha.ui.swing.SwingFrontend;
 
 public class Main {
-	static BGraph g;
+	static Root g;
 
 	public static void main(String... args) throws Throwable {
 		System.out.println("This is Byransha v" + Byransha.VERSION);
@@ -45,10 +45,10 @@ public class Main {
 
 		var argMap = mapArgs(args);
 
-		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : NetworkAgent.DEFAULT_PORT;
+		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
 
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
-		g = new BGraph(d, port);
+		g = new Root(d, port);
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BNode.class).newInstance(g);
 

@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 
 import org.nustaq.serialization.FSTConfiguration;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 
 public class FSTSerializer implements EventQueueSerializer {
 
@@ -25,7 +25,7 @@ public class FSTSerializer implements EventQueueSerializer {
 	}
 
 	@Override
-	public InMemoryEventList read(File f, BGraph g) throws Exception {
+	public InMemoryEventList read(File f, Root g) throws Exception {
 		var is = new ObjectInputStream(new BufferedInputStream(new FileInputStream(f)));
 		var q = (InMemoryEventList) conf.get().decodeFromStream(is);
 		is.close();

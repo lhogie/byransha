@@ -21,7 +21,7 @@ import javax.swing.JOptionPane;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.URLNode;
@@ -29,7 +29,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.56";
+	public static final String VERSION = "0.0.58";
 
 	public static class byransha extends Category {
 	}
@@ -61,7 +61,7 @@ public class Byransha extends SystemNode {
 	public static final String lastVersionURL = downloadBinaries + "info.json";
 	public static File installedJarFile = new File(binDirectory, "byransha.jar");
 
-	public Byransha(BGraph g) {
+	public Byransha(Root g) {
 		super(g);
 	}
 

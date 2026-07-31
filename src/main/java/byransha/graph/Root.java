@@ -12,16 +12,18 @@ import byransha.network.NetworkAgent;
 import byransha.nodes.lab.Genre.Female;
 import byransha.nodes.lab.Genre.Male;
 import byransha.nodes.lab.Genre.NotGenred;
+import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
-import byransha.nodes.system.OSNode;
+import byransha.nodes.system.OperatingSystem;
 import byransha.nodes.system.User;
+import byransha.security.AsymmetricEncryption;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
 import io.github.classgraph.ClassGraph;
 
-public class BGraph extends BNode {
+public class Root extends BNode {
 	@ShowInKishanView
 	private User currentUser = new User(this, "guest");
 
@@ -36,11 +38,13 @@ public class BGraph extends BNode {
 	@ShowInKishanView
 	public final Byransha byransha = new Byransha(this);
 	@ShowInKishanView
-	public final OSNode os = new OSNode(this);
+	public final OperatingSystem os = new OperatingSystem(this);
 	@ShowInKishanView
 	public final ErrorLog errorLog = new ErrorLog(this);
 	@ShowInKishanView
 	public final TinyChat tinyChat = new TinyChat(this);
+	@ShowInKishanView
+	public final AsymmetricEncryption asymmetricEncryption = new AsymmetricEncryption(this);
 	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
@@ -60,7 +64,7 @@ public class BGraph extends BNode {
 	class graph extends Category {
 	}
 
-	public BGraph(File directory, int port) throws Exception {
+	public Root(File directory, int port) throws Exception {
 		super(null);
 		// indexes.add(this);
 		this.networkAgent = new NetworkAgent(this, port);
@@ -74,8 +78,16 @@ public class BGraph extends BNode {
 		currentUser.roles.elements.add(admin);
 	}
 
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void writeAllToDisk() {
+		for (var n : indexes.byClass.getClassNodeFor(ValuedNode.class).allInstances().elements) {
+			((ValuedNode) n).writeValueToDisk();
+		}
+	}
+
 	@Override
-	public BGraph g() {
+	public Root g() {
 		return this;
 	}
 

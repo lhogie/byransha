@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.list.action.FunctionAction;
 import byransha.nodes.system.ChatNode;
@@ -77,7 +77,7 @@ public class Client extends SystemNode {
 		}).start();
 	}
 
-	private void initializeCommands(BGraph graph) {
+	private void initializeCommands(Root graph) {
 		commands.put("help", new Command("list available commands",
 				(out, parms) -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));
 

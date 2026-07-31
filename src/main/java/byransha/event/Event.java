@@ -9,22 +9,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
-import byransha.graph.BGraph;
-import byransha.network.PeerNode;
+import byransha.graph.Root;
+import byransha.network.Peer;
 
 public abstract class Event implements Externalizable, Comparable<Event> {
 	LocalDateTime date;
-	Set<PeerNode> owners = new HashSet<>();
-	final protected BGraph g;
+	Set<Peer> owners = new HashSet<>();
+	final protected Root g;
 
-	public Event(BGraph g, LocalDateTime date) {
+	public Event(Root g, LocalDateTime date) {
 		this.date = date;
 		this.g = g;
 	}
 
-	public abstract void apply(BGraph g) throws Throwable;;
+	public abstract void apply(Root g) throws Throwable;;
 
-	public abstract void undo(BGraph g) throws Throwable;
+	public abstract void undo(Root g) throws Throwable;
 
 	@Override
 	public int compareTo(Event e) {
@@ -51,7 +51,7 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 
 	public static final DateTimeFormatter dateFormat = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
-	public void markReceivedBy(PeerNode from) {
+	public void markReceivedBy(Peer from) {
 		owners.add(from);
 	}
 
@@ -76,7 +76,7 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 
 		for (int i = 0; i < ownersSize; i++) {
 			var ownerId = in.readInt();
-			var owner = g.networkAgent.findPeer(ownerId);
+			var owner = g.networkAgent.neighborhood.findPeer(ownerId);
 			owners.add(owner);
 		}
 	}

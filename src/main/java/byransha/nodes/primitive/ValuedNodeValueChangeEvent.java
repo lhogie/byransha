@@ -6,14 +6,14 @@ import java.io.ObjectOutput;
 import java.time.LocalDateTime;
 
 import byransha.event.Event;
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 
 public class ValuedNodeValueChangeEvent<V> extends Event {
 	ValuedNode<V> node;
 	V oldValue;
 	V newValue;
 
-	public ValuedNodeValueChangeEvent(BGraph g, LocalDateTime date, ValuedNode<V> node, V oldValue, V newValue) {
+	public ValuedNodeValueChangeEvent(Root g, LocalDateTime date, ValuedNode<V> node, V oldValue, V newValue) {
 		super(g, date);
 		this.node = node;
 		this.oldValue = oldValue;
@@ -21,12 +21,12 @@ public class ValuedNodeValueChangeEvent<V> extends Event {
 	}
 
 	@Override
-	public void apply(BGraph g) throws Throwable {
+	public void apply(Root g) throws Throwable {
 		node.set(newValue);
 	}
 
 	@Override
-	public void undo(BGraph g) throws Throwable {
+	public void undo(Root g) throws Throwable {
 		node.set(oldValue);
 	}
 

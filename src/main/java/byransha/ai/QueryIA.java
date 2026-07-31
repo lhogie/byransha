@@ -1,9 +1,7 @@
 package byransha.ai;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -75,17 +73,11 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
 
 	private ListNode<AiNode> getAiNodes() {
-		try {
-			ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
-			AiNode localNode = new AiNode(g());
-			localNode.name = "Poste de travail local (moi)";
-			localNode.address = InetAddress.getByName("localhost");
-			nodeList.elements.add(localNode);
-			return nodeList;
-		} catch (UnknownHostException ex) {
-			System.getLogger(QueryIA.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-		}
-		return null;
+		ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
+		AiNode localNode = new AiNode(g());
+		nodeList.elements.add(localNode);
+		return nodeList;
+//w		return null;
 	}
 
 	public static double calculerAlphaAutomatique(long totalParameters, int expertCount) {

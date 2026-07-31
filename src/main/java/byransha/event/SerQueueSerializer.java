@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 
 public class SerQueueSerializer implements EventQueueSerializer {
 
@@ -24,7 +24,7 @@ public class SerQueueSerializer implements EventQueueSerializer {
 	}
 
 	@Override
-	public InMemoryEventList read(File in, BGraph g) throws Exception {
+	public InMemoryEventList read(File in, Root g) throws Exception {
 		var is = new ObjectInputStream(new FileInputStream(in));
 		var q = (InMemoryEventList) is.readObject();
 		is.close();

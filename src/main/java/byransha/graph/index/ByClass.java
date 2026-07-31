@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.graph.relection.ClassNode;
@@ -15,9 +15,9 @@ import byransha.util.Stop;
 public class ByClass extends Index {
 
 	public MultiValuedMap<Class, BNode> m = new HashSetValuedHashMap<>();
-	public final BGraph g;
+	public final Root g;
 
-	public ByClass(BGraph g) {
+	public ByClass(Root g) {
 		super(g);
 		this.g = g;
 	}

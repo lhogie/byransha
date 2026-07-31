@@ -10,7 +10,7 @@ public class ErrorLog extends SystemNode {
 	@ShowInKishanView
 	public final ListNode<ExceptionNode> errors = new ListNode<>(this, "error(s)", ExceptionNode.class);
 
-	public ErrorLog(BGraph g) {
+	public ErrorLog(Root g) {
 		super(g);
 	}
 

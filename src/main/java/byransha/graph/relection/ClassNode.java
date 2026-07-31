@@ -9,8 +9,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import byransha.graph.BGraph;
+import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.nodes.Factory;
@@ -23,6 +24,7 @@ import net.sourceforge.plantuml.SourceStringReader;
 public class ClassNode<T extends BNode> extends BNode {
 	public final Class<T> representedClass;
 	public ClassNode<?> superClass;
+	public boolean allowNewInstances;
 
 	@ShowInKishanView
 	public ListNode<ClassNode> interfaces;
@@ -31,7 +33,7 @@ public class ClassNode<T extends BNode> extends BNode {
 	public MapNode<ClassNode<?>> aggregations;
 
 	public static class Aggregation extends BNode {
-		protected Aggregation(BGraph g) {
+		protected Aggregation(Root g) {
 			super(g);
 		}
 
@@ -49,15 +51,16 @@ public class ClassNode<T extends BNode> extends BNode {
 		}
 	}
 
-	public ClassNode(BGraph g, Class c) {
+	public ClassNode(Root g, Class c) {
 		super(g);
 		this.representedClass = c;
 	}
 
+
 	@Override
 	public void createActions() {
 		cachedActions.elements.add(new ShowInstances(this));
-		cachedActions.elements.add(new MakeNewInstance(this));
+		cachedActions.elements.add(new NewInstance(this));
 		cachedActions.elements.add(new LinkAction(this));
 		super.createActions();
 	}

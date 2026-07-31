@@ -1,7 +1,7 @@
 package byransha.ai;
 
 import java.net.InetAddress;
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 
 public class AiNode extends BNode {
@@ -14,7 +14,7 @@ public class AiNode extends BNode {
     public int queueSize;
     public double alpha = 1.0;
 
-	public AiNode(BGraph g) {
+	public AiNode(Root g) {
 		super(g);
 	}
 

@@ -10,7 +10,7 @@ public abstract class BusinessNode extends BNode {
 
 	public BusinessNode(BNode parent) {
 		super(parent);
-		resilient = true;
+		global = true;
 	}
 
 	@ShowInKishanView

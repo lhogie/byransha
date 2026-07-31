@@ -14,7 +14,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
-import byransha.ui.swing.ChatSheet;
 
 public abstract class Action<HOOK extends BNode> extends BNode {
 	public boolean stopRequested = false;

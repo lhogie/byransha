@@ -6,12 +6,12 @@ import java.net.UnknownHostException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 
-public class OSNode extends SystemNode {
+public class OperatingSystem extends SystemNode {
 
-	public OSNode(BGraph g) {
+	public OperatingSystem(Root g) {
 		super(g);
 	}
 

@@ -3,14 +3,14 @@ package byransha.ui.shell;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.nodes.system.SystemNode;
 
 public class ShellServer extends SystemNode {
 
 	public static final int DEFAULT_PORT = 42424;
 
-	public ShellServer(BGraph g, int port) throws Throwable {
+	public ShellServer(Root g, int port) throws Throwable {
 		super(g);
 		System.out.println("Starting shell server on port " + port);
 

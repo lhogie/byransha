@@ -18,10 +18,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import byransha.graph.BNode;
+import toools.io.ser.JavaSerializer;
+import toools.io.ser.Serializer;
 
 public class ByUtils {
 
 //	public static final File home = new File(System.getProperty("user.home"));
+	public static final Serializer serializer = new JavaSerializer<>();
 
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
 

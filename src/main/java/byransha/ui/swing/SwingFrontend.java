@@ -12,10 +12,9 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
-import byransha.network.NetworkAgent;
 import byransha.nodes.primitive.ColorNode;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.system.Byransha;
@@ -23,6 +22,7 @@ import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.SystemNode;
 import byransha.nodes.system.User;
 import byransha.ui.ColorSchemeNode;
+import byransha.util.ByUtils;
 
 public class SwingFrontend extends SystemNode {
 	@ShowInKishanView
@@ -36,7 +36,7 @@ public class SwingFrontend extends SystemNode {
 	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
 	public JFrame frame;
 
-	public SwingFrontend(BGraph g) {
+	public SwingFrontend(Root g) {
 		super(g);
 
 		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
@@ -52,7 +52,7 @@ public class SwingFrontend extends SystemNode {
 
 			if (positionAndSizeFile.exists()) {
 				var bytes = Files.readAllBytes(positionAndSizeFile.toPath());
-				PositionAndSize ps = (PositionAndSize) NetworkAgent.serializer.fromBytes(bytes);
+				PositionAndSize ps = (PositionAndSize) ByUtils.serializer.fromBytes(bytes);
 				frame.setLocation(ps.location());
 				frame.setSize(ps.size());
 			} else {
@@ -79,7 +79,7 @@ public class SwingFrontend extends SystemNode {
 				private void saveLocationAndSize() {
 					var ps = new PositionAndSize(frame.getSize(), frame.getLocation());
 					try {
-						Files.write(positionAndSizeFile.toPath(), NetworkAgent.serializer.toBytes(ps));
+						Files.write(positionAndSizeFile.toPath(), ByUtils.serializer.toBytes(ps));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

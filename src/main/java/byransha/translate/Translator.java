@@ -13,7 +13,7 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
@@ -31,7 +31,7 @@ public abstract class Translator extends BNode {
 	public final StringNode targetLanguage;
 	List<Dictionary> dictionaries = new ArrayList<>();
 
-	public Translator(BGraph g) {
+	public Translator(Root g) {
 		super(g);
 		new Thread(() -> {
 			while (true) {

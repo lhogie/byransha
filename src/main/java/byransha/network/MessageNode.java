@@ -4,6 +4,7 @@ import java.util.List;
 
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
+import byransha.util.ByUtils;
 
 public class MessageNode extends BNode {
 	private Message m;
@@ -15,7 +16,7 @@ public class MessageNode extends BNode {
 
 	@ShowInKishanView
 	public Object content() {
-		return NetworkAgent.serializer.fromBytes(m.content);
+		return ByUtils.serializer.fromBytes(m.content);
 	}
 
 	@ShowInKishanView

@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.security.KeyFactory;
@@ -19,15 +20,17 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 
-import byransha.graph.BGraph;
+import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.system.ChatNode;
+import byransha.util.ByUtils;
 
-public class PeerNode extends BNode {
+public class Peer extends BNode {
 	List<PeerListener> listeners = new ArrayList<>();
 
-	public List<PeerNode> neighbors;
+	public List<Peer> neighbors = new ArrayList<>();
 
 	@ShowInKishanView
 	public String name;
@@ -39,27 +42,35 @@ public class PeerNode extends BNode {
 	public InetAddress address;
 
 	@ShowInKishanView
-	public int port = NetworkAgent.DEFAULT_PORT;
-
-	public double TokensPerSecond;
-	public boolean IsComputing;
-	public double promptLag;
-	public int queueSize;
-	public double alpha = 1.0;
+	public int port = TCPServer.DEFAULT_PORT;
 
 	@ShowInKishanView
 	private Connection connection;
 
-	public PeerNode(BGraph g) {
+	public PeerInfo lastInfo;
+
+	public boolean autoConnect = true;
+
+	public Peer(Root g) {
 		super(g);
 	}
 
 	@ShowInKishanView
 	public List<String> neighborsName() {
-		return neighborsNames(neighbors);
+		return lastInfo.neighborsName;
 	}
 
-	static List<String> neighborsNames(List<PeerNode> peers) {
+	@ShowInKishanView
+	public String os() {
+		return lastInfo.systemProperties.getProperty("os.name");
+	}
+
+	@ShowInKishanView
+	public long uptime() {
+		return lastInfo.uptimeMs;
+	}
+
+	static List<String> neighborsNames(List<Peer> peers) {
 		return peers.stream().map(p -> p.name).toList();
 	}
 
@@ -74,6 +85,7 @@ public class PeerNode extends BNode {
 				byte[] der = Base64.getDecoder().decode(publicKeyString);
 				X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
 				this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+				this.autoConnect = !new File(directory, "noAutoConnect").exists();
 			} else {
 				System.err.println("no public key for " + this);
 			}
@@ -144,22 +156,6 @@ public class PeerNode extends BNode {
 		return bytes;
 	}
 
-	public double getTokensPerSecond() {
-		return TokensPerSecond;
-	}
-
-	public double getPromptLagMsPerToken() {
-		return promptLag;
-	}
-
-	public int getCurrentQueueSize() {
-		return queueSize;
-	}
-
-	public double getAlpha() {
-		return alpha;
-	}
-
 	@Override
 	public String whatIsThis() {
 		return null;
@@ -179,18 +175,13 @@ public class PeerNode extends BNode {
 		return "n/a";
 	}
 
-	public double getScore() {
-		// calculer Score P2P
-		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
-	}
-
 	public void ensureDisconnected() {
 		if (connection != null) {
-			connection.close();
-			connection = null;
+			disconnect();
 		}
 	}
 
+	@ActionMethod
 	public void disconnect() {
 		if (connection == null)
 			throw new IllegalStateException("not connected");
@@ -228,5 +219,18 @@ public class PeerNode extends BNode {
 
 	public Connection getConnection() {
 		return connection;
+	}
+
+	@ActionMethod
+	public void tryConnect() {
+		System.out.println("trying to connecto " + this);
+		ByUtils.thread("opening socket to " + this, () -> {
+			try {
+				g().networkAgent.tcp.newSocket(new Socket(address, port), true);
+			} catch (IOException err) {
+				ensureDisconnected();
+			}
+		});
+
 	}
 }

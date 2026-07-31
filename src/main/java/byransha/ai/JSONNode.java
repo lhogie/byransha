@@ -5,7 +5,7 @@ import javax.swing.JComponent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.BGraph;
+import byransha.graph.Root;
 import byransha.graph.BNode;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
