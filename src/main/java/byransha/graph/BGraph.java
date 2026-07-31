@@ -40,6 +40,8 @@ public class BGraph extends BNode {
 	@ShowInKishanView
 	public final ErrorLog errorLog = new ErrorLog(this);
 	@ShowInKishanView
+	public final TinyChat tinyChat = new TinyChat(this);
+	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
 	// public WebServer webServer;
@@ -72,16 +74,19 @@ public class BGraph extends BNode {
 		currentUser.roles.elements.add(admin);
 	}
 
-	public void setCurrentUser(User newUser) {
-		if (newUser != currentUser) {
-			this.currentUser = newUser;
-			userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
-		}
-	}
-
 	@Override
 	public BGraph g() {
 		return this;
+	}
+
+	public void setCurrentUser(User newUser) {
+		if (newUser != currentUser) {
+			this.currentUser = newUser;
+
+			if (swing != null) {
+				userSwitchingListeners.forEach(l -> l.userSwitchedTo(currentUser, newUser));
+			}
+		}
 	}
 
 	public User getCurrentUser() {

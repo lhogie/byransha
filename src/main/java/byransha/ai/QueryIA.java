@@ -2,15 +2,13 @@ package byransha.ai;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.JDialog;
 
@@ -39,14 +37,14 @@ import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.shell.Client;
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.service.AiServices;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
-import dev.langchain4j.memory.ChatMemory;
-import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
 
 public class QueryIA extends FunctionAction<BNode, BNode> {
@@ -54,7 +52,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static final ConcurrentHashMap<String, OllamaStreamingChatModel> MODEL_CACHE = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<String, ToolEnabledAssistant> ASSISTANT_CACHE = new ConcurrentHashMap<>();
 	private static final InMemoryChatMemoryStore MEMORY_STORE = new InMemoryChatMemoryStore();
-    private static final int MAX_MESSAGES = 8;
+	private static final int MAX_MESSAGES = 8;
 
 	public enum ResponseMode {
 		JSON_ONLY, CONVERSATION
@@ -84,10 +82,10 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 	@ShowInKishanView
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
-	
-	 private ListNode<AiNode> getAiNodes() {
+
+	private ListNode<AiNode> getAiNodes() {
 		try {
-	 		ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
+			ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
 			AiNode localNode = new AiNode(g());
 			localNode.name = "Poste de travail local (moi)";
 			localNode.address = InetAddress.getByName("localhost");
@@ -238,10 +236,8 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		try {
 			HttpClient client = HttpClient.newHttpClient();
 			String jsonPayload = "{\"name\": \"" + modelName + "\"}";
-			HttpRequest request = HttpRequest.newBuilder()
-					.uri(URI.create(ollamaUrl + "/api/show"))
-					.POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
-					.header("Content-Type", "application/json")
+			HttpRequest request = HttpRequest.newBuilder().uri(URI.create(ollamaUrl + "/api/show"))
+					.POST(HttpRequest.BodyPublishers.ofString(jsonPayload)).header("Content-Type", "application/json")
 					.build();
 			HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 			JsonNode root = mapper.readTree(response.body());
@@ -310,31 +306,30 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			throw new IllegalStateException("QueryIA must be used within a ChatNode context");
 		}
 		var assistant = getOrCreateAssistant();
-        var userQuestion = prompt.get();
-        if (userQuestion == null || userQuestion.trim().isEmpty()) {
-            result = new TextNode(g(), "IA response",
-                "Erreur: la question envoyée à l'IA est vide.");
-            return;
-        }
+		var userQuestion = prompt.get();
+		if (userQuestion == null || userQuestion.trim().isEmpty()) {
+			result = new TextNode(g(), "IA response", "Erreur: la question envoyée à l'IA est vide.");
+			return;
+		}
 
 		// (on s'exclut du Load-Balancing)
 		try {
-            if (myAlpha < 0) {
-                myAlpha = recupererAlphaDepuisOllama("http://localhost:11434", PRIMARY_MODEL);
-            }
-		} catch(Exception e) {
+			if (myAlpha < 0) {
+				myAlpha = recupererAlphaDepuisOllama("http://localhost:11434", PRIMARY_MODEL);
+			}
+		} catch (Exception e) {
 			System.out.println("Erreur lors de la récupération de l'alpha depuis Ollama : " + e.getMessage());
 		}
 		System.out.println("Envoi de la question à l'IA : " + userQuestion);
-        String iaResponse;
+		String iaResponse;
 		long startTime = System.currentTimeMillis();
 		int[] tokensGeneratedCount = { 0 };
 		try {
-            com.fasterxml.jackson.databind.JsonNode focusedNodeJson = inputNode.describeAsJSON();
+			com.fasterxml.jackson.databind.JsonNode focusedNodeJson = inputNode.describeAsJSON();
 			AiResult aiResult = queryIA(assistant, focusedNodeJson, userQuestion);
-            iaResponse = aiResult.text;
-			tokensGeneratedCount[0] = aiResult.tokenCount; 
-			} catch (Exception e) {
+			iaResponse = aiResult.text;
+			tokensGeneratedCount[0] = aiResult.tokenCount;
+		} catch (Exception e) {
 			System.err.println("Erreur lors de l'appel à queryIA : " + e.getMessage());
 			iaResponse = "Erreur interne lors de la génération.";
 		} finally {
@@ -498,28 +493,45 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		SystemPrompt.append("You do not know the answer until you call a tool.\n\n");
 		SystemPrompt.append("METHODOLOGY FOR ANY QUESTION:\n");
 		SystemPrompt.append("RULES TO REMBEMBERS AND TO EXECUTE IF NEEDED AFTER AN EXECUTION");
-		SystemPrompt.append(" - If you didnt find any result for your research at the current node, use searchByText to find the node in a different part of the graph.\n");
+		SystemPrompt.append(
+				" - If you didnt find any result for your research at the current node, use searchByText to find the node in a different part of the graph.\n");
 		SystemPrompt.append("1. FIRST STEP DECISION:\n");
-		SystemPrompt.append(" - use searchByText to find the nodeID of the main concept in the user question. then call the appropriate tools with the nodeID to get the data requested by the user.\n");
-		SystemPrompt.append(" - If the user asks to filter people by a property (e.g. 'né à Nice', 'born in X'), DO NOT use searchByText. Immediately call 'filterMembersByProperty' using the *current root context node ID* (provided above) to get all members, the property value , and the property name.\n");
-		SystemPrompt.append("	- For general details about a structure like COMRED, SIS ect..., use 'getNodeDetails' with the ID of the structure. ATTENTION dont invent names. if you don't find the structure, try with searchByText to get the nodeID and then call 'getNodeDetails'.\n");
-		SystemPrompt.append(" - If the user is looking for a specific concept or name (e.g. 'cherche le centre X'), extract the main concept and call 'searchByText' with it.\n");
-		SystemPrompt.append("3. If the user asks for members or people ('qui travaille', 'membres', 'personnes'), call 'getMembersDetails' with the ID. This tool returns names, first names  for ALL members OR the members the user asks for,  (and you will ONLY return the birth cities, and emails if and ONLY if the user asks for them for ALL members OR the members the user asks for).\n");
+		SystemPrompt.append(
+				" - use searchByText to find the nodeID of the main concept in the user question. then call the appropriate tools with the nodeID to get the data requested by the user.\n");
+		SystemPrompt.append(
+				" - If the user asks to filter people by a property (e.g. 'né à Nice', 'born in X'), DO NOT use searchByText. Immediately call 'filterMembersByProperty' using the *current root context node ID* (provided above) to get all members, the property value , and the property name.\n");
+		SystemPrompt.append(
+				"	- For general details about a structure like COMRED, SIS ect..., use 'getNodeDetails' with the ID of the structure. ATTENTION dont invent names. if you don't find the structure, try with searchByText to get the nodeID and then call 'getNodeDetails'.\n");
+		SystemPrompt.append(
+				" - If the user is looking for a specific concept or name (e.g. 'cherche le centre X'), extract the main concept and call 'searchByText' with it.\n");
+		SystemPrompt.append(
+				"3. If the user asks for members or people ('qui travaille', 'membres', 'personnes'), call 'getMembersDetails' with the ID. This tool returns names, first names  for ALL members OR the members the user asks for,  (and you will ONLY return the birth cities, and emails if and ONLY if the user asks for them for ALL members OR the members the user asks for).\n");
 		SystemPrompt.append("4. For general details about a node (not members), use 'getNodeDetails'.\n");
-		SystemPrompt.append("5. Loop through ALL relevant IDs and property tools until you have collected everything requested.\n");
-		SystemPrompt.append("6. Answer the user using ONLY the combined text and details returned by all your tool calls.\n\n");
-		SystemPrompt.append("8. If you dont find the main concept, try with searchByText to get the nodeID and then call 'getNodeDetails'.\n");
+		SystemPrompt.append(
+				"5. Loop through ALL relevant IDs and property tools until you have collected everything requested.\n");
+		SystemPrompt.append(
+				"6. Answer the user using ONLY the combined text and details returned by all your tool calls.\n\n");
+		SystemPrompt.append(
+				"8. If you dont find the main concept, try with searchByText to get the nodeID and then call 'getNodeDetails'.\n");
 
 		SystemPrompt.append("CRITICAL RULES AGAINST HALLUCINATION:\n");
 		SystemPrompt.append("- Most questions are in French. Answer in French.\n");
-		SystemPrompt.append("- MULTI-STEP MANDATE: NEVER assume an information (like birth city, age, etc.) is missing just because it wasn't in the first tool call. If a specific tool exists for that property, you MUST call it for each ID.\n");
-		SystemPrompt.append("- Do not use the email informations to get the name and surname of a person. Get them from the node details.\n");
-		SystemPrompt.append("- If the user asks for members ('membres' or 'qui travaille chez'), use 'searchByText' then 'getMembersDetails'. The getMembersDetails tool already returns nom, prénom, ville de naissance, and emails. DO NOT call getNodeDetails for listing members.\n");
-		SystemPrompt.append("- When the users asks for \"tout\", list all that he requested, using the tools sequentially to get the data.\n");
-		SystemPrompt.append("- Dont repeat the same information twice, for exemple if you have already given the name of a person, do not give it again when you list the members.\n");
-		SystemPrompt.append("- STRICT RULE FOR NAMES: Output ONLY the exact names returned by the tools. NEVER invent, guess, or add a first name (prénom) if it is not explicitly written in the tool output.\n");
-		SystemPrompt.append("- STRICT FILTERING: When asked to find people matching a condition (e.g. born in Nice), read the tool output carefully. In your final answer, ONLY list the exact people who match the condition. DO NOT list people who do not match, and do NOT mention them at all.\n");
-		SystemPrompt.append("- EXAMPLE: If the tool returns 'Martin', you must write 'Martin'. DO NOT write 'Jean Martin' or 'Pierre Martin'. Adding an unprovided first name is strictly forbidden.\n");
+		SystemPrompt.append(
+				"- MULTI-STEP MANDATE: NEVER assume an information (like birth city, age, etc.) is missing just because it wasn't in the first tool call. If a specific tool exists for that property, you MUST call it for each ID.\n");
+		SystemPrompt.append(
+				"- Do not use the email informations to get the name and surname of a person. Get them from the node details.\n");
+		SystemPrompt.append(
+				"- If the user asks for members ('membres' or 'qui travaille chez'), use 'searchByText' then 'getMembersDetails'. The getMembersDetails tool already returns nom, prénom, ville de naissance, and emails. DO NOT call getNodeDetails for listing members.\n");
+		SystemPrompt.append(
+				"- When the users asks for \"tout\", list all that he requested, using the tools sequentially to get the data.\n");
+		SystemPrompt.append(
+				"- Dont repeat the same information twice, for exemple if you have already given the name of a person, do not give it again when you list the members.\n");
+		SystemPrompt.append(
+				"- STRICT RULE FOR NAMES: Output ONLY the exact names returned by the tools. NEVER invent, guess, or add a first name (prénom) if it is not explicitly written in the tool output.\n");
+		SystemPrompt.append(
+				"- STRICT FILTERING: When asked to find people matching a condition (e.g. born in Nice), read the tool output carefully. In your final answer, ONLY list the exact people who match the condition. DO NOT list people who do not match, and do NOT mention them at all.\n");
+		SystemPrompt.append(
+				"- EXAMPLE: If the tool returns 'Martin', you must write 'Martin'. DO NOT write 'Jean Martin' or 'Pierre Martin'. Adding an unprovided first name is strictly forbidden.\n");
 		SystemPrompt.append("- If a tool returns no results, say clearly that you found nothing in the database.\n");
 		SystemPrompt.append("- DO NOT explain your tools or say 'I don't have access'. Just give the final data.\n");
 
@@ -537,7 +549,8 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		UserPrompt.append("--- USER QUESTION ---\n");
 		UserPrompt.append(normalizedQuestion).append("\n\n");
 		if (inputNode != null) {
-			UserPrompt.append("The current root context node is: ").append(inputNode.idAsText()).append(inputNode.getClass().getSimpleName()).append("\n");
+			UserPrompt.append("The current root context node is: ").append(inputNode.idAsText())
+					.append(inputNode.getClass().getSimpleName()).append("\n");
 		}
 		return new String[] { SystemPrompt.toString(), UserPrompt.toString() };
 	}
@@ -571,30 +584,26 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		long requestStartTime = System.currentTimeMillis();
 		boolean[] isFirstToken = { true };
 
-		assistant.chat(prompts[0], prompts[1])
-				.onNext(token -> {
-					if (isFirstToken[0]) {
-						isFirstToken[0] = false;
-						myPromptLagMs = System.currentTimeMillis() - requestStartTime;
-						System.out.println("Test prompt lag: " + myPromptLagMs + " ms");
-					}
-					System.out.print(token);
-					System.out.flush(); // FORCE L'AFFICHAGE IMMEDIAT DU TOKEN
-				})
-				.onComplete(response -> {
-					System.out.println(); // newline after stream
-					int tokenCount = 0;
-					if (response.tokenUsage() != null && response.tokenUsage().outputTokenCount() != null) {
-						tokenCount = response.tokenUsage().outputTokenCount();
-					}
-					future.complete(new AiResult(response.content().text(), tokenCount));
-				})
-				.onError(error -> {
-					System.err.println("\n  Erreur pendant le stream IA : " + error.getMessage());
-					error.printStackTrace();
-					future.completeExceptionally(error);
-				})
-				.start();
+		assistant.chat(prompts[0], prompts[1]).onNext(token -> {
+			if (isFirstToken[0]) {
+				isFirstToken[0] = false;
+				myPromptLagMs = System.currentTimeMillis() - requestStartTime;
+				System.out.println("Test prompt lag: " + myPromptLagMs + " ms");
+			}
+			System.out.print(token);
+			System.out.flush(); // FORCE L'AFFICHAGE IMMEDIAT DU TOKEN
+		}).onComplete(response -> {
+			System.out.println(); // newline after stream
+			int tokenCount = 0;
+			if (response.tokenUsage() != null && response.tokenUsage().outputTokenCount() != null) {
+				tokenCount = response.tokenUsage().outputTokenCount();
+			}
+			future.complete(new AiResult(response.content().text(), tokenCount));
+		}).onError(error -> {
+			System.err.println("\n  Erreur pendant le stream IA : " + error.getMessage());
+			error.printStackTrace();
+			future.completeExceptionally(error);
+		}).start();
 
 		return future.join();
 	}
@@ -623,7 +632,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 				
 		 } catch (Exception e) {
 			System.out.println("Pas de noeuds disponibles, utilisation de l'instance locale d'Ollama.");
-		 }
+		}
 		final String selectedOllamaUrl = currentOllamaUrl;
 		String chatId = (currentChat != null) ? currentChat.idAsText() : "default_session";
 		var cacheKey = selectedOllamaUrl + "|" + PRIMARY_MODEL + "|" + chatId;

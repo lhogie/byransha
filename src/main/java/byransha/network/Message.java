@@ -1,10 +1,15 @@
 package byransha.network;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
-public class Message {
-	public List<String> route = new ArrayList<>();
-	public long targetNodeId;
-	public Object content;
+public class Message implements Serializable {
+	public LocalDateTime emissionDate = LocalDateTime.now();
+	public RoutingInfo routingInfo;
+	public byte[] content;
+
+	@Override
+	public String toString() {
+		return "routing info: " + routingInfo;
+	}
 }

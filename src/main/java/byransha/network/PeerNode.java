@@ -1,54 +1,147 @@
 package byransha.network;
 
+import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Inet4Address;
 import java.net.InetAddress;
-import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
+import java.util.Objects;
+import java.util.regex.Pattern;
+
+import javax.swing.JComponent;
 
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
+import byransha.graph.ShowInKishanView;
+import byransha.nodes.system.ChatNode;
 
 public class PeerNode extends BNode {
-	public InetAddress address;
-	public PublicKey publicKey;
-	public int port;
+	List<PeerListener> listeners = new ArrayList<>();
+
+	public List<PeerNode> neighbors;
+
+	@ShowInKishanView
 	public String name;
+
+	@ShowInKishanView
+	public PublicKey publicKey;
+
+	@ShowInKishanView
+	public InetAddress address;
+
+	@ShowInKishanView
+	public int port = NetworkAgent.DEFAULT_PORT;
+
 	public double TokensPerSecond;
 	public boolean IsComputing;
 	public double promptLag;
 	public int queueSize;
 	public double alpha = 1.0;
-	private ObjectInputStream in;
-	public ObjectOutputStream out;
-	private Socket socket;
 
-	public PeerNode(BGraph g, File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+	@ShowInKishanView
+	private Connection connection;
+
+	public PeerNode(BGraph g) {
 		super(g);
+	}
+
+	@ShowInKishanView
+	public List<String> neighborsName() {
+		return neighborsNames(neighbors);
+	}
+
+	static List<String> neighborsNames(List<PeerNode> peers) {
+		return peers.stream().map(p -> p.name).toList();
+	}
+
+	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
 		this.name = directory.getName();
 
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
-			var publicKeyString = Files.readString(publicKeyFile.toPath());
-			byte[] der = Base64.getDecoder().decode(publicKeyString);
-			X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
-			this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+
+			if (publicKeyFile.exists()) {
+				var publicKeyString = Files.readString(publicKeyFile.toPath());
+				byte[] der = Base64.getDecoder().decode(publicKeyString);
+				X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
+				this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+			} else {
+				System.err.println("no public key for " + this);
+			}
 		}
 
 		{
 			var ipFile = new File(directory, "ip.txt");
-			var ipS = Files.readString(ipFile.toPath());
-			this.address = Inet4Address.getByName(ipS);
+
+			if (ipFile.exists()) {
+				var ipS = Files.readString(ipFile.toPath()).trim();
+				this.address = s2ip(ipS);
+			} else {
+				System.err.println("no IP known for " + this);
+			}
 		}
+	}
+
+	public static interface PeerListener {
+		void connected(Connection c);
+
+		void connectionLost();
+	}
+
+	public void setConnection(Connection c) {
+		Objects.requireNonNull(c);
+
+		if (connection != null)
+			throw new IllegalStateException("already connected");
+
+		this.connection = c;
+		listeners.forEach(l -> l.connected(c));
+	}
+
+	private static final Pattern IPV4_PATTERN = Pattern
+			.compile("^((25[0-5]|(2[0-4]|[0-9])?[0-9])\\.){3}(25[0-5]|(2[0-4]|[0-9])?[0-9])$");
+
+	public static boolean isIPv4(String input) {
+		return IPV4_PATTERN.matcher(input).matches();
+	}
+
+	public static InetAddress s2ip(String host) throws UnknownHostException {
+		if (isIPv4(host)) {
+			return InetAddress.getByAddress(ipv4ToBytesManual(host));
+		} else {
+			return InetAddress.getByName(host);
+		}
+	}
+
+	public static byte[] ipv4ToBytesManual(String ipStr) {
+		String[] parts = ipStr.trim().split("\\.");
+		if (parts.length != 4) {
+			throw new IllegalArgumentException("Invalid IPv4 format: " + ipStr);
+		}
+
+		byte[] bytes = new byte[4];
+		for (int i = 0; i < 4; i++) {
+			try {
+				int val = Integer.parseInt(parts[i]);
+				if (val < 0 || val > 255) {
+					throw new IllegalArgumentException("Octet out of range [0-255]: " + parts[i]);
+				}
+				// Cast integer (0..255) to signed Java byte (-128..127)
+				bytes[i] = (byte) val;
+			} catch (NumberFormatException e) {
+				throw new IllegalArgumentException("Invalid octet number: " + parts[i], e);
+			}
+		}
+		return bytes;
 	}
 
 	public double getTokensPerSecond() {
@@ -74,11 +167,16 @@ public class PeerNode extends BNode {
 
 	@Override
 	public String toString() {
-		return address.getHostName() + ":" + port + "/" + peerID();
-	}
+		if (name != null)
+			return name;
 
-	public int peerID() {
-		return publicKey.hashCode();
+		if (address != null)
+			return address.getHostName() + ":" + port;
+
+		if (publicKey != null)
+			return publicKey.toString();
+
+		return "n/a";
 	}
 
 	public double getScore() {
@@ -86,32 +184,49 @@ public class PeerNode extends BNode {
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
 	}
 
-	public void setSocket(Socket socket) throws IOException {
-		this.socket = socket;
-		out = new ObjectOutputStream(socket.getOutputStream());
-		in = new ObjectInputStream(socket.getInputStream());
-	}
-
-	public void disconnect() {
-		try {
-			if (in != null) {
-				in.close();
-				in = null;
-			}
-			if (out != null) {
-				out.close();
-				out = null;
-			}
-			if (socket != null) {
-				socket.close();
-				socket = null;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void ensureDisconnected() {
+		if (connection != null) {
+			connection.close();
+			connection = null;
 		}
 	}
 
-	public boolean isConnected() {
-		return out != null;
+	public void disconnect() {
+		if (connection == null)
+			throw new IllegalStateException("not connected");
+
+		connection.close();
+		connection = null;
+		listeners.forEach(l -> l.connectionLost());
+	}
+
+	@Override
+	protected JComponent getSmallComponent(ChatNode chat) {
+		var component = super.getSmallComponent(chat);
+		updateColor(component);
+
+		listeners.add(new PeerListener() {
+
+			@Override
+			public void connectionLost() {
+				updateColor(component);
+			}
+
+			@Override
+			public void connected(Connection c) {
+				updateColor(component);
+			}
+		});
+
+		return component;
+	}
+
+	private void updateColor(JComponent component) {
+		component.setBackground(getConnection() == null ? Color.red : Color.green);
+
+	}
+
+	public Connection getConnection() {
+		return connection;
 	}
 }

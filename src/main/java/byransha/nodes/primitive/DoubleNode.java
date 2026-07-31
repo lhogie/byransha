@@ -19,18 +19,18 @@ import byransha.graph.BNode;
 import byransha.graph.NodeError;
 import byransha.ui.swing.ChatSheet;
 
-public class LongNode extends PrimitiveValueNode<Long> {
+public class DoubleNode extends PrimitiveValueNode<Double> {
 	public static record Bounds(long min, long max) {
 
 	}
 
 	public Bounds bounds;
 
-	public LongNode(BNode parent) {
+	public DoubleNode(BNode parent) {
 		super(parent);
 	}
 
-	public LongNode(BNode parent, long value) {
+	public DoubleNode(BNode parent, double value) {
 		this(parent);
 		set(value);
 	}
@@ -45,7 +45,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	}
 
 	@Override
-	public Long defaultValue() {
+	public Double defaultValue() {
 		return null;
 	}
 
@@ -102,7 +102,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 
 			private void changed(DocumentEvent e) {
 				var s = tf.getText().trim();
-				set(s.isEmpty() ? null : Long.valueOf(s));
+				set(s.isEmpty() ? null : Double.valueOf(s));
 			}
 
 			@Override
@@ -131,7 +131,7 @@ public class LongNode extends PrimitiveValueNode<Long> {
 				slider.setValue(get().intValue());
 			}
 
-			slider.addChangeListener(e -> set((long) slider.getValue()));
+			slider.addChangeListener(e -> set((double) slider.getValue()));
 			slider.setEnabled(!readOnly);
 			addValueChangeListener((n, o, newValue) -> slider.setValue(newValue.intValue()));
 			sheet.appendToCurrentLine(slider);
@@ -139,12 +139,12 @@ public class LongNode extends PrimitiveValueNode<Long> {
 	}
 
 	@Override
-	protected void writeValue(Long v, ObjectOutput out) throws IOException {
-		out.writeLong(v);
+	protected void writeValue(Double v, ObjectOutput out) throws IOException {
+		out.writeDouble(v);
 	}
 
 	@Override
-	protected Long readValue(ObjectInput in) throws IOException {
-		return in.readLong();
+	protected Double readValue(ObjectInput in) throws IOException {
+		return in.readDouble();
 	}
 }

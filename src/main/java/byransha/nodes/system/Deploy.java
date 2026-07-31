@@ -1,10 +1,12 @@
 package byransha.nodes.system;
 
+import java.awt.Desktop;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -22,9 +24,8 @@ import byransha.Main;
 import byransha.graph.Action;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
-import byransha.nodes.system.Update.byransha;
+import byransha.nodes.system.Byransha.byransha;
 import byransha.util.MinaScpUploader;
-import byransha.util.Version.Level;
 
 public class Deploy extends Action<Byransha> {
 	@ShowInKishanView
@@ -34,14 +35,17 @@ public class Deploy extends Action<Byransha> {
 	@ShowInKishanView
 	public final StringNode username = new StringNode(this, "hogie", ".+");
 	@ShowInKishanView
-	public final StringNode version = new StringNode(this, "", ".+");
+	public final StringNode versionOnline = new StringNode(this, "", ".+");
 
 	public Deploy(Byransha b) {
 		super(b, byransha.class);
-		var versionNode = ((Byransha) parent).versionNode;
-		versionNode.version.upgrade(Level.revision);
-		version.set(versionNode.version.toString());
 		hasButtonOnKishanView = true;
+
+		try {
+			versionOnline.set(Byransha.lastVersionOnline().toString());
+		} catch (IOException e) {
+			versionOnline.set("no internet");
+		}
 	}
 
 	@Override
@@ -51,22 +55,22 @@ public class Deploy extends Action<Byransha> {
 
 	@Override
 	protected void impl() throws Throwable {
-		File outputJar = File.createTempFile(getClass().getName(), ".jar");
+		if (Byransha.lastVersionOnline().equals(g().byransha.VERSION))
+			throw new IllegalStateException("The online version is the same as the local version");
 
-		var versionFile = File.createTempFile(getClass().getName(), ".txt");
+		File outputJar = File.createTempFile(getClass().getName(), ".jar");
+		JarFlattener.flattenClasspathToJar(outputJar);
+		scp(outputJar, scpHost.get(), scpRemoteDir.get() + "/byransha.jar", username.get(), null);
+
+		var versionFile = File.createTempFile(getClass().getName(), ".json");
 		var n = new ObjectNode(factory);
-		n.put("version", version.get());
+		n.put("version", g().byransha.VERSION);
 		n.put("date", LocalDateTime.now().toString());
 		n.put("java.version", System.getProperty("java.specification.version"));
 		Files.writeString(versionFile.toPath(), n.toPrettyString());
 		scp(versionFile, scpHost.get(), scpRemoteDir.get() + "/info.json", username.get(), null);
 
-		var installFile = File.createTempFile(getClass().getName(), "ps1");
-		Files.write(installFile.toPath(), getClass().getResourceAsStream("run.ps1").readAllBytes());
-		scp(installFile, scpHost.get(), scpRemoteDir.get() + "/run.ps1", username.get(), null);
-
-		JarFlattener.flattenClasspathToJar(outputJar);
-		scp(outputJar, scpHost.get(), scpRemoteDir.get() + "/byransha.jar", username.get(), null);
+		Desktop.getDesktop().browse(new URI(Byransha.lastVersionURL));
 	}
 
 	private void scp(File f, String host, String remoteDir, String username, String password) throws IOException {
@@ -80,8 +84,7 @@ public class Deploy extends Action<Byransha> {
 		 * Flattens the current system classpath into a single large uber-jar. * @param
 		 * outputJar The destination path for the consolidated fat jar.
 		 *
-		 * @throws IOException
-		 *                         If file reading or writing fails.
+		 * @throws IOException If file reading or writing fails.
 		 */
 		public static void flattenClasspathToJar(File outputJar) throws IOException {
 			// 1. Get the current classpath string split by the OS path separator
@@ -115,7 +118,7 @@ public class Deploy extends Action<Byransha> {
 						if (cpFile.getAbsoluteFile().equals(outputJar.getAbsoluteFile()))
 							continue;
 
-						System.out.println("Flattening dependency: " + cpFile.getName());
+//						System.out.println("Flattening dependency: " + cpFile.getName());
 						flattenJarElement(cpFile, jos, processedEntries);
 					} else if (cpFile.isDirectory()) {
 						System.out.println("Packing class directory: " + cpFile.getName());

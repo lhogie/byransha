@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import byransha.graph.BGraph;
 import byransha.graph.BNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.AES;
@@ -31,7 +30,7 @@ public abstract class EventList extends BNode {
 					if (e.owners.size() < 1) {
 						try {
 							candidates.add(e);
-							g().networkAgent.send(e);
+							g().networkAgent.bcast(e, null);
 							status.set("running " + candidates.size() + " event(s) sent");
 						} catch (IOException err) {
 

@@ -1,18 +1,20 @@
 package byransha;
 import java.io.File;
 import java.net.InetAddress;
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import byransha.ai.QueryIA;
 import byransha.event.Event;
 import byransha.graph.BGraph;
 import byransha.graph.BNode;
-import byransha.network.TCPDriver;
+import byransha.network.NetworkAgent;
 import byransha.nodes.lab.I3S;
 import byransha.nodes.lab.Person;
+import byransha.nodes.system.Byransha;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.SwingFrontend;
@@ -21,15 +23,31 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class Main {
 	static BGraph g;
 
-	public static void main(String[] args) throws Throwable {
-		// System.out.println("IA".split("/").length);
+	public static void main(String... args) throws Throwable {
+		System.out.println("This is Byransha v" + Byransha.VERSION);
+		System.out.println(args.length + " args: " + Arrays.toString(args));
 
-		// java.awt.Toolkit.getDefaultToolkit();
-		// Application.setUserAgentStylesheet(new
-		// PrimerDark().getUserAgentStylesheet());
+		var classPath = Byransha.pathElements();
+		boolean runFromASingleJar = classPath.length == 1;
+
+		if (runFromASingleJar) {
+			try {
+				Byransha.upgradeIfNecessary();
+
+				if (!Byransha.jarFile.equals(Byransha.installedJarFile)) {
+					Byransha.install();
+				}
+			} catch (IOException err) {
+				System.err.println("no internet");
+				err.printStackTrace();
+			}
+		} else {
+			System.out.println("Development version using: " + Arrays.toString(classPath));
+		}
+
 		var argMap = mapArgs(args);
 
-		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPDriver.DEFAULT_PORT;
+		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : NetworkAgent.DEFAULT_PORT;
 
 		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
 		g = new BGraph(d, port);
@@ -47,13 +65,16 @@ public class Main {
 			new SwingFrontend(g);
 		}
 
-		// new JavaFXFrontend(g);
-
 		System.out.println("playing events");
 		g.eventList.goToNow(e -> System.out.println("event: " + e));
 		g.setCurrentUser(new User(g, "guest"));
 		System.out.println("start ok");
 
+		if (runFromASingleJar) {
+			Byransha.runAutoUpdateThread(g.swing != null ? g.swing.frame : null);
+		}
+
+		Thread.sleep(Long.MAX_VALUE);
 
 		Dotenv dotenv = Dotenv.load();
 
@@ -81,7 +102,7 @@ public class Main {
 	private static Map<String, String> mapArgs(String... args) {
 		var r = new HashMap<String, String>();
 
-		for (var arg : List.of(args)) {
+		for (var arg : args) {
 			if (arg.contains("=")) {
 				var a = arg.split("=");
 				r.put(a[0], a[1]);

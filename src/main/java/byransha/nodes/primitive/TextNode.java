@@ -90,7 +90,7 @@ public class TextNode extends PrimitiveValueNode<String> {
 			});
 
 			int caret = p.getCaretPosition();
-			valueChangeListeners.add((a, o, n) -> {
+			addValueChangeListener((a, o, n) -> {
 				var newValue = get();
 
 				if (!p.getText().equals(newValue)) {
@@ -98,7 +98,6 @@ public class TextNode extends PrimitiveValueNode<String> {
 				}
 			});
 			p.setCaretPosition(caret);
-
 			pane.appendToCurrentLine(Utils.resizableScrollPane(p));
 		}
 	}

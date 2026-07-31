@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.ObjectStreamClass;
 import java.io.OutputStream;
 
 public class JavaSerializer<E> extends Serializer<E> {
@@ -62,6 +63,26 @@ public class JavaSerializer<E> extends Serializer<E> {
 			ObjectInputStream oos = new ObjectInputStream(new ByteArrayInputStream(b)) {
 				{
 					enableResolveObject(true);
+				}
+
+				@Override
+				protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+					ObjectStreamClass streamClassDescriptor = super.readClassDescriptor();
+
+					try {
+						// Find the local class on your classpath
+						Class<?> localClass = Class.forName(streamClassDescriptor.getName());
+						ObjectStreamClass localClassDescriptor = ObjectStreamClass.lookup(localClass);
+
+						if (localClassDescriptor != null) {
+							// Return the local class descriptor instead of the stream's descriptor!
+							return localClassDescriptor;
+						}
+					} catch (ClassNotFoundException ignored) {
+						// Fall back to stream descriptor if class isn't loaded
+					}
+
+					return streamClassDescriptor;
 				}
 
 				@Override
