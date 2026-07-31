@@ -76,21 +76,21 @@ public class Main {
 
 		Thread.sleep(Long.MAX_VALUE);
 
-		Dotenv dotenv = Dotenv.load();
+		// Dotenv dotenv = Dotenv.load();
 
-        // Récupère la valeur
-        String serverName = dotenv.get("PUBLIC_SERVER_NAME");
+    //     // Récupère la valeur
+    //     String serverName = dotenv.get("PUBLIC_SERVER_NAME");
 
-		if ((InetAddress.getLocalHost().getHostName().equals(serverName))) {
-			System.out.println("AI is used on the server");
-			QueryIA.startOllama();
-	}
-	else {
-		System.out.println("AI is not used on the server");
-		System.out.println("name: " + InetAddress.getLocalHost().getHostName());
-		System.out.println("PUBLIC_SERVER_NAME: " + serverName);
-		}
-	}
+	// 	if ((InetAddress.getLocalHost().getHostName().equals(serverName))) {
+	// 		System.out.println("AI is used on the server");
+	// 		QueryIA.startOllama();
+	// }
+	// else {
+	// 	System.out.println("AI is not used on the server");
+	// 	System.out.println("name: " + InetAddress.getLocalHost().getHostName());
+	// 	System.out.println("PUBLIC_SERVER_NAME: " + serverName);
+	// 	}
+	 }
 
 
 	private static Event createPersonEvent(String name) {
