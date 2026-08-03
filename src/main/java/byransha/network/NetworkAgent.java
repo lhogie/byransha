@@ -79,20 +79,22 @@ public class NetworkAgent extends ServiceNode {
 
 	@Override
 	public synchronized void onNewMessage(Message msg) {
-		System.out.println("*** message received: " + msg);
 		++nbMsgReceived;
 		updateInOutInfo();
 
 		var from = neighborhood.findPeerByName(msg.routingInfo.source());
-		boolean imTheRecipient = msg.routingInfo.recipient().equals(name);
+		boolean imTheRecipient = msg.routingInfo.recipient().equals(name.get());
 
 		if (imTheRecipient) {
 			// We are the final destination (D)
 			var originalSender = neighborhood.findPeerByName(msg.routingInfo.source());
 			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, originalSender.publicKey, msg.content);
+			msg.content = decryptedE2E;
 			
 			var content = ByUtils.serializer.fromBytes(decryptedE2E);
 			msg.contentObject = content;
+
+			System.out.println("*** message received: " + msg);
 
 			if (content instanceof Ack ack) {
 				g().eventList.findEvent(ack.id).markReceivedBy(from);
