@@ -107,4 +107,9 @@ public class Q<E> implements Iterable<E> {
 		return q.toString();
 	}
 
+	public void clear() {
+		q.clear();
+		
+	}
+
 }

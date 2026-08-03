@@ -22,7 +22,6 @@ public class NetworkAgent extends ServiceNode {
 	@ShowInKishanView
 	StringNode name = new StringNode(this, System.getProperty("user.name"), "([a-z][A-Z])+");
 
-
 	@ShowInKishanView
 	public final MessageSendQueue sendQ;
 
@@ -42,6 +41,13 @@ public class NetworkAgent extends ServiceNode {
 		this.gossiper = new Gossiper(this);
 		this.sendQ = new MessageSendQueue(this);
 		this.tcp = new TCPNode(this, port);
+	}
+
+	public void start() throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+		this.neighborhood.start();
+		this.gossiper.start();
+		this.sendQ.start();
+		this.tcp.start();
 	}
 
 	@Override
@@ -94,8 +100,8 @@ public class NetworkAgent extends ServiceNode {
 					return peer;
 				}).toList();
 				sendQ.considerForwarding(msg, null);
-			} else if (msg instanceof ServiceLevelMessage slm) {
-				var service = g().indexes.byId.get(slm.recipient);
+			} else {
+				var service = g().indexes.byId.get(msg.recipient);
 
 				if (service != null) {
 				} else {

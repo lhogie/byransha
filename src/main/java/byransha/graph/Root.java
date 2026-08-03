@@ -68,6 +68,7 @@ public class Root extends BNode {
 		super(null);
 		// indexes.add(this);
 		this.networkAgent = new NetworkAgent(this, port);
+		networkAgent.start();
 		new Male(this);
 		new Female(this);
 		new NotGenred(this);
