@@ -67,6 +67,7 @@ public class TCPNode extends ServiceNode {
 			try {
 				while (true) {
 					var msg = p.getConnection().readMessage();
+					msg.contentObject = ByUtils.serializer.fromBytes(msg.content);
 					msg.routingInfo.actualRoute.add(p.name);
 					onNewMessage(msg);
 				}
@@ -77,4 +78,10 @@ public class TCPNode extends ServiceNode {
 			}
 		});
 	}
+
+	public void start() {
+		server.start();
+		client.start();
+	}
+
 }

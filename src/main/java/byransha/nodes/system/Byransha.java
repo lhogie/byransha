@@ -29,7 +29,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.58";
+	public static final String VERSION = "0.0.61";
 
 	public static class byransha extends Category {
 	}

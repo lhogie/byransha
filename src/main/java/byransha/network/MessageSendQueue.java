@@ -32,29 +32,43 @@ public class MessageSendQueue extends ServiceNode {
 	public MessageSendQueue(NetworkAgent net)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(net);
+	}
 
+	public void start() {
 		ByUtils.thread("message sending", () -> {
 			while (true) {
-				var msg = sendingBox.poll_sync();
-				var recipient = net.neighborhood.findPeerByName(msg.routingInfo.recipient());
+				Message msg = sendingBox.poll_sync();
+				msg.nbAttempts++;
+
+				if (msg.keepAliveExpired())
+					continue;
+
+				var recipient = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.recipient());
 				var route = computeRouteToReach(recipient);
 
 				if (route != null) { // if a better route could be found
 					msg.routingInfo.suggestedRoute = route.stream().map(p -> p.name).toList();
 				}
 
-				var relay = net.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
+				var relay = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
 
 				if (relay.getConnection() != null) {
 					try {
+System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
 						relay.getConnection().write(msg);
 						++messageSent;
 						updateInOutInfo();
 					} catch (IOException e) {
-						sendingBox.add_sync(msg);
+						msg.errorCount++;
+
+						if (msg.nbAttempts < msg.maxNbAttempts) {
+							sendingBox.add_sync(msg);
+						}
 					}
 				} else {
-					sendingBox.add_sync(msg);
+					if (msg.nbAttempts < msg.maxNbAttempts) {
+						sendingBox.add_sync(msg);
+					}
 				}
 			}
 		});

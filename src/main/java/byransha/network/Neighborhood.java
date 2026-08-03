@@ -38,7 +38,9 @@ public class Neighborhood extends ServiceNode {
 				}
 			}
 		}
-
+	}
+	
+	public void start() {
 		ByUtils.thread("discover peers info on disk", () -> {
 			while (true) {
 				for (File peerDirectory : peersDirectory.listFiles()) {

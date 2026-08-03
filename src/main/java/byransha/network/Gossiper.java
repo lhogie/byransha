@@ -14,11 +14,13 @@ public class Gossiper extends ServiceNode {
 	final BooleanNode active = new BooleanNode(this, true);
 
 	@ShowInKishanView
-	final DoubleNode periodS = new DoubleNode(this, 1);
+	final DoubleNode periodS = new DoubleNode(this, 5);
 
 	public Gossiper(NetworkAgent net) {
 		super(net);
+	}
 
+	public void start() {
 		ByUtils.thread("forward local info (including neighborhood)", () -> {
 			while (true) {
 				if (active.get() && g().networkAgent != null) {

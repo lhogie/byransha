@@ -17,14 +17,16 @@ public class TCPServer extends ServiceNode {
 	public TCPServer(TCPNode net, int port) {
 		super(net);
 		this.port = port;
+	}
 
+	public void start() {
 		ByUtils.thread("TCP server thread", () -> {
 			while (true) {
 				try (var socket = new ServerSocket(port)) {
 					System.out.println("TCP Server is listening on port " + port);
 
 					while (true) {
-						net.newSocket(socket.accept(), false);
+						g().networkAgent.tcp.newSocket(socket.accept(), false);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

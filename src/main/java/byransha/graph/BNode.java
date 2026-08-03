@@ -52,6 +52,8 @@ import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.network.Message;
+import byransha.network.Peer;
+import byransha.network.Queue;
 import byransha.nodes.primitive.LongNode;
 import byransha.nodes.primitive.StringNode;
 import byransha.nodes.primitive.ValuedNode;
@@ -257,6 +259,7 @@ public abstract class BNode {
 				if (m.isAnnotationPresent(ActionMethod.class)) {
 					if (m.getReturnType() == void.class) {
 						var a = new MethodAction(this, m);
+						a.hasButtonOnKishanView = true;
 						cachedActions.elements.add(a);
 					} else {
 						System.err.println(m.getReturnType().getName());
@@ -336,6 +339,14 @@ public abstract class BNode {
 				}
 			}
 		});
+	}
+
+	public void ping(Peer p) {
+		Queue q = new Queue(this);
+		g().networkAgent.sendQ.sendObject("ping", p, msg -> {
+			msg.replyTo = q.id;
+		});
+		Message reply = q.q.poll_sync();
 	}
 
 	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -783,5 +794,4 @@ public abstract class BNode {
 	public void onNewMessage(Message msg) {
 		System.out.println(this + " received " + msg);
 	};
-
 }
