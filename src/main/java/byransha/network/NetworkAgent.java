@@ -7,6 +7,7 @@ import java.security.spec.InvalidKeySpecException;
 
 import byransha.event.Event;
 import byransha.graph.Ack;
+import byransha.graph.PublicKeyImporter;
 import byransha.graph.Root;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
@@ -34,6 +35,10 @@ public class NetworkAgent extends ServiceNode {
 	@ShowInKishanView
 	public final TCPNode tcp;
 
+	@ShowInKishanView
+	public final PublicKeyImporter publicKeyImporter = new PublicKeyImporter(this);
+
+	
 	public NetworkAgent(Root g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);

@@ -16,7 +16,7 @@ import byransha.nodes.system.Byransha;
 
 public class AsymmetricEncryption extends ServiceNode {
 	@ShowInKishanView
-	File securityDir = new File(Byransha.homeDirectory, "security");
+	public static File securityDir = new File(Byransha.homeDirectory, "security");
 
 	@ShowInKishanView
 	public PublicKey publicKey;

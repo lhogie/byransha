@@ -54,7 +54,7 @@ public class MessageSendQueue extends ServiceNode {
 
 				if (relay.getConnection() != null) {
 					try {
-System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
+//System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
 						relay.getConnection().write(msg);
 						++messageSent;
 						updateInOutInfo();
