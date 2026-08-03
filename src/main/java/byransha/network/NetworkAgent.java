@@ -2,11 +2,11 @@ package byransha.network;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.security.KeyPair;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
 
 import byransha.event.Event;
 import byransha.graph.Ack;
@@ -16,7 +16,6 @@ import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.NetworkBox;
-import byransha.security.LocalIdentity;
 import byransha.util.ByUtils;
 
 public class NetworkAgent extends ServiceNode {
@@ -46,7 +45,6 @@ public class NetworkAgent extends ServiceNode {
 	@ShowInKishanView
 	public final PublicKeyImporter publicKeyImporter = new PublicKeyImporter(this);
 
-	
 	public NetworkAgent(Root g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);
@@ -92,10 +90,9 @@ public class NetworkAgent extends ServiceNode {
 
 		if (imTheRecipient) {
 			// We are the final destination (D)
-			var originalSender = neighborhood.findPeerByName(msg.routingInfo.source());
-			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, originalSender.publicKey, msg.content);
+			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, from.publicKey, msg.content);
 			msg.content = decryptedE2E;
-			
+
 			var content = ByUtils.serializer.fromBytes(decryptedE2E);
 			msg.contentObject = content;
 
