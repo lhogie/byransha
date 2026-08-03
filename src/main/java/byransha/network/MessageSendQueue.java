@@ -66,11 +66,10 @@ public class MessageSendQueue extends ServiceNode {
 					try {
 						System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
 
-						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
-						
+						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);				
 						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
 						
-						relay.getConnection().write(hopEncryptedBytes);
+						relay.getConnection().writeObject(hopEncryptedBytes);
 						++messageSent;
 						updateInOutInfo();
 					} catch (IOException e) {
@@ -148,11 +147,10 @@ public class MessageSendQueue extends ServiceNode {
 
 		var msg = new Message();
 		msg.routingInfo.suggestedRoute.add(to.name);
-		msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
+		//msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
 
 		// msg.content = ByUtils.serializer.toBytes(o);
 		byte[] rawBytesPayload = ByUtils.serializer.toBytes(o);
-		
 		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytesPayload);
 
 		if (c != null) {

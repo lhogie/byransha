@@ -51,14 +51,16 @@ public class Connection {
 		return out != null;
 	}
 
-	public byte[] readMessage() throws ClassNotFoundException, IOException {
+	public Object readObject() throws ClassNotFoundException, IOException {
 		int len = in.readInt();
 		var bytes = in.readNBytes(len);
 		++nbMessagesReceived;
-		return bytes;
+		return ByUtils.serializer.fromBytes(bytes);
 	}
 
-	public void write(byte[] bytes) throws IOException {
+	public void writeObject(Object o) throws IOException {
+//		System.out.println("send " + o);
+		var bytes = ByUtils.serializer.toBytes(o);
 		out.writeInt(bytes.length);
 		out.write(bytes);
 		++nbMessagesSent;

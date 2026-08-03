@@ -2,7 +2,6 @@ package byransha.network;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Objects;
 
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
@@ -40,7 +39,8 @@ public class TCPNode extends ServiceNode {
 				if (peer.publicKey != null) {
 					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
 				} else {
-					System.out.println("Warning: No public key for " + peer.name + ". Secure routing disabled until key is added.");
+					System.out.println("Warning: No public key for " + peer.name
+							+ ". Secure routing disabled until key is added.");
 				}
 				System.out.println(peer + " joined");
 				tcpSocketReadingThread(peer);
@@ -53,17 +53,14 @@ public class TCPNode extends ServiceNode {
 	}
 
 	private String handshake(boolean sendNameFirst, Connection to) throws IOException, ClassNotFoundException {
-		var name = g().networkAgent.name.get();
-		Objects.requireNonNull(name);
-		var msg = new Message();
-		msg.content = ByUtils.serializer.toBytes(name);
+		String name = g().networkAgent.name.get();
 
 		if (sendNameFirst) {
-			to.write(msg);
-			return (String) ByUtils.serializer.fromBytes(to.readMessage().content);
+			to.writeObject(name);
+			return (String) to.readObject();
 		} else {
-			var other = (String) ByUtils.serializer.fromBytes(to.readMessage().content);
-			to.write(msg);
+			var other = (String) to.readObject();
+			to.writeObject(name);
 			return other;
 		}
 	}
@@ -72,18 +69,17 @@ public class TCPNode extends ServiceNode {
 		ByUtils.thread("thread waiting for messages from", () -> {
 			try {
 				while (true) {
-					var wireMsg = p.getConnection().readMessage();
+					byte[] wireMsg = (byte[]) p.getConnection().readObject();
 
 					if (p.sharedSecret == null) {
 						System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
 						continue;
 					}
-					
-					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg.content);
-					
+
+					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
 
-					msg.routingInfo.actualRoute.add(p.name);
+//					msg.routingInfo.actualRoute.add(p.name);
 					onNewMessage(msg);
 				}
 			} catch (Exception err) {
