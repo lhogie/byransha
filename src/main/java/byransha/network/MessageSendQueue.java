@@ -16,6 +16,7 @@ import byransha.graph.BNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
+import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 import byransha.util.Q;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -53,9 +54,27 @@ public class MessageSendQueue extends ServiceNode {
 				var relay = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
 
 				if (relay.getConnection() != null) {
+					if (relay.sharedSecret == null) {
+						System.out.println("Cannot route through " + relay.name + ": missing public key. Retrying later...");
+						msg.errorCount++;
+						if (msg.nbAttempts < msg.maxNbAttempts) {
+							sendingBox.add_sync(msg);
+						}
+						continue; // Skip to the next message
+					}
+
 					try {
-//System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
-						relay.getConnection().write(msg);
+						System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
+
+						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
+						
+						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
+						
+						// Wrap in Message
+						Message wireMsg = new Message();
+						wireMsg.content = hopEncryptedBytes;
+
+						relay.getConnection().write(wireMsg);
 						++messageSent;
 						updateInOutInfo();
 					} catch (IOException e) {
@@ -126,10 +145,20 @@ public class MessageSendQueue extends ServiceNode {
 	}
 
 	public void sendObject(Object o, Peer to, Consumer<Message> c) {
+		if (to.publicKey == null) {
+			System.out.println("Cannot send E2E message to " + to.name + ": public key is missing.");
+			return;
+		}
+
 		var msg = new Message();
 		msg.routingInfo.suggestedRoute.add(to.name);
 		msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
-		msg.content = ByUtils.serializer.toBytes(o);
+
+		// msg.content = ByUtils.serializer.toBytes(o);
+		byte[] rawBytes = ByUtils.serializer.toBytes(o);
+		
+		// Encrypt E2E using NetworkBox (Stateless Asymmetric)
+		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytes);
 
 		if (c != null) {
 			c.accept(msg);

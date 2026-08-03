@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
+import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 
 public class TCPNode extends ServiceNode {
@@ -36,6 +37,11 @@ public class TCPNode extends ServiceNode {
 				System.out.println("already connected to peer " + other);
 			} else {
 				peer.setConnection(connection);
+				if (peer.publicKey != null) {
+					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
+				} else {
+					System.out.println("Warning: No public key for " + peer.name + ". Secure routing disabled until key is added.");
+				}
 				System.out.println(peer + " joined");
 				tcpSocketReadingThread(peer);
 			}
@@ -66,8 +72,17 @@ public class TCPNode extends ServiceNode {
 		ByUtils.thread("thread waiting for messages from", () -> {
 			try {
 				while (true) {
-					var msg = p.getConnection().readMessage();
-					msg.contentObject = ByUtils.serializer.fromBytes(msg.content);
+					var wireMsg = p.getConnection().readMessage();
+
+					if (p.sharedSecret == null) {
+						System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
+						continue;
+					}
+					
+					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg.content);
+					
+					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
+
 					msg.routingInfo.actualRoute.add(p.name);
 					onNewMessage(msg);
 				}

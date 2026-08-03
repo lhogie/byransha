@@ -17,7 +17,6 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.JVMNode;
 import byransha.nodes.system.OperatingSystem;
 import byransha.nodes.system.User;
-import byransha.security.AsymmetricEncryption;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
@@ -43,8 +42,6 @@ public class Root extends BNode {
 	public final ErrorLog errorLog = new ErrorLog(this);
 	@ShowInKishanView
 	public final TinyChat tinyChat = new TinyChat(this);
-	@ShowInKishanView
-	public final AsymmetricEncryption asymmetricEncryption = new AsymmetricEncryption(this);
 	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
