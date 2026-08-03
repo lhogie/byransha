@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
+import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 
 public class TCPNode extends ServiceNode {
@@ -36,6 +37,7 @@ public class TCPNode extends ServiceNode {
 				System.out.println("already connected to peer " + other);
 			} else {
 				peer.setConnection(connection);
+				peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
 				System.out.println(peer + " joined");
 				tcpSocketReadingThread(peer);
 			}
@@ -66,8 +68,13 @@ public class TCPNode extends ServiceNode {
 		ByUtils.thread("thread waiting for messages from", () -> {
 			try {
 				while (true) {
-					var msg = p.getConnection().readMessage();
-					msg.contentObject = ByUtils.serializer.fromBytes(msg.content);
+					var wireMsg = p.getConnection().readMessage();
+					
+					// Decrypt the Hop-by-Hop bytes
+					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg.content);
+					
+					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
+
 					msg.routingInfo.actualRoute.add(p.name);
 					onNewMessage(msg);
 				}

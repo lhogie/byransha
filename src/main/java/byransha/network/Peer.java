@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
@@ -25,6 +26,7 @@ import byransha.graph.BNode;
 import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.system.ChatNode;
+import byransha.security.ECC;
 import byransha.util.ByUtils;
 
 public class Peer extends BNode {
@@ -37,6 +39,8 @@ public class Peer extends BNode {
 
 	@ShowInKishanView
 	public PublicKey publicKey;
+
+	public Key sharedSecret; // for NetworkBox.SecretBox
 
 	@ShowInKishanView
 	public InetAddress address;
@@ -82,9 +86,9 @@ public class Peer extends BNode {
 
 			if (publicKeyFile.exists()) {
 				var publicKeyString = Files.readString(publicKeyFile.toPath());
-				byte[] der = Base64.getDecoder().decode(publicKeyString);
-				X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
-				this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
+				
+				this.publicKey = ECC.fromPem(publicKeyString, "X25519");
+				
 				this.autoConnect = !new File(directory, "noAutoConnect").exists();
 			} else {
 				System.err.println("no public key for " + this);

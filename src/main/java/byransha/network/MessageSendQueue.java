@@ -16,6 +16,7 @@ import byransha.graph.BNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.StringNode;
+import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 import byransha.util.Q;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -54,8 +55,19 @@ public class MessageSendQueue extends ServiceNode {
 
 				if (relay.getConnection() != null) {
 					try {
-System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
-						relay.getConnection().write(msg);
+						System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
+
+						// Serialize the Message object for the hop
+						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
+						
+						// Encrypt Hop-by-Hop using cached symmetric key
+						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
+						
+						// Wrap in Message
+						Message wireMsg = new Message();
+						wireMsg.content = hopEncryptedBytes;
+
+						relay.getConnection().write(wireMsg);
 						++messageSent;
 						updateInOutInfo();
 					} catch (IOException e) {
@@ -129,7 +141,12 @@ System.out.println("sending message to " + relay.name + " via route " + msg.rout
 		var msg = new Message();
 		msg.routingInfo.suggestedRoute.add(to.name);
 		msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
-		msg.content = ByUtils.serializer.toBytes(o);
+
+		// msg.content = ByUtils.serializer.toBytes(o);
+		byte[] rawBytes = ByUtils.serializer.toBytes(o);
+		
+		// Encrypt E2E using NetworkBox (Stateless Asymmetric)
+		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytes);
 
 		if (c != null) {
 			c.accept(msg);
