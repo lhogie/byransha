@@ -27,6 +27,11 @@
 			<version>1.78</version>
 		</dependency>
 		<dependency>
+			<groupId>software.pando.crypto</groupId>
+			<artifactId>salty-coffee</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.sshd</groupId>
 			<artifactId>sshd-core</artifactId>
 			<version>2.12.0</version>
@@ -131,11 +136,6 @@
 			<groupId>io.github.classgraph</groupId>
 			<artifactId>classgraph</artifactId>
 			<version>4.8.165</version>
-		</dependency>
-		<dependency>
-			<groupId>de.mkammerer</groupId>
-			<artifactId>argon2-jvm</artifactId>
-			<version>2.11</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.plantuml</groupId>
