@@ -70,11 +70,7 @@ public class MessageSendQueue extends ServiceNode {
 						
 						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
 						
-						// Wrap in Message
-						Message wireMsg = new Message();
-						wireMsg.content = hopEncryptedBytes;
-
-						relay.getConnection().write(wireMsg);
+						relay.getConnection().write(hopEncryptedBytes);
 						++messageSent;
 						updateInOutInfo();
 					} catch (IOException e) {
@@ -155,10 +151,9 @@ public class MessageSendQueue extends ServiceNode {
 		msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
 
 		// msg.content = ByUtils.serializer.toBytes(o);
-		byte[] rawBytes = ByUtils.serializer.toBytes(o);
+		byte[] rawBytesPayload = ByUtils.serializer.toBytes(o);
 		
-		// Encrypt E2E using NetworkBox (Stateless Asymmetric)
-		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytes);
+		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytesPayload);
 
 		if (c != null) {
 			c.accept(msg);
