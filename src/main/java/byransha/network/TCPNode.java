@@ -37,7 +37,11 @@ public class TCPNode extends ServiceNode {
 				System.out.println("already connected to peer " + other);
 			} else {
 				peer.setConnection(connection);
-				peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
+				if (peer.publicKey != null) {
+					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
+				} else {
+					System.out.println("Warning: No public key for " + peer.name + ". Secure routing disabled until key is added.");
+				}
 				System.out.println(peer + " joined");
 				tcpSocketReadingThread(peer);
 			}
@@ -69,8 +73,12 @@ public class TCPNode extends ServiceNode {
 			try {
 				while (true) {
 					var wireMsg = p.getConnection().readMessage();
+
+					if (p.sharedSecret == null) {
+						System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
+						continue;
+					}
 					
-					// Decrypt the Hop-by-Hop bytes
 					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg.content);
 					
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);

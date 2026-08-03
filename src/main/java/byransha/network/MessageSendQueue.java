@@ -54,13 +54,20 @@ public class MessageSendQueue extends ServiceNode {
 				var relay = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
 
 				if (relay.getConnection() != null) {
+					if (relay.sharedSecret == null) {
+						System.out.println("Cannot route through " + relay.name + ": missing public key. Retrying later...");
+						msg.errorCount++;
+						if (msg.nbAttempts < msg.maxNbAttempts) {
+							sendingBox.add_sync(msg);
+						}
+						continue; // Skip to the next message
+					}
+
 					try {
 						System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
 
-						// Serialize the Message object for the hop
 						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
 						
-						// Encrypt Hop-by-Hop using cached symmetric key
 						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
 						
 						// Wrap in Message
@@ -138,6 +145,11 @@ public class MessageSendQueue extends ServiceNode {
 	}
 
 	public void sendObject(Object o, Peer to, Consumer<Message> c) {
+		if (to.publicKey == null) {
+			System.out.println("Cannot send E2E message to " + to.name + ": public key is missing.");
+			return;
+		}
+
 		var msg = new Message();
 		msg.routingInfo.suggestedRoute.add(to.name);
 		msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
