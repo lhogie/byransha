@@ -92,15 +92,13 @@ public class NetworkAgent extends ServiceNode {
 			// We are the final destination (D)
 			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, from.publicKey, msg.content);
 			msg.content = decryptedE2E;
-
-			var content = ByUtils.serializer.fromBytes(decryptedE2E);
-			msg.contentObject = content;
+			Object contentObject = ByUtils.serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
 
-			if (content instanceof Ack ack) {
+			if (contentObject instanceof Ack ack) {
 				g().eventList.findEvent(ack.id).markReceivedBy(from);
-			} else if (content instanceof Event e) {
+			} else if (contentObject instanceof Event e) {
 				var alreadyKnownEvent = g().eventList.findEvent(e.id());
 
 				if (alreadyKnownEvent != null) {
@@ -109,7 +107,7 @@ public class NetworkAgent extends ServiceNode {
 					g().eventList.add(e);
 					e.markReceivedBy(from);
 				}
-			} else if (content instanceof PeerInfo e) {
+			} else if (contentObject instanceof PeerInfo e) {
 				from.lastInfo = e;
 				from.neighbors = e.neighborsName.stream().map(name -> {
 					var peer = neighborhood.findPeerByName(name);
@@ -134,5 +132,4 @@ public class NetworkAgent extends ServiceNode {
 			sendQ.considerForwarding(msg, null);
 		}
 	}
-
 }

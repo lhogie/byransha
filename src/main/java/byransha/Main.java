@@ -46,6 +46,11 @@ public class Main {
 		}
 
 		var argMap = mapArgs(args);
+		
+		Byransha.autoRestart = argMap.containsKey("--auto-restart");
+		Byransha.autoUpdateEnabled = !argMap.containsKey("--disable-auto-update");
+		
+		
 
 		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
 

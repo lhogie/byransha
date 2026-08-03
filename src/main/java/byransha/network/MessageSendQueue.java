@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -150,6 +151,7 @@ public class MessageSendQueue extends ServiceNode {
 		//msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
 
 		// msg.content = ByUtils.serializer.toBytes(o);
+		Objects.requireNonNull(o);
 		byte[] rawBytesPayload = ByUtils.serializer.toBytes(o);
 		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytesPayload);
 

@@ -21,8 +21,8 @@ import javax.swing.JOptionPane;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import byransha.graph.Root;
 import byransha.graph.Category;
+import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.URLNode;
 import byransha.util.ByUtils;
@@ -60,6 +60,10 @@ public class Byransha extends SystemNode {
 	public static final String downloadBinaries = downloads + "bin/";
 	public static final String lastVersionURL = downloadBinaries + "info.json";
 	public static File installedJarFile = new File(binDirectory, "byransha.jar");
+
+	public static boolean autoUpdateEnabled = true;
+
+	public static boolean autoRestart = false;
 
 	public Byransha(Root g) {
 		super(g);
@@ -126,17 +130,21 @@ public class Byransha extends SystemNode {
 		ByUtils.thread("check new version", () -> {
 			while (true) {
 				try {
-					Thread.sleep(10);
+					Thread.sleep(1000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+
+				if (!autoUpdateEnabled)
+					continue;
+
 				try {
 					if (!Byransha.lastVersionOnline().equals(Byransha.VERSION)) {
 						System.out.println("upgrading " + jarFile);
 						Files.write(installedJarFile.toPath(), Byransha.downloadLastVersion(),
 								StandardOpenOption.TRUNCATE_EXISTING);
 
-						if (c != null) {
+						if (c != null && !autoRestart) {
 							JOptionPane.showMessageDialog(c,
 									"A new version was downloaded and installed, you must restart the application",
 									"Restart requireed", JOptionPane.INFORMATION_MESSAGE);

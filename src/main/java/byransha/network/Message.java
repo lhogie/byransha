@@ -13,11 +13,11 @@ public class Message implements Serializable {
 	public int maxNbAttempts = Integer.MAX_VALUE;
 
 	public byte[] content;
-	public transient Object contentObject;
+//	public transient Object contentObject;
 
 	@Override
 	public String toString() {
-		return "routing info: " + routingInfo + ", content:" + contentObject;
+		return "routing info: " + routingInfo + ", content:" + content.length;
 	}
 
 	public boolean keepAliveExpired() {
