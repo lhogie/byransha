@@ -7,6 +7,8 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
@@ -94,8 +96,7 @@ public class AES {
 	}
 
 	/**
-	 * Creates a stable 256-bit AES key by hashing the input string
-	 * with SHA-256.
+	 * Derives a stable 256-bit AES key from an input string using PBKDF2.
 	 *
 	 * @param s
 	 *              The input string to derive the key from.
@@ -103,11 +104,22 @@ public class AES {
 	 */
 	public static Key createKey(String s) {
 		try {
-			MessageDigest digest = MessageDigest.getInstance("SHA-256");
-			byte[] keyBytes = digest.digest(s.getBytes(StandardCharsets.UTF_8));
+			// TODO: append a node-specific UUID to this salt.
+			byte[] salt = "byransha_stable_node_salt".getBytes(StandardCharsets.UTF_8);
+
+			int iterations = 10_000;
+			int keyLengthBits = 256;
+
+			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+			PBEKeySpec spec = new PBEKeySpec(s.toCharArray(), salt, iterations, keyLengthBits);
+
+			byte[] keyBytes = factory.generateSecret(spec).getEncoded();
+
+			spec.clearPassword();
+
 			return new SecretKeySpec(keyBytes, ALGO);
 		} catch (Exception e) {
-			throw new SecurityException("Failed to create key from string", e);
+			throw new SecurityException("Failed to derive secure key from string", e);
 		}
 	}
 }
