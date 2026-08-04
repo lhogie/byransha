@@ -1,13 +1,11 @@
 package byransha;
-import java.io.File;
-import java.net.InetAddress;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import byransha.ai.QueryIA;
 import byransha.event.Event;
 import byransha.graph.BNode;
 import byransha.graph.Root;
@@ -18,7 +16,6 @@ import byransha.nodes.system.Byransha;
 import byransha.nodes.system.ChatNode;
 import byransha.nodes.system.User;
 import byransha.ui.swing.SwingFrontend;
-import io.github.cdimascio.dotenv.Dotenv;
 
 public class Main {
 	static Root g;
@@ -46,16 +43,13 @@ public class Main {
 		}
 
 		var argMap = mapArgs(args);
-		
+
 		Byransha.autoRestart = argMap.containsKey("--auto-restart");
 		Byransha.autoUpdateEnabled = !argMap.containsKey("--disable-auto-update");
-		
-		
 
 		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
 
-		File d = new File(argMap.getOrDefault("-directory", System.getProperty("user.home") + "/.byransha/"));
-		g = new Root(d, port);
+		g = new Root(port);
 		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
 				.getConstructor(BNode.class).newInstance(g);
 
@@ -83,20 +77,19 @@ public class Main {
 
 		// Dotenv dotenv = Dotenv.load();
 
-    //     // Récupère la valeur
-    //     String serverName = dotenv.get("PUBLIC_SERVER_NAME");
+		// // Récupère la valeur
+		// String serverName = dotenv.get("PUBLIC_SERVER_NAME");
 
-	// 	if ((InetAddress.getLocalHost().getHostName().equals(serverName))) {
-	// 		System.out.println("AI is used on the server");
-	// 		QueryIA.startOllama();
-	// }
-	// else {
-	// 	System.out.println("AI is not used on the server");
-	// 	System.out.println("name: " + InetAddress.getLocalHost().getHostName());
-	// 	System.out.println("PUBLIC_SERVER_NAME: " + serverName);
-	// 	}
-	 }
-
+		// if ((InetAddress.getLocalHost().getHostName().equals(serverName))) {
+		// System.out.println("AI is used on the server");
+		// QueryIA.startOllama();
+		// }
+		// else {
+		// System.out.println("AI is not used on the server");
+		// System.out.println("name: " + InetAddress.getLocalHost().getHostName());
+		// System.out.println("PUBLIC_SERVER_NAME: " + serverName);
+		// }
+	}
 
 	private static Event createPersonEvent(String name) {
 		var e = new NewNodeEvent<Person>(g, LocalDateTime.now());
@@ -119,4 +112,3 @@ public class Main {
 		return r;
 	}
 }
-

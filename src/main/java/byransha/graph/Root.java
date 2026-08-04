@@ -61,7 +61,7 @@ public class Root extends BNode {
 	class graph extends Category {
 	}
 
-	public Root(File directory, int port) throws Exception {
+	public Root( int port) throws Exception {
 		super(null);
 		// indexes.add(this);
 		this.networkAgent = new NetworkAgent(this, port);
