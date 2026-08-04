@@ -8,8 +8,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
-import byransha.event.Event;
-import byransha.graph.Ack;
 import byransha.graph.PublicKeyImporter;
 import byransha.graph.Root;
 import byransha.graph.ServiceNode;
@@ -80,53 +78,27 @@ public class NetworkAgent extends ServiceNode {
 		receptionInfo.set(nbMsgReceived + " received");
 	}
 
-	@Override
-	public synchronized void onNewMessage(Message msg) {
+	public synchronized void processIncomingMessage(Message msg) {
 		++nbMsgReceived;
 		updateInOutInfo();
 
-		var from = neighborhood.findPeerByName(msg.routingInfo.source());
 		boolean imTheRecipient = msg.routingInfo.recipient().equals(name.get());
 
 		if (imTheRecipient) {
-			// We are the final destination (D)
+			var from = neighborhood.findPeerByName(msg.routingInfo.source());
 			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, from.publicKey, msg.content);
-			msg.content = decryptedE2E;
+//			msg.content = decryptedE2E;
 			Object contentObject = ByUtils.serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
+			System.out.println("*** content: " + contentObject);
 
-			if (contentObject instanceof Ack ack) {
-				g().eventList.findEvent(ack.id).markReceivedBy(from);
-			} else if (contentObject instanceof Event e) {
-				var alreadyKnownEvent = g().eventList.findEvent(e.id());
+			var recipientNode = g().indexes.byId.get(msg.recipient);
 
-				if (alreadyKnownEvent != null) {
-					alreadyKnownEvent.markReceivedBy(from);
-				} else {
-					g().eventList.add(e);
-					e.markReceivedBy(from);
-				}
-			} else if (contentObject instanceof PeerInfo e) {
-				from.lastInfo = e;
-				from.neighbors = e.neighborsName.stream().map(name -> {
-					var peer = neighborhood.findPeerByName(name);
-
-					if (peer == null) {
-						peer = new Peer(g());
-						peer.name = name;
-						neighborhood.peers.elements.add(peer);
-					}
-					return peer;
-				}).toList();
-				sendQ.considerForwarding(msg, null);
+			if (recipientNode != null) {
+				recipientNode.onNewMessage(msg, contentObject);
 			} else {
-				var service = g().indexes.byId.get(msg.recipient);
-
-				if (service != null) {
-				} else {
-					service.onNewMessage(msg);
-				}
+				System.err.println("Warning: No recipient node found for message " + msg);
 			}
 		} else {
 			sendQ.considerForwarding(msg, null);

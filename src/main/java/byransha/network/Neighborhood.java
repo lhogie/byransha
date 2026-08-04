@@ -28,18 +28,13 @@ public class Neighborhood extends ServiceNode {
 
 		for (File f : peersDirectory.listFiles()) {
 			if (f.isDirectory()) {
-				try {
-					var peer = new Peer(g());
-					peer.setDirectory(f);
-					peers.elements.add(peer);
-					System.out.println("adding " + peer);
-				} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
-					e.printStackTrace();
-				}
+				var peer = new Peer(g(), f.getName());
+				peers.elements.add(peer);
+				System.out.println("adding " + peer);
 			}
 		}
 	}
-	
+
 	public void start() {
 		ByUtils.thread("discover peers info on disk", () -> {
 			while (true) {
@@ -48,14 +43,19 @@ public class Neighborhood extends ServiceNode {
 						var peer = findPeerByName(peerDirectory.getName());
 
 						if (peer == null) {
-							try {
-								peer = new Peer(g());
-								peer.setDirectory(peerDirectory);
-								peers.elements.add(peer);
-							} catch (InvalidKeySpecException | NoSuchAlgorithmException | IOException e) {
-								e.printStackTrace();
-							}
+							System.out.println(
+									"adding peer " + peerDirectory.getName() + " because it was not in the list");
+							peer = new Peer(g(), peerDirectory.getName());
+							peers.elements.add(peer);
 						}
+					}
+				}
+
+				for (var peer : peers.elements) {
+					if (!peer.directory.exists()) {
+						System.out.println(
+								"removing peer " + peer.name + " because its directory does not exist anymore");
+						peers.elements.remove(peer);
 					}
 				}
 
@@ -80,7 +80,7 @@ public class Neighborhood extends ServiceNode {
 
 	public Peer findPeer(int id) {
 		for (var p : peers.get()) {
-			if (p.id == id) {
+			if (p.id() == id) {
 				return p;
 			}
 		}
@@ -88,4 +88,23 @@ public class Neighborhood extends ServiceNode {
 		return null;
 	}
 
+	@Override
+	public void onNewMessage(Message m, Object content) {
+		var neighborhood = g().networkAgent.neighborhood;
+		var e = (PeerInfo) content;
+		var from = findPeerByName(m.routingInfo.source());
+		from.lastInfo = e;
+		from.neighbors = e.neighborsName.stream().map(name -> {
+			Peer peer = neighborhood.findPeerByName(name);
+
+			if (peer == null) {
+				peer = new Peer(g(), name);
+				peer.name = name;
+				neighborhood.peers.elements.add(peer);
+			}
+			return peer;
+		}).toList();
+
+		g().networkAgent.sendQ.considerForwarding(m, null);
+	}
 }

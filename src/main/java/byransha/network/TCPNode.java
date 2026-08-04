@@ -80,10 +80,10 @@ public class TCPNode extends ServiceNode {
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
 
 //					msg.routingInfo.actualRoute.add(p.name);
-					onNewMessage(msg);
+					((NetworkAgent) parent).processIncomingMessage(msg);
 				}
 			} catch (Exception err) {
-//				err.printStackTrace();
+				err.printStackTrace();
 				p.ensureDisconnected();
 				System.out.println(p + " left");
 			}

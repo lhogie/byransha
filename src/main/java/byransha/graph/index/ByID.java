@@ -28,24 +28,14 @@ public class ByID extends Index {
 		if (m.remove(n.id()) != n)
 			throw new IllegalStateException();
 
-		n.id = newID;
+		n.setID(newID);
 		m.put(newID, n);
 		return newID;
 	}
 
-	private synchronized void assignUniqueIndexTo(final BNode n) {
-		if (n.id != -1)
-			throw new IllegalStateException();
-
-		n.id = r.nextLong();
-		while (m.containsKey(++n.id))
-			;
-		m.put(n.id, n);
-	}
-
 	@Override
 	public void add(BNode n) {
-		assignUniqueIndexTo(n);
+		m.put(n.id(), n);
 	}
 
 	@Override

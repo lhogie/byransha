@@ -54,9 +54,13 @@ public class Peer extends BNode {
 	public PeerInfo lastInfo;
 
 	public boolean autoConnect = true;
+	public final File directory;
 
-	public Peer(Root g) {
+	
+	
+	public Peer(Root g, String name) {
 		super(g);
+		this.directory= new File(Neighborhood.peersDirectory, name);
 	}
 
 	@ShowInKishanView
@@ -78,8 +82,8 @@ public class Peer extends BNode {
 		return peers.stream().map(p -> p.name).toList();
 	}
 
-	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		this.name = directory.getName();
+	public void setDirectory(String name) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+		this.name = name;
 
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
@@ -106,6 +110,7 @@ public class Peer extends BNode {
 			}
 		}
 	}
+
 
 	public static interface PeerListener {
 		void connected(Connection c);

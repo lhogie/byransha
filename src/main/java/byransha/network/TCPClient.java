@@ -26,6 +26,9 @@ public class TCPClient extends ServiceNode {
 						if (p.getConnection() == null && p.address != null && p.autoConnect) {
 							p.tryConnect();
 						}
+						else {
+							System.out.println("already connected to " + p.name + " or no address or autoConnect is false");
+						}
 					}
 				}
 

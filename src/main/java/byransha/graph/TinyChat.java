@@ -23,11 +23,14 @@ public class TinyChat extends ServiceNode {
 	@ActionMethod
 	@AddButtonOnKishanView
 	public void send() {
-		g().networkAgent.sendQ.sendObjectToNeighbors(input.get(), null);
+		g().networkAgent.sendQ.sendObjectToNeighbors(input.get(), msg -> {
+			msg.recipient = id();
+		});
 	}
 
 	@Override
-	public void onNewMessage(Message msg) {
+	public void onNewMessage(Message msg, Object content) {
+		System.out.println("tiny chat recieved message: " + content);
 		var n = new MessageNode(g(), msg);
 		incomingMessages.elements.add(n);
 	}

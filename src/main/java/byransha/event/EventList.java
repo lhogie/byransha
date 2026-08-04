@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
+import byransha.network.Message;
 import byransha.nodes.primitive.StringNode;
 import byransha.security.AES;
 import byransha.util.ByUtils;
@@ -87,4 +88,14 @@ public abstract class EventList extends BNode {
 	public abstract Event findEvent(long eventID);
 
 	public abstract Event remove(long id) throws IOException;
+
+	@Override
+	public void onNewMessage(Message m, Object content) {
+		Event e = (Event) content;
+		var alreadyKnownEvent = g().eventList.findEvent(e.id());
+
+		if (alreadyKnownEvent == null) {
+			g().eventList.add(e);
+		}
+	}
 }

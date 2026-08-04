@@ -65,7 +65,7 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 		out.writeInt(owners.size());
 
 		for (var o : owners) {
-			out.writeLong(o.id);
+			out.writeLong(o.id());
 		}
 	}
 

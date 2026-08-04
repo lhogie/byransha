@@ -82,7 +82,7 @@ public abstract class BNode {
 	public final BNode parent;
 	public boolean readOnly;
 	protected boolean global = false;
-	public long id = -1;
+	private long id = -1;
 	public Root graph;
 	protected ListNode<Action> cachedActions;
 
@@ -344,7 +344,7 @@ public abstract class BNode {
 	public void ping(Peer p) {
 		Queue q = new Queue(this);
 		g().networkAgent.sendQ.sendObject("ping", p, msg -> {
-			msg.replyTo = q.id;
+			msg.replyTo = q.id();
 		});
 		Message reply = q.q.poll_sync();
 	}
@@ -529,7 +529,7 @@ public abstract class BNode {
 		return true;
 	}
 
-	public final long id() {
+	public long id() {
 		return id;
 	}
 
@@ -791,7 +791,12 @@ public abstract class BNode {
 		return ta;
 	}
 
-	public void onNewMessage(Message msg) {
-		System.out.println(this + " received " + msg);
+	public void onNewMessage(Message msg, Object contentObject) {
+		System.out.println(this + " received " + msg + " content: " + contentObject);
+	}
+
+	public void setID(long newID) {
+		this.id = newID;
+
 	};
 }
