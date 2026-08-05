@@ -4,9 +4,9 @@ import java.util.List;
 
 import byransha.graph.ServiceNode;
 
-public abstract class Router extends ServiceNode {
+public abstract class RoutingService extends ServiceNode {
 
-	public Router(Sender net) {
+	public RoutingService(Sender net) {
 		super(net);
 	}
 

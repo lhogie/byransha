@@ -57,7 +57,7 @@ public class Neighborhood extends ServiceNode {
 		ByUtils.loop(() -> 1.0, "Neighborhood message processing", () -> {
 			Message msg = q.q.poll_sync();
 			var peerNeighborhood = hub().networkAgent.neighborhood;
-			var info = (PeerInfo) msg.plainData.content;
+			var info = (PeerInfo) msg.ooInfos.content;
 			var peer = findPeerByName(info.name);
 			peer.lastInfo = info;
 			peer.neighbors = info.neighborsName.stream().map(name -> {

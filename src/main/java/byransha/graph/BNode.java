@@ -50,6 +50,7 @@ import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.nodes.primitive.file.FileNode;
+import byransha.primitive.BooleanNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.ValuedNode;
@@ -445,6 +446,8 @@ public abstract class BNode {
 			return ln;
 		} else if (o instanceof Long l) {
 			return new LongNode(this, l);
+		} else if (o instanceof Boolean b) {
+			return new BooleanNode(this, b);
 		} else {
 			return new StringNode(this, o.toString(), null);
 		}

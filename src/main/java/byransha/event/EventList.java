@@ -34,8 +34,8 @@ public abstract class EventList extends BNode {
 
 						for (var neighbor : hub().networkAgent.neighborhood.neighbors()) {
 							var msg = new Message();
-							msg.plainData.recipient = neighbor;
-							msg.plainData.content = e;
+							msg.ooInfos.recipient = neighbor;
+							msg.ooInfos.content = e;
 							hub().networkAgent.messageOutQueue.send(msg);
 						}
 
@@ -57,7 +57,7 @@ public abstract class EventList extends BNode {
 		var q = new byransha.network.Queue(this, 6538776544355L);
 		ByUtils.loop(() -> 1.0, "EventList message processing", () -> {
 			var msg = q.q.poll_sync();
-			Event e = (Event) msg.plainData.content;
+			Event e = (Event) msg.ooInfos.content;
 			var alreadyKnownEvent = hub().eventList.findEvent(e.id());
 
 			if (alreadyKnownEvent == null) {

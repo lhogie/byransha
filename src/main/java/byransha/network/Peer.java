@@ -69,7 +69,7 @@ public abstract class Peer extends BNode {
 						ensureDisconnected();
 					}
 				} else {
-					System.out.println("already connected to " + this + " or no address");
+//					System.out.println("already connected to " + this + " or no address");
 				}
 			}
 		});

@@ -3,12 +3,12 @@ package byransha.network;
 import java.io.Serializable;
 
 public class Message implements Serializable {
-	public static class Uncrypted {
+	public static class OOData {
 		public Object content;
 		public Peer recipient;
 	}
 
-	public final transient Uncrypted plainData = new Uncrypted();
+	public final transient OOData ooInfos = new OOData();
 	public long recipientNode;
 	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();

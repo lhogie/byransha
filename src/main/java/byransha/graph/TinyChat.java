@@ -35,10 +35,11 @@ public class TinyChat extends ServiceNode {
 	@AddButtonOnKishanView
 	public void sendToNeighbors() {
 		for (var neighbor : hub().networkAgent.neighborhood.neighbors()) {
+			System.out.println("tinychat: sending to " +neighbor);
 			var msg = new Message();
-			msg.plainData.recipient = neighbor;
+			msg.ooInfos.recipient = neighbor;
 			msg.recipientNode = q.id();
-			msg.plainData.content = input.get();
+			msg.ooInfos.content = input.get();
 			hub().networkAgent.messageOutQueue.send(msg);
 		}
 	}

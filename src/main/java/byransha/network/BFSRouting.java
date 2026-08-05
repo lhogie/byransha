@@ -9,7 +9,7 @@ import java.util.Set;
 import byransha.graph.BNode;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
-public class BFSRouting extends Router {
+public class BFSRouting extends RoutingService {
 
 	public BFSRouting(Sender net) {
 		super(net);
@@ -18,19 +18,20 @@ public class BFSRouting extends Router {
 	@Override
 	public List<Peer> computeRouteToReach(Peer destination) {
 		var predecessors = bfs(hub().networkAgent.neighborhood.self);
-//		System.out.println(predecessors);
+		System.out.println(predecessors);
 		List<Peer> r = new ArrayList<Peer>();
 
 		while (true) {
 			var pred = predecessors.get(destination);
-			
+
 			if (pred == null)
 				return null;
+
+			r.add(pred);
 
 			if (pred == hub().networkAgent.neighborhood.self)
 				break;
 
-			r.add(pred);
 			destination = pred;
 		}
 

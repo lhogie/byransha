@@ -26,9 +26,9 @@ public class Gossiper extends ServiceNode {
 			if (active.get() && hub().networkAgent != null) {
 				for (var neighbor : hub().networkAgent.neighborhood.neighbors()) {
 					var msg = new Message();
-					msg.plainData.recipient = neighbor;
+					msg.ooInfos.recipient = neighbor;
 					msg.recipientNode = q.id();
-					msg.plainData.content = gossip();
+					msg.ooInfos.content = gossip();
 					hub().networkAgent.messageOutQueue.send(msg);
 				}
 			}

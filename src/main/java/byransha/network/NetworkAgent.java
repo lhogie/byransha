@@ -79,10 +79,10 @@ public class NetworkAgent extends ServiceNode {
 
 			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, sender.publicKey, msg.content);
 //			msg.content = decryptedE2E;
-			msg.plainData.content = ByUtils.serializer.fromBytes(decryptedE2E);
+			msg.ooInfos.content = ByUtils.serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
-			System.out.println("*** content: " + msg.plainData.content);
+			System.out.println("*** content: " + msg.ooInfos.content);
 
 			var recipientQ = (Queue) hub().indexes.byId.get(msg.recipientNode);
 

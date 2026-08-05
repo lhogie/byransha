@@ -24,7 +24,7 @@ public class Sender extends ServiceNode {
 	final StringNode sendInfo = new StringNode(this);
 
 	@ShowInKishanView
-	final Router routingProtocol = new BFSRouting(this);
+	final RoutingService routingProtocol = new BFSRouting(this);
 
 	private Thread waitingThread;
 
@@ -67,6 +67,8 @@ public class Sender extends ServiceNode {
 						msg.routingInfo.suggestedRoute = newRoute.stream().map(p -> p.name).toList();
 					}
 
+					
+					System.out.println("suggested route: " + msg.routingInfo.suggestedRoute);
 					if (msg.routingInfo.suggestedRoute == null) {
 //						System.out.println(hub().networkAgent.neighborhood.neighbors());
 						System.out.println("No route to " + recipient + ". Retrying later...");
@@ -144,18 +146,21 @@ public class Sender extends ServiceNode {
 	}
 
 	public void send(Message msg) {
-		msg.routingInfo.nameOfRecipient = msg.plainData.recipient.name;
-		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.plainData.content);
-		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey,
-				msg.plainData.recipient.publicKey, rawBytesPayload);
+		applyingOOInfos(msg);
+		add(msg);
+	}
 
-		if (msg.plainData.recipient.publicKey == null) {
-			System.out
-					.println("Cannot send E2E message to " + msg.plainData.recipient.name + ": public key is missing.");
+	private void applyingOOInfos(Message msg) {
+		msg.routingInfo.nameOfRecipient = msg.ooInfos.recipient.name;
+
+		if (msg.ooInfos.recipient.publicKey == null) {
+			System.out.println("Cannot send E2E message to " + msg.ooInfos.recipient.name + ": public key is missing.");
 			return;
 		}
 
-		add(msg);
+		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.ooInfos.content);
+		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey,
+				msg.ooInfos.recipient.publicKey, rawBytesPayload);
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {
