@@ -1,6 +1,5 @@
 package byransha.system;
 
-import java.awt.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -30,7 +29,7 @@ import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
 	@ShowInKishanView
-	public static final String VERSION = "0.0.73";
+	public static final String VERSION = "0.0.77";
 
 	public static class byransha extends Category {
 	}

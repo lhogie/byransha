@@ -75,7 +75,7 @@ public class TCPNode extends ServiceNode {
 					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
 
-//					msg.routingInfo.actualRoute.add(p.name);
+					msg.routingInfo.actualRoute.add(p.name);
 					((NetworkAgent) parent).processIncomingMessage(msg);
 				}
 			} catch (Exception err) {

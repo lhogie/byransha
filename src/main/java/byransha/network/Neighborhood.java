@@ -57,10 +57,10 @@ public class Neighborhood extends ServiceNode {
 		ByUtils.loop(() -> 1.0, "Neighborhood message processing", () -> {
 			Message msg = q.q.poll_sync();
 			var peerNeighborhood = hub().networkAgent.neighborhood;
-			var e = (PeerInfo) msg.plainData.content;
-			var peer = findPeerByName(e.name);
-			peer.lastInfo = e;
-			peer.neighbors = e.neighborsName.stream().map(name -> {
+			var info = (PeerInfo) msg.plainData.content;
+			var peer = findPeerByName(info.name);
+			peer.lastInfo = info;
+			peer.neighbors = info.neighborsName.stream().map(name -> {
 				Peer n = peerNeighborhood.findPeerByName(name);
 
 				if (n == null) {
@@ -107,7 +107,7 @@ public class Neighborhood extends ServiceNode {
 	}
 
 	public List<Peer> neighbors() {
-		return peers.elements.stream().filter(p -> p.getConnection() != null).toList();
+		return peers.elements.stream().filter(p -> p != self && p.getConnection() != null).toList();
 	}
 
 	Peer findPeerByName(String name) {

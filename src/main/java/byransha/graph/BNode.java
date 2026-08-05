@@ -340,7 +340,7 @@ public abstract class BNode {
 	public Object ping(Object o, Peer to, long timeout) {
 		Queue returnQ = new Queue(this, 5403450030L);
 
-		hub().networkAgent.messageOutQueue.submit(to, msg -> {
+		hub().networkAgent.messageOutQueue.send(to, msg -> {
 			msg.replyTo = returnQ.id();
 			msg.plainData.content = "ping";
 		});

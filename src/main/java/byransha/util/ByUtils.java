@@ -48,24 +48,41 @@ public class ByUtils {
 		sizeOfPrimitive.put(double.class, 8);
 	}
 
-	public static void thread(String description, Runnable r) {
-		var t = new Thread(r);
+	public static Thread thread(String description, Runnable r) {
+		var t = new Thread(() -> {
+			try {
+				r.run();
+			} catch (Throwable err) {
+				err.printStackTrace();
+			}
+		});
 		t.setDaemon(true);
 		t.start();
+		return t;
 	}
 
-	public static void loop(Supplier<Double> durationS, String description, Runnable r) {
-		ByUtils.thread(description, () -> {
+	public static Thread loop(Supplier<Double> durationS, String description, Runnable r) {
+		return ByUtils.thread(description, () -> {
 			while (true) {
-				sleep(durationS.get());
+				double wait = durationS.get();
+
+				if (wait > 0) {
+					sleep(wait);
+				}
+
 				r.run();
 			}
 		});
 	}
 
 	public static final void sleep(double seconds) {
+		long ms = (long) (seconds * 1000);
+		sleep(ms);
+	}
+
+	public static final void sleep(long ms) {
 		try {
-			Thread.sleep((long) (seconds * 1000));
+			Thread.sleep(ms);
 		} catch (InterruptedException e) {
 			throw new RuntimeException(e);
 		}

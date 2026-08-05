@@ -15,7 +15,8 @@ public class Message implements Serializable {
 	public int nbAttempts;
 	public long emissionDateMs = System.currentTimeMillis();
 	public int keepAliveMs = 10000;
-	public int maxNbAttempts = Integer.MAX_VALUE;
+	public int maxNbAttempts = 10;
+	public long sendDateMs = System.currentTimeMillis();
 
 	public byte[] content;
 //	public transient Object contentObject;
@@ -31,5 +32,9 @@ public class Message implements Serializable {
 
 	private long age() {
 		return System.currentTimeMillis() - emissionDateMs;
+	}
+
+	public long waitTimeMs() {
+		return Math.max(0, Math.abs(sendDateMs - System.currentTimeMillis()));
 	}
 }

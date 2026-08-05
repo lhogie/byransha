@@ -24,6 +24,7 @@ public class Gossiper extends ServiceNode {
 		ByUtils.loop(() -> periodS.get(), "forward local info (including neighborhood)", () -> {
 			if (active.get() && hub().networkAgent != null) {
 				var gossip = new PeerInfo();
+				gossip.name = ((NetworkAgent) parent).neighborhood.self.name;
 				var neighbors = hub().networkAgent.neighborhood.neighbors();
 				gossip.aiTelemetry = new PeerTelemetry();
 				gossip.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();

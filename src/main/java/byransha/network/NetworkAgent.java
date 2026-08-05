@@ -20,7 +20,7 @@ public class NetworkAgent extends ServiceNode {
 	final StringNode receptionInfo = new StringNode(this);
 
 	@ShowInKishanView
-	public final MessageSendQueue messageOutQueue;
+	public final Sender messageOutQueue;
 
 	@ShowInKishanView
 	public final Neighborhood neighborhood;
@@ -39,7 +39,7 @@ public class NetworkAgent extends ServiceNode {
 		super(g);
 		this.neighborhood = new Neighborhood(this);
 		this.gossiper = new Gossiper(this);
-		this.messageOutQueue = new MessageSendQueue(this);
+		this.messageOutQueue = new Sender(this);
 		this.tcp = new TCPNode(this, port);
 	}
 
