@@ -23,15 +23,20 @@ public class Gossiper extends ServiceNode {
 	public void start() {
 		ByUtils.loop(() -> periodS.get(), "forward local info (including neighborhood)", () -> {
 			if (active.get() && hub().networkAgent != null) {
-				var gossip = new PeerInfo();
-				gossip.name = ((NetworkAgent) parent).neighborhood.self.name;
-				var neighbors = hub().networkAgent.neighborhood.neighbors();
-				gossip.aiTelemetry = new PeerTelemetry();
-				gossip.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
-				gossip.neighborsName = Peer.neighborsNames(neighbors);
-				gossip.systemProperties = System.getProperties();
-				hub().networkAgent.messageOutQueue.send(neighbors, msg -> msg.plainData.content = gossip);
+				hub().networkAgent.messageOutQueue.sendObjectToNeighbors(msg -> msg.plainData.content = gossip());
 			}
 		});
+	}
+
+	private Object gossip() {
+		var gossip = new PeerInfo();
+		gossip.name = ((NetworkAgent) parent).neighborhood.self.name;
+		gossip.aiTelemetry = new PeerTelemetry();
+		gossip.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
+		var neighbors = hub().networkAgent.neighborhood.neighbors();
+		gossip.neighborsName = Peer.neighborsNames(neighbors);
+		gossip.systemProperties = System.getProperties();
+
+		return gossip;
 	}
 }

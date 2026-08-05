@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class Message implements Serializable {
 	public static class Uncrypted {
 		public Object content;
+		public Peer recipient;
 	}
 
 	public final transient Uncrypted plainData = new Uncrypted();

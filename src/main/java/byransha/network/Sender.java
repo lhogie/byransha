@@ -73,6 +73,7 @@ public class Sender extends ServiceNode {
 						System.out.println("No route to " + recipient + ". Retrying later...");
 						addAfterError(msg);
 					} else if (msg.routingInfo.suggestedRoute.isEmpty()) {
+						System.out.println("delivering locally");
 						msg.routingInfo.actualRoute.add(((NetworkAgent) parent).neighborhood.self.name);
 						((NetworkAgent) parent).processIncomingMessage(msg);
 					} else {
@@ -96,6 +97,7 @@ public class Sender extends ServiceNode {
 									++nbMessageSent;
 									updateInOutInfo();
 								} catch (IOException e) {
+									e.printStackTrace();
 									addAfterError(msg);
 								}
 							}
@@ -149,6 +151,7 @@ public class Sender extends ServiceNode {
 		}
 
 		var msg = new Message();
+		msg.plainData.recipient = to;
 		msg.routingInfo.nameOfRecipient = to.name;
 		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.plainData.content);
 		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey, to.publicKey,
