@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
+import byransha.network.Message;
 import byransha.primitive.StringNode;
 import byransha.security.AES;
 import byransha.util.ByUtils;
@@ -30,7 +31,14 @@ public abstract class EventList extends BNode {
 				forEachEvent(e -> {
 					if (e.owners.size() < 1) {
 						candidates.add(e);
-						hub().networkAgent.messageOutQueue.sendObjectToNeighbors(msg -> msg.plainData.content = e);
+
+						for (var neighbor : hub().networkAgent.neighborhood.neighbors()) {
+							var msg = new Message();
+							msg.plainData.recipient = neighbor;
+							msg.plainData.content = e;
+							hub().networkAgent.messageOutQueue.send(msg);
+						}
+
 						status.set("running " + candidates.size() + " event(s) sent");
 					}
 				});

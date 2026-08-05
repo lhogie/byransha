@@ -49,9 +49,6 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.network.Message;
-import byransha.network.Peer;
-import byransha.network.Queue;
 import byransha.nodes.primitive.file.FileNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
@@ -335,19 +332,6 @@ public abstract class BNode {
 				}
 			}
 		});
-	}
-
-	public Object ping(Object o, Peer to, long timeout) {
-		Queue returnQ = new Queue(this, 5403450030L);
-
-		hub().networkAgent.messageOutQueue.send(to, msg -> {
-			msg.replyTo = returnQ.id();
-			msg.plainData.content = "ping";
-		});
-
-		Message pong = returnQ.q.poll_sync(timeout);
-		returnQ.delete();
-		return pong != null ? pong.plainData.content : null;
 	}
 
 	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until,

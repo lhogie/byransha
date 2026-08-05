@@ -68,10 +68,11 @@ public class NetworkAgent extends ServiceNode {
 		++nbMsgReceived;
 		updateInOutInfo();
 
+		String nameOfSender = msg.routingInfo.nameOfSender();
+		
 		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
 
 		if (imTheRecipient) {
-			String nameOfSender = msg.routingInfo.nameOfSender();
 			var sender = neighborhood.findPeerByName(nameOfSender);
 			System.out.println(
 					"*** message received from " + nameOfSender + " (sender: " + msg.routingInfo.actualRoute + ")");

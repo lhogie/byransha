@@ -1,7 +1,6 @@
 package byransha.network;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
@@ -144,36 +143,19 @@ public class Sender extends ServiceNode {
 		return inWait.size();
 	}
 
-	public void send(Peer to, Consumer<Message> c) {
-		if (to.publicKey == null) {
-			System.out.println("Cannot send E2E message to " + to.name + ": public key is missing.");
+	public void send(Message msg) {
+		msg.routingInfo.nameOfRecipient = msg.plainData.recipient.name;
+		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.plainData.content);
+		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey,
+				msg.plainData.recipient.publicKey, rawBytesPayload);
+
+		if (msg.plainData.recipient.publicKey == null) {
+			System.out
+					.println("Cannot send E2E message to " + msg.plainData.recipient.name + ": public key is missing.");
 			return;
 		}
 
-		var msg = new Message();
-		msg.plainData.recipient = to;
-		msg.routingInfo.nameOfRecipient = to.name;
-		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.plainData.content);
-		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey, to.publicKey,
-				rawBytesPayload);
-
-		if (c != null) {
-			c.accept(msg);
-		}
-
 		add(msg);
-	}
-
-	public void send(Collection<Peer> to, Consumer<Message> c) {
-		for (var p : to) {
-			send(p, c);
-		}
-	}
-
-	public void sendObjectToNeighbors(Consumer<Message> c) {
-		for (var p : hub().networkAgent.neighborhood.neighbors()) {
-			send(p, c);
-		}
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {

@@ -21,9 +21,16 @@ public class Gossiper extends ServiceNode {
 	}
 
 	public void start() {
+		Queue q = new Queue(this, 3938484L);
 		ByUtils.loop(() -> periodS.get(), "forward local info (including neighborhood)", () -> {
 			if (active.get() && hub().networkAgent != null) {
-				hub().networkAgent.messageOutQueue.sendObjectToNeighbors(msg -> msg.plainData.content = gossip());
+				for (var neighbor : hub().networkAgent.neighborhood.neighbors()) {
+					var msg = new Message();
+					msg.plainData.recipient = neighbor;
+					msg.recipientNode = q.id();
+					msg.plainData.content = gossip();
+					hub().networkAgent.messageOutQueue.send(msg);
+				}
 			}
 		});
 	}
