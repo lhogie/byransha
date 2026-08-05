@@ -5,10 +5,11 @@ import javax.swing.JComponent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
+import byransha.system.ChatNode;
 import byransha.graph.BNode;
-import byransha.nodes.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
+import byransha.util.ByUtils;
 import byransha.util.JsonToTreeConverter;
 
 final public class JSONNode extends BNode {
@@ -26,7 +27,7 @@ final public class JSONNode extends BNode {
 
 	@Override
 	public ObjectNode describeAsJSON() {
-		ObjectNode n = new ObjectNode(factory);
+		ObjectNode n = new ObjectNode(ByUtils.factory);
 		n.set("json", node);
 		return n;
 	}

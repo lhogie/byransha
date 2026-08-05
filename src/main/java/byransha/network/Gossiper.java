@@ -4,8 +4,8 @@ import java.lang.management.ManagementFactory;
 
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.DoubleNode;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.DoubleNode;
 import byransha.util.ByUtils;
 
 public class Gossiper extends ServiceNode {
@@ -21,19 +21,15 @@ public class Gossiper extends ServiceNode {
 	}
 
 	public void start() {
-		ByUtils.thread("forward local info (including neighborhood)", () -> {
-			while (true) {
-				if (active.get() && g().networkAgent != null) {
-					var i = new PeerInfo();
-					var neighbors = g().networkAgent.neighborhood.neighbors();
-					i.aiTelemetry = new PeerTelemetry();
-					i.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
-					i.neighborsName = Peer.neighborsNames(neighbors);
-					i.systemProperties = System.getProperties();
-					g().networkAgent.sendQ.send(i, neighbors, null);
-				}
-
-				sleep(periodS.get());
+		ByUtils.loop(() -> periodS.get(), "forward local info (including neighborhood)", () -> {
+			if (active.get() && hub().networkAgent != null) {
+				var gossip = new PeerInfo();
+				var neighbors = hub().networkAgent.neighborhood.neighbors();
+				gossip.aiTelemetry = new PeerTelemetry();
+				gossip.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
+				gossip.neighborsName = Peer.neighborsNames(neighbors);
+				gossip.systemProperties = System.getProperties();
+				hub().networkAgent.messageOutQueue.send(neighbors, msg -> msg.plainData.content = gossip);
 			}
 		});
 	}

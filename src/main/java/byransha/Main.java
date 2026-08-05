@@ -8,17 +8,17 @@ import java.util.Map;
 
 import byransha.event.Event;
 import byransha.graph.BNode;
-import byransha.graph.Root;
+import byransha.graph.Hub;
+import byransha.lab.I3S;
+import byransha.lab.Person;
 import byransha.network.TCPServer;
-import byransha.nodes.lab.I3S;
-import byransha.nodes.lab.Person;
-import byransha.nodes.system.Byransha;
-import byransha.nodes.system.ChatNode;
-import byransha.nodes.system.User;
+import byransha.system.Byransha;
+import byransha.system.ChatNode;
+import byransha.system.User;
 import byransha.ui.swing.SwingFrontend;
 
 public class Main {
-	static Root g;
+	public static Hub hub;
 
 	public static void main(String... args) throws Throwable {
 		System.out.println("This is Byransha v" + Byransha.VERSION);
@@ -38,6 +38,8 @@ public class Main {
 				System.err.println("no internet");
 				err.printStackTrace();
 			}
+
+			Byransha.runAutoUpdateThread();
 		} else {
 			System.out.println("Development version using: " + Arrays.toString(classPath));
 		}
@@ -49,11 +51,11 @@ public class Main {
 
 		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
 
-		g = new Root(port);
-		g.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
-				.getConstructor(BNode.class).newInstance(g);
+		hub = new Hub(port);
+		hub.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
+				.getConstructor(BNode.class).newInstance(hub);
 
-		new ChatNode(g.currentUser()).append(g.application);
+		new ChatNode(hub.currentUser()).append(hub.application);
 
 		// new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port",
 		// "8080")));
@@ -61,17 +63,13 @@ public class Main {
 		// ShellServer.DEFAULT_PORT)));
 
 		if (!argMap.containsKey("--no-gui")) {
-			new SwingFrontend(g);
+			new SwingFrontend(hub);
 		}
 
 		System.out.println("playing events");
-		g.eventList.goToNow(e -> System.out.println("event: " + e));
-		g.setCurrentUser(new User(g, "guest"));
+		hub.eventList.goToNow(e -> System.out.println("event: " + e));
+		hub.setCurrentUser(new User(hub, "guest"));
 		System.out.println("start ok");
-
-		if (runFromASingleJar) {
-			Byransha.runAutoUpdateThread(g.swing != null ? g.swing.frame : null);
-		}
 
 		Thread.sleep(Long.MAX_VALUE);
 
@@ -92,7 +90,7 @@ public class Main {
 	}
 
 	private static Event createPersonEvent(String name) {
-		var e = new NewNodeEvent<Person>(g, LocalDateTime.now());
+		var e = new NewNodeEvent<Person>(hub, LocalDateTime.now());
 		e.clazz = Person.class;
 		return e;
 	}

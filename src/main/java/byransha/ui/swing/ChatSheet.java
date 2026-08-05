@@ -14,8 +14,8 @@ import byransha.ai.QueryIA;
 import byransha.graph.Action;
 import byransha.graph.BNode;
 import byransha.graph.list.action.FunctionAction;
-import byransha.nodes.primitive.TextNode;
-import byransha.nodes.system.ChatNode;
+import byransha.primitive.TextNode;
+import byransha.system.ChatNode;
 
 public class ChatSheet extends Sheet {
 	public final ChatNode chat;
@@ -23,7 +23,7 @@ public class ChatSheet extends Sheet {
 	public ChatSheet(ChatNode chat) {
 		super();
 		this.chat = chat;
-		Utils.idDropTarget(chat.g(), this, n -> chat.nodes.elements.add(n));
+		Utils.idDropTarget(chat.hub(), this, n -> chat.nodes.elements.add(n));
 	}
 
 	void appendNode(BNode n) {
@@ -46,7 +46,7 @@ public class ChatSheet extends Sheet {
 			}
 		}
 
-		is.currentLine.setBackground(chat.g().swing.getBackgroundColor());
+		is.currentLine.setBackground(chat.hub().swingInterface.getBackgroundColor());
 		is.currentLine.setOpaque(true);
 
 		// appendToCurrentLine(n + " (" + n.whatIsThis() + ")");
@@ -67,7 +67,7 @@ public class ChatSheet extends Sheet {
 	}
 
 	public void appendToCurrentLine(String s) {
-		super.appendToCurrentLine(s, chat.g().translator);
+		super.appendToCurrentLine(s, chat.hub().translator);
 	}
 
 }

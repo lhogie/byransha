@@ -9,22 +9,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.network.Peer;
 
 public abstract class Event implements Externalizable, Comparable<Event> {
 	LocalDateTime date;
 	Set<Peer> owners = new HashSet<>();
-	final protected Root g;
+	final protected Hub g;
 
-	public Event(Root g, LocalDateTime date) {
+	public Event(Hub g, LocalDateTime date) {
 		this.date = date;
 		this.g = g;
 	}
 
-	public abstract void apply(Root g) throws Throwable;;
+	public abstract void apply(Hub g) throws Throwable;;
 
-	public abstract void undo(Root g) throws Throwable;
+	public abstract void undo(Hub g) throws Throwable;
 
 	@Override
 	public int compareTo(Event e) {

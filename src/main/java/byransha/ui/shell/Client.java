@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.graph.list.action.FunctionAction;
-import byransha.nodes.system.ChatNode;
-import byransha.nodes.system.SystemNode;
+import byransha.system.ChatNode;
+import byransha.system.SystemNode;
 import byransha.ui.shell.Client.CommandAction;
 import byransha.util.ByUtils;
 
@@ -39,9 +39,9 @@ public class Client extends SystemNode {
 		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		var out = new PrintWriter(clientSocket.getOutputStream(), true);
 		var chatID = Long.valueOf(in.readLine());
-		currentChat = (ChatNode) g().indexes.byId.get(chatID);
+		currentChat = (ChatNode) hub().indexes.byId.get(chatID);
 		lastActiveChat = currentChat;
-		initializeCommands(g());
+		initializeCommands(hub());
 
 		new Thread(() -> {
 			try {
@@ -66,7 +66,7 @@ public class Client extends SystemNode {
 					}
 				}
 			} catch (Throwable err) {
-				g().errorLog.add(err);
+				hub().errorLog.add(err);
 			}
 
 			try {
@@ -77,7 +77,7 @@ public class Client extends SystemNode {
 		}).start();
 	}
 
-	private void initializeCommands(Root graph) {
+	private void initializeCommands(Hub graph) {
 		commands.put("help", new Command("list available commands",
 				(out, parms) -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));
 
@@ -101,7 +101,7 @@ public class Client extends SystemNode {
 		commands.put("name", new Command("print current node name", (out, parms) -> out.println(currentNode())));
 		commands.put("chat", new Command("print current chat ID", (out, parms) -> out.println(currentChat.id())));
 		commands.put("chats", new Command("print available chats", (out, parms) -> out
-				.println(currentChat.g().currentUser().chats.elements.stream().map(c -> c.idAsText()).toList())));
+				.println(currentChat.hub().currentUser().chats.elements.stream().map(c -> c.idAsText()).toList())));
 		commands.put("newchat",
 				new Command("create new chat", (out, parms) -> out.println(new ChatNode(graph.currentUser()).id())));
 		commands.put("setcurrentchat", new Command("change chat", (out, parms) -> out

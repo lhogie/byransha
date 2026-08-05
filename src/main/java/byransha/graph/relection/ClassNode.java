@@ -11,12 +11,11 @@ import java.util.function.Predicate;
 
 import byransha.graph.ActionMethod;
 import byransha.graph.BNode;
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.Factory;
-import byransha.nodes.primitive.MapNode;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.MapNode;
+import byransha.primitive.StringNode;
 import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
@@ -33,7 +32,7 @@ public class ClassNode<T extends BNode> extends BNode {
 	public MapNode<ClassNode<?>> aggregations;
 
 	public static class Aggregation extends BNode {
-		protected Aggregation(Root g) {
+		protected Aggregation(Hub g) {
 			super(g);
 		}
 
@@ -51,11 +50,10 @@ public class ClassNode<T extends BNode> extends BNode {
 		}
 	}
 
-	public ClassNode(Root g, Class c) {
+	public ClassNode(Hub g, Class c) {
 		super(g);
 		this.representedClass = c;
 	}
-
 
 	@Override
 	public void createActions() {
@@ -74,7 +72,7 @@ public class ClassNode<T extends BNode> extends BNode {
 		this.aggregations = new MapNode<>(this, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
-			var superInterfaceNode = g().indexes.byClass.findFirst(ClassNode.class,
+			var superInterfaceNode = hub().indexes.byClass.findFirst(ClassNode.class,
 					n -> n.representedClass == superInterface);
 
 			if (superInterfaceNode != null) {
@@ -82,7 +80,7 @@ public class ClassNode<T extends BNode> extends BNode {
 			}
 		}
 
-		this.superClass = g().indexes.byClass.findFirst(ClassNode.class,
+		this.superClass = hub().indexes.byClass.findFirst(ClassNode.class,
 				n -> n.representedClass == representedClass.getSuperclass());
 
 		{
@@ -100,7 +98,7 @@ public class ClassNode<T extends BNode> extends BNode {
 			}
 
 			for (var a : set) {
-				var classNode = g().indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == a.c);
+				var classNode = hub().indexes.byClass.findFirst(ClassNode.class, n -> n.representedClass == a.c);
 
 				if (classNode != null) {
 					aggregations.map.put(a.name, classNode);
@@ -178,7 +176,7 @@ public class ClassNode<T extends BNode> extends BNode {
 			return constructor().newInstance(parent);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException err) {
-			g().errorLog.add(err);
+			hub().errorLog.add(err);
 			throw new IllegalStateException(err);
 		}
 	}
@@ -208,7 +206,7 @@ public class ClassNode<T extends BNode> extends BNode {
 	@ShowInKishanView
 	public ListNode<T> allInstances() {
 		var l = new ListNode<T>(this, "instances of " + representedClass.getSimpleName(), representedClass);
-		g().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
+		hub().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
 		return l;
 	}
 

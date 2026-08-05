@@ -2,7 +2,7 @@ package byransha.graph.list.action;
 
 import byransha.graph.Category.export;
 import byransha.graph.Category.list;
-import byransha.nodes.primitive.TextNode;
+import byransha.primitive.TextNode;
 
 public class DotAction extends FunctionAction<ListNode, TextNode> {
 	public DotAction(ListNode node) {

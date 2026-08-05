@@ -11,14 +11,10 @@ import byransha.util.ByUtils;
 public class TCPNode extends ServiceNode {
 
 	@ShowInKishanView
-	private TCPClient client;
-
-	@ShowInKishanView
 	private TCPServer server;
 
 	public TCPNode(NetworkAgent net, int port) {
 		super(net);
-		this.client = new TCPClient(this);
 		this.server = new TCPServer(this, port);
 	}
 
@@ -27,7 +23,7 @@ public class TCPNode extends ServiceNode {
 		try {
 			Connection connection = new Connection(sock);
 			String other = handshake(sendNameFirst, connection);
-			var peer = g().networkAgent.neighborhood.findPeerByName(other);
+			var peer = hub().networkAgent.neighborhood.findPeerByName(other);
 
 			if (peer == null) {
 				System.out.println("rejecting unknown peer " + other + " at " + sock.getInetAddress());
@@ -37,7 +33,7 @@ public class TCPNode extends ServiceNode {
 			} else {
 				peer.setConnection(connection);
 				if (peer.publicKey != null) {
-					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(g().networkAgent.privateKey, peer.publicKey);
+					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(hub().networkAgent.neighborhood.self.privateKey, peer.publicKey);
 				} else {
 					System.out.println("Warning: No public key for " + peer.name
 							+ ". Secure routing disabled until key is added.");
@@ -48,12 +44,12 @@ public class TCPNode extends ServiceNode {
 		} catch (IOException err) {
 			System.out.println("gone at handshake");
 		} catch (ClassNotFoundException err) {
-			g().errorLog.add(err);
+			hub().errorLog.add(err);
 		}
 	}
 
 	private String handshake(boolean sendNameFirst, Connection to) throws IOException, ClassNotFoundException {
-		String name = g().networkAgent.name.get();
+		String name = hub().networkAgent.neighborhood.self.name;
 
 		if (sendNameFirst) {
 			to.writeObject(name);
@@ -92,7 +88,6 @@ public class TCPNode extends ServiceNode {
 
 	public void start() {
 		server.start();
-		client.start();
 	}
 
 }

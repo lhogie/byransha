@@ -8,8 +8,8 @@ import byransha.util.Q;
 public class Queue extends BNode {
 	public final Q<Message> q = new Q<>(100);
 
-	public Queue(BNode parent) {
-		super(parent);
+	public Queue(BNode parent, long id) {
+		super(parent, id);
 	}
 
 	@ShowInKishanView

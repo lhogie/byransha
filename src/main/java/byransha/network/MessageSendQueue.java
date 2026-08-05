@@ -9,14 +9,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 import byransha.util.Q;
@@ -45,18 +44,31 @@ public class MessageSendQueue extends ServiceNode {
 				if (msg.keepAliveExpired())
 					continue;
 
-				var recipient = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.recipient());
+				var recipient = hub().networkAgent.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
+
 				var route = computeRouteToReach(recipient);
 
 				if (route != null) { // if a better route could be found
 					msg.routingInfo.suggestedRoute = route.stream().map(p -> p.name).toList();
 				}
 
-				var relay = g().networkAgent.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
+				if (msg.routingInfo.suggestedRoute == null || msg.routingInfo.suggestedRoute.isEmpty()) {
+					System.out.println(hub().networkAgent.neighborhood.neighbors());
+					System.out.println("No route to " + recipient + ". Retrying later...");
+					msg.errorCount++;
+
+					if (msg.nbAttempts < msg.maxNbAttempts) {
+						sendingBox.add_sync(msg);
+					}
+					continue; // Skip to the next message
+				}
+
+				var relay = hub().networkAgent.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
 
 				if (relay.getConnection() != null) {
 					if (relay.sharedSecret == null) {
-						System.out.println("Cannot route through " + relay.name + ": missing public key. Retrying later...");
+						System.out.println(
+								"Cannot route through " + relay.name + ": missing public key. Retrying later...");
 						msg.errorCount++;
 						if (msg.nbAttempts < msg.maxNbAttempts) {
 							sendingBox.add_sync(msg);
@@ -65,11 +77,12 @@ public class MessageSendQueue extends ServiceNode {
 					}
 
 					try {
-						System.out.println("sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
+						System.out.println(
+								"sending message to " + relay.name + " via route " + msg.routingInfo.suggestedRoute);
 
-						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);				
+						byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
 						byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
-						
+
 						relay.getConnection().writeObject(hopEncryptedBytes);
 						++messageSent;
 						updateInOutInfo();
@@ -91,6 +104,7 @@ public class MessageSendQueue extends ServiceNode {
 
 	List<Peer> computeRouteToReach(Peer destination) {
 		var predecessors = bfs();
+
 		List<Peer> r = new ArrayList<Peer>();
 
 		while (true) {
@@ -112,9 +126,7 @@ public class MessageSendQueue extends ServiceNode {
 		var preds = new Object2ObjectOpenHashMap<Peer, Peer>();
 		Set<BNode> visited = new HashSet<>();
 
-		for (Peer p : g().networkAgent.neighborhood.neighbors()) {
-			q.add(p);
-		}
+		q.add(hub().networkAgent.neighborhood.self);
 
 		while (!q.isEmpty()) {
 			Peer p = q.removeFirst();
@@ -140,20 +152,17 @@ public class MessageSendQueue extends ServiceNode {
 		return sendingBox.size();
 	}
 
-	public void sendObject(Object o, Peer to, Consumer<Message> c) {
+	public void submit(Peer to, Consumer<Message> c) {
 		if (to.publicKey == null) {
 			System.out.println("Cannot send E2E message to " + to.name + ": public key is missing.");
 			return;
 		}
 
 		var msg = new Message();
-		msg.routingInfo.suggestedRoute.add(to.name);
-		//msg.routingInfo.actualRoute.add(g().networkAgent.name.get());
-
-		// msg.content = ByUtils.serializer.toBytes(o);
-		Objects.requireNonNull(o);
-		byte[] rawBytesPayload = ByUtils.serializer.toBytes(o);
-		msg.content = NetworkBox.encrypt(g().networkAgent.privateKey, to.publicKey, rawBytesPayload);
+		msg.routingInfo.nameOfRecipient = to.name;
+		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.plainData.content);
+		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey, to.publicKey,
+				rawBytesPayload);
 
 		if (c != null) {
 			c.accept(msg);
@@ -162,20 +171,20 @@ public class MessageSendQueue extends ServiceNode {
 		sendingBox.add_sync(msg);
 	}
 
-	public void send(Object o, Collection<Peer> to, Consumer<Message> c) {
+	public void send(Collection<Peer> to, Consumer<Message> c) {
 		for (var p : to) {
-			sendObject(o, p, c);
+			submit(p, c);
 		}
 	}
 
-	public void sendObjectToNeighbors(Object o, Consumer<Message> c) {
-		for (var p : g().networkAgent.neighborhood.neighbors()) {
-			sendObject(o, p, c);
+	public void sendObjectToNeighbors(Consumer<Message> c) {
+		for (var p : hub().networkAgent.neighborhood.neighbors()) {
+			submit(p, c);
 		}
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {
-		if (msg.routingInfo.actualRoute.contains(g().networkAgent.name.get()))
+		if (msg.routingInfo.actualRoute.contains(hub().networkAgent.neighborhood.self.name))
 			return;
 
 		sendingBox.add_sync(msg);

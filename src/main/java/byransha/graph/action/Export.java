@@ -6,7 +6,7 @@ import byransha.graph.BNode;
 import byransha.graph.Category.node;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.primitive.TextNode;
+import byransha.primitive.TextNode;
 
 public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 	public Export(BNode node) {
@@ -29,9 +29,9 @@ public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 		result = new ListNode<TextNode>(this, "export texts", TextNode.class);
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
-		csvs.stream().map(csv -> new byransha.nodes.primitive.TextNode(this, csv.name + " as CSV", csv.data))
+		csvs.stream().map(csv -> new byransha.primitive.TextNode(this, csv.name + " as CSV", csv.data))
 				.forEach(n -> result.get().add(n));
-		result.elements.add(new byransha.nodes.primitive.TextNode(this, "JSON", describeAsJSON().toPrettyString()));
+		result.elements.add(new byransha.primitive.TextNode(this, "JSON", describeAsJSON().toPrettyString()));
 	}
 
 	@Override

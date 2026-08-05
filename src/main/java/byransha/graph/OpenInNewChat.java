@@ -1,7 +1,7 @@
 package byransha.graph;
 
 import byransha.graph.Category.node;
-import byransha.nodes.system.ChatNode;
+import byransha.system.ChatNode;
 
 public class OpenInNewChat extends ProcedureAction<BNode> {
 
@@ -16,7 +16,7 @@ public class OpenInNewChat extends ProcedureAction<BNode> {
 
 	@Override
 	public void impl() throws Throwable {
-		var newChat = new ChatNode(g().currentUser());
+		var newChat = new ChatNode(hub().currentUser());
 	}
 
 	@Override

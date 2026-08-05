@@ -1,11 +1,11 @@
 package byransha.ui.swing;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 
 public class ChatSheetNode extends BNode {
 
-	protected ChatSheetNode(Root g) {
+	protected ChatSheetNode(Hub g) {
 		super(g);
 	}
 

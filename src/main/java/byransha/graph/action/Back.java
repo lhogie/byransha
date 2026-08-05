@@ -2,7 +2,7 @@ package byransha.graph.action;
 
 import byransha.graph.ProcedureAction;
 import byransha.graph.action.FreezingAction.misc;
-import byransha.nodes.system.ChatNode;
+import byransha.system.ChatNode;
 
 final public class Back extends ProcedureAction<ChatNode> {
 	public Back(ChatNode n) {

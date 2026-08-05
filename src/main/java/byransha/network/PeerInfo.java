@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class PeerInfo implements Serializable {
+	public String name;
 	public List<String> neighborsName;
 	public PeerTelemetry aiTelemetry;
 	public Properties systemProperties = System.getProperties();

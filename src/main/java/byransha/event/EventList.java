@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
-import byransha.network.Message;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 import byransha.security.AES;
 import byransha.util.ByUtils;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -31,7 +30,7 @@ public abstract class EventList extends BNode {
 				forEachEvent(e -> {
 					if (e.owners.size() < 1) {
 						candidates.add(e);
-						g().networkAgent.sendQ.sendObjectToNeighbors(e, null);
+						hub().networkAgent.messageOutQueue.sendObjectToNeighbors(msg -> msg.plainData.content = e);
 						status.set("running " + candidates.size() + " event(s) sent");
 					}
 				});
@@ -46,6 +45,18 @@ public abstract class EventList extends BNode {
 				}
 			}
 		});
+
+		var q = new byransha.network.Queue(this, 6538776544355L);
+		ByUtils.loop(() -> 1.0, "EventList message processing", () -> {
+			var msg = q.q.poll_sync();
+			Event e = (Event) msg.plainData.content;
+			var alreadyKnownEvent = hub().eventList.findEvent(e.id());
+
+			if (alreadyKnownEvent == null) {
+				hub().eventList.add(e);
+			}
+		});
+
 	}
 
 	public LongList collectIDs() {
@@ -89,13 +100,4 @@ public abstract class EventList extends BNode {
 
 	public abstract Event remove(long id) throws IOException;
 
-	@Override
-	public void onNewMessage(Message m, Object content) {
-		Event e = (Event) content;
-		var alreadyKnownEvent = g().eventList.findEvent(e.id());
-
-		if (alreadyKnownEvent == null) {
-			g().eventList.add(e);
-		}
-	}
 }

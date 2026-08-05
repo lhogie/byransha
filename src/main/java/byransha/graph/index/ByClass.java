@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.graph.relection.ClassNode;
@@ -15,9 +15,9 @@ import byransha.util.Stop;
 public class ByClass extends Index {
 
 	public MultiValuedMap<Class, BNode> m = new HashSetValuedHashMap<>();
-	public final Root g;
+	public final Hub g;
 
-	public ByClass(Root g) {
+	public ByClass(Hub g) {
 		super(g);
 		this.g = g;
 	}
@@ -47,11 +47,11 @@ public class ByClass extends Index {
 
 	@Override
 	public void add(final BNode n) {
-		ensureThereAreClassesForTheHierarchyOf(n.getClass());
+		ensureThereAreClassNodesForTheHierarchyOf(n.getClass());
 		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.put(clazz, n));
 	}
 
-	private void ensureThereAreClassesForTheHierarchyOf(Class c) {
+	private void ensureThereAreClassNodesForTheHierarchyOf(Class c) {
 		if (c == null || c == ClassNode.class) {
 			return;
 		}
@@ -64,10 +64,10 @@ public class ByClass extends Index {
 
 		cn = new ClassNode(g, c);
 		m.put(ClassNode.class, cn);
-		ensureThereAreClassesForTheHierarchyOf(c.getSuperclass());
+		ensureThereAreClassNodesForTheHierarchyOf(c.getSuperclass());
 
 		for (var i : c.getInterfaces()) {
-			ensureThereAreClassesForTheHierarchyOf(i);
+			ensureThereAreClassNodesForTheHierarchyOf(i);
 		}
 	}
 

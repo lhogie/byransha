@@ -13,20 +13,29 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
+import java.util.function.Supplier;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import byransha.graph.BNode;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 
 public class ByUtils {
+	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
+	final public static ObjectMapper objectMapper = new ObjectMapper();
 
 //	public static final File home = new File(System.getProperty("user.home"));
 	public static final Serializer serializer = new JavaSerializer<>();
 
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
+	public static Random random = new SecureRandom();
 
 	static {
 		sizeOfPrimitive.put(long.class, 8);
@@ -44,7 +53,24 @@ public class ByUtils {
 		t.setDaemon(true);
 		t.start();
 	}
-	
+
+	public static void loop(Supplier<Double> durationS, String description, Runnable r) {
+		ByUtils.thread(description, () -> {
+			while (true) {
+				sleep(durationS.get());
+				r.run();
+			}
+		});
+	}
+
+	public static final void sleep(double seconds) {
+		try {
+			Thread.sleep((long) (seconds * 1000));
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public static String camelToWords(String text) {
 		if (text == null || text.isBlank())
 			return text;
@@ -231,6 +257,5 @@ public class ByUtils {
 	public static boolean isWindows() {
 		return System.getProperty("os.name").toLowerCase().contains("win");
 	}
-
 
 }

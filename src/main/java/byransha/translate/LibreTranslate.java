@@ -3,12 +3,12 @@ package byransha.translate;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.translate.Translator.Language;
 
 public class LibreTranslate extends Translator {
 
-	public LibreTranslate(Root g) {
+	public LibreTranslate(Hub g) {
 		super(g);
 	}
 

@@ -7,7 +7,7 @@ import byransha.graph.BNode;
 import byransha.graph.Category.export;
 import byransha.graph.Category.list;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.primitive.TextNode;
+import byransha.primitive.TextNode;
 
 public class GeneratePlantUML<N extends BNode> extends FunctionAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(ListNode<N> node) {
@@ -25,7 +25,7 @@ public class GeneratePlantUML<N extends BNode> extends FunctionAction<ListNode<N
 		var classNode = new HashSet<ClassNode>();
 
 		for (var n : l) {
-			classNode.add(n instanceof ClassNode cn ? cn : g().indexes.byClass.getClassNodeFor(n.getClass()));
+			classNode.add(n instanceof ClassNode cn ? cn : hub().indexes.byClass.getClassNodeFor(n.getClass()));
 		}
 
 		result = new TextNode(null, "PlantUML", ClassNode.toPlantUML(classNode, true));

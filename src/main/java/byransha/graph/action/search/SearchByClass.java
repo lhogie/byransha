@@ -8,7 +8,7 @@ import java.util.List;
 import byransha.graph.BNode;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.primitive.PrimitiveValueNode;
+import byransha.primitive.PrimitiveValueNode;
 import byransha.util.Stop;
 
 public class SearchByClass extends Search {
@@ -24,7 +24,7 @@ public class SearchByClass extends Search {
 			var classList = new ArrayList<Class>(classes);
 			Collections.sort(classList, (a, b) -> a.getSimpleName().compareTo(b.getSimpleName()));
 			List<ClassNode> l = classes.stream()
-					.map(c -> g().indexes.byClass.forEachNodeAssignableTo(ClassNode.class, n -> Stop.no)).toList();
+					.map(c -> hub().indexes.byClass.forEachNodeAssignableTo(ClassNode.class, n -> Stop.no)).toList();
 			availableClasses.set(l);
 		});
 	}

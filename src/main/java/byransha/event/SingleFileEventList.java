@@ -7,7 +7,7 @@ import byransha.graph.BNode;
 
 public class SingleFileEventList extends InMemoryEventList {
 	final File f;
-	protected EventQueueSerializer ser = new FSTSerializer();
+	protected EventQueueSerializer ser = new FSTEventQueueSerializer();
 
 	public SingleFileEventList(BNode g, File f) {
 		super(g);
@@ -21,7 +21,7 @@ public class SingleFileEventList extends InMemoryEventList {
 		try {
 			ser.write(this, f);
 		} catch (IOException e1) {
-			g().errorLog.add(e1);
+			hub().errorLog.add(e1);
 		}
 	}
 

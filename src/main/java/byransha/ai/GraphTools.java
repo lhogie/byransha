@@ -5,8 +5,8 @@ import byransha.graph.action.search.Search;
 import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.lab.Person;
-import byransha.nodes.lab.Structure;
+import byransha.lab.Person;
+import byransha.lab.Structure;
 import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.agent.tool.P;
 
@@ -42,8 +42,8 @@ public class GraphTools {
 			return "Erreur: le texte de recherche ne peut pas être vide";
 		}
 		try {
-			synchronized (contextNode.g().indexes) {
-				var elements = contextNode.g().indexes.nodesList.stream()
+			synchronized (contextNode.hub().indexes) {
+				var elements = contextNode.hub().indexes.nodesList.stream()
 						.filter(n -> {
 							if (n == null)
 								return false;
@@ -103,8 +103,8 @@ public class GraphTools {
 
 		final String finalIdToSearch = cleanNodeId;
 		try {
-			synchronized (contextNode.g().indexes) {
-				BNode targetNode = contextNode.g().indexes.nodesList.stream()
+			synchronized (contextNode.hub().indexes) {
+				BNode targetNode = contextNode.hub().indexes.nodesList.stream()
 						.filter(n -> n != null && finalIdToSearch.equals(n.idAsText()))
 						.findFirst()
 						.orElse(null);
@@ -166,7 +166,7 @@ public class GraphTools {
 		}
 		try {
 			var searchLower = searchText.toLowerCase();
-			var elements = contextNode.g().indexes.nodesList.stream()
+			var elements = contextNode.hub().indexes.nodesList.stream()
 					.filter(n -> {
 						if (n == null)
 							return false;
@@ -210,8 +210,8 @@ public class GraphTools {
         }
         final String finalIdToSearch = cleanNodeId;
         try {
-            synchronized (contextNode.g().indexes) {
-                BNode parentNode = contextNode.g().indexes.nodesList.stream()
+            synchronized (contextNode.hub().indexes) {
+                BNode parentNode = contextNode.hub().indexes.nodesList.stream()
                         .filter(n -> n != null && finalIdToSearch.equals(n.idAsText()))
                         .findFirst()
                         .orElse(null);

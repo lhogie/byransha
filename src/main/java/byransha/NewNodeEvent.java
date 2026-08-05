@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import org.checkerframework.checker.units.qual.N;
 
 import byransha.event.Event;
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 
 public class NewNodeEvent<N extends BNode> extends Event {
@@ -16,23 +16,23 @@ public class NewNodeEvent<N extends BNode> extends Event {
 	long nodeId = -1;
 
 	public NewNodeEvent(BNode n) {
-		super(n.g(), LocalDateTime.now());
+		super(n.hub(), LocalDateTime.now());
 		this.clazz = (Class<N>) n.getClass();
 		this.nodeId = n.id();
 	}
 
-	public NewNodeEvent(Root g, LocalDateTime date) {
+	public NewNodeEvent(Hub g, LocalDateTime date) {
 		super(g, date);
 	}
 
 	@Override
-	public void undo(Root g) throws Throwable {
+	public void undo(Hub g) throws Throwable {
 		g.indexes.byId.get(nodeId).delete();
 	}
 
 	@Override
-	public void apply(Root g) throws Throwable {
-		var n = clazz.getConstructor(Root.class).newInstance(g);
+	public void apply(Hub g) throws Throwable {
+		var n = clazz.getConstructor(Hub.class).newInstance(g);
 
 		if (nodeId != -1) {
 			g.indexes.byId.forceIndex(n, nodeId);

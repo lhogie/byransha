@@ -30,11 +30,11 @@ import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.lab.stats.DistributionNode;
-import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.StringNode;
-import byransha.nodes.primitive.TextNode;
-import byransha.nodes.system.ChatNode;
+import byransha.lab.stats.DistributionNode;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.StringNode;
+import byransha.primitive.TextNode;
+import byransha.system.ChatNode;
 import byransha.ui.shell.Client;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -84,7 +84,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 	private ListNode<AiNode> getAiNodes() {
 		ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
-		AiNode localNode = new AiNode(g());
+		AiNode localNode = new AiNode(hub());
 		nodeList.elements.add(localNode);
 		return nodeList;
 //w		return null;
@@ -301,7 +301,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		var assistant = getOrCreateAssistant();
 		var userQuestion = prompt.get();
 		if (userQuestion == null || userQuestion.trim().isEmpty()) {
-			result = new TextNode(g(), "IA response", "Erreur: la question envoyée à l'IA est vide.");
+			result = new TextNode(hub(), "IA response", "Erreur: la question envoyée à l'IA est vide.");
 			return;
 		}
 
@@ -368,7 +368,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 							String idText = value.asText().trim();
 							if (idText.isEmpty())
 								continue;
-							BNode realNode = g().indexes.byId.getByText(idText);
+							BNode realNode = hub().indexes.byId.getByText(idText);
 							if (realNode != null) {
 								l.elements.add(realNode);
 							} else {
@@ -391,7 +391,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 							String idText = value.asText().trim();
 							if (idText.isEmpty())
 								continue;
-							BNode realNode = g().indexes.byId.getByText(idText);
+							BNode realNode = hub().indexes.byId.getByText(idText);
 							if (realNode != null) {
 								l.elements.add(realNode);
 							} else {
@@ -406,7 +406,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 					}
 				}
 			} else {
-				result = new TextNode(g(), "IA response", iaResponse);
+				result = new TextNode(hub(), "IA response", iaResponse);
 				return;
 			}
 

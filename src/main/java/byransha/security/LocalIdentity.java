@@ -12,20 +12,19 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import byransha.nodes.system.Byransha;
+import byransha.system.Byransha;
 
 /**
  * Manages the persistent cryptographic identity of the local Byransha node.
  */
 public class LocalIdentity {
 
-	private static final String ALGORITHM = "X25519";
-	private static final String SECURITY_DIR = "security";
-	private static final String PUBLIC_KEY_FILE = "public_key.pem";
-	private static final String PRIVATE_KEY_FILE = "private_key.pem";
-	private static final File securityDir = new File(Byransha.homeDirectory, SECURITY_DIR);
-	private static final File pubFile = new File(securityDir, PUBLIC_KEY_FILE);
-	private static final File privFile = new File(securityDir, PRIVATE_KEY_FILE);
+	public static final String ALGORITHM = "X25519";
+	public static final String publicKeyFileName = "public_key.pem";
+	public static final String privateKeyFileName = "private_key.pem";
+	public static final File localPeerDirectory = Byransha.homeDirectory;
+	public static final File pubFile = new File(Byransha.homeDirectory, publicKeyFileName);
+	public static final File privFile = new File(Byransha.homeDirectory, privateKeyFileName);
 
 	/**
 	 * Loads the existing X25519 network routing keys from disk. If they do not
@@ -49,7 +48,7 @@ public class LocalIdentity {
 		System.out.println("Generating new static X25519 keys for network routing...");
 		KeyPair kp = NetworkBox.generateRoutingKeyPair();
 
-		securityDir.mkdirs();
+		localPeerDirectory.mkdirs();
 
 		saveAsPem(pubFile, "-----BEGIN PUBLIC KEY-----", "-----END PUBLIC KEY-----", kp.getPublic().getEncoded());
 		saveAsPem(privFile, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----", kp.getPrivate().getEncoded());

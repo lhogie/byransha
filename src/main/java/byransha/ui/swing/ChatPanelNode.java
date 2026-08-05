@@ -1,13 +1,13 @@
 package byransha.ui.swing;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.ui.swing.action.Explode;
 
 public class ChatPanelNode extends BNode {
 	public final ChatPanel panel;
 
-	protected ChatPanelNode(Root g, ChatPanel panel) {
+	protected ChatPanelNode(Hub g, ChatPanel panel) {
 		super(g);
 		this.panel = panel;
 	}

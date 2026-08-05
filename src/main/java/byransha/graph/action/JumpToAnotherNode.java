@@ -6,7 +6,7 @@ import byransha.graph.Action;
 import byransha.graph.BNode;
 import byransha.graph.action.FreezingAction.misc;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.primitive.TextNode;
+import byransha.primitive.TextNode;
 import byransha.util.Base62;
 
 public class JumpToAnotherNode extends Action {
@@ -19,9 +19,9 @@ public class JumpToAnotherNode extends Action {
 			nodes.elements.clear();
 			Arrays.stream(text.get().replace(',', '\n').split("\n")).forEach(s -> {
 				try {
-					nodes.elements.add(g().indexes.byId.get(Base62.decode(s.trim())));
+					nodes.elements.add(hub().indexes.byId.get(Base62.decode(s.trim())));
 				} catch (Throwable err) {
-					g().errorLog.add(err);
+					hub().errorLog.add(err);
 				}
 			});
 		});

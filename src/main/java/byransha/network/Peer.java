@@ -1,20 +1,14 @@
 package byransha.network;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
 import java.security.Key;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -22,20 +16,21 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 
 import byransha.graph.ActionMethod;
+import byransha.graph.AddButtonOnKishanView;
 import byransha.graph.BNode;
-import byransha.graph.Root;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.system.ChatNode;
-import byransha.security.ECC;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.DoubleNode;
+import byransha.system.ChatNode;
 import byransha.util.ByUtils;
 
-public class Peer extends BNode {
+public abstract class Peer extends BNode {
 	List<PeerListener> listeners = new ArrayList<>();
 
 	public List<Peer> neighbors = new ArrayList<>();
 
 	@ShowInKishanView
-	public String name;
+	public final String name;
 
 	@ShowInKishanView
 	public PublicKey publicKey;
@@ -53,69 +48,56 @@ public class Peer extends BNode {
 
 	public PeerInfo lastInfo;
 
-	public boolean autoConnect = true;
-	public final File directory;
+	@ShowInKishanView
+	public BooleanNode autoConnect = new BooleanNode(this, true);
 
-	
-	
-	public Peer(Root g, String name) {
-		super(g);
-		this.directory= new File(Neighborhood.peersDirectory, name);
+	@ShowInKishanView
+	final DoubleNode periodS = new DoubleNode(this, 5);
+
+	public Peer(Neighborhood neigh, String name) {
+		super(neigh);
+		Objects.requireNonNull(name);
+		this.name = name;
+		listeners.add(neigh.peerListener);
+
+		ByUtils.loop(() -> periodS.get(), "auto connecto to " + this, () -> {
+			if (autoConnect.get()) {
+				if (getConnection() == null && address != null) {
+					try {
+						hub().networkAgent.tcp.newSocket(new Socket(address, port), true);
+					} catch (IOException e) {
+						ensureDisconnected();
+					}
+				} else {
+					System.out.println("already connected to " + this + " or no address");
+				}
+			}
+		});
 	}
 
 	@ShowInKishanView
 	public List<String> neighborsName() {
-		return lastInfo.neighborsName;
+		return lastInfo != null ? lastInfo.neighborsName : Collections.emptyList();
 	}
 
 	@ShowInKishanView
 	public String os() {
-		return lastInfo.systemProperties.getProperty("os.name");
+		return lastInfo != null ? lastInfo.systemProperties.getProperty("os.name") : "n/a";
 	}
 
 	@ShowInKishanView
 	public long uptime() {
-		return lastInfo.uptimeMs;
+		return lastInfo != null ? lastInfo.uptimeMs : -1;
 	}
 
 	static List<String> neighborsNames(List<Peer> peers) {
 		return peers.stream().map(p -> p.name).toList();
 	}
 
-	public void setDirectory(String name) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		this.name = name;
-
-		{
-			var publicKeyFile = new File(directory, "public_key.pem");
-
-			if (publicKeyFile.exists()) {
-				var publicKeyString = Files.readString(publicKeyFile.toPath());
-				
-				this.publicKey = ECC.fromPem(publicKeyString, "X25519");
-				
-				this.autoConnect = !new File(directory, "noAutoConnect").exists();
-			} else {
-				System.err.println("no public key for " + this);
-			}
-		}
-
-		{
-			var ipFile = new File(directory, "ip.txt");
-
-			if (ipFile.exists()) {
-				var ipS = Files.readString(ipFile.toPath()).trim();
-				this.address = s2ip(ipS);
-			} else {
-				System.err.println("no IP known for " + this);
-			}
-		}
-	}
-
-
 	public static interface PeerListener {
-		void connected(Connection c);
+		void peerJoined(Peer p);
 
-		void connectionLost();
+		void peerLeft(Peer p);
 	}
 
 	public void setConnection(Connection c) {
@@ -125,7 +107,7 @@ public class Peer extends BNode {
 			throw new IllegalStateException("already connected");
 
 		this.connection = c;
-		listeners.forEach(l -> l.connected(c));
+		listeners.forEach(l -> l.peerJoined(this));
 	}
 
 	private static final Pattern IPV4_PATTERN = Pattern
@@ -197,7 +179,7 @@ public class Peer extends BNode {
 
 		connection.close();
 		connection = null;
-		listeners.forEach(l -> l.connectionLost());
+		listeners.forEach(l -> l.peerLeft(this));
 	}
 
 	@Override
@@ -208,12 +190,12 @@ public class Peer extends BNode {
 		listeners.add(new PeerListener() {
 
 			@Override
-			public void connectionLost() {
+			public void peerLeft(Peer p) {
 				updateColor(component);
 			}
 
 			@Override
-			public void connected(Connection c) {
+			public void peerJoined(Peer p) {
 				updateColor(component);
 			}
 		});
@@ -231,15 +213,15 @@ public class Peer extends BNode {
 	}
 
 	@ActionMethod
+	@AddButtonOnKishanView
 	public void tryConnect() {
 		System.out.println("trying to connecto " + this);
 		ByUtils.thread("opening socket to " + this, () -> {
 			try {
-				g().networkAgent.tcp.newSocket(new Socket(address, port), true);
+				hub().networkAgent.tcp.newSocket(new Socket(address, port), true);
 			} catch (IOException err) {
 				ensureDisconnected();
 			}
 		});
-
 	}
 }

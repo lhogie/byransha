@@ -4,13 +4,13 @@ import java.time.LocalDateTime;
 
 import byransha.graph.action.ExceptionNode;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.system.SystemNode;
+import byransha.system.SystemNode;
 
 public class ErrorLog extends SystemNode {
 	@ShowInKishanView
 	public final ListNode<ExceptionNode> errors = new ListNode<>(this, "error(s)", ExceptionNode.class);
 
-	public ErrorLog(Root g) {
+	public ErrorLog(Hub g) {
 		super(g);
 	}
 

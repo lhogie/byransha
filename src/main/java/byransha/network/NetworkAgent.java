@@ -2,34 +2,25 @@ package byransha.network;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 
-import byransha.graph.PublicKeyImporter;
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
+import byransha.security.PublicKeyImporter;
 import byransha.util.ByUtils;
 
 public class NetworkAgent extends ServiceNode {
 	protected int nbMsgReceived;
 
-	public PrivateKey privateKey;
-	public PublicKey publicKey;
-
 	@ShowInKishanView
 	final StringNode receptionInfo = new StringNode(this);
 
 	@ShowInKishanView
-	StringNode name = new StringNode(this, System.getProperty("user.name"), "([a-z][A-Z])+");
-
-	@ShowInKishanView
-	public final MessageSendQueue sendQ;
+	public final MessageSendQueue messageOutQueue;
 
 	@ShowInKishanView
 	public final Neighborhood neighborhood;
@@ -43,24 +34,19 @@ public class NetworkAgent extends ServiceNode {
 	@ShowInKishanView
 	public final PublicKeyImporter publicKeyImporter = new PublicKeyImporter(this);
 
-	public NetworkAgent(Root g, int port)
+	public NetworkAgent(Hub g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);
-
-		KeyPair kp = byransha.security.LocalIdentity.loadOrGenerateRoutingKeys();
-		this.privateKey = kp.getPrivate();
-		this.publicKey = kp.getPublic();
-
 		this.neighborhood = new Neighborhood(this);
 		this.gossiper = new Gossiper(this);
-		this.sendQ = new MessageSendQueue(this);
+		this.messageOutQueue = new MessageSendQueue(this);
 		this.tcp = new TCPNode(this, port);
 	}
 
 	public void start() throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		this.neighborhood.start();
 		this.gossiper.start();
-		this.sendQ.start();
+		this.messageOutQueue.start();
 		this.tcp.start();
 	}
 
@@ -82,26 +68,30 @@ public class NetworkAgent extends ServiceNode {
 		++nbMsgReceived;
 		updateInOutInfo();
 
-		boolean imTheRecipient = msg.routingInfo.recipient().equals(name.get());
+		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
 
 		if (imTheRecipient) {
-			var from = neighborhood.findPeerByName(msg.routingInfo.source());
-			byte[] decryptedE2E = NetworkBox.decrypt(this.privateKey, from.publicKey, msg.content);
+			String nameOfSender = msg.routingInfo.nameOfSender();
+			var sender = neighborhood.findPeerByName(nameOfSender);
+			System.out.println(
+					"*** message received from " + nameOfSender + " (sender: " + msg.routingInfo.actualRoute + ")");
+
+			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, sender.publicKey, msg.content);
 //			msg.content = decryptedE2E;
-			Object contentObject = ByUtils.serializer.fromBytes(decryptedE2E);
+			msg.plainData.content = ByUtils.serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
-			System.out.println("*** content: " + contentObject);
+			System.out.println("*** content: " + msg.plainData.content);
 
-			var recipientNode = g().indexes.byId.get(msg.recipient);
+			var recipientQ = (Queue) hub().indexes.byId.get(msg.recipientNode);
 
-			if (recipientNode != null) {
-				recipientNode.onNewMessage(msg, contentObject);
+			if (recipientQ != null) {
+				recipientQ.q.add_sync(msg);
 			} else {
 				System.err.println("Warning: No recipient node found for message " + msg);
 			}
 		} else {
-			sendQ.considerForwarding(msg, null);
+			messageOutQueue.considerForwarding(msg, null);
 		}
 	}
 }

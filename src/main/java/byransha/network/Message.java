@@ -3,7 +3,12 @@ package byransha.network;
 import java.io.Serializable;
 
 public class Message implements Serializable {
-	public long recipient;
+	public static class Uncrypted {
+		public Object content;
+	}
+
+	public final transient Uncrypted plainData = new Uncrypted();
+	public long recipientNode;
 	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();
 	public int errorCount;
