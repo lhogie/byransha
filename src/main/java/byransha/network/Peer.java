@@ -18,14 +18,15 @@ import javax.swing.JComponent;
 import byransha.graph.ActionMethod;
 import byransha.graph.AddButtonOnKishanView;
 import byransha.graph.BNode;
+import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
+import byransha.graph.ThreadNode;
+import byransha.network.PeerManager.Gossip;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
 import byransha.system.ChatNode;
-import byransha.util.ByUtils;
 
 public abstract class Peer extends BNode {
-	List<PeerListener> listeners = new ArrayList<>();
 
 	public List<Peer> neighbors = new ArrayList<>();
 
@@ -46,7 +47,7 @@ public abstract class Peer extends BNode {
 	@ShowInKishanView
 	private Connection connection;
 
-	public PeerInfo lastInfo;
+	public Gossip lastGossip;
 
 	@ShowInKishanView
 	public BooleanNode autoConnect = new BooleanNode(this, true);
@@ -54,17 +55,16 @@ public abstract class Peer extends BNode {
 	@ShowInKishanView
 	final DoubleNode periodS = new DoubleNode(this, 5);
 
-	public Peer(Neighborhood neigh, String name) {
+	public Peer(PeerManager neigh, String name) {
 		super(neigh);
 		Objects.requireNonNull(name);
 		this.name = name;
-		listeners.add(neigh.peerListener);
 
-		ByUtils.loop(() -> periodS.get(), "auto connecto to " + this, () -> {
+		new LoopingThreadNode(this, () -> periodS.get(), "auto connecto to " + this, () -> {
 			if (autoConnect.get()) {
 				if (getConnection() == null && address != null) {
 					try {
-						hub().networkAgent.tcp.newSocket(new Socket(address, port), true);
+						hub().network.tcp.newSocket(new Socket(address, port), true);
 					} catch (IOException e) {
 						ensureDisconnected();
 					}
@@ -77,27 +77,26 @@ public abstract class Peer extends BNode {
 
 	@ShowInKishanView
 	public List<String> neighborsName() {
-		return lastInfo != null ? lastInfo.neighborsName : Collections.emptyList();
+		return lastGossip != null ? lastGossip.neighborsName() : Collections.emptyList();
 	}
 
 	@ShowInKishanView
-	public String os() {
-		return lastInfo != null ? lastInfo.systemProperties.getProperty("os.name") : "n/a";
+	public int distance() {
+		return route().size();
 	}
 
 	@ShowInKishanView
-	public long uptime() {
-		return lastInfo != null ? lastInfo.uptimeMs : -1;
+	public List<Peer> route() {
+		return hub().network.sender.routingProtocol.computeRouteToReach(this);
+	}
+
+	@ShowInKishanView
+	public List<String> routeNames() {
+		return route().stream().map(p -> p.name).toList();
 	}
 
 	static List<String> neighborsNames(List<Peer> peers) {
 		return peers.stream().map(p -> p.name).toList();
-	}
-
-	public static interface PeerListener {
-		void peerJoined(Peer p);
-
-		void peerLeft(Peer p);
 	}
 
 	public void setConnection(Connection c) {
@@ -107,7 +106,7 @@ public abstract class Peer extends BNode {
 			throw new IllegalStateException("already connected");
 
 		this.connection = c;
-		listeners.forEach(l -> l.peerJoined(this));
+		hub().network.neighborhood.neighborhoodListeners.forEach(l -> l.joined(this));
 	}
 
 	private static final Pattern IPV4_PATTERN = Pattern
@@ -149,7 +148,7 @@ public abstract class Peer extends BNode {
 
 	@Override
 	public String whatIsThis() {
-		return null;
+		return "a participant to the network";
 	}
 
 	@Override
@@ -179,7 +178,7 @@ public abstract class Peer extends BNode {
 
 		connection.close();
 		connection = null;
-		listeners.forEach(l -> l.peerLeft(this));
+		hub().network.neighborhood.neighborhoodListeners.forEach(l -> l.left(this));
 	}
 
 	@Override
@@ -187,15 +186,15 @@ public abstract class Peer extends BNode {
 		var component = super.getSmallComponent(chat);
 		updateColor(component);
 
-		listeners.add(new PeerListener() {
+		hub().network.neighborhood.neighborhoodListeners.add(new NeighborhoodListener() {
 
 			@Override
-			public void peerLeft(Peer p) {
+			public void left(Peer p) {
 				updateColor(component);
 			}
 
 			@Override
-			public void peerJoined(Peer p) {
+			public void joined(Peer p) {
 				updateColor(component);
 			}
 		});
@@ -205,7 +204,6 @@ public abstract class Peer extends BNode {
 
 	private void updateColor(JComponent component) {
 		component.setBackground(getConnection() == null ? Color.red : Color.green);
-
 	}
 
 	public Connection getConnection() {
@@ -216,9 +214,9 @@ public abstract class Peer extends BNode {
 	@AddButtonOnKishanView
 	public void tryConnect() {
 		System.out.println("trying to connecto " + this);
-		ByUtils.thread("opening socket to " + this, () -> {
+		new ThreadNode(this, "opening socket to " + this, () -> {
 			try {
-				hub().networkAgent.tcp.newSocket(new Socket(address, port), true);
+				hub().network.tcp.newSocket(new Socket(address, port), true);
 			} catch (IOException err) {
 				ensureDisconnected();
 			}

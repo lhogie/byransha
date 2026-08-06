@@ -3,9 +3,9 @@ package byransha.network;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import byransha.graph.LoopingThreadNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.util.ByUtils;
 
 public class TCPServer extends ServiceNode {
 
@@ -20,12 +20,12 @@ public class TCPServer extends ServiceNode {
 	}
 
 	public void start() {
-		ByUtils.loop(() -> 1.0, "TCP server thread", () -> {
+		new LoopingThreadNode(this, () -> 1.0, "TCP server thread", () -> {
 			try (var socket = new ServerSocket(port)) {
 				System.out.println("TCP Server is listening on port " + port);
 
 				while (true) {
-					hub().networkAgent.tcp.newSocket(socket.accept(), false);
+					hub().network.tcp.newSocket(socket.accept(), false);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

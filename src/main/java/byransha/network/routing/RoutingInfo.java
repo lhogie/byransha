@@ -1,4 +1,4 @@
-package byransha.network;
+package byransha.network.routing;
 
 import java.io.Serializable;
 import java.util.ArrayList;

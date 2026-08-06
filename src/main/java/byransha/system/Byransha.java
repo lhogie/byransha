@@ -24,6 +24,7 @@ import byransha.Main;
 import byransha.graph.Category;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
+import byransha.graph.ThreadNode;
 import byransha.primitive.URLNode;
 import byransha.util.ByUtils;
 
@@ -127,7 +128,7 @@ public class Byransha extends SystemNode {
 	}
 
 	public static void runAutoUpdateThread() {
-		ByUtils.thread("check new version", () -> {
+		ThreadNode.thread("check new version", () -> {
 			while (true) {
 				try {
 					Thread.sleep(10000);

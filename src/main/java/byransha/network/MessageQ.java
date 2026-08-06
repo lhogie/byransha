@@ -5,10 +5,10 @@ import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.util.Q;
 
-public class Queue extends BNode {
+public class MessageQ extends BNode {
 	public final Q<Message> q = new Q<>(100);
 
-	public Queue(BNode parent, long id) {
+	public MessageQ(BNode parent, long id) {
 		super(parent, id);
 	}
 

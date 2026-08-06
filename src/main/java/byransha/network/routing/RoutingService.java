@@ -1,8 +1,10 @@
-package byransha.network;
+package byransha.network.routing;
 
 import java.util.List;
 
 import byransha.graph.ServiceNode;
+import byransha.network.Peer;
+import byransha.network.Sender;
 
 public abstract class RoutingService extends ServiceNode {
 

@@ -1,4 +1,4 @@
-package byransha.network;
+package byransha.network.routing;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import byransha.graph.BNode;
+import byransha.network.Peer;
+import byransha.network.Sender;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class BFSRouting extends RoutingService {
@@ -17,9 +19,10 @@ public class BFSRouting extends RoutingService {
 
 	@Override
 	public List<Peer> computeRouteToReach(Peer destination) {
-		var predecessors = bfs(hub().networkAgent.neighborhood.self);
-		System.out.println(predecessors);
+		var predecessors = bfs(hub().network.neighborhood.self);
+//		System.out.println(predecessors);
 		List<Peer> r = new ArrayList<Peer>();
+		r.add(destination);
 
 		while (true) {
 			var pred = predecessors.get(destination);
@@ -27,12 +30,10 @@ public class BFSRouting extends RoutingService {
 			if (pred == null)
 				return null;
 
-			r.add(pred);
-
-			if (pred == hub().networkAgent.neighborhood.self)
+			if (pred == hub().network.neighborhood.self)
 				break;
 
-			destination = pred;
+			r.add(destination = pred);
 		}
 
 		Collections.reverse(r);
@@ -44,7 +45,8 @@ public class BFSRouting extends RoutingService {
 		var preds = new Object2ObjectOpenHashMap<Peer, Peer>();
 		Set<BNode> visited = new HashSet<>();
 
-		q.add(hub().networkAgent.neighborhood.self);
+		q.add(hub().network.neighborhood.self);
+		visited.add(hub().network.neighborhood.self);
 
 		while (!q.isEmpty()) {
 			Peer p = q.removeFirst();

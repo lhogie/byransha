@@ -7,6 +7,7 @@ import java.util.List;
 import byransha.event.EventList;
 import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
+import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.lab.Genre.Female;
 import byransha.lab.Genre.Male;
@@ -23,6 +24,9 @@ import byransha.ui.swing.SwingFrontend;
 import io.github.classgraph.ClassGraph;
 
 public class Hub extends BNode {
+	@ShowInKishanView
+	public final ListNode<ThreadNode> threads = new ListNode<ThreadNode>(this, "threads", ThreadNode.class);
+
 	@ShowInKishanView
 	private User currentUser = new User(this, "guest");
 
@@ -51,21 +55,22 @@ public class Hub extends BNode {
 	@ShowInKishanView
 	public SwingFrontend swingInterface;
 	@ShowInKishanView
-	public final NetworkAgent networkAgent;
+	public final NetworkAgent network;
 	@ShowInKishanView
 	public final Translator translator = new GoogleTranslator(this);
 	// public final Authenticate auth = new LdapAuthenticator(this);
 
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
+
 	class graph extends Category {
 	}
 
-	public Hub( int port) throws Exception {
+	public Hub(int port) throws Exception {
 		super(null);
 		// indexes.add(this);
-		this.networkAgent = new NetworkAgent(this, port);
-		networkAgent.start();
+		this.network = new NetworkAgent(this, port);
+		network.start();
 		new Male(this);
 		new Female(this);
 		new NotGenred(this);
@@ -74,6 +79,11 @@ public class Hub extends BNode {
 		var admin = new AdminRole(this);
 
 		currentUser.roles.elements.add(admin);
+	}
+
+	@ShowInKishanView
+	public int nbNodes() {
+		return BNode.nbInstances;
 	}
 
 	@ActionMethod

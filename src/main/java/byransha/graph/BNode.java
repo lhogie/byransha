@@ -73,6 +73,7 @@ import byransha.util.TriConsumer;
 
 public abstract class BNode {
 
+	public static int nbInstances = 0;
 	@ShowInKishanView
 	public final BNode parent;
 	public boolean userEditable;
@@ -88,6 +89,8 @@ public abstract class BNode {
 	}
 
 	protected BNode(BNode parent, long id) {
+		++nbInstances;
+		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
@@ -350,7 +353,7 @@ public abstract class BNode {
 						} else if (out != null) {
 							var outNode = instantiateRenderingNodeFor(out);
 							outNode.userEditable = false;
-							ByUtils.thread("watching " + getClass() + "." + f.getName(), () -> {
+							new ThreadNode(this, "watching " + getClass() + "." + f.getName(), () -> {
 
 							});
 							consumer.accept(f, outNode, isFinal);
@@ -403,7 +406,7 @@ public abstract class BNode {
 
 		if (node instanceof ValuedNode vn) {
 			vn.userEditable = false;
-			ByUtils.loop(() -> 1.0, "watching method " + getClass() + "." + m.getName(), () -> {
+			new LoopingThreadNode(this, () -> 1.0, "watching method " + getClass() + "." + m.getName(), () -> {
 				try {
 					var newValue = m.invoke(this);
 					if (!newValue.equals(vn.get())) {
@@ -423,7 +426,7 @@ public abstract class BNode {
 
 		if (node instanceof ValuedNode vn) {
 			vn.userEditable = false;
-			ByUtils.loop(() -> 1d, "watching field " + getClass() + "." + f.getName(), () -> {
+			new LoopingThreadNode(this, () -> 1d, "watching field " + getClass() + "." + f.getName(), () -> {
 				try {
 					var newValue = f.get(this);
 					if (!newValue.equals(vn.get())) {

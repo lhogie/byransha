@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import byransha.graph.ActionMethod;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.network.Neighborhood;
+import byransha.network.PeerManager;
 import byransha.network.NetworkAgent;
 import byransha.primitive.StringNode;
 
@@ -28,7 +28,7 @@ public class PublicKeyImporter extends ServiceNode {
 
 	@ActionMethod
 	public void importKey() throws IOException {
-		var f = new File(Neighborhood.peersDirectory, peerName.get() + "/publicKey.pem");
+		var f = new File(PeerManager.peersDirectory, peerName.get() + "/publicKey.pem");
 		f.getParentFile().mkdirs();
 		Files.writeString(f.toPath(), publicKey.get());
 	}

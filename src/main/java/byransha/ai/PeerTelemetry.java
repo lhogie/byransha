@@ -1,4 +1,4 @@
-package byransha.network;
+package byransha.ai;
 
 import java.io.Serializable;
 

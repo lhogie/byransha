@@ -76,7 +76,7 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 
 		for (int i = 0; i < ownersSize; i++) {
 			var ownerId = in.readInt();
-			var owner = g.networkAgent.neighborhood.findPeer(ownerId);
+			var owner = g.network.neighborhood.findPeer(ownerId);
 			owners.add(owner);
 		}
 	}

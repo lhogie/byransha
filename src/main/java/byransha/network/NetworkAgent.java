@@ -20,13 +20,10 @@ public class NetworkAgent extends ServiceNode {
 	final StringNode receptionInfo = new StringNode(this);
 
 	@ShowInKishanView
-	public final Sender messageOutQueue;
+	public final Sender sender;
 
 	@ShowInKishanView
-	public final Neighborhood neighborhood;
-
-	@ShowInKishanView
-	public final Gossiper gossiper;
+	public final PeerManager neighborhood;
 
 	@ShowInKishanView
 	public final TCPNode tcp;
@@ -37,16 +34,14 @@ public class NetworkAgent extends ServiceNode {
 	public NetworkAgent(Hub g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);
-		this.neighborhood = new Neighborhood(this);
-		this.gossiper = new Gossiper(this);
-		this.messageOutQueue = new Sender(this);
+		this.neighborhood = new PeerManager(this);
+		this.sender = new Sender(this);
 		this.tcp = new TCPNode(this, port);
 	}
 
 	public void start() throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		this.neighborhood.start();
-		this.gossiper.start();
-		this.messageOutQueue.start();
+		this.sender.start();
 		this.tcp.start();
 	}
 
@@ -69,7 +64,7 @@ public class NetworkAgent extends ServiceNode {
 		updateInOutInfo();
 
 		String nameOfSender = msg.routingInfo.nameOfSender();
-		
+
 		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
 
 		if (imTheRecipient) {
@@ -84,7 +79,7 @@ public class NetworkAgent extends ServiceNode {
 			System.out.println("*** message received: " + msg);
 			System.out.println("*** content: " + msg.ooInfos.content);
 
-			var recipientQ = (Queue) hub().indexes.byId.get(msg.recipientNode);
+			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientNode);
 
 			if (recipientQ != null) {
 				recipientQ.q.add_sync(msg);
@@ -92,7 +87,7 @@ public class NetworkAgent extends ServiceNode {
 				System.err.println("Warning: No recipient node found for message " + msg);
 			}
 		} else {
-			messageOutQueue.considerForwarding(msg, null);
+			sender.considerForwarding(msg, null);
 		}
 	}
 }

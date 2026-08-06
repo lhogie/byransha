@@ -4,15 +4,17 @@ import java.io.IOException;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
+import byransha.graph.LoopingThreadNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
+import byransha.network.routing.BFSRouting;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 import byransha.util.Q;
 
-public class Sender extends ServiceNode {
+public class Sender extends ServiceNode implements Consumer<Message> {
 	private PriorityBlockingQueue<Message> inWait = new PriorityBlockingQueue<>(10,
 			(msg1, msg2) -> Long.compare(msg1.sendDateMs, msg2.sendDateMs));
 	private Q<Message> toSendNow = new Q<>(10);
@@ -24,7 +26,7 @@ public class Sender extends ServiceNode {
 	final StringNode sendInfo = new StringNode(this);
 
 	@ShowInKishanView
-	final RoutingService routingProtocol = new BFSRouting(this);
+	final BFSRouting routingProtocol = new BFSRouting(this);
 
 	private Thread waitingThread;
 
@@ -36,7 +38,7 @@ public class Sender extends ServiceNode {
 	}
 
 	public void start() {
-		this.waitingThread = ByUtils.loop(() -> 0d, "waiting", () -> {
+		this.waitingThread = new LoopingThreadNode(this, () -> 0d, "waiting", () -> {
 			try {
 				Message msg = inWait.take(); // waiting here
 				long waitTime = msg.waitTimeMs();
@@ -47,64 +49,58 @@ public class Sender extends ServiceNode {
 						Thread.sleep(waitTime);
 						toSendNow.add_sync(msg);
 					} catch (InterruptedException interrupt) {
-						add(msg);
+						enqueue(msg);
 					}
 				}
 			} catch (InterruptedException interrupt) {
 			}
-		});
+		}).thread;
 
-		ByUtils.thread("to send now", () -> {
-			while (true) {
-				Message msg = toSendNow.poll_sync();
-				msg.nbAttempts++;
+		new LoopingThreadNode(this, () -> 0d, "to send now", () -> {
+			Message msg = toSendNow.poll_sync();
+			msg.nbAttempts++;
 
-				if (!msg.keepAliveExpired()) {
-					var recipient = hub().networkAgent.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
-					var newRoute = routingProtocol.computeRouteToReach(recipient);
+			if (!msg.keepAliveExpired()) {
+				var recipient = hub().network.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
+				var newRoute = routingProtocol.computeRouteToReach(recipient);
 
-					if (newRoute != null) { // if a better route could be found
-						msg.routingInfo.suggestedRoute = newRoute.stream().map(p -> p.name).toList();
-					}
+				if (newRoute != null) { // if a better route could be found
+					msg.routingInfo.suggestedRoute = newRoute.stream().map(p -> p.name).toList();
+				}
 
-					
-					System.out.println("suggested route: " + msg.routingInfo.suggestedRoute);
-					if (msg.routingInfo.suggestedRoute == null) {
-//						System.out.println(hub().networkAgent.neighborhood.neighbors());
-						System.out.println("No route to " + recipient + ". Retrying later...");
-						addAfterError(msg);
-					} else if (msg.routingInfo.suggestedRoute.isEmpty()) {
-						System.out.println("delivering locally");
-						msg.routingInfo.actualRoute.add(((NetworkAgent) parent).neighborhood.self.name);
-						((NetworkAgent) parent).processIncomingMessage(msg);
-					} else {
-						var relay = hub().networkAgent.neighborhood
-								.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
+				if (msg.routingInfo.suggestedRoute == null) {
+					System.out.println("No route to " + recipient + ". Retrying later...");
+					errorWhenTryingToSending(msg);
+				} else if (msg.routingInfo.suggestedRoute.isEmpty()) {
+					System.out.println("delivering locally");
+					msg.routingInfo.actualRoute.add(((NetworkAgent) parent).neighborhood.self.name);
+					((NetworkAgent) parent).processIncomingMessage(msg);
+				} else {
+					var relay = hub().network.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
 
-						if (relay.getConnection() != null) {
-							if (relay.sharedSecret == null) {
-								System.out.println("Cannot route through " + relay.name
-										+ ": missing public key. Retrying later...");
-								addAfterError(msg);
-							} else {
-								try {
-									System.out.println("sending message to " + relay.name + " via route "
-											+ msg.routingInfo.suggestedRoute);
-
-									byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
-									byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret,
-											serializedMsg);
-									relay.getConnection().writeObject(hopEncryptedBytes);
-									++nbMessageSent;
-									updateInOutInfo();
-								} catch (IOException e) {
-									e.printStackTrace();
-									addAfterError(msg);
-								}
-							}
+					if (relay.getConnection() != null) {
+						if (relay.sharedSecret == null) {
+							System.out.println(
+									"Cannot route through " + relay.name + ": missing public key. Retrying later...");
+							errorWhenTryingToSending(msg);
 						} else {
-							addAfterError(msg);
+							try {
+								System.out.println("sending message to " + recipient + " via route "
+										+ msg.routingInfo.suggestedRoute);
+
+								byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
+								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
+								System.out.println("writing to TCP of " + relay);
+								relay.getConnection().writeObject(hopEncryptedBytes);
+								++nbMessageSent;
+								updateInOutInfo();
+							} catch (IOException e) {
+								e.printStackTrace();
+								errorWhenTryingToSending(msg);
+							}
 						}
+					} else {
+						errorWhenTryingToSending(msg);
 					}
 				}
 			}
@@ -112,18 +108,24 @@ public class Sender extends ServiceNode {
 
 	}
 
-	private void addAfterError(Message msg) {
+	private void errorWhenTryingToSending(Message msg) {
 		msg.errorCount++;
-		System.out.println(msg.errorCount);
+//		System.out.println(msg.errorCount);
 
-		if (msg.nbAttempts < msg.maxNbAttempts) {
+		if (msg.nbAttempts < msg.maxNbAttempts && !msg.keepAliveExpired()) {
 			msg.emissionDateMs = System.currentTimeMillis() + timeBeforeResendMs.get();
-			System.out.println("retrying in " + timeBeforeResendMs.get() + " ms");
-			add(msg);
+//			System.out.println("retrying in " + timeBeforeResendMs.get() + " ms");
+			enqueue(msg);
 		}
 	}
 
-	private void add(Message msg) {
+	@Override
+	public void accept(Message msg) {
+		applyOOInfos(msg);
+		enqueue(msg);
+	}
+
+	private void enqueue(Message msg) {
 		if (msg.waitTimeMs() == 0) {
 			toSendNow.add_sync(msg);
 		} else {
@@ -145,12 +147,7 @@ public class Sender extends ServiceNode {
 		return inWait.size();
 	}
 
-	public void send(Message msg) {
-		applyingOOInfos(msg);
-		add(msg);
-	}
-
-	private void applyingOOInfos(Message msg) {
+	private void applyOOInfos(Message msg) {
 		msg.routingInfo.nameOfRecipient = msg.ooInfos.recipient.name;
 
 		if (msg.ooInfos.recipient.publicKey == null) {
@@ -159,15 +156,15 @@ public class Sender extends ServiceNode {
 		}
 
 		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.ooInfos.content);
-		msg.content = NetworkBox.encrypt(hub().networkAgent.neighborhood.self.privateKey,
-				msg.ooInfos.recipient.publicKey, rawBytesPayload);
+		msg.content = NetworkBox.encrypt(hub().network.neighborhood.self.privateKey, msg.ooInfos.recipient.publicKey,
+				rawBytesPayload);
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {
-		if (msg.routingInfo.actualRoute.contains(hub().networkAgent.neighborhood.self.name))
+		if (msg.routingInfo.actualRoute.contains(hub().network.neighborhood.self.name))
 			return;
 
-		add(msg);
+		enqueue(msg);
 	}
 
 }

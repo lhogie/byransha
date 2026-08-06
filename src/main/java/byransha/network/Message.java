@@ -2,6 +2,8 @@ package byransha.network;
 
 import java.io.Serializable;
 
+import byransha.network.routing.RoutingInfo;
+
 public class Message implements Serializable {
 	public static class OOData {
 		public Object content;

@@ -23,7 +23,9 @@ import java.util.function.Supplier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+import byransha.Main;
 import byransha.graph.BNode;
+import byransha.graph.ThreadNode;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 
@@ -48,32 +50,7 @@ public class ByUtils {
 		sizeOfPrimitive.put(double.class, 8);
 	}
 
-	public static Thread thread(String description, Runnable r) {
-		var t = new Thread(() -> {
-			try {
-				r.run();
-			} catch (Throwable err) {
-				err.printStackTrace();
-			}
-		});
-		t.setDaemon(true);
-		t.start();
-		return t;
-	}
-
-	public static Thread loop(Supplier<Double> durationS, String description, Runnable r) {
-		return ByUtils.thread(description, () -> {
-			while (true) {
-				double wait = durationS.get();
-
-				if (wait > 0) {
-					sleep(wait);
-				}
-
-				r.run();
-			}
-		});
-	}
+	
 
 	public static final void sleep(double seconds) {
 		long ms = (long) (seconds * 1000);

@@ -64,7 +64,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 	@Override
 	protected void fillErrors(List<NodeError> errs) {
 		super.fillErrors(errs);
-		var s = get();
+		String s = get();
 
 		if (re != null && s != null && !s.matches(re)) {
 			errs.add(new NodeError(this, "does not match " + re));

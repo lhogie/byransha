@@ -5,6 +5,7 @@ import java.net.Socket;
 
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
+import byransha.graph.ThreadNode;
 import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 
@@ -22,34 +23,36 @@ public class TCPNode extends ServiceNode {
 //		System.out.println("new socket from " + sock.getInetAddress());
 		try {
 			Connection connection = new Connection(sock);
-			String other = handshake(sendNameFirst, connection);
-			var peer = hub().networkAgent.neighborhood.findPeerByName(other);
+			String nameOfPeerAtOtherHand = handshake(sendNameFirst, connection);
+			var other = hub().network.neighborhood.findPeerByName(nameOfPeerAtOtherHand);
 
-			if (peer == null) {
-				System.out.println("rejecting unknown peer " + other + " at " + sock.getInetAddress());
+			if (other == null) {
+				other = new OtherPeer(hub().network.neighborhood, nameOfPeerAtOtherHand);
+				System.out.println("rejecting untrusted peer " + other.name + " at " + sock.getInetAddress());
 				connection.close();
-			} else if (peer.getConnection() != null) {
-				System.out.println("already connected to peer " + other);
+			} else if (other.getConnection() != null) {
+				System.out.println("already connected to peer " + nameOfPeerAtOtherHand);
 			} else {
-				peer.setConnection(connection);
-				if (peer.publicKey != null) {
-					peer.sharedSecret = NetworkBox.agreeOnSharedSecret(hub().networkAgent.neighborhood.self.privateKey, peer.publicKey);
+				other.setConnection(connection);
+				if (other.publicKey != null) {
+					other.sharedSecret = NetworkBox.agreeOnSharedSecret(hub().network.neighborhood.self.privateKey,
+							other.publicKey);
 				} else {
-					System.out.println("Warning: No public key for " + peer.name
+					System.out.println("Warning: No public key for " + other.name
 							+ ". Secure routing disabled until key is added.");
 				}
-				System.out.println(peer + " joined");
-				tcpSocketReadingThread(peer);
+				System.out.println(other + " joined");
+				tcpSocketReadingThread(other);
 			}
 		} catch (IOException err) {
 			System.out.println("gone at handshake");
 		} catch (ClassNotFoundException err) {
-			hub().errorLog.add(err);
+			throw new IllegalStateException();
 		}
 	}
 
 	private String handshake(boolean sendNameFirst, Connection to) throws IOException, ClassNotFoundException {
-		String name = hub().networkAgent.neighborhood.self.name;
+		String name = hub().network.neighborhood.self.name;
 
 		if (sendNameFirst) {
 			to.writeObject(name);
@@ -62,7 +65,7 @@ public class TCPNode extends ServiceNode {
 	}
 
 	private void tcpSocketReadingThread(Peer p) {
-		ByUtils.thread("thread waiting for messages from", () -> {
+		new ThreadNode(this, "thread waiting for messages from", () -> {
 			try {
 				while (true) {
 					byte[] wireMsg = (byte[]) p.getConnection().readObject();

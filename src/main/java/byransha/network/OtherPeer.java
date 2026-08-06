@@ -3,8 +3,6 @@ package byransha.network;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 
 import byransha.graph.ShowInKishanView;
 import byransha.security.ECC;
@@ -13,10 +11,9 @@ public class OtherPeer extends Peer {
 	@ShowInKishanView
 	public final File directory;
 
-	public OtherPeer(Neighborhood g, String name) throws IOException
-			 {
+	public OtherPeer(PeerManager g, String name) throws IOException {
 		super(g, name);
-		this.directory = new File(Neighborhood.peersDirectory, name);
+		this.directory = new File(PeerManager.peersDirectory, name);
 
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
