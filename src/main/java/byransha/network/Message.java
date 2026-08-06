@@ -10,7 +10,7 @@ public class Message implements Serializable {
 		public Peer recipient;
 	}
 
-	public final transient OOData ooInfos = new OOData();
+	public transient OOData ooInfos = new OOData();
 	public long recipientNode;
 	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();

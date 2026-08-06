@@ -6,6 +6,7 @@ import java.net.Socket;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
+import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
 import byransha.util.ByUtils;
 
@@ -77,6 +78,10 @@ public class TCPNode extends ServiceNode {
 
 					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
+
+					if (msg.ooInfos == null) {
+						msg.ooInfos = new OOData();
+					}
 
 					msg.routingInfo.actualRoute.add(p.name);
 					((NetworkAgent) parent).processIncomingMessage(msg);

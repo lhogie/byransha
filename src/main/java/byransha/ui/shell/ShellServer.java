@@ -30,13 +30,17 @@ public class ShellServer extends SystemNode {
 			while (true) {
 				try {
 					var clientSocket = serverSocket.accept();
-					Client client = new Client(clientSocket, this);
+					newClient( new Client(clientSocket, this));
 
 				} catch (IOException e) {
 					System.err.println("Client error: " + e.getMessage());
 				}
 			}
 		}
+	}
+
+	private void newClient(Client client) {
+		
 	}
 
 	@Override
