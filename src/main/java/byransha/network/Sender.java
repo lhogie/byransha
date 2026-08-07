@@ -1,6 +1,7 @@
 package byransha.network;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
@@ -67,7 +68,7 @@ public class Sender extends SystemNode implements Consumer<Message> {
 			if (!msg.keepAliveExpired()) {
 				var recipient = hub().network.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
 				System.out.println("computing relays to reach " + recipient);
-				List<Peer> relays = routingProtocol.findRelaysToReach(recipient);
+				List<Peer> relays = new ArrayList<>(routingProtocol.findRelaysToReach(recipient));
 				System.out.println("found " + relays);
 				relays.removeIf(r -> msg.routingInfo.actualRoute.contains(r.name));
 				System.out.println("removing " + msg.routingInfo.actualRoute);

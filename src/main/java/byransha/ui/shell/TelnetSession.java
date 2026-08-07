@@ -76,7 +76,22 @@ public class TelnetSession extends SystemNode {
 				}
 			}).start();
 		} else {
-			out.print("not local host");
+			String asciiArt = """
+					      .-.
+					      | |
+					      | |
+					      | |
+					  .-.-| |.-.
+					 /  | | |  \\
+					|  | | | |  |
+					|  | | | |  |
+					|  |_|_|_|  |
+					 \\         /
+					  |       |
+					  |       |
+					""";
+			out.println(asciiArt);
+			out.flush();
 			socket.close();
 		}
 	}

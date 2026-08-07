@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 
 import byransha.graph.BNode;
 import byransha.graph.LoopingThreadNode;
+import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
 import byransha.network.Message;
 import byransha.primitive.StringNode;
@@ -22,39 +23,40 @@ public abstract class EventList extends BNode {
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
 	Key encryptionKey = AES.createStringBasedOnHardware();
 
+	@ShowInKishanView
+	ThreadNode t = new ThreadNode(this, "event list dissemination thread", () -> {
+		while (true) {
+			List<Event> candidates = new ArrayList<>();
+			status.set("running " + candidates.size() + " event(s) sent");
+			forEachEvent(e -> {
+				if (e.owners.size() < 1) {
+					candidates.add(e);
+
+					for (var neighbor : hub().network.neighborhood.neighbors()) {
+						var msg = new Message();
+						msg.ooInfos.recipient = neighbor;
+						msg.ooInfos.content = e;
+						hub().network.sender.accept(msg);
+					}
+
+					status.set("running " + candidates.size() + " event(s) sent");
+				}
+			});
+
+			for (int nbSecPause = 10; nbSecPause > 0; --nbSecPause) {
+				status.set(candidates.size() + " event(s) sent. Resend in " + nbSecPause + "s");
+				try {
+					Thread.currentThread().sleep(1000);
+				} catch (InterruptedException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
+	});
+
 	public EventList(BNode parent) {
 		super(parent);
 		status = new StringNode(parent);
-
-		new ThreadNode(this, "event list dissemination thread", () -> {
-			while (true) {
-				List<Event> candidates = new ArrayList<>();
-				status.set("running " + candidates.size() + " event(s) sent");
-				forEachEvent(e -> {
-					if (e.owners.size() < 1) {
-						candidates.add(e);
-
-						for (var neighbor : hub().network.neighborhood.neighbors()) {
-							var msg = new Message();
-							msg.ooInfos.recipient = neighbor;
-							msg.ooInfos.content = e;
-							hub().network.sender.accept(msg);
-						}
-
-						status.set("running " + candidates.size() + " event(s) sent");
-					}
-				});
-
-				for (int nbSecPause = 10; nbSecPause > 0; --nbSecPause) {
-					status.set(candidates.size() + " event(s) sent. Resend in " + nbSecPause + "s");
-					try {
-						Thread.currentThread().sleep(1000);
-					} catch (InterruptedException e1) {
-						e1.printStackTrace();
-					}
-				}
-			}
-		});
 
 		var q = new byransha.network.MessageQ(this, new UUID(3684455902639062977L, -3898051283145845872L));
 		new LoopingThreadNode(this, () -> 1.0, "EventList message processing", () -> {

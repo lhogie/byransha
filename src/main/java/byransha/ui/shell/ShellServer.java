@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import byransha.graph.Hub;
+import byransha.graph.LoopingThreadNode;
 import byransha.system.SystemNode;
 
 public class ShellServer extends SystemNode {
@@ -12,15 +13,14 @@ public class ShellServer extends SystemNode {
 
 	public ShellServer(Hub g, int port) throws Throwable {
 		super(g);
-		System.out.println("Starting shell server on port " + port);
 
-		new Thread(() -> {
+		new LoopingThreadNode(this, () -> 1d, "server", () -> {
 			try {
 				startServer(port);
 			} catch (Throwable err) {
 				hub().errorLog.add(err);
 			}
-		}).start();
+		});
 	}
 
 	private void startServer(int port) throws Throwable {

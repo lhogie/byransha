@@ -16,4 +16,8 @@ public abstract class RoutingService extends SystemNode {
 
 	public abstract void start();
 
+	public RoutingInfo createInfo() {
+		return new RoutingInfo();
+	}
+
 }
