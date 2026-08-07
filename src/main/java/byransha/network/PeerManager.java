@@ -54,7 +54,7 @@ public class PeerManager extends SystemNode {
 			}
 
 			peer.lastGossip = gossip;
-			peer.neighbors = gossip.neighborsName.stream().map(name -> {
+			peer.neighbors = new ArrayList<>(gossip.neighborsName.stream().map(name -> {
 				Peer n = hub().network.neighborhood.findPeerByName(name);
 
 				if (n == null) {
@@ -66,7 +66,7 @@ public class PeerManager extends SystemNode {
 					}
 				}
 				return n;
-			}).toList();
+			}).toList());
 
 			hub().network.sender.considerForwarding(msg, null);
 		}

@@ -92,7 +92,8 @@ public abstract class Peer extends BNode {
 
 	@ShowInKishanView
 	public List<String> routeNames() {
-		return route().stream().map(p -> p.name).toList();
+		var route = route();
+		return route == null ? null : route.stream().map(p -> p.name).toList();
 	}
 
 	static List<String> neighborsNames(List<Peer> peers) {

@@ -91,7 +91,7 @@ public abstract class BNode {
 
 	protected BNode(BNode parent, UUID id) {
 		++nbInstances;
-		System.out.println(nbInstances + " creating " + getClass());
+//		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;

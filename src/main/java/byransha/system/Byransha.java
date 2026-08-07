@@ -29,7 +29,7 @@ public class Byransha extends SystemNode {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.83";
+	public static final String VERSION = "0.0.85";
 
 	public static class byransha extends Category {
 	}
@@ -150,7 +150,7 @@ public class Byransha extends SystemNode {
 					install();
 				}
 
-				if (hub.swingInterface != null) {
+				if (hub != null && hub.swingInterface != null) {
 					JOptionPane.showMessageDialog(hub.swingInterface.frame, "A new version was downloaded",
 							"Restart required", JOptionPane.INFORMATION_MESSAGE);
 				}
