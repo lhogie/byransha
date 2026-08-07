@@ -28,49 +28,7 @@ public class PeerManager extends SystemNode {
 	@ShowInKishanView
 	public final Self self;
 
-	public static record Gossip(String peerName, List<String> neighborsName) implements Serializable {
-	}
 
-	public Gossiper gossiper = new Gossiper(this, 5) {
-		protected Object createGossip() {
-			var name = hub().network.neighborhood.self.name;
-			var neighbors = hub().network.neighborhood.neighbors();
-			var neighborsName = Peer.neighborsNames(neighbors);
-			return new Gossip(name, neighborsName);
-		}
-
-		@Override
-		public void accept(Message msg) {
-			var gossip = (Gossip) msg.ooInfos.content;
-			Peer peer = findPeerByName(gossip.peerName);
-
-			if (peer == null) {
-				try {
-					peer = new OtherPeer(PeerManager.this, gossip.peerName);
-					hub().network.neighborhood.peers.elements.add(peer);
-				} catch (IOException err) {
-					err.printStackTrace();
-				}
-			}
-
-			peer.lastGossip = gossip;
-			peer.neighbors = new ArrayList<>(gossip.neighborsName.stream().map(name -> {
-				Peer n = hub().network.neighborhood.findPeerByName(name);
-
-				if (n == null) {
-					try {
-						n = new OtherPeer(PeerManager.this, name);
-						hub().network.neighborhood.peers.elements.add(n);
-					} catch (IOException err) {
-						err.printStackTrace();
-					}
-				}
-				return n;
-			}).toList());
-
-			hub().network.sender.considerForwarding(msg, null);
-		}
-	};
 
 	public PeerManager(NetworkAgent net) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
 		super(net);
@@ -87,8 +45,6 @@ public class PeerManager extends SystemNode {
 	}
 
 	public void start() {
-		gossiper.start();
-
 		new LoopingThreadNode(this, () -> 1.2, "discover peers info on disk", () -> {
 			for (File peerDirectory : peersDirectory.listFiles()) {
 				if (peerDirectory.isDirectory()) {
@@ -139,5 +95,4 @@ public class PeerManager extends SystemNode {
 
 		return null;
 	}
-
 }

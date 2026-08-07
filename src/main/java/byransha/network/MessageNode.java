@@ -25,13 +25,14 @@ public class MessageNode extends BNode {
 	}
 
 	@ShowInKishanView
-	public String source() {
-		return m.routingInfo.suggestedRoute.getFirst();
+	public Peer source() {
+		var name = m.routingInfo.actualRoute.getFirst();
+		return hub().network.neighborhood.findPeerByName(name);
 	}
 
 	@ShowInKishanView
-	public String recipient() {
-		return m.routingInfo.suggestedRoute.getLast();
+	public Peer recipient() {
+		return m.ooInfos.recipient;
 	}
 
 	@ShowInKishanView

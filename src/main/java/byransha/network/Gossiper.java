@@ -18,6 +18,9 @@ public abstract class Gossiper extends SystemNode implements Consumer<Message> {
 	@ShowInKishanView
 	final DoubleNode periodS = new DoubleNode(this, 5);
 
+	@ShowInKishanView
+	public Object gossip;
+
 	public Gossiper(BNode parent, double period) {
 		super(parent);
 		periodS.set(period);
@@ -33,7 +36,7 @@ public abstract class Gossiper extends SystemNode implements Consumer<Message> {
 					var msg = new Message();
 					msg.ooInfos.recipient = neighbor;
 					msg.recipientNode = q.id();
-					msg.ooInfos.content = createGossip();
+					msg.ooInfos.content = gossip = createGossip();
 					hub().network.sender.accept(msg);
 				}
 			}

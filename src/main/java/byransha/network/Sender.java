@@ -1,12 +1,14 @@
 package byransha.network;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
-import byransha.network.routing.BFSRouting;
+import byransha.network.routing.Broadcasting;
+import byransha.network.routing.RoutingService;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
@@ -26,7 +28,7 @@ public class Sender extends SystemNode implements Consumer<Message> {
 	final StringNode sendInfo = new StringNode(this);
 
 	@ShowInKishanView
-	final BFSRouting routingProtocol = new BFSRouting(this);
+	final RoutingService routingProtocol = new Broadcasting(this);
 
 	private Thread waitingThread;
 
@@ -38,15 +40,17 @@ public class Sender extends SystemNode implements Consumer<Message> {
 	}
 
 	public void start() {
+		routingProtocol.start();
+
 		this.waitingThread = new LoopingThreadNode(this, () -> 0d, "waiting", () -> {
 			try {
 				Message msg = inWait.take(); // waiting here
-				long waitTime = msg.waitTimeMs();
+				long waitTimeMs = msg.waitTimeMs();
 //				System.out.println("next message will be sent in " + waitTime + "ms");
 
-				if (waitTime > 0) {
+				if (waitTimeMs > 0) {
 					try {
-						Thread.sleep(waitTime);
+						Thread.sleep(waitTimeMs);
 						toSendNow.add_sync(msg);
 					} catch (InterruptedException interrupt) {
 						enqueue(msg);
@@ -62,24 +66,18 @@ public class Sender extends SystemNode implements Consumer<Message> {
 
 			if (!msg.keepAliveExpired()) {
 				var recipient = hub().network.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
-				System.out.println("computing route to " + recipient);
-				var newRoute = routingProtocol.computeRouteToReach(recipient);
-				System.out.println("found " + newRoute);
+				System.out.println("computing relays to reach " + recipient);
+				List<Peer> relays = routingProtocol.findRelaysToReach(recipient);
+				System.out.println("found " + relays);
+				relays.removeIf(r -> msg.routingInfo.actualRoute.contains(r.name));
+				System.out.println("removing " + msg.routingInfo.actualRoute);
+				System.out.println("using " + relays);
 
-				if (newRoute != null) { // if a better route could be found
-					msg.routingInfo.suggestedRoute = newRoute.stream().map(p -> p.name).toList();
+				if (recipient == hub().network.neighborhood.self) {
+					relays = List.of(hub().network.neighborhood.self);
 				}
-				System.out.println("using route " + msg.routingInfo.suggestedRoute);
 
-				if (msg.routingInfo.suggestedRoute == null) {
-					System.out.println("No route to " + recipient + ". Retrying later...");
-					errorWhenTryingToSending(msg);
-				} else if (msg.routingInfo.suggestedRoute.isEmpty()) {
-					System.out.println("delivering locally");
-					msg.routingInfo.actualRoute.add(((NetworkAgent) parent).neighborhood.self.name);
-					((NetworkAgent) parent).processIncomingMessage(msg);
-				} else {
-					var relay = hub().network.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
+				for (var relay : relays) {
 					System.out.println("relaying via " + relay);
 
 					if (relay.getConnection() != null) {
@@ -89,9 +87,6 @@ public class Sender extends SystemNode implements Consumer<Message> {
 							errorWhenTryingToSending(msg);
 						} else {
 							try {
-								System.out.println("sending message to " + recipient + " via route "
-										+ msg.routingInfo.suggestedRoute);
-
 								byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
 								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
 								System.out.println("writing to TCP of " + relay);
@@ -132,7 +127,7 @@ public class Sender extends SystemNode implements Consumer<Message> {
 	private void enqueue(Message msg) {
 		System.out.println("msg scheduled in " + (msg.emissionDateMs - System.currentTimeMillis() + "ms"));
 
-		if (msg.waitTimeMs() == 0) {
+		if (msg.waitTimeMs() <= 0) {
 			System.out.println("adding to SENDNOW queue " + msg);
 			toSendNow.add_sync(msg);
 		} else {
@@ -169,10 +164,12 @@ public class Sender extends SystemNode implements Consumer<Message> {
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {
-		if (msg.routingInfo.actualRoute.contains(hub().network.neighborhood.self.name))
-			return;
-
-		enqueue(msg);
+		if (msg.routingInfo.actualRoute.contains(hub().network.neighborhood.self.name)) {
+			System.out.println("already received, not forwarding: " + msg.routingInfo.actualRoute);
+		} else {
+			System.out.println("forwarding: " + msg.ooInfos.content);
+			enqueue(msg);
+		}
 	}
 
 }

@@ -29,7 +29,7 @@ public class Byransha extends SystemNode {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.87";
+	public static final String VERSION = "0.0.89";
 
 	public static class byransha extends Category {
 	}
@@ -126,6 +126,7 @@ public class Byransha extends SystemNode {
 	}
 
 	public static void runAutoUpdateThread() {
+		System.out.println("Running auto update thread");
 		ThreadNode.thread("check new version", () -> {
 			while (true) {
 				try {

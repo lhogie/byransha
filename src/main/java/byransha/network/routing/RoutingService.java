@@ -12,6 +12,8 @@ public abstract class RoutingService extends SystemNode {
 		super(net);
 	}
 
-	public abstract List<Peer> computeRouteToReach(Peer destination);
+	public abstract List<Peer> findRelaysToReach(Peer destination);
+
+	public abstract void start();
 
 }

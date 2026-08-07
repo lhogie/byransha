@@ -14,7 +14,7 @@ public class RandomWalk extends RoutingService {
 	}
 
 	@Override
-	public List<Peer> computeRouteToReach(Peer destination) {
+	public List<Peer> findRelaysToReach(Peer destination) {
 		var n = hub().network.neighborhood.neighbors();
 
 		if (n.isEmpty()) {
@@ -26,4 +26,9 @@ public class RandomWalk extends RoutingService {
 			return List.of(random);
 		}
 	}
+
+	@Override
+	public void start() {
+	}
+
 }

@@ -11,6 +11,7 @@ public class Message implements Serializable {
 		public Peer recipient;
 	}
 
+	public UUID id = UUID.randomUUID();
 	public transient OOData ooInfos = new OOData();
 	public UUID recipientNode;
 	public long replyTo;
