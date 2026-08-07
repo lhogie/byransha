@@ -62,11 +62,14 @@ public class Sender extends SystemNode implements Consumer<Message> {
 
 			if (!msg.keepAliveExpired()) {
 				var recipient = hub().network.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
+				System.out.println("computing route to " + recipient);
 				var newRoute = routingProtocol.computeRouteToReach(recipient);
+				System.out.println("found " + newRoute);
 
 				if (newRoute != null) { // if a better route could be found
 					msg.routingInfo.suggestedRoute = newRoute.stream().map(p -> p.name).toList();
 				}
+				System.out.println("using route " + msg.routingInfo.suggestedRoute);
 
 				if (msg.routingInfo.suggestedRoute == null) {
 					System.out.println("No route to " + recipient + ". Retrying later...");
@@ -77,6 +80,7 @@ public class Sender extends SystemNode implements Consumer<Message> {
 					((NetworkAgent) parent).processIncomingMessage(msg);
 				} else {
 					var relay = hub().network.neighborhood.findPeerByName(msg.routingInfo.suggestedRoute.getFirst());
+					System.out.println("relaying via " + relay);
 
 					if (relay.getConnection() != null) {
 						if (relay.sharedSecret == null) {
@@ -126,9 +130,13 @@ public class Sender extends SystemNode implements Consumer<Message> {
 	}
 
 	private void enqueue(Message msg) {
+		System.out.println("msg scheduled in " + (msg.emissionDateMs - System.currentTimeMillis() + "ms"));
+
 		if (msg.waitTimeMs() == 0) {
+			System.out.println("adding to SENDNOW queue " + msg);
 			toSendNow.add_sync(msg);
 		} else {
+			System.out.println("adding to WAIT queue " + msg);
 			inWait.add(msg);
 			boolean insertedOnHead = inWait.peek() == msg;
 

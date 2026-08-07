@@ -87,6 +87,7 @@ public class NetworkAgent extends SystemNode {
 				System.err.println("Warning: No recipient node found for message " + msg);
 			}
 		} else {
+			System.out.println("forwarding " + msg);
 			sender.considerForwarding(msg, null);
 		}
 	}

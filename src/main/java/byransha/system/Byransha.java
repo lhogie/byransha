@@ -29,7 +29,7 @@ public class Byransha extends SystemNode {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.85";
+	public static final String VERSION = "0.0.87";
 
 	public static class byransha extends Category {
 	}
@@ -141,7 +141,7 @@ public class Byransha extends SystemNode {
 	public static void considerUpgrading() {
 		try {
 			if (autoUpdateEnabled && !lastVersionOnline().equals(Byransha.VERSION)) {
-				System.out.println("downloading last version " + jarFile);
+				System.out.println("downloading last version to " + jarFile);
 				var lastVersion = Byransha.downloadLastVersion();
 				System.out.println("overwriting " + jarFile);
 				Files.write(jarFile.toPath(), lastVersion, StandardOpenOption.TRUNCATE_EXISTING);
