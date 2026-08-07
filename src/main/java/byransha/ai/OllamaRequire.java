@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import byransha.ai.OllamaRequire.OS;
+import byransha.ai.QueryIA;
 
 public class OllamaRequire {
 
@@ -48,9 +49,9 @@ public class OllamaRequire {
 		// On s'assure que le modèle est téléchargé ("pull" plutôt que "run" pour éviter
 		// que le chat bloque l'appli JVM)
 		System.out.println("***");
-		System.out.println("***\nChecking/Downloading Ollama model: granite4:tiny-h...");
+		System.out.println("***\nChecking/Downloading Ollama model:"+ QueryIA.PRIMARY_MODEL + "...");
 		System.out.println("***");
-		downloadOllamaModel("granite4:tiny-h");
+		downloadOllamaModel(QueryIA.PRIMARY_MODEL);
 		return true;
 	}
 

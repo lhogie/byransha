@@ -1,8 +1,10 @@
 package byransha.ai;
 
 import java.net.InetAddress;
-import byransha.graph.Hub;
+
 import byransha.graph.BNode;
+import byransha.graph.Hub;
+import byransha.network.Peer;
 
 public class AiNode extends BNode {
 	public InetAddress address;
@@ -10,18 +12,37 @@ public class AiNode extends BNode {
 	public String name;
 	public double TokensPerSecond;
 	public boolean IsComputing;
-    public double promptLag;
-    public int queueSize;
-    public double alpha = 1.0;
+	public double promptLag;
+	public int queueSize;
+	public double alpha = 1.0;
+	public boolean HaveAi;
 
 	public AiNode(Hub g) {
 		super(g);
 	}
 
-    public double getTokensPerSecond() { return TokensPerSecond; }
-    public double getPromptLagMsPerToken() { return promptLag; }
-    public int getCurrentQueueSize() { return queueSize; }
-    public double getAlpha() { return alpha; }
+	public double getTokensPerSecond() {
+		return TokensPerSecond;
+	}
+
+	public double getPromptLagMsPerToken() {
+		return promptLag;
+	}
+
+	public int getCurrentQueueSize() {
+		return queueSize;
+	}
+
+	public double getAlpha() {
+		return alpha;
+	}
+
+	public Peer getPeer() {
+		if (hub() != null && hub().network != null && hub().network.neighborhood != null) {
+			return hub().network.neighborhood.findPeerByName(this.name);
+		}
+		return null;
+	}
 
 	@Override
 	public String whatIsThis() {
@@ -36,5 +57,9 @@ public class AiNode extends BNode {
 	public double getScore() {
 		// calculer Score
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
+	}
+
+	public boolean getHaveAi() {
+		return HaveAi;
 	}
 }

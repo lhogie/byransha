@@ -57,7 +57,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	public final TextNode info = new TextNode(this,
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses",
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");
-	private static final String PRIMARY_MODEL = "granite4:tiny-h";
+	static final String PRIMARY_MODEL = "granite4:tiny-h";
 	private static final String SERVER_MODEL = "ornith:9b";
 	private static final String SERVER_MODEL_2 = "granite4:tiny-h";
 	private volatile ResponseMode responseMode = ResponseMode.CONVERSATION;
