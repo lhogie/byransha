@@ -37,12 +37,6 @@ public class AiNode extends BNode {
 		return alpha;
 	}
 
-	public Peer getPeer() {
-		if (hub() != null && hub().network != null && hub().network.neighborhood != null) {
-			return hub().network.neighborhood.findPeerByName(this.name);
-		}
-		return null;
-	}
 
 	@Override
 	public String whatIsThis() {

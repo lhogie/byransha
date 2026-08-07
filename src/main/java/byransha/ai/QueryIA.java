@@ -67,6 +67,15 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static volatile boolean ollamaVerified = false;
 	private boolean ActivateListNodeResponse = false;
 	private volatile ChatNode currentChat;
+	private static volatile boolean settingModel = false;
+
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void setModel() {
+		settingModel = true;
+		SwingUtilities.invokeLater(() -> {
+		});
+	}
 
 	@ShowInKishanView
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
@@ -115,41 +124,128 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			} else if (this.parent instanceof ChatNode) {
 				this.currentChat = (ChatNode) this.parent;
 			}
-		}
-		final ChatNode activeChat = this.currentChat;
-		System.out.println("Réinitialisation de la mémoire pour le chat : "
-				+ (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
-		SwingUtilities.invokeLater(() -> {
-			try {
-				if (activeChat != null) {
-					String chatId = activeChat.idAsText();
-					var messages = MEMORY_STORE.getMessages(chatId);
-					int count = (messages != null) ? messages.size() : 0;
-					System.out.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
-					System.out.println(" messages: " + messages);
+			final ChatNode activeChat = this.currentChat;
+			System.out.println("Réinitialisation de la mémoire pour le chat : "
+					+ (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
+			SwingUtilities.invokeLater(() -> {
+				try {
+					if (activeChat != null) {
+						String chatId = activeChat.idAsText();
+						var messages = MEMORY_STORE.getMessages(chatId);
+						int count = (messages != null) ? messages.size() : 0;
+						System.out
+								.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
+						System.out.println(" messages: " + messages);
 
-					MEMORY_STORE.deleteMessages(messages);
-					MEMORY_STORE.deleteMessages("default_session");
-					System.out.println(
-							MEMORY_STORE.getMessages(chatId).size() + " messages supprimés pour le chat : " + chatId);
-					ASSISTANT_CACHE.clear();
-					JOptionPane.showMessageDialog(null, "La mémoire de la conversation a été réinitialisée.",
-							"Réinitialisation", JOptionPane.INFORMATION_MESSAGE);
+						MEMORY_STORE.deleteMessages(chatId);
+						MEMORY_STORE.deleteMessages("default_session");
+						System.out.println(MEMORY_STORE.getMessages(chatId).size()
+								+ " messages supprimés pour le chat : " + chatId);
+						ASSISTANT_CACHE.clear();
+						System.out.println(" memory reset for chat: " + MEMORY_STORE.getMessages(chatId).size()
+								+ " messages remaining for chat: " + MEMORY_STORE.getMessages(chatId));
+						JOptionPane.showMessageDialog(null, "La mémoire de la conversation a été réinitialisée.",
+								"Réinitialisation", JOptionPane.INFORMATION_MESSAGE);
 
-				} else {
-					JOptionPane.showMessageDialog(null, "Aucune conversation active pour réinitialiser la mémoire.",
-							"Information", JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "Aucune conversation active pour réinitialiser la mémoire.",
+								"Information", JOptionPane.INFORMATION_MESSAGE);
+					}
+				} catch (Exception e) {
+					JOptionPane.showMessageDialog(null,
+							"Erreur lors de la réinitialisation de la mémoire: " + e.getMessage(), "Erreur",
+							JOptionPane.ERROR_MESSAGE);
 				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"Erreur lors de la réinitialisation de la mémoire: " + e.getMessage(), "Erreur",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		});
+			});
+		}
 	}
+
+	// @ActionMethod
+	// @AddButtonOnKishanView
+	// public void SendRequestToPeerAI() {
+	// SwingUtilities.invokeLater(() -> {
+	// try {
+	// if (ShowPeersInfo.elements.isEmpty()) {
+	// JOptionPane.showMessageDialog(null,
+	// "Aucun noeud AI disponible pour envoyer la requête.",
+	// "Erreur",
+	// JOptionPane.ERROR_MESSAGE);
+	// return;
+	// }
+	// AiNode selectedNode = selectBestPeer(ShowPeersInfo.elements);
+	// if (selectedNode == null) {
+	// JOptionPane.showMessageDialog(null,
+	// "Aucun noeud AI sélectionné pour envoyer la requête.",
+	// "Erreur",
+	// JOptionPane.ERROR_MESSAGE);
+	// return;
+	// }
+	// String userQuestion = prompt.get();
+	// if (userQuestion == null || userQuestion.trim().isEmpty()) {
+	// JOptionPane.showMessageDialog(null,
+	// "La question est vide. Veuillez entrer une question avant d'envoyer la
+	// requête.",
+	// "Erreur",
+	// JOptionPane.ERROR_MESSAGE);
+	// return;
+	// }
+	// String response = sendRequestToPeer(selectedNode, userQuestion);
+	// if (response != null) {
+	// result = new TextNode(hub(), "Réponse du noeud AI", response);
+	// JOptionPane.showMessageDialog(null,
+	// "Réponse reçue du noeud AI : " + response,
+	// "Réponse",
+	// JOptionPane.INFORMATION_MESSAGE);
+	// } else {
+	// JOptionPane.showMessageDialog(null,
+	// "Aucune réponse reçue du noeud AI.",
+	// "Information",
+	// JOptionPane.INFORMATION_MESSAGE);
+	// }
+	// } catch (Exception e) {
+	// JOptionPane.showMessageDialog(null,
+	// "Erreur lors de l'envoi de la requête au noeud AI: " + e.getMessage(),
+	// "Erreur",
+	// JOptionPane.ERROR_MESSAGE);
+	// }
+	// });
+	// }
+
+	// public synchronized String sendRequestToPeer(AiNode aiNode, String request) {
+	// if (aiNode == null) {
+	// System.out.println("Peer AI node is not available");
+	// return null;
+	// }
+
+	// Peer peer = aiNode.getPeer();
+	// if (peer == null) {
+	// System.out.println("Peer not found in neighborhood for AI node: " +
+	// aiNode.name);
+	// return null;
+	// }
+
+	// try {
+	// byransha.network.MessageQ q = new byransha.network.MessageQ(hub().network,
+	// 1);
+	// hub().network.sendQ.sendObject(request, peer, msg -> {
+
+	// msg.replyTo = q.id;
+	// });
+	// Message reply = q.q.poll_sync();
+	// if (reply != null && reply.contentObject != null) {
+	// return reply.contentObject.toString();
+	// }
+	// return null;
+	// } catch (Exception e) {
+	// System.out.println("Error sending request to peer AI node: " +
+	// e.getMessage());
+	// return null;
+	// }
+	// }
 
 	// create a method that use the weighted robin round algorithm instead of using
 	// best peer method
+
 	public static AiNode selectBestPeer(java.util.List<AiNode> aiNodes) {
 		if (aiNodes == null || aiNodes.isEmpty()) {
 			return null;
