@@ -12,15 +12,15 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.primitive.ColorNode;
-import byransha.nodes.primitive.LongNode;
-import byransha.nodes.system.Byransha;
-import byransha.nodes.system.ChatNode;
-import byransha.nodes.system.SystemNode;
-import byransha.nodes.system.User;
+import byransha.primitive.ColorNode;
+import byransha.primitive.LongNode;
+import byransha.system.Byransha;
+import byransha.system.ChatNode;
+import byransha.system.SystemNode;
+import byransha.system.User;
 import byransha.ui.ColorSchemeNode;
 import byransha.util.ByUtils;
 
@@ -36,19 +36,19 @@ public class SwingFrontend extends SystemNode {
 	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
 	public JFrame frame;
 
-	public SwingFrontend(Root g) {
+	public SwingFrontend(Hub g) {
 		super(g);
 
 		for (var font : GraphicsEnvironment.getLocalGraphicsEnvironment().getAllFonts()) {
 			// fonts.elements.add(new FontNode(g, font));
 		}
 
-		g.swing = this;
+		g.swingInterface = this;
 		g.userSwitchingListeners.add((formerUser, newUser) -> considerUser(newUser));
 
 		try {
 			this.frame = new JFrame();
-			frame.setTitle("Byransha v" + g().byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
+			frame.setTitle("Byransha v" + hub().byransha.VERSION + " (contact: luc.hogie@cnrs.fr)");
 
 			if (positionAndSizeFile.exists()) {
 				var bytes = Files.readAllBytes(positionAndSizeFile.toPath());
@@ -91,7 +91,7 @@ public class SwingFrontend extends SystemNode {
 				}
 			});
 		} catch (Exception e) {
-			g().errorLog.add(e, false);
+			hub().errorLog.add(e, false);
 		}
 	}
 
@@ -103,7 +103,7 @@ public class SwingFrontend extends SystemNode {
 		}
 
 		if (newUser.chats.elements.isEmpty()) {
-			new ChatNode(newUser).nodes.elements.add(g());
+			new ChatNode(newUser).nodes.elements.add(hub());
 		}
 
 		var panelList = newUser.chats.elements.stream().map(c -> new ChatPanel(c)).toList();

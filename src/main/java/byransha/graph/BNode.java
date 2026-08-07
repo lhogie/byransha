@@ -33,9 +33,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -51,15 +49,13 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.network.Message;
-import byransha.network.Peer;
-import byransha.network.Queue;
-import byransha.nodes.primitive.LongNode;
-import byransha.nodes.primitive.StringNode;
-import byransha.nodes.primitive.ValuedNode;
 import byransha.nodes.primitive.file.FileNode;
-import byransha.nodes.system.ChatNode;
-import byransha.nodes.system.User;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.LongNode;
+import byransha.primitive.StringNode;
+import byransha.primitive.ValuedNode;
+import byransha.system.ChatNode;
+import byransha.system.User;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.CircleComponent;
 import byransha.ui.swing.ColorPalette;
@@ -76,37 +72,38 @@ import byransha.util.Stop;
 import byransha.util.TriConsumer;
 
 public abstract class BNode {
-	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
-	final public static ObjectMapper objectMapper = new ObjectMapper();
 
+	public static int nbInstances = 0;
+	@ShowInKishanView
 	public final BNode parent;
-	public boolean readOnly;
-	protected boolean global = false;
-	public long id = -1;
-	public Root graph;
+	public boolean userEditable;
+
+	@ShowInKishanView
+	protected boolean generateEvents = false;
+	private long id = -1;
+	public Hub graph;
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
-		if (!(this instanceof Root) && parent == null)
+		this(parent, -1);
+	}
+
+	protected BNode(BNode parent, long id) {
+		++nbInstances;
+		System.out.println(nbInstances + " creating " + getClass());
+		if (!(this instanceof Hub) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
+		this.id = id != -1 ? id : ByUtils.random.nextLong();
 
-		var g = g();
+		var g = hub();
 
 		if (g != null && g.indexes != null) {
 			g.indexes.add(this);
 		}
 
-		if (global) {
-			g().eventList.add(new NewNodeEvent<>(this));
-		}
-	}
-
-	protected final void sleep(double seconds) {
-		try {
-			Thread.sleep((long) (seconds * 1000));
-		} catch (InterruptedException e) {
-			g().errorLog.add(e);
+		if (generateEvents) {
+			hub().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
 
@@ -120,8 +117,8 @@ public abstract class BNode {
 		return foundRole[0];
 	}
 
-	public Root g() {
-		return parent != null ? parent.g() : null;
+	public Hub hub() {
+		return parent != null ? parent.hub() : (Hub) this;
 	}
 
 	public BusinessNode enclosingBusinessNode() {
@@ -177,7 +174,7 @@ public abstract class BNode {
 	protected <N extends BNode> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
 		var r = new ListNode<N>(this, label, c);
 
-		for (var n : g().indexes.byClass.m.get(c)) {
+		for (var n : hub().indexes.byClass.m.get(c)) {
 			var nn = (N) n;
 			var remoteList = f.apply(nn);
 
@@ -210,7 +207,7 @@ public abstract class BNode {
 	protected <N extends BNode> ListNode<N> inverseRelation2(String label, Class<N> c, Function<N, BNode> f) {
 		var r = new ListNode<N>(this, label, c);
 
-		for (var n : g().indexes.byClass.m.get(c)) {
+		for (var n : hub().indexes.byClass.m.get(c)) {
 			var nn = (N) n;
 
 			if (f.apply(nn) == BNode.this) {
@@ -278,7 +275,7 @@ public abstract class BNode {
 	}
 
 	public void delete() {
-		g().indexes.delete(this);
+		hub().indexes.delete(this);
 	}
 
 	public int sizeOf() {
@@ -331,7 +328,7 @@ public abstract class BNode {
 					f.set(this, null);
 				}
 			} catch (IllegalAccessException err) {
-				Root graph = g();
+				Hub graph = hub();
 				if (graph != null && graph.errorLog != null) {
 					graph.errorLog.add(err);
 				} else {
@@ -339,14 +336,6 @@ public abstract class BNode {
 				}
 			}
 		});
-	}
-
-	public void ping(Peer p) {
-		Queue q = new Queue(this);
-		g().networkAgent.sendQ.sendObject("ping", p, msg -> {
-			msg.replyTo = q.id;
-		});
-		Message reply = q.q.poll_sync();
 	}
 
 	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until,
@@ -363,12 +352,14 @@ public abstract class BNode {
 							consumer.accept(f, outNode, isFinal);
 						} else if (out != null) {
 							var outNode = instantiateRenderingNodeFor(out);
-							outNode.readOnly = true;
+							outNode.userEditable = false;
+							new ThreadNode(this, "watching " + getClass() + "." + f.getName(), () -> {
+
+							});
 							consumer.accept(f, outNode, isFinal);
 						}
-
 					} catch (IllegalArgumentException | IllegalAccessException e) {
-						Root graph = g();
+						Hub graph = hub();
 						if (graph != null && graph.errorLog != null) {
 							graph.errorLog.add(e);
 						} else {
@@ -384,18 +375,19 @@ public abstract class BNode {
 			BiConsumer<Method, BNode> consumer) {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
+				System.out.println("lkjfdlskjs" + m.getName());
 				try {
 					var out = m.invoke(this);
 
 					if (out instanceof BNode outNode) {
 						consumer.accept(m, outNode);
 					} else if (out != null) {
-						var outNode = instantiateRenderingNodeFor(out);
-						outNode.readOnly = true;
+						var outNode = instantiateRenderingNodeForMethod(m);
+						outNode.userEditable = false;
 						consumer.accept(m, outNode);
 					}
 				} catch (IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
-					Root graph = g();
+					Hub graph = hub();
 					if (graph != null && graph.errorLog != null) {
 						graph.errorLog.add(e);
 					} else {
@@ -408,6 +400,46 @@ public abstract class BNode {
 		}
 	}
 
+	private BNode instantiateRenderingNodeForMethod(Method m) throws IllegalAccessException, InvocationTargetException {
+		var o = m.invoke(this);
+		var node = instantiateRenderingNodeFor(o);
+
+		if (node instanceof ValuedNode vn) {
+			vn.userEditable = false;
+			new LoopingThreadNode(this, () -> 1.0, "watching method " + getClass() + "." + m.getName(), () -> {
+				try {
+					var newValue = m.invoke(this);
+					if (!newValue.equals(vn.get())) {
+						vn.set(newValue);
+					}
+				} catch (IllegalAccessException | InvocationTargetException e) {
+					e.printStackTrace();
+				}
+			});
+		}
+		return node;
+	}
+
+	private BNode instantiateRenderingNodeForField(Field f) throws IllegalAccessException, InvocationTargetException {
+		var o = f.get(this);
+		var node = instantiateRenderingNodeFor(o);
+
+		if (node instanceof ValuedNode vn) {
+			vn.userEditable = false;
+			new LoopingThreadNode(this, () -> 1d, "watching field " + getClass() + "." + f.getName(), () -> {
+				try {
+					var newValue = f.get(this);
+					if (!newValue.equals(vn.get())) {
+						vn.set(newValue);
+					}
+				} catch (IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			});
+		}
+		return node;
+	}
+
 	private BNode instantiateRenderingNodeFor(Object o) {
 		if (o instanceof File f) {
 			return new FileNode(this, f);
@@ -417,6 +449,8 @@ public abstract class BNode {
 			return ln;
 		} else if (o instanceof Long l) {
 			return new LongNode(this, l);
+		} else if (o instanceof Boolean b) {
+			return new BooleanNode(this, b);
 		} else {
 			return new StringNode(this, o.toString(), null);
 		}
@@ -430,7 +464,7 @@ public abstract class BNode {
 	public void createActions() {
 		// cachedActions.add(new Back(g, this));
 		cachedActions.elements.add(new QueryIA(this));
-		cachedActions.elements.add(new SeeClassNode(this));
+		cachedActions.elements.add(new ShowClassNode(this));
 		cachedActions.elements.add(new CopyIDToClipboard(this));
 		cachedActions.elements.add(new FreezingAction(this));
 		cachedActions.elements.add(new JumpToAnotherNode(this));
@@ -529,7 +563,7 @@ public abstract class BNode {
 		return true;
 	}
 
-	public final long id() {
+	public long id() {
 		return id;
 	}
 
@@ -544,12 +578,12 @@ public abstract class BNode {
 	}
 
 	public final Color getColor() {
-		return ColorPalette.forClass(getClass(), g().swing.colorStyle.style);
+		return ColorPalette.forClass(getClass(), hub().swingInterface.colorStyle.style);
 	}
 
 	public final Color getBackgroundColor() {
 		var c = getColor();
-		int alpha = (int) g().swing.transparencyForNodeBackground.get().longValue();
+		int alpha = (int) hub().swingInterface.transparencyForNodeBackground.get().longValue();
 		return new Color(c.getRed(), c.getGreen(), c.getBlue(), alpha);
 	}
 
@@ -563,7 +597,7 @@ public abstract class BNode {
 	}
 
 	public boolean isReadOnly() {
-		return readOnly;
+		return userEditable;
 	}
 
 	public final List<NodeError> errors() {
@@ -588,7 +622,7 @@ public abstract class BNode {
 		if (depth < 0)
 			return null;
 
-		ObjectNode r = new ObjectNode(factory);
+		ObjectNode r = new ObjectNode(ByUtils.factory);
 		r.put("id", idAsText());
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
@@ -601,13 +635,13 @@ public abstract class BNode {
 		}
 
 		r.put("whatIsThis", whatIsThis());
-		r.put("canSee", canSee(g().currentUser()));
-		r.put("canEdit", canEdit(g().currentUser()));
+		r.put("canSee", canSee(hub().currentUser()));
+		r.put("canEdit", canEdit(hub().currentUser()));
 		r.set("actions",
 				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.idAsText())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 
-		var outsNode = new ObjectNode(factory);
+		var outsNode = new ObjectNode(ByUtils.factory);
 		forEachOutInFields(getClass(), BNode.class,
 				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.idAsText() : ""));
 		r.set("outs", outsNode);
@@ -630,7 +664,7 @@ public abstract class BNode {
 	}
 
 	public ClassNode<?> type() {
-		return g().indexes.byClass.getClassNodeFor(getClass());
+		return hub().indexes.byClass.getClassNodeFor(getClass());
 	}
 
 	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
@@ -638,7 +672,7 @@ public abstract class BNode {
 	}
 
 	public String t(String s) {
-		var translation = g().translator.translate(s);
+		var translation = hub().translator.translate(s);
 		return translation == null ? s : translation;
 	}
 
@@ -672,7 +706,7 @@ public abstract class BNode {
 	}
 
 	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
-		var roleComponent = new TextDisplayComponent(g().translator, m.getName() + ":");
+		var roleComponent = new TextDisplayComponent(hub().translator, m.getName() + ":");
 		roleComponent.setColumns(left);
 		roleComponent.setToolTipText(m.getName());
 
@@ -687,7 +721,7 @@ public abstract class BNode {
 		}
 
 		if (m instanceof Field field) {
-			Utils.idDropTarget(g(), roleComponent, droppedNode -> set(field, droppedNode));
+			Utils.idDropTarget(hub(), roleComponent, droppedNode -> set(field, droppedNode));
 
 			var popup = new JPopupMenu();
 			var setToNull = new JMenuItem("unset");
@@ -699,7 +733,7 @@ public abstract class BNode {
 					sheet.doLayout();
 					sheet.revalidate();
 				} catch (Throwable e1) {
-					Root graph = g();
+					Hub graph = hub();
 					if (graph != null && graph.errorLog != null) {
 						graph.errorLog.add(e1);
 					} else {
@@ -711,14 +745,14 @@ public abstract class BNode {
 			replace.addActionListener(e -> {
 				var list = new ListNode(parent, "all nodes of class " + field.getType().getName(),
 						(Class) field.getType());
-				g().indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
+				hub().indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
 					list.elements.add(a);
 					return Stop.no;
 				});
-				new ChatNode(g().currentUser()).append(list);
+				new ChatNode(hub().currentUser()).append(list);
 			});
 
-			if (!this.readOnly) {
+			if (!this.userEditable) {
 				popup.add(out == null ? replace : setToNull);
 			}
 
@@ -739,7 +773,7 @@ public abstract class BNode {
 				+ "</ul></html>";
 		c.setToolTipText(tooltip);
 		// SelectableTooltip.addSelectableTooltip(c,tooltip);
-		Utils.idDropTarget(g(), c, droppedNode -> acceptDrop(droppedNode));
+		Utils.idDropTarget(hub(), c, droppedNode -> acceptDrop(droppedNode));
 
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
 				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
@@ -784,14 +818,15 @@ public abstract class BNode {
 	}
 
 	protected JComponent getSmallComponent(ChatNode chat) {
-		var ta = new TranslatableTextArea(g().translator);
+		var ta = new TranslatableTextArea(hub().translator);
 		ta.setToolTipText(whatIsThis());
 		ta.setText(toString());
 		ta.setEditable(false);
 		return ta;
 	}
 
-	public void onNewMessage(Message msg) {
-		System.out.println(this + " received " + msg);
+	public void setID(long newID) {
+		this.id = newID;
+
 	};
 }

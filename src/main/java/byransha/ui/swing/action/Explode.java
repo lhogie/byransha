@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 import byransha.graph.Category;
 import byransha.graph.ProcedureAction;
-import byransha.nodes.system.ChatNode;
+import byransha.system.ChatNode;
 import byransha.ui.swing.ChatPanel;
 import byransha.ui.swing.ChatPanelNode;
 
@@ -27,7 +27,7 @@ public class Explode extends ProcedureAction<ChatPanelNode> {
 		int i = container.getComponentZOrder(inputNode.panel);
 		var newPanel = new JPanel(new GridLayout(1, 2));
 		newPanel.add(inputNode.panel);
-		var newChat = new ChatNode(g().currentUser());
+		var newChat = new ChatNode(hub().currentUser());
 		newPanel.add(new ChatPanel(newChat));
 		container.add(newPanel, i);
 		container.revalidate();

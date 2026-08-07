@@ -13,10 +13,10 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
 public abstract class Translator extends BNode {
@@ -31,14 +31,14 @@ public abstract class Translator extends BNode {
 	public final StringNode targetLanguage;
 	List<Dictionary> dictionaries = new ArrayList<>();
 
-	public Translator(Root g) {
+	public Translator(Hub g) {
 		super(g);
 		new Thread(() -> {
 			while (true) {
 				try {
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
-					g().errorLog.add(e);
+					hub().errorLog.add(e);
 				}
 
 				dictionaries.stream().filter(d -> d.needSave).forEach(d -> {
@@ -47,7 +47,7 @@ public abstract class Translator extends BNode {
 							d.save();
 						}
 					} catch (IOException err) {
-						g().errorLog.add(err);
+						hub().errorLog.add(err);
 					}
 				});
 			}
@@ -60,7 +60,7 @@ public abstract class Translator extends BNode {
 
 		targetLanguage.addValueChangeListener((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
-				new Thread(() -> translateRecursively(g.swing.frame.getContentPane(), new HashSet<>())).start();
+				new Thread(() -> translateRecursively(g.swingInterface.frame.getContentPane(), new HashSet<>())).start();
 			}
 		});
 	}
@@ -125,7 +125,7 @@ public abstract class Translator extends BNode {
 				dictionary = new Dictionary(from, to, file);
 				dictionaries.add(dictionary);
 			} catch (IOException err) {
-				g().errorLog.add(err);
+				hub().errorLog.add(err);
 				return null;
 			}
 		}
@@ -145,7 +145,7 @@ public abstract class Translator extends BNode {
 			}
 
 		} catch (Exception e) {
-			g().errorLog.add(e);
+			hub().errorLog.add(e);
 			return null;
 		}
 	}

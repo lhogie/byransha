@@ -2,8 +2,8 @@ package byransha.graph.action;
 
 import byransha.graph.BNode;
 import byransha.graph.Category.node;
+import byransha.system.SystemNode;
 import byransha.graph.ProcedureAction;
-import byransha.nodes.system.SystemNode;
 
 public class Delete extends ProcedureAction<BNode> {
 

@@ -1,7 +1,7 @@
 package byransha.graph.list.action;
 
 import byransha.graph.BNode;
-import byransha.nodes.primitive.ValuedNode;
+import byransha.primitive.ValuedNode;
 
 public class SortByValue extends Sort {
 

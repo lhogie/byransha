@@ -1,14 +1,15 @@
 package byransha.network;
 
-import java.lang.management.ManagementFactory;
+import java.util.function.Consumer;
 
+import byransha.graph.BNode;
+import byransha.graph.LoopingThreadNode;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.DoubleNode;
-import byransha.util.ByUtils;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.DoubleNode;
 
-public class Gossiper extends ServiceNode {
+public abstract class Gossiper extends ServiceNode implements Consumer<Message> {
 
 	@ShowInKishanView
 	final BooleanNode active = new BooleanNode(this, true);
@@ -16,25 +17,27 @@ public class Gossiper extends ServiceNode {
 	@ShowInKishanView
 	final DoubleNode periodS = new DoubleNode(this, 5);
 
-	public Gossiper(NetworkAgent net) {
-		super(net);
+	public Gossiper(BNode parent, double period) {
+		super(parent);
+		periodS.set(period);
 	}
 
 	public void start() {
-		ByUtils.thread("forward local info (including neighborhood)", () -> {
-			while (true) {
-				if (active.get() && g().networkAgent != null) {
-					var i = new PeerInfo();
-					var neighbors = g().networkAgent.neighborhood.neighbors();
-					i.aiTelemetry = new PeerTelemetry();
-					i.uptimeMs = ManagementFactory.getRuntimeMXBean().getUptime();
-					i.neighborsName = Peer.neighborsNames(neighbors);
-					i.systemProperties = System.getProperties();
-					g().networkAgent.sendQ.send(i, neighbors, null);
-				}
+		MessageQ q = new MessageQ(this, id() + 3938484L);
+		new LoopingThreadNode(this, () -> 0d, "read gossips", () -> accept(q.q.poll_sync()));
 
-				sleep(periodS.get());
+		new LoopingThreadNode(this, () -> periodS.get(), "forward local info (including neighborhood)", () -> {
+			if (active.get() && hub().network != null) {
+				for (var neighbor : hub().network.neighborhood.neighbors()) {
+					var msg = new Message();
+					msg.ooInfos.recipient = neighbor;
+					msg.recipientNode = q.id();
+					msg.ooInfos.content = createGossip();
+					hub().network.sender.accept(msg);
+				}
 			}
 		});
 	}
+
+	protected abstract Object createGossip();
 }

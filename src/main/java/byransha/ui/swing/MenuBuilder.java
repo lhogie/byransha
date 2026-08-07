@@ -18,7 +18,7 @@ import javax.swing.UIManager;
 
 import byransha.graph.Action;
 import byransha.graph.Category;
-import byransha.nodes.system.ChatNode;
+import byransha.system.ChatNode;
 
 public class MenuBuilder {
 

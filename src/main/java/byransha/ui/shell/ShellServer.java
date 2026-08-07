@@ -3,14 +3,14 @@ package byransha.ui.shell;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import byransha.graph.Root;
-import byransha.nodes.system.SystemNode;
+import byransha.graph.Hub;
+import byransha.system.SystemNode;
 
 public class ShellServer extends SystemNode {
 
 	public static final int DEFAULT_PORT = 42424;
 
-	public ShellServer(Root g, int port) throws Throwable {
+	public ShellServer(Hub g, int port) throws Throwable {
 		super(g);
 		System.out.println("Starting shell server on port " + port);
 
@@ -18,7 +18,7 @@ public class ShellServer extends SystemNode {
 			try {
 				startServer(port);
 			} catch (Throwable err) {
-				g().errorLog.add(err);
+				hub().errorLog.add(err);
 			}
 		}).start();
 	}
@@ -30,13 +30,17 @@ public class ShellServer extends SystemNode {
 			while (true) {
 				try {
 					var clientSocket = serverSocket.accept();
-					Client client = new Client(clientSocket, this);
+					newClient( new Client(clientSocket, this));
 
 				} catch (IOException e) {
 					System.err.println("Client error: " + e.getMessage());
 				}
 			}
 		}
+	}
+
+	private void newClient(Client client) {
+		
 	}
 
 	@Override

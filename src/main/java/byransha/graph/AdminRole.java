@@ -1,10 +1,10 @@
 package byransha.graph;
 
-import byransha.nodes.system.Role;
+import byransha.system.Role;
 
 public class AdminRole extends Role {
 
-	public AdminRole(Root g) {
+	public AdminRole(Hub g) {
 		super(g);
 	}
 

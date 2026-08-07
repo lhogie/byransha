@@ -1,0 +1,142 @@
+package byransha.network;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
+import java.util.List;
+
+import byransha.graph.LoopingThreadNode;
+import byransha.graph.ServiceNode;
+import byransha.graph.ShowInKishanView;
+import byransha.graph.list.action.ListNode;
+import byransha.system.Byransha;
+
+public class PeerManager extends ServiceNode {
+
+	List<NeighborhoodListener> neighborhoodListeners = new ArrayList<>();
+
+	@ShowInKishanView
+	public static final File peersDirectory = new File(Byransha.homeDirectory, "peers");
+
+	@ShowInKishanView
+	public final ListNode<Peer> peers = new ListNode<>(this, "peers", Peer.class);
+
+	@ShowInKishanView
+	public final Self self;
+
+	public static record Gossip(String peerName, List<String> neighborsName) implements Serializable {
+	}
+
+	public Gossiper gossiper = new Gossiper(this, 5) {
+		protected Object createGossip() {
+			var name = hub().network.neighborhood.self.name;
+			var neighbors = hub().network.neighborhood.neighbors();
+			var neighborsName = Peer.neighborsNames(neighbors);
+			return new Gossip(name, neighborsName);
+		}
+
+		@Override
+		public void accept(Message msg) {
+			var gossip = (Gossip) msg.ooInfos.content;
+			Peer peer = findPeerByName(gossip.peerName);
+
+			if (peer == null) {
+				try {
+					peer = new OtherPeer(PeerManager.this, gossip.peerName);
+					hub().network.neighborhood.peers.elements.add(peer);
+				} catch (IOException err) {
+					err.printStackTrace();
+				}
+			}
+
+			peer.lastGossip = gossip;
+			peer.neighbors = gossip.neighborsName.stream().map(name -> {
+				Peer n = hub().network.neighborhood.findPeerByName(name);
+
+				if (n == null) {
+					try {
+						n = new OtherPeer(PeerManager.this, name);
+						hub().network.neighborhood.peers.elements.add(n);
+					} catch (IOException err) {
+						err.printStackTrace();
+					}
+				}
+				return n;
+			}).toList();
+
+			hub().network.sender.considerForwarding(msg, null);
+		}
+	};
+
+	public PeerManager(NetworkAgent net) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+		super(net);
+		peers.elements.add(this.self = new Self(this));
+		peersDirectory.mkdirs();
+
+		for (File f : peersDirectory.listFiles()) {
+			if (f.isDirectory()) {
+				var peer = new OtherPeer(this, f.getName());
+				peers.elements.add(peer);
+//				System.out.println("adding " + peer);
+			}
+		}
+	}
+
+	public void start() {
+		gossiper.start();
+
+		new LoopingThreadNode(this, () -> 1.2, "discover peers info on disk", () -> {
+			for (File peerDirectory : peersDirectory.listFiles()) {
+				if (peerDirectory.isDirectory()) {
+					var peer = findPeerByName(peerDirectory.getName());
+
+					if (peer == null) {
+						System.out
+								.println("adding peer " + peerDirectory.getName() + " because it was not in the list");
+						try {
+							peer = new OtherPeer(this, peerDirectory.getName());
+							peers.elements.add(peer);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+
+			for (var peer : peers.elements) {
+				if (peer instanceof OtherPeer op && !op.directory.exists()) {
+					System.out.println("removing peer " + peer.name + " because its directory does not exist anymore");
+					peers.elements.remove(peer);
+				}
+			}
+		});
+	}
+
+	public List<Peer> neighbors() {
+		return peers.elements.stream().filter(p -> p != self && p.getConnection() != null).toList();
+	}
+
+	Peer findPeerByName(String name) {
+		for (var p : peers.get()) {
+			if (p.name != null && p.name.equals(name)) {
+				return p;
+			}
+		}
+
+		return null;
+	}
+
+	public Peer findPeer(int id) {
+		for (var p : peers.get()) {
+			if (p.id() == id) {
+				return p;
+			}
+		}
+
+		return null;
+	}
+
+}

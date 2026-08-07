@@ -1,7 +1,7 @@
 package byransha.graph;
 
-import byransha.nodes.primitive.StringNode;
-import byransha.nodes.primitive.URLNode;
+import byransha.primitive.StringNode;
+import byransha.primitive.URLNode;
 
 public class DocumentNode extends BNode {
 	@ShowInKishanView

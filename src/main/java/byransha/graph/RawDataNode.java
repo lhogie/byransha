@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import byransha.nodes.primitive.PrimitiveValueNode;
+import byransha.primitive.PrimitiveValueNode;
 
 public class RawDataNode extends PrimitiveValueNode<byte[]> {
 	public RawDataNode(BNode g) {

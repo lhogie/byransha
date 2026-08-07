@@ -2,22 +2,31 @@ package byransha.network;
 
 import java.io.Serializable;
 
-public class Message implements Serializable {
-	public long recipient;
-	public long replyTo;
+import byransha.network.routing.RoutingInfo;
 
+public class Message implements Serializable {
+	public static class OOData {
+		public Object content;
+		public Peer recipient;
+	}
+
+	public transient OOData ooInfos = new OOData();
+	public long recipientNode;
+	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();
-	public byte[] content;
-	public transient Object contentObject;
 	public int errorCount;
 	public int nbAttempts;
 	public long emissionDateMs = System.currentTimeMillis();
 	public int keepAliveMs = 10000;
-	public int maxNbAttempts = Integer.MAX_VALUE;
+	public int maxNbAttempts = 10;
+	public long sendDateMs = System.currentTimeMillis();
+
+	public byte[] content;
+//	public transient Object contentObject;
 
 	@Override
 	public String toString() {
-		return "routing info: " + routingInfo + ", content:" + contentObject;
+		return "routing info: " + routingInfo + ", content:" + content.length;
 	}
 
 	public boolean keepAliveExpired() {
@@ -26,5 +35,9 @@ public class Message implements Serializable {
 
 	private long age() {
 		return System.currentTimeMillis() - emissionDateMs;
+	}
+
+	public long waitTimeMs() {
+		return Math.max(0, Math.abs(sendDateMs - System.currentTimeMillis()));
 	}
 }

@@ -6,8 +6,8 @@ import javax.swing.JLabel;
 
 import byransha.graph.BNode;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.primitive.ValueChangeListener;
-import byransha.nodes.primitive.ValuedNode;
+import byransha.primitive.ValueChangeListener;
+import byransha.primitive.ValuedNode;
 import byransha.util.ListenableList;
 
 public class ErrorIndicator extends JLabel {

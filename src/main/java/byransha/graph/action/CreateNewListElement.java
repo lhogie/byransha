@@ -6,7 +6,7 @@ import byransha.graph.ProcedureAction;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.nodes.system.Byransha;
+import byransha.system.Byransha;
 
 public class CreateNewListElement extends ProcedureAction<ListNode> {
 
@@ -17,7 +17,7 @@ public class CreateNewListElement extends ProcedureAction<ListNode> {
 	public CreateNewListElement(ListNode list, BNode pp) {
 		super(list, list.class);
 		this.newNodeParent = pp;
-		candidateClasses.elements.addAll(g().classesIn(Byransha.class.getPackage(), list.contentClass));
+		candidateClasses.elements.addAll(hub().classesIn(Byransha.class.getPackage(), list.contentClass));
 	}
 
 	@Override

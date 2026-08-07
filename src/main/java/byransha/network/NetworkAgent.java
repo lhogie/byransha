@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-import byransha.event.Event;
-import byransha.graph.Ack;
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
+import byransha.security.NetworkBox;
+import byransha.security.PublicKeyImporter;
 import byransha.util.ByUtils;
 
 public class NetworkAgent extends ServiceNode {
@@ -20,33 +20,28 @@ public class NetworkAgent extends ServiceNode {
 	final StringNode receptionInfo = new StringNode(this);
 
 	@ShowInKishanView
-	StringNode name = new StringNode(this, System.getProperty("user.name"), "([a-z][A-Z])+");
+	public final Sender sender;
 
 	@ShowInKishanView
-	public final MessageSendQueue sendQ;
-
-	@ShowInKishanView
-	public final Neighborhood neighborhood;
-
-	@ShowInKishanView
-	public final Gossiper gossiper;
+	public final PeerManager neighborhood;
 
 	@ShowInKishanView
 	public final TCPNode tcp;
 
-	public NetworkAgent(Root g, int port)
+	@ShowInKishanView
+	public final PublicKeyImporter publicKeyImporter = new PublicKeyImporter(this);
+
+	public NetworkAgent(Hub g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		super(g);
-		this.neighborhood = new Neighborhood(this);
-		this.gossiper = new Gossiper(this);
-		this.sendQ = new MessageSendQueue(this);
+		this.neighborhood = new PeerManager(this);
+		this.sender = new Sender(this);
 		this.tcp = new TCPNode(this, port);
 	}
 
 	public void start() throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
 		this.neighborhood.start();
-		this.gossiper.start();
-		this.sendQ.start();
+		this.sender.start();
 		this.tcp.start();
 	}
 
@@ -64,53 +59,35 @@ public class NetworkAgent extends ServiceNode {
 		receptionInfo.set(nbMsgReceived + " received");
 	}
 
-	@Override
-	public synchronized void onNewMessage(Message msg) {
-		System.out.println("*** message received: " + msg);
+	public synchronized void processIncomingMessage(Message msg) {
 		++nbMsgReceived;
 		updateInOutInfo();
 
-		var from = neighborhood.findPeerByName(msg.routingInfo.source());
-		boolean imTheRecipient = msg.routingInfo.recipient().equals(name);
+		String nameOfSender = msg.routingInfo.nameOfSender();
+
+		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
 
 		if (imTheRecipient) {
-			var content = ByUtils.serializer.fromBytes(msg.content);
+			var sender = neighborhood.findPeerByName(nameOfSender);
+			System.out.println(
+					"*** message received from " + nameOfSender + " (sender: " + msg.routingInfo.actualRoute + ")");
 
-			if (content instanceof Ack ack) {
-				g().eventList.findEvent(ack.id).markReceivedBy(from);
-			} else if (content instanceof Event e) {
-				var alreadyKnownEvent = g().eventList.findEvent(e.id());
+			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, sender.publicKey, msg.content);
+//			msg.content = decryptedE2E;
+			msg.ooInfos.content = ByUtils.serializer.fromBytes(decryptedE2E);
 
-				if (alreadyKnownEvent != null) {
-					alreadyKnownEvent.markReceivedBy(from);
-				} else {
-					g().eventList.add(e);
-					e.markReceivedBy(from);
-				}
-			} else if (content instanceof PeerInfo e) {
-				from.lastInfo = e;
-				from.neighbors = e.neighborsName.stream().map(name -> {
-					var peer = neighborhood.findPeerByName(name);
+			System.out.println("*** message received: " + msg);
+			System.out.println("*** content: " + msg.ooInfos.content);
 
-					if (peer == null) {
-						peer = new Peer(g());
-						peer.name = name;
-						neighborhood.peers.elements.add(peer);
-					}
-					return peer;
-				}).toList();
-				sendQ.considerForwarding(msg, null);
+			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientNode);
+
+			if (recipientQ != null) {
+				recipientQ.q.add_sync(msg);
 			} else {
-				var service = g().indexes.byId.get(msg.recipient);
-
-				if (service != null) {
-				} else {
-					service.onNewMessage(msg);
-				}
+				System.err.println("Warning: No recipient node found for message " + msg);
 			}
 		} else {
-			sendQ.considerForwarding(msg, null);
+			sender.considerForwarding(msg, null);
 		}
 	}
-
 }

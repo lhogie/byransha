@@ -1,7 +1,7 @@
 package byransha.ai;
 
 import java.net.InetAddress;
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.network.Peer;
 
@@ -16,7 +16,7 @@ public class AiNode extends BNode {
     public double alpha = 1.0;
 	public boolean HaveAi;
 
-	public AiNode(Root g) {
+	public AiNode(Hub g) {
 		super(g);
 	}
 

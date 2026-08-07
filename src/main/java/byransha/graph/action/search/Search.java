@@ -5,8 +5,8 @@ import byransha.graph.BNode;
 import byransha.graph.Category;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.primitive.LongNode;
-import byransha.nodes.primitive.LongNode.Bounds;
+import byransha.primitive.LongNode;
+import byransha.primitive.LongNode.Bounds;
 
 public class Search extends FunctionAction<BNode, ListNode> {
 	@ShowInKishanView

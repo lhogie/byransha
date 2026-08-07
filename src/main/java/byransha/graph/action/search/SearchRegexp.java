@@ -1,7 +1,7 @@
 package byransha.graph.action.search;
 
 import byransha.graph.BNode;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 
 public class SearchRegexp extends Search {
 	public StringNode regexp;

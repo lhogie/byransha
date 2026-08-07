@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import byransha.translate.Translator.Language;
+import byransha.util.ByUtils;
 
 public class Dictionary {
 	private final ObjectNode jsonNode;
@@ -26,7 +27,7 @@ public class Dictionary {
 			System.out.println(jsonNode.toPrettyString());
 		} else {
 			System.err.println("not found: " + file);
-			this.jsonNode = new ObjectNode(Translator.factory);
+			this.jsonNode = new ObjectNode(ByUtils.factory);
 		}
 	}
 

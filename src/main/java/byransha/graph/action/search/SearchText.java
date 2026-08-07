@@ -1,8 +1,8 @@
 package byransha.graph.action.search;
 
 import byransha.graph.BNode;
-import byransha.nodes.primitive.BooleanNode;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.StringNode;
 
 public class SearchText extends Search {
 	public final StringNode searchText = new StringNode(this, "", ".*");

@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 
 public abstract class SegmentedFilesEventList extends EventList {
 	private final File directory;
@@ -18,7 +18,7 @@ public abstract class SegmentedFilesEventList extends EventList {
 
 	private Segment currentSegment;
 
-	public SegmentedFilesEventList(Root g, File directory)
+	public SegmentedFilesEventList(Hub g, File directory)
 			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g);

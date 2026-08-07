@@ -8,9 +8,11 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
-import byransha.nodes.primitive.StringNode;
+import byransha.graph.LoopingThreadNode;
+import byransha.graph.ThreadNode;
+import byransha.network.Message;
+import byransha.primitive.StringNode;
 import byransha.security.AES;
-import byransha.util.ByUtils;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 
@@ -23,14 +25,21 @@ public abstract class EventList extends BNode {
 		super(parent);
 		status = new StringNode(parent);
 
-		ByUtils.thread("event list dissemination thread", () -> {
+		new ThreadNode(this, "event list dissemination thread", () -> {
 			while (true) {
 				List<Event> candidates = new ArrayList<>();
 				status.set("running " + candidates.size() + " event(s) sent");
 				forEachEvent(e -> {
 					if (e.owners.size() < 1) {
 						candidates.add(e);
-						g().networkAgent.sendQ.sendObjectToNeighbors(e, null);
+
+						for (var neighbor : hub().network.neighborhood.neighbors()) {
+							var msg = new Message();
+							msg.ooInfos.recipient = neighbor;
+							msg.ooInfos.content = e;
+							hub().network.sender.accept(msg);
+						}
+
 						status.set("running " + candidates.size() + " event(s) sent");
 					}
 				});
@@ -45,6 +54,18 @@ public abstract class EventList extends BNode {
 				}
 			}
 		});
+
+		var q = new byransha.network.MessageQ(this, 6538776544355L);
+		new LoopingThreadNode(this, () -> 1.0, "EventList message processing", () -> {
+			var msg = q.q.poll_sync();
+			Event e = (Event) msg.ooInfos.content;
+			var alreadyKnownEvent = hub().eventList.findEvent(e.id());
+
+			if (alreadyKnownEvent == null) {
+				hub().eventList.add(e);
+			}
+		});
+
 	}
 
 	public LongList collectIDs() {
@@ -87,4 +108,5 @@ public abstract class EventList extends BNode {
 	public abstract Event findEvent(long eventID);
 
 	public abstract Event remove(long id) throws IOException;
+
 }

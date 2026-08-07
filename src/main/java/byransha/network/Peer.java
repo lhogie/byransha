@@ -1,19 +1,14 @@
 package byransha.network;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
+import java.security.Key;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -21,22 +16,27 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 
 import byransha.graph.ActionMethod;
+import byransha.graph.AddButtonOnKishanView;
 import byransha.graph.BNode;
-import byransha.graph.Root;
+import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.system.ChatNode;
-import byransha.util.ByUtils;
+import byransha.graph.ThreadNode;
+import byransha.network.PeerManager.Gossip;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.DoubleNode;
+import byransha.system.ChatNode;
 
-public class Peer extends BNode {
-	List<PeerListener> listeners = new ArrayList<>();
+public abstract class Peer extends BNode {
 
 	public List<Peer> neighbors = new ArrayList<>();
 
 	@ShowInKishanView
-	public String name;
+	public final String name;
 
 	@ShowInKishanView
 	public PublicKey publicKey;
+
+	public Key sharedSecret; // for NetworkBox.SecretBox
 
 	@ShowInKishanView
 	public InetAddress address;
@@ -47,66 +47,56 @@ public class Peer extends BNode {
 	@ShowInKishanView
 	private Connection connection;
 
-	public PeerInfo lastInfo;
+	public Gossip lastGossip;
 
-	public boolean autoConnect = true;
+	@ShowInKishanView
+	public BooleanNode autoConnect = new BooleanNode(this, true);
 
-	public Peer(Root g) {
-		super(g);
+	@ShowInKishanView
+	final DoubleNode periodS = new DoubleNode(this, 5);
+
+	public Peer(PeerManager neigh, String name) {
+		super(neigh);
+		Objects.requireNonNull(name);
+		this.name = name;
+
+		new LoopingThreadNode(this, () -> periodS.get(), "auto connecto to " + this, () -> {
+			if (autoConnect.get()) {
+				if (getConnection() == null && address != null) {
+					try {
+						hub().network.tcp.newSocket(new Socket(address, port), true);
+					} catch (IOException e) {
+						ensureDisconnected();
+					}
+				} else {
+//					System.out.println("already connected to " + this + " or no address");
+				}
+			}
+		});
 	}
 
 	@ShowInKishanView
 	public List<String> neighborsName() {
-		return lastInfo.neighborsName;
+		return lastGossip != null ? lastGossip.neighborsName() : Collections.emptyList();
 	}
 
 	@ShowInKishanView
-	public String os() {
-		return lastInfo.systemProperties.getProperty("os.name");
+	public int distance() {
+		return route().size();
 	}
 
 	@ShowInKishanView
-	public long uptime() {
-		return lastInfo.uptimeMs;
+	public List<Peer> route() {
+		return hub().network.sender.routingProtocol.computeRouteToReach(this);
+	}
+
+	@ShowInKishanView
+	public List<String> routeNames() {
+		return route().stream().map(p -> p.name).toList();
 	}
 
 	static List<String> neighborsNames(List<Peer> peers) {
 		return peers.stream().map(p -> p.name).toList();
-	}
-
-	public void setDirectory(File directory) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-		this.name = directory.getName();
-
-		{
-			var publicKeyFile = new File(directory, "public_key.pem");
-
-			if (publicKeyFile.exists()) {
-				var publicKeyString = Files.readString(publicKeyFile.toPath());
-				byte[] der = Base64.getDecoder().decode(publicKeyString);
-				X509EncodedKeySpec spec = new X509EncodedKeySpec(der);
-				this.publicKey = KeyFactory.getInstance("RSA").generatePublic(spec);
-				this.autoConnect = !new File(directory, "noAutoConnect").exists();
-			} else {
-				System.err.println("no public key for " + this);
-			}
-		}
-
-		{
-			var ipFile = new File(directory, "ip.txt");
-
-			if (ipFile.exists()) {
-				var ipS = Files.readString(ipFile.toPath()).trim();
-				this.address = s2ip(ipS);
-			} else {
-				System.err.println("no IP known for " + this);
-			}
-		}
-	}
-
-	public static interface PeerListener {
-		void connected(Connection c);
-
-		void connectionLost();
 	}
 
 	public void setConnection(Connection c) {
@@ -116,7 +106,7 @@ public class Peer extends BNode {
 			throw new IllegalStateException("already connected");
 
 		this.connection = c;
-		listeners.forEach(l -> l.connected(c));
+		hub().network.neighborhood.neighborhoodListeners.forEach(l -> l.joined(this));
 	}
 
 	private static final Pattern IPV4_PATTERN = Pattern
@@ -158,7 +148,7 @@ public class Peer extends BNode {
 
 	@Override
 	public String whatIsThis() {
-		return null;
+		return "a participant to the network";
 	}
 
 	@Override
@@ -188,7 +178,7 @@ public class Peer extends BNode {
 
 		connection.close();
 		connection = null;
-		listeners.forEach(l -> l.connectionLost());
+		hub().network.neighborhood.neighborhoodListeners.forEach(l -> l.left(this));
 	}
 
 	@Override
@@ -196,15 +186,15 @@ public class Peer extends BNode {
 		var component = super.getSmallComponent(chat);
 		updateColor(component);
 
-		listeners.add(new PeerListener() {
+		hub().network.neighborhood.neighborhoodListeners.add(new NeighborhoodListener() {
 
 			@Override
-			public void connectionLost() {
+			public void left(Peer p) {
 				updateColor(component);
 			}
 
 			@Override
-			public void connected(Connection c) {
+			public void joined(Peer p) {
 				updateColor(component);
 			}
 		});
@@ -214,7 +204,6 @@ public class Peer extends BNode {
 
 	private void updateColor(JComponent component) {
 		component.setBackground(getConnection() == null ? Color.red : Color.green);
-
 	}
 
 	public Connection getConnection() {
@@ -222,15 +211,15 @@ public class Peer extends BNode {
 	}
 
 	@ActionMethod
+	@AddButtonOnKishanView
 	public void tryConnect() {
 		System.out.println("trying to connecto " + this);
-		ByUtils.thread("opening socket to " + this, () -> {
+		new ThreadNode(this, "opening socket to " + this, () -> {
 			try {
-				g().networkAgent.tcp.newSocket(new Socket(address, port), true);
+				hub().network.tcp.newSocket(new Socket(address, port), true);
 			} catch (IOException err) {
 				ensureDisconnected();
 			}
 		});
-
 	}
 }

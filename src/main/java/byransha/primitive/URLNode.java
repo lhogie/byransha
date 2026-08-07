@@ -1,0 +1,42 @@
+package byransha.primitive;
+
+import java.awt.Desktop;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.swing.JButton;
+
+import byransha.graph.BNode;
+import byransha.ui.swing.ChatSheet;
+
+public class URLNode extends StringNode {
+
+	public URLNode(BNode parent, String init) {
+		super(parent, init,
+				"/^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/");
+	}
+
+	public String prettyString() {
+		return get();
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "an URL";
+	}
+
+	@Override
+	public void writeKishanView(ChatSheet pane) {
+		super.writeKishanView(pane);
+		var b = new JButton("browse");
+		b.addActionListener(e -> {
+			try {
+				Desktop.getDesktop().browse(new URI(get()));
+			} catch (IOException | URISyntaxException e1) {
+				hub().errorLog.add(e1);
+			}
+		});
+		pane.appendToCurrentLine(b);
+	}
+}

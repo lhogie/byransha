@@ -11,9 +11,9 @@ import javax.swing.JProgressBar;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.nodes.primitive.LongNode;
-import byransha.nodes.system.ChatNode;
-import byransha.nodes.system.User;
+import byransha.primitive.LongNode;
+import byransha.system.ChatNode;
+import byransha.system.User;
 
 public abstract class Action<HOOK extends BNode> extends BNode {
 	public boolean stopRequested = false;
@@ -56,7 +56,7 @@ public abstract class Action<HOOK extends BNode> extends BNode {
 	@Override
 	public ObjectNode describeAsJSON() {
 		var r = (ObjectNode) super.describeAsJSON();
-		r.put("canExecute", canExecute(g().getCurrentUser()));
+		r.put("canExecute", canExecute(hub().getCurrentUser()));
 		r.put("whatItDoes", whatItDoes());
 		return r;
 	}
@@ -88,7 +88,7 @@ public abstract class Action<HOOK extends BNode> extends BNode {
 				impl();
 				this.durationMs.set(System.currentTimeMillis() - startDateMs);
 			} catch (Throwable err) {
-				g().errorLog.add(err);
+				hub().errorLog.add(err);
 			}
 		});
 

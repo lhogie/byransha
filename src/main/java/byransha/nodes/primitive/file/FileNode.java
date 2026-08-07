@@ -4,7 +4,7 @@ import java.io.File;
 
 import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
-import byransha.nodes.primitive.StringNode;
+import byransha.primitive.StringNode;
 
 public class FileNode extends BNode {
 	public File file;

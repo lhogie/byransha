@@ -1,10 +1,10 @@
 package byransha.graph;
 
-import byransha.nodes.system.Role;
+import byransha.system.Role;
 
 public class VisitorRole extends Role {
 
-	public VisitorRole(Root g) {
+	public VisitorRole(Hub g) {
 		super(g);
 	}
 

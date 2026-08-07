@@ -10,15 +10,14 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.BNode;
-import byransha.graph.ListItemPanel;
 import byransha.graph.action.CreateNewListElement;
 import byransha.graph.action.Export.CSVData;
-import byransha.graph.list.action.export.ExportAsListOfIDs;
 import byransha.graph.list.action.filter.RemoveSelected;
 import byransha.graph.list.action.filter.RetainSelected;
 import byransha.graph.list.action.map.MapToClassNode;
 import byransha.graph.relection.ClassNode;
 import byransha.ui.swing.ChatSheet;
+import byransha.ui.swing.ListItemPanel;
 import byransha.ui.swing.TextDisplayComponent;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
@@ -44,7 +43,7 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	public ClassNode<T> contentClass() {
-		return g().indexes.byClass.getClassNodeFor(contentClass);
+		return hub().indexes.byClass.getClassNodeFor(contentClass);
 	}
 
 	public void selectAll() {
@@ -206,7 +205,7 @@ public class ListNode<T extends BNode> extends BNode {
 
 	@Override
 	protected void writeToKishanView(ChatSheet sheet) {
-		var label = new TextDisplayComponent(g().translator, label());
+		var label = new TextDisplayComponent(hub().translator, label());
 		sheet.currentLine.add(label);
 		sheet.newLine();
 		final var line = sheet.currentLine;

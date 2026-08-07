@@ -1,8 +1,8 @@
 package byransha.graph;
 
 import byransha.graph.list.action.ListNode;
-import byransha.nodes.lab.Issue;
-import byransha.nodes.primitive.ValuedNode;
+import byransha.lab.Issue;
+import byransha.primitive.ValuedNode;
 
 public abstract class BusinessNode extends BNode {
 	@ShowInKishanView
@@ -10,7 +10,7 @@ public abstract class BusinessNode extends BNode {
 
 	public BusinessNode(BNode parent) {
 		super(parent);
-		global = true;
+		generateEvents = true;
 	}
 
 	@ShowInKishanView

@@ -17,7 +17,7 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.util.Base62;
 import byransha.util.PossiblyFailingConsumer;
@@ -40,7 +40,7 @@ public class Utils {
 		}
 	}
 
-	public static void idDropTarget(Root g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
+	public static void idDropTarget(Hub g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
 		new DropTarget(c, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {

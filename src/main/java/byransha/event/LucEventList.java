@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.function.Consumer;
 
-import byransha.graph.Root;
+import byransha.graph.Hub;
 
 public class LucEventList extends SegmentedFilesEventList {
 	private long threshold;
 	private final File directory;
 
-	public LucEventList(Root g, File directory)
+	public LucEventList(Hub g, File directory)
 			throws IOException, ClassNotFoundException, InstantiationException, IllegalAccessException,
 			IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		super(g, directory);

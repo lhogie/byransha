@@ -1,0 +1,51 @@
+package byransha.lab;
+
+import byransha.graph.BNode;
+import byransha.graph.BusinessNode;
+import byransha.graph.ShowInKishanView;
+import byransha.graph.list.action.ListNode;
+import byransha.primitive.BooleanNode;
+import byransha.primitive.LongNode;
+import byransha.primitive.StringNode;
+
+public class Room extends BusinessNode {
+	@ShowInKishanView
+	public StringNode name = new StringNode(this);
+
+	@ShowInKishanView
+	public final ListNode<Person> users = new ListNode(this, "users", Person.class);
+
+	@ShowInKishanView
+	public LongNode surface = new LongNode(this), capacity = new LongNode(this);
+
+	@ShowInKishanView
+	public BooleanNode isZZR;
+
+	@ShowInKishanView
+	public LongNode floorNumber;
+
+	public Room(BNode parent) {
+		super(parent);
+	}
+
+	@Override
+	public String whatIsThis() {
+		return "an office";
+	}
+
+	@Override
+	public String toString() {
+		if (name != null) {
+			return "Office: " + name.get();
+		}
+		return null;
+	}
+
+	public double occupationRatio() {
+		return ((double) capacity.get()) / users.elements.size();
+	}
+
+	public double surfacePerUser() {
+		return ((double) surface.get()) / users.elements.size();
+	}
+}
