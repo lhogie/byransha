@@ -3,6 +3,7 @@ package byransha.ai;
 import java.net.InetAddress;
 import byransha.graph.Root;
 import byransha.graph.BNode;
+import byransha.network.Peer;
 
 public class AiNode extends BNode {
 	public InetAddress address;
@@ -13,6 +14,7 @@ public class AiNode extends BNode {
     public double promptLag;
     public int queueSize;
     public double alpha = 1.0;
+	public boolean HaveAi;
 
 	public AiNode(Root g) {
 		super(g);
@@ -22,6 +24,13 @@ public class AiNode extends BNode {
     public double getPromptLagMsPerToken() { return promptLag; }
     public int getCurrentQueueSize() { return queueSize; }
     public double getAlpha() { return alpha; }
+
+	public Peer getPeer() {
+		if (g() != null && g().networkAgent != null && g().networkAgent.neighborhood != null) {
+			return g().networkAgent.neighborhood.findPeerByName(this.name);
+		}
+		return null;
+	}
 
 	@Override
 	public String whatIsThis() {
@@ -36,5 +45,8 @@ public class AiNode extends BNode {
 	public double getScore() {
 		// calculer Score
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
+	}
+	public boolean getHaveAi() {
+		return HaveAi;
 	}
 }

@@ -1,16 +1,28 @@
 package byransha.ai;
 
+import java.awt.Window;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.SwingUtilities;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.Timer;
 
 import org.checkerframework.checker.units.qual.g;
 
@@ -30,6 +42,12 @@ import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
+import byransha.network.Message;
+import byransha.network.Peer;
+import byransha.network.PeerInfo;
+import byransha.network.NetworkAgent;
+import byransha.network.Message;
+import byransha.network.Queue;
 import byransha.nodes.lab.stats.DistributionNode;
 import byransha.nodes.primitive.BooleanNode;
 import byransha.nodes.primitive.StringNode;
@@ -37,6 +55,7 @@ import byransha.nodes.primitive.TextNode;
 import byransha.nodes.system.ChatNode;
 import byransha.ui.shell.Client;
 import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
 import dev.langchain4j.model.ollama.OllamaStreamingChatModel;
 import dev.langchain4j.service.AiServices;
@@ -68,7 +87,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	public final TextNode info = new TextNode(this,
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses",
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");	
-	private static final String PRIMARY_MODEL = "granite4:tiny-h";
+	public static volatile String PRIMARY_MODEL = "granite4:tiny-h";
 	private static final String SERVER_MODEL = "ornith:9b";
 	private static final String SERVER_MODEL_2 = "granite4:tiny-h";
 	private volatile ResponseMode responseMode = ResponseMode.CONVERSATION;
@@ -78,6 +97,21 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private static volatile boolean ollamaVerified = false;
 	private boolean ActivateListNodeResponse = false;
 	private volatile ChatNode currentChat;
+	private static volatile boolean settingModel = false;
+	private static volatile boolean settingModelaAccepte = false;
+
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void setModel() {
+		settingModel = true;
+		SwingUtilities.invokeLater(() -> {
+                boolean aAccepte = afficherChargementOllama();
+                if (aAccepte) {   
+                    ASSISTANT_CACHE.clear();       
+					settingModel = false;
+	}
+	});
+}
 
 	@ShowInKishanView
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
@@ -85,9 +119,13 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private ListNode<AiNode> getAiNodes() {
 		ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
 		AiNode localNode = new AiNode(g());
+		localNode.name = "Local IA";
+		try {
+			localNode.address = java.net.InetAddress.getByName("localhost");
+		} catch (Exception e) {}
+		localNode.HaveAi = true;
 		nodeList.elements.add(localNode);
 		return nodeList;
-//w		return null;
 	}
 
 	@ActionMethod
@@ -150,10 +188,11 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 					System.out.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
 					System.out.println(" messages: " + messages);
 					
-                    MEMORY_STORE.deleteMessages(messages);
+                    MEMORY_STORE.deleteMessages(chatId);
 					MEMORY_STORE.deleteMessages("default_session");
 					System.out.println(MEMORY_STORE.getMessages(chatId).size() + " messages supprimés pour le chat : " + chatId);
                     ASSISTANT_CACHE.clear();
+					System.out.println(" memory reset for chat: " + MEMORY_STORE.getMessages(chatId).size() + " messages remaining for chat: " + MEMORY_STORE.getMessages(chatId));
                     JOptionPane.showMessageDialog(null, 
                         "La mémoire de la conversation a été réinitialisée.", 
                         "Réinitialisation", 
@@ -174,6 +213,90 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
         });
     }
 
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void SendRequestToPeerAI() {
+		SwingUtilities.invokeLater(() -> {
+			try {
+				if (ShowPeersInfo.elements.isEmpty()) {
+					JOptionPane.showMessageDialog(null, 
+						"Aucun noeud AI disponible pour envoyer la requête.", 
+						"Erreur", 
+						JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				AiNode selectedNode = selectBestPeer(ShowPeersInfo.elements);
+				if (selectedNode == null) {
+					JOptionPane.showMessageDialog(null, 
+						"Aucun noeud AI sélectionné pour envoyer la requête.", 
+						"Erreur", 
+						JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				String userQuestion = prompt.get();
+				if (userQuestion == null || userQuestion.trim().isEmpty()) {
+					JOptionPane.showMessageDialog(null, 
+						"La question est vide. Veuillez entrer une question avant d'envoyer la requête.", 
+						"Erreur", 
+						JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				String response = sendRequestToPeer(selectedNode, userQuestion);
+				if (response != null) {
+					result = new TextNode(g(), "Réponse du noeud AI", response);
+					JOptionPane.showMessageDialog(null, 
+						"Réponse reçue du noeud AI : " + response, 
+						"Réponse", 
+						JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(null, 
+						"Aucune réponse reçue du noeud AI.", 
+						"Information", 
+						JOptionPane.INFORMATION_MESSAGE);
+				}
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null, 
+					"Erreur lors de l'envoi de la requête au noeud AI: " + e.getMessage(), 
+					"Erreur", 
+					JOptionPane.ERROR_MESSAGE);
+			}
+		});
+	}
+
+	
+	public synchronized String sendRequestToPeer(AiNode aiNode, String request) {
+		if (aiNode == null) {
+			System.out.println("Peer AI node is not available");
+			return null;
+		}
+
+		Peer peer = aiNode.getPeer();
+		if (peer == null) {
+			System.out.println("Peer not found in neighborhood for AI node: " + aiNode.name);
+			return null;
+		}
+
+		try {
+			byransha.network.Queue q = new byransha.network.Queue(this);
+			g().networkAgent.sendQ.sendObject(request, peer, msg -> {
+				msg.replyTo = q.id;
+			});
+			Message reply = q.q.poll_sync();
+			if (reply != null && reply.contentObject != null) {
+				return reply.contentObject.toString();
+			}
+			return null;
+		} catch (Exception e) {
+			System.out.println("Error sending request to peer AI node: " + e.getMessage());
+			return null;
+		}
+	}
+		
+
+		
+		
+
+		
 
 	// create a method that use the weighted robin round algorithm instead of using best peer method
 	public static AiNode selectBestPeer(java.util.List<AiNode> aiNodes) {
@@ -198,6 +321,180 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 
 		return aiNodes.get(aiNodes.size() - 1);
 	}
+
+	public static List<String> getInstalledOllamaModels() {
+    List<String> models = new ArrayList<>();
+    String userHome = System.getProperty("user.home");
+    File libraryDir = new File(userHome, ".ollama/models/manifests/registry.ollama.ai/library");
+    if (libraryDir.exists() && libraryDir.isDirectory()) {
+        File[] modelFolders = libraryDir.listFiles(File::isDirectory);
+        if (modelFolders != null) {
+            for (File modelFolder : modelFolders) {
+                String modelName = modelFolder.getName();
+                File[] tagFolders = modelFolder.listFiles();
+                
+                if (tagFolders != null && tagFolders.length > 0) {
+                    for (File tagFolder : tagFolders) {
+                        String tagName = tagFolder.getName();
+                        models.add(modelName + ":" + tagName);
+                    }
+                } else {
+                    models.add(modelName + ":latest");
+                }
+            }
+        }
+    }
+    return models;
+}
+
+
+	public static boolean afficherChargementOllama() {
+		Timer t = new Timer(30000, e -> {
+			Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    if (window instanceof JDialog) {
+                        JDialog dialog = (JDialog) window;
+                        if (dialog.getContentPane().getComponentCount() == 1
+                            && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
+                            dialog.dispose();
+                        }
+                    }
+				}
+		});
+		t.setRepeats(false);
+		t.start();
+		System.out.println("Affichage de la boîte de dialogue pour le chargement de l'IA...");
+        List<String> installedModels = getInstalledOllamaModels();
+		if (settingModel==false) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel messageLabel = new JLabel("<html>Voulez-vous pré-charger l'IA sur votre machine locale ?<br/>Note : Le chargement peut prendre un certain temps.<br/>Note 2 : Cela réduit le temps de réponse lors de la premiere requête.<br/></html>");
+        JLabel modelLabel = new JLabel("Sélectionnez le modèle à pré-charger :");
+        modelLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 350));
+        JComponent modelSelector;
+        JComboBox<String> comboBox = null;
+        JTextField textField = null;
+        if (!installedModels.isEmpty()) {
+            comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
+            if (installedModels.contains(PRIMARY_MODEL)) {
+                comboBox.setSelectedItem(PRIMARY_MODEL);
+            }
+            modelSelector = comboBox;
+        } else {
+            textField = new JTextField(PRIMARY_MODEL);
+            modelSelector = textField;
+        }
+        panel.add(messageLabel);
+        panel.add(modelLabel);
+        panel.add(modelSelector);
+        int option = JOptionPane.showConfirmDialog(
+                null,
+                panel,
+                "Chargement de l'IA",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+		t.stop();
+        if (option == JOptionPane.YES_OPTION) {
+            String selectedModel;
+            if (comboBox != null) {
+                selectedModel = (String) comboBox.getSelectedItem();
+            } else {
+                selectedModel = textField.getText().trim();
+            }
+            if (selectedModel != null && !selectedModel.isEmpty()) {
+                PRIMARY_MODEL = selectedModel;
+                System.out.println("Pré-chargement du modèle : " + PRIMARY_MODEL);
+            }
+            return true;
+        }
+		System.out.println("L'utilisateur a refusé le chargement de l'IA.");
+		JOptionPane.showMessageDialog(
+			null, 
+			"Le pré-chargement de l'IA a été refusé..", 
+			"pré-chargement de l'IA refusé", 
+			JOptionPane.WARNING_MESSAGE
+		);
+		return false;
+	}
+	else if (settingModel) {
+		System.out.println("Affichage de la boîte de dialogue pour le changement de modèle...");
+		JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        JLabel messageLabel = new JLabel("Voulez-vous changer l'IA sur votre machine locale ?");
+        JLabel modelLabel = new JLabel("Sélectionnez le modèle que vous souhaitez :");
+        modelLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        JComponent modelSelector;
+        JComboBox<String> comboBox = null;
+        JTextField textField = null;
+        if (!installedModels.isEmpty()) {
+            comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
+            if (installedModels.contains(PRIMARY_MODEL)) {
+                comboBox.setSelectedItem(PRIMARY_MODEL);
+            }
+            modelSelector = comboBox;
+        } else {
+            textField = new JTextField(PRIMARY_MODEL);
+            modelSelector = textField;
+        }
+        panel.add(messageLabel);
+        panel.add(modelLabel);
+        panel.add(modelSelector);
+        int option = JOptionPane.showConfirmDialog(
+                null,
+                panel,
+                "Chargement de l'IA",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+		t.stop();
+        if (option == JOptionPane.YES_OPTION) {
+            String selectedModel;
+            if (comboBox != null) {
+                selectedModel = (String) comboBox.getSelectedItem();
+            } else {
+                selectedModel = textField.getText().trim();
+            }
+            if (selectedModel != null && !selectedModel.isEmpty()) {
+                PRIMARY_MODEL = selectedModel;
+                System.out.println("changement: " + PRIMARY_MODEL);
+            }
+			JOptionPane.showMessageDialog(null, "Le changement de modèle a été effectué avec succès.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
+            return true;
+        }
+		JOptionPane.showMessageDialog(null, "Le changement de modèle n'a pas été effectué.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
+		return false;
+	}
+	else {
+		JOptionPane.showMessageDialog(null, "Le changement de modèle n'a pas été effectué.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
+		System.out.println("Aucune action effectuée pour le chargement ou le changement de modèle.");
+		return false;
+	}
+}
+
+	
+	public static void afficherAlerteOllama() {
+		Timer t = new Timer(30000, e -> {
+			Window[] windows = Window.getWindows();
+                for (Window window : windows) {
+                    if (window instanceof JDialog) {
+                        JDialog dialog = (JDialog) window;
+                        if (dialog.getContentPane().getComponentCount() == 1
+                            && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
+                            dialog.dispose();
+                        }
+                    }
+				}
+		});
+		t.setRepeats(false);
+		t.start();
+        JOptionPane.showMessageDialog(
+            null, 
+           "L'utilisation de l'IA sans serveur distant requiert l'installation d'Ollama ainsi que du modèle sur votre machine locale.", 
+            "Configuration requise", 
+            JOptionPane.INFORMATION_MESSAGE
+        );
+    }
 
 
 
@@ -631,7 +928,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 		var cacheKey = selectedOllamaUrl + "|" + PRIMARY_MODEL + "|" + chatId;
 		return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
 			var model = getOrCreateModel(selectedOllamaUrl);
-			ChatMemory memory = MessageWindowChatMemory.builder()
+			ChatMemoryProvider chatMemoryProvider = MemoryId -> MessageWindowChatMemory.builder()
 					.id(chatId)
 					.maxMessages(MAX_MESSAGES)
 					.chatMemoryStore(MEMORY_STORE)
@@ -639,7 +936,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 			return AiServices.builder(ToolEnabledAssistant.class)
 					.streamingChatLanguageModel(model)
 					.tools(new GraphTools(inputNode))
-					.chatMemory(memory)
+					.chatMemoryProvider(chatMemoryProvider)
 					.build();
 		});
 	}

@@ -68,7 +68,7 @@ public class Neighborhood extends ServiceNode {
 		return peers.elements.stream().filter(p -> p.getConnection() != null).toList();
 	}
 
-	Peer findPeerByName(String name) {
+	public Peer findPeerByName(String name) {
 		for (var p : peers.get()) {
 			if (p.name != null && p.name.equals(name)) {
 				return p;
