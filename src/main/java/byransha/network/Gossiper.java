@@ -1,15 +1,16 @@
 package byransha.network;
 
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
 import byransha.graph.LoopingThreadNode;
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
+import byransha.system.SystemNode;
 
-public abstract class Gossiper extends ServiceNode implements Consumer<Message> {
+public abstract class Gossiper extends SystemNode implements Consumer<Message> {
 
 	@ShowInKishanView
 	final BooleanNode active = new BooleanNode(this, true);
@@ -23,7 +24,7 @@ public abstract class Gossiper extends ServiceNode implements Consumer<Message> 
 	}
 
 	public void start() {
-		MessageQ q = new MessageQ(this, id() + 3938484L);
+		MessageQ q = new MessageQ(this, new UUID(-1619690253403145037L, 1877711994968385949L));
 		new LoopingThreadNode(this, () -> 0d, "read gossips", () -> accept(q.q.poll_sync()));
 
 		new LoopingThreadNode(this, () -> periodS.get(), "forward local info (including neighborhood)", () -> {

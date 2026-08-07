@@ -22,6 +22,7 @@ public class ThreadNode extends SystemNode {
 			try {
 				r.run();
 			} catch (Throwable err) {
+				System.err.println("error in thread " + description);
 				err.printStackTrace();
 			}
 		});

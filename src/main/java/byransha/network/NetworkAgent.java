@@ -6,14 +6,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import byransha.graph.Hub;
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
 import byransha.security.PublicKeyImporter;
+import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class NetworkAgent extends ServiceNode {
+public class NetworkAgent extends SystemNode {
 	protected int nbMsgReceived;
 
 	@ShowInKishanView

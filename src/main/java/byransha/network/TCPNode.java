@@ -3,14 +3,14 @@ package byransha.network;
 import java.io.IOException;
 import java.net.Socket;
 
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
 import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
+import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class TCPNode extends ServiceNode {
+public class TCPNode extends SystemNode {
 
 	@ShowInKishanView
 	private TCPServer server;
@@ -35,15 +35,17 @@ public class TCPNode extends ServiceNode {
 				System.out.println("already connected to peer " + nameOfPeerAtOtherHand);
 			} else {
 				other.setConnection(connection);
+
 				if (other.publicKey != null) {
 					other.sharedSecret = NetworkBox.agreeOnSharedSecret(hub().network.neighborhood.self.privateKey,
 							other.publicKey);
+					System.out.println(other + " joined");
+					tcpSocketReadingThread(other);
 				} else {
-					System.out.println("Warning: No public key for " + other.name
-							+ ". Secure routing disabled until key is added.");
+					System.err.println("Warning: No public key for " + other.name
+							+ ". rejecting peer");
+					other.ensureDisconnected();
 				}
-				System.out.println(other + " joined");
-				tcpSocketReadingThread(other);
 			}
 		} catch (IOException err) {
 			System.out.println("gone at handshake");

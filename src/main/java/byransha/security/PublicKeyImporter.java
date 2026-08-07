@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.graph.ActionMethod;
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
-import byransha.network.PeerManager;
 import byransha.network.NetworkAgent;
+import byransha.network.PeerManager;
 import byransha.primitive.StringNode;
+import byransha.system.SystemNode;
 
-public class PublicKeyImporter extends ServiceNode {
+public class PublicKeyImporter extends SystemNode {
 	@ShowInKishanView
 	public final StringNode peerName = new StringNode(this);
 	@ShowInKishanView

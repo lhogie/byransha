@@ -2,11 +2,11 @@ package byransha.network.routing;
 
 import java.util.List;
 
-import byransha.graph.ServiceNode;
 import byransha.network.Peer;
 import byransha.network.Sender;
+import byransha.system.SystemNode;
 
-public abstract class RoutingService extends ServiceNode {
+public abstract class RoutingService extends SystemNode {
 
 	public RoutingService(Sender net) {
 		super(net);

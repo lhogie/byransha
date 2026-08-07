@@ -7,7 +7,7 @@ import byransha.graph.BNode;
 import byransha.graph.action.FreezingAction.misc;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.TextNode;
-import byransha.util.Base62;
+import byransha.util.UUIDUtils;
 
 public class JumpToAnotherNode extends Action {
 	final TextNode text = new TextNode(this, "list of IDs", "");
@@ -19,7 +19,7 @@ public class JumpToAnotherNode extends Action {
 			nodes.elements.clear();
 			Arrays.stream(text.get().replace(',', '\n').split("\n")).forEach(s -> {
 				try {
-					nodes.elements.add(hub().indexes.byId.get(Base62.decode(s.trim())));
+					nodes.elements.add(hub().indexes.byId.get(UUIDUtils.decode(s.trim())));
 				} catch (Throwable err) {
 					hub().errorLog.add(err);
 				}

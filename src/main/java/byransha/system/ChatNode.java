@@ -171,7 +171,7 @@ public class ChatNode extends BNode {
 		for (var n : nodes.elements) {
 			var on = new ObjectNode(ByUtils.factory);
 			r.add(on);
-			on.put("id", n.id());
+			on.put("id", n.id().toString());
 			on.put("toString", n.toString());
 
 			if (n instanceof ProcedureAction action) {

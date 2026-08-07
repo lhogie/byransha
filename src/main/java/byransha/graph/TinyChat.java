@@ -1,14 +1,21 @@
 package byransha.graph;
 
+import java.util.UUID;
+
 import byransha.graph.list.action.ListNode;
 import byransha.network.Message;
 import byransha.network.MessageNode;
 import byransha.network.MessageQ;
 import byransha.primitive.StringNode;
+import byransha.system.SystemNode;
 
-public class TinyChat extends ServiceNode {
+public class TinyChat extends SystemNode {
 	@ShowInKishanView
 	public final StringNode input = new StringNode(this);
+
+	@ShowInKishanView
+	public final StringNode recipient = new StringNode(this, "", ".*");
+
 	@ShowInKishanView
 	public final ListNode<MessageNode> incomingMessages = new ListNode(this, "messages", MessageNode.class);
 	private final MessageQ q;
@@ -16,7 +23,7 @@ public class TinyChat extends ServiceNode {
 	public TinyChat(Hub g) {
 		super(g);
 
-		this.q = new MessageQ(this, 6538776544355L);
+		this.q = new MessageQ(this, new UUID(-1551797534733261485L, 3348997174271921776L));
 
 		new LoopingThreadNode(this, () -> 1.0, "TinyChat message processing", () -> {
 			Message msg = q.q.poll_sync();
@@ -33,11 +40,20 @@ public class TinyChat extends ServiceNode {
 
 	@ActionMethod
 	@AddButtonOnKishanView
-	public void sendToNeighbors() {
-		for (var neighbor : hub().network.neighborhood.neighbors()) {
-			System.out.println("tinychat: sending to " + neighbor);
+	public void send() {
+		if (recipient.get().isEmpty()) {
+			for (var neighbor : hub().network.neighborhood.neighbors()) {
+				System.out.println("tinychat: sending to " + neighbor);
+				var msg = new Message();
+				msg.ooInfos.recipient = neighbor;
+				msg.recipientNode = q.id();
+				msg.ooInfos.content = input.get();
+				hub().network.sender.accept(msg);
+			}
+		} else {
+			System.out.println("tinychat: sending to " + recipient.get());
 			var msg = new Message();
-			msg.ooInfos.recipient = neighbor;
+			msg.ooInfos.recipient = hub().network.neighborhood.findPeerByName(recipient.get());
 			msg.recipientNode = q.id();
 			msg.ooInfos.content = input.get();
 			hub().network.sender.accept(msg);

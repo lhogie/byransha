@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import byransha.graph.Hub;
 import byransha.network.Peer;
@@ -65,7 +66,8 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 		out.writeInt(owners.size());
 
 		for (var o : owners) {
-			out.writeLong(o.id());
+			out.writeLong(o.id().getMostSignificantBits());
+			out.writeLong(o.id().getLeastSignificantBits());
 		}
 	}
 
@@ -75,7 +77,7 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 		var ownersSize = in.readInt();
 
 		for (int i = 0; i < ownersSize; i++) {
-			var ownerId = in.readInt();
+			UUID ownerId = new UUID(in.readLong(), in.readLong());
 			var owner = g.network.neighborhood.findPeer(ownerId);
 			owners.add(owner);
 		}

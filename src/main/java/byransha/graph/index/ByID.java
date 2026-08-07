@@ -2,12 +2,12 @@ package byransha.graph.index;
 
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.util.Base62;
-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
-import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class ByID extends Index {
 	protected ByID(AllIndexes allIndexes) {
@@ -15,10 +15,10 @@ public class ByID extends Index {
 		// super(allIndexes);
 	}
 
-	private final Long2ObjectMap<BNode> m = new Long2ObjectOpenHashMap<>();
+	private final Object2ObjectOpenHashMap<UUID, BNode> m = new Object2ObjectOpenHashMap<>();
 	final Random r = new Random();
 
-	public synchronized long forceIndex(BNode n, long newID) {
+	public synchronized UUID forceIndex(BNode n, UUID newID) {
 		Objects.requireNonNull(n);
 
 		if (m.containsKey(newID)) {
@@ -40,8 +40,7 @@ public class ByID extends Index {
 
 	@Override
 	public void delete(BNode n) {
-		long id = n.id();
-		m.remove(id);
+		m.remove(n.id());
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public class ByID extends Index {
 		return "ID";
 	}
 
-	public BNode get(long id) {
+	public BNode get(UUID id) {
 		return m.get(id);
 	}
 

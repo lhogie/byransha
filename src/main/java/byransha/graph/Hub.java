@@ -17,13 +17,14 @@ import byransha.primitive.ValuedNode;
 import byransha.system.Byransha;
 import byransha.system.JVMNode;
 import byransha.system.OperatingSystem;
+import byransha.system.SystemNode;
 import byransha.system.User;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
 import io.github.classgraph.ClassGraph;
 
-public class Hub extends BNode {
+public class Hub extends SystemNode {
 	@ShowInKishanView
 	public final ListNode<ThreadNode> threads = new ListNode<ThreadNode>(this, "threads", ThreadNode.class);
 
@@ -68,7 +69,7 @@ public class Hub extends BNode {
 
 	public Hub(int port) throws Exception {
 		super(null);
-		// indexes.add(this);
+//		 indexes.add(this);
 		this.network = new NetworkAgent(this, port);
 		network.start();
 		new Male(this);
@@ -125,7 +126,7 @@ public class Hub extends BNode {
 
 	@Override
 	public String toString() {
-		return "super node";
+		return "hub";
 	}
 
 	public User currentUser() {

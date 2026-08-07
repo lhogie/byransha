@@ -18,9 +18,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.swing.JOptionPane;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import byransha.Main;
 import byransha.graph.Category;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
@@ -29,8 +26,10 @@ import byransha.primitive.URLNode;
 import byransha.util.ByUtils;
 
 public class Byransha extends SystemNode {
+	public static Hub hub;
+
 	@ShowInKishanView
-	public static final String VERSION = "0.0.82";
+	public static final String VERSION = "0.0.83";
 
 	public static class byransha extends Category {
 	}
@@ -64,7 +63,7 @@ public class Byransha extends SystemNode {
 
 	public static boolean autoUpdateEnabled = true;
 
-	public static boolean autoRestart = false;
+	public static boolean autoRestartWhenUpgraded = false;
 
 	public Byransha(Hub g) {
 		super(g);
@@ -80,8 +79,7 @@ public class Byransha extends SystemNode {
 
 	public static String lastVersionOnline() throws MalformedURLException, IOException {
 		String jsonString = new String(downloadFromI3S("bin/info.json"));
-		JsonNode rootNode = ByUtils.objectMapper.readTree(jsonString);
-		return rootNode.get("version").asText();
+		return ByUtils.objectMapper.readTree(jsonString).get("version").asText();
 	}
 
 	public static byte[] downloadLastVersion() throws MalformedURLException, IOException {
@@ -132,48 +130,42 @@ public class Byransha extends SystemNode {
 			while (true) {
 				try {
 					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-
-				if (!autoUpdateEnabled)
-					continue;
-
-				try {
-					if (!Byransha.lastVersionOnline().equals(Byransha.VERSION)) {
-						System.out.println("upgrading " + jarFile);
-						Files.write(installedJarFile.toPath(), Byransha.downloadLastVersion(),
-								StandardOpenOption.TRUNCATE_EXISTING);
-
-						if (Main.hub.swingInterface != null && !autoRestart) {
-							JOptionPane.showMessageDialog(Main.hub.swingInterface.frame,
-									"A new version was downloaded and installed, you must restart the application",
-									"Restart requireed", JOptionPane.INFORMATION_MESSAGE);
-						}
-
-						System.out.println("quitting");
-						System.exit(0);
-					}
-
-				} catch (IOException err) {
-					System.err.println("no internet");
+					considerUpgrading();
+				} catch (InterruptedException err) {
 					err.printStackTrace();
 				}
 			}
 		});
 	}
 
-	public static boolean upgradeIfNecessary() throws MalformedURLException, IOException {
-		if (!lastVersionOnline().equals(Byransha.VERSION)) {
-			System.out.println("upgrading " + jarFile);
-			Files.write(jarFile.toPath(), Byransha.downloadLastVersion(), StandardOpenOption.TRUNCATE_EXISTING);
-			return true;
-		} else {
-			return false;
+	public static void considerUpgrading() {
+		try {
+			if (autoUpdateEnabled && !lastVersionOnline().equals(Byransha.VERSION)) {
+				System.out.println("downloading last version " + jarFile);
+				var lastVersion = Byransha.downloadLastVersion();
+				System.out.println("overwriting " + jarFile);
+				Files.write(jarFile.toPath(), lastVersion, StandardOpenOption.TRUNCATE_EXISTING);
+
+				if (!jarFile.equals(installedJarFile)) {
+					install();
+				}
+
+				if (hub.swingInterface != null) {
+					JOptionPane.showMessageDialog(hub.swingInterface.frame, "A new version was downloaded",
+							"Restart required", JOptionPane.INFORMATION_MESSAGE);
+				}
+
+				if (autoRestartWhenUpgraded) {
+					System.out.println("upgraded. quitting...");
+					System.exit(0);
+				}
+			}
+		} catch (IOException | InterruptedException err) {
+			err.printStackTrace();
 		}
 	}
 
-	public static void install() throws IOException, InterruptedException {
+	private static void install() throws IOException, InterruptedException {
 		System.out.println("installing to " + Byransha.binDirectory);
 		installedJarFile.getParentFile().mkdirs();
 		ByUtils.extractResource("/systemD_service/byransha.service", Byransha.homeDirectory);
@@ -190,6 +182,13 @@ public class Byransha extends SystemNode {
 			// $HOME/.local/share/byransha/bin/byransha.jar --no-gui".getBytes(),
 			// StandardOpenOption.TRUNCATE_EXISTING);
 		}
+
+		runVersionSpecificMigrationCode();
+	}
+
+	private static void runVersionSpecificMigrationCode() {
+		// maybe be needed to do changes on the file system that will be needed for the
+		// next version
 	}
 
 	public static File createDesktopShortcut(Path jarPath, String appName) throws IOException, InterruptedException {

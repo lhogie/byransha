@@ -5,16 +5,16 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
 import byransha.graph.LoopingThreadNode;
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.network.routing.BFSRouting;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
+import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 import byransha.util.Q;
 
-public class Sender extends ServiceNode implements Consumer<Message> {
+public class Sender extends SystemNode implements Consumer<Message> {
 	private PriorityBlockingQueue<Message> inWait = new PriorityBlockingQueue<>(10,
 			(msg1, msg2) -> Long.compare(msg1.sendDateMs, msg2.sendDateMs));
 	private Q<Message> toSendNow = new Q<>(10);

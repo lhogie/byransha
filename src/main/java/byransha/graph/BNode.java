@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -37,8 +38,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
-import byransha.NewNodeEvent;
 import byransha.ai.QueryIA;
+import byransha.event.NewNodeEvent;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
 import byransha.graph.action.Export.CSVData;
@@ -65,11 +66,11 @@ import byransha.ui.swing.TextDisplayComponent;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;
 import byransha.ui.swing.WrapPanel;
-import byransha.util.Base62;
 import byransha.util.ByUtils;
 import byransha.util.ListenableList;
 import byransha.util.Stop;
 import byransha.util.TriConsumer;
+import byransha.util.UUIDUtils;
 
 public abstract class BNode {
 
@@ -79,22 +80,22 @@ public abstract class BNode {
 	public boolean userEditable;
 
 	@ShowInKishanView
-	protected boolean generateEvents = false;
-	private long id = -1;
+	public boolean generateEvents = false;
+	private UUID id;
 	public Hub graph;
 	protected ListNode<Action> cachedActions;
 
 	protected BNode(BNode parent) {
-		this(parent, -1);
+		this(parent, null);
 	}
 
-	protected BNode(BNode parent, long id) {
+	protected BNode(BNode parent, UUID id) {
 		++nbInstances;
 		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
-		this.id = id != -1 ? id : ByUtils.random.nextLong();
+		this.id = id != null ? id : UUID.randomUUID();
 
 		var g = hub();
 
@@ -375,7 +376,6 @@ public abstract class BNode {
 			BiConsumer<Method, BNode> consumer) {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
-				System.out.println("lkjfdlskjs" + m.getName());
 				try {
 					var out = m.invoke(this);
 
@@ -402,22 +402,22 @@ public abstract class BNode {
 
 	private BNode instantiateRenderingNodeForMethod(Method m) throws IllegalAccessException, InvocationTargetException {
 		var o = m.invoke(this);
-		var node = instantiateRenderingNodeFor(o);
+		var renderingNode = instantiateRenderingNodeFor(o);
 
-		if (node instanceof ValuedNode vn) {
+		if (renderingNode instanceof ValuedNode vn) {
 			vn.userEditable = false;
 			new LoopingThreadNode(this, () -> 1.0, "watching method " + getClass() + "." + m.getName(), () -> {
 				try {
 					var newValue = m.invoke(this);
 					if (!newValue.equals(vn.get())) {
-						vn.set(newValue);
+						vn.set(renderingNode instanceof StringNode ? newValue.toString() : newValue);
 					}
 				} catch (IllegalAccessException | InvocationTargetException e) {
 					e.printStackTrace();
 				}
 			});
 		}
-		return node;
+		return renderingNode;
 	}
 
 	private BNode instantiateRenderingNodeForField(Field f) throws IllegalAccessException, InvocationTargetException {
@@ -563,13 +563,13 @@ public abstract class BNode {
 		return true;
 	}
 
-	public long id() {
+	public UUID id() {
 		return id;
 	}
 
 	@Override
 	public final int hashCode() {
-		return Long.hashCode(id());
+		return id.hashCode();
 	}
 
 	@Override
@@ -660,7 +660,7 @@ public abstract class BNode {
 	}
 
 	public String idAsText() {
-		return Base62.encode(id());
+		return UUIDUtils.encode(id);
 	}
 
 	public ClassNode<?> type() {
@@ -825,7 +825,7 @@ public abstract class BNode {
 		return ta;
 	}
 
-	public void setID(long newID) {
+	public void setID(UUID newID) {
 		this.id = newID;
 
 	};

@@ -5,6 +5,7 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import byransha.graph.BNode;
@@ -55,7 +56,7 @@ public abstract class EventList extends BNode {
 			}
 		});
 
-		var q = new byransha.network.MessageQ(this, 6538776544355L);
+		var q = new byransha.network.MessageQ(this, new UUID(3684455902639062977L, -3898051283145845872L));
 		new LoopingThreadNode(this, () -> 1.0, "EventList message processing", () -> {
 			var msg = q.q.poll_sync();
 			Event e = (Event) msg.ooInfos.content;

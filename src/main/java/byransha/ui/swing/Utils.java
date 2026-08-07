@@ -21,6 +21,7 @@ import byransha.graph.Hub;
 import byransha.graph.BNode;
 import byransha.util.Base62;
 import byransha.util.PossiblyFailingConsumer;
+import byransha.util.UUIDUtils;
 
 public class Utils {
 
@@ -46,7 +47,7 @@ public class Utils {
 			public void drop(DropTargetDropEvent e) {
 				try {
 					String text = (String) e.getTransferable().getTransferData(DataFlavor.stringFlavor);
-					long id = Base62.decode(text);
+					var id = UUIDUtils.decode(text);
 					var droppedNode = g.indexes.byId.get(id);
 
 					try {

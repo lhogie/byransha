@@ -7,14 +7,15 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import byransha.graph.LoopingThreadNode;
-import byransha.graph.ServiceNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.system.Byransha;
+import byransha.system.SystemNode;
 
-public class PeerManager extends ServiceNode {
+public class PeerManager extends SystemNode {
 
 	List<NeighborhoodListener> neighborhoodListeners = new ArrayList<>();
 
@@ -119,7 +120,7 @@ public class PeerManager extends ServiceNode {
 		return peers.elements.stream().filter(p -> p != self && p.getConnection() != null).toList();
 	}
 
-	Peer findPeerByName(String name) {
+	public Peer findPeerByName(String name) {
 		for (var p : peers.get()) {
 			if (p.name != null && p.name.equals(name)) {
 				return p;
@@ -129,9 +130,9 @@ public class PeerManager extends ServiceNode {
 		return null;
 	}
 
-	public Peer findPeer(int id) {
+	public Peer findPeer(UUID id) {
 		for (var p : peers.get()) {
-			if (p.id() == id) {
+			if (p.id().equals(id)) {
 				return p;
 			}
 		}

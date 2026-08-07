@@ -1,6 +1,7 @@
 package byransha.network;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 import byransha.network.routing.RoutingInfo;
 
@@ -11,7 +12,7 @@ public class Message implements Serializable {
 	}
 
 	public transient OOData ooInfos = new OOData();
-	public long recipientNode;
+	public UUID recipientNode;
 	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();
 	public int errorCount;
