@@ -25,12 +25,12 @@ public class AiNode extends BNode {
     public int getCurrentQueueSize() { return queueSize; }
     public double getAlpha() { return alpha; }
 
-	public Peer getPeer() {
-		if (g() != null && g().networkAgent != null && g().networkAgent.neighborhood != null) {
-			return g().networkAgent.neighborhood.findPeerByName(this.name);
-		}
-		return null;
-	}
+	// public Peer getPeer() {
+	// 	if (hub() != null && hub().networkAgent != null && hub().networkAgent.neighborhood != null) {
+	// 		return hub().networkAgent.neighborhood.findPeerByName(this.name);
+	// 	}
+	// 	return null;
+	// }
 
 	@Override
 	public String whatIsThis() {

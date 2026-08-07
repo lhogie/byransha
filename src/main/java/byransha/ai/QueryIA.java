@@ -44,10 +44,10 @@ import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.network.Message;
 import byransha.network.Peer;
-import byransha.network.PeerInfo;
+
 import byransha.network.NetworkAgent;
 import byransha.network.Message;
-import byransha.network.Queue;
+import byransha.network.MessageQ;
 import byransha.lab.stats.DistributionNode;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.StringNode;
@@ -98,7 +98,7 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
 	private boolean ActivateListNodeResponse = false;
 	private volatile ChatNode currentChat;
 	private static volatile boolean settingModel = false;
-	private static volatile boolean settingModelaAccepte = false;
+	
 
 	@ActionMethod
 	@AddButtonOnKishanView
@@ -213,84 +213,86 @@ public class QueryIA extends FunctionAction<BNode, BNode> {
         });
     }
 
-	@ActionMethod
-	@AddButtonOnKishanView
-	public void SendRequestToPeerAI() {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				if (ShowPeersInfo.elements.isEmpty()) {
-					JOptionPane.showMessageDialog(null, 
-						"Aucun noeud AI disponible pour envoyer la requête.", 
-						"Erreur", 
-						JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				AiNode selectedNode = selectBestPeer(ShowPeersInfo.elements);
-				if (selectedNode == null) {
-					JOptionPane.showMessageDialog(null, 
-						"Aucun noeud AI sélectionné pour envoyer la requête.", 
-						"Erreur", 
-						JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String userQuestion = prompt.get();
-				if (userQuestion == null || userQuestion.trim().isEmpty()) {
-					JOptionPane.showMessageDialog(null, 
-						"La question est vide. Veuillez entrer une question avant d'envoyer la requête.", 
-						"Erreur", 
-						JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-				String response = sendRequestToPeer(selectedNode, userQuestion);
-				if (response != null) {
-					result = new TextNode(g(), "Réponse du noeud AI", response);
-					JOptionPane.showMessageDialog(null, 
-						"Réponse reçue du noeud AI : " + response, 
-						"Réponse", 
-						JOptionPane.INFORMATION_MESSAGE);
-				} else {
-					JOptionPane.showMessageDialog(null, 
-						"Aucune réponse reçue du noeud AI.", 
-						"Information", 
-						JOptionPane.INFORMATION_MESSAGE);
-				}
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null, 
-					"Erreur lors de l'envoi de la requête au noeud AI: " + e.getMessage(), 
-					"Erreur", 
-					JOptionPane.ERROR_MESSAGE);
-			}
-		});
-	}
+	// @ActionMethod
+	// @AddButtonOnKishanView
+	// public void SendRequestToPeerAI() {
+	// 	SwingUtilities.invokeLater(() -> {
+	// 		try {
+	// 			if (ShowPeersInfo.elements.isEmpty()) {
+	// 				JOptionPane.showMessageDialog(null, 
+	// 					"Aucun noeud AI disponible pour envoyer la requête.", 
+	// 					"Erreur", 
+	// 					JOptionPane.ERROR_MESSAGE);
+	// 				return;
+	// 			}
+	// 			AiNode selectedNode = selectBestPeer(ShowPeersInfo.elements);
+	// 			if (selectedNode == null) {
+	// 				JOptionPane.showMessageDialog(null, 
+	// 					"Aucun noeud AI sélectionné pour envoyer la requête.", 
+	// 					"Erreur", 
+	// 					JOptionPane.ERROR_MESSAGE);
+	// 				return;
+	// 			}
+	// 			String userQuestion = prompt.get();
+	// 			if (userQuestion == null || userQuestion.trim().isEmpty()) {
+	// 				JOptionPane.showMessageDialog(null, 
+	// 					"La question est vide. Veuillez entrer une question avant d'envoyer la requête.", 
+	// 					"Erreur", 
+	// 					JOptionPane.ERROR_MESSAGE);
+	// 				return;
+	// 			}
+	// 			String response = sendRequestToPeer(selectedNode, userQuestion);
+	// 			if (response != null) {
+	// 				result = new TextNode(hub(), "Réponse du noeud AI", response);
+	// 				JOptionPane.showMessageDialog(null, 
+	// 					"Réponse reçue du noeud AI : " + response, 
+	// 					"Réponse", 
+	// 					JOptionPane.INFORMATION_MESSAGE);
+	// 			} else {
+	// 				JOptionPane.showMessageDialog(null, 
+	// 					"Aucune réponse reçue du noeud AI.", 
+	// 					"Information", 
+	// 					JOptionPane.INFORMATION_MESSAGE);
+	// 			}
+	// 		} catch (Exception e) {
+	// 			JOptionPane.showMessageDialog(null, 
+	// 				"Erreur lors de l'envoi de la requête au noeud AI: " + e.getMessage(), 
+	// 				"Erreur", 
+	// 				JOptionPane.ERROR_MESSAGE);
+	// 		}
+	// 	});
+	// }
 
 	
-	public synchronized String sendRequestToPeer(AiNode aiNode, String request) {
-		if (aiNode == null) {
-			System.out.println("Peer AI node is not available");
-			return null;
-		}
+	// public synchronized String sendRequestToPeer(AiNode aiNode, String request) {
+	// 	if (aiNode == null) {
+	// 		System.out.println("Peer AI node is not available");
+	// 		return null;
+	// 	}
 
-		Peer peer = aiNode.getPeer();
-		if (peer == null) {
-			System.out.println("Peer not found in neighborhood for AI node: " + aiNode.name);
-			return null;
-		}
+	// 	Peer peer = aiNode.getPeer();
+	// 	if (peer == null) {
+	// 		System.out.println("Peer not found in neighborhood for AI node: " + aiNode.name);
+	// 		return null;
+	// 	}
 
-		try {
-			byransha.network.Queue q = new byransha.network.Queue(this);
-			g().networkAgent.sendQ.sendObject(request, peer, msg -> {
-				msg.replyTo = q.id;
-			});
-			Message reply = q.q.poll_sync();
-			if (reply != null && reply.contentObject != null) {
-				return reply.contentObject.toString();
-			}
-			return null;
-		} catch (Exception e) {
-			System.out.println("Error sending request to peer AI node: " + e.getMessage());
-			return null;
-		}
-	}
+	// 	try {
+	// 		byransha.network.MessageQ q = new byransha.network.MessageQ(hub().network, 1);
+	// 		hub().network.sendQ.sendObject(request, peer, msg -> {
+
+				
+	// 			msg.replyTo = q.id;
+	// 		});
+	// 		Message reply = q.q.poll_sync();
+	// 		if (reply != null && reply.contentObject != null) {
+	// 			return reply.contentObject.toString();
+	// 		}
+	// 		return null;
+	// 	} catch (Exception e) {
+	// 		System.out.println("Error sending request to peer AI node: " + e.getMessage());
+	// 		return null;
+	// 	}
+	// }
 		
 
 		
