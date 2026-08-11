@@ -24,20 +24,15 @@ public class DataLake extends Element {
 	@ShowInKishanView
 	public final FileNode dir;
 
-	public DataLake(Hub g) {
-		this(g, null);
-	}
-
-	public DataLake(Hub g, File dir) {
+	public DataLake(Element g, File dir) {
 		super(g, null);
 		this.dir = new FileNode(g, null);
 		this.dir.file = dir;
+
+		if (!dir.exists())
+			throw new IllegalArgumentException("data lake not found at " + dir.getAbsolutePath());
 	}
 
-	@ActionMethod
-	public void importAll() throws IOException {
-		load((LabApplication) hub().application);
-	}
 
 	static JsonNode countryCodes;
 
@@ -97,14 +92,9 @@ public class DataLake extends Element {
 	}
 
 	@ActionMethod
-	public void load(LabApplication app) throws IOException {
+	public void load() throws IOException {
+		var app = (LabApplication) parent;
 		var i3s = app.i3s;
-
-		if (dir == null)
-			throw new NullPointerException();
-
-		if (!dir.file.exists() || !dir.file.isDirectory())
-			throw new IOException("Input directory does not exist or not a directory: " + dir);
 
 		Cout.progress("Loading datalake from " + dir);
 		loadCountries(hub(), dir.file);

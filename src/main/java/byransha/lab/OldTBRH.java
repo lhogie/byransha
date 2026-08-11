@@ -24,11 +24,10 @@ class OldTBRH {
 		for (List<String> l : csv) {
 			System.out.println(l);
 
-			var person = i3s.lookupOrCreate(l.toString(), id -> new Person(i3s, id)); // new
-																						// Person(graph);
+			var person = i3s.lookupOrCreate(l.toString(), id -> new Person(i3s, id));
 
 			if (l.set(0, "").equals("member")) {
-				Position position = i3s.lookupOrCreate(l.toString(), id -> new Position(person, id));
+				Position position = person.lookupOrCreate(l.toString(), id -> new Position(person, id));
 				position.employer = i3s;
 				person.positions.elements.add(position);
 			}
@@ -41,7 +40,7 @@ class OldTBRH {
 			// person.etatCivil.countryOfBirth.set(l.set(6, null));
 			// person.etatCivil.nationality.set(l.set(7, null));
 			person.address.text.set(l.set(8, ""));
-			var inter = new PhoneNumberNode(person);
+			var inter = person.lookupOrCreate("inter", id -> new PhoneNumberNode(person, id));
 			inter.set(l.set(9, ""));
 			person.phoneNumbers.elements.add(inter);
 
@@ -65,7 +64,7 @@ class OldTBRH {
 			}
 
 			for (var phoneNumber : List.of(l.set(12, ""), l.set(13, ""), l.set(14, ""))) {
-				var n = new PhoneNumberNode(person);
+				var n = person.lookupOrCreate(phoneNumber, id -> new PhoneNumberNode(person, id));
 				n.set(phoneNumber);
 				person.phoneNumbers.elements.add(n);
 			}
@@ -73,7 +72,7 @@ class OldTBRH {
 			person.badgeNumber.set(l.set(16, ""));
 			person.website.set(l.set(17, ""));
 			l.set(18, ""); // remove Fax number person.faxNumber.set();
-			var email = new EmailNode(person, "");
+			var email = person.lookupOrCreate("email", id -> new EmailNode(person, null, id));
 			email.set(l.set(19, ""));
 			person.emailAddresses.elements.add(email);
 			String researchGroupName = l.set(20, "").trim();
@@ -96,7 +95,7 @@ class OldTBRH {
 
 			for (var i : List.of(25, 26)) {
 				var employer = l.set(i, "").trim();
-				var position = new Position(person);
+				var position = person.lookupOrCreate("position-" + i, id -> new Position(person, id));
 
 				if (!employer.isEmpty() && !employer.equals("autre")) {
 					position.employer = findFirst(i3s, employer);
@@ -110,13 +109,13 @@ class OldTBRH {
 				// );
 
 				if (!startDate.isBlank()) {
-					var startDateNode = new DateNode(position);
+					var startDateNode = position.lookupOrCreate("startDate", id -> new DateNode(position, id));
 					startDateNode.set(DataLake.parseDate(startDate));
 					person.positions.elements.getLast().from = startDateNode;
 				}
 
 				if (!endDate.isBlank()) {
-					var endDateNode = new DateNode(position);
+					var endDateNode = position.lookupOrCreate("endDate", id -> new DateNode(position, id));
 					endDateNode.set(DataLake.parseDate(endDate));
 					person.positions.elements.getLast().to = endDateNode;
 				}
@@ -125,14 +124,15 @@ class OldTBRH {
 			person.enposte = l.set(27, null).equals("en poste");
 
 			try {
-				var quotite = new LongNode(person);
+				var quotite = person.lookupOrCreate("quotite", id -> new LongNode(person, id));
 				quotite.set(Long.valueOf(l.set(29, "")));
 				person.quotite = quotite;
 			} catch (NumberFormatException err) {
 
 			}
 
-			var researchActivity = new StringNode(person);
+			var researchActivity = person.lookupOrCreate("researchActivity",
+					id -> new StringNode(person, id, null, null));
 			researchActivity.set(l.set(33, null));
 			person.researchActivity = researchActivity;
 			System.out.println(l);
