@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.Scrollable;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.translate.Translator;
 
 public class Sheet extends JPanel implements Scrollable {
@@ -92,7 +92,7 @@ public class Sheet extends JPanel implements Scrollable {
 		add(separator);
 	}
 
-	public void removeNode(BNode n) {
+	public void removeNode(Element n) {
 		// TODO
 	}
 

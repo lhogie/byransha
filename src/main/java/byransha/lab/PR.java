@@ -1,11 +1,12 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class PR extends Status {
 
-	public PR(BNode g) {
-		super(g);
+	public PR(Element g, ID id) {
+		super(g, id);
 		name.set("Professeur des Universités");
 	}
 }

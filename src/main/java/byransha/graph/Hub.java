@@ -9,36 +9,33 @@ import byransha.event.SingleFileEventList;
 import byransha.graph.index.AllIndexes;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
-import byransha.lab.Genre.Female;
-import byransha.lab.Genre.Male;
-import byransha.lab.Genre.NotGenred;
-import byransha.network.NetworkAgent;
-import byransha.primitive.ValuedNode;
+import byransha.lab.LabApplication;
+import byransha.network.Network;
+import byransha.primitive.ValuedElement;
 import byransha.system.Byransha;
-import byransha.system.JVMNode;
+import byransha.system.JVM;
 import byransha.system.OperatingSystem;
-import byransha.system.SystemNode;
 import byransha.system.User;
 import byransha.translate.GoogleTranslator;
 import byransha.translate.Translator;
 import byransha.ui.swing.SwingFrontend;
 import io.github.classgraph.ClassGraph;
 
-public class Hub extends SystemNode {
+public class Hub extends Element {
 	@ShowInKishanView
-	public final ListNode<ThreadNode> threads = new ListNode<ThreadNode>(this, "threads", ThreadNode.class);
+	public final ListNode<ThreadNode> threads = new ListNode<ThreadNode>(this, null, "threads", ThreadNode.class);
 
 	@ShowInKishanView
 	private User currentUser = new User(this, "guest");
 
 	public AllIndexes indexes = new AllIndexes(this);
 	@ShowInKishanView
-	public final AllIndexesNode indexesNode = new AllIndexesNode(this);
+	public final AllIndexesElement indexesNode = new AllIndexesElement(this);
 
 	@ShowInKishanView
-	public BNode application;
+	public Element application = new LabApplication(this, null);
 	@ShowInKishanView
-	public final JVMNode jvm = new JVMNode(this);
+	public final JVM jvm = new JVM(this);
 	@ShowInKishanView
 	public final Byransha byransha = new Byransha(this);
 	@ShowInKishanView
@@ -50,31 +47,24 @@ public class Hub extends SystemNode {
 	@ShowInKishanView
 	public final EventList eventList = new SingleFileEventList(this,
 			new File(System.getProperty("user.home"), "byransha-events.bin"));
-	// public WebServer webServer;
-	// public ByranshaWebSocketServer webSocketServer;
 
 	@ShowInKishanView
 	public SwingFrontend swingInterface;
 	@ShowInKishanView
-	public final NetworkAgent network;
+	public final Network network;
 	@ShowInKishanView
 	public final Translator translator = new GoogleTranslator(this);
-	// public final Authenticate auth = new LdapAuthenticator(this);
 
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
-
 
 	class graph extends Category {
 	}
 
 	public Hub(int port) throws Exception {
-		super(null);
+		super(null, null);
 //		 indexes.add(this);
-		this.network = new NetworkAgent(this, port);
+		this.network = new Network(this, port);
 		network.start();
-		new Male(this);
-		new Female(this);
-		new NotGenred(this);
 
 		var visitor = new VisitorRole(this);
 		var admin = new AdminRole(this);
@@ -83,15 +73,15 @@ public class Hub extends SystemNode {
 	}
 
 	@ShowInKishanView
-	public int nbNodes() {
-		return BNode.nbInstances;
+	public int nbElements() {
+		return Element.nbInstances;
 	}
 
 	@ActionMethod
 	@AddButtonOnKishanView
-	public void writeAllToDisk() {
-		for (var n : indexes.byClass.getClassNodeFor(ValuedNode.class).allInstances().elements) {
-			((ValuedNode) n).writeValueToDisk();
+	public void writeAllValuesToDisk() {
+		for (var n : indexes.byClass.getClassNodeFor(ValuedElement.class).allInstances().elements) {
+			((ValuedElement) n).writeValueToDisk();
 		}
 	}
 
@@ -121,7 +111,7 @@ public class Hub extends SystemNode {
 
 	@Override
 	public String whatIsThis() {
-		return "a graph";
+		return "the hub for all elements (root of the element tree)";
 	}
 
 	@Override
@@ -135,7 +125,7 @@ public class Hub extends SystemNode {
 
 	@ShowInKishanView
 	public List<ClassNode> businessClasses() {
-		return classesIn(application.getClass().getPackage(), BusinessNode.class);
+		return classesIn(application.getClass().getPackage(), LabNode.class);
 	}
 
 	public List<ClassNode> classesIn(Package p, Class superclass) {
@@ -146,7 +136,7 @@ public class Hub extends SystemNode {
 			if (superclass.isAssignableFrom(c) && (c.getModifiers() & java.lang.reflect.Modifier.ABSTRACT) == 0
 					&& c.getDeclaringClass() == null) {
 				try {
-					var constr = c.getConstructor(BNode.class);
+					var constr = c.getConstructor(Element.class);
 
 					if (constr != null) {
 						r.add(hub().indexes.byClass.getClassNodeFor(c));

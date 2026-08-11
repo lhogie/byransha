@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.system.ChatNode;
 import byransha.util.ListenableList;
 
@@ -38,10 +38,10 @@ public class ChatPanel extends JPanel {
 		{ // center
 			sheet = new ChatSheet(chat);
 			chat.nodes.elements.forEach(node -> sheet.appendNode(node));
-			chat.nodes.elements.addListener(new ListenableList.Listener<BNode>() {
+			chat.nodes.elements.addListener(new ListenableList.Listener<Element>() {
 
 				@Override
-				public void onAdded(int index, BNode element) {
+				public void onAdded(int index, Element element) {
 					if (index != chat.nodes.elements.size() - 1)
 						throw new IllegalStateException("nodes should only be added at the end of the list");
 
@@ -49,7 +49,7 @@ public class ChatPanel extends JPanel {
 				}
 
 				@Override
-				public void onRemoved(int index, BNode oldElement) {
+				public void onRemoved(int index, Element oldElement) {
 					if (index != chat.nodes.elements.size() - 1)
 						throw new IllegalStateException("nodes should only be removed at the end of the list");
 
@@ -57,7 +57,7 @@ public class ChatPanel extends JPanel {
 				}
 
 				@Override
-				public void onSet(int index, BNode oldElement, BNode newElement) {
+				public void onSet(int index, Element oldElement, Element newElement) {
 					throw new UnsupportedOperationException("nodes should not be replaced");
 				}
 			});

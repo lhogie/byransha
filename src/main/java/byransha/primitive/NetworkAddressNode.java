@@ -8,13 +8,14 @@ import java.net.InetAddress;
 
 import javax.swing.JLabel;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.ui.swing.ChatSheet;
 
-public class NetworkAddressNode extends ValuedNode<InetAddress> {
+public class NetworkAddressNode extends ValuedElement<InetAddress> {
 
-	public NetworkAddressNode(BNode parent) {
-		super(parent);
+	public NetworkAddressNode(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override

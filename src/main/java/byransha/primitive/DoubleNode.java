@@ -15,7 +15,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.NodeError;
 import byransha.ui.swing.ChatSheet;
 
@@ -26,12 +27,8 @@ public class DoubleNode extends PrimitiveValueNode<Double> {
 
 	public Bounds bounds;
 
-	public DoubleNode(BNode parent) {
-		super(parent);
-	}
-
-	public DoubleNode(BNode parent, double value) {
-		this(parent);
+	public DoubleNode(Element parent, ID id, double value) {
+		super(parent, id);
 		set(value);
 	}
 

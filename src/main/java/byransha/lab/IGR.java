@@ -1,10 +1,11 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class IGR extends Status {
-	public IGR(BNode g) {
-		super(g);
+	public IGR(Element g, ID id) {
+		super(g, id);
 		name.set("Ingénieur de Recherche Université");
 	}
 }

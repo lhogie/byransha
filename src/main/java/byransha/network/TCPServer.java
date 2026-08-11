@@ -3,11 +3,11 @@ package byransha.network;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import byransha.Service;
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
-import byransha.system.SystemNode;
 
-public class TCPServer extends SystemNode {
+public class TCPServer extends Service {
 
 	public static final int DEFAULT_PORT = 50170;
 
@@ -31,5 +31,11 @@ public class TCPServer extends SystemNode {
 				e.printStackTrace();
 			}
 		});
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

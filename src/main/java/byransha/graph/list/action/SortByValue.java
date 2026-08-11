@@ -1,7 +1,7 @@
 package byransha.graph.list.action;
 
-import byransha.graph.BNode;
-import byransha.primitive.ValuedNode;
+import byransha.graph.Element;
+import byransha.primitive.ValuedElement;
 
 public class SortByValue extends Sort {
 
@@ -10,8 +10,8 @@ public class SortByValue extends Sort {
 	}
 
 	@Override
-	public int compare(BNode a, BNode b) {
-		if (a instanceof ValuedNode va && a instanceof ValuedNode vb) {
+	public int compare(Element a, Element b) {
+		if (a instanceof ValuedElement va && a instanceof ValuedElement vb) {
 			var valueOfA = va.get();
 			var valueOfB = vb.get();
 

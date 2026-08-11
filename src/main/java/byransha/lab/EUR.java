@@ -1,11 +1,12 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class EUR extends Structure {
 
-	public EUR(BNode g) {
-		super(g);
+	public EUR(Element g, ID id) {
+		super(g, id);
 	}
 
 }

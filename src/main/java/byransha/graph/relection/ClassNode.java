@@ -9,8 +9,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import byransha.graph.ActionMethod;
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -20,7 +20,7 @@ import net.sourceforge.plantuml.FileFormat;
 import net.sourceforge.plantuml.FileFormatOption;
 import net.sourceforge.plantuml.SourceStringReader;
 
-public class ClassNode<T extends BNode> extends BNode {
+public class ClassNode<T extends Element> extends Element {
 	public final Class<T> representedClass;
 	public ClassNode<?> superClass;
 	public boolean allowNewInstances;
@@ -31,9 +31,9 @@ public class ClassNode<T extends BNode> extends BNode {
 	@ShowInKishanView
 	public MapNode<ClassNode<?>> aggregations;
 
-	public static class Aggregation extends BNode {
+	public static class Aggregation extends Element {
 		protected Aggregation(Hub g) {
-			super(g);
+			super(g, null);
 		}
 
 		StringNode name;
@@ -51,7 +51,7 @@ public class ClassNode<T extends BNode> extends BNode {
 	}
 
 	public ClassNode(Hub g, Class c) {
-		super(g);
+		super(g, new ID(0, ClassNode.class.hashCode(), c.hashCode()));
 		this.representedClass = c;
 	}
 
@@ -68,8 +68,8 @@ public class ClassNode<T extends BNode> extends BNode {
 	}
 
 	public void link() {
-		this.interfaces = new ListNode<ClassNode>(this, "interfaces", ClassNode.class);
-		this.aggregations = new MapNode<>(this, "aggregations");
+		this.interfaces = new ListNode<ClassNode>(this, null, "interfaces", ClassNode.class);
+		this.aggregations = new MapNode<>(this, null, "aggregations");
 
 		for (var superInterface : representedClass.getInterfaces()) {
 			var superInterfaceNode = hub().indexes.byClass.findFirst(ClassNode.class,
@@ -171,9 +171,9 @@ public class ClassNode<T extends BNode> extends BNode {
 		return new String(out.toByteArray());
 	}
 
-	public T newInstance(BNode parent) {
+	public T newInstance(Element parent, ID id) {
 		try {
-			return constructor().newInstance(parent);
+			return constructor().newInstance(parent, id);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException err) {
 			hub().errorLog.add(err);
@@ -185,7 +185,8 @@ public class ClassNode<T extends BNode> extends BNode {
 		var candidates = new ArrayList<Constructor<T>>();
 
 		for (var c : representedClass.getConstructors()) {
-			if (c.getParameterCount() == 1 && BNode.class.isAssignableFrom(c.getParameterTypes()[0])) {
+			if (c.getParameterCount() == 2 && Element.class.isAssignableFrom(c.getParameterTypes()[0])
+					&& c.getParameterTypes()[1] == ID.class) {
 				candidates.add((Constructor<T>) c);
 			}
 		}
@@ -205,7 +206,7 @@ public class ClassNode<T extends BNode> extends BNode {
 
 	@ShowInKishanView
 	public ListNode<T> allInstances() {
-		var l = new ListNode<T>(this, "instances of " + representedClass.getSimpleName(), representedClass);
+		var l = new ListNode<T>(this, null, "instances of " + representedClass.getSimpleName(), representedClass);
 		hub().indexes.byClass.m.get(representedClass).stream().map(e -> (T) e).forEach(l.elements::add);
 		return l;
 	}

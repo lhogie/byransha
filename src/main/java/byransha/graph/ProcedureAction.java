@@ -1,6 +1,6 @@
 package byransha.graph;
 
-public abstract class ProcedureAction<IN extends BNode> extends Action {
+public abstract class ProcedureAction<IN extends Element> extends Action {
 
 	protected final IN inputNode;
 

@@ -1,11 +1,12 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class EPST extends Structure {
 
-	public EPST(BNode g) {
-		super(g);
+	public EPST(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

@@ -1,10 +1,12 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.DateNode;
 
-public class Position extends BNode {
+public class Position extends LabNode {
 	@ShowInKishanView
 	public Structure employer;
 	@ShowInKishanView
@@ -16,8 +18,8 @@ public class Position extends BNode {
 	@ShowInKishanView
 	public SupportDePoste support;
 
-	public Position(BNode g) {
-		super(g);
+	public Position(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

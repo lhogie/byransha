@@ -1,17 +1,18 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 
 public class ResearchGroup extends Structure {
 
-	public ResearchGroup(BNode g) {
-		super(g);
+	public ResearchGroup(Element g, ID id) {
+		super(g, id);
 	}
 
-	public ResearchGroup(Lab g, String name) {
-		this(g);
+	public ResearchGroup(Lab g, ID id, String name) {
+		this(g, id);
 		this.name.set(name);
 	}
 

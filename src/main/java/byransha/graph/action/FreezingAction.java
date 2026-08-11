@@ -1,11 +1,11 @@
 package byransha.graph.action;
 
 import byransha.graph.Action;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category;
 
 public final class FreezingAction extends Action {
-	public FreezingAction(BNode g) {
+	public FreezingAction(Element g) {
 		super(g, misc.class);
 	}
 
@@ -13,7 +13,7 @@ public final class FreezingAction extends Action {
 	}
 
 	@Override
-	public boolean wantToBeProposedFor(BNode n) {
+	public boolean wantToBeProposedFor(Element n) {
 		return true;
 	}
 

@@ -1,19 +1,19 @@
 package byransha.graph.action.search;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.StringNode;
 
 public class SearchText extends Search {
-	public final StringNode searchText = new StringNode(this, "", ".*");
-	public final BooleanNode caseSensitive = new BooleanNode(this, false);
+	public final StringNode searchText = new StringNode(this, null, "", ".*");
+	public final BooleanNode caseSensitive = new BooleanNode(this, null, false);
 
-	public SearchText(BNode src) {
+	public SearchText(Element src) {
 		super(src);
 	}
 
 	@Override
-	protected boolean accept(BNode n) {
+	protected boolean accept(Element n) {
 		var s = n.describeAsJSON().toString();
 		var st = searchText.get();
 

@@ -1,13 +1,15 @@
 package byransha.lab.device;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.primitive.StringNode;
 
-public class Quote extends BNode {
+public class Quote extends LabNode {
 	StringNode ref;
 
-	public Quote(BNode parent) {
-		super(parent);
+	public Quote(Element parent, ID id) {
+		super(parent, id);
 	}
 
 }

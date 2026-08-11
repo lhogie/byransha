@@ -4,26 +4,26 @@ import java.awt.Color;
 
 import javax.swing.JLabel;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.ValueChangeListener;
-import byransha.primitive.ValuedNode;
+import byransha.primitive.ValuedElement;
 import byransha.util.ListenableList;
 
 public class ErrorIndicator extends JLabel {
-	final BNode n;
+	final Element n;
 
-	public ErrorIndicator(BNode n) {
+	public ErrorIndicator(Element n) {
 		this.n = n;
 		setForeground(Color.red);
 		setOpaque(false);
 		update();
 
-		if (n instanceof ValuedNode vn) {
+		if (n instanceof ValuedElement vn) {
 			vn.addValueChangeListener(new ValueChangeListener() {
 
 				@Override
-				public void changed(ValuedNode n, Object formerValue, Object newValue) {
+				public void changed(ValuedElement n, Object formerValue, Object newValue) {
 					update();
 				}
 			});

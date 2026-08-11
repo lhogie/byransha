@@ -5,16 +5,16 @@ import java.awt.Font;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.system.ChatNode;
-import byransha.graph.BNode;
 
-public class FontNode extends BNode {
+public class FontNode extends Element {
 
 	public final Font font;
 
 	protected FontNode(Hub g, Font font) {
-		super(g);
+		super(g, null);
 		this.font = font;
 	}
 

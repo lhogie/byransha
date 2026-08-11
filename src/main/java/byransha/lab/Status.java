@@ -1,17 +1,17 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.StringNode;
 
-public class Status extends BusinessNode {
+public class Status extends LabNode {
 	@ShowInKishanView
-	StringNode name;
+	StringNode name= lookupOrCreate("name",  id ->new StringNode(this, id, null, ".+"));
 
-	public Status(BNode g) {
-		super(g);
-		name = new StringNode(g);
+	public Status(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

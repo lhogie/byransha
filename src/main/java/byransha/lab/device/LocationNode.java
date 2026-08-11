@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import byransha.graph.BNode;
-import byransha.primitive.ValuedNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.primitive.ValuedElement;
 
-public class LocationNode extends ValuedNode<GPSLocation> {
+public class LocationNode extends ValuedElement<GPSLocation> {
 
-	public LocationNode(BNode parent) {
-		super(parent);
+	public LocationNode(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override

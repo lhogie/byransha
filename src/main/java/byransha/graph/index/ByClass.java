@@ -7,14 +7,14 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
 import byransha.graph.Hub;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Index;
 import byransha.graph.relection.ClassNode;
 import byransha.util.Stop;
 
 public class ByClass extends Index {
 
-	public MultiValuedMap<Class, BNode> m = new HashSetValuedHashMap<>();
+	public MultiValuedMap<Class, Element> m = new HashSetValuedHashMap<>();
 	public final Hub g;
 
 	public ByClass(Hub g) {
@@ -22,7 +22,7 @@ public class ByClass extends Index {
 		this.g = g;
 	}
 
-	public <C extends BNode> C forEachNodeAssignableTo(Class<C> nodeClass, Function<C, Stop> f) {
+	public <C extends Element> C forEachNodeAssignableTo(Class<C> nodeClass, Function<C, Stop> f) {
 		for (var c : m.keySet()) {
 			if (nodeClass.isAssignableFrom(c)) {
 				for (var n : m.get(c)) {
@@ -36,7 +36,7 @@ public class ByClass extends Index {
 		return null;
 	}
 
-	public <C extends BNode> C findFirst(Class<C> c, Predicate<C> p) {
+	public <C extends Element> C findFirst(Class<C> c, Predicate<C> p) {
 		return forEachNodeAssignableTo(c, n -> Stop.stopIf(p.test(n)));
 	}
 	/*
@@ -46,9 +46,9 @@ public class ByClass extends Index {
 	 */
 
 	@Override
-	public void add(final BNode n) {
+	public void add(final Element n) {
 		ensureThereAreClassNodesForTheHierarchyOf(n.getClass());
-		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.put(clazz, n));
+		n.ascendSuperClassesUntil(n.getClass(), Element.class, clazz -> m.put(clazz, n));
 	}
 
 	private void ensureThereAreClassNodesForTheHierarchyOf(Class c) {
@@ -84,8 +84,8 @@ public class ByClass extends Index {
 	}
 
 	@Override
-	public void delete(BNode n) {
-		n.ascendSuperClassesUntil(n.getClass(), BNode.class, clazz -> m.removeMapping(clazz, n));
+	public void delete(Element n) {
+		n.ascendSuperClassesUntil(n.getClass(), Element.class, clazz -> m.removeMapping(clazz, n));
 	}
 
 	@Override

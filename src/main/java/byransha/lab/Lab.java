@@ -1,20 +1,17 @@
 package byransha.lab;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.Out;
+import byransha.graph.Element;
 import byransha.graph.list.action.ListNode;
 
 public class Lab extends Structure {
 
-	final ListNode<Structure> tutelles = new ListNode(this, "tutelles", Structure.class);
-	public Person HFDS; // haut fonctionnaire defense securité
-	final Map<Person, HFDSAvisE> HFDSAvisfds;
+	final ListNode<Structure> tutelles = lookupOrCreate("tutelles", id -> new ListNode(this, id, "tutelles", Structure.class));
+	public Out<Person> HFDS = out("tutelles", null); // haut fonctionnaire defense securité
 
-	public Lab(BNode g) {
-		super(g);
-		HFDSAvisfds = new HashMap<>();
+	public Lab(Element g, ID id) {
+		super(g, id);
 	}
 
 	enum HFDSAvisE {

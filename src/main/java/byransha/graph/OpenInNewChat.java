@@ -3,9 +3,9 @@ package byransha.graph;
 import byransha.graph.Category.node;
 import byransha.system.ChatNode;
 
-public class OpenInNewChat extends ProcedureAction<BNode> {
+public class OpenInNewChat extends ProcedureAction<Element> {
 
-	public OpenInNewChat(BNode inputNode) {
+	public OpenInNewChat(Element inputNode) {
 		super(inputNode, node.class);
 	}
 

@@ -17,11 +17,10 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
-import byransha.util.Base62;
 import byransha.util.PossiblyFailingConsumer;
-import byransha.util.UUIDUtils;
 
 public class Utils {
 
@@ -41,13 +40,13 @@ public class Utils {
 		}
 	}
 
-	public static void idDropTarget(Hub g, JComponent c, PossiblyFailingConsumer<BNode> dropAction) {
+	public static void idDropTarget(Hub g, JComponent c, PossiblyFailingConsumer<Element> dropAction) {
 		new DropTarget(c, new DropTargetAdapter() {
 			@Override
 			public void drop(DropTargetDropEvent e) {
 				try {
 					String text = (String) e.getTransferable().getTransferData(DataFlavor.stringFlavor);
-					var id = UUIDUtils.decode(text);
+					var id = ID.fromBase62(text);
 					var droppedNode = g.indexes.byId.get(id);
 
 					try {

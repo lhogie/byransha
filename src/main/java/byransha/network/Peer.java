@@ -8,7 +8,6 @@ import java.net.UnknownHostException;
 import java.security.Key;
 import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -17,17 +16,18 @@ import javax.swing.JComponent;
 
 import byransha.graph.ActionMethod;
 import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
-import byransha.network.PeerManager.Gossip;
+import byransha.network.routing.BFSRouting;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
 import byransha.system.ChatNode;
 
-public abstract class Peer extends BNode {
+public abstract class Peer extends Element {
 
+	@ShowInKishanView
 	public List<Peer> neighbors = new ArrayList<>();
 
 	@ShowInKishanView
@@ -47,18 +47,16 @@ public abstract class Peer extends BNode {
 	@ShowInKishanView
 	private Connection connection;
 
-	public Gossip lastGossip;
+	@ShowInKishanView
+	public BooleanNode autoConnect = new BooleanNode(this, null, true);
 
 	@ShowInKishanView
-	public BooleanNode autoConnect = new BooleanNode(this, true);
-
-	@ShowInKishanView
-	final DoubleNode periodS = new DoubleNode(this, 5);
+	final DoubleNode periodS = new DoubleNode(this, null, 5);
 
 	public Boolean haveAi;
 
-	public Peer(PeerManager neigh, String name) {
-		super(neigh);
+	public Peer(PeerManager parent, String name) {
+		super(parent, null);
 		Objects.requireNonNull(name);
 		this.name = name;
 
@@ -79,17 +77,22 @@ public abstract class Peer extends BNode {
 
 	@ShowInKishanView
 	public List<String> neighborsName() {
-		return lastGossip != null ? lastGossip.neighborsName() : Collections.emptyList();
+		return neighborsNames(neighbors);
 	}
 
 	@ShowInKishanView
 	public int distance() {
-		return route().size();
+		var r = route();
+		return r != null ? r.size() : -1;
 	}
 
 	@ShowInKishanView
 	public List<Peer> route() {
-		return hub().network.sender.routingProtocol.computeRouteToReach(this);
+		if (hub().network.sender.routingProtocol instanceof BFSRouting bfs) {
+			return bfs.computeRouteToReach(this);
+		} else {
+			return null;
+		}
 	}
 
 	@ShowInKishanView
@@ -98,7 +101,7 @@ public abstract class Peer extends BNode {
 		return route == null ? null : route.stream().map(p -> p.name).toList();
 	}
 
-	static List<String> neighborsNames(List<Peer> peers) {
+	public static List<String> neighborsNames(List<Peer> peers) {
 		return peers.stream().map(p -> p.name).toList();
 	}
 

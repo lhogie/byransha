@@ -1,11 +1,11 @@
 package byransha.graph.list.action.filter;
 
-import byransha.graph.BNode;
 import byransha.graph.Category.list;
+import byransha.graph.Element;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 
-public abstract class ListFilter<N extends BNode> extends FunctionAction<ListNode<N>, ListNode<N>> {
+public abstract class ListFilter<N extends Element> extends FunctionAction<ListNode<N>, ListNode<N>> {
 
 	public ListFilter(ListNode<N> inputNode) {
 		super(inputNode, list.class);
@@ -20,7 +20,7 @@ public abstract class ListFilter<N extends BNode> extends FunctionAction<ListNod
 
 	@Override
 	public void impl() {
-		result = new ListNode<N>(this, retainsOnly(), inputNode.contentClass);
+		result = new ListNode<N>(this, null, retainsOnly(), inputNode.contentClass);
 
 		inputNode.get().forEach(n -> {
 			if (retains(n)) {

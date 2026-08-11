@@ -9,18 +9,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.graph.list.action.FunctionAction;
-import byransha.system.SystemNode;
 import byransha.util.ByUtils;
-import byransha.util.UUIDUtils;
 
-public class TelnetSession extends SystemNode {
+public class TelnetSession extends Element {
 
-	public BNode currentNode = hub();
+	public Element currentNode = hub();
 
 	@FunctionalInterface
 	interface CommandAction {
@@ -34,7 +32,7 @@ public class TelnetSession extends SystemNode {
 	private Socket socket;
 
 	public TelnetSession(Socket clientSocket, ShellServer g) throws IOException {
-		super(g);
+		super(g, null);
 		this.socket = clientSocket;
 		var in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		var out = new PrintWriter(clientSocket.getOutputStream(), true);
@@ -76,7 +74,22 @@ public class TelnetSession extends SystemNode {
 				}
 			}).start();
 		} else {
-			out.print("not local host");
+			String asciiArt = """
+					      .-.
+					      | |
+					      | |
+					      | |
+					  .-.-| |.-.
+					 /  | | |  \\
+					|  | | | |  |
+					|  | | | |  |
+					|  |_|_|_|  |
+					 \\         /
+					  |       |
+					  |       |
+					""";
+			out.println(asciiArt);
+			out.flush();
 			socket.close();
 		}
 	}
@@ -95,23 +108,23 @@ public class TelnetSession extends SystemNode {
 				(out, parms) -> currentNode.actions().forEach(a -> out.println(a.technicalName()))));
 
 		commands.put("ls", new Command("list outs", (out, parms) -> currentNode.forEachOut((node, name) -> out
-				.println(node.getClass().getName() + " " + name + " = " + node + ", id: " + node.idAsText()))));
+				.println(node.getClass().getName() + " " + name + " = " + node + ", id: " + node.id()))));
 
 		commands.put("goto", new Command("go to a specific node", (out, parms) -> {
-			UUID target = UUIDUtils.decode(parms.getFirst());
+			var target = ID.fromBase62(parms.getFirst());
 			var n = hub().indexes.byId.get(target);
 
 			if (n != null) {
 				currentNode = n;
 			} else {
-				out.println("can't find node " + UUIDUtils.encode(target));
+				out.println("can't find node " + target);
 			}
 		}));
 
 		commands.put("lf", new Command("list fields", (out, parms) -> currentNode
-				.forEachOutInFields(currentNode.getClass(), BNode.class, (f, o, ro) -> out.println(f.getName()))));
+				.forEachOutInFields(currentNode.getClass(), Element.class, (f, o, ro) -> out.println(f.getName()))));
 
-		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode.idAsText())));
+		commands.put("id", new Command("print current node ID", (out, parms) -> out.println(currentNode.id())));
 
 		commands.put("name", new Command("print current node name", (out, parms) -> out.println(currentNode)));
 	}

@@ -30,13 +30,14 @@ import byransha.util.MinaScpUploader;
 
 public class Deploy extends Action<Byransha> {
 	@ShowInKishanView
-	public final StringNode scpHost = new StringNode(this, "bastion.i3s.unice.fr", ".+");
+	public final StringNode scpHost = new StringNode(this, null, "bastion.i3s.unice.fr", ".+");
 	@ShowInKishanView
-	public final StringNode scpRemoteDir = new StringNode(this, "public_html/software/byransha/downloads/bin/", ".+");
+	public final StringNode scpRemoteDir = new StringNode(this, null, "public_html/software/byransha/downloads/bin/",
+			".+");
 	@ShowInKishanView
-	public final StringNode username = new StringNode(this, "hogie", ".+");
+	public final StringNode username = new StringNode(this, null, "hogie", ".+");
 	@ShowInKishanView
-	public final StringNode versionOnline = new StringNode(this, "", ".+");
+	public final StringNode versionOnline = new StringNode(this, null, "", ".+");
 
 	public Deploy(Byransha b) {
 		super(b, byransha.class);

@@ -1,13 +1,11 @@
 package byransha.graph;
 
-import byransha.system.SystemNode;
-
-public class ThreadNode extends SystemNode {
+public class ThreadNode extends Element {
 
 	public final Thread thread;
 
-	public ThreadNode(BNode parent, String description, Runnable r) {
-		super(parent);
+	public ThreadNode(Element parent, String description, Runnable r) {
+		super(parent, null);
 		this.thread = thread(description, r);
 //		hub().threads.elements.add(this);
 	}

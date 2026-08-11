@@ -1,6 +1,6 @@
 package byransha.graph.action;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category.list;
 import byransha.graph.ProcedureAction;
 import byransha.graph.ShowInKishanView;
@@ -11,10 +11,10 @@ import byransha.system.Byransha;
 public class CreateNewListElement extends ProcedureAction<ListNode> {
 
 	@ShowInKishanView
-	ListNode<ClassNode> candidateClasses = new ListNode<>(this, "business class(es)", ClassNode.class);
-	private final BNode newNodeParent;
+	ListNode<ClassNode> candidateClasses = new ListNode<>(this, null, "business class(es)", ClassNode.class);
+	private final Element newNodeParent;
 
-	public CreateNewListElement(ListNode list, BNode pp) {
+	public CreateNewListElement(ListNode list, Element pp) {
 		super(list, list.class);
 		this.newNodeParent = pp;
 		candidateClasses.elements.addAll(hub().classesIn(Byransha.class.getPackage(), list.contentClass));

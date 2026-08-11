@@ -1,15 +1,15 @@
 package byransha.lab;
 
-import java.util.List;
-
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.Out;
+import byransha.graph.Element;
+import byransha.graph.list.action.ListNode;
 
 public class PhDStudent extends Position {
-	List<Person> directors;
-	Structure team;
+	final ListNode<Person> directors = lookupOrCreate("directors", id -> new ListNode<Person>(this, id, "directors", Person.class));
+	Out<Structure> team = out("team", id -> null);
 
-	public PhDStudent(BNode g) {
-		super(g);
+	public PhDStudent(Element g, ID id) {
+		super(g, id);
 	}
-
 }

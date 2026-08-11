@@ -2,14 +2,15 @@ package byransha.graph.action;
 
 import java.time.LocalDateTime;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
-public class ExceptionNode extends BNode {
+public class ExceptionNode extends Element {
 	public Throwable err;
 	public LocalDateTime date;
 
-	public ExceptionNode(BNode g) {
-		super(g);
+	public ExceptionNode(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

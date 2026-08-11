@@ -1,17 +1,18 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.primitive.DateNode;
 import byransha.primitive.StringNode;
-import byransha.primitive.URLNode;
 
-public class News extends BNode {
-	StringNode title = new StringNode(this);
-	StringNode text = new StringNode(this);
-	URLNode image = new URLNode(this, "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg");
-	DateNode date = new DateNode(this);
+public class News extends LabNode {
+	StringNode title = lookupOrCreate("title", id -> new StringNode(this, id, "", ".+"));
+	StringNode text = lookupOrCreate("text", id -> new StringNode(this, id, null, ".+"));
+	ImageNode image = lookupOrCreate("image", id -> new ImageNode(this, id));
+	DateNode date = lookupOrCreate("date", id -> new DateNode(this, id));
 
-	public News(BNode parent) {
-		super(parent);
+	public News(Element parent, ID id) {
+		super(parent, id);
 	}
 }

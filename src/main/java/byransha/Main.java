@@ -3,7 +3,7 @@ package byransha;
 import java.util.HashMap;
 import java.util.Map;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.lab.I3S;
 import byransha.network.TCPServer;
@@ -32,8 +32,8 @@ public class Main {
 		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
 
 		var hub =  new Hub(port);
-		hub.application = (BNode) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
-				.getConstructor(BNode.class).newInstance(hub);
+		hub.application = (Element) Class.forName(argMap.getOrDefault("appClass", I3S.class.getName()))
+				.getConstructor(Element.class).newInstance(hub);
 
 		new ChatNode(hub.currentUser()).append(hub.application);
 

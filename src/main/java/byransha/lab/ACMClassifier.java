@@ -4,23 +4,24 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import byransha.ID;
 import byransha.graph.Hub;
-import byransha.graph.BusinessNode;
+import byransha.graph.LabNode;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html
  */
 
-public class ACMClassifier extends BusinessNode {
+public class ACMClassifier extends LabNode {
 
-	public static void createNodes(Hub g, File dir) throws IOException {
+	public static void load(Hub g, File dir) throws IOException {
 		for (var l : Files.readAllLines(new File(dir, "acm_classification.txt").toPath())) {
 			var a = l.split(";");
 
 			if (a.length != 2)
 				throw new IllegalStateException("invalid ACM entry: " + l);
 
-			var n = new ACMClassifier(g);
+			var n = new ACMClassifier(g, new ID());
 			n.code = a[0];
 			n.descr = a[1];
 		}
@@ -28,8 +29,8 @@ public class ACMClassifier extends BusinessNode {
 
 	public String code, descr;
 
-	public ACMClassifier(Hub g) {
-		super(g);
+	public ACMClassifier(Hub g, ID id) {
+		super(g, id);
 	}
 
 	@Override

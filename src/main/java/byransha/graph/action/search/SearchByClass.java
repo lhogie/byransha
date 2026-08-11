@@ -5,16 +5,16 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
 import byransha.primitive.PrimitiveValueNode;
 import byransha.util.Stop;
 
 public class SearchByClass extends Search {
-	public ListNode<ClassNode> availableClasses = new ListNode<>(this, "searcheable classes", ClassNode.class);
+	public ListNode<ClassNode> availableClasses = new ListNode<>(this, null, "searcheable classes", ClassNode.class);
 
-	public SearchByClass(BNode src) {
+	public SearchByClass(Element src) {
 		super(src);
 
 		// update the list of classes when the depth changes
@@ -30,7 +30,7 @@ public class SearchByClass extends Search {
 	}
 
 	@Override
-	protected boolean accept(BNode n) {
+	protected boolean accept(Element n) {
 		return !(n instanceof PrimitiveValueNode);
 	}
 

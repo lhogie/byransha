@@ -1,15 +1,12 @@
 package byransha.primitive;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import byransha.ID;
+import byransha.graph.Element;
 
-import byransha.graph.BNode;
+public abstract class PrimitiveValueNode<V> extends ValuedElement<V> {
 
-public abstract class PrimitiveValueNode<V> extends ValuedNode<V> {
-
-	public PrimitiveValueNode(BNode parent) {
-		super(parent);
+	public PrimitiveValueNode(Element parent, ID id) {
+		super(parent, id);
 	}
 
 }

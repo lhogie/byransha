@@ -13,13 +13,13 @@ import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
+import byransha.Service;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.StringNode;
 import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
-public abstract class Translator extends BNode {
+public abstract class Translator extends Service {
 	public enum Language {
 		fr, en, auto, es, it, de, lu
 	};
@@ -56,11 +56,12 @@ public abstract class Translator extends BNode {
 		translateDir = new File(g.byransha.homeDirectory, "translate");
 		translateDir.mkdirs();
 
-		targetLanguage = new StringNode(g, "en", ".+");
+		targetLanguage = new StringNode(g, null, "en", ".+");
 
 		targetLanguage.addValueChangeListener((n, a, b) -> {
 			if (userDefinedTargetLanguage() != null) {
-				new Thread(() -> translateRecursively(g.swingInterface.frame.getContentPane(), new HashSet<>())).start();
+				new Thread(() -> translateRecursively(g.swingInterface.frame.getContentPane(), new HashSet<>()))
+						.start();
 			}
 		});
 	}

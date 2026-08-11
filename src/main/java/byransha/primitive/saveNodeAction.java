@@ -9,7 +9,7 @@ import byransha.nodes.primitive.file.FileNode;
 import byransha.nodes.primitive.file.openFile.file;
 
 public final class saveNodeAction extends FunctionAction<TextNode, FileNode> {
-	StringNode fileNameNode = new StringNode(this, "example.txt", ".+\\..+");
+	StringNode fileNameNode = new StringNode(this, null, "example.txt", ".+\\..+");
 
 	protected saveNodeAction(TextNode textNode) {
 		super(textNode, file.class);
@@ -20,7 +20,7 @@ public final class saveNodeAction extends FunctionAction<TextNode, FileNode> {
 	public void impl() throws IllegalArgumentException, IllegalAccessException, IOException {
 		var path = Path.of(fileNameNode.getOrDefault(inputNode + "-" + inputNode.id() + ".txt"));
 		Files.write(path, inputNode.get().getBytes());
-		var fileNode = new FileNode(this);
+		var fileNode = new FileNode(this, null);
 		fileNode.file = path.toFile();
 		result = fileNode;
 	}

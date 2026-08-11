@@ -1,22 +1,24 @@
 package byransha.lab.device;
 
-import byransha.graph.BNode;
-import byransha.graph.DocumentNode;
+import byransha.ID;
+import byransha.graph.Document;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.DateNode;
 import byransha.primitive.StringNode;
 
-public class Invoice extends BNode {
+public class Invoice extends LabNode {
 	@ShowInKishanView
 	public Quote quote;
 	@ShowInKishanView
-	DocumentNode node;
+	Document node;
 	@ShowInKishanView
 	public DateNode date;
 	@ShowInKishanView
 	public StringNode number;
 
-	protected Invoice(BNode parent) {
-		super(parent);
+	protected Invoice(Element parent, ID id) {
+		super(parent, id);
 	}
 }

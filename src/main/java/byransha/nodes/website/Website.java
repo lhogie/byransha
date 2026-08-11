@@ -1,12 +1,12 @@
 package byransha.nodes.website;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 
-public class Website extends BNode {
+public class Website extends Element {
 
 	protected Website(Hub g) {
-		super(g);
+		super(g, null);
 	}
 
 	@Override

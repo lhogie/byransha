@@ -1,18 +1,18 @@
 package byransha.graph.action.search;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.primitive.StringNode;
 
 public class SearchRegexp extends Search {
 	public StringNode regexp;
 
-	public SearchRegexp(BNode srcNode) {
+	public SearchRegexp(Element srcNode) {
 		super(srcNode);
-		regexp = new StringNode(this, ".*", ".+");
+		regexp = new StringNode(this, null, ".*", ".+");
 	}
 
 	@Override
-	protected boolean accept(BNode n) {
+	protected boolean accept(Element n) {
 		return n.describeAsJSON().toString().matches(regexp.get());
 	}
 

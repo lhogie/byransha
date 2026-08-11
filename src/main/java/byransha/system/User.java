@@ -1,24 +1,24 @@
 package byransha.system;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class User extends BNode {
+public class User extends Element {
 	@ShowInKishanView
 	public final StringNode name;
 	@ShowInKishanView
-	public final StringNode passwordNode = new StringNode(this, null, ".+");
+	public final StringNode passwordNode = new StringNode(this, null, null, ".+");
 	@ShowInKishanView
-	public final ListNode<ChatNode> chats = new ListNode<>(this, "chats", ChatNode.class);
+	public final ListNode<ChatNode> chats = new ListNode<>(this, null, "chats", ChatNode.class);
 	@ShowInKishanView
-	public final ListNode<Role> roles = new ListNode<>(this, "roles", Role.class);
+	public final ListNode<Role> roles = new ListNode<>(this, null, "roles", Role.class);
 
 	public User(Hub g, String userName) {
-		super(g);
-		name = new StringNode(g, userName, ".+");
+		super(g, null);
+		name = new StringNode(this, null, userName, ".+");
 		passwordNode.hideText = true;
 	}
 
@@ -37,7 +37,7 @@ public class User extends BNode {
 	}
 
 	public static interface JumpListener {
-		void newNode(BNode n);
+		void newNode(Element n);
 	}
 
 }

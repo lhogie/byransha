@@ -1,11 +1,11 @@
 package byransha.graph.relection;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.LinkAction.type;
 
-public class ShowInstances extends FunctionAction<ClassNode, ListNode<BNode>> {
+public class ShowInstances extends FunctionAction<ClassNode, ListNode<Element>> {
 
 	public ShowInstances(ClassNode inputNode) {
 		super(inputNode, type.class);
@@ -18,7 +18,7 @@ public class ShowInstances extends FunctionAction<ClassNode, ListNode<BNode>> {
 
 	@Override
 	public void impl() throws Throwable {
-		result = new ListNode<>(this, "all instances", BNode.class);
+		result = new ListNode<>(this, null, "all instances", Element.class);
 		result.elements.addAll(inputNode.allInstances().elements);
 	}
 

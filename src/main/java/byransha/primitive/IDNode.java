@@ -1,15 +1,16 @@
 package byransha.primitive;
 
+import byransha.ID;
 import byransha.graph.Hub;
 
 public class IDNode extends StringNode {
 
-	public IDNode(Hub g) {
-		super(g, null, "(-)?[0-9a-zA-Z]+");
+	public IDNode(Hub g, ID id) {
+		super(g, id, "", "[0-9a-zA-Z]+");
 	}
 
 	@Override
 	public String whatIsThis() {
-		return "an editor for a node ID";
+		return "an editor for an element ID";
 	}
 }

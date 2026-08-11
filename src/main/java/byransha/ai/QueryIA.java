@@ -36,7 +36,7 @@ import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
 import byransha.graph.ActionMethod;
 import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.FunctionAction;
@@ -58,7 +58,7 @@ import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
 
-public class QueryIA extends FunctionAction<BNode, BNode> {
+public class QueryIA extends FunctionAction<Element, Element> {
 	private static final ObjectMapper mapper = new ObjectMapper();
 	private static final ConcurrentHashMap<String, OllamaStreamingChatModel> MODEL_CACHE = new ConcurrentHashMap<>();
 	private static final ConcurrentHashMap<String, ToolEnabledAssistant> ASSISTANT_CACHE = new ConcurrentHashMap<>();
@@ -489,7 +489,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 	class AI extends Category {
 	}
 
-	public QueryIA(BNode n) {
+	public QueryIA(Element n) {
 		super(n, AI.class);
 		inputJSON = new JSONNode(this, n.describeAsJSON());
 	}
@@ -596,12 +596,12 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 				if (ActivateListNodeResponse) {
 					try {
 						JsonNode parsed = mapper.readTree(iaResponse);
-						var l = new ListNode<BNode>(parent, "IA numeric array", BNode.class);
+						var l = new ListNode<Element>(parent, "IA numeric array", Element.class);
 						for (JsonNode value : parsed) {
 							String idText = value.asText().trim();
 							if (idText.isEmpty())
 								continue;
-							BNode realNode = hub().indexes.byId.getByText(idText);
+							Element realNode = hub().indexes.byId.getByText(idText);
 							if (realNode != null) {
 								l.elements.add(realNode);
 							} else {
@@ -619,12 +619,12 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 				if (ActivateListNodeResponse) {
 					try {
 						JsonNode parsed = mapper.readTree(iaResponse);
-						var l = new ListNode<BNode>(parent, "IA numeric array", BNode.class);
+						var l = new ListNode<Element>(parent, null, "IA numeric array", Element.class);
 						for (JsonNode value : parsed) {
 							String idText = value.asText().trim();
 							if (idText.isEmpty())
 								continue;
-							BNode realNode = hub().indexes.byId.getByText(idText);
+							Element realNode = hub().indexes.byId.getByText(idText);
 							if (realNode != null) {
 								l.elements.add(realNode);
 							} else {
@@ -648,9 +648,9 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 			if (AiResponseAnalyser.isArrayOfNumbers(analysableResponse)) {
 				JsonNode parsed = mapper.readTree(analysableResponse);
-				var l = new ListNode<TextNode>(parent, "IA numeric array", TextNode.class);
+				var l = new ListNode<TextNode>(parent, null, "IA numeric array", TextNode.class);
 				for (JsonNode value : parsed) {
-					l.elements.add(new TextNode(this, "value", value.asText()));
+					l.elements.add(new TextNode(this, null, "value", value.asText()));
 				}
 				result = l;
 			} else if (AiResponseAnalyser.isDistribution(analysableResponse)) {
@@ -668,10 +668,10 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 				result = distributionNode;
 			} else {
-				result = new TextNode(parent, "IA response", iaResponse);
+				result = new TextNode(parent,null, "IA response", iaResponse);
 			}
 			if (currentChat != null) {
-				String chatId = currentChat.idAsText();
+				String chatId = currentChat.id().toBase62();
 				// Récupère l'historique actuel pour ce chat spécifique
 				var messages = MEMORY_STORE.getMessages(chatId);
 				boolean hasToolMessages = messages.stream()
@@ -689,7 +689,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		finally {
 			if (currentChat != null) {
 				final ChatNode chatToAppend = currentChat;
-				final BNode resToAppend = result;
+				final Element resToAppend = result;
 				SwingUtilities.invokeLater(() -> chatToAppend.append(resToAppend));
 			}
 		}
@@ -728,7 +728,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		return responseMode;
 	}
 
-	static String[] buildLlmPrompt(JsonNode inputJSON, String question, ResponseMode mode, BNode inputNode) {
+	static String[] buildLlmPrompt(JsonNode inputJSON, String question, ResponseMode mode, Element inputNode) {
 		var normalizedQuestion = question == null ? "" : question.trim();
 		var SystemPrompt = new StringBuilder();
 		SystemPrompt.append("Your personality: You are a helpful assistant specialized in exploring a data graph..\n");

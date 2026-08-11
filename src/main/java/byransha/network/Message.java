@@ -1,18 +1,22 @@
 package byransha.network;
 
 import java.io.Serializable;
-import java.util.UUID;
+import java.util.List;
 
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
 
-public class Message implements Serializable {
+public class Message extends Element implements Serializable {
+
 	public static class OOData {
 		public Object content;
 		public Peer recipient;
 	}
 
 	public transient OOData ooInfos = new OOData();
-	public UUID recipientNode;
+	public ID recipientQueueAtDestination;
 	public long replyTo;
 	public RoutingInfo routingInfo = new RoutingInfo();
 	public int errorCount;
@@ -24,6 +28,36 @@ public class Message implements Serializable {
 
 	public byte[] content;
 //	public transient Object contentObject;
+
+	public Message(Element parent, ID id) {
+		super(parent, id);
+	}
+
+	@ShowInKishanView
+	public Object content() {
+		return ooInfos.content;
+	}
+
+	@ShowInKishanView
+	public List<String> route() {
+		return routingInfo.actualRoute;
+	}
+
+	@ShowInKishanView
+	public Peer source() {
+		var name = routingInfo.actualRoute.getFirst();
+		return hub().network.neighborhood.findPeerByName(name);
+	}
+
+	@ShowInKishanView
+	public Peer recipient() {
+		return ooInfos.recipient;
+	}
+
+	@ShowInKishanView
+	public String routingProtocol() {
+		return routingInfo.getClass().getName();
+	}
 
 	@Override
 	public String toString() {

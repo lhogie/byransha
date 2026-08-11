@@ -2,14 +2,14 @@ package byransha.graph.list.action;
 
 import java.util.stream.Collectors;
 
-import byransha.graph.BNode;
 import byransha.graph.Category.export;
 import byransha.graph.Category.list;
+import byransha.graph.Element;
 import byransha.primitive.TextNode;
 
-public class ExportAsListOfIDs extends FunctionAction<ListNode<? extends BNode>, TextNode> {
+public class ExportAsListOfIDs extends FunctionAction<ListNode<? extends Element>, TextNode> {
 
-	public ExportAsListOfIDs(ListNode<? extends BNode> inputNode) {
+	public ExportAsListOfIDs(ListNode<? extends Element> inputNode) {
 		super(inputNode, list.class, export.class);
 	}
 
@@ -20,8 +20,8 @@ public class ExportAsListOfIDs extends FunctionAction<ListNode<? extends BNode>,
 
 	@Override
 	public void impl() {
-		result = new TextNode(null, "list of node IDs",
-				inputNode.elements.stream().map(n -> n.idAsText()).collect(Collectors.joining("\n")));
+		result = new TextNode(this, null, "list of node IDs",
+				inputNode.elements.stream().map(n -> n.id().toString()).collect(Collectors.joining("\n")));
 	}
 
 	@Override

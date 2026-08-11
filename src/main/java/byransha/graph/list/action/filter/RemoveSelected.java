@@ -1,11 +1,11 @@
 package byransha.graph.list.action.filter;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category.list;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 
-public class RemoveSelected<N extends BNode> extends FunctionAction<ListNode<N>, ListNode<N>> {
+public class RemoveSelected<N extends Element> extends FunctionAction<ListNode<N>, ListNode<N>> {
 
 	public RemoveSelected(ListNode<N> l) {
 		super(l, list.class);

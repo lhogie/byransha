@@ -8,7 +8,7 @@ import byransha.graph.ShowInKishanView;
 
 public class RoutingInfo implements Serializable {
 	public List<String> actualRoute = new ArrayList<>();
-	public List<String> suggestedRoute = new ArrayList<>();
+//	public List<String> suggestedRoute = new ArrayList<>();
 	public String nameOfRecipient;
 
 	@Override

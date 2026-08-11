@@ -4,15 +4,17 @@ import java.lang.management.ManagementFactory;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import byransha.Service;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.network.Message;
 import byransha.primitive.StringNode;
 import byransha.util.ByUtils;
 
-public class JVMNode extends SystemNode {
+public class JVM extends Service {
 
-	public JVMNode(Hub g) {
+	public JVM(Hub g) {
 		super(g);
 	}
 
@@ -69,10 +71,10 @@ public class JVMNode extends SystemNode {
 
 	@ShowInKishanView
 	public ListNode<StringNode> props() {
-		var r = new ListNode<StringNode>(this, "props", StringNode.class);
+		var r = new ListNode<StringNode>(this, null, "props", StringNode.class);
 
 		for (var e : System.getProperties().entrySet()) {
-			r.elements.add(new StringNode(this, e.getKey() + " = " + e.getValue(), null));
+			r.elements.add(new StringNode(this, null, e.getKey() + " = " + e.getValue(), null));
 		}
 
 		return r;
@@ -91,6 +93,12 @@ public class JVMNode extends SystemNode {
 		}
 
 		return r;
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+
 	}
 
 }

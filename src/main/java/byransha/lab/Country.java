@@ -1,17 +1,19 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 
-public class Country extends BusinessNode {
+public class Country extends LabNode {
 
 	public String name, code;
-	@ShowInKishanView
-	public byte[] flag;
 
-	public Country(BNode g) {
-		super(g);
+	@ShowInKishanView
+	public ImageNode flag = lookupOrCreate("flag", id -> new ImageNode(this, id));
+
+	public Country(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

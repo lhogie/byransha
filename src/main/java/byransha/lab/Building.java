@@ -1,21 +1,21 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class Building extends BusinessNode {
+public class Building extends LabNode {
 
 	@ShowInKishanView
-	public ListNode<Room> offices = new ListNode(this, "office(s)", Room.class);
+	public ListNode<Room> offices = lookupOrCreate("offices", id -> new ListNode(this, id, "office(s)", Room.class));
 	@ShowInKishanView
-	public StringNode name;
+	public StringNode name = lookupOrCreate("name", id -> new StringNode(parent, id, "", ".+"));
 
-	public Building(BNode parent) {
-		super(parent);
-		name = new StringNode(parent, "", ".+");
+	public Building(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	public Room findOffice(String name) {

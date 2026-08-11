@@ -6,13 +6,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class InMemoryEventList extends EventList {
 	final List<Event> q = new ArrayList<>();
 	int lastExecutedEventIndex = -1;
 
-	public InMemoryEventList(BNode g) {
+	public InMemoryEventList(Element g) {
 		super(g);
 	}
 
@@ -33,19 +34,19 @@ public class InMemoryEventList extends EventList {
 	}
 
 	@Override
-	public Event remove(long id) throws IOException {
+	public Event remove(ID id) throws IOException {
 		int index = indexedBinarySearch(q, id);
 		return q.remove(index);
 	}
 
-	private static <T> int indexedBinarySearch(List<Event> l, long id) {
+	private static <T> int indexedBinarySearch(List<Event> l, ID id) {
 		int low = 0;
 		int high = l.size() - 1;
 
 		while (low <= high) {
 			int mid = (low + high) >>> 1;
 			var midVal = l.get(mid);
-			int cmp = Long.compare(midVal.id(), id);
+			int cmp = ID.compare(midVal.id(), id);
 
 			if (cmp < 0)
 				low = mid + 1;
@@ -92,9 +93,9 @@ public class InMemoryEventList extends EventList {
 	}
 
 	@Override
-	public Event findEvent(long eventID) {
+	public Event findEvent(ID eventID) {
 		for (var e : q) {
-			if (e.id() == eventID)
+			if (e.id().equals(eventID))
 				return e;
 		}
 

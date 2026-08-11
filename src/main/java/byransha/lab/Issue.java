@@ -1,19 +1,20 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.TextNode;
 
-public class Issue extends BusinessNode {
+public class Issue extends LabNode {
 	@ShowInKishanView
-	public final ListNode<BusinessNode> relatedTo = new ListNode<>(this, "related to", BusinessNode.class);
+	public final ListNode<LabNode> relatedTo = new ListNode<>(this,null, "related to", LabNode.class);
 
 	@ShowInKishanView
-	TextNode description = new TextNode(this, "", ".+");
+	TextNode description = lookupOrCreate("description", id -> new TextNode(this, id, "", ".+"));
 
-	public Issue(BNode parent) {
-		super(parent);
+	public Issue(Element parent, ID id) {
+		super(parent, id);
 	}
 }

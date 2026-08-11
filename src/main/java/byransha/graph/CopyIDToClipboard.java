@@ -5,9 +5,9 @@ import java.awt.datatransfer.StringSelection;
 
 import byransha.graph.Category.node;
 
-public class CopyIDToClipboard extends ProcedureAction<BNode> {
+public class CopyIDToClipboard extends ProcedureAction<Element> {
 
-	public CopyIDToClipboard(BNode inputNode) {
+	public CopyIDToClipboard(Element inputNode) {
 		super(inputNode, node.class);
 	}
 
@@ -18,7 +18,7 @@ public class CopyIDToClipboard extends ProcedureAction<BNode> {
 
 	@Override
 	public void impl() throws Throwable {
-		StringSelection selection = new StringSelection(inputNode.idAsText());
+		StringSelection selection = new StringSelection(inputNode.id().toBase62());
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(selection, selection);
 	}
 

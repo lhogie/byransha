@@ -2,25 +2,23 @@ package byransha.nodes.primitive.file;
 
 import java.io.File;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.primitive.StringNode;
 
-public class FileNode extends BNode {
+public class FileNode extends Element {
 	public File file;
 
-	public FileNode(BNode g) {
-		super(g);
-	}
+	
 
-	public FileNode(BNode g, File f) {
-		super(g);
+	public FileNode(Element parent, File f) {
+		super(parent, null);
 		this.file = f;
 	}
 
 	@ShowInKishanView
 	public StringNode name() {
-		return new StringNode(this, file.getName(), ".+");
+		return new StringNode(this, null, file.getName(), ".+");
 	}
 
 	@Override

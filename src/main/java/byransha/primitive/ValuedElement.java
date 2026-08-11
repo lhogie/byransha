@@ -4,25 +4,27 @@ import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Files;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.NodeError;
 import byransha.system.Byransha;
 
-public abstract class ValuedNode<V> extends BNode {
+public abstract class ValuedElement<V> extends Element {
 	V value;
 	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
-	private boolean shownOnDisk;
+	private boolean shownToDisk = false;
 
-	public ValuedNode(BNode parent) {
-		super(parent);
-		shownOnDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
+	public ValuedElement(Element parent, ID id) {
+		super(parent, id);
+//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
 	}
 
 	public void addValueChangeListener(ValueChangeListener<V> l) {
@@ -94,15 +96,12 @@ public abstract class ValuedNode<V> extends BNode {
 			}
 		}
 
-		if (generateEvents) {
-			var g = hub();
-			if (g.eventList != null) {
-//				g.eventList.add(new ValuedNodeValueChangeEvent<V>(g, LocalDateTime.now(), this, oldValue, newValue));
-			}
+		if (generateEvents()) {
+			hub().eventList.add(new ValuedNodeValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
 		}
 
-		if (shownOnDisk) {
-//			writeValueToDisk();
+		if (shownToDisk) {
+			writeValueToDisk();
 		}
 	}
 

@@ -1,35 +1,12 @@
 package byransha.lab.device;
 
-import java.io.IOException;
-import java.io.ObjectInput;
-import java.io.ObjectOutput;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.primitive.StringNode;
 
-import byransha.graph.BNode;
-import byransha.primitive.ValuedNode;
+public class TagNode extends StringNode {
 
-public class TagNode extends ValuedNode<Tag> {
-
-	public TagNode(BNode parent) {
-		super(parent);
+	public TagNode(Element parent, ID id) {
+		super(parent, id, null, ".+");
 	}
-
-	@Override
-	public Tag defaultValue() {
-		return null;
-	}
-
-	@Override
-	protected void writeValue(Tag v, ObjectOutput out) throws IOException {
-		out.writeUTF(v.name);
-		out.writeUTF(v.value);
-	}
-
-	@Override
-	protected Tag readValue(ObjectInput in) throws IOException {
-		var t = new Tag();
-		t.name = in.readUTF();
-		t.value = in.readUTF();
-		return t;
-	}
-
 }

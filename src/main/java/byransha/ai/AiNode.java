@@ -2,12 +2,12 @@ package byransha.ai;
 
 import java.net.InetAddress;
 
-import byransha.graph.BNode;
+import byransha.Service;
 import byransha.graph.Hub;
 import byransha.graph.list.action.ListNode;
-import byransha.network.Peer;
+import byransha.network.Message;
 
-public class AiNode extends BNode {
+public class AiNode extends Service {
 	public InetAddress address;
 	public int port;
 	public String name;
@@ -37,7 +37,6 @@ public class AiNode extends BNode {
 	public double getAlpha() {
 		return alpha;
 	}
-
 	public ListNode<Peer> getNeighbors() {
 		return hub().network.neighborhood.peers;
 	}
@@ -66,5 +65,10 @@ public class AiNode extends BNode {
 		}
 		return false;
 	}
-	
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
+	}
 }

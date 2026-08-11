@@ -2,12 +2,12 @@ package byransha.graph.list.action;
 
 import java.util.Comparator;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category;
 import byransha.graph.Category.list;
 import byransha.graph.ProcedureAction;
 
-public abstract class Sort extends ProcedureAction<ListNode> implements Comparator<BNode> {
+public abstract class Sort extends ProcedureAction<ListNode> implements Comparator<Element> {
 
 	public static class sort extends Category {
 	}

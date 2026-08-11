@@ -3,24 +3,25 @@ package byransha.ui.shell;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import byransha.Service;
 import byransha.graph.Hub;
-import byransha.system.SystemNode;
+import byransha.graph.LoopingThreadNode;
+import byransha.network.Message;
 
-public class ShellServer extends SystemNode {
+public class ShellServer extends Service {
 
 	public static final int DEFAULT_PORT = 42424;
 
 	public ShellServer(Hub g, int port) throws Throwable {
 		super(g);
-		System.out.println("Starting shell server on port " + port);
 
-		new Thread(() -> {
+		new LoopingThreadNode(this, () -> 1d, "server", () -> {
 			try {
 				startServer(port);
 			} catch (Throwable err) {
 				hub().errorLog.add(err);
 			}
-		}).start();
+		});
 	}
 
 	private void startServer(int port) throws Throwable {
@@ -46,5 +47,11 @@ public class ShellServer extends SystemNode {
 	@Override
 	public String toString() {
 		return "shell server";
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }
