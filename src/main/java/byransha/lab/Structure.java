@@ -5,13 +5,12 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.ListNode;
+import byransha.action.base.ShowInKishanView;
+import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
-import byransha.system.ChatNode;
 
 public class Structure extends LabNode {
 	@ShowInKishanView
@@ -36,7 +35,7 @@ public class Structure extends LabNode {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		return new JLabel(name.get());
 	}
 

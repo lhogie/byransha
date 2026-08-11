@@ -1,7 +1,7 @@
 package byransha.graph.relection;
 
-import byransha.graph.Category;
-import byransha.graph.ProcedureAction;
+import byransha.action.Category;
+import byransha.action.ProcedureAction;
 
 public class LinkAction extends ProcedureAction<ClassNode> {
 

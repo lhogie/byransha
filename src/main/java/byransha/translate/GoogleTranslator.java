@@ -2,8 +2,8 @@ package byransha.translate;
 
 import java.net.HttpURLConnection;
 
-import byransha.graph.Hub;
 import byransha.network.Message;
+import byransha.service.system.Hub;
 import byransha.translate.Translator.Language;
 
 public class GoogleTranslator extends Translator {

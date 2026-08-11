@@ -17,9 +17,9 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 import byransha.util.PossiblyFailingConsumer;
 
 public class Utils {

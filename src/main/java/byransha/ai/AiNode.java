@@ -3,9 +3,9 @@ package byransha.ai;
 import java.net.InetAddress;
 
 import byransha.Service;
-import byransha.graph.Hub;
-import byransha.graph.list.action.ListNode;
+import byransha.list.action.ListNode;
 import byransha.network.Message;
+import byransha.service.system.Hub;
 
 public class AiNode extends Service {
 	public InetAddress address;

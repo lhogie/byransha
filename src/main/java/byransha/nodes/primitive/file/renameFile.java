@@ -2,7 +2,7 @@ package byransha.nodes.primitive.file;
 
 import java.io.File;
 
-import byransha.graph.ProcedureAction;
+import byransha.action.ProcedureAction;
 import byransha.nodes.primitive.file.openFile.file;
 import byransha.primitive.StringNode;
 

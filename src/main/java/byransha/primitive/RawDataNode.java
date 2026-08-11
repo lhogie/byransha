@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public class RawDataNode extends PrimitiveValueNode<byte[]> {
 	public RawDataNode(Element g, ID id) {

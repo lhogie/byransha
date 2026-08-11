@@ -2,12 +2,12 @@ package byransha.network;
 
 import java.util.function.Consumer;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LoopingThreadNode;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
+import byransha.thread.LoopingThreadNode;
 
 public abstract class Gossiper extends Element implements Consumer<Message> {
 

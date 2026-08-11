@@ -3,9 +3,9 @@ package byransha.primitive;
 import java.util.ArrayList;
 import java.util.List;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.NodeError;
+import byransha.ProblemInElement;
 
 public class MimeTypeNode extends StringNode {
 
@@ -21,10 +21,10 @@ public class MimeTypeNode extends StringNode {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
+	protected void fillErrors(List<ProblemInElement> errs) {
 		String v = get();
 
 		if (!validMimeTypes.contains(v))
-			errs.add(new NodeError(this, "invalid MIME type. Valid values are " + validMimeTypes));
+			errs.add(new ProblemInElement(this, "invalid MIME type. Valid values are " + validMimeTypes));
 	}
 }

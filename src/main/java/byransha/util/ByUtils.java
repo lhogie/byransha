@@ -23,9 +23,9 @@ import java.util.function.Supplier;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
+import byransha.Element;
 import byransha.Main;
-import byransha.graph.Element;
-import byransha.graph.ThreadNode;
+import byransha.thread.ThreadNode;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
 

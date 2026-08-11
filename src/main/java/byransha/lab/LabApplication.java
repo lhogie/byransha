@@ -1,9 +1,8 @@
 package byransha.lab;
 
 import byransha.Application;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
 import byransha.lab.Genre.Female;
 import byransha.lab.Genre.Male;
 import byransha.lab.Genre.NotGenred;

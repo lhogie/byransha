@@ -2,8 +2,8 @@ package byransha.ui.swing;
 
 import javax.swing.JComponent;
 
-import byransha.graph.Hub;
-import byransha.graph.Element;
+import byransha.Element;
+import byransha.service.system.Hub;
 import byransha.util.PossiblyFailingConsumer;
 
 public interface BDropTarget {

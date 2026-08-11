@@ -1,9 +1,8 @@
 package byransha;
 
-import byransha.graph.Element;
-import byransha.graph.LoopingThreadNode;
 import byransha.network.Message;
 import byransha.network.MessageQ;
+import byransha.thread.LoopingThreadNode;
 
 public abstract class Service extends Element {
 

@@ -8,9 +8,9 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TranslatableTextArea;
 import byransha.ui.swing.Utils;

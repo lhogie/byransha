@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.Scrollable;
 
-import byransha.graph.Element;
+import byransha.Element;
 import byransha.translate.Translator;
 
 public class Sheet extends JPanel implements Scrollable {

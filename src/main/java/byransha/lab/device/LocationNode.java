@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 import byransha.primitive.ValuedElement;
 
 public class LocationNode extends ValuedElement<GPSLocation> {

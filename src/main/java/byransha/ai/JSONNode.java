@@ -5,9 +5,9 @@ import javax.swing.JComponent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
 import byransha.util.ByUtils;
 import byransha.util.JsonToTreeConverter;
@@ -43,7 +43,7 @@ final public class JSONNode extends Element {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode sheet) {
+	public JComponent getListItemComponent(Chat sheet) {
 		return JsonToTreeConverter.buildTreeModel(node);
 	}
 }

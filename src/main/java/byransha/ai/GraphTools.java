@@ -3,12 +3,12 @@ package byransha.ai;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import byransha.Element;
 import byransha.ID;
 import byransha.ID.Scope;
-import byransha.graph.Element;
-import byransha.graph.list.action.ListNode;
 import byransha.lab.Person;
 import byransha.lab.Structure;
+import byransha.list.action.ListNode;
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 

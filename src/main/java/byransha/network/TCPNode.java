@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.net.Socket;
 
 import byransha.Service;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.ThreadNode;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
+import byransha.thread.ThreadNode;
 import byransha.util.ByUtils;
 
 public class TCPNode extends Service {

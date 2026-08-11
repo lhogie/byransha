@@ -3,7 +3,7 @@ package byransha.primitive;
 import java.util.List;
 
 import byransha.ID;
-import byransha.graph.NodeError;
+import byransha.ProblemInElement;
 import byransha.lab.Person;
 
 public class EmailNode extends StringNode {
@@ -19,9 +19,9 @@ public class EmailNode extends StringNode {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
+	protected void fillErrors(List<ProblemInElement> errs) {
 		if (!get().matches(re)) {
-			errs.add(new NodeError(this, "invalid email address"));
+			errs.add(new ProblemInElement(this, "invalid email address"));
 		}
 	}
 }

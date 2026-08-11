@@ -2,7 +2,7 @@ package byransha.ui;
 
 import java.awt.Color;
 
-import byransha.graph.Element;
+import byransha.Element;
 import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ColorPalette.Style;
 

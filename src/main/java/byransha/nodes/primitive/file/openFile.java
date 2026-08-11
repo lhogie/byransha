@@ -2,8 +2,8 @@ package byransha.nodes.primitive.file;
 
 import java.awt.Desktop;
 
-import byransha.graph.Category;
-import byransha.graph.ProcedureAction;
+import byransha.action.Category;
+import byransha.action.ProcedureAction;
 
 public class openFile extends ProcedureAction<FileNode> {
 

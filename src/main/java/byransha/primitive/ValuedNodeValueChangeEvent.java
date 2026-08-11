@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import byransha.ID;
 import byransha.event.Event;
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public class ValuedNodeValueChangeEvent<V> extends Event {
 	ValuedElement<V> node;

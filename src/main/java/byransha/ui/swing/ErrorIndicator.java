@@ -4,8 +4,8 @@ import java.awt.Color;
 
 import javax.swing.JLabel;
 
-import byransha.graph.Element;
-import byransha.graph.list.action.ListNode;
+import byransha.Element;
+import byransha.list.action.ListNode;
 import byransha.primitive.ValueChangeListener;
 import byransha.primitive.ValuedElement;
 import byransha.util.ListenableList;

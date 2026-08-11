@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 
 public class RoutingInfo implements Serializable {
 	public List<String> actualRoute = new ArrayList<>();

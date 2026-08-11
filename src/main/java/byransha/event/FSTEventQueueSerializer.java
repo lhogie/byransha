@@ -10,7 +10,7 @@ import java.io.ObjectInputStream;
 
 import org.nustaq.serialization.FSTConfiguration;
 
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public class FSTEventQueueSerializer implements EventQueueSerializer {
 

@@ -6,8 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public class InMemoryEventList extends EventList {
 	final List<Event> q = new ArrayList<>();

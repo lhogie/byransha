@@ -1,9 +1,9 @@
 package byransha.network;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.ActionMethod;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.action.ActionMethod;
+import byransha.action.base.ShowInKishanView;
 import byransha.util.Q;
 
 public class MessageQ extends Element {

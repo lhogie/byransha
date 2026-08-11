@@ -9,17 +9,17 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
-import byransha.graph.Element;
-import byransha.graph.list.action.ListNode;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.Element;
+import byransha.list.action.ListNode;
 
 public class ListItemPanel extends JPanel {
 	public final JCheckBox selectionBox = new JCheckBox();
 	// public final javax.swing.JLabel label;
-	private final ChatNode chat;
+	private final Chat chat;
 	private final Element node;
 
-	public ListItemPanel(Element node, ListNode list, int i, ChatNode chat) {
+	public ListItemPanel(Element node, ListNode list, int i, Chat chat) {
 		super(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		this.chat = chat;
 		this.node = node;

@@ -3,9 +3,9 @@ package byransha.network;
 import java.io.Serializable;
 import java.util.List;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
 
 public class Message extends Element implements Serializable {

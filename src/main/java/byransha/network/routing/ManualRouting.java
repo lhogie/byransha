@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Peer;
 import byransha.network.Sender;
 

@@ -1,11 +1,11 @@
 package byransha.lab.device;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Document;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
+import byransha.lab.LabNode;
 import byransha.primitive.DateNode;
+import byransha.primitive.Document;
 import byransha.primitive.StringNode;
 
 public class Invoice extends LabNode {

@@ -2,9 +2,9 @@ package byransha.lab;
 
 import java.io.File;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 
 /*
  * https://codimd.math.cnrs.fr/_ivy9aRUQK2o4ue-p9RHKg?both

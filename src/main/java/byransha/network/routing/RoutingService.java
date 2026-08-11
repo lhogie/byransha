@@ -2,7 +2,7 @@ package byransha.network.routing;
 
 import java.util.List;
 
-import byransha.graph.Element;
+import byransha.Element;
 import byransha.network.Peer;
 import byransha.network.Sender;
 

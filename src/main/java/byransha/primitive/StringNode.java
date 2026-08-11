@@ -15,11 +15,11 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.ActionMethod;
-import byransha.graph.Element;
-import byransha.graph.NodeError;
-import byransha.system.ChatNode;
+import byransha.ProblemInElement;
+import byransha.action.ActionMethod;
 import byransha.ui.swing.ChatSheet;
 
 public class StringNode extends PrimitiveValueNode<String> {
@@ -57,12 +57,12 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
+	protected void fillErrors(List<ProblemInElement> errs) {
 		super.fillErrors(errs);
 		String s = get();
 
 		if (re != null && s != null && !s.matches(re)) {
-			errs.add(new NodeError(this, "does not match " + re));
+			errs.add(new ProblemInElement(this, "does not match " + re));
 		}
 	}
 
@@ -87,7 +87,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		var c = getSmallComponent(chat);
 
 		if (c.getText() != null) {
@@ -98,7 +98,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 	}
 
 	@Override
-	public JTextField getSmallComponent(ChatNode chat) {
+	public JTextField getSmallComponent(Chat chat) {
 		var text = get();
 		var tf = hideText ? new JPasswordField() : new JTextField();
 

@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import byransha.graph.Element;
-import byransha.graph.LoopingThreadNode;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.ListNode;
-import byransha.system.Byransha;
+import byransha.Element;
+import byransha.action.base.ShowInKishanView;
+import byransha.list.action.ListNode;
+import byransha.service.system.Byransha;
+import byransha.thread.LoopingThreadNode;
 
 public class PeerManager extends Element {
 

@@ -1,8 +1,8 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public abstract class Genre extends Element {
 

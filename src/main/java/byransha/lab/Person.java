@@ -3,12 +3,12 @@ package byransha.lab;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.ListNode;
+import byransha.action.base.ShowInKishanView;
 import byransha.graph.relection.Factory;
+import byransha.list.action.ListNode;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DateNode;
 import byransha.primitive.EmailNode;
@@ -17,7 +17,6 @@ import byransha.primitive.LongNode.Bounds;
 import byransha.primitive.PhoneNumberNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.URLNode;
-import byransha.system.ChatNode;
 
 public class Person extends LabNode {
 	@ShowInKishanView
@@ -93,7 +92,7 @@ public class Person extends LabNode {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		return new JLabel(firstName.get() + " " + name.get());
 	}
 

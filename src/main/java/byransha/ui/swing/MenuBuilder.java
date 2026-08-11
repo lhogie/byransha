@@ -16,13 +16,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 
-import byransha.graph.Action;
-import byransha.graph.Category;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.action.Action;
+import byransha.action.Category;
 
 public class MenuBuilder {
 
-	public static JPopupMenu buildPopupMenu(List<? extends Action<?>> actions, ChatNode chat) {
+	public static JPopupMenu buildPopupMenu(List<? extends Action<?>> actions, Chat chat) {
 		Collections.reverse(actions);
 		UIManager.put("MenuItem.selectionBackground", Color.red);
 		UIManager.put("MenuItem.selectionForeground", Color.WHITE);
@@ -72,7 +72,7 @@ public class MenuBuilder {
 		return m;
 	}
 
-	private static JMenuItem makeItem(Action a, ChatNode chat) {
+	private static JMenuItem makeItem(Action a, Chat chat) {
 		var i = new JMenuItem(a.whatItDoes());
 		i.setEnabled(a.applies());
 		i.addActionListener(e -> chat.append(a));

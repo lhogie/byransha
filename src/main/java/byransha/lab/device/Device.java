@@ -1,9 +1,9 @@
 package byransha.lab.device;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
+import byransha.lab.LabNode;
 import byransha.lab.Room;
 import byransha.lab.Structure;
 import byransha.primitive.LongNode;

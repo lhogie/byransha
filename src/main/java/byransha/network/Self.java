@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 
 public class Self extends Peer {
 

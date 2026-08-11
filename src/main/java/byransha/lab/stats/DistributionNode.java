@@ -12,7 +12,7 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.Element;
+import byransha.Element;
 import byransha.ui.swing.ChatSheet;
 import byransha.util.ByUtils;
 

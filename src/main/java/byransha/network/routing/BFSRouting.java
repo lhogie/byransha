@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import byransha.graph.ActionMethod;
-import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.Element;
+import byransha.action.ActionMethod;
+import byransha.action.AddButtonOnKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Gossiper;
 import byransha.network.Message;
 import byransha.network.OtherPeer;

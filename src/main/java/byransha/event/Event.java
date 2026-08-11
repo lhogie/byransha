@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.Hub;
 import byransha.network.Peer;
+import byransha.service.system.Hub;
 
 public abstract class Event extends Element implements Externalizable, Comparable<Event> {
 	LocalDateTime date;

@@ -1,6 +1,6 @@
 package byransha.nodes.primitive.file;
 
-import byransha.graph.ProcedureAction;
+import byransha.action.ProcedureAction;
 import byransha.nodes.primitive.file.openFile.file;
 
 public class delete extends ProcedureAction<FileNode> {

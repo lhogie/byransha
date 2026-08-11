@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.Service;
-import byransha.graph.ActionMethod;
-import byransha.graph.ShowInKishanView;
+import byransha.action.ActionMethod;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Message;
 import byransha.network.Network;
 import byransha.network.PeerManager;

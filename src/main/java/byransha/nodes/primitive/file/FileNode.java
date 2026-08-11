@@ -2,8 +2,8 @@ package byransha.nodes.primitive.file;
 
 import java.io.File;
 
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
+import byransha.Element;
+import byransha.action.base.ShowInKishanView;
 import byransha.primitive.StringNode;
 
 public class FileNode extends Element {

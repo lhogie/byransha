@@ -11,10 +11,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.io.Files;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.NodeError;
-import byransha.system.Byransha;
+import byransha.ProblemInElement;
+import byransha.service.system.Byransha;
 
 public abstract class ValuedElement<V> extends Element {
 	V value;
@@ -47,9 +47,9 @@ public abstract class ValuedElement<V> extends Element {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
+	protected void fillErrors(List<ProblemInElement> errs) {
 		if (valueRequired && value == null) {
-			errs.add(new NodeError(this, "a value is required"));
+			errs.add(new ProblemInElement(this, "a value is required"));
 		}
 	}
 

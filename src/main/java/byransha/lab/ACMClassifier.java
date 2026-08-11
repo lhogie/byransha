@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.ID;
-import byransha.graph.Hub;
-import byransha.graph.LabNode;
+import byransha.service.system.Hub;
 
 /*
  * https://cran.r-project.org/web/classifications/ACM.html

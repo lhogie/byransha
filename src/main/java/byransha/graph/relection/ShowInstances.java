@@ -1,9 +1,9 @@
 package byransha.graph.relection;
 
-import byransha.graph.Element;
-import byransha.graph.list.action.FunctionAction;
-import byransha.graph.list.action.ListNode;
+import byransha.Element;
 import byransha.graph.relection.LinkAction.type;
+import byransha.list.action.FunctionAction;
+import byransha.list.action.ListNode;
 
 public class ShowInstances extends FunctionAction<ClassNode, ListNode<Element>> {
 

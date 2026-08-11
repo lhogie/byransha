@@ -1,7 +1,7 @@
 package byransha.nodes.website;
 
-import byransha.graph.Element;
-import byransha.graph.Hub;
+import byransha.Element;
+import byransha.service.system.Hub;
 
 public class Website extends Element {
 

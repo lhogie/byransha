@@ -1,9 +1,9 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
 import byransha.Out;
-import byransha.graph.Element;
-import byransha.graph.list.action.ListNode;
+import byransha.list.action.ListNode;
 
 public class PhDStudent extends Position {
 	final ListNode<Person> directors = fieldNode("directors", id -> new ListNode<Person>(this, id, "directors", Person.class));

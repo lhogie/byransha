@@ -1,7 +1,7 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public class EUR extends Structure {
 

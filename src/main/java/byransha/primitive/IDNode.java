@@ -1,7 +1,7 @@
 package byransha.primitive;
 
 import byransha.ID;
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public class IDNode extends StringNode {
 

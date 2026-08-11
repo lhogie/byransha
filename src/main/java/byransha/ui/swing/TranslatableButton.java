@@ -6,7 +6,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.ToolTipManager;
 
-import byransha.graph.Element;
+import byransha.Element;
 
 public class TranslatableButton extends JButton implements ComponentShowingTextAndToolTip {
 	private Element v;

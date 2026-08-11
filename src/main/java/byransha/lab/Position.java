@@ -1,9 +1,8 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.primitive.DateNode;
 
 public class Position extends LabNode {

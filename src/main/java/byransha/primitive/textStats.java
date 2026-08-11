@@ -1,8 +1,8 @@
 package byransha.primitive;
 
-import byransha.graph.Category.statistics;
-import byransha.graph.Category.text;
-import byransha.graph.list.action.FunctionAction;
+import byransha.action.Category.statistics;
+import byransha.action.Category.text;
+import byransha.list.action.FunctionAction;
 
 public class textStats extends FunctionAction<TextNode, TextNode> {
 

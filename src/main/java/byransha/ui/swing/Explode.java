@@ -4,9 +4,9 @@ import java.awt.GridLayout;
 
 import javax.swing.JPanel;
 
-import byransha.graph.Category;
-import byransha.graph.ProcedureAction;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.action.Category;
+import byransha.action.ProcedureAction;
 
 public class Explode extends ProcedureAction<ChatPanelNode> {
 
@@ -25,7 +25,7 @@ public class Explode extends ProcedureAction<ChatPanelNode> {
 		int i = container.getComponentZOrder(inputNode.panel);
 		var newPanel = new JPanel(new GridLayout(1, 2));
 		newPanel.add(inputNode.panel);
-		var newChat = new ChatNode(hub().currentUser());
+		var newChat = new Chat(hub().currentUser());
 		newPanel.add(new ChatPanel(newChat));
 		container.add(newPanel, i);
 		container.revalidate();

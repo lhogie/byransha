@@ -1,7 +1,7 @@
 package byransha.ui.swing;
 
-import byransha.graph.Element;
-import byransha.graph.Hub;
+import byransha.Element;
+import byransha.service.system.Hub;
 
 public class ChatSheetNode extends Element {
 

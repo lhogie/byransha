@@ -8,8 +8,8 @@ import java.net.InetAddress;
 
 import javax.swing.JLabel;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 import byransha.ui.swing.ChatSheet;
 
 public class NetworkAddressNode extends ValuedElement<InetAddress> {

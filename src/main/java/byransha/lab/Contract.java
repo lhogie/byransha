@@ -1,10 +1,9 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.LabNode;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.ListNode;
+import byransha.action.base.ShowInKishanView;
+import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 
 public class Contract extends LabNode {

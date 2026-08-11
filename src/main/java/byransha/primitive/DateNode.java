@@ -11,9 +11,9 @@ import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.system.ChatNode;
 
 public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 	public DateNode(Element g, ID id) {
@@ -41,7 +41,7 @@ public class DateNode extends PrimitiveValueNode<OffsetDateTime> {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		SpinnerDateModel model = new SpinnerDateModel();
 		JSpinner dateSpinner = new JSpinner(model);
 

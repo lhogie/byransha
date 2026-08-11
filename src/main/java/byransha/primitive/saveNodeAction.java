@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import byransha.graph.list.action.FunctionAction;
+import byransha.list.action.FunctionAction;
 import byransha.nodes.primitive.file.FileNode;
 import byransha.nodes.primitive.file.openFile.file;
 

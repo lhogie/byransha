@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.net.Socket;
 import java.time.LocalDateTime;
 
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.util.ByUtils;
 
 public class Connection {

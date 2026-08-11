@@ -12,16 +12,16 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import byransha.Chat;
 import byransha.Service;
-import byransha.graph.Hub;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.ListNode;
+import byransha.access_control.User;
+import byransha.action.base.ShowInKishanView;
+import byransha.list.action.ListNode;
 import byransha.network.Message;
 import byransha.primitive.ColorNode;
 import byransha.primitive.LongNode;
-import byransha.system.Byransha;
-import byransha.system.ChatNode;
-import byransha.system.User;
+import byransha.service.system.Byransha;
+import byransha.service.system.Hub;
 import byransha.ui.ColorSchemeNode;
 import byransha.util.ByUtils;
 
@@ -104,7 +104,7 @@ public class SwingFrontend extends Service {
 		}
 
 		if (newUser.chats.elements.isEmpty()) {
-			new ChatNode(newUser).nodes.elements.add(hub());
+			new Chat(newUser).nodes.elements.add(hub());
 		}
 
 		var panelList = newUser.chats.elements.stream().map(c -> new ChatPanel(c)).toList();

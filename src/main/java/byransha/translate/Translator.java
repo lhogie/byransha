@@ -14,9 +14,9 @@ import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
 import byransha.Service;
-import byransha.graph.Hub;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.primitive.StringNode;
+import byransha.service.system.Hub;
 import byransha.ui.swing.ComponentShowingTextAndToolTip;
 
 public abstract class Translator extends Service {

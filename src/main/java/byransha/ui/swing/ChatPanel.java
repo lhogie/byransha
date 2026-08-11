@@ -11,8 +11,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
-import byransha.graph.Element;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.Element;
 import byransha.util.ListenableList;
 
 public class ChatPanel extends JPanel {
@@ -21,7 +21,7 @@ public class ChatPanel extends JPanel {
 	public final ChatSheet sheet;
 	private ChatPanelNode node;
 
-	public ChatPanel(ChatNode chat) {
+	public ChatPanel(Chat chat) {
 		this.node = new ChatPanelNode(chat.hub(), this);
 
 		setLayout(new BorderLayout());

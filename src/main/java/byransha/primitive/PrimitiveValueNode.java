@@ -1,7 +1,7 @@
 package byransha.primitive;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public abstract class PrimitiveValueNode<V> extends ValuedElement<V> {
 

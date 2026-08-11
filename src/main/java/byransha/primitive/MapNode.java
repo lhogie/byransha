@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.BiConsumer;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public class MapNode<N extends Element> extends Element {
 	public final ConcurrentMap<String, N> map = new ConcurrentHashMap<>();

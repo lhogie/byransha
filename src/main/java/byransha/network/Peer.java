@@ -14,16 +14,16 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 
-import byransha.graph.ActionMethod;
-import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.Element;
-import byransha.graph.LoopingThreadNode;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.ThreadNode;
+import byransha.Chat;
+import byransha.Element;
+import byransha.action.ActionMethod;
+import byransha.action.AddButtonOnKishanView;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.BFSRouting;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
-import byransha.system.ChatNode;
+import byransha.thread.LoopingThreadNode;
+import byransha.thread.ThreadNode;
 
 public abstract class Peer extends Element {
 
@@ -188,7 +188,7 @@ public abstract class Peer extends Element {
 	}
 
 	@Override
-	protected JComponent getSmallComponent(ChatNode chat) {
+	protected JComponent getSmallComponent(Chat chat) {
 		var component = super.getSmallComponent(chat);
 		updateColor(component);
 

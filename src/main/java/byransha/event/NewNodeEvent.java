@@ -5,9 +5,9 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.time.LocalDateTime;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public class NewNodeEvent<N extends Element> extends Event {
 	Class<N> clazz;

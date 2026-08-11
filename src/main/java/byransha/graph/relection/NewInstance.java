@@ -1,10 +1,10 @@
 package byransha.graph.relection;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.FunctionAction;
+import byransha.action.base.ShowInKishanView;
 import byransha.graph.relection.LinkAction.type;
+import byransha.list.action.FunctionAction;
 import byransha.primitive.BooleanNode;
 
 public class NewInstance extends FunctionAction<ClassNode, Element> {

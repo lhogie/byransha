@@ -4,9 +4,7 @@ import java.lang.reflect.Field;
 import java.util.Objects;
 import java.util.function.Function;
 
-import byransha.graph.Element;
-import byransha.graph.Hub;
-import byransha.graph.OutChangedEvent;
+import byransha.event.OutChangedEvent;
 
 public class Out<T extends Element> {
 	private T head;

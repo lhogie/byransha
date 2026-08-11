@@ -1,7 +1,7 @@
 package byransha.translate;
 
-import byransha.graph.Hub;
 import byransha.network.Message;
+import byransha.service.system.Hub;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 
 public class OllamaTranslate extends Translator {

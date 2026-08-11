@@ -30,22 +30,22 @@ import javax.swing.Timer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import byransha.Chat;
+import byransha.Element;
+import byransha.action.ActionMethod;
+import byransha.action.AddButtonOnKishanView;
+import byransha.action.Category;
+import byransha.action.base.ShowInKishanView;
 import byransha.ai.QueryIA.AI;
 import byransha.ai.QueryIA.AiResult;
 import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
-import byransha.graph.ActionMethod;
-import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.Element;
-import byransha.graph.Category;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.list.action.FunctionAction;
-import byransha.graph.list.action.ListNode;
 import byransha.lab.stats.DistributionNode;
+import byransha.list.action.FunctionAction;
+import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.TextNode;
-import byransha.system.ChatNode;
-import byransha.ui.shell.TelnetSession;
+import byransha.ui.telnet.TelnetSession;
 import byransha.util.UUIDUtils;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
@@ -89,7 +89,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	private static volatile double myPromptLagMs = 1500.0;
 	private static volatile boolean ollamaVerified = false;
 	private boolean ActivateListNodeResponse = false;
-	private volatile ChatNode currentChat;
+	private volatile Chat currentChat;
 	private static volatile boolean settingModel = false;
 
 	@ActionMethod
@@ -150,12 +150,12 @@ public class QueryIA extends FunctionAction<Element, Element> {
 
 	
 
-	public void setAndGetCurrentChat(ChatNode chat) {
-		ChatNode lastActiveChat;
+	public void setAndGetCurrentChat(Chat chat) {
+		Chat lastActiveChat;
 		this.currentChat = chat;
 		try {
 			var chatID = UUIDUtils.decode(new BufferedReader(new InputStreamReader(in)).readLine());
-		currentChat = (ChatNode) hub().indexes.byId.get(chatID);
+		currentChat = (Chat) hub().indexes.byId.get(chatID);
 		lastActiveChat = currentChat;
 		this.currentChat = lastActiveChat;
 		} catch (IOException e) {
@@ -165,10 +165,10 @@ public class QueryIA extends FunctionAction<Element, Element> {
 
 	public void setChat () {
 		if (this.currentChat == null) {
-			if (this.chat instanceof ChatNode) {
-				this.currentChat = (ChatNode) this.chat;
-			} else if (this.parent instanceof ChatNode) {
-				this.currentChat = (ChatNode) this.parent;
+			if (this.chat instanceof Chat) {
+				this.currentChat = (Chat) this.chat;
+			} else if (this.parent instanceof Chat) {
+				this.currentChat = (Chat) this.parent;
 			}
 			else {setAndGetCurrentChat(currentChat);}
 		}
@@ -179,7 +179,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	@AddButtonOnKishanView
 	public void resetMemory() {
 		setChat();
-			final ChatNode activeChat = this.currentChat;
+			final Chat activeChat = this.currentChat;
 			System.out.println("Réinitialisation de la mémoire pour le chat : "
 					+ (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
 			SwingUtilities.invokeLater(() -> {
@@ -505,7 +505,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 	}
 
 	public static void startOllama() {
-		if (ChatNode.NodeAIUsed) {
+		if (Chat.NodeAIUsed) {
 			try {
 				System.out.println("Démarrage d'Ollama pour préchauffer le modèle...");
 				HttpClient client = HttpClient.newHttpClient();
@@ -688,7 +688,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 		finally {
 			if (currentChat != null) {
-				final ChatNode chatToAppend = currentChat;
+				final Chat chatToAppend = currentChat;
 				final Element resToAppend = result;
 				SwingUtilities.invokeLater(() -> chatToAppend.append(resToAppend));
 			}

@@ -8,9 +8,9 @@ import java.io.ObjectOutput;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.system.ChatNode;
 
 public class ColorNode extends PrimitiveValueNode<Color> {
 
@@ -47,7 +47,7 @@ public class ColorNode extends PrimitiveValueNode<Color> {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		var cc = new JColorChooser();
 		cc.getSelectionModel().addChangeListener(e -> set(cc.getColor()));
 		return cc;

@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import byransha.Service;
-import byransha.graph.LoopingThreadNode;
-import byransha.graph.ShowInKishanView;
+import byransha.action.base.ShowInKishanView;
+import byransha.thread.LoopingThreadNode;
 
 public class TCPServer extends Service {
 

@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
-import byransha.graph.Hub;
+import byransha.service.system.Hub;
 
 public class SerQueueSerializer implements EventQueueSerializer {
 

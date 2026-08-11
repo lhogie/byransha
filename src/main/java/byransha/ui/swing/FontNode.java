@@ -5,9 +5,9 @@ import java.awt.Font;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
-import byransha.graph.Element;
-import byransha.graph.Hub;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.Element;
+import byransha.service.system.Hub;
 
 public class FontNode extends Element {
 
@@ -29,7 +29,7 @@ public class FontNode extends Element {
 	}
 
 	@Override
-	public JComponent getListItemComponent(ChatNode chat) {
+	public JComponent getListItemComponent(Chat chat) {
 		var l = new JLabel();
 		l.setFont(font);
 		l.setText(font.getFontName());

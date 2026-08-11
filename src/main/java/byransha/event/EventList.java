@@ -7,14 +7,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import byransha.Element;
 import byransha.ID;
 import byransha.Service;
-import byransha.graph.Element;
-import byransha.graph.ShowInKishanView;
-import byransha.graph.ThreadNode;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Message;
 import byransha.primitive.StringNode;
 import byransha.security.AES;
+import byransha.thread.ThreadNode;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 

@@ -15,9 +15,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.graph.NodeError;
+import byransha.ProblemInElement;
 import byransha.ui.swing.ChatSheet;
 
 public class DoubleNode extends PrimitiveValueNode<Double> {
@@ -47,15 +47,15 @@ public class DoubleNode extends PrimitiveValueNode<Double> {
 	}
 
 	@Override
-	protected void fillErrors(List<NodeError> errs) {
+	protected void fillErrors(List<ProblemInElement> errs) {
 		super.fillErrors(errs);
 		var v = get();
 
 		if (v != null && bounds != null) {
 			if (v < bounds.min) {
-				errs.add(new NodeError(this, "too small, min is " + bounds.min));
+				errs.add(new ProblemInElement(this, "too small, min is " + bounds.min));
 			} else if (v > bounds.max) {
-				errs.add(new NodeError(this, "too large, max is " + bounds.max));
+				errs.add(new ProblemInElement(this, "too large, max is " + bounds.max));
 			}
 		}
 	}

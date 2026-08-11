@@ -1,26 +1,12 @@
 package byransha.ui.swing;
 
-import java.awt.Color;
-import java.awt.Insets;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.JToggleButton;
-import javax.swing.SwingUtilities;
-
-import byransha.ai.QueryIA;
-import byransha.graph.Action;
-import byransha.graph.Element;
-import byransha.graph.list.action.FunctionAction;
-import byransha.primitive.TextNode;
-import byransha.system.ChatNode;
+import byransha.Chat;
+import byransha.Element;
 
 public class ChatSheet extends Sheet {
-	public final ChatNode chat;
+	public final Chat chat;
 
-	public ChatSheet(ChatNode chat) {
+	public ChatSheet(Chat chat) {
 		super();
 		this.chat = chat;
 		Utils.idDropTarget(chat.hub(), this, n -> chat.nodes.elements.add(n));

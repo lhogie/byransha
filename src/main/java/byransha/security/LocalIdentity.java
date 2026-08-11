@@ -12,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 
-import byransha.system.Byransha;
+import byransha.service.system.Byransha;
 
 /**
  * Manages the persistent cryptographic identity of the local Byransha node.

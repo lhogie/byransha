@@ -1,7 +1,7 @@
 package byransha.lab.device;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 import byransha.primitive.StringNode;
 
 public class MACAddressNode extends StringNode {

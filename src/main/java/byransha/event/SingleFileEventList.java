@@ -4,8 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
 
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
 
 public class SingleFileEventList extends InMemoryEventList {
 	final File f;

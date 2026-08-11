@@ -11,9 +11,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
+import byransha.Chat;
+import byransha.Element;
 import byransha.ID;
-import byransha.graph.Element;
-import byransha.system.ChatNode;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
@@ -43,11 +43,11 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	}
 
 	@Override
-	public JComponent getSmallComponent(ChatNode pane) {
+	public JComponent getSmallComponent(Chat pane) {
 		return true ? checkbox(pane) : getComponent_radioButtons();
 	}
 
-	public JComponent checkbox(ChatNode pane) {
+	public JComponent checkbox(Chat pane) {
 		var checkbox = new JCheckBox();
 		checkbox.setSelected(get());
 		checkbox.addActionListener(e -> set(checkbox.isSelected()));
