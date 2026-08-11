@@ -1,16 +1,15 @@
 package byransha.network;
 
-import java.util.UUID;
-
+import byransha.ID;
 import byransha.graph.ActionMethod;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.util.Q;
 
-public class MessageQ extends BNode {
+public class MessageQ extends Element {
 	public final Q<Message> q = new Q<>(100);
 
-	public MessageQ(BNode parent, UUID id) {
+	public MessageQ(Element parent, ID id) {
 		super(parent, id);
 	}
 

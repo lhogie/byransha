@@ -1,14 +1,15 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.primitive.StringNode;
 
-public class SupportDePoste extends BNode {
-	StringNode id;
+public class SupportDePoste extends LabNode {
+	StringNode id = lookupOrCreate("id", id -> new StringNode(this, id, null, ".+"));
 
-	public SupportDePoste(BNode g) {
-		super(g);
-		id = new StringNode(g);
+	public SupportDePoste(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

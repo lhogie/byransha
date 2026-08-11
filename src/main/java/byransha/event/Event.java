@@ -10,17 +10,22 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.network.Peer;
 
-public abstract class Event implements Externalizable, Comparable<Event> {
+public abstract class Event extends Element implements Externalizable, Comparable<Event> {
 	LocalDateTime date;
 	Set<Peer> owners = new HashSet<>();
-	final protected Hub g;
 
-	public Event(Hub g, LocalDateTime date) {
+	public Event(Element parent) {
+		this(parent, LocalDateTime.now());
+	}
+
+	public Event(Element parent, LocalDateTime date) {
+		super(parent, ID.fromDate(date));
 		this.date = date;
-		this.g = g;
 	}
 
 	public abstract void apply(Hub g) throws Throwable;;
@@ -44,9 +49,6 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 
 	@Override
 	public boolean equals(Object e) {
-		if (!(e instanceof Event)) {
-			return false;
-		}
 		return date == ((Event) e).date;
 	}
 
@@ -56,29 +58,24 @@ public abstract class Event implements Externalizable, Comparable<Event> {
 		owners.add(from);
 	}
 
-	public long id() {
-		return date.toEpochSecond(java.time.ZoneOffset.UTC);
-	}
-
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
-		out.writeLong(id());
+		out.writeObject(date);
 		out.writeInt(owners.size());
 
 		for (var o : owners) {
-			out.writeLong(o.id().getMostSignificantBits());
-			out.writeLong(o.id().getLeastSignificantBits());
+			out.writeObject(o.id());
 		}
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
-		date = LocalDateTime.ofEpochSecond(in.readLong(), 0, java.time.ZoneOffset.UTC);
+		date = (LocalDateTime) in.readObject();
 		var ownersSize = in.readInt();
 
 		for (int i = 0; i < ownersSize; i++) {
 			UUID ownerId = new UUID(in.readLong(), in.readLong());
-			var owner = g.network.neighborhood.findPeer(ownerId);
+			var owner = hub().network.neighborhood.findPeer(ownerId);
 			owners.add(owner);
 		}
 	}

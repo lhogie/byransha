@@ -2,20 +2,19 @@ package byransha.network;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import byransha.graph.Element;
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.system.Byransha;
-import byransha.system.SystemNode;
 
-public class PeerManager extends SystemNode {
+public class PeerManager extends Element {
 
 	List<NeighborhoodListener> neighborhoodListeners = new ArrayList<>();
 
@@ -23,15 +22,15 @@ public class PeerManager extends SystemNode {
 	public static final File peersDirectory = new File(Byransha.homeDirectory, "peers");
 
 	@ShowInKishanView
-	public final ListNode<Peer> peers = new ListNode<>(this, "peers", Peer.class);
+	public final ListNode<Peer> peers = new ListNode<>(this, null, "peers", Peer.class);
 
 	@ShowInKishanView
 	public final Self self;
 
 
 
-	public PeerManager(NetworkAgent net) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-		super(net);
+	public PeerManager(Network net) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+		super(net, null);
 		peers.elements.add(this.self = new Self(this));
 		peersDirectory.mkdirs();
 

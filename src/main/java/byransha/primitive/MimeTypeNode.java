@@ -3,7 +3,8 @@ package byransha.primitive;
 import java.util.ArrayList;
 import java.util.List;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.NodeError;
 
 public class MimeTypeNode extends StringNode {
@@ -15,8 +16,8 @@ public class MimeTypeNode extends StringNode {
 		validMimeTypes.add("application/pdf");
 	}
 
-	public MimeTypeNode(BNode g) {
-		super(g);
+	public MimeTypeNode(Element g, ID id) {
+		super(g, id, "", "([a-z]+)/([a-z]+)");
 	}
 
 	@Override

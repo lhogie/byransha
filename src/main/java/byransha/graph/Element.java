@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,6 +37,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.ID;
+import byransha.Out;
 import byransha.ai.QueryIA;
 import byransha.event.NewNodeEvent;
 import byransha.graph.action.Delete;
@@ -50,11 +51,12 @@ import byransha.graph.action.search.SearchRegexp;
 import byransha.graph.action.search.SearchText;
 import byransha.graph.list.action.ListNode;
 import byransha.graph.relection.ClassNode;
+import byransha.network.Message;
 import byransha.nodes.primitive.file.FileNode;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
-import byransha.primitive.ValuedNode;
+import byransha.primitive.ValuedElement;
 import byransha.system.ChatNode;
 import byransha.system.User;
 import byransha.ui.swing.ChatSheet;
@@ -70,45 +72,55 @@ import byransha.util.ByUtils;
 import byransha.util.ListenableList;
 import byransha.util.Stop;
 import byransha.util.TriConsumer;
-import byransha.util.UUIDUtils;
 
-public abstract class BNode {
+public class Element {
 
 	public static int nbInstances = 0;
 	@ShowInKishanView
-	public final BNode parent;
+	public final Element parent;
 	public boolean userEditable;
 
 	@ShowInKishanView
-	public boolean generateEvents = false;
-	private UUID id;
-	public Hub graph;
+	private boolean generateEvents = true;
+
+//	private Hub hub;
 	protected ListNode<Action> cachedActions;
 
-	protected BNode(BNode parent) {
-		this(parent, null);
-	}
+	private final ID id;
 
-	protected BNode(BNode parent, UUID id) {
+	protected Element(Element parent, ID id) {
 		++nbInstances;
+		this.id = id;
 //		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
 			throw new NullPointerException();
 		this.parent = parent;
-		this.id = id != null ? id : UUID.randomUUID();
 
-		var g = hub();
+		var h = hub();
 
-		if (g != null && g.indexes != null) {
-			g.indexes.add(this);
+		if (h != null && h.indexes != null) {
+			h.indexes.add(this);
 		}
 
-		if (generateEvents) {
+		if (generateEvents()) {
 			hub().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
 
-	public String findRoleOf(BNode n) {
+	public final <T extends Element> Out<T> out(String fieldName, Function<ID, T> creator) {
+		return new Out<T>(this, fieldName, creator);
+	}
+
+	public final <T extends Element> T lookupOrCreate(String fieldName, Function<ID, T> creator) {
+		ID id = id().augmentWith(fieldName);
+		return Out.lookupOrCreate(hub(), id, creator);
+	}
+
+	public boolean generateEvents() {
+		return id() != null && generateEvents && hub().eventList != null;
+	}
+
+	public String findRoleOf(Element n) {
 		var foundRole = new String[1];
 		forEachOut((out, role) -> {
 			if (foundRole[0] != null && out == n) {
@@ -119,11 +131,11 @@ public abstract class BNode {
 	}
 
 	public Hub hub() {
-		return parent != null ? parent.hub() : (Hub) this;
+		return parent.hub();
 	}
 
-	public BusinessNode enclosingBusinessNode() {
-		if (this instanceof BusinessNode bn) {
+	public LabNode enclosingBusinessNode() {
+		if (this instanceof LabNode bn) {
 			return bn;
 		} else if (parent != null) {
 			return parent.enclosingBusinessNode();
@@ -149,7 +161,7 @@ public abstract class BNode {
 	public List<String> rolePathElements() {
 		var r = new ArrayList<String>();
 
-		for (BNode a = this; a.parent != null; a = a.parent) {
+		for (Element a = this; a.parent != null; a = a.parent) {
 			r.add(a.parent.findRoleOf(a));
 		}
 
@@ -161,10 +173,10 @@ public abstract class BNode {
 		return rolePathElements().stream().collect(Collectors.joining("/"));
 	}
 
-	public ListNode<BNode> path() {
-		var r = new ListNode<BNode>(this, "path", BNode.class);
+	public ListNode<Element> path() {
+		var r = new ListNode<Element>(this, null, "path", Element.class);
 
-		for (BNode a = this; a != null; a = a.parent) {
+		for (Element a = this; a != null; a = a.parent) {
 			r.elements.add(a);
 		}
 
@@ -172,14 +184,14 @@ public abstract class BNode {
 		return r;
 	}
 
-	protected <N extends BNode> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
-		var r = new ListNode<N>(this, label, c);
+	protected <N extends Element> ListNode<N> inverseRelation(String label, Class<N> c, Function<N, ListNode> f) {
+		var r = new ListNode<N>(this, null, label, c);
 
 		for (var n : hub().indexes.byClass.m.get(c)) {
 			var nn = (N) n;
 			var remoteList = f.apply(nn);
 
-			if (remoteList.elements.contains(BNode.this)) {
+			if (remoteList.elements.contains(Element.this)) {
 				r.elements.add(nn);
 			}
 		}
@@ -193,25 +205,25 @@ public abstract class BNode {
 
 			@Override
 			public void onRemoved(int index, N n) {
-				f.apply(n).elements.remove(BNode.this);
+				f.apply(n).elements.remove(Element.this);
 			}
 
 			@Override
 			public void onAdded(int index, N n) {
-				f.apply(n).elements.add(BNode.this);
+				f.apply(n).elements.add(Element.this);
 			}
 		});
 
 		return r;
 	}
 
-	protected <N extends BNode> ListNode<N> inverseRelation2(String label, Class<N> c, Function<N, BNode> f) {
-		var r = new ListNode<N>(this, label, c);
+	protected <N extends Element> ListNode<N> inverseRelation2(String label, Class<N> c, Function<N, Element> f) {
+		var r = new ListNode<N>(this, null, label, c);
 
 		for (var n : hub().indexes.byClass.m.get(c)) {
 			var nn = (N) n;
 
-			if (f.apply(nn) == BNode.this) {
+			if (f.apply(nn) == Element.this) {
 				r.elements.add(nn);
 			}
 		}
@@ -245,12 +257,12 @@ public abstract class BNode {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " #" + idAsText();
+		return getClass().getSimpleName() + " #" + id;
 	}
 
 	public List<Action<?>> actions() {
 		if (cachedActions == null) {
-			cachedActions = new ListNode<>(this, "actions for node " + this, Action.class);
+			cachedActions = new ListNode<>(this, null, "actions for node " + this, Action.class);
 			createActions();
 
 			for (var m : getClass().getMethods()) {
@@ -305,13 +317,13 @@ public abstract class BNode {
 		var fields = new ArrayList<Field>();
 
 		if (printHeaders) {
-			forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> fields.add(f));
+			forEachOutInFields(getClass(), Element.class, (f, o, ro) -> fields.add(f));
 			ps.println('#' + fields.stream().map(f -> f.getName()).collect(Collectors.joining(", ")));
 		}
 
 		for (int i = 0; i < fields.size(); ++i) {
 			var f = fields.get(i);
-			BNode out = (BNode) f.get(this);
+			Element out = (Element) f.get(this);
 			ps.print(out.toString());
 
 			if (i < fields.size() - 1) {
@@ -322,8 +334,8 @@ public abstract class BNode {
 		}
 	}
 
-	public void removeOut(BNode out) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> {
+	public void removeOut(Element out) {
+		forEachOutInFields(getClass(), Element.class, (f, o, ro) -> {
 			try {
 				if (o == out) {
 					f.set(this, null);
@@ -339,8 +351,8 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOutInFields(Class<? extends BNode> from, Class<? extends BNode> until,
-			TriConsumer<Field, BNode, Boolean> consumer) {
+	public void forEachOutInFields(Class<? extends Element> from, Class<? extends Element> until,
+			TriConsumer<Field, Element, Boolean> consumer) {
 		ascendSuperClassesUntil(from, until, c -> {
 			for (var f : c.getDeclaredFields()) {
 				if (f.isAnnotationPresent(ShowInKishanView.class)) {
@@ -349,14 +361,11 @@ public abstract class BNode {
 						var out = f.get(this);
 						var isFinal = (f.getModifiers() & Modifier.FINAL) != 0;
 
-						if (out instanceof BNode outNode) {
+						if (out instanceof Element outNode) {
 							consumer.accept(f, outNode, isFinal);
 						} else if (out != null) {
 							var outNode = instantiateRenderingNodeFor(out);
 							outNode.userEditable = false;
-							new ThreadNode(this, "watching " + getClass() + "." + f.getName(), () -> {
-
-							});
 							consumer.accept(f, outNode, isFinal);
 						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
@@ -372,14 +381,14 @@ public abstract class BNode {
 		});
 	}
 
-	public void forEachOutInMethods(Class<? extends BNode> from, Class<? extends BNode> until,
-			BiConsumer<Method, BNode> consumer) {
+	public void forEachOutInMethods(Class<? extends Element> from, Class<? extends Element> until,
+			BiConsumer<Method, Element> consumer) {
 		for (var m : getClass().getMethods()) {
 			if (m.isAnnotationPresent(ShowInKishanView.class)) {
 				try {
 					var out = m.invoke(this);
 
-					if (out instanceof BNode outNode) {
+					if (out instanceof Element outNode) {
 						consumer.accept(m, outNode);
 					} else if (out != null) {
 						var outNode = instantiateRenderingNodeForMethod(m);
@@ -400,11 +409,12 @@ public abstract class BNode {
 		}
 	}
 
-	private BNode instantiateRenderingNodeForMethod(Method m) throws IllegalAccessException, InvocationTargetException {
+	private Element instantiateRenderingNodeForMethod(Method m)
+			throws IllegalAccessException, InvocationTargetException {
 		var o = m.invoke(this);
 		var renderingNode = instantiateRenderingNodeFor(o);
 
-		if (renderingNode instanceof ValuedNode vn) {
+		if (renderingNode instanceof ValuedElement vn) {
 			vn.userEditable = false;
 			new LoopingThreadNode(this, () -> 1.0, "watching method " + getClass() + "." + m.getName(), () -> {
 				try {
@@ -420,11 +430,11 @@ public abstract class BNode {
 		return renderingNode;
 	}
 
-	private BNode instantiateRenderingNodeForField(Field f) throws IllegalAccessException, InvocationTargetException {
+	private Element instantiateRenderingNodeForField(Field f) throws IllegalAccessException, InvocationTargetException {
 		var o = f.get(this);
 		var node = instantiateRenderingNodeFor(o);
 
-		if (node instanceof ValuedNode vn) {
+		if (node instanceof ValuedElement vn) {
 			vn.userEditable = false;
 			new LoopingThreadNode(this, () -> 1d, "watching field " + getClass() + "." + f.getName(), () -> {
 				try {
@@ -440,25 +450,25 @@ public abstract class BNode {
 		return node;
 	}
 
-	private BNode instantiateRenderingNodeFor(Object o) {
+	private Element instantiateRenderingNodeFor(Object o) {
 		if (o instanceof File f) {
 			return new FileNode(this, f);
 		} else if (o instanceof List l) {
-			var ln = new ListNode(this, "list", Object.class);
+			var ln = new ListNode(this, null, "list", Object.class);
 			ln.elements.addAll(l);
 			return ln;
 		} else if (o instanceof Long l) {
-			return new LongNode(this, l);
+			return new LongNode(this, null, l);
 		} else if (o instanceof Boolean b) {
-			return new BooleanNode(this, b);
+			return new BooleanNode(this, null, b);
 		} else {
-			return new StringNode(this, o.toString(), null);
+			return new StringNode(this, null, o.toString(), null);
 		}
 	}
 
-	public void forEachOut(BiConsumer<BNode, String> consumer) {
-		forEachOutInFields(getClass(), BNode.class, (f, o, ro) -> consumer.accept(o, f.getName()));
-		forEachOutInMethods(getClass(), BNode.class, (m, o) -> consumer.accept(o, m.getName()));
+	public void forEachOut(BiConsumer<Element, String> consumer) {
+		forEachOutInFields(getClass(), Element.class, (f, o, ro) -> consumer.accept(o, f.getName()));
+		forEachOutInMethods(getClass(), Element.class, (m, o) -> consumer.accept(o, m.getName()));
 	}
 
 	public void createActions() {
@@ -476,8 +486,8 @@ public abstract class BNode {
 		cachedActions.elements.add(new OpenInNewChat(this));
 	}
 
-	public void ascendSuperClassesUntil(Class<? extends BNode> from, Class<? extends BNode> until,
-			Consumer<Class<? extends BNode>> consumer) {
+	public void ascendSuperClassesUntil(Class<? extends Element> from, Class<? extends Element> until,
+			Consumer<Class<? extends Element>> consumer) {
 
 		if (!until.isAssignableFrom(from))
 			throw new IllegalArgumentException("from " + from + " to " + until);
@@ -493,11 +503,11 @@ public abstract class BNode {
 		return type().whatItRepresents();
 	}
 
-	public BFSResult bfs(long maxDistance, Predicate<BNode> nodeFilter, ObjIntConsumer<BNode> consumer) {
-		List<BNode> q = new ArrayList<>();
+	public BFSResult bfs(long maxDistance, Predicate<Element> nodeFilter, ObjIntConsumer<Element> consumer) {
+		List<Element> q = new ArrayList<>();
 		var r = new BFSResult();
 
-		BNode c = this;
+		Element c = this;
 		q.add(c);
 		r.distances.put(c, 0);
 
@@ -563,17 +573,17 @@ public abstract class BNode {
 		return true;
 	}
 
-	public UUID id() {
+	public ID id() {
 		return id;
 	}
 
 	@Override
-	public final int hashCode() {
-		return id.hashCode();
+	public int hashCode() {
+		return id().hashCode();
 	}
 
 	@Override
-	public final boolean equals(Object obj) {
+	public boolean equals(Object obj) {
 		return this == obj;
 	}
 
@@ -607,8 +617,8 @@ public abstract class BNode {
 	}
 
 	protected void fillErrors(List<NodeError> errs) {
-		forEachOutInFields(getClass(), BNode.class, (f, v, ro) -> {
-			if (v instanceof ValuedNode vn) {
+		forEachOutInFields(getClass(), Element.class, (f, v, ro) -> {
+			if (v instanceof ValuedElement vn) {
 				errs.addAll(vn.errors());
 			}
 		});
@@ -623,7 +633,7 @@ public abstract class BNode {
 			return null;
 
 		ObjectNode r = new ObjectNode(ByUtils.factory);
-		r.put("id", idAsText());
+		r.put("id", id.toString());
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
 		r.put("toString", toString());
@@ -638,12 +648,12 @@ public abstract class BNode {
 		r.put("canSee", canSee(hub().currentUser()));
 		r.put("canEdit", canEdit(hub().currentUser()));
 		r.set("actions",
-				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.idAsText())).toList()));
+				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.id().toString())).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 
 		var outsNode = new ObjectNode(ByUtils.factory);
-		forEachOutInFields(getClass(), BNode.class,
-				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.idAsText() : ""));
+		forEachOutInFields(getClass(), Element.class,
+				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.id().toString() : ""));
 		r.set("outs", outsNode);
 
 		return r;
@@ -659,15 +669,11 @@ public abstract class BNode {
 		return null;
 	}
 
-	public String idAsText() {
-		return UUIDUtils.encode(id);
-	}
-
 	public ClassNode<?> type() {
 		return hub().indexes.byClass.getClassNodeFor(getClass());
 	}
 
-	public void set(Field f, BNode newValue) throws IllegalArgumentException, IllegalAccessException {
+	public void set(Field f, Element newValue) throws IllegalArgumentException, IllegalAccessException {
 		f.set(this, newValue);
 	}
 
@@ -679,12 +685,12 @@ public abstract class BNode {
 	public void writeKishanView(ChatSheet sheet) {
 		int fieldNameSize = 10;// fieldMaxLength();
 
-		forEachOutInFields(getClass(), BNode.class, (f, out, readOnly) -> {
+		forEachOutInFields(getClass(), Element.class, (f, out, readOnly) -> {
 			fillLine(sheet.currentLine, f, sheet, out, fieldNameSize);
 			sheet.newLine();
 		});
 
-		forEachOutInMethods(getClass(), BNode.class, (method, out) -> {
+		forEachOutInMethods(getClass(), Element.class, (method, out) -> {
 			fillLine(sheet.currentLine, method, sheet, out, fieldNameSize);
 			sheet.newLine();
 		});
@@ -705,7 +711,7 @@ public abstract class BNode {
 		}
 	}
 
-	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, BNode out, int left) {
+	private void fillLine(WrapPanel currentLine, Member m, ChatSheet sheet, Element out, int left) {
 		var roleComponent = new TextDisplayComponent(hub().translator, m.getName() + ":");
 		roleComponent.setColumns(left);
 		roleComponent.setToolTipText(m.getName());
@@ -743,7 +749,7 @@ public abstract class BNode {
 			});
 			var replace = new JMenuItem("see candidates");
 			replace.addActionListener(e -> {
-				var list = new ListNode(parent, "all nodes of class " + field.getType().getName(),
+				var list = new ListNode(parent, null, "all nodes of class " + field.getType().getName(),
 						(Class) field.getType());
 				hub().indexes.byClass.forEachNodeAssignableTo((Class) field.getType(), a -> {
 					list.elements.add(a);
@@ -769,14 +775,13 @@ public abstract class BNode {
 		c.setBorderWidth(border);
 		c.setOpaque(false);
 		c.setFocusable(false);
-		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + idAsText() + "<li>" + getClass().getName()
-				+ "</ul></html>";
+		var tooltip = "<html>" + whatIsThis() + "<br><ul><li>" + id() + "<li>" + getClass().getName() + "</ul></html>";
 		c.setToolTipText(tooltip);
 		// SelectableTooltip.addSelectableTooltip(c,tooltip);
 		Utils.idDropTarget(hub(), c, droppedNode -> acceptDrop(droppedNode));
 
 		DragSource.getDefaultDragSource().createDefaultDragGestureRecognizer(c, DnDConstants.ACTION_COPY,
-				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(idAsText())));
+				e -> e.startDrag(DragSource.DefaultCopyDrop, new StringSelection(id().toString())));
 
 		c.setComponentPopupMenu(MenuBuilder.buildPopupMenu(actions(), chat));
 
@@ -801,7 +806,7 @@ public abstract class BNode {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
-					chat.append(BNode.this);
+					chat.append(Element.this);
 				}
 			}
 		});
@@ -809,7 +814,7 @@ public abstract class BNode {
 		return c;
 	}
 
-	protected boolean acceptDrop(BNode droppedNode) {
+	protected boolean acceptDrop(Element droppedNode) {
 		return false;
 	}
 
@@ -825,8 +830,8 @@ public abstract class BNode {
 		return ta;
 	}
 
-	public void setID(UUID newID) {
-		this.id = newID;
-
-	};
+	protected Message createNewMessage() {
+		var msg = new Message(this, new ID());
+		return msg;
+	}
 }

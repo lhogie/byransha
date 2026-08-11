@@ -7,18 +7,15 @@ import java.net.URISyntaxException;
 
 import javax.swing.JButton;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.ui.swing.ChatSheet;
 
 public class URLNode extends StringNode {
 
-	public URLNode(BNode parent, String init) {
-		super(parent, init,
+	public URLNode(Element parent, ID id, String init) {
+		super(parent, id, init,
 				"/^https?:\\/\\/(?:www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b(?:[-a-zA-Z0-9()@:%_\\+.~#?&\\/=]*)$/");
-	}
-
-	public String prettyString() {
-		return get();
 	}
 
 	@Override

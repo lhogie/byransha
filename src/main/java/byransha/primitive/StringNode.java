@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
@@ -16,8 +15,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import byransha.ID;
 import byransha.graph.ActionMethod;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.NodeError;
 import byransha.system.ChatNode;
 import byransha.ui.swing.ChatSheet;
@@ -26,13 +26,8 @@ public class StringNode extends PrimitiveValueNode<String> {
 	String re;
 	public boolean hideText;
 
-	public StringNode(BNode g) {
-		this(g, null, null);
-		Objects.requireNonNull(g);
-	}
-
-	public StringNode(BNode parent, String init, String re) {
-		super(parent);
+	public StringNode(Element parent, ID id, String init, String re) {
+		super(parent, id);
 		this.re = re;
 		if (re != null)
 			Pattern.compile(re);

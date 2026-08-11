@@ -12,7 +12,7 @@ import javax.swing.SwingUtilities;
 
 import byransha.ai.QueryIA;
 import byransha.graph.Action;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.list.action.FunctionAction;
 import byransha.primitive.TextNode;
 import byransha.system.ChatNode;
@@ -26,7 +26,7 @@ public class ChatSheet extends Sheet {
 		Utils.idDropTarget(chat.hub(), this, n -> chat.nodes.elements.add(n));
 	}
 
-	void appendNode(BNode n) {
+	void appendNode(Element n) {
 		this.bgColor = n.getBackgroundColor();
 
 		newLine();

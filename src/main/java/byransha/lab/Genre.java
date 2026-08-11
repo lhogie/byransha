@@ -1,12 +1,13 @@
 package byransha.lab;
 
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 
-public abstract class Genre extends BNode {
+public abstract class Genre extends Element {
 
-	protected Genre(Hub g) {
-		super(g);
+	protected Genre(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override
@@ -15,9 +16,8 @@ public abstract class Genre extends BNode {
 	}
 
 	public static class Male extends Genre {
-
-		public Male(Hub g) {
-			super(g);
+		public Male(Element g, ID id) {
+			super(g, id);
 		}
 
 		@Override
@@ -27,9 +27,8 @@ public abstract class Genre extends BNode {
 	}
 
 	public static class Female extends Genre {
-
-		public Female(Hub g) {
-			super(g);
+		public Female(Element g, ID id) {
+			super(g, id);
 		}
 
 		@Override
@@ -39,9 +38,8 @@ public abstract class Genre extends BNode {
 	}
 
 	public static class NotGenred extends Genre {
-
-		public NotGenred(Hub g) {
-			super(g);
+		public NotGenred(Element g, ID id) {
+			super(g, id);
 		}
 
 		@Override

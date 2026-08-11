@@ -3,19 +3,19 @@ package byransha.network;
 import java.io.IOException;
 import java.net.Socket;
 
+import byransha.Service;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
 import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
-import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class TCPNode extends SystemNode {
+public class TCPNode extends Service {
 
 	@ShowInKishanView
 	private TCPServer server;
 
-	public TCPNode(NetworkAgent net, int port) {
+	public TCPNode(Network net, int port) {
 		super(net);
 		this.server = new TCPServer(this, port);
 	}
@@ -86,7 +86,7 @@ public class TCPNode extends SystemNode {
 					}
 
 					msg.routingInfo.actualRoute.add(p.name);
-					((NetworkAgent) parent).processIncomingMessage(msg);
+					((Network) parent).processIncomingMessage(msg);
 				}
 			} catch (Exception err) {
 				err.printStackTrace();
@@ -98,6 +98,12 @@ public class TCPNode extends SystemNode {
 
 	public void start() {
 		server.start();
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

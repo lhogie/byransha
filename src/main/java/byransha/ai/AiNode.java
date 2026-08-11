@@ -2,11 +2,11 @@ package byransha.ai;
 
 import java.net.InetAddress;
 
-import byransha.graph.BNode;
+import byransha.Service;
 import byransha.graph.Hub;
-import byransha.network.Peer;
+import byransha.network.Message;
 
-public class AiNode extends BNode {
+public class AiNode extends Service {
 	public InetAddress address;
 	public int port;
 	public String name;
@@ -37,7 +37,6 @@ public class AiNode extends BNode {
 		return alpha;
 	}
 
-
 	@Override
 	public String whatIsThis() {
 		return "AI node";
@@ -55,5 +54,11 @@ public class AiNode extends BNode {
 
 	public boolean getHaveAi() {
 		return HaveAi;
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

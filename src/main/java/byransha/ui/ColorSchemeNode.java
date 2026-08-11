@@ -2,16 +2,16 @@ package byransha.ui;
 
 import java.awt.Color;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.ui.swing.ColorPalette;
 import byransha.ui.swing.ColorPalette.Style;
 
-public class ColorSchemeNode extends BNode {
+public class ColorSchemeNode extends Element {
 
 	public final Style style;
 
-	public ColorSchemeNode(BNode parent, Style style2) {
-		super(parent);
+	public ColorSchemeNode(Element parent, Style style2) {
+		super(parent, null);
 		this.style = style2;
 	}
 

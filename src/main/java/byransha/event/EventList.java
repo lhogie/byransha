@@ -5,11 +5,11 @@ import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.function.Consumer;
 
-import byransha.graph.BNode;
-import byransha.graph.LoopingThreadNode;
+import byransha.ID;
+import byransha.Service;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
 import byransha.network.Message;
@@ -18,7 +18,7 @@ import byransha.security.AES;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 
-public abstract class EventList extends BNode {
+public abstract class EventList extends Service {
 	StringNode status;
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
 	Key encryptionKey = AES.createStringBasedOnHardware();
@@ -33,7 +33,7 @@ public abstract class EventList extends BNode {
 					candidates.add(e);
 
 					for (var neighbor : hub().network.neighborhood.neighbors()) {
-						var msg = new Message();
+						var msg = createNewMessage();
 						msg.ooInfos.recipient = neighbor;
 						msg.ooInfos.content = e;
 						hub().network.sender.accept(msg);
@@ -54,20 +54,9 @@ public abstract class EventList extends BNode {
 		}
 	});
 
-	public EventList(BNode parent) {
+	public EventList(Element parent) {
 		super(parent);
-		status = new StringNode(parent);
-
-		var q = new byransha.network.MessageQ(this, new UUID(3684455902639062977L, -3898051283145845872L));
-		new LoopingThreadNode(this, () -> 1.0, "EventList message processing", () -> {
-			var msg = q.q.poll_sync();
-			Event e = (Event) msg.ooInfos.content;
-			var alreadyKnownEvent = hub().eventList.findEvent(e.id());
-
-			if (alreadyKnownEvent == null) {
-				hub().eventList.add(e);
-			}
-		});
+		status = new StringNode(parent, null, "", null);
 
 	}
 
@@ -108,8 +97,18 @@ public abstract class EventList extends BNode {
 		}
 	}
 
-	public abstract Event findEvent(long eventID);
+	public abstract Event findEvent(ID eventID);
 
-	public abstract Event remove(long id) throws IOException;
+	public abstract Event remove(ID id) throws IOException;
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		Event e = (Event) msg.ooInfos.content;
+		var alreadyKnownEvent = hub().eventList.findEvent(e.id());
+
+		if (alreadyKnownEvent == null) {
+			hub().eventList.add(e);
+		}
+	}
 
 }

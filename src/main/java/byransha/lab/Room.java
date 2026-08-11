@@ -1,22 +1,26 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 
-public class Room extends BusinessNode {
+public class Room extends LabNode {
 	@ShowInKishanView
-	public StringNode name = new StringNode(this);
+	public StringNode name = lookupOrCreate("name", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final ListNode<Person> users = new ListNode(this, "users", Person.class);
+	public final ListNode<Person> users = lookupOrCreate("users", id -> new ListNode(this, id, "users", Person.class));
 
 	@ShowInKishanView
-	public LongNode surface = new LongNode(this), capacity = new LongNode(this);
+	public LongNode surface = lookupOrCreate("surface", id -> new LongNode(this, id));
+
+	@ShowInKishanView
+	public LongNode capacity = lookupOrCreate("capacity", id -> new LongNode(this, id));
 
 	@ShowInKishanView
 	public BooleanNode isZZR;
@@ -24,8 +28,8 @@ public class Room extends BusinessNode {
 	@ShowInKishanView
 	public LongNode floorNumber;
 
-	public Room(BNode parent) {
-		super(parent);
+	public Room(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override

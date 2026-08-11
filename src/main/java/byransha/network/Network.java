@@ -5,19 +5,19 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
-import byransha.primitive.StringNode;
+import byransha.primitive.LongNode;
 import byransha.security.NetworkBox;
 import byransha.security.PublicKeyImporter;
-import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 
-public class NetworkAgent extends SystemNode {
-	protected int nbMsgReceived;
+public class Network extends Element {
+	protected long nbMsgReceived;
 
 	@ShowInKishanView
-	final StringNode receptionInfo = new StringNode(this);
+	final LongNode receptionInfo = new LongNode(this, null, 0);
 
 	@ShowInKishanView
 	public final Sender sender;
@@ -31,9 +31,9 @@ public class NetworkAgent extends SystemNode {
 	@ShowInKishanView
 	public final PublicKeyImporter publicKeyImporter = new PublicKeyImporter(this);
 
-	public NetworkAgent(Hub g, int port)
+	public Network(Hub g, int port)
 			throws FileNotFoundException, IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-		super(g);
+		super(g, null);
 		this.neighborhood = new PeerManager(this);
 		this.sender = new Sender(this);
 		this.tcp = new TCPNode(this, port);
@@ -56,7 +56,7 @@ public class NetworkAgent extends SystemNode {
 	}
 
 	private void updateInOutInfo() {
-		receptionInfo.set(nbMsgReceived + " received");
+		receptionInfo.set(nbMsgReceived);
 	}
 
 	public synchronized void processIncomingMessage(Message msg) {
@@ -79,7 +79,7 @@ public class NetworkAgent extends SystemNode {
 			System.out.println("*** message received: " + msg);
 			System.out.println("*** content: " + msg.ooInfos.content);
 
-			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientNode);
+			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientQueueAtDestination);
 
 			if (recipientQ != null) {
 				recipientQ.q.add_sync(msg);

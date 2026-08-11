@@ -2,14 +2,15 @@ package byransha.graph.action;
 
 import java.util.ArrayList;
 
-import byransha.graph.BNode;
+import byransha.ID;
 import byransha.graph.Category.node;
+import byransha.graph.Element;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.TextNode;
 
-public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
-	public Export(BNode node) {
+public final class Export extends FunctionAction<Element, ListNode<TextNode>> {
+	public Export(Element node) {
 		super(node, node.class);
 		hasButtonOnKishanView = true;
 	}
@@ -26,12 +27,12 @@ public final class Export extends FunctionAction<BNode, ListNode<TextNode>> {
 
 	@Override
 	public void impl() throws IllegalArgumentException, IllegalAccessException {
-		result = new ListNode<TextNode>(this, "export texts", TextNode.class);
+		result = new ListNode<TextNode>(this, new ID(), "export texts", TextNode.class);
 		var csvs = new ArrayList<CSVData>();
 		inputNode.toCSVStreams(csvs, true);
-		csvs.stream().map(csv -> new byransha.primitive.TextNode(this, csv.name + " as CSV", csv.data))
+		csvs.stream().map(csv -> new byransha.primitive.TextNode(this, null, csv.name + " as CSV", csv.data))
 				.forEach(n -> result.get().add(n));
-		result.elements.add(new byransha.primitive.TextNode(this, "JSON", describeAsJSON().toPrettyString()));
+		result.elements.add(new byransha.primitive.TextNode(this, null, "JSON", describeAsJSON().toPrettyString()));
 	}
 
 	@Override

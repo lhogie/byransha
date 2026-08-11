@@ -6,38 +6,34 @@ import java.util.List;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.function.Consumer;
 
+import byransha.graph.Element;
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
-import byransha.network.routing.Broadcasting;
+import byransha.network.routing.MulticastRouting;
 import byransha.network.routing.RoutingService;
 import byransha.primitive.LongNode;
-import byransha.primitive.StringNode;
 import byransha.security.NetworkBox;
-import byransha.system.SystemNode;
 import byransha.util.ByUtils;
 import byransha.util.Q;
 
-public class Sender extends SystemNode implements Consumer<Message> {
+public class Sender extends Element implements Consumer<Message> {
 	private PriorityBlockingQueue<Message> inWait = new PriorityBlockingQueue<>(10,
 			(msg1, msg2) -> Long.compare(msg1.sendDateMs, msg2.sendDateMs));
 	private Q<Message> toSendNow = new Q<>(10);
 
 	@ShowInKishanView
-	protected int nbMessageSent;
+	protected long nbMessageSent;
 
 	@ShowInKishanView
-	final StringNode sendInfo = new StringNode(this);
-
-	@ShowInKishanView
-	final RoutingService routingProtocol = new Broadcasting(this);
+	final RoutingService routingProtocol = new MulticastRouting(this);
 
 	private Thread waitingThread;
 
 	@ShowInKishanView
-	private LongNode timeBeforeResendMs = new LongNode(this, 1000);
+	private LongNode timeBeforeResendMs = new LongNode(this, null, 1000);
 
-	public Sender(NetworkAgent net) {
-		super(net);
+	public Sender(Network net) {
+		super(net, null);
 	}
 
 	public void start() {
@@ -93,7 +89,6 @@ public class Sender extends SystemNode implements Consumer<Message> {
 								System.out.println("writing to TCP of " + relay);
 								relay.getConnection().writeObject(hopEncryptedBytes);
 								++nbMessageSent;
-								updateInOutInfo();
 							} catch (IOException e) {
 								e.printStackTrace();
 								errorWhenTryingToSending(msg);
@@ -140,10 +135,6 @@ public class Sender extends SystemNode implements Consumer<Message> {
 				waitingThread.interrupt();
 			}
 		}
-	}
-
-	private void updateInOutInfo() {
-		sendInfo.set(nbMessageSent + " sent");
 	}
 
 	@ShowInKishanView

@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 
-public class NewNodeEvent<N extends BNode> extends Event {
+public class NewNodeEvent<N extends Element> extends Event {
 	Class<N> clazz;
-	UUID nodeId;
+	ID nodeId;
 
-	public NewNodeEvent(BNode n) {
+	public NewNodeEvent(Element n) {
 		super(n.hub(), LocalDateTime.now());
 		this.clazz = (Class<N>) n.getClass();
 		this.nodeId = n.id();
@@ -30,26 +30,21 @@ public class NewNodeEvent<N extends BNode> extends Event {
 
 	@Override
 	public void apply(Hub g) throws Throwable {
-		var n = clazz.getConstructor(Hub.class).newInstance(g);
-
-		if (nodeId != null) {
-			g.indexes.byId.forceIndex(n, nodeId);
-		}
+		var n = clazz.getConstructor(Hub.class, ID.class).newInstance(g, nodeId);
 	}
 
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
 		out.writeObject(clazz);
-		out.writeLong(nodeId.getMostSignificantBits());
-		out.writeLong(nodeId.getLeastSignificantBits());
+		out.writeObject(nodeId);
 	}
 
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal(in);
 		clazz = (Class) in.readObject();
-		nodeId = new UUID(in.readLong(), in.readLong());
+		nodeId = (ID) in.readObject();
 	}
 
 }

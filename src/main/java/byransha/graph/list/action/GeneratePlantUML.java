@@ -3,13 +3,13 @@ package byransha.graph.list.action;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category.export;
 import byransha.graph.Category.list;
 import byransha.graph.relection.ClassNode;
 import byransha.primitive.TextNode;
 
-public class GeneratePlantUML<N extends BNode> extends FunctionAction<ListNode<N>, TextNode> {
+public class GeneratePlantUML<N extends Element> extends FunctionAction<ListNode<N>, TextNode> {
 	public GeneratePlantUML(ListNode<N> node) {
 		super(node, list.class, export.class);
 	}
@@ -28,7 +28,7 @@ public class GeneratePlantUML<N extends BNode> extends FunctionAction<ListNode<N
 			classNode.add(n instanceof ClassNode cn ? cn : hub().indexes.byClass.getClassNodeFor(n.getClass()));
 		}
 
-		result = new TextNode(null, "PlantUML", ClassNode.toPlantUML(classNode, true));
+		result = new TextNode(this,null, "PlantUML", ClassNode.toPlantUML(classNode, true));
 	}
 
 	@Override

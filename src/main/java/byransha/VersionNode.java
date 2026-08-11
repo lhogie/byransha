@@ -1,14 +1,14 @@
 package byransha;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.system.Byransha;
 import byransha.util.Version;
 
-public class VersionNode extends BNode {
+public class VersionNode extends Element {
 	public Version version = new Version();
 
 	public VersionNode(Byransha b) {
-		super(b);
+		super(b, null);
 		version.set(Byransha.VERSION);
 	}
 

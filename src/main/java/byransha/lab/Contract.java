@@ -1,27 +1,30 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class Contract extends BusinessNode {
+public class Contract extends LabNode {
 	@ShowInKishanView
-	public final StringNode name = new StringNode(this);
+	public final StringNode name = lookupOrCreate("name", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
 	public Person holder;
 	@ShowInKishanView
-	public final ListNode<Person> subHolders = new ListNode<>(this, "subHolder(s)", Person.class);
+	public final ListNode<Person> subHolders = lookupOrCreate("subHolders",
+			id -> new ListNode<>(this, id, "subHolder(s)", Person.class));
 	@ShowInKishanView
-	public final ListNode<Person> coordinators = new ListNode<>(this, "coordinators", Person.class);
+	public final ListNode<Person> coordinators = lookupOrCreate("coordinators",
+			id -> new ListNode<>(this, id, "coordinators", Person.class));
 	@ShowInKishanView
-	public final ListNode<Person> partners = new ListNode<>(this, "partners", Person.class);
+	public final ListNode<Person> partners = lookupOrCreate("partners", id -> new ListNode<>(this, id, "partners", Person.class));
 	@ShowInKishanView
-	public final ListNode<Person> misc = new ListNode<>(this, "misc", Person.class);
+	public final ListNode<Person> misc = lookupOrCreate("partners", id -> new ListNode<>(this, id, "misc", Person.class));
 
-	public Contract(BNode g) {
-		super(g);
+	public Contract(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

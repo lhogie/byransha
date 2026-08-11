@@ -4,9 +4,9 @@ import byransha.graph.Category.node;
 import byransha.graph.list.action.FunctionAction;
 import byransha.graph.relection.ClassNode;
 
-public class ShowClassNode extends FunctionAction<BNode, ClassNode> {
+public class ShowClassNode extends FunctionAction<Element, ClassNode> {
 
-	public ShowClassNode(BNode inputNode) {
+	public ShowClassNode(Element inputNode) {
 		super(inputNode, node.class);
 	}
 

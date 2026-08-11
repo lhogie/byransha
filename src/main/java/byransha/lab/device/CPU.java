@@ -1,15 +1,17 @@
 package byransha.lab.device;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.URLNode;
 
-public class CPU extends BNode {
+public class CPU extends LabNode {
 	LongNode nbCores;
 	URLNode url;
 
-	public CPU(BNode parent) {
-		super(parent);
+	public CPU(Element parent, ID id) {
+		super(parent, id);
 	}
 
 }

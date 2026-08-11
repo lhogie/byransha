@@ -3,6 +3,7 @@ package byransha.translate;
 import java.net.HttpURLConnection;
 
 import byransha.graph.Hub;
+import byransha.network.Message;
 import byransha.translate.Translator.Language;
 
 public class GoogleTranslator extends Translator {
@@ -32,5 +33,11 @@ public class GoogleTranslator extends Translator {
 	@Override
 	public String toString() {
 		return "Google Translate";
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

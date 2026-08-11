@@ -1,16 +1,13 @@
 package byransha.translate;
 
 import byransha.graph.Hub;
-import byransha.translate.Translator.Language;
+import byransha.network.Message;
 import dev.langchain4j.model.ollama.OllamaChatModel;
 
 public class OllamaTranslate extends Translator {
 
-	private static final OllamaChatModel chatModel = OllamaChatModel.builder()
-			.baseUrl("http://localhost:11434")
-			.modelName("granite4:tiny-h")
-			.temperature(0.2)
-			.build();
+	private static final OllamaChatModel chatModel = OllamaChatModel.builder().baseUrl("http://localhost:11434")
+			.modelName("granite4:tiny-h").temperature(0.2).build();
 
 	public OllamaTranslate(Hub g) {
 		super(g);
@@ -24,5 +21,11 @@ public class OllamaTranslate extends Translator {
 	@Override
 	public String toString() {
 		return "ollama";
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+
 	}
 }

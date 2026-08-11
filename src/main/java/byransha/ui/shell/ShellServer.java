@@ -3,11 +3,12 @@ package byransha.ui.shell;
 import java.io.IOException;
 import java.net.ServerSocket;
 
+import byransha.Service;
 import byransha.graph.Hub;
 import byransha.graph.LoopingThreadNode;
-import byransha.system.SystemNode;
+import byransha.network.Message;
 
-public class ShellServer extends SystemNode {
+public class ShellServer extends Service {
 
 	public static final int DEFAULT_PORT = 42424;
 
@@ -46,5 +47,11 @@ public class ShellServer extends SystemNode {
 	@Override
 	public String toString() {
 		return "shell server";
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

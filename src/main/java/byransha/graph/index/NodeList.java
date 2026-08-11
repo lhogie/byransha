@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Index;
 import byransha.util.Stop;
 
@@ -16,10 +16,10 @@ public class NodeList extends Index {
 		// TODO Auto-generated constructor stub
 	}
 
-	final List<BNode> l = new ArrayList<>();
+	final List<Element> l = new ArrayList<>();
 
-	public BNode forEachNode(Function<BNode, Stop> f) {
-		for (BNode node : l) {
+	public Element forEachNode(Function<Element, Stop> f) {
+		for (Element node : l) {
 			if (f.apply(node) == Stop.yes) {
 				return node;
 			}
@@ -29,12 +29,12 @@ public class NodeList extends Index {
 	}
 
 	@Override
-	public void add(BNode n) {
+	public void add(Element n) {
 		l.add(n);
 	}
 
 	@Override
-	public void delete(BNode n) {
+	public void delete(Element n) {
 		l.remove(n);
 	}
 
@@ -47,7 +47,7 @@ public class NodeList extends Index {
 		return l.size();
 	}
 
-	public Stream<BNode> stream() {
+	public Stream<Element> stream() {
 		return l.stream();
 	}
 }

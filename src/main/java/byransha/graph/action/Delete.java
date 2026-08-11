@@ -1,13 +1,12 @@
 package byransha.graph.action;
 
-import byransha.graph.BNode;
 import byransha.graph.Category.node;
-import byransha.system.SystemNode;
+import byransha.graph.Element;
 import byransha.graph.ProcedureAction;
 
-public class Delete extends ProcedureAction<BNode> {
+public class Delete extends ProcedureAction<Element> {
 
-	public Delete(BNode node) {
+	public Delete(Element node) {
 		super(node, node.class);
 	}
 
@@ -23,6 +22,6 @@ public class Delete extends ProcedureAction<BNode> {
 
 	@Override
 	public boolean applies() {
-		return !(inputNode instanceof SystemNode);
+		return inputNode.id() != null;
 	}
 }

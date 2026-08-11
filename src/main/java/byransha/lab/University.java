@@ -1,16 +1,17 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
 
 public class University extends Structure {
 	@ShowInKishanView
-	public final ListNode<Campus> campuses = new ListNode<>(this, "campus", Campus.class);
+	public final ListNode<Campus> campuses = lookupOrCreate("name",  id ->new ListNode<>(this, id, "campus", Campus.class));
 	public Person president;
 
-	public University(BNode g) {
-		super(g);
+	public University(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

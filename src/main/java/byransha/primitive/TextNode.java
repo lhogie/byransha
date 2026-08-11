@@ -8,7 +8,8 @@ import javax.swing.JTextPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.TranslatableTextArea;
@@ -19,9 +20,9 @@ public class TextNode extends PrimitiveValueNode<String> {
 	final StringNode labelNode;
 	public boolean info;
 
-	public TextNode(BNode parent, String label, String data) {
-		super(parent);
-		this.labelNode = new StringNode(this, label, ".+");
+	public TextNode(Element parent, ID id, String label, String data) {
+		super(parent, id);
+		this.labelNode = out("label", i -> new StringNode(this, i, label, ".+")).get();
 		set(data);
 	}
 

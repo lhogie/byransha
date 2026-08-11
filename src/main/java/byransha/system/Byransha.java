@@ -19,13 +19,14 @@ import javax.net.ssl.X509TrustManager;
 import javax.swing.JOptionPane;
 
 import byransha.graph.Category;
+import byransha.graph.Element;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
 import byransha.primitive.URLNode;
 import byransha.util.ByUtils;
 
-public class Byransha extends SystemNode {
+public class Byransha extends Element {
 	public static Hub hub;
 
 	@ShowInKishanView
@@ -47,7 +48,7 @@ public class Byransha extends SystemNode {
 	}
 
 	@ShowInKishanView
-	public final URLNode sourceRepoURL = new URLNode(this, "https://github.com/lhogie/byransha");
+	public final URLNode sourceRepoURL = new URLNode(this, null, "https://github.com/lhogie/byransha");
 
 	@ShowInKishanView
 	public static final File homeDirectory = new File(System.getProperty("user.home")
@@ -66,7 +67,7 @@ public class Byransha extends SystemNode {
 	public static boolean autoRestartWhenUpgraded = false;
 
 	public Byransha(Hub g) {
-		super(g);
+		super(g, null);
 	}
 
 	public static String[] pathElements() {

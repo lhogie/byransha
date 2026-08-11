@@ -21,13 +21,14 @@ class OldTBRH {
 
 		var csv = new CSV(new File(extractionDir, "personneI3S_IT.csv"), ";");
 
-		for (var l : csv) {
+		for (List<String> l : csv) {
 			System.out.println(l);
 
-			var person = new Person(i3s); // new Person(graph);
+			var person = i3s.lookupOrCreate(l.toString(), id -> new Person(i3s, id)); // new
+																						// Person(graph);
 
 			if (l.set(0, "").equals("member")) {
-				var position = new Position(person);
+				Position position = i3s.lookupOrCreate(l.toString(), id -> new Position(person, id));
 				position.employer = i3s;
 				person.positions.elements.add(position);
 			}

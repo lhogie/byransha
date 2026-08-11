@@ -12,28 +12,29 @@ import java.util.List;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import byransha.Service;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
+import byransha.network.Message;
 import byransha.primitive.ColorNode;
 import byransha.primitive.LongNode;
 import byransha.system.Byransha;
 import byransha.system.ChatNode;
-import byransha.system.SystemNode;
 import byransha.system.User;
 import byransha.ui.ColorSchemeNode;
 import byransha.util.ByUtils;
 
-public class SwingFrontend extends SystemNode {
+public class SwingFrontend extends Service {
 	@ShowInKishanView
 	public final ColorSchemeNode colorStyle = List.of(ColorPalette.Style.values()).stream()
 			.map(s -> new ColorSchemeNode(this, s)).toList().getFirst();
 	@ShowInKishanView
-	public final LongNode transparencyForNodeBackground = new LongNode(this, 20);
-	public ColorNode backgroundColor = new ColorNode(this, colorStyle.get()[0]);
+	public final LongNode transparencyForNodeBackground = new LongNode(this, null, 20);
+	public ColorNode backgroundColor = new ColorNode(this, null, colorStyle.get()[0]);
 
 	@ShowInKishanView
-	public final ListNode<FontNode> fonts = new ListNode<>(this, "available fonts", FontNode.class);
+	public final ListNode<FontNode> fonts = new ListNode<>(this, null, "available fonts", FontNode.class);
 	public JFrame frame;
 
 	public SwingFrontend(Hub g) {
@@ -124,5 +125,11 @@ public class SwingFrontend extends SystemNode {
 	@Override
 	public String toString() {
 		return "Swing GUI";
+	}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

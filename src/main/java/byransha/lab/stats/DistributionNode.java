@@ -12,14 +12,13 @@ import org.jfree.data.general.DefaultPieDataset;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.Hub;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.ui.swing.ChatSheet;
 import byransha.util.ByUtils;
 
-public abstract class DistributionNode<V> extends BNode {
-	public DistributionNode(BNode parent) {
-		super(parent);
+public abstract class DistributionNode<V> extends Element {
+	public DistributionNode(Element parent) {
+		super(parent, null);
 	}
 
 	public static class Entry<V> {

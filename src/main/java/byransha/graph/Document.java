@@ -1,18 +1,19 @@
 package byransha.graph;
 
+import byransha.ID;
 import byransha.primitive.StringNode;
 import byransha.primitive.URLNode;
 
-public class DocumentNode extends BNode {
+public class Document extends Element {
 	@ShowInKishanView
-	public URLNode url = new URLNode(this, null);
+	public URLNode url = new URLNode(this, id().augmentWith("url"), null);
 	@ShowInKishanView
-	public StringNode name = new StringNode(this);
+	public StringNode name = new StringNode(this, id().augmentWith("name"), null, ".+");
 	@ShowInKishanView
-	public BNode relatedTo;
+	public Element relatedTo;
 
-	public DocumentNode(BNode parent) {
-		super(parent);
+	public Document(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override
@@ -24,4 +25,5 @@ public class DocumentNode extends BNode {
 	public String toString() {
 		return name + " for " + relatedTo;
 	}
+
 }

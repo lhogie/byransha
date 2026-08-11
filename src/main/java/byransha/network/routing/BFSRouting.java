@@ -10,7 +10,7 @@ import java.util.Set;
 
 import byransha.graph.ActionMethod;
 import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.ShowInKishanView;
 import byransha.network.Gossiper;
 import byransha.network.Message;
@@ -76,7 +76,7 @@ public class BFSRouting extends RoutingService {
 	public static Object2ObjectOpenHashMap<Peer, Peer> bfs(Peer source) {
 		List<Peer> q = new ArrayList<>();
 		var preds = new Object2ObjectOpenHashMap<Peer, Peer>();
-		Set<BNode> visited = new HashSet<>();
+		Set<Element> visited = new HashSet<>();
 		q.add(source);
 		visited.add(source);
 

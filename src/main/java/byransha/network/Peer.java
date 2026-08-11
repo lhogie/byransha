@@ -16,7 +16,7 @@ import javax.swing.JComponent;
 
 import byransha.graph.ActionMethod;
 import byransha.graph.AddButtonOnKishanView;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.LoopingThreadNode;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.ThreadNode;
@@ -25,7 +25,7 @@ import byransha.primitive.BooleanNode;
 import byransha.primitive.DoubleNode;
 import byransha.system.ChatNode;
 
-public abstract class Peer extends BNode {
+public abstract class Peer extends Element {
 
 	@ShowInKishanView
 	public List<Peer> neighbors = new ArrayList<>();
@@ -48,13 +48,13 @@ public abstract class Peer extends BNode {
 	private Connection connection;
 
 	@ShowInKishanView
-	public BooleanNode autoConnect = new BooleanNode(this, true);
+	public BooleanNode autoConnect = new BooleanNode(this, null, true);
 
 	@ShowInKishanView
-	final DoubleNode periodS = new DoubleNode(this, 5);
+	final DoubleNode periodS = new DoubleNode(this, null, 5);
 
-	public Peer(PeerManager neigh, String name) {
-		super(neigh);
+	public Peer(PeerManager parent, String name) {
+		super(parent, null);
 		Objects.requireNonNull(name);
 		this.name = name;
 

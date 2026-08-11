@@ -8,19 +8,19 @@ import java.io.ObjectOutput;
 import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 
-import byransha.graph.Hub;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.system.ChatNode;
-import byransha.graph.BNode;
 
 public class ColorNode extends PrimitiveValueNode<Color> {
 
-	public ColorNode(Hub g) {
-		super(g);
+	public ColorNode(Element parent, ID id) {
+		this(parent, id, null);
 	}
 
-	public ColorNode(BNode parent, Color c) {
-		super(parent);
-		set(c);
+	public ColorNode(Element parent, ID id, Color color) {
+		super(parent, id);
+		set(color);
 	}
 
 	@Override

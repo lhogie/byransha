@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 public class MethodAction extends Action {
 	final Method m;
 
-	public MethodAction(BNode parent, Method m) {
+	public MethodAction(Element parent, Method m) {
 		super(parent, m.getDeclaringClass());
 		this.m = m;
 		this.hasButtonOnKishanView = m.isAnnotationPresent(AddButtonOnKishanView.class);

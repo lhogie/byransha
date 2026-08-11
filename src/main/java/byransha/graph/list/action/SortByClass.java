@@ -1,6 +1,6 @@
 package byransha.graph.list.action;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 
 public class SortByClass extends Sort {
 
@@ -9,7 +9,7 @@ public class SortByClass extends Sort {
 	}
 
 	@Override
-	public int compare(BNode a, BNode b) {
+	public int compare(Element a, Element b) {
 		return a.getClass().getName().compareTo(b.getClass().getName());
 	}
 

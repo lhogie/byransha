@@ -2,8 +2,8 @@ package byransha.graph.index;
 
 import java.util.Objects;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 import byransha.graph.Index;
 import byransha.graph.ShowInKishanView;
 
@@ -25,7 +25,7 @@ public class AllIndexes extends Index {
 	}
 
 	@Override
-	public void add(BNode n) {
+	public void add(Element n) {
 		Objects.requireNonNull(n);
 		byId.add(n);
 		nodesList.add(n);
@@ -33,10 +33,13 @@ public class AllIndexes extends Index {
 	}
 
 	@Override
-	public void delete(BNode n) {
+	public void delete(Element n) {
 		nodesList.delete(n);
-		byId.delete(n);
 		byClass.delete(n);
+
+		if (n.id() != null) {
+			byId.delete(n);
+		}
 	}
 
 	@Override

@@ -4,6 +4,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import byransha.graph.Hub;
+import byransha.network.Message;
 import byransha.translate.Translator.Language;
 
 public class LibreTranslate extends Translator {
@@ -35,4 +36,9 @@ public class LibreTranslate extends Translator {
 	public String toString() {
 		return "libretranslate.com";
 	}
-}
+
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
+	}}

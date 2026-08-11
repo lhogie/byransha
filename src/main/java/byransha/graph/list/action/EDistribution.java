@@ -1,11 +1,11 @@
 package byransha.graph.list.action;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.Category.list;
 import byransha.graph.Category.statistics;
 import byransha.lab.stats.DistributionNode;
 
-public class EDistribution<V extends BNode> extends FunctionAction<ListNode<V>, DistributionNode<V>> {
+public class EDistribution<V extends Element> extends FunctionAction<ListNode<V>, DistributionNode<V>> {
 
 	public EDistribution(ListNode<V> inputNode) {
 		super(inputNode, list.class, statistics.class);

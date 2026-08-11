@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import byransha.Main;
-import byransha.graph.BNode;
+import byransha.graph.Element;
 import byransha.graph.ThreadNode;
 import toools.io.ser.JavaSerializer;
 import toools.io.ser.Serializer;
@@ -149,7 +149,7 @@ public class ByUtils {
 	public static int sizeOfObject(Object o) {
 		if (o == null) {
 			return 0;
-		} else if (o instanceof BNode) {
+		} else if (o instanceof Element) {
 			return 0;
 		} else if (o.getClass().isArray()) {
 			var componentType = o.getClass().getComponentType();
@@ -252,4 +252,6 @@ public class ByUtils {
 		return System.getProperty("os.name").toLowerCase().contains("win");
 	}
 
+	
+	
 }

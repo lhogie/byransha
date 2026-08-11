@@ -10,12 +10,12 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 import byransha.translate.Translator;
 import byransha.ui.swing.TranslatableTextArea;
 
-public class ConsoleNode extends BNode {
+public class ConsoleNode extends Element {
 	private final Set<C> stdOutComponents = new HashSet<>();
 	private final Set<C> stdErrComponents = new HashSet<>();
 
@@ -57,7 +57,7 @@ public class ConsoleNode extends BNode {
 	}
 
 	public ConsoleNode(Hub g) {
-		super(g);
+		super(g, null);
 		System.setOut(new PrintStream(new ToQOutputStream(stdOutComponents, System.out), true));
 		System.setErr(new PrintStream(new ToQOutputStream(stdErrComponents, System.err), true));
 	}

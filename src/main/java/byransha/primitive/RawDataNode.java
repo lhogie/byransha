@@ -1,14 +1,15 @@
-package byransha.graph;
+package byransha.primitive;
 
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import byransha.primitive.PrimitiveValueNode;
+import byransha.ID;
+import byransha.graph.Element;
 
 public class RawDataNode extends PrimitiveValueNode<byte[]> {
-	public RawDataNode(BNode g) {
-		super(g);
+	public RawDataNode(Element g, ID id) {
+		super(g, id);
 	}
 
 	@Override

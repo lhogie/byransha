@@ -11,13 +11,14 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.system.ChatNode;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(BNode g, Boolean v) {
-		super(g);
+	public BooleanNode(Element g, ID id, Boolean v) {
+		super(g, id);
 		set(v);
 	}
 

@@ -1,12 +1,13 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.primitive.StringNode;
 
 public class BadgeNode extends StringNode {
 
-	public BadgeNode(BNode p) {
-		super(p, null, ".+");
+	public BadgeNode(Element p, ID id) {
+		super(p, id, null, ".+");
 	}
 
 }

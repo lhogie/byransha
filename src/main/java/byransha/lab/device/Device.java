@@ -1,7 +1,8 @@
 package byransha.lab.device;
 
-import byransha.graph.BNode;
-import byransha.graph.BusinessNode;
+import byransha.ID;
+import byransha.graph.Element;
+import byransha.graph.LabNode;
 import byransha.graph.ShowInKishanView;
 import byransha.lab.Room;
 import byransha.lab.Structure;
@@ -10,43 +11,43 @@ import byransha.primitive.NetworkAddressNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.URLNode;
 
-public class Device extends BusinessNode {
+public class Device extends LabNode {
 	@ShowInKishanView
-	public final StringNode serialNumber = new StringNode(this);
+	public final StringNode serialNumber = lookupOrCreate("sn", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
-	public final StringNode inriaServiceTag = new StringNode(this);
+	public final StringNode inriaServiceTag = lookupOrCreate("inriaServiceTag", id -> new StringNode(this, id, null, "[0-9A-Z\\-]+"));
 	@ShowInKishanView
-	public final MACAddressNode macAddress = new MACAddressNode(this);
+	public final MACAddressNode macAddress = lookupOrCreate("mac", id -> new MACAddressNode(this, id));
 
 	@ShowInKishanView
-	public final StringNode dnsName = new StringNode(this);
+	public final StringNode dnsName = lookupOrCreate("dns", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final StringNode brand = new StringNode(this);
+	public final StringNode brand = lookupOrCreate("brand", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final StringNode modelName = new StringNode(this);
+	public final StringNode modelName = lookupOrCreate("model", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final Structure owner = new Structure(this);
+	public final Structure owner = lookupOrCreate("owner", id -> null);
 
 	@ShowInKishanView
-	public final Room repository = new Room(this);
+	public final Room repository = lookupOrCreate("repository", id -> null);
 
 	@ShowInKishanView
-	public final LongNode financialValue = new LongNode(this);
+	public final LongNode financialValue = lookupOrCreate("financialValue", id -> new LongNode(this, null));
 
 	@ShowInKishanView
-	public final Invoice invoice = new Invoice(this);
+	public final Invoice invoice = lookupOrCreate("invoice", id -> new Invoice(this, id));
 
 	@ShowInKishanView
-	public final URLNode productURL = new URLNode(this, null);
+	public final URLNode productURL = lookupOrCreate("productURL", id -> new URLNode(this, id, null));
 
 	@ShowInKishanView
-	public final NetworkAddressNode ip = new NetworkAddressNode(this);
+	public final NetworkAddressNode ip = lookupOrCreate("ip", id -> new NetworkAddressNode(this, id));
 
-	public Device(BNode parent) {
-		super(parent);
+	public Device(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override

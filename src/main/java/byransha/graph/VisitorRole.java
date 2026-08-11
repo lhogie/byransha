@@ -9,12 +9,12 @@ public class VisitorRole extends Role {
 	}
 
 	@Override
-	public boolean isAllowedToEdit(BNode bNode) {
+	public boolean isAllowedToEdit(Element bNode) {
 		return false;
 	}
 
 	@Override
-	public boolean isAllowedToSee(BNode n) {
+	public boolean isAllowedToSee(Element n) {
 		return true;
 	}
 

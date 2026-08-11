@@ -1,13 +1,13 @@
 package byransha.lab;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.primitive.BooleanNode;
 
 public class Software extends Publication {
-	BooleanNode openSource;
+	final BooleanNode openSource= lookupOrCreate("surface", id -> new BooleanNode(this, id, null));
 
-	public Software(BNode g) {
-		super(g);
-		openSource = new BooleanNode(g, null);
+	public Software(Element g, ID id) {
+		super(g, id);
 	}
 }

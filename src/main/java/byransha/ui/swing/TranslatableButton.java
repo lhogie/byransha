@@ -6,12 +6,12 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.ToolTipManager;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 
 public class TranslatableButton extends JButton implements ComponentShowingTextAndToolTip {
-	private BNode v;
+	private Element v;
 
-	public TranslatableButton(BNode v) {
+	public TranslatableButton(Element v) {
 		this.v = v;
 		ToolTipManager.sharedInstance().registerComponent(this);
 	}

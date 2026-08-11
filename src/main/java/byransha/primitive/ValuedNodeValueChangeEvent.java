@@ -4,18 +4,19 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
+import byransha.ID;
 import byransha.event.Event;
 import byransha.graph.Hub;
 
 public class ValuedNodeValueChangeEvent<V> extends Event {
-	ValuedNode<V> node;
+	ValuedElement<V> node;
 	V oldValue;
 	V newValue;
 
-	public ValuedNodeValueChangeEvent(Hub g, LocalDateTime date, ValuedNode<V> node, V oldValue, V newValue) {
-		super(g, date);
+	public ValuedNodeValueChangeEvent(LocalDateTime date, ValuedElement<V> node, V oldValue,
+			V newValue) {
+		super(node, date);
 		this.node = node;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
@@ -34,8 +35,7 @@ public class ValuedNodeValueChangeEvent<V> extends Event {
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException {
 		super.writeExternal(out);
-		out.writeLong(node.id().getMostSignificantBits());
-		out.writeLong(node.id().getLeastSignificantBits());
+		out.writeObject(node.id());
 		node.writeValue(oldValue, out);
 		node.writeValue(newValue, out);
 	}
@@ -43,8 +43,8 @@ public class ValuedNodeValueChangeEvent<V> extends Event {
 	@Override
 	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
 		super.readExternal(in);
-		var uuid = new UUID(in.readLong(), in.readLong());
-		node = (ValuedNode<V>) g.indexes.byId.get(uuid);
+		var uuid = (ID) in.readObject();
+		node = (ValuedElement<V>) hub().indexes.byId.get(uuid);
 		oldValue = node.readValue(in);
 		newValue = node.readValue(in);
 	}

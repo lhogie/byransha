@@ -6,11 +6,13 @@ import java.net.UnknownHostException;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import byransha.Service;
 import byransha.graph.Hub;
 import byransha.graph.ShowInKishanView;
+import byransha.network.Message;
 import byransha.util.ByUtils;
 
-public class OperatingSystem extends SystemNode {
+public class OperatingSystem extends Service {
 
 	public OperatingSystem(Hub g) {
 		super(g);
@@ -85,5 +87,10 @@ public class OperatingSystem extends SystemNode {
 	@Override
 	public String toString() {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
+	}
+	@Override
+	protected void incomingMessage(Message msg) {
+		// TODO Auto-generated method stub
+		
 	}
 }

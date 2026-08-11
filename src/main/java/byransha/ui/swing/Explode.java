@@ -1,4 +1,4 @@
-package byransha.ui.swing.action;
+package byransha.ui.swing;
 
 import java.awt.GridLayout;
 
@@ -7,8 +7,6 @@ import javax.swing.JPanel;
 import byransha.graph.Category;
 import byransha.graph.ProcedureAction;
 import byransha.system.ChatNode;
-import byransha.ui.swing.ChatPanel;
-import byransha.ui.swing.ChatPanelNode;
 
 public class Explode extends ProcedureAction<ChatPanelNode> {
 

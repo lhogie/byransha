@@ -15,11 +15,11 @@ import byransha.primitive.LongNode;
 import byransha.system.ChatNode;
 import byransha.system.User;
 
-public abstract class Action<HOOK extends BNode> extends BNode {
+public abstract class Action<HOOK extends Element> extends Element {
 	public boolean stopRequested = false;
 	private Thread thread;
 	public final Class<? extends Category>[] path;
-	public final LongNode durationMs = new LongNode(this);
+	public final LongNode durationMs = new LongNode(this, null);
 	public ChatNode chat;
 	public Consumer<Object> outputConsumer;
 	public Consumer<Double> progressConsumer;
@@ -28,12 +28,12 @@ public abstract class Action<HOOK extends BNode> extends BNode {
 	public boolean hasButtonOnKishanView = false;
 
 	public Action(HOOK parent, Class<? extends Category>... pathInMenu) {
-		super(parent);
+		super(parent, null);
 		this.path = pathInMenu;
 	}
 
-	public List<BNode> parameters() {
-		var r = new ArrayList<BNode>();
+	public List<Element> parameters() {
+		var r = new ArrayList<Element>();
 		forEachOutInFields(getClass(), Action.class, (field, out, readOnly) -> {
 			if (field.isAnnotationPresent(ShowInKishanView.class)) {
 				r.add(out);
@@ -65,7 +65,7 @@ public abstract class Action<HOOK extends BNode> extends BNode {
 		return true;
 	}
 
-	public boolean wantToBeProposedFor(BNode bNode) {
+	public boolean wantToBeProposedFor(Element bNode) {
 		return true;
 	}
 

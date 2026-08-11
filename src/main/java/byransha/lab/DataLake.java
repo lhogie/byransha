@@ -14,13 +14,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import byransha.graph.ActionMethod;
+import byransha.graph.Element;
 import byransha.graph.Hub;
-import byransha.graph.BNode;
 import byransha.graph.ShowInKishanView;
 import byransha.nodes.primitive.file.FileNode;
 import byransha.util.Cout;
 
-public class DataLake extends BNode {
+public class DataLake extends Element {
 	@ShowInKishanView
 	public final FileNode dir;
 
@@ -29,26 +29,31 @@ public class DataLake extends BNode {
 	}
 
 	public DataLake(Hub g, File dir) {
-		super(g);
-		this.dir = new FileNode(g);
+		super(g, null);
+		this.dir = new FileNode(g, null);
 		this.dir.file = dir;
+	}
+
+	@ActionMethod
+	public void importAll() throws IOException {
+		load((LabApplication) hub().application);
 	}
 
 	static JsonNode countryCodes;
 
-	public static void loadCountries(Hub g, File dataLakeDir) throws IOException {
+	public static void loadCountries(Hub hub, File dataLakeDir) throws IOException {
 		var dir = new File(dataLakeDir, "country_flags");
 		var json = Files.readAllBytes(new File(dir, "countries.json").toPath());
 		countryCodes = new ObjectMapper().readTree(json);
 
 		countryCodes.fieldNames().forEachRemaining(code -> {
-			var country = new Country(g);
+			Country country = hub.lookupOrCreate("country-" + code, id -> new Country(hub, id));
 			country.code = code;
 			country.name = countryCodes.get(code).asText();
 
 			try {
 				var fileFlag = new File(dir, "svg/" + code.toLowerCase() + ".svg");
-				country.flag = Files.readAllBytes(fileFlag.toPath());
+				country.flag.set(Files.readAllBytes(fileFlag.toPath()));
 			} catch (IOException err) {
 				throw new RuntimeException(err);
 			}
@@ -92,7 +97,9 @@ public class DataLake extends BNode {
 	}
 
 	@ActionMethod
-	public void load(Lab i3s) throws IOException {
+	public void load(LabApplication app) throws IOException {
+		var i3s = app.i3s;
+
 		if (dir == null)
 			throw new NullPointerException();
 
@@ -102,47 +109,47 @@ public class DataLake extends BNode {
 		Cout.progress("Loading datalake from " + dir);
 		loadCountries(hub(), dir.file);
 
-		ACMClassifier.createNodes(hub(), dir.file);
+		ACMClassifier.load(hub(), dir.file);
 
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir.file, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-			var c = new Nationality(hub());
-			c.set(l);
+//			var c = hub().lookupOrCreate("nationality- + l", id -> new Nationality(hub()));
+//			c.set(l);
 		});
 
 		var france = hub().indexes.byClass.findFirst(Country.class, c -> c.name.equals("France"));
 
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = new EPST(france);
+			var epst = app.lookupOrCreate("nationality- + l", id -> new EPST(france, id));
 			epst.name.set(n);
 			i3s.tutelles.elements.add(epst);
 		}
 
-		var UniCA = new University(hub()); // new University(graph);
-		UniCA.name.set("UniCA");
-		i3s.tutelles.elements.add(UniCA);
+		var unica = app.lookupOrCreate("unica", id -> new University(hub(), id)); // new University(graph);
+		unica.name.set("UniCA");
+		i3s.tutelles.elements.add(unica);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = new ResearchGroup(i3s, n);
+			var group = app.lookupOrCreate(n, id -> new ResearchGroup(i3s, id, n));
 			i3s.subStructures.elements.add(group);
 		}
 
-		var adminGroup = new Structure(i3s);
+		var adminGroup = app.lookupOrCreate("admin", id -> new Structure(i3s, id));
 		adminGroup.name.set("SG/Administration");
 		i3s.subStructures.elements.add(adminGroup);
 
-		var infoGroup = new Structure(i3s);
+		var infoGroup = app.lookupOrCreate("info", id -> new Structure(i3s, id));
 		infoGroup.name.set("SG/Informatique");
 		i3s.subStructures.elements.add(infoGroup);
 
-		var ds4h = new EUR(i3s);
+		var ds4h = unica.lookupOrCreate("ds4h", id -> new EUR(i3s, id));
 		ds4h.name.set("DS4H");
 		i3s.subStructures.elements.add(ds4h);
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = new Campus(UniCA); // new Campus(graph);
+			var campus = unica.lookupOrCreate(n, id -> new Campus(unica, id)); // new Campus(graph);
 			campus.name.set(n);
-			UniCA.campuses.elements.add(campus);
+			unica.campuses.elements.add(campus);
 		}
 
 		Cout.progress("\tLoading old TBRH");

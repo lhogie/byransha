@@ -9,12 +9,16 @@ import java.util.function.BiConsumer;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 
-import byransha.graph.BNode;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.graph.action.CreateNewListElement;
 import byransha.graph.action.Export.CSVData;
 import byransha.graph.list.action.filter.RemoveSelected;
 import byransha.graph.list.action.filter.RetainSelected;
 import byransha.graph.list.action.map.MapToClassNode;
+import byransha.graph.list.event.AddToListEvent;
+import byransha.graph.list.event.RemoveFromListEvent;
+import byransha.graph.list.event.SetOnListEvent;
 import byransha.graph.relection.ClassNode;
 import byransha.ui.swing.ChatSheet;
 import byransha.ui.swing.ListItemPanel;
@@ -22,20 +26,44 @@ import byransha.ui.swing.TextDisplayComponent;
 import byransha.util.IntObjectBiConsumer;
 import byransha.util.ListenableList;
 
-public class ListNode<T extends BNode> extends BNode {
+public class ListNode<T extends Element> extends Element {
 	String label;
 	final public ListenableList<T> elements = new ListenableList<>();
 	final public ListenableList<T> selection = new ListenableList<>();
 	public Class<T> contentClass;
 
-	public ListNode(BNode parent, String label, Class<T> contentClass) {
-		super(parent);
+	public ListNode(Element parent, ID id, String label, Class<T> contentClass) {
+		super(parent, id);
 		this.label = label;
 		this.contentClass = contentClass;
+
+		elements.addListener(new ListenableList.Listener<T>() {
+
+			@Override
+			public void onAdded(int index, T element) {
+				if (generateEvents()) {
+					hub().eventList.add(new AddToListEvent(ListNode.this, element, index));
+				}
+			}
+
+			@Override
+			public void onRemoved(int index, T oldElement) {
+				if (generateEvents()) {
+					hub().eventList.add(new RemoveFromListEvent(ListNode.this, oldElement, index));
+				}
+			}
+
+			@Override
+			public void onSet(int index, T oldElement, T newElement) {
+				if (generateEvents()) {
+					hub().eventList.add(new SetOnListEvent(ListNode.this, oldElement, newElement, index));
+				}
+			}
+		});
 	}
 
 	@Override
-	protected boolean acceptDrop(BNode droppedNode) {
+	protected boolean acceptDrop(Element droppedNode) {
 		if (!contentClass.getClass().isAssignableFrom(droppedNode.getClass()))
 			return false;
 
@@ -70,12 +98,12 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	@Override
-	public void forEachOut(BiConsumer<BNode, String> consumer) {
+	public void forEachOut(BiConsumer<Element, String> consumer) {
 		super.forEachOut(consumer);
 		forEachOutInContent((i, o) -> consumer.accept(o, "" + i));
 	}
 
-	public void forEachOutInContent(IntObjectBiConsumer<BNode> consumer) {
+	public void forEachOutInContent(IntObjectBiConsumer<Element> consumer) {
 		var l = elements;
 
 		for (int i = 0; i < l.size(); ++i) {
@@ -113,7 +141,7 @@ public class ListNode<T extends BNode> extends BNode {
 	}
 
 	@Override
-	public void removeOut(BNode out) {
+	public void removeOut(Element out) {
 		elements.remove(out);
 	}
 
@@ -131,8 +159,8 @@ public class ListNode<T extends BNode> extends BNode {
 		return classes().size() <= 1;
 	}
 
-	public MultiValuedMap<Class<? extends BNode>, BNode> classes() {
-		var r = new HashSetValuedHashMap<Class<? extends BNode>, BNode>();
+	public MultiValuedMap<Class<? extends Element>, Element> classes() {
+		var r = new HashSetValuedHashMap<Class<? extends Element>, Element>();
 		elements.forEach(e -> r.put(e.getClass(), e));
 		return r;
 	}

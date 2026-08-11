@@ -5,8 +5,8 @@ import java.util.List;
 import byransha.network.Peer;
 import byransha.network.Sender;
 
-public class Broadcasting extends RoutingService {
-	public Broadcasting(Sender net) {
+public class MulticastRouting extends RoutingService {
+	public MulticastRouting(Sender net) {
 		super(net);
 	}
 

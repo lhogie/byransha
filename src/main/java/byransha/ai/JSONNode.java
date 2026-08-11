@@ -5,18 +5,18 @@ import javax.swing.JComponent;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import byransha.graph.Hub;
+import byransha.ID;
+import byransha.graph.Element;
 import byransha.system.ChatNode;
-import byransha.graph.BNode;
 import byransha.ui.swing.ChatSheet;
 import byransha.util.ByUtils;
 import byransha.util.JsonToTreeConverter;
 
-final public class JSONNode extends BNode {
+final public class JSONNode extends Element {
 	private final JsonNode node;
 
-	public JSONNode(BNode g, JsonNode n) {
-		super(g);
+	public JSONNode(Element g, JsonNode n, ID id) {
+		super(g, id);
 		this.node = n;
 	}
 

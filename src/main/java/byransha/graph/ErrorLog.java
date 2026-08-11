@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 import byransha.graph.action.ExceptionNode;
 import byransha.graph.list.action.ListNode;
-import byransha.system.SystemNode;
 
-public class ErrorLog extends SystemNode {
+public class ErrorLog extends Element {
 	@ShowInKishanView
-	public final ListNode<ExceptionNode> errors = new ListNode<>(this, "error(s)", ExceptionNode.class);
+	public final ListNode<ExceptionNode> errors = new ListNode<>(this, id().augmentWith("errors"), "error(s)",
+			ExceptionNode.class);
 
 	public ErrorLog(Hub g) {
-		super(g);
+		super(g, null);
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class ErrorLog extends SystemNode {
 	}
 
 	public ExceptionNode add(Throwable err, boolean rethrow) {
-		var errN = new ExceptionNode(this);
+		var errN = new ExceptionNode(this, null);
 		errN.err = err;
 		errN.date = LocalDateTime.now();
 		errors.elements.add(errN);

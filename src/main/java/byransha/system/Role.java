@@ -1,15 +1,15 @@
 package byransha.system;
 
-import byransha.graph.BNode;
+import byransha.graph.Element;
 
-public abstract class Role extends BNode {
+public abstract class Role extends Element {
 
-	public Role(BNode parent) {
-		super(parent);
+	public Role(Element parent) {
+		super(parent, null);
 	}
 
-	public abstract boolean isAllowedToEdit(BNode n);
+	public abstract boolean isAllowedToEdit(Element n);
 
-	public abstract boolean isAllowedToSee(BNode n);
+	public abstract boolean isAllowedToSee(Element n);
 
 }
