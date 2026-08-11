@@ -1,0 +1,12 @@
+package byransha;
+
+import byransha.graph.Element;
+
+public abstract class Application extends Element {
+
+	public Application(Element parent, ID id) {
+		super(parent, id);
+	}
+
+	public abstract Class businessClass();
+}
