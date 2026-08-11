@@ -40,30 +40,30 @@ public class ChatNode extends Element {
 		Objects.requireNonNull(n, "cannot append null node to chat");
 		System.out.println("appending " + n + " to chat " + this);
 		if (n instanceof QueryIA) {
-			try {
-				if (!(InetAddress.getLocalHost().getHostName().equals(System.getenv("PUBLIC_SERVER_NAME")))) {
-					if (AlerteIA == false) {
-						QueryIA.afficherAlerteOllama();
-
-					}
-				}
-				AlerteIA = true;
-				NodeAIUsed = true;
-				if (NodeAIUsed) {
-					if (QueryIA.afficherChargementOllama()) {
-						QueryIA.startOllama();
-					}
-				}
-
-				else {
-					QueryIA.startOllama();
-
-				}
-
-			} catch (UnknownHostException ex) {
-				System.getLogger(ChatNode.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-			}
-
+			QueryIA queryIA = (QueryIA) n;
+                    try {
+                        if (!(InetAddress.getLocalHost().getHostName().equals(System.getenv("PUBLIC_SERVER_NAME")))) {
+							if (AlerteIA == false) {
+							queryIA.afficherAlerteOllama();
+							
+							}
+						}
+						AlerteIA = true;
+						NodeAIUsed = true;
+						if (NodeAIUsed) {
+						queryIA.afficherChargementOllama();
+						}
+                        
+						else {
+							QueryIA.startOllama();
+			
+						}
+							
+                    } catch (UnknownHostException ex) {
+                        System.getLogger(ChatNode.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+                    }
+					
+			 
 		}
 
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node

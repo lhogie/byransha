@@ -53,6 +53,8 @@ public abstract class Peer extends Element {
 	@ShowInKishanView
 	final DoubleNode periodS = new DoubleNode(this, null, 5);
 
+	public Boolean haveAi;
+
 	public Peer(PeerManager parent, String name) {
 		super(parent, null);
 		Objects.requireNonNull(name);

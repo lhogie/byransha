@@ -1,8 +1,11 @@
 package byransha.ai;
 
 import java.awt.Window;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import static java.lang.System.in;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -42,6 +45,8 @@ import byransha.lab.stats.DistributionNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.TextNode;
 import byransha.system.ChatNode;
+import byransha.ui.shell.TelnetSession;
+import byransha.util.UUIDUtils;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -75,7 +80,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	public final TextNode info = new TextNode(this,
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses",
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");
-	static String PRIMARY_MODEL = "granite4:tiny-h";
+	public static String PRIMARY_MODEL = "granite4:tiny-h";
 	private static final String SERVER_MODEL = "ornith:9b";
 	private static final String SERVER_MODEL_2 = "granite4:tiny-h";
 	private volatile ResponseMode responseMode = ResponseMode.CONVERSATION;
@@ -110,7 +115,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		try {
 			localNode.address = java.net.InetAddress.getByName("localhost");
 		} catch (Exception e) {}
-		localNode.HaveAi = true;
+		localNode.haveAi = true;
 		nodeList.elements.add(localNode);
 		return nodeList;
 	}
@@ -142,15 +147,38 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		});
 	}
 
-	@ActionMethod
-	@AddButtonOnKishanView
-	public void resetMemory() {
+
+	
+
+	public void setAndGetCurrentChat(ChatNode chat) {
+		ChatNode lastActiveChat;
+		this.currentChat = chat;
+		try {
+			var chatID = UUIDUtils.decode(new BufferedReader(new InputStreamReader(in)).readLine());
+		currentChat = (ChatNode) hub().indexes.byId.get(chatID);
+		lastActiveChat = currentChat;
+		this.currentChat = lastActiveChat;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public void setChat () {
 		if (this.currentChat == null) {
 			if (this.chat instanceof ChatNode) {
 				this.currentChat = (ChatNode) this.chat;
 			} else if (this.parent instanceof ChatNode) {
 				this.currentChat = (ChatNode) this.parent;
 			}
+			else {setAndGetCurrentChat(currentChat);}
+		}
+	}
+		
+
+	@ActionMethod
+	@AddButtonOnKishanView
+	public void resetMemory() {
+		setChat();
 			final ChatNode activeChat = this.currentChat;
 			System.out.println("Réinitialisation de la mémoire pour le chat : "
 					+ (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
@@ -163,7 +191,6 @@ public class QueryIA extends FunctionAction<Element, Element> {
 						System.out
 								.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
 						System.out.println(" messages: " + messages);
-
 						MEMORY_STORE.deleteMessages(chatId);
 						MEMORY_STORE.deleteMessages("default_session");
 						System.out.println(MEMORY_STORE.getMessages(chatId).size()
@@ -173,7 +200,6 @@ public class QueryIA extends FunctionAction<Element, Element> {
 								+ " messages remaining for chat: " + MEMORY_STORE.getMessages(chatId));
 						JOptionPane.showMessageDialog(null, "La mémoire de la conversation a été réinitialisée.",
 								"Réinitialisation", JOptionPane.INFORMATION_MESSAGE);
-
 					} else {
 						JOptionPane.showMessageDialog(null, "Aucune conversation active pour réinitialiser la mémoire.",
 								"Information", JOptionPane.INFORMATION_MESSAGE);
@@ -185,7 +211,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 				}
 			});
 		}
-	}
+	
 
 	// @ActionMethod
 	// @AddButtonOnKishanView
@@ -299,153 +325,106 @@ public class QueryIA extends FunctionAction<Element, Element> {
     return models;
 }
 
-
-	public static boolean afficherChargementOllama() {
-		Timer t = new Timer(30000, e -> {
-			Window[] windows = Window.getWindows();
-                for (Window window : windows) {
-                    if (window instanceof JDialog) {
-                        JDialog dialog = (JDialog) window;
-                        if (dialog.getContentPane().getComponentCount() == 1
-                            && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
-                            dialog.dispose();
-                        }
-                    }
+public Timer createDialogTimeoutTimer(int timeoutMillis) {
+	Timer timer = new Timer(timeoutMillis, e -> {
+		Window[] windows = Window.getWindows();
+		for (Window window : windows) {
+			if (window instanceof JDialog) {
+				JDialog dialog = (JDialog) window;
+				if (dialog.getContentPane().getComponentCount() == 1
+						&& dialog.getContentPane().getComponent(0) instanceof JOptionPane) {
+					dialog.dispose();
 				}
-		});
-		t.setRepeats(false);
-		t.start();
-		System.out.println("Affichage de la boîte de dialogue pour le chargement de l'IA...");
-        List<String> installedModels = getInstalledOllamaModels();
-		if (settingModel==false) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel messageLabel = new JLabel("<html>Voulez-vous pré-charger l'IA sur votre machine locale ?<br/>Note : Le chargement peut prendre un certain temps.<br/>Note 2 : Cela réduit le temps de réponse lors de la premiere requête.<br/></html>");
-        JLabel modelLabel = new JLabel("Sélectionnez le modèle à pré-charger :");
-        modelLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 350));
-        JComponent modelSelector;
-        JComboBox<String> comboBox = null;
-        JTextField textField = null;
-        if (!installedModels.isEmpty()) {
-            comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
-            if (installedModels.contains(PRIMARY_MODEL)) {
-                comboBox.setSelectedItem(PRIMARY_MODEL);
-            }
-            modelSelector = comboBox;
-        } else {
-            textField = new JTextField(PRIMARY_MODEL);
-            modelSelector = textField;
-        }
-        panel.add(messageLabel);
-        panel.add(modelLabel);
-        panel.add(modelSelector);
+			}
+		}
+	});
+	timer.setRepeats(false);
+	timer.start();
+	return timer;
+}
+
+
+public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent modelSelector,int top, int left, int bottom, int right) {
+	Timer t = createDialogTimeoutTimer(30000);
+	List<String> installedModels = getInstalledOllamaModels();
+	JPanel newPanel = new JPanel();
+	newPanel.setLayout(new BoxLayout(newPanel, BoxLayout.Y_AXIS));
+	JLabel newmessageLabel = messageLabel;
+	JLabel newmodelLabel = modelLabel;
+	newmodelLabel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
+	JComponent newmodelSelector = modelSelector;
+	JComboBox<String> comboBox = null;
+	JTextField textField = null;
+	if (!installedModels.isEmpty()) {
+		comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
+		if (installedModels.contains(PRIMARY_MODEL)) {
+			comboBox.setSelectedItem(PRIMARY_MODEL);
+		}
+		newmodelSelector = comboBox;
+	} else {
+		textField = new JTextField(PRIMARY_MODEL);
+		newmodelSelector = textField;
+	}
+	 newPanel.add(newmessageLabel);
+        newPanel.add(newmodelLabel);
+        newPanel.add(newmodelSelector);
         int option = JOptionPane.showConfirmDialog(
                 null,
-                panel,
+                newPanel,
                 "Chargement de l'IA",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE
         );
 		t.stop();
-        if (option == JOptionPane.YES_OPTION) {
-            String selectedModel;
-            if (comboBox != null) {
-                selectedModel = (String) comboBox.getSelectedItem();
-            } else {
-                selectedModel = textField.getText().trim();
+            switch (option) {
+                case JOptionPane.YES_OPTION:
+                    String selectedModel;
+                    if (comboBox != null) {
+                        selectedModel = (String) comboBox.getSelectedItem();
+                    } else {
+                        selectedModel = textField.getText().trim();
+                    }       if (selectedModel != null && !selectedModel.isEmpty()) {
+                        PRIMARY_MODEL = selectedModel;
+                        System.out.println("chargement du modèle : " + PRIMARY_MODEL);
+                    }       break;
+                case JOptionPane.NO_OPTION:
+                    System.out.println("L'utilisateur a refusé le chargement de l'IA.");
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Le chargement de l'IA a été refusé..",
+                            "chargement de l'IA refusé",
+                            JOptionPane.WARNING_MESSAGE
+                    );  break;
             }
-            if (selectedModel != null && !selectedModel.isEmpty()) {
-                PRIMARY_MODEL = selectedModel;
-                System.out.println("Pré-chargement du modèle : " + PRIMARY_MODEL);
-            }
-            return true;
-        }
-		System.out.println("L'utilisateur a refusé le chargement de l'IA.");
-		JOptionPane.showMessageDialog(
-			null, 
-			"Le pré-chargement de l'IA a été refusé..", 
-			"pré-chargement de l'IA refusé", 
-			JOptionPane.WARNING_MESSAGE
-		);
-		return false;
+		
+}
+
+
+
+	public boolean afficherChargementOllama() {
+		System.out.println("Affichage de la boîte de dialogue pour le chargement de l'IA...");
+		if (settingModel==false) {
+			PannelComponent(new JLabel("Voulez-vous charger l'IA sur votre machine locale ?"),
+				new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 0);
 	}
 	else if (settingModel) {
-		System.out.println("Affichage de la boîte de dialogue pour le changement de modèle...");
-		JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        JLabel messageLabel = new JLabel("Voulez-vous changer l'IA sur votre machine locale ?");
-        JLabel modelLabel = new JLabel("Sélectionnez le modèle que vous souhaitez :");
-        modelLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        JComponent modelSelector;
-        JComboBox<String> comboBox = null;
-        JTextField textField = null;
-        if (!installedModels.isEmpty()) {
-            comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
-            if (installedModels.contains(PRIMARY_MODEL)) {
-                comboBox.setSelectedItem(PRIMARY_MODEL);
-            }
-            modelSelector = comboBox;
-        } else {
-            textField = new JTextField(PRIMARY_MODEL);
-            modelSelector = textField;
-        }
-        panel.add(messageLabel);
-        panel.add(modelLabel);
-        panel.add(modelSelector);
-        int option = JOptionPane.showConfirmDialog(
-                null,
-                panel,
-                "Chargement de l'IA",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-		t.stop();
-        if (option == JOptionPane.YES_OPTION) {
-            String selectedModel;
-            if (comboBox != null) {
-                selectedModel = (String) comboBox.getSelectedItem();
-            } else {
-                selectedModel = textField.getText().trim();
-            }
-            if (selectedModel != null && !selectedModel.isEmpty()) {
-                PRIMARY_MODEL = selectedModel;
-                System.out.println("changement: " + PRIMARY_MODEL);
-            }
-			JOptionPane.showMessageDialog(null, "Le changement de modèle a été effectué avec succès.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
-            return true;
-        }
-		JOptionPane.showMessageDialog(null, "Le changement de modèle n'a pas été effectué.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
-		return false;
+			PannelComponent(new JLabel("Voulez-vous changer le modèle de l'IA sur votre machine locale ?"),
+				new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 350);
 	}
-	else {
-		JOptionPane.showMessageDialog(null, "Le changement de modèle n'a pas été effectué.", "Changement de modèle", JOptionPane.INFORMATION_MESSAGE);
-		System.out.println("Aucune action effectuée pour le chargement ou le changement de modèle.");
-		return false;
-	}
+	return true;
 }
 
 	
-	public static void afficherAlerteOllama() {
-		Timer t = new Timer(30000, e -> {
-			Window[] windows = Window.getWindows();
-                for (Window window : windows) {
-                    if (window instanceof JDialog) {
-                        JDialog dialog = (JDialog) window;
-                        if (dialog.getContentPane().getComponentCount() == 1
-                            && dialog.getContentPane().getComponent(0) instanceof JOptionPane){
-                            dialog.dispose();
-                        }
-                    }
-				}
-		});
-		t.setRepeats(false);
-		t.start();
+	public void afficherAlerteOllama() {
+		Timer t = createDialogTimeoutTimer(30000);
+		
         JOptionPane.showMessageDialog(
             null, 
            "L'utilisation de l'IA sans serveur distant requiert l'installation d'Ollama ainsi que du modèle sur votre machine locale.", 
             "Configuration requise", 
             JOptionPane.INFORMATION_MESSAGE
         );
+		t.stop();
     }
 
 
@@ -546,11 +525,10 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	@Override
 	public void impl() throws Throwable {
 		ActivateListNodeResponse = false;
-		if (this.chat instanceof ChatNode) {
-			this.currentChat = (ChatNode) this.chat;
-		} else if (this.parent instanceof ChatNode) {
-			this.currentChat = (ChatNode) this.parent;
-		} else {
+		try {
+		setChat();
+		}
+		 catch (Exception e) {
 			throw new IllegalStateException("QueryIA must be used within a ChatNode context");
 		}
 		var assistant = getOrCreateAssistant();
@@ -718,6 +696,30 @@ public class QueryIA extends FunctionAction<Element, Element> {
 
 	}
 
+	public void parsing (String array,String mapperString) {
+		if (ActivateListNodeResponse) {
+			try {
+				JsonNode parsed = mapper.readTree(mapperString);
+				var l = new ListNode<BNode>(parent, array, BNode.class);
+				for (JsonNode value : parsed) {
+					String idText = value.asText().trim();
+					if (idText.isEmpty())
+						continue;
+					BNode realNode = hub().indexes.byId.getByText(idText);
+					if (realNode != null) {
+						l.elements.add(realNode);
+					} else {
+						System.out.println("-> Aucun nœud ne possède l'ID '" + idText + "' dans le graphe.");
+					}
+				}
+
+				result = l;
+			} catch (Exception e) {
+				// Ignore JSON parsing errors
+			}
+		}
+	}
+
 	public void setResponseMode(ResponseMode responseMode) {
 		this.responseMode = responseMode == null ? ResponseMode.JSON_ONLY : responseMode;
 	}
@@ -857,13 +859,8 @@ public class QueryIA extends FunctionAction<Element, Element> {
 
 	private ToolEnabledAssistant getOrCreateAssistant() throws IOException {
 		String currentOllamaUrl = "http://localhost:11434";
-		if (this.currentChat == null) {
-			if (this.chat instanceof ChatNode) {
-				this.currentChat = (ChatNode) this.chat;
-			} else if (this.parent instanceof ChatNode) {
-				this.currentChat = (ChatNode) this.parent;
-			}
-		}
+		setChat();
+		
 		try {
 			var aiNodes = ShowPeersInfo.get();
 			var selectedNode = selectBestPeer(aiNodes);
