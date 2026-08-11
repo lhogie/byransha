@@ -7,7 +7,7 @@ import byransha.graph.list.action.ListNode;
 
 public class University extends Structure {
 	@ShowInKishanView
-	public final ListNode<Campus> campuses = lookupOrCreate("name",  id ->new ListNode<>(this, id, "campus", Campus.class));
+	public final ListNode<Campus> campuses = fieldNode("name",  id ->new ListNode<>(this, id, "campus", Campus.class));
 	public Person president;
 
 	public University(Element g, ID id) {

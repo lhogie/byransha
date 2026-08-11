@@ -1,6 +1,8 @@
 package byransha.graph.index;
 
+import java.util.Objects;
 import java.util.Random;
+import java.util.function.Function;
 
 import byransha.ID;
 import byransha.graph.Element;
@@ -50,6 +52,12 @@ public class ByID extends Index {
 
 	public Element get(ID id) {
 		return m.get(id);
+	}
+	
+	public  <T extends Element> T lookupOrCreate(ID id, Function<ID, T> f) {
+		Objects.requireNonNull(id);
+		T e = (T) get(id);
+		return e != null ? e : f.apply(id);
 	}
 
 	public Element getByText(String id) {

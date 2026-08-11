@@ -8,7 +8,7 @@ import byransha.primitive.StringNode;
 
 public class Status extends LabNode {
 	@ShowInKishanView
-	StringNode name= lookupOrCreate("name",  id ->new StringNode(this, id, null, ".+"));
+	StringNode name= fieldNode("name",  id ->new StringNode(this, id, null, ".+"));
 
 	public Status(Element g, ID id) {
 		super(g, id);

@@ -23,6 +23,8 @@ public abstract class Event extends Element implements Externalizable, Comparabl
 		this(parent, LocalDateTime.now());
 	}
 
+	
+
 	public Event(Element parent, LocalDateTime date) {
 		super(parent, ID.fromDate(date));
 		this.date = date;

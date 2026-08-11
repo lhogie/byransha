@@ -11,16 +11,16 @@ import byransha.primitive.StringNode;
 
 public class Room extends LabNode {
 	@ShowInKishanView
-	public StringNode name = lookupOrCreate("name", id -> new StringNode(this, id, null, ".+"));
+	public StringNode name = fieldNode("name", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final ListNode<Person> users = lookupOrCreate("users", id -> new ListNode(this, id, "users", Person.class));
+	public final ListNode<Person> users = fieldNode("users", id -> new ListNode(this, id, "users", Person.class));
 
 	@ShowInKishanView
-	public LongNode surface = lookupOrCreate("surface", id -> new LongNode(this, id));
+	public LongNode surface = fieldNode("surface", id -> new LongNode(this, id));
 
 	@ShowInKishanView
-	public LongNode capacity = lookupOrCreate("capacity", id -> new LongNode(this, id));
+	public LongNode capacity = fieldNode("capacity", id -> new LongNode(this, id));
 
 	@ShowInKishanView
 	public BooleanNode isZZR;

@@ -22,7 +22,7 @@ public class TextNode extends PrimitiveValueNode<String> {
 
 	public TextNode(Element parent, ID id, String label, String data) {
 		super(parent, id);
-		this.labelNode = out("label", i -> new StringNode(this, i, label, ".+")).get();
+		this.labelNode = fieldNode("label", i -> new StringNode(this, i, label, ".+"));
 		set(data);
 	}
 

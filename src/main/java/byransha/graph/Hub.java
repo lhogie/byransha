@@ -33,7 +33,7 @@ public class Hub extends Element {
 	public final AllIndexesElement indexesNode = new AllIndexesElement(this);
 
 	@ShowInKishanView
-	public Element application = new LabApplication(this, null);
+	public Element application = new LabApplication(this);
 	@ShowInKishanView
 	public final JVM jvm = new JVM(this);
 	@ShowInKishanView

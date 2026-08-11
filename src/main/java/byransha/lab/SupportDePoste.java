@@ -6,7 +6,7 @@ import byransha.graph.LabNode;
 import byransha.primitive.StringNode;
 
 public class SupportDePoste extends LabNode {
-	StringNode id = lookupOrCreate("id", id -> new StringNode(this, id, null, ".+"));
+	StringNode id = fieldNode("id", id -> new StringNode(this, id, null, ".+"));
 
 	public SupportDePoste(Element g, ID id) {
 		super(g, id);

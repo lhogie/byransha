@@ -42,7 +42,7 @@ public class DataLake extends Element {
 		countryCodes = new ObjectMapper().readTree(json);
 
 		countryCodes.fieldNames().forEachRemaining(code -> {
-			Country country = hub.lookupOrCreate("country-" + code, id -> new Country(hub, id));
+			Country country = hub.fieldNode("country-" + code, id -> new Country(hub, id));
 			country.code = code;
 			country.name = countryCodes.get(code).asText();
 
@@ -110,34 +110,34 @@ public class DataLake extends Element {
 		var france = hub().indexes.byClass.findFirst(Country.class, c -> c.name.equals("France"));
 
 		for (var n : List.of("CNRS", "Inria")) {
-			var epst = app.lookupOrCreate("nationality- + l", id -> new EPST(france, id));
+			var epst = app.fieldNode("nationality- + l", id -> new EPST(france, id));
 			epst.name.set(n);
 			i3s.tutelles.elements.add(epst);
 		}
 
-		var unica = app.lookupOrCreate("unica", id -> new University(hub(), id)); // new University(graph);
+		var unica = app.fieldNode("unica", id -> new University(hub(), id)); // new University(graph);
 		unica.name.set("UniCA");
 		i3s.tutelles.elements.add(unica);
 
 		for (var n : List.of("COMRED", "SIS", "MDSC", "SPARKS")) {
-			var group = app.lookupOrCreate(n, id -> new ResearchGroup(i3s, id, n));
+			var group = app.fieldNode(n, id -> new ResearchGroup(i3s, id, n));
 			i3s.subStructures.elements.add(group);
 		}
 
-		var adminGroup = app.lookupOrCreate("admin", id -> new Structure(i3s, id));
+		var adminGroup = app.fieldNode("admin", id -> new Structure(i3s, id));
 		adminGroup.name.set("SG/Administration");
 		i3s.subStructures.elements.add(adminGroup);
 
-		var infoGroup = app.lookupOrCreate("info", id -> new Structure(i3s, id));
+		var infoGroup = app.fieldNode("info", id -> new Structure(i3s, id));
 		infoGroup.name.set("SG/Informatique");
 		i3s.subStructures.elements.add(infoGroup);
 
-		var ds4h = unica.lookupOrCreate("ds4h", id -> new EUR(i3s, id));
+		var ds4h = unica.fieldNode("ds4h", id -> new EUR(i3s, id));
 		ds4h.name.set("DS4H");
 		i3s.subStructures.elements.add(ds4h);
 
 		for (var n : List.of("ALGORITHMES", "Inria", "IUT Sophia", "Polytech", "Lucioles", "Valrose", "Fabron")) {
-			var campus = unica.lookupOrCreate(n, id -> new Campus(unica, id)); // new Campus(graph);
+			var campus = unica.fieldNode(n, id -> new Campus(unica, id)); // new Campus(graph);
 			campus.name.set(n);
 			unica.campuses.elements.add(campus);
 		}

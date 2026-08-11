@@ -1,6 +1,7 @@
 package byransha;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.function.Function;
 
 import byransha.graph.Element;
@@ -17,7 +18,7 @@ public class Out<T extends Element> {
 	}
 
 	public Out(Element o, String fieldName, Function<ID, T> instantiator) {
-		this.head = lookupOrCreate(o.hub(), o.id().augmentWith(fieldName), instantiator);
+		this.head = o.hub().indexes.byId.lookupOrCreate(o.id().augmentWith(fieldName), instantiator);
 		this.tail = o;
 		this.field = findField(o.getClass(), fieldName);
 	}
@@ -40,10 +41,7 @@ public class Out<T extends Element> {
 		return null;
 	}
 
-	public static <T extends Element> T lookupOrCreate(Hub h, ID bid, Function<ID, T> f) {
-		T e = (T) h.indexes.byId.get(bid);
-		return e != null ? e : f.apply(bid);
-	}
+	
 
 	public T get() {
 		return head;

@@ -10,20 +10,20 @@ import byransha.lab.Genre.NotGenred;
 
 public class LabApplication extends Application {
 
-	public final Genre male = lookupOrCreate("male", id -> new Male(this, id));
-	public final Genre female = lookupOrCreate("male", id -> new Female(this, id));
-	public final Genre notgenred = lookupOrCreate("male", id -> new NotGenred(this, id));
+	public final Genre male = fieldNode("male", id -> new Male(this, id));
+	public final Genre female = fieldNode("male", id -> new Female(this, id));
+	public final Genre notgenred = fieldNode("male", id -> new NotGenred(this, id));
 
-	public final Status dr = lookupOrCreate("DR", id -> new DR(this, id));
-	public final Status ir = lookupOrCreate("IR", id -> new IR(this, id));
-	public final Status igr = lookupOrCreate("IGR", id -> new IGR(this, id));
-	public final Status mcf = lookupOrCreate("MCF", id -> new MCF(this, id));
-	public final Status prof = lookupOrCreate("Prof", id -> new Prof(this, id));
+	public final Status dr = fieldNode("DR", id -> new DR(this, id));
+	public final Status ir = fieldNode("IR", id -> new IR(this, id));
+	public final Status igr = fieldNode("IGR", id -> new IGR(this, id));
+	public final Status mcf = fieldNode("MCF", id -> new MCF(this, id));
+	public final Status prof = fieldNode("Prof", id -> new Prof(this, id));
 
-	public final Lab i3s = lookupOrCreate("i3s", id -> new I3S(this, id));
+	public final Lab i3s = fieldNode("i3s", id -> new I3S(this, id));
 
-	public LabApplication(Element parent, ID id) {
-		super(parent, id);
+	public LabApplication(Element parent) {
+		super(parent, ID.fromBase62("FDS"));
 	}
 
 	@Override

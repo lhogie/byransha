@@ -23,58 +23,58 @@ public class Person extends LabNode {
 	@ShowInKishanView
 	public Genre genre;
 	@ShowInKishanView
-	public ListNode<Position> positions = lookupOrCreate("positions",
+	public ListNode<Position> positions = fieldNode("positions",
 			id -> new ListNode<Position>(this, id, "positions", Position.class));
 	@ShowInKishanView
-	public ImageNode pics = lookupOrCreate("pic", id -> new ImageNode(this, id));
+	public ImageNode pics = fieldNode("pic", id -> new ImageNode(this, id));
 	@ShowInKishanView
-	public final BooleanNode hdr = lookupOrCreate("hdr", id -> new BooleanNode(this, id, null));
+	public final BooleanNode hdr = fieldNode("hdr", id -> new BooleanNode(this, id, null));
 	@ShowInKishanView
-	public final BadgeNode badgeNumber = lookupOrCreate("name", id -> new BadgeNode(this, id));
+	public final BadgeNode badgeNumber = fieldNode("name", id -> new BadgeNode(this, id));
 	@ShowInKishanView
-	public URLNode website = lookupOrCreate("website", id -> new URLNode(this, id, null));
+	public URLNode website = fieldNode("website", id -> new URLNode(this, id, null));
 	@ShowInKishanView
-	public final ListNode<Structure> structures = lookupOrCreate("strcutures",
+	public final ListNode<Structure> structures = fieldNode("strcutures",
 			id -> new ListNode<>(this, id, "structures", Structure.class));
 	@ShowInKishanView
-	public DateNode phdDate = lookupOrCreate("phdDate", id -> new DateNode(this, id));
+	public DateNode phdDate = fieldNode("phdDate", id -> new DateNode(this, id));
 	@ShowInKishanView
-	public ListNode<PhoneNumberNode> phoneNumbers = lookupOrCreate("phoneNumbers",
+	public ListNode<PhoneNumberNode> phoneNumbers = fieldNode("phoneNumbers",
 			id -> new ListNode<PhoneNumberNode>(this, id, "phone number(s)", PhoneNumberNode.class));
 	@ShowInKishanView
 
-	public final ListNode<EmailNode> emailAddresses = lookupOrCreate("emailAddresses",
+	public final ListNode<EmailNode> emailAddresses = fieldNode("emailAddresses",
 			id -> new ListNode<EmailNode>(this, id, "email adresses", EmailNode.class));
 
 	@ShowInKishanView
-	public ListNode<Room> offices = lookupOrCreate("offices", id -> new ListNode<Room>(this, id, "offices", Room.class));
+	public ListNode<Room> offices = fieldNode("offices", id -> new ListNode<Room>(this, id, "offices", Room.class));
 
 	@ShowInKishanView
-	public final LongNode quotite = lookupOrCreate("quotite", id -> new LongNode(this, id));
+	public final LongNode quotite = fieldNode("quotite", id -> new LongNode(this, id));
 	public boolean enposte;
 	@ShowInKishanView
-	public ListNode<Publication> publications = lookupOrCreate("publications", id -> new ListNode<>(this, id, "publications", Publication.class));
+	public ListNode<Publication> publications = fieldNode("publications", id -> new ListNode<>(this, id, "publications", Publication.class));
 	@ShowInKishanView
-	public final StringNode orcid = lookupOrCreate("orcid", id -> new StringNode(this, id, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$"));
+	public final StringNode orcid = fieldNode("orcid", id -> new StringNode(this, id, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$"));
 	@ShowInKishanView
-	public final StringNode authID = lookupOrCreate("autID", id -> new StringNode(this, id, null, "^A\\d{7}$"));
+	public final StringNode authID = fieldNode("autID", id -> new StringNode(this, id, null, "^A\\d{7}$"));
 	@ShowInKishanView
 	public StringNode researchActivity;
 	@ShowInKishanView
-	public StringNode name = lookupOrCreate("name", id -> new StringNode(this, id, null, ".+"));
+	public StringNode name = fieldNode("name", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public StringNode firstName = lookupOrCreate("firstName", id -> new StringNode(this, id, null, ".+"));
+	public StringNode firstName = fieldNode("firstName", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public StringNode familyNameBeforeMariage = lookupOrCreate("familyNameBeforeMariage", id -> new StringNode(this, id, null, null));
+	public StringNode familyNameBeforeMariage = fieldNode("familyNameBeforeMariage", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
-	public StringNode cityOfBirth = lookupOrCreate("cityOfBirth", id -> new StringNode(this, id, null, ".+"));
+	public StringNode cityOfBirth = fieldNode("cityOfBirth", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public AddressNode address = lookupOrCreate("address", id -> new AddressNode(this, id));
+	public AddressNode address = fieldNode("address", id -> new AddressNode(this, id));
 	public Country countryOfBirth;
 
-	public ListNode<Country> nationality = lookupOrCreate("nationality", id -> new ListNode<Country>(this, id, "nationalities", Country.class));
-	public DateNode birthDate = lookupOrCreate("birthDate", id -> new DateNode(this, id));
-	public PhoneNumberNode telephone = lookupOrCreate("phoneNumber", id -> new PhoneNumberNode(this, id));
+	public ListNode<Country> nationality = fieldNode("nationality", id -> new ListNode<Country>(this, id, "nationalities", Country.class));
+	public DateNode birthDate = fieldNode("birthDate", id -> new DateNode(this, id));
+	public PhoneNumberNode telephone = fieldNode("phoneNumber", id -> new PhoneNumberNode(this, id));
 
 	@Factory
 	public Person(Element parent, ID id) {

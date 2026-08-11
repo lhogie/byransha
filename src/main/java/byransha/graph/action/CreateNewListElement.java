@@ -1,7 +1,8 @@
 package byransha.graph.action;
 
-import byransha.graph.Element;
+import byransha.ID;
 import byransha.graph.Category.list;
+import byransha.graph.Element;
 import byransha.graph.ProcedureAction;
 import byransha.graph.ShowInKishanView;
 import byransha.graph.list.action.ListNode;
@@ -27,17 +28,20 @@ public class CreateNewListElement extends ProcedureAction<ListNode> {
 
 	@Override
 	public String toString() {
-		return "node creator";
+		return "list element creator";
 	}
 
 	@Override
 	public String whatItDoes() {
-		return "creates a new node";
+		return "creates a new element in the list";
 	}
 
 	@Override
 	public void impl() {
 		var list = inputNode.get();
-		candidateClasses.getSelected().forEach(c -> list.add(c.newInstance(newNodeParent)));
+
+		for (var c : candidateClasses.getSelected()) {
+			list.add(c.newInstance(newNodeParent, new ID()));
+		}
 	}
 }

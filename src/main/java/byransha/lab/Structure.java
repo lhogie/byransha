@@ -15,11 +15,11 @@ import byransha.system.ChatNode;
 
 public class Structure extends LabNode {
 	@ShowInKishanView
-	public final StringNode name =lookupOrCreate("name",  id ->new StringNode(this, id, null, ".+"));
+	public final StringNode name =fieldNode("name",  id ->new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public final ListNode<Structure> subStructures = lookupOrCreate("name",  id ->new ListNode(this, id, "sub-structure(s)", Structure.class));
+	public final ListNode<Structure> subStructures = fieldNode("subStructures",  id ->new ListNode(this, id, "sub-structure(s)", Structure.class));
 	@ShowInKishanView
-	public final ListNode<Room> offices = lookupOrCreate("name",  id ->new ListNode(this, id, "offices", Room.class));
+	public final ListNode<Room> offices = fieldNode("offices",  id ->new ListNode(this, id, "offices", Room.class));
 
 	public Structure(Element g, ID id) {
 		super(g, id);

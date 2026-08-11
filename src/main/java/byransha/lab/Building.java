@@ -10,9 +10,9 @@ import byransha.primitive.StringNode;
 public class Building extends LabNode {
 
 	@ShowInKishanView
-	public ListNode<Room> offices = lookupOrCreate("offices", id -> new ListNode(this, id, "office(s)", Room.class));
+	public ListNode<Room> offices = fieldNode("offices", id -> new ListNode(this, id, "office(s)", Room.class));
 	@ShowInKishanView
-	public StringNode name = lookupOrCreate("name", id -> new StringNode(parent, id, "", ".+"));
+	public StringNode name = fieldNode("name", id -> new StringNode(parent, id, "", ".+"));
 
 	public Building(Element parent, ID id) {
 		super(parent, id);

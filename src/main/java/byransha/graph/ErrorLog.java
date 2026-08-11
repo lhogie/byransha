@@ -7,8 +7,7 @@ import byransha.graph.list.action.ListNode;
 
 public class ErrorLog extends Element {
 	@ShowInKishanView
-	public final ListNode<ExceptionNode> errors = new ListNode<>(this, id().augmentWith("errors"), "error(s)",
-			ExceptionNode.class);
+	public final ListNode<ExceptionNode> errors = new ListNode<>(this, null, "error(s)", ExceptionNode.class);
 
 	public ErrorLog(Hub g) {
 		super(g, null);

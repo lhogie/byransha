@@ -37,9 +37,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
+import byransha.BusinessElement;
 import byransha.ID;
 import byransha.Out;
-import byransha.ai.QueryIA;
 import byransha.event.NewNodeEvent;
 import byransha.graph.action.Delete;
 import byransha.graph.action.Export;
@@ -81,7 +81,7 @@ public class Element {
 	public boolean userEditable;
 
 	@ShowInKishanView
-	private boolean generateEvents = true;
+	private boolean generateEvents = false;
 
 //	private Hub hub;
 	protected ListNode<Action> cachedActions;
@@ -107,17 +107,25 @@ public class Element {
 		}
 	}
 
+	public void forceEventGeneration() {
+		generateEvents = true;
+	}
+
 	public final <T extends Element> Out<T> out(String fieldName, Function<ID, T> creator) {
 		return new Out<T>(this, fieldName, creator);
 	}
 
-	public final <T extends Element> T lookupOrCreate(String fieldName, Function<ID, T> creator) {
-		ID id = id().augmentWith(fieldName);
-		return Out.lookupOrCreate(hub(), id, creator);
+	public final <T extends Element> T fieldNode(String fieldName, Function<ID, T> creator) {
+		if (id() == null){
+			return creator.apply(null);
+		}else {
+			var id = id().augmentWith(fieldName);
+			return hub().indexes.byId.lookupOrCreate(id, creator);
+		}
 	}
 
 	public boolean generateEvents() {
-		return id() != null && generateEvents && hub().eventList != null;
+		return id() != null && (enclosingBusinessNode() != null || generateEvents) && hub().eventList != null;
 	}
 
 	public String findRoleOf(Element n) {
@@ -134,8 +142,8 @@ public class Element {
 		return parent.hub();
 	}
 
-	public LabNode enclosingBusinessNode() {
-		if (this instanceof LabNode bn) {
+	public BusinessElement enclosingBusinessNode() {
+		if (this instanceof BusinessElement bn) {
 			return bn;
 		} else if (parent != null) {
 			return parent.enclosingBusinessNode();
@@ -473,7 +481,7 @@ public class Element {
 
 	public void createActions() {
 		// cachedActions.add(new Back(g, this));
-		cachedActions.elements.add(new QueryIA(this));
+//		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new ShowClassNode(this));
 		cachedActions.elements.add(new CopyIDToClipboard(this));
 		cachedActions.elements.add(new FreezingAction(this));
@@ -579,7 +587,7 @@ public class Element {
 
 	@Override
 	public int hashCode() {
-		return id().hashCode();
+		return id() == null ? super.hashCode() : id().hashCode();
 	}
 
 	@Override

@@ -13,38 +13,38 @@ import byransha.primitive.URLNode;
 
 public class Device extends LabNode {
 	@ShowInKishanView
-	public final StringNode serialNumber = lookupOrCreate("sn", id -> new StringNode(this, id, null, null));
+	public final StringNode serialNumber = fieldNode("sn", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
-	public final StringNode inriaServiceTag = lookupOrCreate("inriaServiceTag", id -> new StringNode(this, id, null, "[0-9A-Z\\-]+"));
+	public final StringNode inriaServiceTag = fieldNode("inriaServiceTag", id -> new StringNode(this, id, null, "[0-9A-Z\\-]+"));
 	@ShowInKishanView
-	public final MACAddressNode macAddress = lookupOrCreate("mac", id -> new MACAddressNode(this, id));
+	public final MACAddressNode macAddress = fieldNode("mac", id -> new MACAddressNode(this, id));
 
 	@ShowInKishanView
-	public final StringNode dnsName = lookupOrCreate("dns", id -> new StringNode(this, id, null, ".+"));
+	public final StringNode dnsName = fieldNode("dns", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final StringNode brand = lookupOrCreate("brand", id -> new StringNode(this, id, null, ".+"));
+	public final StringNode brand = fieldNode("brand", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final StringNode modelName = lookupOrCreate("model", id -> new StringNode(this, id, null, ".+"));
+	public final StringNode modelName = fieldNode("model", id -> new StringNode(this, id, null, ".+"));
 
 	@ShowInKishanView
-	public final Structure owner = lookupOrCreate("owner", id -> null);
+	public final Structure owner = fieldNode("owner", id -> null);
 
 	@ShowInKishanView
-	public final Room repository = lookupOrCreate("repository", id -> null);
+	public final Room repository = fieldNode("repository", id -> null);
 
 	@ShowInKishanView
-	public final LongNode financialValue = lookupOrCreate("financialValue", id -> new LongNode(this, null));
+	public final LongNode financialValue = fieldNode("financialValue", id -> new LongNode(this, null));
 
 	@ShowInKishanView
-	public final Invoice invoice = lookupOrCreate("invoice", id -> new Invoice(this, id));
+	public final Invoice invoice = fieldNode("invoice", id -> new Invoice(this, id));
 
 	@ShowInKishanView
-	public final URLNode productURL = lookupOrCreate("productURL", id -> new URLNode(this, id, null));
+	public final URLNode productURL = fieldNode("productURL", id -> new URLNode(this, id, null));
 
 	@ShowInKishanView
-	public final NetworkAddressNode ip = lookupOrCreate("ip", id -> new NetworkAddressNode(this, id));
+	public final NetworkAddressNode ip = fieldNode("ip", id -> new NetworkAddressNode(this, id));
 
 	public Device(Element parent, ID id) {
 		super(parent, id);

@@ -8,5 +8,5 @@ public abstract class Application extends Element {
 		super(parent, id);
 	}
 
-	public abstract Class businessClass();
+	public abstract Class<? extends BusinessElement> businessClass();
 }

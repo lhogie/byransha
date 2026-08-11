@@ -12,7 +12,7 @@ public class Issue extends LabNode {
 	public final ListNode<LabNode> relatedTo = new ListNode<>(this,null, "related to", LabNode.class);
 
 	@ShowInKishanView
-	TextNode description = lookupOrCreate("description", id -> new TextNode(this, id, "", ".+"));
+	TextNode description = fieldNode("description", id -> new TextNode(this, id, "", ".+"));
 
 	public Issue(Element parent, ID id) {
 		super(parent, id);

@@ -8,10 +8,10 @@ import byransha.primitive.StringNode;
 
 public class Campus extends LabNode {
 	@ShowInKishanView
-	public StringNode name = lookupOrCreate("name", id -> new StringNode(this, id, "", ".+"));
+	public StringNode name = fieldNode("name", id -> new StringNode(this, id, "", ".+"));
 
 	@ShowInKishanView
-	public ListNode<Building> buildings = lookupOrCreate("buildings",
+	public ListNode<Building> buildings = fieldNode("buildings",
 			id -> new ListNode(this, id, "building(s)", Building.class));
 
 	public Campus(University parent, ID id) {

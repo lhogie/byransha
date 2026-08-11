@@ -10,7 +10,7 @@ public class Country extends LabNode {
 	public String name, code;
 
 	@ShowInKishanView
-	public ImageNode flag = lookupOrCreate("flag", id -> new ImageNode(this, id));
+	public ImageNode flag = fieldNode("flag", id -> new ImageNode(this, id));
 
 	public Country(Element g, ID id) {
 		super(g, id);

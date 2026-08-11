@@ -1,11 +1,12 @@
 package byransha.graph;
 
+import byransha.BusinessElement;
 import byransha.ID;
 import byransha.graph.list.action.ListNode;
 import byransha.lab.Issue;
 import byransha.primitive.ValuedElement;
 
-public abstract class LabNode extends Element {
+public abstract class LabNode extends BusinessElement {
 	@ShowInKishanView
 	public final ListNode<Document> documents = new ListNode<>(this, null, "document(s)", Document.class);
 

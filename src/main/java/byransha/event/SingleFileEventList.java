@@ -2,6 +2,7 @@ package byransha.event;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import byransha.ID;
 import byransha.graph.Element;
@@ -12,6 +13,7 @@ public class SingleFileEventList extends InMemoryEventList {
 
 	public SingleFileEventList(Element g, File f) {
 		super(g);
+		Objects.requireNonNull(f);
 		this.f = f;
 	}
 
@@ -41,6 +43,6 @@ public class SingleFileEventList extends InMemoryEventList {
 
 	@Override
 	public String whatIsThis() {
-		return "single file: " + f.getPath();
+		return "single file event list";
 	}
 }
