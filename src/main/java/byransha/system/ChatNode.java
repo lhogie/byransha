@@ -40,19 +40,18 @@ public class ChatNode extends BNode {
 		Objects.requireNonNull(n, "cannot append null node to chat");
 		System.out.println("appending " + n + " to chat " + this);
 		if (n instanceof QueryIA) {
+			QueryIA queryIA = (QueryIA) n;
                     try {
                         if (!(InetAddress.getLocalHost().getHostName().equals(System.getenv("PUBLIC_SERVER_NAME")))) {
 							if (AlerteIA == false) {
-							QueryIA.afficherAlerteOllama();
+							queryIA.afficherAlerteOllama();
 							
 							}
 						}
 						AlerteIA = true;
 						NodeAIUsed = true;
 						if (NodeAIUsed) {
-							if (QueryIA.afficherChargementOllama()) {
-								QueryIA.startOllama();
-							}
+						queryIA.afficherChargementOllama();
 						}
                         
 						else {

@@ -55,6 +55,8 @@ public abstract class Peer extends BNode {
 	@ShowInKishanView
 	final DoubleNode periodS = new DoubleNode(this, 5);
 
+	public Boolean haveAi;
+
 	public Peer(PeerManager neigh, String name) {
 		super(neigh);
 		Objects.requireNonNull(name);

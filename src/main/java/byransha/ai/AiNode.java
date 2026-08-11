@@ -4,6 +4,7 @@ import java.net.InetAddress;
 
 import byransha.graph.BNode;
 import byransha.graph.Hub;
+import byransha.graph.list.action.ListNode;
 import byransha.network.Peer;
 
 public class AiNode extends BNode {
@@ -15,7 +16,7 @@ public class AiNode extends BNode {
 	public double promptLag;
 	public int queueSize;
 	public double alpha = 1.0;
-	public boolean HaveAi;
+	public boolean haveAi = true;
 
 	public AiNode(Hub g) {
 		super(g);
@@ -37,6 +38,10 @@ public class AiNode extends BNode {
 		return alpha;
 	}
 
+	public ListNode<Peer> getNeighbors() {
+		return hub().network.neighborhood.peers;
+	}
+
 
 	@Override
 	public String whatIsThis() {
@@ -53,7 +58,13 @@ public class AiNode extends BNode {
 		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
 	}
 
-	public boolean getHaveAi() {
-		return HaveAi;
+	public boolean doAnyNeighborsHaveAi() {
+		for (Peer peer : getNeighbors().get()) {
+			if (peer.haveAi != null && peer.haveAi) {
+				return true;
+			}
+		}
+		return false;
 	}
+	
 }
