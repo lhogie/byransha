@@ -3,7 +3,7 @@ package byransha.lab.device;
 import byransha.Element;
 import byransha.ID;
 import byransha.action.base.ShowInKishanView;
-import byransha.lab.LabNode;
+import byransha.lab.LabElement;
 import byransha.lab.Room;
 import byransha.lab.Structure;
 import byransha.primitive.LongNode;
@@ -11,7 +11,7 @@ import byransha.primitive.NetworkAddressNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.URLNode;
 
-public class Device extends LabNode {
+public class Device extends LabElement {
 	@ShowInKishanView
 	public final StringNode serialNumber = fieldNode("sn", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView

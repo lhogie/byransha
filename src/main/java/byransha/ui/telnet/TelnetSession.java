@@ -74,26 +74,28 @@ public class TelnetSession extends Element {
 				}
 			}).start();
 		} else {
-			String asciiArt = """
-					      .-.
-					      | |
-					      | |
-					      | |
-					  .-.-| |.-.
-					 /  | | |  \\
-					|  | | | |  |
-					|  | | | |  |
-					|  |_|_|_|  |
-					 \\         /
-					  |       |
-					  |       |
-					""";
-			out.println(asciiArt);
+			out.println(fuckYou);
 			out.flush();
 			socket.close();
 		}
 	}
 
+	public static final String  fuckYou = """
+		      .-.
+		      | |
+		      | |
+		      | |
+		  .-.-| |.-.
+		 /  | | |  \\
+		|  | | | |  |
+		|  | | | |  |
+		|  |_|_|_|  |
+		 \\         /
+		  |       |
+		  |       |
+		""";
+
+	
 	private void initializeCommands(Hub graph) {
 		commands.put("help", new Command("list available commands",
 				(out, parms) -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));

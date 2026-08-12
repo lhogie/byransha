@@ -4,7 +4,7 @@ import byransha.Element;
 import byransha.ID;
 import byransha.primitive.StringNode;
 
-public class SupportDePoste extends LabNode {
+public class SupportDePoste extends LabElement {
 	StringNode id = fieldNode("id", id -> new StringNode(this, id, null, ".+"));
 
 	public SupportDePoste(Element g, ID id) {

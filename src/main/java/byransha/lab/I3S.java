@@ -16,7 +16,7 @@ public class I3S extends Lab {
 	public static final File dataLakeDirecory = new File(System.getProperty("user.home"), "i3s_data_lake");
 
 	@ShowInKishanView
-	DataLake lake = new DataLake(this, dataLakeDirecory);
+	DataLake lake = dataLakeDirecory.exists() ? new DataLake(this, dataLakeDirecory) : null;
 
 	public I3S(Element g, ID id) {
 		super(g, id);

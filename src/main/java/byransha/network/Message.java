@@ -1,6 +1,5 @@
 package byransha.network;
 
-import java.io.Serializable;
 import java.util.List;
 
 import byransha.Element;
@@ -8,7 +7,7 @@ import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
 
-public class Message extends Element implements Serializable {
+public class Message extends Element  {
 
 	public static class OOData {
 		public Object content;
@@ -28,6 +27,10 @@ public class Message extends Element implements Serializable {
 
 	public byte[] content;
 //	public transient Object contentObject;
+
+	public Message() {
+		this(null, null);
+	}
 
 	public Message(Element parent, ID id) {
 		super(parent, id);

@@ -3,12 +3,12 @@ package byransha.lab.device;
 import byransha.Element;
 import byransha.ID;
 import byransha.action.base.ShowInKishanView;
-import byransha.lab.LabNode;
+import byransha.lab.LabElement;
 import byransha.primitive.DateNode;
 import byransha.primitive.Document;
 import byransha.primitive.StringNode;
 
-public class Invoice extends LabNode {
+public class Invoice extends LabElement {
 	@ShowInKishanView
 	public Quote quote;
 	@ShowInKishanView

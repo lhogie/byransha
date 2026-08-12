@@ -11,7 +11,7 @@ import byransha.service.system.Hub;
  * https://cran.r-project.org/web/classifications/ACM.html
  */
 
-public class ACMClassifier extends LabNode {
+public class ACMClassifier extends LabElement {
 
 	public static void load(Hub g, File dir) throws IOException {
 		for (var l : Files.readAllLines(new File(dir, "acm_classification.txt").toPath())) {

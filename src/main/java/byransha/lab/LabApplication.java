@@ -27,6 +27,6 @@ public class LabApplication extends Application {
 
 	@Override
 	public Class businessClass() {
-		return LabNode.class;
+		return LabElement.class;
 	}
 }

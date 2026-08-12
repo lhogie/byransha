@@ -12,20 +12,21 @@ import byransha.list.action.ListNode;
 import byransha.primitive.BooleanNode;
 import byransha.primitive.DateNode;
 import byransha.primitive.EmailNode;
+import byransha.primitive.ImageElement;
 import byransha.primitive.LongNode;
 import byransha.primitive.LongNode.Bounds;
 import byransha.primitive.PhoneNumberNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.URLNode;
 
-public class Person extends LabNode {
+public class Person extends LabElement {
 	@ShowInKishanView
 	public Genre genre;
 	@ShowInKishanView
 	public ListNode<Position> positions = fieldNode("positions",
 			id -> new ListNode<Position>(this, id, "positions", Position.class));
 	@ShowInKishanView
-	public ImageNode pics = fieldNode("pic", id -> new ImageNode(this, id));
+	public ImageElement pics = fieldNode("pic", id -> new ImageElement(this, id));
 	@ShowInKishanView
 	public final BooleanNode hdr = fieldNode("hdr", id -> new BooleanNode(this, id, null));
 	@ShowInKishanView
@@ -52,9 +53,11 @@ public class Person extends LabNode {
 	public final LongNode quotite = fieldNode("quotite", id -> new LongNode(this, id));
 	public boolean enposte;
 	@ShowInKishanView
-	public ListNode<Publication> publications = fieldNode("publications", id -> new ListNode<>(this, id, "publications", Publication.class));
+	public ListNode<Publication> publications = fieldNode("publications",
+			id -> new ListNode<>(this, id, "publications", Publication.class));
 	@ShowInKishanView
-	public final StringNode orcid = fieldNode("orcid", id -> new StringNode(this, id, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$"));
+	public final StringNode orcid = fieldNode("orcid",
+			id -> new StringNode(this, id, null, "^(\\d{4}-){3}\\d{3}(\\d|X)$"));
 	@ShowInKishanView
 	public final StringNode authID = fieldNode("autID", id -> new StringNode(this, id, null, "^A\\d{7}$"));
 	@ShowInKishanView
@@ -64,14 +67,16 @@ public class Person extends LabNode {
 	@ShowInKishanView
 	public StringNode firstName = fieldNode("firstName", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public StringNode familyNameBeforeMariage = fieldNode("familyNameBeforeMariage", id -> new StringNode(this, id, null, null));
+	public StringNode familyNameBeforeMariage = fieldNode("familyNameBeforeMariage",
+			id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
 	public StringNode cityOfBirth = fieldNode("cityOfBirth", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
 	public AddressNode address = fieldNode("address", id -> new AddressNode(this, id));
 	public Country countryOfBirth;
 
-	public ListNode<Country> nationality = fieldNode("nationality", id -> new ListNode<Country>(this, id, "nationalities", Country.class));
+	public ListNode<Country> nationality = fieldNode("nationality",
+			id -> new ListNode<Country>(this, id, "nationalities", Country.class));
 	public DateNode birthDate = fieldNode("birthDate", id -> new DateNode(this, id));
 	public PhoneNumberNode telephone = fieldNode("phoneNumber", id -> new PhoneNumberNode(this, id));
 

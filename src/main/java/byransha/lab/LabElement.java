@@ -9,11 +9,11 @@ import byransha.list.action.ListNode;
 import byransha.primitive.Document;
 import byransha.primitive.ValuedElement;
 
-public abstract class LabNode extends BusinessElement {
+public abstract class LabElement extends BusinessElement {
 	@ShowInKishanView
 	public final ListNode<Document> documents = new ListNode<>(this, null, "document(s)", Document.class);
 
-	public LabNode(Element parent, ID id) {
+	public LabElement(Element parent, ID id) {
 		super(parent, id);
 //		generateEvents = true;
 	}

@@ -11,8 +11,6 @@ import java.nio.file.StandardOpenOption;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -20,24 +18,18 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.swing.JOptionPane;
 
-import byransha.Chat;
 import byransha.Element;
-import byransha.access_control.User;
 import byransha.action.Category;
 import byransha.action.base.ShowInKishanView;
-import byransha.lab.LabApplication;
-import byransha.network.TCPServer;
 import byransha.primitive.URLNode;
 import byransha.thread.ThreadNode;
-import byransha.ui.swing.SwingFrontend;
-import byransha.ui.telnet.TelnetServer;
 import byransha.util.ByUtils;
 
 public class Byransha extends Element {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.91";
+	public static final String VERSION = "0.0.93";
 
 	public static class byransha extends Category {
 	}
@@ -240,57 +232,5 @@ public class Byransha extends Element {
 
 		return shortcutFile;
 	}
-	
-	public static void main(String... args) throws Throwable {
-		System.out.println("This is Byransha v" + Byransha.VERSION);
-//		System.out.println(args.length + " args: " + Arrays.toString(args));
-		var argMap = mapArgs(args);
-		Byransha.autoRestartWhenUpgraded = argMap.containsKey("--auto-restart");
-		Byransha.autoUpdateEnabled = !argMap.containsKey("--disable-auto-update");
 
-		if (Byransha.pathElements().length == 1) {// runFromASingleJar
-			Byransha.considerUpgrading();
-			Byransha.runAutoUpdateThread();
-		} else {
-			System.out.println("This is a development version, no upgrade possible");
-		}
-
-		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
-
-		var hub =  new Hub(port);
-		hub.application = (Element) Class.forName(argMap.getOrDefault("appClass", LabApplication.class.getName()))
-				.getConstructor(Element.class).newInstance(hub);
-
-		new Chat(hub.currentUser()).append(hub.application);
-
-		// new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port",
-		// "8080")));
-		new TelnetServer(hub, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + TelnetServer.DEFAULT_PORT)));
-
-		if (!argMap.containsKey("--no-gui")) {
-			new SwingFrontend(hub);
-		}
-
-		System.out.println("playing events");
-		hub.eventList.goToNow(e -> System.out.println("event: " + e));
-		hub.setCurrentUser(new User(hub, "guest"));
-		System.out.println("start ok");
-
-		Thread.sleep(Long.MAX_VALUE);
-	}
-
-	private static Map<String, String> mapArgs(String... args) {
-		var r = new HashMap<String, String>();
-
-		for (var arg : args) {
-			if (arg.contains("=")) {
-				var a = arg.split("=");
-				r.put(a[0], a[1]);
-			} else {
-				r.put(arg, "");
-			}
-		}
-
-		return r;
-	}
 }

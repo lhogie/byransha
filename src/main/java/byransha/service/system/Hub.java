@@ -19,7 +19,7 @@ import byransha.graph.relection.ClassNode;
 import byransha.index.AllIndexes;
 import byransha.index.AllIndexesElement;
 import byransha.lab.LabApplication;
-import byransha.lab.LabNode;
+import byransha.lab.LabElement;
 import byransha.list.action.ListNode;
 import byransha.network.Network;
 import byransha.primitive.ValuedElement;
@@ -134,7 +134,7 @@ public class Hub extends Element {
 
 	@ShowInKishanView
 	public List<ClassNode> businessClasses() {
-		return classesIn(application.getClass().getPackage(), LabNode.class);
+		return classesIn(application.getClass().getPackage(), LabElement.class);
 	}
 
 	public List<ClassNode> classesIn(Package p, Class superclass) {

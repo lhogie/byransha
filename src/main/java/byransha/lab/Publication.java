@@ -6,7 +6,7 @@ import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class Publication extends LabNode {
+public class Publication extends LabElement {
 	@ShowInKishanView
 	public final StringNode title = fieldNode("title", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView

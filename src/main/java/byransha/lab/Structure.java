@@ -12,7 +12,7 @@ import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class Structure extends LabNode {
+public class Structure extends LabElement {
 	@ShowInKishanView
 	public final StringNode name =fieldNode("name",  id ->new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
