@@ -8,7 +8,7 @@ import byransha.primitive.BooleanNode;
 import byransha.primitive.LongNode;
 import byransha.primitive.StringNode;
 
-public class Room extends LabNode {
+public class Room extends LabElement {
 	@ShowInKishanView
 	public StringNode name = fieldNode("name", id -> new StringNode(this, id, null, ".+"));
 

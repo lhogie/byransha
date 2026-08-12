@@ -5,7 +5,7 @@ import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.primitive.DateNode;
 
-public class Position extends LabNode {
+public class Position extends LabElement {
 	@ShowInKishanView
 	public Structure employer;
 	@ShowInKishanView

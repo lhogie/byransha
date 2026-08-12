@@ -8,6 +8,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.PrintWriter;
+import java.io.Serializable;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -96,9 +97,13 @@ public class Element {
 	protected Element(Element parent, ID id) {
 		++nbInstances;
 		this.id = id;
+		
+		if (this instanceof  Serializable)
+			throw new IllegalStateException();
+		
 //		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
-			throw new NullPointerException();
+			System.err.println("fdskhjkh " +getClass());
 		this.parent = parent;
 
 		var h = hub();

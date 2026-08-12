@@ -5,7 +5,7 @@ import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 
-public class Campus extends LabNode {
+public class Campus extends LabElement {
 	@ShowInKishanView
 	public StringNode name = fieldNode("name", id -> new StringNode(this, id, "", ".+"));
 

@@ -2,11 +2,11 @@ package byransha.lab.device;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.lab.LabNode;
+import byransha.lab.LabElement;
 import byransha.primitive.LongNode;
 import byransha.primitive.URLNode;
 
-public class CPU extends LabNode {
+public class CPU extends LabElement {
 	LongNode nbCores;
 	URLNode url;
 
