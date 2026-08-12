@@ -491,7 +491,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 	public QueryIA(Element n) {
 		super(n, AI.class);
-		inputJSON = new JSONNode(this, n.describeAsJSON(), null);
+		inputJSON = new JSONNode(this, byransha.util.ByUtils.factory.objectNode(), null);
 	}
 
 	@Override
