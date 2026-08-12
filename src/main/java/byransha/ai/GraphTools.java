@@ -5,7 +5,6 @@ import java.util.Set;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.ID.Scope;
 import byransha.lab.Person;
 import byransha.lab.Structure;
 import byransha.list.action.ListNode;
@@ -55,7 +54,7 @@ public class GraphTools {
 				int count = 0;
 				for (var node : elements) {
 					if (node instanceof Element bnode) {
-						response.append(String.format("- [%s] %s: %s\n", bnode.idAsText(),
+						response.append(String.format("- [%s] %s: %s\n", bnode.id().toBase62(),
 								bnode.getClass().getSimpleName(), bnode.toString()));
 					}
 					count++;
@@ -138,7 +137,7 @@ public class GraphTools {
 	@Tool("cherche UNIQUEMENT les IDs des noeuds et renvoie un listNode contenant les IDs des noeuds trouvés")
 	public ListNode<Element> searchNodeIdsByText(String searchText, int maxDepth) {
 		System.out.println("searchNodeIdsByText appelée");
-		var result = new ListNode<Element>(contextNode, new ID(Scope.local), "searchNodeIdsByText", Element.class);
+		var result = new ListNode<Element>(contextNode, new ID(), "searchNodeIdsByText", Element.class);
 		if (searchText == null || searchText.trim().isEmpty()) {
 			return result; // Retourner une liste vide
 		}
