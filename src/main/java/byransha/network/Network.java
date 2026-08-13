@@ -6,14 +6,37 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import byransha.Element;
+import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.primitive.LongNode;
 import byransha.security.NetworkBox;
 import byransha.security.PublicKeyImporter;
 import byransha.service.system.Hub;
-import byransha.util.ByUtils;
+import toools.io.ser.JavaSerializer;
+import toools.io.ser.Serializer;
 
 public class Network extends Element {
+
+	public final Serializer serializer = new JavaSerializer<>() {
+		@Override
+		protected Object replaceAtDeserialization(Object obj) {
+			if (obj instanceof ID id) {
+				return (Element) hub().indexes.byId.get(id);
+			} else {
+				return obj;
+			}
+		}
+
+		@Override
+		protected Object replaceAtSerialization(Object obj) {
+			if (obj instanceof Element p) {
+				return p.id();
+			} else {
+				return obj;
+			}
+		}
+	};
+
 	protected long nbMsgReceived;
 
 	@ShowInKishanView
@@ -63,23 +86,22 @@ public class Network extends Element {
 		++nbMsgReceived;
 		updateInOutInfo();
 
-		String nameOfSender = msg.routingInfo.nameOfSender();
+		Peer src = msg.sender();
 
-		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
+		boolean imTheRecipient = msg.recipient() == neighborhood.self;
 
 		if (imTheRecipient) {
-			var sender = neighborhood.findPeerByName(nameOfSender);
-			System.out.println(
-					"*** message received from " + nameOfSender + " (sender: " + msg.routingInfo.actualRoute + ")");
+			System.out
+					.println("*** message received from " + src + " (sender: " + msg.actualRoute + ")");
 
-			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, sender.publicKey, msg.content);
+			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, src.publicKey, msg.contentBytes());
 //			msg.content = decryptedE2E;
-			msg.ooInfos.content = ByUtils.serializer.fromBytes(decryptedE2E);
+			msg.content = serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
-			System.out.println("*** content: " + msg.ooInfos.content);
+			System.out.println("*** content: " + msg.content);
 
-			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientQueueAtDestination);
+			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientQueueAtDestination());
 
 			if (recipientQ != null) {
 				recipientQ.q.add_sync(msg);

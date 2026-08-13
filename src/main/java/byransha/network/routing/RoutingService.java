@@ -3,6 +3,7 @@ package byransha.network.routing;
 import java.util.List;
 
 import byransha.Element;
+import byransha.network.Message;
 import byransha.network.Peer;
 import byransha.network.Sender;
 
@@ -16,8 +17,8 @@ public abstract class RoutingService extends Element {
 
 	public abstract void start();
 
-	public RoutingInfo createInfo() {
-		return new RoutingInfo();
+	public RoutingInfo createInfoFor(Message msg) {
+		return new RoutingInfo(msg);
 	}
 
 }

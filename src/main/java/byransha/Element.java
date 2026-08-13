@@ -87,7 +87,7 @@ public class Element {
 	public boolean userEditable;
 
 	@ShowInKishanView
-	private boolean generateEvents = false;
+	private boolean global = false;
 
 //	private Hub hub;
 	protected ListNode<Action> cachedActions;
@@ -118,7 +118,7 @@ public class Element {
 	}
 
 	public void forceEventGeneration() {
-		generateEvents = true;
+		global = true;
 	}
 
 	public final <T extends Element> Out<T> out(String fieldName, Function<ID, T> creator) {
@@ -135,7 +135,7 @@ public class Element {
 	}
 
 	public boolean generateEvents() {
-		return id() != null && (enclosingBusinessNode() != null || generateEvents) && hub().eventList != null;
+		return id() != null && (enclosingBusinessNode() != null || global) && hub().eventList != null;
 	}
 
 	public String findRoleOf(Element n) {

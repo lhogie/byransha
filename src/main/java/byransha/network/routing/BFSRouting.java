@@ -107,7 +107,7 @@ public class BFSRouting extends RoutingService {
 
 		@Override
 		public void accept(Message msg) {
-			var gossip = (Gossip) msg.ooInfos.content;
+			var gossip = (Gossip) msg.content;
 			Peer peer = hub().network.neighborhood.findPeerByName(gossip.peerName);
 
 			if (peer == null) {

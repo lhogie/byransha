@@ -35,15 +35,15 @@ public class TinyChat extends Service {
 			for (var neighbor : hub().network.neighborhood.neighbors()) {
 				System.out.println("tinychat: sending to " + neighbor);
 				var msg = createNewMessage();
-				msg.ooInfos.recipient = neighbor;
-				msg.ooInfos.content = input.get();
+				msg.recipient = neighbor;
+				msg.content = input.get();
 				hub().network.sender.accept(msg);
 			}
 		} else {
 			System.out.println("tinychat: sending to " + recipient.get());
 			var msg = createNewMessage();
-			msg.ooInfos.recipient = hub().network.neighborhood.findPeerByName(recipient.get());
-			msg.ooInfos.content = input.get();
+			msg.recipient = hub().network.neighborhood.findPeerByName(recipient.get());
+			msg.content = input.get();
 			hub().network.sender.accept(msg);
 		}
 	}

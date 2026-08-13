@@ -5,7 +5,6 @@ import java.net.Socket;
 
 import byransha.Service;
 import byransha.action.base.ShowInKishanView;
-import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
 import byransha.thread.ThreadNode;
 import byransha.util.ByUtils;
@@ -80,12 +79,7 @@ public class TCPNode extends Service {
 
 					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
 					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
-
-					if (msg.ooInfos == null) {
-						msg.ooInfos = new OOData();
-					}
-
-					msg.routingInfo.actualRoute.add(p.name);
+					msg.actualRoute.add(p);
 					((Network) parent).processIncomingMessage(msg);
 				}
 			} catch (Exception err) {

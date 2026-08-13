@@ -1,33 +1,15 @@
 package byransha.network.routing;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
-import byransha.action.base.ShowInKishanView;
+import byransha.Element;
+import byransha.network.Message;
 
-public class RoutingInfo implements Serializable {
-	public List<String> actualRoute = new ArrayList<>();
-//	public List<String> suggestedRoute = new ArrayList<>();
-	public String nameOfRecipient;
-
-	@Override
-	public String toString() {
-		return "route: " + actualRoute;
+public class RoutingInfo extends Element {
+	public RoutingInfo(Message msg) {
+		super(msg, null);
 	}
 
-	@ShowInKishanView
-	public List<String> route() {
-		return actualRoute;
-	}
 
-	@ShowInKishanView
-	public String nameOfSender() {
-		return actualRoute.getFirst();
-	}
 
-	@ShowInKishanView
-	public String nameOfRecipient() {
-		return nameOfRecipient;
-	}
+
 }

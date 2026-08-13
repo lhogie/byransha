@@ -34,8 +34,8 @@ public abstract class EventList extends Service {
 
 					for (var neighbor : hub().network.neighborhood.neighbors()) {
 						var msg = createNewMessage();
-						msg.ooInfos.recipient = neighbor;
-						msg.ooInfos.content = e;
+						msg.recipient = neighbor;
+						msg.content = e;
 						hub().network.sender.accept(msg);
 					}
 
@@ -103,7 +103,7 @@ public abstract class EventList extends Service {
 
 	@Override
 	protected void incomingMessage(Message msg) {
-		Event e = (Event) msg.ooInfos.content;
+		Event e = (Event) msg.content;
 		var alreadyKnownEvent = hub().eventList.findEvent(e.id());
 
 		if (alreadyKnownEvent == null) {
