@@ -46,7 +46,7 @@ import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
 import byransha.primitive.TextNode;
 import byransha.ui.telnet.TelnetSession;
-import byransha.util.UUIDUtils;
+import byransha.ID;
 import dev.langchain4j.memory.ChatMemory;
 import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.memory.chat.MessageWindowChatMemory;
@@ -74,10 +74,10 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	}
 
 	@ShowInKishanView
-	public final StringNode prompt = new StringNode(this, "", ".+");
+	public final StringNode prompt = new StringNode(this, null, "", ".+");
 	public final JSONNode inputJSON;
 	@ShowInKishanView
-	public final TextNode info = new TextNode(this,
+	public final TextNode info = new TextNode(this, null,
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses",
 			"La question est envoyé a l'IA, elle peut se tromper, verifier les réponses");
 	public static String PRIMARY_MODEL = "granite4:tiny-h";
@@ -109,7 +109,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
 
 	private ListNode<AiNode> getAiNodes() {
-		ListNode<AiNode> nodeList = new ListNode<>(this, " AI nodes", AiNode.class);
+		ListNode<AiNode> nodeList = new ListNode<>(this, null, " AI nodes", AiNode.class);
 		AiNode localNode = new AiNode(hub());
 		localNode.name = "Local IA";
 		try {
@@ -154,7 +154,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		Chat lastActiveChat;
 		this.currentChat = chat;
 		try {
-			var chatID = UUIDUtils.decode(new BufferedReader(new InputStreamReader(in)).readLine());
+			var chatID = ID.fromBase62(new BufferedReader(new InputStreamReader(in)).readLine());
 		currentChat = (Chat) hub().indexes.byId.get(chatID);
 		lastActiveChat = currentChat;
 		this.currentChat = lastActiveChat;
@@ -181,11 +181,11 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		setChat();
 			final Chat activeChat = this.currentChat;
 			System.out.println("Réinitialisation de la mémoire pour le chat : "
-					+ (activeChat != null ? activeChat.idAsText() : "aucun chat actif"));
+					+ (activeChat != null ? activeChat.id().toBase62() : "aucun chat actif"));
 			SwingUtilities.invokeLater(() -> {
 				try {
 					if (activeChat != null) {
-						String chatId = activeChat.idAsText();
+						String chatId = activeChat.id().toBase62();
 						var messages = MEMORY_STORE.getMessages(chatId);
 						int count = (messages != null) ? messages.size() : 0;
 						System.out
@@ -491,7 +491,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 	public QueryIA(Element n) {
 		super(n, AI.class);
-		inputJSON = new JSONNode(this, n.describeAsJSON());
+		inputJSON = new JSONNode(this, byransha.util.ByUtils.factory.objectNode(), null);
 	}
 
 	@Override
@@ -534,7 +534,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		var assistant = getOrCreateAssistant();
 		var userQuestion = prompt.get();
 		if (userQuestion == null || userQuestion.trim().isEmpty()) {
-			result = new TextNode(hub(), "IA response", "Erreur: la question envoyée à l'IA est vide.");
+			result = new TextNode(hub(), null, "IA response", "Erreur: la question envoyée à l'IA est vide.");
 			return;
 		}
 
@@ -596,7 +596,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 				if (ActivateListNodeResponse) {
 					try {
 						JsonNode parsed = mapper.readTree(iaResponse);
-						var l = new ListNode<Element>(parent, "IA numeric array", Element.class);
+						var l = new ListNode<Element>(parent, null, "IA numeric array", Element.class);
 						for (JsonNode value : parsed) {
 							String idText = value.asText().trim();
 							if (idText.isEmpty())
@@ -639,7 +639,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 					}
 				}
 			} else {
-				result = new TextNode(hub(), "IA response", iaResponse);
+				result = new TextNode(hub(), null, "IA response", iaResponse);
 				return;
 			}
 
@@ -700,12 +700,12 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		if (ActivateListNodeResponse) {
 			try {
 				JsonNode parsed = mapper.readTree(mapperString);
-				var l = new ListNode<BNode>(parent, array, BNode.class);
+				var l = new ListNode<Element>(parent, null, array, Element.class);
 				for (JsonNode value : parsed) {
 					String idText = value.asText().trim();
 					if (idText.isEmpty())
 						continue;
-					BNode realNode = hub().indexes.byId.getByText(idText);
+					Element realNode = hub().indexes.byId.getByText(idText);
 					if (realNode != null) {
 						l.elements.add(realNode);
 					} else {
@@ -799,7 +799,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		UserPrompt.append("--- USER QUESTION ---\n");
 		UserPrompt.append(normalizedQuestion).append("\n\n");
 		if (inputNode != null) {
-			UserPrompt.append("The current root context node is: ").append(inputNode.idAsText())
+			UserPrompt.append("The current root context node is: ").append(inputNode.id().toBase62())
 					.append(inputNode.getClass().getSimpleName()).append("\n");
 		}
 		return new String[] { SystemPrompt.toString(), UserPrompt.toString() };
@@ -876,7 +876,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 			System.out.println("Pas de noeuds disponibles, utilisation de l'instance locale d'Ollama.");
 		}
 		final String selectedOllamaUrl = currentOllamaUrl;
-		String chatId = (currentChat != null) ? currentChat.idAsText() : "default_session";
+		String chatId = (currentChat != null) ? currentChat.id().toBase62() : "default_session";
 		var cacheKey = selectedOllamaUrl + "|" + PRIMARY_MODEL + "|" + chatId;
 		return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
 			var model = getOrCreateModel(selectedOllamaUrl);

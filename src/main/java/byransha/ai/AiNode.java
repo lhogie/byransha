@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import byransha.Service;
 import byransha.list.action.ListNode;
 import byransha.network.Message;
+import byransha.network.Peer;
 import byransha.service.system.Hub;
 
 public class AiNode extends Service {

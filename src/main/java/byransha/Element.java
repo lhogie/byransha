@@ -54,6 +54,7 @@ import byransha.action.base.ShowInKishanView;
 import byransha.action.search.Search;
 import byransha.action.search.SearchRegexp;
 import byransha.action.search.SearchText;
+import byransha.ai.QueryIA;
 import byransha.event.NewNodeEvent;
 import byransha.graph.relection.ClassNode;
 import byransha.list.action.ListNode;
@@ -491,7 +492,7 @@ public class Element {
 
 	public void createActions() {
 		// cachedActions.add(new Back(g, this));
-//		cachedActions.elements.add(new QueryIA(this));
+		cachedActions.elements.add(new QueryIA(this));
 		cachedActions.elements.add(new ShowClassNode(this));
 		cachedActions.elements.add(new CopyIDToClipboard(this));
 		cachedActions.elements.add(new FreezingAction(this));
