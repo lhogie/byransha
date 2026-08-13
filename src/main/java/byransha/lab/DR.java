@@ -2,10 +2,15 @@ package byransha.lab;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 
 public class DR extends Status {
-	public DR(Element g, ID id) {
-		super(g, id);
+	public DR(InstantiationParameters p) {
+		super(p);
 		name.set("Directeur de Recherche");
+	}
+
+	public DR(Element parent, ID id) {
+		super(parent, id);
 	}
 }

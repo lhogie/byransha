@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.service.system.Hub;
 
 public class NewNodeEvent<N extends Element> extends Event {
@@ -24,13 +25,14 @@ public class NewNodeEvent<N extends Element> extends Event {
 	}
 
 	@Override
-	public void undo(Hub g) throws Throwable {
-		g.indexes.byId.get(nodeId).delete();
+	public void undo(Hub hub) throws Throwable {
+		hub.indexes.byId.get(nodeId).delete();
 	}
 
 	@Override
-	public void apply(Hub g) throws Throwable {
-		var n = clazz.getConstructor(Hub.class, ID.class).newInstance(g, nodeId);
+	public void apply(Hub hub) throws Throwable {
+		var p = new InstantiationParameters.InitByEvent(hub, this);
+		var n = clazz.getConstructor(InstantiationParameters.class).newInstance(p);
 	}
 
 	@Override

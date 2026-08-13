@@ -1,18 +1,18 @@
 package byransha.lab;
 
-import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 
 public class ResearchGroup extends Structure {
 
-	public ResearchGroup(Element g, ID id) {
-		super(g, id);
+	public ResearchGroup(InstantiationParameters p) {
+		super(p);
 	}
 
 	public ResearchGroup(Lab g, ID id, String name) {
-		this(g, id);
+		super(g, id);
 		this.name.set(name);
 	}
 

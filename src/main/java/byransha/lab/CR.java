@@ -2,10 +2,11 @@ package byransha.lab;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 
 public class CR extends Status {
-	public CR(Element g, ID id) {
-		super(g, id);
+	public CR(InstantiationParameters p) {
+		super(p);
 		name.set("Chargé de Recherche");
 		name.userEditable = true;
 	}

@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.ProblemInElement;
 import byransha.service.system.Byransha;
 
@@ -22,9 +23,13 @@ public abstract class ValuedElement<V> extends Element {
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 	private boolean shownToDisk = false;
 
+	public ValuedElement(InstantiationParameters p) {
+		super(p);
+//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
+	}
+
 	public ValuedElement(Element parent, ID id) {
 		super(parent, id);
-//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
 	}
 
 	public void addValueChangeListener(ValueChangeListener<V> l) {

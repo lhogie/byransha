@@ -8,6 +8,7 @@ import byransha.Element;
 import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
+import byransha.security.NetworkBox;
 import byransha.service.system.Hub;
 import byransha.util.ByUtils;
 
@@ -20,8 +21,18 @@ public class Message extends Element {
 	public ToSerialize ser = new ToSerialize();
 
 	public static class ToSerialize implements Serializable {
+		@Override
+		public String toString() {
+			return "ToSerialize [messageID=" + messageID + ", content=" + contentBytes.length
+					+ ", recipientQueueAtDestination=" + recipientQueueAtDestination + ", routingInfo=" + routingInfo
+					+ ", replyTo=" + replyTo + ", errorCount=" + errorCount + ", nbAttempts=" + nbAttempts
+					+ ", emissionDateMs=" + emissionDateMs + ", keepAliveMs=" + keepAliveMs + ", maxNbAttempts="
+					+ maxNbAttempts + ", sendDateMs=" + sendDateMs + ", actualRoute=" + actualRoute + ", recipient="
+					+ recipient + "]";
+		}
+
 		public ID messageID;
-		public byte[] content;
+		public byte[] contentBytes;
 		public ID recipientQueueAtDestination;
 		public RoutingInfo routingInfo;
 		public ID replyTo;
@@ -35,26 +46,26 @@ public class Message extends Element {
 		public String recipient;
 	}
 
+	public Message(Element parent, ID id) {
+		super(parent, id);
+	}
+
 	public ToSerialize toSer() {
-		ser.content = ByUtils.serializer.toBytes(content);
-		ser.actualRoute = actualRoute.stream().map(p -> p.id()).toList();
 		ser.recipient = recipient.name;
+		ser.contentBytes = NetworkBox.encrypt(hub().network.neighborhood.self.privateKey, recipient.publicKey,
+				ByUtils.serializer.toBytes(content));
+		ser.actualRoute = actualRoute.stream().map(p -> p.id()).toList();
 		return ser;
 	}
 
 	public void setSer(ToSerialize s, Hub h) {
 		this.ser = s;
-		content = ByUtils.serializer.fromBytes(s.content);
 		actualRoute = new ArrayList<>(s.actualRoute.stream().map(id -> (Peer) h.indexes.byId.get(id)).toList());
 		recipient = (Peer) h.network.neighborhood.findPeerByName(s.recipient);
 	}
 
 	public void fromSer(ToSerialize ser) {
 		this.actualRoute = ((List<ID>) ser.actualRoute).stream().map(id -> (Peer) hub().indexes.byId.get(id)).toList();
-	}
-
-	public Message(Element parent, ID id) {
-		super(parent, id);
 	}
 
 	@ShowInKishanView
@@ -90,7 +101,7 @@ public class Message extends Element {
 	@Override
 	public String toString() {
 		return "routing info: " + routingInfo + ", content:"
-				+ (content != null ? content : ser.content.length + " bytes");
+				+ (content != null ? content : ser.contentBytes.length + " bytes");
 	}
 
 	public boolean keepAliveExpired() {
@@ -110,7 +121,7 @@ public class Message extends Element {
 	}
 
 	public byte[] contentBytes() {
-		return ser.content;
+		return ser.contentBytes;
 	}
 
 }

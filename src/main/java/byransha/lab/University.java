@@ -2,6 +2,7 @@ package byransha.lab;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 
@@ -10,10 +11,13 @@ public class University extends Structure {
 	public final ListNode<Campus> campuses = fieldNode("name",  id ->new ListNode<>(this, id, "campus", Campus.class));
 	public Person president;
 
-	public University(Element g, ID id) {
-		super(g, id);
+	public University(InstantiationParameters p) {
+		super(p);
 	}
 
+	public University(Element parent, ID id) {
+		super(parent, id);
+	}
 	@Override
 	public String whatIsThis() {
 		return "an university";

@@ -84,8 +84,8 @@ public class Sender extends Element implements Consumer<Message> {
 							errorWhenTryingToSending(msg);
 						} else {
 							try {
-								byte[] serializedMsg = ByUtils.serializer.toBytes(msg.toSer());
-								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
+								byte[] ser = ByUtils.serializer.toBytes(msg.toSer());
+								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, ser);
 								System.out.println("writing to TCP of " + relay);
 								relay.getConnection().writeObject(hopEncryptedBytes);
 								++nbMessageSent;

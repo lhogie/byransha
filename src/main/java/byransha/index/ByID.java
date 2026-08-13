@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.util.Base62;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class ByID extends Index {
@@ -59,7 +58,4 @@ public class ByID extends Index {
 		return e != null ? e : f.apply(id);
 	}
 
-	public Element getByText(String id) {
-		return m.get(Base62.decode(id));
-	}
 }

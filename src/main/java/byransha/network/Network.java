@@ -82,9 +82,8 @@ public class Network extends Element {
 		if (imTheRecipient) {
 			System.out.println("*** message received from " + src + " (sender: " + msg.actualRoute + ")");
 
-			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, src.publicKey, msg.contentBytes());
-//			msg.content = decryptedE2E;
-			msg.content = ByUtils.serializer.fromBytes(decryptedE2E);
+			msg.content = ByUtils.serializer
+					.fromBytes(NetworkBox.decrypt(neighborhood.self.privateKey, src.publicKey, msg.contentBytes()));
 
 			System.out.println("*** message received: " + msg);
 			System.out.println("*** content: " + msg.content);

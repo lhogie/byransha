@@ -14,12 +14,17 @@ import javax.swing.JRadioButton;
 import byransha.Chat;
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(Element g, ID id, Boolean v) {
-		super(g, id);
+	public BooleanNode(InstantiationParameters p, Boolean v) {
+		super(p);
 		set(v);
+	}
+
+	public BooleanNode(Element parent, ID id, Object object) {
+		super(parent, id);
 	}
 
 	@Override

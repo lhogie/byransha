@@ -2,6 +2,7 @@ package byransha.lab;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.action.base.ShowInKishanView;
 import byransha.primitive.DateNode;
 
@@ -17,8 +18,12 @@ public class Position extends LabElement {
 	@ShowInKishanView
 	public SupportDePoste support;
 
-	public Position(Element g, ID id) {
-		super(g, id);
+	public Position(InstantiationParameters p) {
+		super(p);
+	}
+
+	public Position(Element parent, ID id) {
+		super(parent, id);
 	}
 
 	@Override

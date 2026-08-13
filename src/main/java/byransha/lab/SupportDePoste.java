@@ -1,14 +1,13 @@
 package byransha.lab;
 
-import byransha.Element;
-import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.primitive.StringNode;
 
 public class SupportDePoste extends LabElement {
 	StringNode id = fieldNode("id", id -> new StringNode(this, id, null, ".+"));
 
-	public SupportDePoste(Element g, ID id) {
-		super(g, id);
+	public SupportDePoste(InstantiationParameters p) {
+		super(p);
 	}
 
 	@Override

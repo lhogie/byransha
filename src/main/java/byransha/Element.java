@@ -95,9 +95,14 @@ public class Element {
 
 	private final ID id;
 
-	protected Element(Element parent, ID id) {
+	public Element(Element parent, ID id) {
+		this(new InstantiationParameters.InitByCreator(parent, id));
+	}
+
+	protected Element(InstantiationParameters p) {
 		++nbInstances;
-		this.id = id;
+		this.id = p.getID();
+		Element parent = p.getParent();
 
 		if (this instanceof Serializable)
 			throw new IllegalStateException();
@@ -113,7 +118,7 @@ public class Element {
 			h.indexes.add(this);
 		}
 
-		if (generateEvents()) {
+		if (p.generateEvents() && generateEvents()) {
 			hub().eventList.add(new NewNodeEvent<>(this));
 		}
 	}

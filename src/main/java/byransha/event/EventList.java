@@ -107,7 +107,16 @@ public abstract class EventList extends Service {
 		var alreadyKnownEvent = hub().eventList.findEvent(e.id());
 
 		if (alreadyKnownEvent == null) {
-			hub().eventList.add(e);
+			if (e.date.isBefore(currentDate)) {
+				try {
+					goTo(e.date, null);
+					hub().eventList.add(e);
+					goTo(currentDate, null);
+				} catch (Throwable e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 

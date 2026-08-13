@@ -1,11 +1,14 @@
 package byransha.service.misc;
 
+import java.util.Objects;
+
 import byransha.Service;
 import byransha.action.ActionMethod;
 import byransha.action.AddButtonOnKishanView;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.network.Message;
+import byransha.network.Peer;
 import byransha.primitive.StringNode;
 import byransha.service.system.Hub;
 
@@ -15,6 +18,9 @@ public class TinyChat extends Service {
 
 	@ShowInKishanView
 	public final StringNode recipient = new StringNode(this, null, "", ".*");
+
+	@ShowInKishanView
+	public final ListNode<Peer> recipientChoice = new ListNode<Peer>(this, null, "peers", Peer.class);
 
 	@ShowInKishanView
 	public final ListNode<Message> incomingMessages = new ListNode(this, null, "messages", Message.class);
@@ -35,6 +41,7 @@ public class TinyChat extends Service {
 			for (var neighbor : hub().network.neighborhood.neighbors()) {
 				System.out.println("tinychat: sending to " + neighbor);
 				var msg = createNewMessage();
+				Objects.requireNonNull(neighbor);
 				msg.recipient = neighbor;
 				msg.content = input.get();
 				hub().network.sender.accept(msg);
@@ -43,8 +50,13 @@ public class TinyChat extends Service {
 			System.out.println("tinychat: sending to " + recipient.get());
 			var msg = createNewMessage();
 			msg.recipient = hub().network.neighborhood.findPeerByName(recipient.get());
-			msg.content = input.get();
-			hub().network.sender.accept(msg);
+
+			if (msg.recipient != null) {
+				msg.content = input.get();
+				hub().network.sender.accept(msg);
+			} else {
+
+			}
 		}
 	}
 

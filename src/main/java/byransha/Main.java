@@ -17,6 +17,7 @@ public class Main {
 		System.out.println("This is Byransha v" + Byransha.VERSION);
 //		System.out.println(args.length + " args: " + Arrays.toString(args));
 		var argMap = mapArgs(args);
+		System.out.println(argMap);
 		Byransha.autoRestartWhenUpgraded = argMap.containsKey("--auto-restart");
 		Byransha.autoUpdateEnabled = !argMap.containsKey("--disable-auto-update");
 
@@ -27,9 +28,21 @@ public class Main {
 			System.out.println("This is a development version, no upgrade possible");
 		}
 
-		int port = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
+		int nbInstances = argMap.containsKey("--nb-instances") ? Integer.parseInt(argMap.get("--nb-instances")) : 1;
 
-		var hub =  new Hub(port);
+		for (int i = 0; i < nbInstances; ++i) {
+			f(argMap, i);
+		}
+
+		Thread.sleep(Long.MAX_VALUE);
+
+	}
+
+	public static void f(Map<String, String> argMap, int i) throws Throwable {
+		int tcpPort = i
+				+ (argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT);
+
+		var hub = new Hub(tcpPort);
 		hub.application = (Element) Class.forName(argMap.getOrDefault("appClass", LabApplication.class.getName()))
 				.getConstructor(Element.class).newInstance(hub);
 
@@ -37,7 +50,8 @@ public class Main {
 
 		// new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port",
 		// "8080")));
-		new TelnetServer(hub, Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + TelnetServer.DEFAULT_PORT)));
+		int telnetPort = i + Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + TelnetServer.DEFAULT_PORT));
+		new TelnetServer(hub, telnetPort);
 
 		if (!argMap.containsKey("--no-gui")) {
 			new SwingFrontend(hub);
@@ -47,8 +61,6 @@ public class Main {
 		hub.eventList.goToNow(e -> System.out.println("event: " + e));
 		hub.setCurrentUser(new User(hub, "guest"));
 		System.out.println("start ok");
-
-		Thread.sleep(Long.MAX_VALUE);
 	}
 
 	private static Map<String, String> mapArgs(String... args) {

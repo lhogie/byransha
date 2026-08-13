@@ -12,25 +12,29 @@ import java.util.UUID;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.action.base.ShowInKishanView;
 import byransha.network.Peer;
 import byransha.service.system.Hub;
 
 public abstract class Event extends Element implements Externalizable, Comparable<Event> {
+	@ShowInKishanView
 	LocalDateTime date;
+
+	@ShowInKishanView
+	String problem;
+
 	Set<Peer> owners = new HashSet<>();
 
 	public Event(Element parent) {
 		this(parent, LocalDateTime.now());
 	}
 
-	
-
 	public Event(Element parent, LocalDateTime date) {
 		super(parent, ID.fromDate(date));
 		this.date = date;
 	}
 
-	public abstract void apply(Hub g) throws Throwable;;
+	public abstract void apply(Hub g) throws Throwable;
 
 	public abstract void undo(Hub g) throws Throwable;
 
