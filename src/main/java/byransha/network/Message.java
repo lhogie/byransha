@@ -8,6 +8,7 @@ import byransha.Element;
 import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
+import byransha.service.system.Hub;
 import byransha.util.ByUtils;
 
 public class Message extends Element {
@@ -19,6 +20,7 @@ public class Message extends Element {
 	public ToSerialize ser = new ToSerialize();
 
 	public static class ToSerialize implements Serializable {
+		public ID messageID;
 		public byte[] content;
 		public ID recipientQueueAtDestination;
 		public RoutingInfo routingInfo;
@@ -30,22 +32,25 @@ public class Message extends Element {
 		public int maxNbAttempts = 10;
 		public long sendDateMs = System.currentTimeMillis();
 		public List<ID> actualRoute = new ArrayList<>();
-		public ID recipient;
+		public String recipient;
 	}
 
 	public ToSerialize toSer() {
 		ser.content = ByUtils.serializer.toBytes(content);
 		ser.actualRoute = actualRoute.stream().map(p -> p.id()).toList();
-		ser.recipient = recipient.id();
+		ser.recipient = recipient.name;
 		return ser;
+	}
+
+	public void setSer(ToSerialize s, Hub h) {
+		this.ser = s;
+		content = ByUtils.serializer.fromBytes(s.content);
+		actualRoute = new ArrayList<>(s.actualRoute.stream().map(id -> (Peer) h.indexes.byId.get(id)).toList());
+		recipient = (Peer) h.network.neighborhood.findPeerByName(s.recipient);
 	}
 
 	public void fromSer(ToSerialize ser) {
 		this.actualRoute = ((List<ID>) ser.actualRoute).stream().map(id -> (Peer) hub().indexes.byId.get(id)).toList();
-	}
-
-	public Message() {
-		this(null, null);
 	}
 
 	public Message(Element parent, ID id) {

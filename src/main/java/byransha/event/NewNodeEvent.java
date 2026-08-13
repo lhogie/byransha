@@ -11,7 +11,7 @@ import byransha.service.system.Hub;
 
 public class NewNodeEvent<N extends Element> extends Event {
 	Class<N> clazz;
-	ID nodeId;
+	public ID nodeId;
 
 	public NewNodeEvent(Element n) {
 		super(n.hub(), LocalDateTime.now());

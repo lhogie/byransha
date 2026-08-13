@@ -6,36 +6,14 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 import byransha.Element;
-import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.primitive.LongNode;
 import byransha.security.NetworkBox;
 import byransha.security.PublicKeyImporter;
 import byransha.service.system.Hub;
-import toools.io.ser.JavaSerializer;
-import toools.io.ser.Serializer;
+import byransha.util.ByUtils;
 
 public class Network extends Element {
-
-	public final Serializer serializer = new JavaSerializer<>() {
-		@Override
-		protected Object replaceAtDeserialization(Object obj) {
-			if (obj instanceof ID id) {
-				return (Element) hub().indexes.byId.get(id);
-			} else {
-				return obj;
-			}
-		}
-
-		@Override
-		protected Object replaceAtSerialization(Object obj) {
-			if (obj instanceof Element p) {
-				return p.id();
-			} else {
-				return obj;
-			}
-		}
-	};
 
 	protected long nbMsgReceived;
 
@@ -82,7 +60,18 @@ public class Network extends Element {
 		receptionInfo.set(nbMsgReceived);
 	}
 
-	public synchronized void processIncomingMessage(Message msg) {
+	public synchronized void processIncomingMessage(byte[] wireMsg, Peer p) {
+		if (p.sharedSecret == null) {
+			System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
+			return;
+		}
+
+		byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
+		Message.ToSerialize toSer = (Message.ToSerialize) ByUtils.serializer.fromBytes(hopDecrypted);
+		Message msg = new Message(null, toSer.messageID);
+		msg.setSer(toSer, hub());
+		msg.actualRoute.add(p);
+
 		++nbMsgReceived;
 		updateInOutInfo();
 
@@ -91,12 +80,11 @@ public class Network extends Element {
 		boolean imTheRecipient = msg.recipient() == neighborhood.self;
 
 		if (imTheRecipient) {
-			System.out
-					.println("*** message received from " + src + " (sender: " + msg.actualRoute + ")");
+			System.out.println("*** message received from " + src + " (sender: " + msg.actualRoute + ")");
 
 			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, src.publicKey, msg.contentBytes());
 //			msg.content = decryptedE2E;
-			msg.content = serializer.fromBytes(decryptedE2E);
+			msg.content = ByUtils.serializer.fromBytes(decryptedE2E);
 
 			System.out.println("*** message received: " + msg);
 			System.out.println("*** content: " + msg.content);

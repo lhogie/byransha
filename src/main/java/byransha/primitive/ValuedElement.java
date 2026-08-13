@@ -86,18 +86,25 @@ public abstract class ValuedElement<V> extends Element {
 			throw new RuntimeException("can't change a read only valued node");
 
 		V oldValue = value;
-		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
+		changeValue(value, newValue);
 
+		if (generateEvents()) {
+			hub().eventList.add(new ValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
+		}
+	}
+
+	public void setByEvent(V newValue, ValueChangeEvent e) {
+		changeValue((V) e.oldValue, newValue);
+	}
+
+	private void changeValue(V oldValue, V newValue) {
+		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
 		value = newValue;
 
 		if (valueChange) {
 			synchronized (valueChangeListeners) {
 				valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
 			}
-		}
-
-		if (generateEvents()) {
-			hub().eventList.add(new ValuedNodeValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
 		}
 
 		if (shownToDisk) {
