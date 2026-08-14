@@ -5,17 +5,15 @@ import byransha.network.MessageQ;
 import byransha.thread.LoopingThreadNode;
 
 public abstract class Service extends Element {
-
-	public final ID qId = new ID(0, getClass().hashCode());
 	private final MessageQ defaultQ;
 
 	protected Service(Element parent) {
 		super(parent, null);
-		this.defaultQ = createQueue(qId);
+		this.defaultQ = createQueue(getClass().hashCode());
 
-		new LoopingThreadNode(this, () -> 1.0, this + " message processing", () -> {
+		new LoopingThreadNode(this, () -> 0.0, this + " message processing", () -> {
 			Message msg = defaultQ.q.poll_sync();
-			System.out.println("tiny chat recieved message: " + msg.content);
+			System.out.println(this + " received message: " + msg.content);
 			incomingMessage(msg);
 		});
 	}
@@ -25,11 +23,11 @@ public abstract class Service extends Element {
 	@Override
 	protected Message createNewMessage() {
 		var msg = super.createNewMessage();
-		msg.recipientQueueAtDestination = defaultQ.id();
+		msg.ser.recipientQueueAtDestination = defaultQ.id();
 		return msg;
 	}
 
-	protected MessageQ createQueue(ID id) {
+	protected MessageQ createQueue(long id) {
 		return new MessageQ(this, id);
 	}
 

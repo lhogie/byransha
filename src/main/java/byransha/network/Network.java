@@ -14,6 +14,7 @@ import byransha.service.system.Hub;
 import byransha.util.ByUtils;
 
 public class Network extends Element {
+
 	protected long nbMsgReceived;
 
 	@ShowInKishanView
@@ -59,27 +60,35 @@ public class Network extends Element {
 		receptionInfo.set(nbMsgReceived);
 	}
 
-	public synchronized void processIncomingMessage(Message msg) {
+	public synchronized void processIncomingMessage(byte[] wireMsg, Peer p) {
+		if (p.sharedSecret == null) {
+			System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
+			return;
+		}
+
+		byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
+		Message.ToSerialize toSer = (Message.ToSerialize) ByUtils.serializer.fromBytes(hopDecrypted);
+		Message msg = new Message(null, toSer.messageID);
+		msg.setSer(toSer, hub());
+		msg.actualRoute.add(p);
+
 		++nbMsgReceived;
 		updateInOutInfo();
 
-		String nameOfSender = msg.routingInfo.nameOfSender();
+		Peer src = msg.sender();
 
-		boolean imTheRecipient = msg.routingInfo.nameOfRecipient().equals(neighborhood.self.name);
+		boolean imTheRecipient = msg.recipient() == neighborhood.self;
 
 		if (imTheRecipient) {
-			var sender = neighborhood.findPeerByName(nameOfSender);
-			System.out.println(
-					"*** message received from " + nameOfSender + " (sender: " + msg.routingInfo.actualRoute + ")");
+			System.out.println("*** message received from " + src + " (sender: " + msg.actualRoute + ")");
 
-			byte[] decryptedE2E = NetworkBox.decrypt(neighborhood.self.privateKey, sender.publicKey, msg.content);
-//			msg.content = decryptedE2E;
-			msg.ooInfos.content = ByUtils.serializer.fromBytes(decryptedE2E);
+			msg.content = ByUtils.serializer
+					.fromBytes(NetworkBox.decrypt(neighborhood.self.privateKey, src.publicKey, msg.contentBytes()));
 
 			System.out.println("*** message received: " + msg);
-			System.out.println("*** content: " + msg.ooInfos.content);
+			System.out.println("*** content: " + msg.content);
 
-			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientQueueAtDestination);
+			var recipientQ = (MessageQ) hub().indexes.byId.get(msg.recipientQueueAtDestination());
 
 			if (recipientQ != null) {
 				recipientQ.q.add_sync(msg);

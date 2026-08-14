@@ -1,60 +1,96 @@
 package byransha.network;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import byransha.Element;
 import byransha.ID;
 import byransha.action.base.ShowInKishanView;
 import byransha.network.routing.RoutingInfo;
+import byransha.security.NetworkBox;
+import byransha.service.system.Hub;
+import byransha.util.ByUtils;
 
-public class Message extends Element  {
+public class Message extends Element {
+	public Object content;
+	public RoutingInfo routingInfo;
+	public List<Peer> actualRoute = new ArrayList<>();
+	public Peer recipient;
 
-	public static class OOData {
-		public Object content;
-		public Peer recipient;
-	}
+	public ToSerialize ser = new ToSerialize();
 
-	public transient OOData ooInfos = new OOData();
-	public ID recipientQueueAtDestination;
-	public long replyTo;
-	public RoutingInfo routingInfo = new RoutingInfo();
-	public int errorCount;
-	public int nbAttempts;
-	public long emissionDateMs = System.currentTimeMillis();
-	public int keepAliveMs = 10000;
-	public int maxNbAttempts = 10;
-	public long sendDateMs = System.currentTimeMillis();
+	public static class ToSerialize implements Serializable {
+		@Override
+		public String toString() {
+			return "ToSerialize [messageID=" + messageID + ", content=" + contentBytes.length
+					+ ", recipientQueueAtDestination=" + recipientQueueAtDestination + ", routingInfo=" + routingInfo
+					+ ", replyTo=" + replyTo + ", errorCount=" + errorCount + ", nbAttempts=" + nbAttempts
+					+ ", emissionDateMs=" + emissionDateMs + ", keepAliveMs=" + keepAliveMs + ", maxNbAttempts="
+					+ maxNbAttempts + ", sendDateMs=" + sendDateMs + ", actualRoute=" + actualRoute + ", recipient="
+					+ recipient + "]";
+		}
 
-	public byte[] content;
-//	public transient Object contentObject;
-
-	public Message() {
-		this(null, null);
+		public ID messageID;
+		public byte[] contentBytes;
+		public ID recipientQueueAtDestination;
+		public RoutingInfo routingInfo;
+		public ID replyTo;
+		public int errorCount;
+		public int nbAttempts;
+		public long emissionDateMs = System.currentTimeMillis();
+		public int keepAliveMs = 10000;
+		public int maxNbAttempts = 10;
+		public long sendDateMs = System.currentTimeMillis();
+		public List<ID> actualRoute = new ArrayList<>();
+		public String recipient;
 	}
 
 	public Message(Element parent, ID id) {
 		super(parent, id);
 	}
 
-	@ShowInKishanView
-	public Object content() {
-		return ooInfos.content;
+	public ToSerialize toSer() {
+		ser.recipient = recipient.name;
+		ser.contentBytes = NetworkBox.encrypt(hub().network.neighborhood.self.privateKey, recipient.publicKey,
+				ByUtils.serializer.toBytes(content));
+		ser.actualRoute = actualRoute.stream().map(p -> p.id()).toList();
+		return ser;
+	}
+
+	public void setSer(ToSerialize s, Hub h) {
+		this.ser = s;
+		actualRoute = new ArrayList<>(s.actualRoute.stream().map(id -> (Peer) h.indexes.byId.get(id)).toList());
+		recipient = (Peer) h.network.neighborhood.findPeerByName(s.recipient);
+	}
+
+	public void fromSer(ToSerialize ser) {
+		this.actualRoute = ((List<ID>) ser.actualRoute).stream().map(id -> (Peer) hub().indexes.byId.get(id)).toList();
 	}
 
 	@ShowInKishanView
-	public List<String> route() {
-		return routingInfo.actualRoute;
+	public List<Peer> route() {
+		return actualRoute;
 	}
 
 	@ShowInKishanView
-	public Peer source() {
-		var name = routingInfo.actualRoute.getFirst();
-		return hub().network.neighborhood.findPeerByName(name);
+	public Peer sender() {
+		return actualRoute.getFirst();
 	}
 
 	@ShowInKishanView
 	public Peer recipient() {
-		return ooInfos.recipient;
+		return recipient;
+	}
+
+	@ShowInKishanView
+	public Object content() {
+		return content;
+	}
+
+	@ShowInKishanView
+	public Peer source() {
+		return actualRoute.getFirst();
 	}
 
 	@ShowInKishanView
@@ -64,18 +100,28 @@ public class Message extends Element  {
 
 	@Override
 	public String toString() {
-		return "routing info: " + routingInfo + ", content:" + content.length;
+		return "routing info: " + routingInfo + ", content:"
+				+ (content != null ? content : ser.contentBytes.length + " bytes");
 	}
 
 	public boolean keepAliveExpired() {
-		return age() > keepAliveMs;
+		return age() > ser.keepAliveMs;
 	}
 
 	private long age() {
-		return System.currentTimeMillis() - emissionDateMs;
+		return System.currentTimeMillis() - ser.emissionDateMs;
 	}
 
 	public long waitTimeMs() {
-		return Math.max(0, Math.abs(sendDateMs - System.currentTimeMillis()));
+		return Math.max(0, Math.abs(ser.sendDateMs - System.currentTimeMillis()));
 	}
+
+	public ID recipientQueueAtDestination() {
+		return ser.recipientQueueAtDestination;
+	}
+
+	public byte[] contentBytes() {
+		return ser.contentBytes;
+	}
+
 }

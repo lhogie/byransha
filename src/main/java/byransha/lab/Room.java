@@ -2,6 +2,7 @@ package byransha.lab;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.BooleanNode;
@@ -27,8 +28,8 @@ public class Room extends LabElement {
 	@ShowInKishanView
 	public LongNode floorNumber;
 
-	public Room(Element parent, ID id) {
-		super(parent, id);
+	public Room(InstantiationParameters p) {
+		super(p);
 	}
 
 	@Override

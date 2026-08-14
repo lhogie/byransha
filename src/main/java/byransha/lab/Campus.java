@@ -1,6 +1,8 @@
 package byransha.lab;
 
+import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
@@ -13,7 +15,11 @@ public class Campus extends LabElement {
 	public ListNode<Building> buildings = fieldNode("buildings",
 			id -> new ListNode(this, id, "building(s)", Building.class));
 
-	public Campus(University parent, ID id) {
+	public Campus(InstantiationParameters<University> p) {
+		super(p);
+	}
+
+	public Campus(Element parent, ID id) {
 		super(parent, id);
 	}
 

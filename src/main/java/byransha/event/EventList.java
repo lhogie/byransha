@@ -34,8 +34,8 @@ public abstract class EventList extends Service {
 
 					for (var neighbor : hub().network.neighborhood.neighbors()) {
 						var msg = createNewMessage();
-						msg.ooInfos.recipient = neighbor;
-						msg.ooInfos.content = e;
+						msg.recipient = neighbor;
+						msg.content = e;
 						hub().network.sender.accept(msg);
 					}
 
@@ -103,11 +103,20 @@ public abstract class EventList extends Service {
 
 	@Override
 	protected void incomingMessage(Message msg) {
-		Event e = (Event) msg.ooInfos.content;
+		Event e = (Event) msg.content;
 		var alreadyKnownEvent = hub().eventList.findEvent(e.id());
 
 		if (alreadyKnownEvent == null) {
-			hub().eventList.add(e);
+			if (e.date.isBefore(currentDate)) {
+				try {
+					goTo(e.date, null);
+					hub().eventList.add(e);
+					goTo(currentDate, null);
+				} catch (Throwable e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
 		}
 	}
 

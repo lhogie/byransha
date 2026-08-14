@@ -1,8 +1,5 @@
 package byransha.security;
 
-import software.pando.crypto.nacl.CryptoBox;
-import software.pando.crypto.nacl.SecretBox;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -10,11 +7,15 @@ import java.security.Key;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Objects;
+
+import software.pando.crypto.nacl.CryptoBox;
+import software.pando.crypto.nacl.SecretBox;
 
 /**
  * Facade for Byransha network routing cryptography.
  * 
- * Utilizes the NaCl standard (X25519 + XSalsa20-Poly1305) to ensure secure, 
+ * Utilizes the NaCl standard (X25519 + XSalsa20-Poly1305) to ensure secure,
  * authenticated End-to-End (E2E) and Hop-by-Hop communication.
  */
 public class NetworkBox {
@@ -29,16 +30,19 @@ public class NetworkBox {
 	}
 
 	/**
-	 * Encrypts and authenticates a payload using X25519 key agreement
-	 * followed by XSalsa20-Poly1305.
+	 * Encrypts and authenticates a payload using X25519 key agreement followed by
+	 * XSalsa20-Poly1305.
 	 * 
 	 * @param senderPriv  The private key of the sender (e.g., Node A).
 	 * @param receiverPub The public key of the recipient (e.g., Node D).
-	 * @param payload     The raw data to encrypt (e.g.,
-	 *                    CBOR-serialized object).
+	 * @param payload     The raw data to encrypt (e.g., CBOR-serialized object).
 	 * @return The encrypted payload, including the nonce and MAC tag.
 	 */
 	public static byte[] encrypt(PrivateKey senderPriv, PublicKey receiverPub, byte[] payload) {
+		Objects.requireNonNull(senderPriv);
+		Objects.requireNonNull(receiverPub);
+		Objects.requireNonNull(payload);
+
 		try {
 			CryptoBox box = CryptoBox.encrypt(senderPriv, receiverPub, payload);
 			return toByteArray(box);
@@ -48,7 +52,7 @@ public class NetworkBox {
 	}
 
 	/**
-	 * Decrypts and verifies a payload. If it decrypts successfully, it is 
+	 * Decrypts and verifies a payload. If it decrypts successfully, it is
 	 * cryptographically guaranteed to have come from the sender.
 	 * 
 	 * @param receiverPriv The private key of the recipient.
@@ -57,19 +61,22 @@ public class NetworkBox {
 	 * @return The decrypted raw data.
 	 */
 	public static byte[] decrypt(PrivateKey receiverPriv, PublicKey senderPub, byte[] cipherBytes) {
+		Objects.requireNonNull(receiverPriv);
+		Objects.requireNonNull(senderPub);
+		Objects.requireNonNull(cipherBytes);
 		try {
 			CryptoBox box = readCryptoBox(cipherBytes);
 			return box.decrypt(receiverPriv, senderPub);
 		} catch (Exception e) {
-			throw new SecurityException("NetworkBox decryption failed. Payload may be tampered with or keys do not match.", e);
+			throw new SecurityException(
+					"NetworkBox decryption failed. Payload may be tampered with or keys do not match.", e);
 		}
 	}
 
 	/**
-	 * Computes the X25519 shared secret once.
-	 * TODO: Intermediate nodes (B, C) from suggestedRoute should cache the
-	 * Key to avoid expensive elliptic curve math on every single hop when
-	 * routing high-volume traffic between peers.
+	 * Computes the X25519 shared secret once. TODO: Intermediate nodes (B, C) from
+	 * suggestedRoute should cache the Key to avoid expensive elliptic curve math on
+	 * every single hop when routing high-volume traffic between peers.
 	 * 
 	 * @param myPriv   The local node's private key.
 	 * @param theirPub The remote peer's public key.

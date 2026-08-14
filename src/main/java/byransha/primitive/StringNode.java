@@ -33,6 +33,10 @@ public class StringNode extends PrimitiveValueNode<String> {
 			Pattern.compile(re);
 		set(init);
 	}
+	
+	public void setRegex(String re) {
+		this.re = re;
+	}
 
 	public boolean accept(String s) {
 		return s != null && (re == null || re.matches(s));

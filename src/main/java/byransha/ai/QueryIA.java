@@ -665,7 +665,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 					String idText = value.asText().trim();
 					if (idText.isEmpty())
 						continue;
-					Element realNode = hub().indexes.byId.getByText(idText);
+					Element realNode = hub().indexes.byId.get(ID.fromBase62(idText));
 					if (realNode != null) {
 						l.elements.add(realNode);
 					} else {

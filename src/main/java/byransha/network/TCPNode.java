@@ -5,7 +5,6 @@ import java.net.Socket;
 
 import byransha.Service;
 import byransha.action.base.ShowInKishanView;
-import byransha.network.Message.OOData;
 import byransha.security.NetworkBox;
 import byransha.thread.ThreadNode;
 import byransha.util.ByUtils;
@@ -42,8 +41,7 @@ public class TCPNode extends Service {
 					System.out.println(other + " joined");
 					tcpSocketReadingThread(other);
 				} else {
-					System.err.println("Warning: No public key for " + other.name
-							+ ". rejecting peer");
+					System.err.println("Warning: No public key for " + other.name + ". rejecting peer");
 					other.ensureDisconnected();
 				}
 			}
@@ -67,31 +65,17 @@ public class TCPNode extends Service {
 		}
 	}
 
-	private void tcpSocketReadingThread(Peer p) {
+	private void tcpSocketReadingThread(Peer peer) {
 		new ThreadNode(this, "thread waiting for messages from", () -> {
 			try {
 				while (true) {
-					byte[] wireMsg = (byte[]) p.getConnection().readObject();
-
-					if (p.sharedSecret == null) {
-						System.out.println("Ignoring packet from " + p.name + ": missing public key/shared secret.");
-						continue;
-					}
-
-					byte[] hopDecrypted = NetworkBox.decryptFast(p.sharedSecret, wireMsg);
-					Message msg = (Message) ByUtils.serializer.fromBytes(hopDecrypted);
-
-					if (msg.ooInfos == null) {
-						msg.ooInfos = new OOData();
-					}
-
-					msg.routingInfo.actualRoute.add(p.name);
-					((Network) parent).processIncomingMessage(msg);
+					byte[] wireMsg = (byte[]) peer.getConnection().readObject();
+					((Network) parent).processIncomingMessage(wireMsg, peer);
 				}
 			} catch (Exception err) {
 				err.printStackTrace();
-				p.ensureDisconnected();
-				System.out.println(p + " left");
+				peer.ensureDisconnected();
+				System.out.println(peer + " left");
 			}
 		});
 	}
@@ -103,7 +87,7 @@ public class TCPNode extends Service {
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

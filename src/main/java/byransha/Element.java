@@ -88,23 +88,28 @@ public class Element {
 	public boolean userEditable;
 
 	@ShowInKishanView
-	private boolean generateEvents = false;
+	private boolean global = false;
 
 //	private Hub hub;
 	protected ListNode<Action> cachedActions;
 
 	private final ID id;
 
-	protected Element(Element parent, ID id) {
+	public Element(Element parent, ID id) {
+		this(new InstantiationParameters.InitByCreator(parent, id));
+	}
+
+	protected Element(InstantiationParameters p) {
 		++nbInstances;
-		this.id = id;
-		
-		if (this instanceof  Serializable)
+		this.id = p.getID();
+		Element parent = p.getParent();
+
+		if (this instanceof Serializable)
 			throw new IllegalStateException();
-		
+
 //		System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
-			System.err.println("fdskhjkh " +getClass());
+			System.err.println("fdskhjkh " + getClass());
 		this.parent = parent;
 
 		var h = hub();
@@ -113,13 +118,13 @@ public class Element {
 			h.indexes.add(this);
 		}
 
-		if (generateEvents()) {
+		if (p.generateEvents() && generateEvents()) {
 			hub().eventList.add(new NewNodeEvent<>(this));
 		}
 	}
 
 	public void forceEventGeneration() {
-		generateEvents = true;
+		global = true;
 	}
 
 	public final <T extends Element> Out<T> out(String fieldName, Function<ID, T> creator) {
@@ -127,16 +132,16 @@ public class Element {
 	}
 
 	public final <T extends Element> T fieldNode(String fieldName, Function<ID, T> creator) {
-		if (id() == null){
+		if (id() == null) {
 			return creator.apply(null);
-		}else {
+		} else {
 			var id = id().augmentWith(fieldName);
 			return hub().indexes.byId.lookupOrCreate(id, creator);
 		}
 	}
 
 	public boolean generateEvents() {
-		return id() != null && (enclosingBusinessNode() != null || generateEvents) && hub().eventList != null;
+		return id() != null && (enclosingBusinessNode() != null || global) && hub().eventList != null;
 	}
 
 	public String findRoleOf(Element n) {
@@ -150,7 +155,7 @@ public class Element {
 	}
 
 	public Hub hub() {
-		return parent.hub();
+		return parent != null ? parent.hub() : null;
 	}
 
 	public BusinessElement enclosingBusinessNode() {

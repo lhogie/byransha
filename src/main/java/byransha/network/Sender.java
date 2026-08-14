@@ -18,7 +18,7 @@ import byransha.util.Q;
 
 public class Sender extends Element implements Consumer<Message> {
 	private PriorityBlockingQueue<Message> inWait = new PriorityBlockingQueue<>(10,
-			(msg1, msg2) -> Long.compare(msg1.sendDateMs, msg2.sendDateMs));
+			(msg1, msg2) -> Long.compare(msg1.ser.sendDateMs, msg2.ser.sendDateMs));
 	private Q<Message> toSendNow = new Q<>(10);
 
 	@ShowInKishanView
@@ -59,15 +59,15 @@ public class Sender extends Element implements Consumer<Message> {
 
 		new LoopingThreadNode(this, () -> 0d, "to send now", () -> {
 			Message msg = toSendNow.poll_sync();
-			msg.nbAttempts++;
+			msg.ser.nbAttempts++;
 
 			if (!msg.keepAliveExpired()) {
-				var recipient = hub().network.neighborhood.findPeerByName(msg.routingInfo.nameOfRecipient());
+				var recipient = msg.recipient();
 				System.out.println("computing relays to reach " + recipient);
 				List<Peer> relays = new ArrayList<>(routingProtocol.findRelaysToReach(recipient));
 				System.out.println("found " + relays);
-				relays.removeIf(r -> msg.routingInfo.actualRoute.contains(r.name));
-				System.out.println("removing " + msg.routingInfo.actualRoute);
+				relays.removeIf(r -> msg.actualRoute.contains(r.name));
+				System.out.println("removing " + msg.actualRoute);
 				System.out.println("using " + relays);
 
 				if (recipient == hub().network.neighborhood.self) {
@@ -84,8 +84,8 @@ public class Sender extends Element implements Consumer<Message> {
 							errorWhenTryingToSending(msg);
 						} else {
 							try {
-								byte[] serializedMsg = ByUtils.serializer.toBytes(msg);
-								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, serializedMsg);
+								byte[] ser = ByUtils.serializer.toBytes(msg.toSer());
+								byte[] hopEncryptedBytes = NetworkBox.encryptFast(relay.sharedSecret, ser);
 								System.out.println("writing to TCP of " + relay);
 								relay.getConnection().writeObject(hopEncryptedBytes);
 								++nbMessageSent;
@@ -104,11 +104,11 @@ public class Sender extends Element implements Consumer<Message> {
 	}
 
 	private void errorWhenTryingToSending(Message msg) {
-		msg.errorCount++;
+		msg.ser.errorCount++;
 //		System.out.println(msg.errorCount);
 
-		if (msg.nbAttempts < msg.maxNbAttempts && !msg.keepAliveExpired()) {
-			msg.emissionDateMs = System.currentTimeMillis() + timeBeforeResendMs.get();
+		if (msg.ser.nbAttempts < msg.ser.maxNbAttempts && !msg.keepAliveExpired()) {
+			msg.ser.emissionDateMs = System.currentTimeMillis() + timeBeforeResendMs.get();
 //			System.out.println("retrying in " + timeBeforeResendMs.get() + " ms");
 			enqueue(msg);
 		}
@@ -116,12 +116,12 @@ public class Sender extends Element implements Consumer<Message> {
 
 	@Override
 	public void accept(Message msg) {
-		applyOOInfos(msg);
+//		applyOOInfos(msg);
 		enqueue(msg);
 	}
 
 	private void enqueue(Message msg) {
-		System.out.println("msg scheduled in " + (msg.emissionDateMs - System.currentTimeMillis() + "ms"));
+		System.out.println("msg scheduled in " + (msg.ser.emissionDateMs - System.currentTimeMillis() + "ms"));
 
 		if (msg.waitTimeMs() <= 0) {
 			System.out.println("adding to SENDNOW queue " + msg);
@@ -143,23 +143,22 @@ public class Sender extends Element implements Consumer<Message> {
 	}
 
 	private void applyOOInfos(Message msg) {
-		msg.routingInfo.nameOfRecipient = msg.ooInfos.recipient.name;
 
-		if (msg.ooInfos.recipient.publicKey == null) {
-			System.out.println("Cannot send E2E message to " + msg.ooInfos.recipient.name + ": public key is missing.");
+		if (msg.recipient.publicKey == null) {
+			System.out.println("Cannot send E2E message to " + msg.recipient.name + ": public key is missing.");
 			return;
 		}
 
-		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.ooInfos.content);
-		msg.content = NetworkBox.encrypt(hub().network.neighborhood.self.privateKey, msg.ooInfos.recipient.publicKey,
+		byte[] rawBytesPayload = ByUtils.serializer.toBytes(msg.content);
+		msg.content = NetworkBox.encrypt(hub().network.neighborhood.self.privateKey, msg.recipient.publicKey,
 				rawBytesPayload);
 	}
 
 	public void considerForwarding(Message msg, Consumer<Message> c) {
-		if (msg.routingInfo.actualRoute.contains(hub().network.neighborhood.self.name)) {
-			System.out.println("already received, not forwarding: " + msg.routingInfo.actualRoute);
+		if (msg.actualRoute.contains(hub().network.neighborhood.self.name)) {
+			System.out.println("already received, not forwarding: " + msg.actualRoute);
 		} else {
-			System.out.println("forwarding: " + msg.ooInfos.content);
+			System.out.println("forwarding: " + msg.content);
 			enqueue(msg);
 		}
 	}

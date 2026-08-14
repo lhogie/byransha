@@ -13,6 +13,7 @@ import com.google.common.io.Files;
 
 import byransha.Element;
 import byransha.ID;
+import byransha.InstantiationParameters;
 import byransha.ProblemInElement;
 import byransha.service.system.Byransha;
 
@@ -22,9 +23,13 @@ public abstract class ValuedElement<V> extends Element {
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
 	private boolean shownToDisk = false;
 
+	public ValuedElement(InstantiationParameters p) {
+		super(p);
+//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
+	}
+
 	public ValuedElement(Element parent, ID id) {
 		super(parent, id);
-//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
 	}
 
 	public void addValueChangeListener(ValueChangeListener<V> l) {
@@ -86,18 +91,25 @@ public abstract class ValuedElement<V> extends Element {
 			throw new RuntimeException("can't change a read only valued node");
 
 		V oldValue = value;
-		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
+		changeValue(value, newValue);
 
+		if (generateEvents()) {
+			hub().eventList.add(new ValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
+		}
+	}
+
+	public void setByEvent(V newValue, ValueChangeEvent e) {
+		changeValue((V) e.oldValue, newValue);
+	}
+
+	private void changeValue(V oldValue, V newValue) {
+		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
 		value = newValue;
 
 		if (valueChange) {
 			synchronized (valueChangeListeners) {
 				valueChangeListeners.forEach(l -> l.changed(this, oldValue, newValue));
 			}
-		}
-
-		if (generateEvents()) {
-			hub().eventList.add(new ValuedNodeValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
 		}
 
 		if (shownToDisk) {

@@ -29,7 +29,7 @@ public class Byransha extends Element {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.93";
+	public static final String VERSION = "0.0.105";
 
 	public static class byransha extends Category {
 	}
