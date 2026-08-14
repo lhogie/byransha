@@ -18,13 +18,13 @@ import byransha.InstantiationParameter;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(InstantiationParameter p, Boolean v) {
+	public BooleanNode(InstantiationParameter p) {
 		super(p);
-		set(v);
 	}
 
-	public BooleanNode(Element parent, ID id, Object object) {
+	public BooleanNode(Element parent, ID id, Boolean v) {
 		super(parent, id);
+		set(v);
 	}
 
 	@Override
@@ -55,12 +55,6 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 	public JComponent checkbox(Chat pane) {
 		var checkbox = new JCheckBox();
 		var b = get();
-
-		if (b == null) {
-			System.out.println("path: " + path().elements);
-			System.out.println(parent);
-
-		}
 
 		checkbox.setSelected(b);
 		checkbox.addActionListener(e -> set(checkbox.isSelected()));
