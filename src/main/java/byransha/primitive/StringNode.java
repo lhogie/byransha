@@ -33,7 +33,7 @@ public class StringNode extends PrimitiveValueNode<String> {
 			Pattern.compile(re);
 		set(init);
 	}
-	
+
 	public void setRegex(String re) {
 		this.re = re;
 	}

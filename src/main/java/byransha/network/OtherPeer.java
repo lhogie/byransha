@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.action.base.ShowInKishanView;
-import byransha.security.ECC;
+
+import byransha.security.LocalIdentity;
 
 public class OtherPeer extends Peer {
 	@ShowInKishanView
@@ -20,7 +21,12 @@ public class OtherPeer extends Peer {
 
 			if (publicKeyFile.exists()) {
 				var publicKeyString = Files.readString(publicKeyFile.toPath());
-				this.publicKey = ECC.fromPem(publicKeyString, "X25519");
+				try {
+					this.publicKey = LocalIdentity.fromPem(publicKeyString, "X25519");
+				} catch (java.security.NoSuchAlgorithmException | java.security.spec.InvalidKeySpecException e) {
+					System.err.println("Failed to parse public key for " + this + ": " + e.getMessage());
+					e.printStackTrace();
+				}
 			} else {
 				System.err.println("no public key for " + this);
 			}
@@ -28,7 +34,9 @@ public class OtherPeer extends Peer {
 		}
 
 		this.autoConnect.set(!new File(directory, "noAutoConnect").exists());
-		this.autoConnect.valueChangeListeners.add((n, old, autoConnect) -> {
+		this.autoConnect.valueChangeListeners.add((n, old, autoConnect) ->
+
+		{
 			if (autoConnect) {
 				new File(directory, "noAutoConnect").delete();
 			} else {

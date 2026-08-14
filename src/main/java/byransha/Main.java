@@ -15,7 +15,7 @@ public class Main {
 
 	public static void main(String... args) throws Throwable {
 		System.out.println("This is Byransha v" + Byransha.VERSION);
-//		System.out.println(args.length + " args: " + Arrays.toString(args));
+		// System.out.println(args.length + " args: " + Arrays.toString(args));
 		var argMap = mapArgs(args);
 		System.out.println(argMap);
 		Byransha.autoRestartWhenUpgraded = argMap.containsKey("--auto-restart");

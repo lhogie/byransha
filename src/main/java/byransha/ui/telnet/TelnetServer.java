@@ -52,6 +52,6 @@ public class TelnetServer extends Service {
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

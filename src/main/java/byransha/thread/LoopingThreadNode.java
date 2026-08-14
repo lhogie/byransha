@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import byransha.Element;
 import byransha.util.ByUtils;
 
-public  class LoopingThreadNode extends ThreadNode {
+public class LoopingThreadNode extends ThreadNode {
 	public LoopingThreadNode(Element parent, Supplier<Double> durationS, String description, Runnable r) {
 		super(parent, description, () -> {
 			while (true) {

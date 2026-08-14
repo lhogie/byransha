@@ -40,5 +40,6 @@ public class LibreTranslate extends Translator {
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
-	}}
+
+	}
+}

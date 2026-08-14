@@ -33,7 +33,6 @@ public class DataLake extends Element {
 			throw new IllegalArgumentException("data lake not found at " + dir.getAbsolutePath());
 	}
 
-
 	static JsonNode countryCodes;
 
 	public static void loadCountries(Hub hub, File dataLakeDir) throws IOException {
@@ -103,8 +102,9 @@ public class DataLake extends Element {
 
 		Cout.progress("\tLoading nationalities");
 		Files.readAllLines(new File(dir.file, "CH_Nationality_List_20171130_v1.csv").toPath()).forEach(l -> {
-//			var c = hub().lookupOrCreate("nationality- + l", id -> new Nationality(hub()));
-//			c.set(l);
+			// var c = hub().lookupOrCreate("nationality- + l", id -> new
+			// Nationality(hub()));
+			// c.set(l);
 		});
 
 		var france = hub().indexes.byClass.findFirst(Country.class, c -> c.name.equals("France"));

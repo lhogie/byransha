@@ -18,7 +18,8 @@ public class Contract extends LabElement {
 	public final ListNode<Person> coordinators = fieldNode("coordinators",
 			id -> new ListNode<>(this, id, "coordinators", Person.class));
 	@ShowInKishanView
-	public final ListNode<Person> partners = fieldNode("partners", id -> new ListNode<>(this, id, "partners", Person.class));
+	public final ListNode<Person> partners = fieldNode("partners",
+			id -> new ListNode<>(this, id, "partners", Person.class));
 	@ShowInKishanView
 	public final ListNode<Person> misc = fieldNode("partners", id -> new ListNode<>(this, id, "misc", Person.class));
 

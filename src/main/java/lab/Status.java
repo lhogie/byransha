@@ -8,14 +8,14 @@ import byransha.primitive.StringNode;
 
 public class Status extends LabElement {
 	@ShowInKishanView
-	StringNode name= fieldNode("name",  id ->new StringNode(this, id, null, ".+"));
+	StringNode name = fieldNode("name", id -> new StringNode(this, id, null, ".+"));
 
 	public Status(InstantiationParameter p) {
 		super(p);
 	}
 
 	public Status(Element parent, ID id) {
-		super(parent,id);
+		super(parent, id);
 	}
 
 	@Override

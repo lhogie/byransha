@@ -9,7 +9,7 @@ public class MCF extends Status {
 		super(p);
 		name.set("Maitre de Conference");
 	}
-	
+
 	public MCF(Element parent, ID id) {
 		super(parent, id);
 	}

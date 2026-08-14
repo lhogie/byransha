@@ -33,7 +33,7 @@ public class ByUtils {
 	final public static JsonNodeFactory factory = new JsonNodeFactory(true);
 	final public static ObjectMapper objectMapper = new ObjectMapper();
 
-//	public static final File home = new File(System.getProperty("user.home"));
+	// public static final File home = new File(System.getProperty("user.home"));
 	public static final Serializer serializer = new JavaSerializer<>();
 
 	public static final Map<Class, Integer> sizeOfPrimitive = new HashMap();
@@ -49,8 +49,6 @@ public class ByUtils {
 		sizeOfPrimitive.put(float.class, 4);
 		sizeOfPrimitive.put(double.class, 8);
 	}
-
-	
 
 	public static final void sleep(double seconds) {
 		long ms = (long) (seconds * 1000);
@@ -252,6 +250,4 @@ public class ByUtils {
 		return System.getProperty("os.name").toLowerCase().contains("win");
 	}
 
-	
-	
 }

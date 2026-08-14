@@ -70,13 +70,12 @@ public class Hub extends Element {
 
 	public final List<CurrentUserListener> userSwitchingListeners = new ArrayList<>();
 
-
 	class graph extends Category {
 	}
 
 	public Hub(int port) throws Exception {
 		super(null, null);
-//		 indexes.add(this);
+		// indexes.add(this);
 		this.network = new Network(this, port);
 		network.start();
 

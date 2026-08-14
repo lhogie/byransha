@@ -97,13 +97,13 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	public void setModel() {
 		settingModel = true;
 		SwingUtilities.invokeLater(() -> {
-                boolean aAccepte = afficherChargementOllama();
-                if (aAccepte) {   
-                    ASSISTANT_CACHE.clear();       
-					settingModel = false;
+			boolean aAccepte = afficherChargementOllama();
+			if (aAccepte) {
+				ASSISTANT_CACHE.clear();
+				settingModel = false;
+			}
+		});
 	}
-	});
-}
 
 	@ShowInKishanView
 	private final ListNode<AiNode> ShowPeersInfo = getAiNodes();
@@ -114,7 +114,8 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		localNode.name = "Local IA";
 		try {
 			localNode.address = java.net.InetAddress.getByName("localhost");
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		localNode.haveAi = true;
 		nodeList.elements.add(localNode);
 		return nodeList;
@@ -147,71 +148,67 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		});
 	}
 
-
-	
-
 	public void setAndGetCurrentChat(Chat chat) {
 		Chat lastActiveChat;
 		this.currentChat = chat;
 		try {
 			var chatID = ID.fromBase62(new BufferedReader(new InputStreamReader(in)).readLine());
-		currentChat = (Chat) hub().indexes.byId.get(chatID);
-		lastActiveChat = currentChat;
-		this.currentChat = lastActiveChat;
+			currentChat = (Chat) hub().indexes.byId.get(chatID);
+			lastActiveChat = currentChat;
+			this.currentChat = lastActiveChat;
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public void setChat () {
+	public void setChat() {
 		if (this.currentChat == null) {
 			if (this.chat instanceof Chat) {
 				this.currentChat = (Chat) this.chat;
 			} else if (this.parent instanceof Chat) {
 				this.currentChat = (Chat) this.parent;
+			} else {
+				setAndGetCurrentChat(currentChat);
 			}
-			else {setAndGetCurrentChat(currentChat);}
 		}
 	}
-		
 
 	@ActionMethod
 	@AddButtonOnKishanView
 	public void resetMemory() {
 		setChat();
-			final Chat activeChat = this.currentChat;
-			System.out.println("Réinitialisation de la mémoire pour le chat : "
-					+ (activeChat != null ? activeChat.id().toBase62() : "aucun chat actif"));
-			SwingUtilities.invokeLater(() -> {
-				try {
-					if (activeChat != null) {
-						String chatId = activeChat.id().toBase62();
-						var messages = MEMORY_STORE.getMessages(chatId);
-						int count = (messages != null) ? messages.size() : 0;
-						System.out
-								.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
-						System.out.println(" messages: " + messages);
-						MEMORY_STORE.deleteMessages(chatId);
-						MEMORY_STORE.deleteMessages("default_session");
-						System.out.println(MEMORY_STORE.getMessages(chatId).size()
-								+ " messages supprimés pour le chat : " + chatId);
-						ASSISTANT_CACHE.clear();
-						System.out.println(" memory reset for chat: " + MEMORY_STORE.getMessages(chatId).size()
-								+ " messages remaining for chat: " + MEMORY_STORE.getMessages(chatId));
-						JOptionPane.showMessageDialog(null, "La mémoire de la conversation a été réinitialisée.",
-								"Réinitialisation", JOptionPane.INFORMATION_MESSAGE);
-					} else {
-						JOptionPane.showMessageDialog(null, "Aucune conversation active pour réinitialiser la mémoire.",
-								"Information", JOptionPane.INFORMATION_MESSAGE);
-					}
-				} catch (Exception e) {
-					JOptionPane.showMessageDialog(null,
-							"Erreur lors de la réinitialisation de la mémoire: " + e.getMessage(), "Erreur",
-							JOptionPane.ERROR_MESSAGE);
+		final Chat activeChat = this.currentChat;
+		System.out.println("Réinitialisation de la mémoire pour le chat : "
+				+ (activeChat != null ? activeChat.id().toBase62() : "aucun chat actif"));
+		SwingUtilities.invokeLater(() -> {
+			try {
+				if (activeChat != null) {
+					String chatId = activeChat.id().toBase62();
+					var messages = MEMORY_STORE.getMessages(chatId);
+					int count = (messages != null) ? messages.size() : 0;
+					System.out
+							.println("Nombre de messages avant suppression pour le chat " + chatId + ": " + count);
+					System.out.println(" messages: " + messages);
+					MEMORY_STORE.deleteMessages(chatId);
+					MEMORY_STORE.deleteMessages("default_session");
+					System.out.println(MEMORY_STORE.getMessages(chatId).size()
+							+ " messages supprimés pour le chat : " + chatId);
+					ASSISTANT_CACHE.clear();
+					System.out.println(" memory reset for chat: " + MEMORY_STORE.getMessages(chatId).size()
+							+ " messages remaining for chat: " + MEMORY_STORE.getMessages(chatId));
+					JOptionPane.showMessageDialog(null, "La mémoire de la conversation a été réinitialisée.",
+							"Réinitialisation", JOptionPane.INFORMATION_MESSAGE);
+				} else {
+					JOptionPane.showMessageDialog(null, "Aucune conversation active pour réinitialiser la mémoire.",
+							"Information", JOptionPane.INFORMATION_MESSAGE);
 				}
-			});
-		}
-	
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null,
+						"Erreur lors de la réinitialisation de la mémoire: " + e.getMessage(), "Erreur",
+						JOptionPane.ERROR_MESSAGE);
+			}
+		});
+	}
 
 	// @ActionMethod
 	// @AddButtonOnKishanView
@@ -296,137 +293,128 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	// }
 	// }
 
-
-
-
-
 	public static List<String> getInstalledOllamaModels() {
-    List<String> models = new ArrayList<>();
-    String userHome = System.getProperty("user.home");
-    File libraryDir = new File(userHome, ".ollama/models/manifests/registry.ollama.ai/library");
-    if (libraryDir.exists() && libraryDir.isDirectory()) {
-        File[] modelFolders = libraryDir.listFiles(File::isDirectory);
-        if (modelFolders != null) {
-            for (File modelFolder : modelFolders) {
-                String modelName = modelFolder.getName();
-                File[] tagFolders = modelFolder.listFiles();
-                
-                if (tagFolders != null && tagFolders.length > 0) {
-                    for (File tagFolder : tagFolders) {
-                        String tagName = tagFolder.getName();
-                        models.add(modelName + ":" + tagName);
-                    }
-                } else {
-                    models.add(modelName + ":latest");
-                }
-            }
-        }
-    }
-    return models;
-}
+		List<String> models = new ArrayList<>();
+		String userHome = System.getProperty("user.home");
+		File libraryDir = new File(userHome, ".ollama/models/manifests/registry.ollama.ai/library");
+		if (libraryDir.exists() && libraryDir.isDirectory()) {
+			File[] modelFolders = libraryDir.listFiles(File::isDirectory);
+			if (modelFolders != null) {
+				for (File modelFolder : modelFolders) {
+					String modelName = modelFolder.getName();
+					File[] tagFolders = modelFolder.listFiles();
 
-public Timer createDialogTimeoutTimer(int timeoutMillis) {
-	Timer timer = new Timer(timeoutMillis, e -> {
-		Window[] windows = Window.getWindows();
-		for (Window window : windows) {
-			if (window instanceof JDialog) {
-				JDialog dialog = (JDialog) window;
-				if (dialog.getContentPane().getComponentCount() == 1
-						&& dialog.getContentPane().getComponent(0) instanceof JOptionPane) {
-					dialog.dispose();
+					if (tagFolders != null && tagFolders.length > 0) {
+						for (File tagFolder : tagFolders) {
+							String tagName = tagFolder.getName();
+							models.add(modelName + ":" + tagName);
+						}
+					} else {
+						models.add(modelName + ":latest");
+					}
 				}
 			}
 		}
-	});
-	timer.setRepeats(false);
-	timer.start();
-	return timer;
-}
-
-
-public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent modelSelector,int top, int left, int bottom, int right) {
-	Timer t = createDialogTimeoutTimer(30000);
-	List<String> installedModels = getInstalledOllamaModels();
-	JPanel newPanel = new JPanel();
-	newPanel.setLayout(new BoxLayout(newPanel, BoxLayout.Y_AXIS));
-	JLabel newmessageLabel = messageLabel;
-	JLabel newmodelLabel = modelLabel;
-	newmodelLabel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
-	JComponent newmodelSelector = modelSelector;
-	JComboBox<String> comboBox = null;
-	JTextField textField = null;
-	if (!installedModels.isEmpty()) {
-		comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
-		if (installedModels.contains(PRIMARY_MODEL)) {
-			comboBox.setSelectedItem(PRIMARY_MODEL);
-		}
-		newmodelSelector = comboBox;
-	} else {
-		textField = new JTextField(PRIMARY_MODEL);
-		newmodelSelector = textField;
+		return models;
 	}
-	 newPanel.add(newmessageLabel);
-        newPanel.add(newmodelLabel);
-        newPanel.add(newmodelSelector);
-        int option = JOptionPane.showConfirmDialog(
-                null,
-                newPanel,
-                "Chargement de l'IA",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
+
+	public Timer createDialogTimeoutTimer(int timeoutMillis) {
+		Timer timer = new Timer(timeoutMillis, e -> {
+			Window[] windows = Window.getWindows();
+			for (Window window : windows) {
+				if (window instanceof JDialog) {
+					JDialog dialog = (JDialog) window;
+					if (dialog.getContentPane().getComponentCount() == 1
+							&& dialog.getContentPane().getComponent(0) instanceof JOptionPane) {
+						dialog.dispose();
+					}
+				}
+			}
+		});
+		timer.setRepeats(false);
+		timer.start();
+		return timer;
+	}
+
+	public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent modelSelector, int top, int left,
+			int bottom, int right) {
+		Timer t = createDialogTimeoutTimer(30000);
+		List<String> installedModels = getInstalledOllamaModels();
+		JPanel newPanel = new JPanel();
+		newPanel.setLayout(new BoxLayout(newPanel, BoxLayout.Y_AXIS));
+		JLabel newmessageLabel = messageLabel;
+		JLabel newmodelLabel = modelLabel;
+		newmodelLabel.setBorder(BorderFactory.createEmptyBorder(top, left, bottom, right));
+		JComponent newmodelSelector = modelSelector;
+		JComboBox<String> comboBox = null;
+		JTextField textField = null;
+		if (!installedModels.isEmpty()) {
+			comboBox = new JComboBox<>(installedModels.toArray(new String[0]));
+			if (installedModels.contains(PRIMARY_MODEL)) {
+				comboBox.setSelectedItem(PRIMARY_MODEL);
+			}
+			newmodelSelector = comboBox;
+		} else {
+			textField = new JTextField(PRIMARY_MODEL);
+			newmodelSelector = textField;
+		}
+		newPanel.add(newmessageLabel);
+		newPanel.add(newmodelLabel);
+		newPanel.add(newmodelSelector);
+		int option = JOptionPane.showConfirmDialog(
+				null,
+				newPanel,
+				"Chargement de l'IA",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
 		t.stop();
-            switch (option) {
-                case JOptionPane.YES_OPTION:
-                    String selectedModel;
-                    if (comboBox != null) {
-                        selectedModel = (String) comboBox.getSelectedItem();
-                    } else {
-                        selectedModel = textField.getText().trim();
-                    }       if (selectedModel != null && !selectedModel.isEmpty()) {
-                        PRIMARY_MODEL = selectedModel;
-                        System.out.println("chargement du modèle : " + PRIMARY_MODEL);
-                    }       break;
-                case JOptionPane.NO_OPTION:
-                    System.out.println("L'utilisateur a refusé le chargement de l'IA.");
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Le chargement de l'IA a été refusé..",
-                            "chargement de l'IA refusé",
-                            JOptionPane.WARNING_MESSAGE
-                    );  break;
-            }
-		
-}
+		switch (option) {
+			case JOptionPane.YES_OPTION:
+				String selectedModel;
+				if (comboBox != null) {
+					selectedModel = (String) comboBox.getSelectedItem();
+				} else {
+					selectedModel = textField.getText().trim();
+				}
+				if (selectedModel != null && !selectedModel.isEmpty()) {
+					PRIMARY_MODEL = selectedModel;
+					System.out.println("chargement du modèle : " + PRIMARY_MODEL);
+				}
+				break;
+			case JOptionPane.NO_OPTION:
+				System.out.println("L'utilisateur a refusé le chargement de l'IA.");
+				JOptionPane.showMessageDialog(
+						null,
+						"Le chargement de l'IA a été refusé..",
+						"chargement de l'IA refusé",
+						JOptionPane.WARNING_MESSAGE);
+				break;
+		}
 
-
+	}
 
 	public boolean afficherChargementOllama() {
 		System.out.println("Affichage de la boîte de dialogue pour le chargement de l'IA...");
-		if (settingModel==false) {
+		if (settingModel == false) {
 			PannelComponent(new JLabel("Voulez-vous charger l'IA sur votre machine locale ?"),
-				new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 0);
-	}
-	else if (settingModel) {
+					new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 0);
+		} else if (settingModel) {
 			PannelComponent(new JLabel("Voulez-vous changer le modèle de l'IA sur votre machine locale ?"),
-				new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 350);
+					new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 350);
+		}
+		return true;
 	}
-	return true;
-}
 
-	
 	public void afficherAlerteOllama() {
 		Timer t = createDialogTimeoutTimer(30000);
-		
-        JOptionPane.showMessageDialog(
-            null, 
-           "L'utilisation de l'IA sans serveur distant requiert l'installation d'Ollama ainsi que du modèle sur votre machine locale.", 
-            "Configuration requise", 
-            JOptionPane.INFORMATION_MESSAGE
-        );
-		t.stop();
-    }
 
+		JOptionPane.showMessageDialog(
+				null,
+				"L'utilisation de l'IA sans serveur distant requiert l'installation d'Ollama ainsi que du modèle sur votre machine locale.",
+				"Configuration requise",
+				JOptionPane.INFORMATION_MESSAGE);
+		t.stop();
+	}
 
 	public static AiNode selectBestPeer(java.util.List<AiNode> aiNodes) {
 		if (aiNodes == null || aiNodes.isEmpty()) {
@@ -526,9 +514,8 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 	public void impl() throws Throwable {
 		ActivateListNodeResponse = false;
 		try {
-		setChat();
-		}
-		 catch (Exception e) {
+			setChat();
+		} catch (Exception e) {
 			throw new IllegalStateException("QueryIA must be used within a ChatNode context");
 		}
 		var assistant = getOrCreateAssistant();
@@ -628,7 +615,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 				result = distributionNode;
 			} else {
-				result = new TextNode(parent,null, "IA response", iaResponse);
+				result = new TextNode(parent, null, "IA response", iaResponse);
 			}
 			if (currentChat != null) {
 				String chatId = currentChat.id().toBase62();
@@ -656,7 +643,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 
 	}
 
-	public void parsing (String array,String mapperString) {
+	public void parsing(String array, String mapperString) {
 		if (ActivateListNodeResponse) {
 			try {
 				JsonNode parsed = mapper.readTree(mapperString);
@@ -820,7 +807,7 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 	private ToolEnabledAssistant getOrCreateAssistant() throws IOException {
 		String currentOllamaUrl = "http://localhost:11434";
 		setChat();
-		
+
 		try {
 			var aiNodes = ShowPeersInfo.get();
 			var selectedNode = selectBestPeer(aiNodes);

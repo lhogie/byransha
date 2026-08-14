@@ -80,22 +80,21 @@ public class TelnetSession extends Element {
 		}
 	}
 
-	public static final String  fuckYou = """
-		      .-.
-		      | |
-		      | |
-		      | |
-		  .-.-| |.-.
-		 /  | | |  \\
-		|  | | | |  |
-		|  | | | |  |
-		|  |_|_|_|  |
-		 \\         /
-		  |       |
-		  |       |
-		""";
+	public static final String fuckYou = """
+			      .-.
+			      | |
+			      | |
+			      | |
+			  .-.-| |.-.
+			 /  | | |  \\
+			|  | | | |  |
+			|  | | | |  |
+			|  |_|_|_|  |
+			 \\         /
+			  |       |
+			  |       |
+			""";
 
-	
 	private void initializeCommands(Hub graph) {
 		commands.put("help", new Command("list available commands",
 				(out, parms) -> commands.forEach((name, cmd) -> out.println(name + " - " + cmd.description))));

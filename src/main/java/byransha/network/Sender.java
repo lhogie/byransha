@@ -43,7 +43,7 @@ public class Sender extends Element implements Consumer<Message> {
 			try {
 				Message msg = inWait.take(); // waiting here
 				long waitTimeMs = msg.waitTimeMs();
-//				System.out.println("next message will be sent in " + waitTime + "ms");
+				// System.out.println("next message will be sent in " + waitTime + "ms");
 
 				if (waitTimeMs > 0) {
 					try {
@@ -105,18 +105,18 @@ public class Sender extends Element implements Consumer<Message> {
 
 	private void errorWhenTryingToSending(Message msg) {
 		msg.ser.errorCount++;
-//		System.out.println(msg.errorCount);
+		// System.out.println(msg.errorCount);
 
 		if (msg.ser.nbAttempts < msg.ser.maxNbAttempts && !msg.keepAliveExpired()) {
 			msg.ser.emissionDateMs = System.currentTimeMillis() + timeBeforeResendMs.get();
-//			System.out.println("retrying in " + timeBeforeResendMs.get() + " ms");
+			// System.out.println("retrying in " + timeBeforeResendMs.get() + " ms");
 			enqueue(msg);
 		}
 	}
 
 	@Override
 	public void accept(Message msg) {
-//		applyOOInfos(msg);
+		// applyOOInfos(msg);
 		enqueue(msg);
 	}
 

@@ -90,7 +90,7 @@ public class Element {
 	@ShowInKishanView
 	private boolean global = false;
 
-//	private Hub hub;
+	// private Hub hub;
 	protected ListNode<Action> cachedActions;
 
 	private final ID id;
@@ -107,7 +107,7 @@ public class Element {
 		if (this instanceof Serializable)
 			throw new IllegalStateException();
 
-//		System.out.println(nbInstances + " creating " + getClass());
+		// System.out.println(nbInstances + " creating " + getClass());
 		if (!(this instanceof Hub) && parent == null)
 			System.err.println("fdskhjkh " + getClass());
 		this.parent = parent;

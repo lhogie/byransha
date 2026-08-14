@@ -27,7 +27,6 @@ public abstract class InstantiationParameter<P extends Element> implements Seria
 			this.id = id;
 		}
 
-
 		@Override
 		public ID getID() {
 			return id;

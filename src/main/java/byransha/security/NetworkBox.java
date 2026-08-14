@@ -14,7 +14,7 @@ import software.pando.crypto.nacl.SecretBox;
 
 /**
  * Facade for Byransha network routing cryptography.
- * 
+ *
  * Utilizes the NaCl standard (X25519 + XSalsa20-Poly1305) to ensure secure,
  * authenticated End-to-End (E2E) and Hop-by-Hop communication.
  */
@@ -22,7 +22,7 @@ public class NetworkBox {
 
 	/**
 	 * Generates a new X25519 KeyPair specifically for network routing.
-	 * 
+	 *
 	 * @return A new KeyPair for X25519 agreement.
 	 */
 	public static KeyPair generateRoutingKeyPair() {
@@ -32,10 +32,14 @@ public class NetworkBox {
 	/**
 	 * Encrypts and authenticates a payload using X25519 key agreement followed by
 	 * XSalsa20-Poly1305.
-	 * 
-	 * @param senderPriv  The private key of the sender (e.g., Node A).
-	 * @param receiverPub The public key of the recipient (e.g., Node D).
-	 * @param payload     The raw data to encrypt (e.g., CBOR-serialized object).
+	 *
+	 * @param senderPriv
+	 *                        The private key of the sender (e.g., Node A).
+	 * @param receiverPub
+	 *                        The public key of the recipient (e.g., Node D).
+	 * @param payload
+	 *                        The raw data to encrypt (e.g., CBOR-serialized
+	 *                        object).
 	 * @return The encrypted payload, including the nonce and MAC tag.
 	 */
 	public static byte[] encrypt(PrivateKey senderPriv, PublicKey receiverPub, byte[] payload) {
@@ -54,10 +58,13 @@ public class NetworkBox {
 	/**
 	 * Decrypts and verifies a payload. If it decrypts successfully, it is
 	 * cryptographically guaranteed to have come from the sender.
-	 * 
-	 * @param receiverPriv The private key of the recipient.
-	 * @param senderPub    The public key of the sender.
-	 * @param cipherBytes  The encrypted payload.
+	 *
+	 * @param receiverPriv
+	 *                         The private key of the recipient.
+	 * @param senderPub
+	 *                         The public key of the sender.
+	 * @param cipherBytes
+	 *                         The encrypted payload.
 	 * @return The decrypted raw data.
 	 */
 	public static byte[] decrypt(PrivateKey receiverPriv, PublicKey senderPub, byte[] cipherBytes) {
@@ -77,9 +84,11 @@ public class NetworkBox {
 	 * Computes the X25519 shared secret once. TODO: Intermediate nodes (B, C) from
 	 * suggestedRoute should cache the Key to avoid expensive elliptic curve math on
 	 * every single hop when routing high-volume traffic between peers.
-	 * 
-	 * @param myPriv   The local node's private key.
-	 * @param theirPub The remote peer's public key.
+	 *
+	 * @param myPriv
+	 *                     The local node's private key.
+	 * @param theirPub
+	 *                     The remote peer's public key.
 	 * @return A shared symmetric Key.
 	 */
 	public static Key agreeOnSharedSecret(PrivateKey myPriv, PublicKey theirPub) {
@@ -88,9 +97,11 @@ public class NetworkBox {
 
 	/**
 	 * Fast-path encryption using a precomputed shared secret.
-	 * 
-	 * @param sharedSecret The cached Key derived from agreeOnSharedSecret().
-	 * @param payload      The data to encrypt.
+	 *
+	 * @param sharedSecret
+	 *                         The cached Key derived from agreeOnSharedSecret().
+	 * @param payload
+	 *                         The data to encrypt.
 	 * @return The encrypted payload.
 	 */
 	public static byte[] encryptFast(Key sharedSecret, byte[] payload) {
@@ -104,9 +115,11 @@ public class NetworkBox {
 
 	/**
 	 * Fast-path decryption using a precomputed shared secret.
-	 * 
-	 * @param sharedSecret The cached Key derived from agreeOnSharedSecret().
-	 * @param cipherBytes  The encrypted payload.
+	 *
+	 * @param sharedSecret
+	 *                         The cached Key derived from agreeOnSharedSecret().
+	 * @param cipherBytes
+	 *                         The encrypted payload.
 	 * @return The decrypted raw data.
 	 */
 	public static byte[] decryptFast(Key sharedSecret, byte[] cipherBytes) {

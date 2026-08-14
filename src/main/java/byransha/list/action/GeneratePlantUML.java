@@ -28,7 +28,7 @@ public class GeneratePlantUML<N extends Element> extends FunctionAction<ListNode
 			classNode.add(n instanceof ClassNode cn ? cn : hub().indexes.byClass.getClassNodeFor(n.getClass()));
 		}
 
-		result = new TextNode(this,null, "PlantUML", ClassNode.toPlantUML(classNode, true));
+		result = new TextNode(this, null, "PlantUML", ClassNode.toPlantUML(classNode, true));
 	}
 
 	@Override

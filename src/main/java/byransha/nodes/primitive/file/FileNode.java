@@ -9,8 +9,6 @@ import byransha.primitive.StringNode;
 public class FileNode extends Element {
 	public File file;
 
-	
-
 	public FileNode(Element parent, File f) {
 		super(parent, null);
 		this.file = f;

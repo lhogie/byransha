@@ -15,23 +15,20 @@ import byransha.primitive.StringNode;
 
 public class Structure extends LabElement {
 	@ShowInKishanView
-	public final StringNode name =fieldNode("name",  id ->new StringNode(this, id, null, ".+"));
+	public final StringNode name = fieldNode("name", id -> new StringNode(this, id, null, ".+"));
 	@ShowInKishanView
-	public final ListNode<Structure> subStructures = fieldNode("subStructures",  id ->new ListNode(this, id, "sub-structure(s)", Structure.class));
+	public final ListNode<Structure> subStructures = fieldNode("subStructures",
+			id -> new ListNode(this, id, "sub-structure(s)", Structure.class));
 	@ShowInKishanView
-	public final ListNode<Room> offices = fieldNode("offices",  id ->new ListNode(this, id, "offices", Room.class));
+	public final ListNode<Room> offices = fieldNode("offices", id -> new ListNode(this, id, "offices", Room.class));
 
 	public Structure(InstantiationParameter p) {
 		super(p);
 	}
-	
-	
 
 	public Structure(Element g, ID id) {
 		super(g, id);
 	}
-
-
 
 	@ShowInKishanView
 	public ListNode<Person> members() {
