@@ -3,7 +3,7 @@ package lab;
 import byransha.BusinessElement;
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.ActionMethod;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
@@ -14,7 +14,7 @@ public abstract class LabElement extends BusinessElement {
 	@ShowInKishanView
 	public final ListNode<Document> documents = new ListNode<>(this, null, "document(s)", Document.class);
 
-	public LabElement(InstantiationParameters p) {
+	public LabElement(InstantiationParameter p) {
 		super(p);
 //		generateEvents = true;
 	}

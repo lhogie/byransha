@@ -1,6 +1,6 @@
 package lab;
 
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.primitive.DateNode;
 import byransha.primitive.ImageElement;
 import byransha.primitive.StringNode;
@@ -11,7 +11,7 @@ public class News extends LabElement {
 	ImageElement image = fieldNode("image", id -> new ImageElement(this, id));
 	DateNode date = fieldNode("date", id -> new DateNode(this, id));
 
-	public News(InstantiationParameters p) {
+	public News(InstantiationParameter p) {
 		super(p);
 	}
 }

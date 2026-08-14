@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import byransha.Chat;
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
@@ -21,7 +21,7 @@ public class Structure extends LabElement {
 	@ShowInKishanView
 	public final ListNode<Room> offices = fieldNode("offices",  id ->new ListNode(this, id, "offices", Room.class));
 
-	public Structure(InstantiationParameters p) {
+	public Structure(InstantiationParameter p) {
 		super(p);
 	}
 	

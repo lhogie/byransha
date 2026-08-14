@@ -1,7 +1,7 @@
 package lab;
 
 import byransha.Element;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
@@ -22,7 +22,7 @@ public class Contract extends LabElement {
 	@ShowInKishanView
 	public final ListNode<Person> misc = fieldNode("partners", id -> new ListNode<>(this, id, "misc", Person.class));
 
-	public Contract(InstantiationParameters<Element> p) {
+	public Contract(InstantiationParameter<Element> p) {
 		super(p);
 	}
 

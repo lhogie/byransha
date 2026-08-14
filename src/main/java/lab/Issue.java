@@ -1,6 +1,6 @@
 package lab;
 
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.TextNode;
@@ -12,7 +12,7 @@ public class Issue extends LabElement {
 	@ShowInKishanView
 	TextNode description = fieldNode("description", id -> new TextNode(this, id, "", ".+"));
 
-	public Issue(InstantiationParameters p) {
+	public Issue(InstantiationParameter p) {
 		super(p);
 	}
 }

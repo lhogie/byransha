@@ -13,7 +13,7 @@ import com.google.common.io.Files;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.ProblemInElement;
 import byransha.service.system.Byransha;
 
@@ -21,9 +21,9 @@ public abstract class ValuedElement<V> extends Element {
 	V value;
 	boolean valueRequired;
 	public final List<ValueChangeListener<V>> valueChangeListeners = new ArrayList<>();
-	private boolean shownToDisk = false;
+	private boolean mirrorToDisk = false;
 
-	public ValuedElement(InstantiationParameters p) {
+	public ValuedElement(InstantiationParameter p) {
 		super(p);
 //		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
 	}
@@ -62,7 +62,7 @@ public abstract class ValuedElement<V> extends Element {
 		if (false)// !canSee(g().currentUser()))
 			throw new RuntimeException(hub().currentUser() + " is not allowed to read the value");
 
-		return value;
+		return this.value;
 	}
 
 	public V getOrDefault(V defaultValue) {
@@ -91,7 +91,7 @@ public abstract class ValuedElement<V> extends Element {
 			throw new RuntimeException("can't change a read only valued node");
 
 		V oldValue = value;
-		changeValue(value, newValue);
+		changeValue(newValue);
 
 		if (generateEvents()) {
 			hub().eventList.add(new ValueChangeEvent<V>(LocalDateTime.now(), this, oldValue, newValue));
@@ -99,12 +99,13 @@ public abstract class ValuedElement<V> extends Element {
 	}
 
 	public void setByEvent(V newValue, ValueChangeEvent e) {
-		changeValue((V) e.oldValue, newValue);
+		changeValue(newValue);
 	}
 
-	private void changeValue(V oldValue, V newValue) {
+	private void changeValue(V newValue) {
+		V oldValue = value;
 		boolean valueChange = newValue != value || (value != null && !value.equals(newValue));
-		value = newValue;
+		this.value = newValue;
 
 		if (valueChange) {
 			synchronized (valueChangeListeners) {
@@ -112,7 +113,7 @@ public abstract class ValuedElement<V> extends Element {
 			}
 		}
 
-		if (shownToDisk) {
+		if (mirrorToDisk) {
 			writeValueToDisk();
 		}
 	}

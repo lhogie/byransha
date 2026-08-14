@@ -2,10 +2,10 @@ package lab;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 
 public class MCF extends Status {
-	public MCF(InstantiationParameters p) {
+	public MCF(InstantiationParameter p) {
 		super(p);
 		name.set("Maitre de Conference");
 	}

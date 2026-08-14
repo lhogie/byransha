@@ -96,10 +96,10 @@ public class Element {
 	private final ID id;
 
 	public Element(Element parent, ID id) {
-		this(new InstantiationParameters.InitByCreator(parent, id));
+		this(new InstantiationParameter.InitByCreator(parent, id));
 	}
 
-	protected Element(InstantiationParameters p) {
+	protected Element(InstantiationParameter p) {
 		++nbInstances;
 		this.id = p.getID();
 		Element parent = p.getParent();

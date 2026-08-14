@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import byransha.event.NewNodeEvent;
 
-public abstract class InstantiationParameters<P extends Element> implements Serializable {
+public abstract class InstantiationParameter<P extends Element> implements Serializable {
 	final P parent;
 
 	public abstract ID getID();
@@ -15,11 +15,11 @@ public abstract class InstantiationParameters<P extends Element> implements Seri
 		return parent;
 	}
 
-	public InstantiationParameters(P parent) {
+	public InstantiationParameter(P parent) {
 		this.parent = parent;
 	}
 
-	public static class InitByCreator extends InstantiationParameters {
+	public static class InitByCreator extends InstantiationParameter {
 		final ID id;
 
 		public InitByCreator(Element parent, ID id) {
@@ -39,7 +39,7 @@ public abstract class InstantiationParameters<P extends Element> implements Seri
 		}
 	}
 
-	public static class InitByEvent extends InstantiationParameters {
+	public static class InitByEvent extends InstantiationParameter {
 		NewNodeEvent<?> e;
 
 		public InitByEvent(Element parent, NewNodeEvent<?> e) {

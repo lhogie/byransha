@@ -2,7 +2,7 @@ package lab;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.primitive.ImageElement;
 
@@ -13,7 +13,7 @@ public class Country extends LabElement {
 	@ShowInKishanView
 	public ImageElement flag = fieldNode("flag", id -> new ImageElement(this, id));
 
-	public Country(InstantiationParameters<Element> p) {
+	public Country(InstantiationParameter<Element> p) {
 		super(p);
 	}
 

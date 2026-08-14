@@ -1,6 +1,6 @@
 package lab;
 
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
@@ -15,7 +15,7 @@ public class Publication extends LabElement {
 
 	public ListNode<ACMClassifier> acmClassifier = fieldNode("acmClassifier", id -> new ListNode<>(this, id, "ACM classifiers", ACMClassifier.class));
 
-	public Publication(InstantiationParameters p) {
+	public Publication(InstantiationParameter p) {
 		super(p);
 	}
 

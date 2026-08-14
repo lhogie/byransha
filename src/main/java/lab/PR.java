@@ -1,10 +1,10 @@
 package lab;
 
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 
 public class PR extends Status {
 
-	public PR(InstantiationParameters p) {
+	public PR(InstantiationParameter p) {
 		super(p);
 		name.set("Professeur des Universités");
 	}

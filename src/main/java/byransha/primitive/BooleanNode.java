@@ -14,11 +14,11 @@ import javax.swing.JRadioButton;
 import byransha.Chat;
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 
 public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
-	public BooleanNode(InstantiationParameters p, Boolean v) {
+	public BooleanNode(InstantiationParameter p, Boolean v) {
 		super(p);
 		set(v);
 	}
@@ -54,7 +54,15 @@ public class BooleanNode extends PrimitiveValueNode<Boolean> {
 
 	public JComponent checkbox(Chat pane) {
 		var checkbox = new JCheckBox();
-		checkbox.setSelected(get());
+		var b = get();
+
+		if (b == null) {
+			System.out.println("path: " + path().elements);
+			System.out.println(parent);
+
+		}
+
+		checkbox.setSelected(b);
 		checkbox.addActionListener(e -> set(checkbox.isSelected()));
 		addValueChangeListener((n, oldV, newV) -> checkbox.setSelected(get()));
 		return checkbox;

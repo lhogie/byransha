@@ -2,10 +2,10 @@ package lab;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 
 public class Prof extends Status {
-	public Prof(InstantiationParameters p) {
+	public Prof(InstantiationParameter p) {
 		super(p);
 		name.set("Professeur des Universités");
 	}

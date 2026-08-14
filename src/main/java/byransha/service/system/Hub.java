@@ -41,6 +41,7 @@ public class Hub extends Element {
 	private User currentUser = new User(this, "guest");
 
 	public AllIndexes indexes = new AllIndexes(this);
+
 	@ShowInKishanView
 	public final AllIndexesElement indexesNode = new AllIndexesElement(this);
 

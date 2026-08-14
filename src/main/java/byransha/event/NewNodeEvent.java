@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.service.system.Hub;
 
 public class NewNodeEvent<N extends Element> extends Event {
@@ -31,8 +31,8 @@ public class NewNodeEvent<N extends Element> extends Event {
 
 	@Override
 	public void apply(Hub hub) throws Throwable {
-		var p = new InstantiationParameters.InitByEvent(hub, this);
-		var n = clazz.getConstructor(InstantiationParameters.class).newInstance(p);
+		var p = new InstantiationParameter.InitByEvent(hub, this);
+		var n = clazz.getConstructor(InstantiationParameter.class).newInstance(p);
 	}
 
 	@Override

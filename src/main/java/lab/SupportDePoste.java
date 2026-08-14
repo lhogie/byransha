@@ -1,12 +1,12 @@
 package lab;
 
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.primitive.StringNode;
 
 public class SupportDePoste extends LabElement {
 	StringNode id = fieldNode("id", id -> new StringNode(this, id, null, ".+"));
 
-	public SupportDePoste(InstantiationParameters p) {
+	public SupportDePoste(InstantiationParameter p) {
 		super(p);
 	}
 

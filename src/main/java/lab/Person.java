@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import byransha.Chat;
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.graph.relection.Factory;
 import byransha.list.action.ListNode;
@@ -82,7 +82,7 @@ public class Person extends LabElement {
 	public PhoneNumberNode telephone = fieldNode("phoneNumber", id -> new PhoneNumberNode(this, id));
 
 	@Factory
-	public Person(InstantiationParameters p) {
+	public Person(InstantiationParameter p) {
 		super(p);
 		quotite.setBounds(new Bounds(0, 100));
 	}

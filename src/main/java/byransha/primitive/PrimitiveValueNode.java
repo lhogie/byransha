@@ -2,11 +2,11 @@ package byransha.primitive;
 
 import byransha.Element;
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 
 public abstract class PrimitiveValueNode<V> extends ValuedElement<V> {
 
-	public PrimitiveValueNode(InstantiationParameters p) {
+	public PrimitiveValueNode(InstantiationParameter p) {
 		super(p);
 	}
 

@@ -1,13 +1,13 @@
 package lab;
 
 import byransha.ID;
-import byransha.InstantiationParameters;
+import byransha.InstantiationParameter;
 import byransha.action.base.ShowInKishanView;
 import byransha.list.action.ListNode;
 
 public class ResearchGroup extends Structure {
 
-	public ResearchGroup(InstantiationParameters p) {
+	public ResearchGroup(InstantiationParameter p) {
 		super(p);
 	}
 
