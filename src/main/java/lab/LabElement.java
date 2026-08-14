@@ -16,7 +16,7 @@ public abstract class LabElement extends BusinessElement {
 
 	public LabElement(InstantiationParameter p) {
 		super(p);
-//		generateEvents = true;
+		// generateEvents = true;
 	}
 
 	public LabElement(Element parent, ID id) {

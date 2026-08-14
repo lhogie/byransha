@@ -42,29 +42,28 @@ public class Chat extends Element {
 		System.out.println("appending " + n + " to chat " + this);
 		if (n instanceof QueryIA) {
 			QueryIA queryIA = (QueryIA) n;
-                    try {
-                        if (!(InetAddress.getLocalHost().getHostName().equals(System.getenv("PUBLIC_SERVER_NAME")))) {
-							if (AlerteIA == false) {
-							queryIA.afficherAlerteOllama();
-							
-							}
-						}
-						AlerteIA = true;
-						NodeAIUsed = true;
-						if (NodeAIUsed) {
-						queryIA.afficherChargementOllama();
-						}
-                        
-						else {
-							QueryIA.startOllama();
-			
-						}
-							
-                    } catch (UnknownHostException ex) {
-                        System.getLogger(Chat.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
-                    }
-					
-			 
+			try {
+				if (!(InetAddress.getLocalHost().getHostName().equals(System.getenv("PUBLIC_SERVER_NAME")))) {
+					if (AlerteIA == false) {
+						queryIA.afficherAlerteOllama();
+
+					}
+				}
+				AlerteIA = true;
+				NodeAIUsed = true;
+				if (NodeAIUsed) {
+					queryIA.afficherChargementOllama();
+				}
+
+				else {
+					QueryIA.startOllama();
+
+				}
+
+			} catch (UnknownHostException ex) {
+				System.getLogger(Chat.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+			}
+
 		}
 
 		if (!nodes.elements.isEmpty() && n == nodes.elements.getLast()) // if same node

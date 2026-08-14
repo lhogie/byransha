@@ -25,7 +25,8 @@ public abstract class ValuedElement<V> extends Element {
 
 	public ValuedElement(InstantiationParameter p) {
 		super(p);
-//		shownToDisk = enclosingBusinessNode() == null; // all technical info is printed on disk
+		// shownToDisk = enclosingBusinessNode() == null; // all technical info is
+		// printed on disk
 	}
 
 	public ValuedElement(Element parent, ID id) {

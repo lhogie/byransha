@@ -87,9 +87,10 @@ public class OperatingSystem extends Service {
 	public String toString() {
 		return ManagementFactory.getOperatingSystemMXBean().getName();
 	}
+
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

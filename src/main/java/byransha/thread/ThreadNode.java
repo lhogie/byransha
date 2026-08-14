@@ -10,7 +10,7 @@ public class ThreadNode extends Element {
 	public ThreadNode(Element parent, String description, Runnable r) {
 		super(parent, null);
 		this.thread = thread(description, r);
-//		hub().threads.elements.add(this);
+		// hub().threads.elements.add(this);
 	}
 
 	@ShowInKishanView

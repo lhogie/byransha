@@ -53,7 +53,7 @@ public class BFSRouting extends RoutingService {
 			updateRoutingTable();
 		}
 
-//		System.out.println(predecessors);
+		// System.out.println(predecessors);
 		List<Peer> r = new ArrayList<Peer>();
 		r.add(destination);
 

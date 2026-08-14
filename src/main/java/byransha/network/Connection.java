@@ -59,7 +59,7 @@ public class Connection {
 	}
 
 	public void writeObject(Object o) throws IOException {
-//		System.out.println("send " + o);
+		// System.out.println("send " + o);
 		var bytes = ByUtils.serializer.toBytes(o);
 		out.writeInt(bytes.length);
 		out.write(bytes);

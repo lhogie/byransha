@@ -13,7 +13,8 @@ public class Publication extends LabElement {
 	@ShowInKishanView
 	public final StringNode halID = fieldNode("halID", id -> new StringNode(this, id, null, "^hal-\\d+$"));
 
-	public ListNode<ACMClassifier> acmClassifier = fieldNode("acmClassifier", id -> new ListNode<>(this, id, "ACM classifiers", ACMClassifier.class));
+	public ListNode<ACMClassifier> acmClassifier = fieldNode("acmClassifier",
+			id -> new ListNode<>(this, id, "ACM classifiers", ACMClassifier.class));
 
 	public Publication(InstantiationParameter p) {
 		super(p);

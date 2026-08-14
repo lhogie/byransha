@@ -27,8 +27,6 @@ public class PeerManager extends Element {
 	@ShowInKishanView
 	public final Self self;
 
-
-
 	public PeerManager(Network net) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
 		super(net, null);
 		peers.elements.add(this.self = new Self(this));
@@ -38,7 +36,7 @@ public class PeerManager extends Element {
 			if (f.isDirectory()) {
 				var peer = new OtherPeer(this, f.getName());
 				peers.elements.add(peer);
-//				System.out.println("adding " + peer);
+				// System.out.println("adding " + peer);
 			}
 		}
 	}

@@ -15,7 +15,8 @@ public class Device extends LabElement {
 	@ShowInKishanView
 	public final StringNode serialNumber = fieldNode("sn", id -> new StringNode(this, id, null, null));
 	@ShowInKishanView
-	public final StringNode inriaServiceTag = fieldNode("inriaServiceTag", id -> new StringNode(this, id, null, "[0-9A-Z\\-]+"));
+	public final StringNode inriaServiceTag = fieldNode("inriaServiceTag",
+			id -> new StringNode(this, id, null, "[0-9A-Z\\-]+"));
 	@ShowInKishanView
 	public final MACAddressNode macAddress = fieldNode("mac", id -> new MACAddressNode(this, id));
 

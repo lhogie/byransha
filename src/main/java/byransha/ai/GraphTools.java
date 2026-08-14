@@ -138,7 +138,7 @@ public class GraphTools {
 	public ListNode<Element> searchNodeIdsByText(String searchText, int maxDepth) {
 		System.out.println("searchNodeIdsByText appelée");
 		var result = new ListNode<Element>(contextNode, new ID(), "searchNodeIdsByText", Element.class);
-		
+
 		if (searchText == null || searchText.trim().isEmpty()) {
 			return result; // Retourner une liste vide
 		}

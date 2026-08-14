@@ -86,7 +86,8 @@ public class Deploy extends Action<Byransha> {
 		 * Flattens the current system classpath into a single large uber-jar. * @param
 		 * outputJar The destination path for the consolidated fat jar.
 		 *
-		 * @throws IOException If file reading or writing fails.
+		 * @throws IOException
+		 *                         If file reading or writing fails.
 		 */
 		public static void flattenClasspathToJar(File outputJar) throws IOException {
 			// 1. Get the current classpath string split by the OS path separator
@@ -120,7 +121,7 @@ public class Deploy extends Action<Byransha> {
 						if (cpFile.getAbsoluteFile().equals(outputJar.getAbsoluteFile()))
 							continue;
 
-//						System.out.println("Flattening dependency: " + cpFile.getName());
+						// System.out.println("Flattening dependency: " + cpFile.getName());
 						flattenJarElement(cpFile, jos, processedEntries);
 					} else if (cpFile.isDirectory()) {
 						System.out.println("Packing class directory: " + cpFile.getName());

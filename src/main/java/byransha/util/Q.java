@@ -109,7 +109,7 @@ public class Q<E> implements Iterable<E> {
 
 	public void clear() {
 		q.clear();
-		
+
 	}
 
 }

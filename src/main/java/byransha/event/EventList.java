@@ -13,7 +13,6 @@ import byransha.Service;
 import byransha.action.base.ShowInKishanView;
 import byransha.network.Message;
 import byransha.primitive.StringNode;
-import byransha.security.AES;
 import byransha.thread.ThreadNode;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
@@ -21,7 +20,7 @@ import it.unimi.dsi.fastutil.longs.LongList;
 public abstract class EventList extends Service {
 	StringNode status;
 	protected LocalDateTime currentDate = LocalDateTime.of(0, 1, 1, 0, 0);
-	Key encryptionKey = AES.createStringBasedOnHardware();
+	Key encryptionKey = null; // TODO: implement proper Key initialization later
 
 	@ShowInKishanView
 	ThreadNode t = new ThreadNode(this, "event list dissemination thread", () -> {

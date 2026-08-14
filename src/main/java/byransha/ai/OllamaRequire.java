@@ -41,7 +41,7 @@ public class OllamaRequire {
 
 			System.out.println("***");
 			System.out.println("***");
-			
+
 		}
 
 		System.out.println("***\n All requirements are met!\n");
@@ -49,7 +49,7 @@ public class OllamaRequire {
 		// On s'assure que le modèle est téléchargé ("pull" plutôt que "run" pour éviter
 		// que le chat bloque l'appli JVM)
 		System.out.println("***");
-		System.out.println("***\nChecking/Downloading Ollama model:"+ QueryIA.PRIMARY_MODEL + "...");
+		System.out.println("***\nChecking/Downloading Ollama model:" + QueryIA.PRIMARY_MODEL + "...");
 		System.out.println("***");
 		downloadOllamaModel(QueryIA.PRIMARY_MODEL);
 		return true;

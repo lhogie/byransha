@@ -29,11 +29,11 @@ public class ID implements Externalizable {
 	static KeccakDigest keccak = new KeccakDigest(128);
 
 	public static ID fromDate(LocalDateTime ldt) {
-        long epochSeconds = ldt.toEpochSecond(ZoneOffset.UTC);
-        long nanosOfSecond = ldt.getNano();
-        return new ID(epochSeconds, nanosOfSecond);
-    }
-	
+		long epochSeconds = ldt.toEpochSecond(ZoneOffset.UTC);
+		long nanosOfSecond = ldt.getNano();
+		return new ID(epochSeconds, nanosOfSecond);
+	}
+
 	public ID augmentWith(String s) {
 		ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES * 2 + s.length());
 		buffer.putLong(a);
@@ -44,7 +44,6 @@ public class ID implements Externalizable {
 		keccak.doFinal(hash, 0);
 		return new ID(ByteBuffer.wrap(hash));
 	}
-
 
 	public ID() {
 		this(ByUtils.random.nextLong(), ByUtils.random.nextLong());
@@ -64,10 +63,13 @@ public class ID implements Externalizable {
 
 	/**
 	 * Encodes a UUID to a Base62 string.
-	 * 
-	 * @param uuid         The UUID to encode
-	 * @param padTo22Chars If true, pads with leading '0' characters to maintain a
-	 *                     fixed 22-char string length
+	 *
+	 * @param uuid
+	 *                         The UUID to encode
+	 * @param padTo22Chars
+	 *                         If true, pads with leading '0' characters to maintain
+	 *                         a
+	 *                         fixed 22-char string length
 	 */
 	public String toBase62() {
 		// Extract 16 bytes (128 bits) from the UUID

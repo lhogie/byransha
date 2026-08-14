@@ -7,7 +7,7 @@ import byransha.primitive.TextNode;
 
 public class Issue extends LabElement {
 	@ShowInKishanView
-	public final ListNode<LabElement> relatedTo = new ListNode<>(this,null, "related to", LabElement.class);
+	public final ListNode<LabElement> relatedTo = new ListNode<>(this, null, "related to", LabElement.class);
 
 	@ShowInKishanView
 	TextNode description = fieldNode("description", id -> new TextNode(this, id, "", ".+"));

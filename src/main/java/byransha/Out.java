@@ -39,8 +39,6 @@ public class Out<T extends Element> {
 		return null;
 	}
 
-	
-
 	public T get() {
 		return head;
 	}

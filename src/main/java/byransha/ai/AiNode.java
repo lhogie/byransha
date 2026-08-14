@@ -38,10 +38,10 @@ public class AiNode extends Service {
 	public double getAlpha() {
 		return alpha;
 	}
+
 	public ListNode<Peer> getNeighbors() {
 		return hub().network.neighborhood.peers;
 	}
-
 
 	@Override
 	public String whatIsThis() {
@@ -70,6 +70,6 @@ public class AiNode extends Service {
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

@@ -20,7 +20,7 @@ public class TCPNode extends Service {
 	}
 
 	void newSocket(Socket sock, boolean sendNameFirst) {
-//		System.out.println("new socket from " + sock.getInetAddress());
+		// System.out.println("new socket from " + sock.getInetAddress());
 		try {
 			Connection connection = new Connection(sock);
 			String nameOfPeerAtOtherHand = handshake(sendNameFirst, connection);
