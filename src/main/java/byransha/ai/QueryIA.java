@@ -594,50 +594,10 @@ public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent m
 		try {
 			if (responseMode == ResponseMode.CONVERSATION) {
 				if (ActivateListNodeResponse) {
-					try {
-						JsonNode parsed = mapper.readTree(iaResponse);
-						var l = new ListNode<Element>(parent, null, "IA numeric array", Element.class);
-						for (JsonNode value : parsed) {
-							String idText = value.asText().trim();
-							if (idText.isEmpty())
-								continue;
-							Element realNode = hub().indexes.byId.get(ID.fromBase62(idText));
-							if (realNode != null) {
-								l.elements.add(realNode);
-							} else {
-								System.out.println("-> Aucun nœud ne possède l'ID '" + idText + "' dans le graphe.");
-							}
-						}
-
-						result = l;
-						return;
-					} catch (Exception e) {
-						// Ignore JSON parsing errors
-					}
+					parsing("IA numeric array", iaResponse);
 				}
 			} else if (responseMode == ResponseMode.JSON_ONLY) {
-				if (ActivateListNodeResponse) {
-					try {
-						JsonNode parsed = mapper.readTree(iaResponse);
-						var l = new ListNode<Element>(parent, null, "IA numeric array", Element.class);
-						for (JsonNode value : parsed) {
-							String idText = value.asText().trim();
-							if (idText.isEmpty())
-								continue;
-							Element realNode = hub().indexes.byId.get(ID.fromBase62(idText));
-							if (realNode != null) {
-								l.elements.add(realNode);
-							} else {
-								System.out.println("-> Aucun nœud ne possède l'ID '" + idText + "' dans le graphe.");
-							}
-						}
-
-						result = l;
-						return;
-					} catch (Exception e) {
-						// Ignore JSON parsing errors
-					}
-				}
+				parsing("IA numeric array", iaResponse);
 			} else {
 				result = new TextNode(hub(), null, "IA response", iaResponse);
 				return;
