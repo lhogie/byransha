@@ -20,7 +20,6 @@ import byransha.list.action.ListNode;
 import byransha.network.Message;
 import byransha.primitive.ColorNode;
 import byransha.primitive.LongNode;
-import byransha.service.system.Byransha;
 import byransha.service.system.Hub;
 import byransha.ui.ColorSchemeNode;
 import byransha.util.ByUtils;
@@ -36,6 +35,7 @@ public class SwingFrontend extends Service {
 	@ShowInKishanView
 	public final ListNode<FontNode> fonts = new ListNode<>(this, null, "available fonts", FontNode.class);
 	public JFrame frame;
+	final File positionAndSizeFile = new File(hub().byransha.homeDirectory, "window_size_and_position.ser");
 
 	public SwingFrontend(Hub g) {
 		super(g);
@@ -96,8 +96,6 @@ public class SwingFrontend extends Service {
 		}
 	}
 
-	static File positionAndSizeFile = new File(Byransha.homeDirectory, "window_size_and_position.ser");
-
 	private void considerUser(User newUser) {
 		if (frame != null) {
 			frame.getContentPane().removeAll();
@@ -130,6 +128,6 @@ public class SwingFrontend extends Service {
 	@Override
 	protected void incomingMessage(Message msg) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

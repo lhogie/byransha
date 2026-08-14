@@ -1,5 +1,6 @@
 package byransha;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import byransha.service.system.Byransha;
 import byransha.service.system.Hub;
 import byransha.ui.swing.SwingFrontend;
 import byransha.ui.telnet.TelnetServer;
+import byransha.util.ByUtils;
 import lab.LabApplication;
 
 public class Main {
@@ -28,19 +30,10 @@ public class Main {
 			System.out.println("This is a development version, no upgrade possible");
 		}
 
-		int nbInstances = argMap.containsKey("--nb-instances") ? Integer.parseInt(argMap.get("--nb-instances")) : 1;
+		int shift = argMap.containsKey("--shift") ? Integer.parseInt(argMap.get("--shift")) : 0;
 
-		for (int i = 0; i < nbInstances; ++i) {
-			f(argMap, i);
-		}
-
-		Thread.sleep(Long.MAX_VALUE);
-
-	}
-
-	public static void f(Map<String, String> argMap, int i) throws Throwable {
-		int tcpPort = i
-				+ (argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT);
+		int tcpPort = argMap.containsKey("--port") ? Integer.parseInt(argMap.get("--port")) : TCPServer.DEFAULT_PORT;
+		tcpPort += shift;
 
 		var hub = new Hub(tcpPort);
 		hub.application = (Element) Class.forName(argMap.getOrDefault("appClass", LabApplication.class.getName()))
@@ -48,9 +41,9 @@ public class Main {
 
 		new Chat(hub.currentUser()).append(hub.application);
 
-		// new WebServer(g, Integer.parseInt(argMap.getOrDefault("--web-port",
-		// "8080")));
-		int telnetPort = i + Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + TelnetServer.DEFAULT_PORT));
+		int telnetPort = Integer.parseInt(argMap.getOrDefault("--telnet-port", "" + TelnetServer.DEFAULT_PORT));
+		telnetPort += shift;
+
 		new TelnetServer(hub, telnetPort);
 
 		if (!argMap.containsKey("--no-gui")) {
@@ -61,6 +54,9 @@ public class Main {
 		hub.eventList.goToNow(e -> System.out.println("event: " + e));
 		hub.setCurrentUser(new User(hub, "guest"));
 		System.out.println("start ok");
+
+		Thread.sleep(Long.MAX_VALUE);
+
 	}
 
 	private static Map<String, String> mapArgs(String... args) {

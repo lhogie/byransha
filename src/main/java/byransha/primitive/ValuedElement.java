@@ -121,7 +121,7 @@ public abstract class ValuedElement<V> extends Element {
 	public void writeValueToDisk() {
 		try {
 			var s = toString();
-			var f = new File(Byransha.homeDirectory, "valued_nodes/" + rolePath() + ".txt");
+			var f = new File(hub().byransha.homeDirectory, "valued_nodes/" + rolePath() + ".txt");
 
 			if (s != null) {
 				f.getParentFile().mkdirs();

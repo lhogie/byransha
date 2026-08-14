@@ -5,22 +5,22 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 import byransha.action.base.ShowInKishanView;
-import byransha.security.ECC;
+import byransha.security.LocalIdentity;
 
 public class OtherPeer extends Peer {
 	@ShowInKishanView
 	public final File directory;
 
-	public OtherPeer(PeerManager g, String name) throws IOException {
-		super(g, name);
-		this.directory = new File(PeerManager.peersDirectory, name);
+	public OtherPeer(PeerManager peerManager, String name) throws IOException {
+		super(peerManager, name);
+		this.directory = new File(peerManager.peersDirectory, name);
 
 		{
 			var publicKeyFile = new File(directory, "public_key.pem");
 
 			if (publicKeyFile.exists()) {
 				var publicKeyString = Files.readString(publicKeyFile.toPath());
-				this.publicKey = ECC.fromPem(publicKeyString, "X25519");
+				this.publicKey = LocalIdentity.fromPem(publicKeyString, "X25519");
 			} else {
 				System.err.println("no public key for " + this);
 			}

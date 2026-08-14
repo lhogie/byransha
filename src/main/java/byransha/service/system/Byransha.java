@@ -29,7 +29,7 @@ public class Byransha extends Element {
 	public static Hub hub;
 
 	@ShowInKishanView
-	public static final String VERSION = "0.0.105";
+	public static final String VERSION = "0.0.106";
 
 	public static class byransha extends Category {
 	}
@@ -51,7 +51,7 @@ public class Byransha extends Element {
 
 	@ShowInKishanView
 	public static final File homeDirectory = new File(System.getProperty("user.home")
-			+ (ByUtils.isWindows() ? "/AppData/Local/byransha" : "/.local/share/byransha"));
+			+ (ByUtils.isWindows() ? "/AppData/Local/byransha" : "/.local/share/byransha") + "/" );
 	@ShowInKishanView
 	public static final File binDirectory = new File(homeDirectory, "bin");
 	@ShowInKishanView
@@ -232,5 +232,6 @@ public class Byransha extends Element {
 
 		return shortcutFile;
 	}
+
 
 }
