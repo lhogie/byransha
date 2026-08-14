@@ -3,7 +3,7 @@ package byransha.list.action;
 import byransha.Element;
 import byransha.action.Category.list;
 import byransha.action.Category.statistics;
-import byransha.lab.stats.DistributionNode;
+import lab.stats.DistributionNode;
 
 public class EDistribution<V extends Element> extends FunctionAction<ListNode<V>, DistributionNode<V>> {
 

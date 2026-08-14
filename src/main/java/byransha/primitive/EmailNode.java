@@ -4,7 +4,7 @@ import java.util.List;
 
 import byransha.ID;
 import byransha.ProblemInElement;
-import byransha.lab.Person;
+import lab.Person;
 
 public class EmailNode extends StringNode {
 

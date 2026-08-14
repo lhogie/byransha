@@ -18,8 +18,6 @@ import byransha.event.SingleFileEventList;
 import byransha.graph.relection.ClassNode;
 import byransha.index.AllIndexes;
 import byransha.index.AllIndexesElement;
-import byransha.lab.LabApplication;
-import byransha.lab.LabElement;
 import byransha.list.action.ListNode;
 import byransha.network.MessageQ;
 import byransha.network.Network;
@@ -32,6 +30,8 @@ import byransha.ui.swing.SwingFrontend;
 import io.github.classgraph.ClassGraph;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import lab.LabApplication;
+import lab.LabElement;
 
 public class Hub extends Element {
 	@ShowInKishanView

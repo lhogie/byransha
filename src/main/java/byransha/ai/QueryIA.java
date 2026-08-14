@@ -40,7 +40,6 @@ import byransha.ai.QueryIA.AI;
 import byransha.ai.QueryIA.AiResult;
 import byransha.ai.QueryIA.ResponseMode;
 import byransha.ai.QueryIA.ToolEnabledAssistant;
-import byransha.lab.stats.DistributionNode;
 import byransha.list.action.FunctionAction;
 import byransha.list.action.ListNode;
 import byransha.primitive.StringNode;
@@ -57,6 +56,7 @@ import dev.langchain4j.service.TokenStream;
 import dev.langchain4j.service.UserMessage;
 import dev.langchain4j.service.V;
 import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
+import lab.stats.DistributionNode;
 
 public class QueryIA extends FunctionAction<Element, Element> {
 	private static final ObjectMapper mapper = new ObjectMapper();

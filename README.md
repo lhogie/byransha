@@ -5,21 +5,20 @@ Alternatively you can download the self-contained JAR file from [here](https://w
 
 
 
-Byransha is an innovative middleware that streamlines the navigation across graph-oriented systems.
-Its primary goal is to provide a unified interface for managing complex data structures and workflows, enabling developers to build robust and scalable
-business-centric applications. The platform is built on six core pillars:
+**Byransha** is a Java-based middleware and runtime for building graph-oriented business applications. At its core, it treats all data as nodes in a navigable object graph: every entity, value, user action, and system service is an instance of a base `Element` class wired together through parent-child and referential relationships.
 
-- Decentralization: Ensures high availability and resilience by eliminating single points of failure across the data landscape.
+Key architectural traits visible in the source:
 
-- Event Sourcing: Simplifies data orchestration and real-time monitoring while enabling native versioning and time-travel navigation.
+* **Graph-native data model** — The entire application state lives in memory as a graph of `Element` nodes indexed by ID and class. Nodes expose their fields and methods as navigable “outs,” and the framework provides BFS traversal, inverse relations, and reflective class metadata.
+* **Event sourcing & persistence** — State changes are recorded in an append-only `EventList`  enabling time-travel and replay. 
+* **Multi-modal frontends** — It ships with a Swing-based “chat” UI where users explore the graph through conversational panels, plus Telnet server for local text access. A web layer exists but is secondary in the current codebase.
+* **Integrated AI layer** — Uses LangChain4j + Ollama to embed local LLM inference directly into the graph. The  action exposes a tool-enabled assistant  that can search nodes, retrieve details, and traverse relationships so the model answers questions grounded in live graph data rather than hallucinating.
+* **Networking & security** — Includes a peer-to-peer networking stack (`Network`, `TCPNode`, `PeerManager`) with encrypted messaging (BouncyCastle), public-key exchange, and message queues for distributed setups.
+* **Access control** — Role-based permissions (`User`, `AdminRole`, `VisitorRole`) govern visibility and edit rights per node.
+* **Auto-update & deployment** — The runtime can self-update by downloading new JAR binaries and optionally restarting; it also installs systemd service scripts and desktop shortcuts.
 
-- Object-Oriented Modeling: Maps complex business logic to intuitive data structures that mirror real-world requirements.
+In practice, Byransha acts as a self-contained “living database” server: developers model business domains as Java classes extending `Element` or `BusinessElement`, the framework automatically indexes them, exposes graph navigation actions (search, export, jump, AI query), and renders them through a hybrid Swing/chat interface. The included `LabApplication` (with entities like `Lab`, `Genre`, `Status`) suggests its original target is academic/institutional information management, though the framework is generic.
 
-- Graph-Driven Architecture: Maps the interdependencies between system concepts to power seamless navigation across both data and user workflows.
-
-- Integrated AI: Embeds machine learning directly into the core for advanced predictive analysis and automated content generation.
-
-- Conversational UX: Puts natural language at the forefront, creating intuitive, chat-oriented workflows for the end-user.
 
 # Team
 - Luc Hogie (CNRS Research Engineer, leader and main contributor)

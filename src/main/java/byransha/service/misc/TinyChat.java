@@ -27,6 +27,7 @@ public class TinyChat extends Service {
 
 	public TinyChat(Hub g) {
 		super(g);
+		//recipientChoice
 	}
 
 	@Override
