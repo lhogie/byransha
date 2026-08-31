@@ -10,6 +10,6 @@ public class PeerTelemetry implements Serializable {
 	public double alpha;
 
 	public double getScore() {
-		return (tokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
+		return (tokensPerSecond * alpha) / ((1 + queueSize) * (1 + (promptLag/1000)));
 	}
 }

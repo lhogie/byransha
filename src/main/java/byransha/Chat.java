@@ -26,6 +26,7 @@ public class Chat extends Element {
 	final User user;
 	private static volatile Boolean AlerteIA = false;
 	public static volatile boolean NodeAIUsed = false;
+	public static volatile boolean NodeAIAccepted = false;
 
 	public Chat(User user) {
 		super(user, null);
@@ -50,14 +51,13 @@ public class Chat extends Element {
 					}
 				}
 				AlerteIA = true;
-				NodeAIUsed = true;
-				if (NodeAIUsed) {
-					queryIA.afficherChargementOllama();
+				if (!NodeAIUsed) {
+					NodeAIUsed = true;
+					NodeAIAccepted = queryIA.afficherChargementOllama();
 				}
-
-				else {
+				
+				if (NodeAIAccepted) {
 					QueryIA.startOllama();
-
 				}
 
 			} catch (UnknownHostException ex) {

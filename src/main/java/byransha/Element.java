@@ -657,7 +657,7 @@ public class Element {
 			return null;
 
 		ObjectNode r = new ObjectNode(ByUtils.factory);
-		r.put("id", id.toString());
+		r.put("id", id != null ? id.toString() : "null");
 		r.put("class", getClass().getName());
 		r.put("color", ByUtils.toHex(getColor()));
 		r.put("toString", toString());
@@ -672,12 +672,12 @@ public class Element {
 		r.put("canSee", canSee(hub().currentUser()));
 		r.put("canEdit", canEdit(hub().currentUser()));
 		r.set("actions",
-				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.id().toString())).toList()));
+				new ArrayNode(null, actions().stream().map(e -> (JsonNode) new TextNode(e.id() != null ? e.id().toString() : "null")).toList()));
 		r.set("errors", new ArrayNode(null, errors().stream().map(err -> (JsonNode) new TextNode(err.msg)).toList()));
 
 		var outsNode = new ObjectNode(ByUtils.factory);
 		forEachOutInFields(getClass(), Element.class,
-				(f, out, ro) -> outsNode.put(f.getName(), out != null ? out.id().toString() : ""));
+				(f, out, ro) -> outsNode.put(f.getName(), (out != null && out.id() != null) ? out.id().toString() : ""));
 		r.set("outs", outsNode);
 
 		return r;

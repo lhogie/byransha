@@ -55,7 +55,7 @@ public class AiNode extends Service {
 
 	public double getScore() {
 		// calculer Score
-		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + promptLag));
+		return (TokensPerSecond * alpha) / ((1 + queueSize) * (1 + (promptLag/1000)));
 	}
 
 	public boolean doAnyNeighborsHaveAi() {

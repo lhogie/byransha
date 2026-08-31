@@ -178,12 +178,13 @@ public class QueryIA extends FunctionAction<Element, Element> {
 	public void resetMemory() {
 		setChat();
 		final Chat activeChat = this.currentChat;
+		final String chatIdStr = (activeChat != null && activeChat.id() != null) ? activeChat.id().toBase62() : "default_session";
 		System.out.println("Réinitialisation de la mémoire pour le chat : "
-				+ (activeChat != null ? activeChat.id().toBase62() : "aucun chat actif"));
+				+ (activeChat != null ? chatIdStr : "aucun chat actif"));
 		SwingUtilities.invokeLater(() -> {
 			try {
 				if (activeChat != null) {
-					String chatId = activeChat.id().toBase62();
+					String chatId = chatIdStr;
 					var messages = MEMORY_STORE.getMessages(chatId);
 					int count = (messages != null) ? messages.size() : 0;
 					System.out
@@ -336,7 +337,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		return timer;
 	}
 
-	public void PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent modelSelector, int top, int left,
+	public boolean PannelComponent(JLabel messageLabel, JLabel modelLabel, JComponent modelSelector, int top, int left,
 			int bottom, int right) {
 		Timer t = createDialogTimeoutTimer(30000);
 		List<String> installedModels = getInstalledOllamaModels();
@@ -380,7 +381,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 					PRIMARY_MODEL = selectedModel;
 					System.out.println("chargement du modèle : " + PRIMARY_MODEL);
 				}
-				break;
+				return true;
 			case JOptionPane.NO_OPTION:
 				System.out.println("L'utilisateur a refusé le chargement de l'IA.");
 				JOptionPane.showMessageDialog(
@@ -388,21 +389,22 @@ public class QueryIA extends FunctionAction<Element, Element> {
 						"Le chargement de l'IA a été refusé..",
 						"chargement de l'IA refusé",
 						JOptionPane.WARNING_MESSAGE);
-				break;
+				return false;
 		}
+		return false;
 
 	}
 
 	public boolean afficherChargementOllama() {
 		System.out.println("Affichage de la boîte de dialogue pour le chargement de l'IA...");
 		if (settingModel == false) {
-			PannelComponent(new JLabel("Voulez-vous charger l'IA sur votre machine locale ?"),
+			return PannelComponent(new JLabel("Voulez-vous charger l'IA sur votre machine locale ?"),
 					new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 0);
 		} else if (settingModel) {
-			PannelComponent(new JLabel("Voulez-vous changer le modèle de l'IA sur votre machine locale ?"),
+			return PannelComponent(new JLabel("Voulez-vous changer le modèle de l'IA sur votre machine locale ?"),
 					new JLabel("Sélectionnez le modèle que vous souhaitez :"), new JComboBox<>(), 10, 0, 10, 350);
 		}
-		return true;
+		return false;
 	}
 
 	public void afficherAlerteOllama() {
@@ -618,7 +620,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 				result = new TextNode(parent, null, "IA response", iaResponse);
 			}
 			if (currentChat != null) {
-				String chatId = currentChat.id().toBase62();
+				String chatId = (currentChat.id() != null) ? currentChat.id().toBase62() : "default_session";
 				// Récupère l'historique actuel pour ce chat spécifique
 				var messages = MEMORY_STORE.getMessages(chatId);
 				boolean hasToolMessages = messages.stream()
@@ -746,7 +748,8 @@ public class QueryIA extends FunctionAction<Element, Element> {
 		UserPrompt.append("--- USER QUESTION ---\n");
 		UserPrompt.append(normalizedQuestion).append("\n\n");
 		if (inputNode != null) {
-			UserPrompt.append("The current root context node is: ").append(inputNode.id().toBase62())
+			String nodeIdStr = inputNode.id() != null ? inputNode.id().toBase62() : "null";
+			UserPrompt.append("The current root context node is: ").append(nodeIdStr).append(" ")
 					.append(inputNode.getClass().getSimpleName()).append("\n");
 		}
 		return new String[] { SystemPrompt.toString(), UserPrompt.toString() };
@@ -823,7 +826,7 @@ public class QueryIA extends FunctionAction<Element, Element> {
 			System.out.println("Pas de noeuds disponibles, utilisation de l'instance locale d'Ollama.");
 		}
 		final String selectedOllamaUrl = currentOllamaUrl;
-		String chatId = (currentChat != null) ? currentChat.id().toBase62() : "default_session";
+		String chatId = (currentChat != null && currentChat.id() != null) ? currentChat.id().toBase62() : "default_session";
 		var cacheKey = selectedOllamaUrl + "|" + PRIMARY_MODEL + "|" + chatId;
 		return ASSISTANT_CACHE.computeIfAbsent(cacheKey, key -> {
 			var model = getOrCreateModel(selectedOllamaUrl);
